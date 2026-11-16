@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Wing, the Long Recovery",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau20_broken_wing",
+  "source": "anthology",
+  "lines": [
+   32766,
+   32780
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32766",
+  "ledger": [
+   {
+    "src": "L32767",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32773",
+    "kind": "sensitivity",
+    "before": "A caretaker",
+    "after": "(caretaker), a caretaker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A bird that survived an earlier injury can no longer fly as it once did.",
+  "label_case": "title",
+  "cast_only": [
+   "caretaker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "caretaker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A bird that survived an earlier injury can no longer fly as it once did.",
+   "src": "L32768",
+   "choices": [
+    {
+     "label": "Seek Experienced Assessment",
+     "next": "a",
+     "src": "L32769"
+    },
+    {
+     "label": "Plan a Safe Enclosure If Necessary",
+     "next": "b",
+     "src": "L32772"
+    },
+    {
+     "label": "Avoid Heroic Promises",
+     "next": "c",
+     "src": "L32775"
+    },
+    {
+     "label": "Honor Its Ordinary Life",
+     "next": "d",
+     "src": "L32778"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32768"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The bird receives appropriate supportive care.",
+   "src": "L32770"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Its limitations may be permanent.",
+   "src": "L32771"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(caretaker), a caretaker, provides accessible perches.",
+   "src": "L32773"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The village debates whether continued care is feasible.",
+   "src": "L32774"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children receive a truthful gentle explanation.",
+   "src": "L32776"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers struggle with uncertainty.",
+   "src": "L32777"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The bird enjoys quiet days despite limitations.",
+   "src": "L32779"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Its eventual loss is mourned without sensationalism.",
+   "src": "L32780"
+  }
+ }
+}

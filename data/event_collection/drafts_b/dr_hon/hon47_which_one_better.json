@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Which One Is Better?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon47_which_one_better",
+  "source": "draft_hon",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-10)"
+   },
+   {
+    "src": "L563",
+    "kind": "sensitivity",
+    "before": "(name2) and a friend have each drawn",
+    "after": "(name2) and (child), a friend, have each drawn",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L563",
+    "kind": "sensitivity",
+    "before": "The friend's turtle is very good.",
+    "after": "(child)'s turtle is very good.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L566",
+    "kind": "sensitivity",
+    "before": "about the friend's.",
+    "after": "about (child)'s.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L569",
+    "kind": "sensitivity",
+    "before": "So does the friend.",
+    "after": "So does (child).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks a villager to judge whose sand turtle is better: find something true to say about each, or ask what they think.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) and (child), a friend, have each drawn a turtle in the wet sand, and (friend) has run to fetch (subject) to judge. \"Which one is better?\" (subject) looks. (child)'s turtle is very good. (friend)'s turtle has nine legs.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Find Something True to Say About Each",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Ask Them What They Think",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That one has the best shell I've ever seen,\" says (subject), about (child)'s. \"And that one,\" about (friend)'s, \"is the fastest turtle on Isola. Look at all those legs.\" Both children seem satisfied. (friend) adds a tenth leg, for extra speed.",
+   "src": "L566"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Which do you think is better?\" (friend) looks at both turtles for a long time. \"That one has the right number of legs,\" (friend.he/she) admits. \"But mine's going somewhere.\" (subject) agrees that this is important. So does (child). They both draw more turtles until the tide comes in and takes them all.",
+   "src": "L569"
+  }
+ }
+}

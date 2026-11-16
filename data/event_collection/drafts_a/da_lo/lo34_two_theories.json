@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Theories",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo34_two_theories",
+  "source": "da_lo",
+  "lines": [
+   408,
+   417
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L408",
+  "ledger": [
+   {
+    "src": "L409",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two villagers have argued politely all afternoon over a lavastone: a rare rock, or something sacred?",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) are sitting either side of a lavastone on a table, and they have been arguing, very politely, for most of the afternoon. (subject) thinks lavastones are a rare mineral, formed deep in the island's heat, and that their power is something that could one day be understood. (friend) thinks they are pieces of something sacred, and that some things are not meant to be understood. Both of them, they agree, could be wrong.",
+   "src": "L411",
+   "choices": [
+    {
+     "label": "Ask the Stone",
+     "next": "a",
+     "src": "L413"
+    },
+    {
+     "label": "Agree to Keep Both",
+     "next": "b",
+     "src": "L416"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject), half joking, leans over and asks the stone directly where it came from. The stone, of course, says nothing. But it does glow a little brighter, just for a moment. (subject) and (friend) look at each other. \"That proves nothing,\" says (subject). \"Nothing at all,\" agrees (friend). They both stare at it for a long time.",
+   "src": "L414"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Maybe it's both,\" says (friend) eventually. \"Maybe something can be a rock and sacred at the same time.\" (subject) thinks about it, and finds (subject.he/she) doesn't mind that idea at all. They don't settle anything. They agree to keep meeting every few days to argue about it some more, which both of them, secretly, enjoy very much.",
+   "src": "L417"
+  }
+ }
+}

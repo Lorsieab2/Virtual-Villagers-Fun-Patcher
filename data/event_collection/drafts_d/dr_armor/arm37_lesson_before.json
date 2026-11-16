@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lesson Before the Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm37_lesson_before",
+  "source": "armor45",
+  "lines": [
+   48,
+   48
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L48",
+  "ledger": [
+   {
+    "src": "L48",
+    "kind": "structural",
+    "text": "37. The Lesson Before the Gift  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L48",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder refuses to hand over an ancestral staff until its recipient learns the stories and responsibilities attached to it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), an elder, refuses to hand over an ancestral staff until its recipient learns the stories and responsibilities attached to it.",
+   "src": "L48"
+  }
+ }
+}

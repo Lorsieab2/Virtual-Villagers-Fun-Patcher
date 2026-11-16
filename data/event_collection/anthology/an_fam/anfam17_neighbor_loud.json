@@ -1,0 +1,240 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Neighbor's Loud Singing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam17_neighbor_loud",
+  "source": "anthology",
+  "lines": [
+   28540,
+   28553
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28540",
+  "ledger": [
+   {
+    "src": "L28541",
+    "kind": "sensitivity",
+    "before": "A villager's cheerful singing disturbs a neighbor who wants quiet",
+    "after": "(singer)'s cheerful singing disturbs (neighbor), who wants quiet",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28543",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(singer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28544",
+    "kind": "sensitivity",
+    "before": "The neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28544",
+    "kind": "sensitivity",
+    "before": "the singer",
+    "after": "(singer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28546",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(singer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28547",
+    "kind": "sensitivity",
+    "before": "a fisher",
+    "after": "(fisher), a fisher",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28549",
+    "kind": "sensitivity",
+    "before": "The neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28550",
+    "kind": "sensitivity",
+    "before": "The neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28552",
+    "kind": "sensitivity",
+    "before": "The neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28553",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(singer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's cheerful singing disturbs a neighbor who wants quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "singer",
+   "neighbor",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "singer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(singer)'s cheerful singing disturbs (neighbor), who wants quiet.",
+   "src": "L28541",
+   "choices": [
+    {
+     "label": "Ask for Quieter Hours",
+     "next": "a",
+     "src": "L28542"
+    },
+    {
+     "label": "Find a Different Singing Place",
+     "next": "b",
+     "src": "L28545"
+    },
+    {
+     "label": "Invite the Neighbor to Join Occasionally",
+     "next": "c",
+     "src": "L28548"
+    },
+    {
+     "label": "Accept That Some Noise Is Part of Village Life",
+     "next": "d",
+     "src": "L28551"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(singer) agrees to practice later in the day.",
+   "src": "L28543"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(neighbor) discovers (singer) had not realized how far the sound carried.",
+   "src": "L28544"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(singer) finds a pleasant spot near the shore.",
+   "src": "L28546"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The new location bothers (fisher), a fisher, requiring another adjustment.",
+   "src": "L28547"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(neighbor) joins for one song and enjoys it.",
+   "src": "L28549"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(neighbor) declines but appreciates being asked.",
+   "src": "L28550"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(neighbor) becomes less irritated after discussing expectations.",
+   "src": "L28552"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(singer) decides to compromise without giving up the hobby.",
+   "src": "L28553"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Burning the Worries",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea32_burning_worries",
+  "source": "draft_hea",
+  "lines": [
+   383,
+   392
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L383",
+  "ledger": [
+   {
+    "src": "L384",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a spiritual leader, healer or elder)"
+   }
+  ],
+  "description": "A villager is shown how to scratch worries onto leaves and burn them: burn them, or keep the leaves.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has a custom some villagers find helpful: scratch your worries onto dry leaves, one leaf per worry, and feed them to the fire. \"It doesn't make the worries go away,\" (friend) says. \"It just moves them out of your head for a while. Some people like that.\" (subject) has a pile of leaves and a lot of worries.",
+   "src": "L386",
+   "choices": [
+    {
+     "label": "Burn Them",
+     "next": "o1",
+     "src": "L388"
+    },
+    {
+     "label": "Keep the Leaves",
+     "next": "o2",
+     "src": "L391"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) scratches one worry per leaf. It takes a while. Then one by one (subject.he/she) drops them in the fire and watches them curl up. Most of the worries are back by morning. But something is different: (subject.he/she) knows exactly how many there are now. Eleven. Eleven is a lot. It's not endless, though. (subject.He/she) had thought it was endless.",
+   "src": "L389"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) writes the worries down and then can't bring (subject.him/her)self to burn them. \"Is that alright?\" (subject.he/she) asks. \"Of course,\" says (friend). \"Do what feels right.\" (subject) keeps the leaves in a basket. A month later (subject.he/she) looks through them. Three of the worries never happened. Two did, and were alright. The rest (subject.he/she) still has. (subject.He/she) burns the three.",
+   "src": "L392"
+  }
+ }
+}

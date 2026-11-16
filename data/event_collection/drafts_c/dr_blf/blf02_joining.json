@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Joining In",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf02_joining",
+  "source": "draft_blf",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager who never joins the harvest blessing is invited, just this once: say no kindly, or stand at the edge.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is gathering for the harvest blessing, where everyone stands in a circle and thanks the land. (subject) has never joined in. (subject.He/she) stands a little way off, or keeps working. Today (friend), who loves the blessing, comes over. \"Won't you come? Just this once?\"",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Say No, Kindly",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Stand at the Edge",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject). \"But it's not for me.\" (friend) waits, as though expecting a reason. (subject) doesn't give one. After a moment, (friend) nods. \"Alright.\" (friend.He/she) goes back to the circle. (subject) finishes stacking the baskets. After the blessing, (friend) brings (subject.him/her) a piece of the harvest bread anyway. (subject) eats it gladly.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) walks over and stands at the edge, a little outside the circle. (subject.He/she) doesn't say the words or hold hands. (subject.He/she) just stands there with everyone, in the sun, while they sing. Nobody asks (subject.him/her) to do more. Afterwards, (friend) says, \"I'm glad you came.\" \"So am I,\" says (subject). (subject.He/she) still doesn't believe it. (subject.He/she) liked the singing.",
+   "src": "L29"
+  }
+ }
+}

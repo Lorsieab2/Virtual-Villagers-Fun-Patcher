@@ -1,0 +1,248 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Does the Fire Need Air?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd36_why_does_fire",
+  "source": "anthology",
+  "lines": [
+   28097,
+   28110
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L28097",
+  "ledger": [
+   {
+    "src": "L28098",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28100",
+    "kind": "sensitivity",
+    "before": "A cook",
+    "after": "(cook), a cook,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28101",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28103",
+    "kind": "sensitivity",
+    "before": "The cook",
+    "after": "(cook)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28103",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28104",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28106",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28107",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28107",
+    "kind": "sensitivity",
+    "before": "the cook",
+    "after": "(cook)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28109",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28110",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks why covering a small cooking flame makes it go out.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "cook",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks why covering a small cooking flame makes it go out.",
+   "src": "L28098",
+   "choices": [
+    {
+     "label": "Explain Oxygen.",
+     "next": "a",
+     "src": "L28099"
+    },
+    {
+     "label": "Demonstrate Safely.",
+     "next": "b",
+     "src": "L28102"
+    },
+    {
+     "label": "Share an Old Saying.",
+     "next": "c",
+     "src": "L28105"
+    },
+    {
+     "label": "Discuss Fire Safety.",
+     "next": "d",
+     "src": "L28108"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(cook), a cook, explains that fire needs fuel, heat, and oxygen.",
+   "src": "L28100"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) asks why blowing sometimes strengthens a flame.",
+   "src": "L28101"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(cook) shows the principle without letting (child) handle fire.",
+   "src": "L28103"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) practices keeping a safe distance.",
+   "src": "L28104"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) recalls a fire proverb and explains its practical meaning.",
+   "src": "L28106"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) compares the proverb with (cook)'s explanation.",
+   "src": "L28107"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) learns when to call an adult.",
+   "src": "L28109"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) understands why playing with flames is unsafe.",
+   "src": "L28110"
+  }
+ }
+}

@@ -1344,6 +1344,11 @@ static int appearance_charge_look_only(void);
 /* "Change sex..." (native/shared/sex_change_ui.h) was made while the window is open: done at once on the
    selected villager's record, so an OK with nothing else changed is no change for the router. */
 static int appearance_sex_changed;
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free.  The
+   preview draws the drawn sex (appearance_drawn_sex); appearance_sex stays the recorded one, which finds the
+   selected villager. */
+static vvfp_gp_window appearance_gp;
+static const unsigned char *appearance_gp_record;
 
 /* The selected villager (a native harness stands its own in: the game object is game memory). */
 #ifndef VV5_SELECTED_RECORD
@@ -1373,15 +1378,21 @@ static void appearance_update_mask_label(HWND window) {
     SetDlgItemTextA(window, IDC_MASK_LABEL, APPEARANCE_MASK_NAMES[appearance_mask]);
 }
 
+/* The sex the preview draws: the recorded one, or the other with the gender presentation ticked. */
+static int appearance_drawn_sex(void) {
+    return appearance_gp_record != NULL ? (vvfp_gp_window_sex(&appearance_gp, 5, appearance_gp_record) ? 1 : 0)
+                                        : appearance_sex;
+}
+
 static int appearance_head_bitmap(void) {
-    if (appearance_sex) {
+    if (appearance_drawn_sex()) {
         return appearance_old ? IDB_HEAD_F_OLD : IDB_HEAD_F_YOUNG;
     }
     return appearance_old ? IDB_HEAD_M_OLD : IDB_HEAD_M_YOUNG;
 }
 
 static int appearance_body_bitmap(void) {
-    return appearance_sex ? IDB_BODY_F : IDB_BODY_M;
+    return appearance_drawn_sex() ? IDB_BODY_F : IDB_BODY_M;
 }
 
 static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
@@ -1452,6 +1463,7 @@ static void appearance_show(HWND window) {
     if (appearance_record != NULL) {
         CheckRadioButton(window, IDC_LOOK_AUTO, IDC_LOOK_OLD, IDC_LOOK_AUTO + appearance_look);
     }
+    vvfp_gp_window_show(window, &appearance_gp, 5, appearance_gp_record);
     appearance_repaint(window, IDC_BODY_PREVIEW);
     appearance_repaint(window, IDC_HEAD_PREVIEW);
     appearance_repaint(window, IDC_MASK_PREVIEW);
@@ -1722,7 +1734,15 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_body = appearance_open_body;
             appearance_mask = appearance_open_mask;
             appearance_look = appearance_open_look;
+            appearance_gp.on = appearance_gp.was;
             appearance_show(window);
+            return TRUE;
+        }
+        if (command == VVFP_AX_PRESENTATION) {
+            if (appearance_gp_record != NULL
+                && vvfp_gp_window_toggle(window, &appearance_gp, 5, appearance_gp_record)) {
+                appearance_show(window);
+            }
             return TRUE;
         }
         if (command == VVFP_AX_RESET) {
@@ -1817,6 +1837,9 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
+            if (appearance_gp_record != NULL) {
+                (void)vvfp_gp_window_keep(window, &appearance_gp, 5, appearance_gp_record);
+            }
             EndDialog(window, 1);
             return TRUE;
         }
@@ -1843,7 +1866,7 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     int *mask
 ) {
     INT_PTR result;
-    int look_was = 0;
+    int look_was = 0, gp_open;
     appearance_sex = sex ? 1 : 0;
     appearance_age = age;
     appearance_record = NULL;
@@ -1865,6 +1888,10 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     appearance_open_look = appearance_look;
     appearance_rng = GetTickCount() | 1u;
     appearance_sex_changed = 0;
+    /* The selected villager is asked for only with the row on (the game object is game memory). */
+    appearance_gp_record = GetModuleHandleA(VVFP_GP_DLL) != NULL ? VV5_SELECTED_RECORD(appearance_sex, age) : NULL;
+    vvfp_gp_window_open(&appearance_gp, 5, appearance_gp_record);
+    gp_open = appearance_gp.was;
 
     /* GetOriginsOwner, not GetForegroundWindow. The emitted owner contract
        promises "same-process HWND only; ... no foreground fallback", and a raw
@@ -1890,8 +1917,9 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
             }
             appearance_pending_record = appearance_record;   /* kept when the router keeps the rest */
             appearance_pending_look = appearance_look;
-        } else if (same && appearance_sex_changed) {
-            return 0;               /* only the sex, made at once and free: the router has nothing to keep */
+        } else if (same && (appearance_sex_changed || appearance_gp.was != gp_open)) {
+            return 0;               /* only the sex (made at once) or the gender presentation (kept on OK): free,
+                                       the router has nothing to keep */
         }
         if (head) {
             *head = appearance_head;
@@ -2089,9 +2117,9 @@ static int caf_bucket_head(int sex, int mode) {
 static int appearance_hair_head(int colour) {
     int h;
     caf_rng = vvfp_ax_rand(&appearance_rng);
-    h = caf_bucket_head(appearance_sex, colour + 2);
+    h = caf_bucket_head(appearance_drawn_sex(), colour + 2);
     if (h == appearance_head) {
-        h = caf_bucket_head(appearance_sex, colour + 2);
+        h = caf_bucket_head(appearance_drawn_sex(), colour + 2);
     }
     return h;
 }

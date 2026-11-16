@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Shell for Each Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep31_shell_each_day",
+  "source": "draft_dep",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L377",
+    "kind": "sensitivity",
+    "before": "On the third day a child borrows",
+    "after": "On the third day (child), a child, borrows",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager leaving for five days gives a friend five shells to count the days: count them down faithfully, or lose count.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is going on a journey along the coast for five days. Before (subject.he/she) leaves, (subject.he/she) gives (friend) five shells in a little pile. \"One a day,\" (subject.he/she) says. \"When they're gone, I'm home.\" It's a sweet idea. On the first morning (friend) looks at the pile and moves one shell aside.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Count Them Down Faithfully",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Lose Count",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Every morning (friend) moves one shell. Four. Three. Two. One. On the morning of the last shell, (friend.he/she) waits on the path all day. (subject) arrives at sunset, dusty and tired. \"Five days exactly,\" (subject.he/she) says proudly. (friend) holds up the last shell. \"I was getting worried.\"",
+   "src": "L374"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "On the third day (child), a child, borrows the shells for a game. When they come back, there are seven. Nobody knows where the extra two came from. (friend) gives up counting and simply watches the path in the evenings. (subject) comes home on the fifth day, exactly when (subject.he/she) said, and is confused by the seven shells for weeks.",
+   "src": "L377"
+  }
+ }
+}

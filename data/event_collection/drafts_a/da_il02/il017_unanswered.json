@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unanswered Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il017_unanswered",
+  "source": "da_il02",
+  "lines": [
+   113,
+   127
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L113",
+  "ledger": [
+   {
+    "src": "L115",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L127",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager has spent all morning wondering why the ocean is salty: ask a scientist, or invent an answer.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has spent the entire morning wondering why the ocean is salty. (subject.He/She) has heard several explanations, none entirely convincing. By afternoon (subject.he/she) has begun wondering why rain is not salty, why some lakes are salty, and whether fish notice the difference.",
+   "src": "L117",
+   "choices": [
+    {
+     "label": "Ask a Scientist",
+     "next": "a",
+     "src": "L119"
+    },
+    {
+     "label": "Invent an Explanation",
+     "next": "b",
+     "src": "L123"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) explains what (friend.he/she) knows about dissolved minerals, rivers, evaporation, and the movement of water. (subject) listens carefully. \"But why does the sea have so MUCH salt?\" (subject.he/she) asks. The discussion continues until sunset. Neither is entirely satisfied.",
+   "src": "L121"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Perhaps an enormous sea creature spilled its soup,\" (subject) suggests. (friend) considers this. \"That would be a very large bowl.\" They spend the next hour calculating how large. Neither claims the explanation is true.",
+   "src": "L125"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Penguin Doing on the Beach?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd01_what_penguin",
+  "source": "da_wd",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager finds a small upright black-and-white bird on the beach at dawn: fetch a friend, or keep a distance.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is walking along the beach at dawn when (subject.he/she) sees a small black-and-white bird standing at the water's edge. It is upright, like a tiny person. It has very short wings. It is, as far as (subject) can tell, wearing a tiny formal outfit. It looks at (subject). (subject) looks at it. Neither of them has any idea what the other one is.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Fetch (friend) to See",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Keep a Respectful Distance",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) comes running, takes one look, and sits down on the sand. \"What IS it?\" The bird waddles a few steps toward them, stops, and makes a noise like a creaky door. \"I think it's lost,\" says (subject). \"I think it's from somewhere a lot colder than here.\" They watch it for an hour. Then it turns, waddles into the waves, and swims away faster than any bird has a right to. Nobody believes them at dinner.",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sits down a little way off and keeps very still. The bird preens itself, looks out to sea, and seems to think hard about something. (subject) wonders where it came from, and how far it swam, and whether its family is wondering where it went. After a while it slides into the water and is gone. (subject) never sees another one. (subject.He/She) never forgets it, either.",
+   "src": "L17"
+  }
+ }
+}

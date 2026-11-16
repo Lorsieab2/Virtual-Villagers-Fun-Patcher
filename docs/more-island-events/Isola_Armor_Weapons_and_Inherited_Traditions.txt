@@ -1,0 +1,96 @@
+ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS
+Standalone event and flavor-text expansion
+
+STYLE RULES
+PG-13 presentation, not PG-13 reality. War, loss, and past harm can exist or be implied, but no explicit villager-on-villager violence or abuse. Weapons are also tools, heirlooms, ceremonial objects, and records of craft. Avoid glorifying cruelty. Respect each villager's agency and grief.
+
+EVENTS
+
+01. The First Armorer — An artisan experiments with layered bark, woven fibers, and leather to create protective clothing. Villagers debate whether to keep it ready for emergencies or display it as a symbol of preparedness.
+02. The Wooden Breastplate — A craftsperson finishes a carved breastplate. Its beautiful designs attract admiration, but an elder wonders whether decoration has compromised its usefulness.
+03. The Woven Armor — Tightly woven fibers make a surprisingly sturdy protective garment. Several villagers volunteer to learn the technique.
+04. The Ceremonial Helmet — A helmet decorated with feathers, shells, and carved symbols is unveiled for a festival. Nobody agrees who should wear it.
+05. The Armorer's Mistake — A new piece of protective gear restricts its wearer's movement. The armorer must reconsider the design.
+06. The Old Suit of Armor — Weathered protective equipment is found in an abandoned shelter. Its origins and former owner remain unknown.
+07. The Shieldmaker's Apprentice — An apprentice struggles to balance a wooden shield. Their mentor explains that good craft requires patience as well as strength.
+08. The Armor of Remembrance — A family preserves a ceremonial breastplate worn by an ancestor during a troubled era. They disagree about whether it belongs at home or in a communal memorial.
+09. The Spearmaker's Craft — An artisan makes spears for hunting, ceremony, and village defense. An apprentice notices that each carries a different meaning.
+10. The Bowyer's Workshop — A bowmaker experiments with different woods and fibers, drawing curious villagers to the workshop.
+11. The Arrowmaker's Dilemma — An artisan must divide limited feathers and wood between a ceremonial collection and replacing worn hunting arrows.
+12. The Ceremonial Spear — A carved spear is presented to an elder, who reminds the village that the symbol represents responsibility, not superiority.
+13. The Broken Bow — A hunter discovers a crack in a treasured inherited bow. Repairing it might preserve its usefulness; retiring it might better protect its history.
+14. The Practice Targets — Villagers establish an archery practice area away from homes. Their friendly competition becomes popular.
+15. The Spear Dance — Performers rehearse a dance using decorated, blunted spears. They debate how much the movements should change over time.
+16. The Ancient Arrowheads — Weathered arrowheads are uncovered. Scholars disagree about whether they were used for hunting, defense, or ceremony.
+17. The Hunter's Walking Stick — A hunter carries a staff useful for walking, navigating difficult terrain, and protection against dangerous wildlife.
+18. The Keeper of the Implements — An elder maintains bows, spears, shields, and traditional tools. Some see equipment; others see an archive of ingenuity.
+19. The Farmer's Implements — Farmers note that hoes, digging sticks, and other everyday tools could also protect people during an emergency.
+20. The Sturdy Staff — A carpenter makes wooden staffs used for walking, carrying supplies, performances, and defensive practice.
+21. The Harvesting Blade — An artisan repairs a harvesting tool. Its owner reflects on how an implement intended to sustain life might also be needed for protection.
+22. The Fisherman's Spear — A fisher demonstrates a traditional fishing spear and discusses the different roles similar implements have held in Isola's history.
+23. The Village Storehouse — Villagers reorganize farming tools, hunting gear, protective equipment, and ceremonial objects so each is accessible and cared for.
+24. The Unlikely Defender — A villager recalls an ancestor who once protected others using a walking stick. Nobody knows how much the tale has changed with retelling.
+25. The Warrior's Armor — An old set of armor appears at a historical celebration. Some admire its craftsmanship; others quietly remember why it was needed.
+26. The Forgotten Watchpost — Explorers discover an old lookout and fragments of shields and spear shafts, suggesting a history of vigilance.
+27. The Village Defenders — Some propose organized defensive training; others worry that constant preparation could make the village fearful.
+28. The Weapons of Peace — An elder displays ancestral weapons and explains that preserving knowledge of war need not mean wishing for it.
+29. The Veteran's Silence — During a ceremonial display, an older veteran steps away. The others respect their choice not to discuss the past.
+30. The Shield Wall — Villagers practice coordinated defensive formations with wooden shields and padded training equipment, emphasizing restraint and protection.
+
+PASSING THINGS DOWN — ADDITIONAL EVENTS
+
+31. The Grandparent's Spear — A grandparent entrusts a ceremonial spear to a younger relative, along with the story of how it was made and why it was kept.
+32. The Three Generations of Shieldmakers — Three generations disagree about a shield's shape and decoration. Their finished work preserves something from each maker.
+33. The Unfinished Bow — An apprentice inherits an unfinished bow from a departed mentor and must decide whether to complete it or leave it as it was.
+34. The Family Quiver — An old quiver contains arrows made by different relatives over decades. Their markings reveal a quiet family history.
+35. The Heirloom Hoe — A farmer passes down a repaired hoe whose handle has been replaced many times. Its value lies in the hands that used it.
+36. The Armor That No Longer Fits — A family discovers that inherited ceremonial armor fits none of its descendants. They consider adapting it or preserving it unchanged.
+37. The Lesson Before the Gift — An elder refuses to hand over an ancestral staff until its recipient learns the stories and responsibilities attached to it.
+38. The Lost Technique — A young craftsperson tries to reconstruct a protective weave that only the oldest villagers remember.
+39. The Keeper's Choice — Two relatives both hope to inherit a ceremonial shield. Their family considers shared stewardship rather than choosing a single owner.
+40. The Names Beneath the Paint — Restoring an old shield reveals earlier generations' symbols beneath its newest decoration. The villagers decide how much to preserve.
+41. The Bow Passed to a Friend — With no interested relatives, an aging bowyer chooses an apprentice to inherit their tools and knowledge.
+42. The Spear Without a Story — An inherited spear has no surviving explanation of its markings. The family preserves what is known rather than inventing a certainty.
+43. The Festival of Heirlooms — Families bring ancestral tools, shields, staffs, and ceremonial armor to a gathering, exchanging stories without competing over whose history matters most.
+44. The Broken Heirloom — A cherished wooden shield cracks with age. Its keeper must decide whether restoration, careful storage, or a faithful replica best honors it.
+45. The Changing Tradition — Younger villagers adapt an ancestral shield dance while elders preserve the older steps. Both versions become part of the village's living history.
+
+LIVING EVENT ENGINE — FLAVOR TEXT
+
+- An armorer polishes a ceremonial breastplate.
+- A bowyer examines a newly finished bow.
+- An apprentice carries a bundle of wooden practice spears.
+- A hunter inspects a weathered quiver.
+- A villager decorates a shield with family symbols.
+- Several children admire ceremonial helmets.
+- A carpenter repairs a cracked wooden shield.
+- An elder recounts the history of an ancestral spear.
+- A farmer tends to a well-used harvesting implement.
+- A villager practices balancing a long wooden staff.
+- A craftsperson weaves tough plant fibers into protective clothing.
+- Villagers compare traditional hunting implements.
+- A ceremonial procession carries decorated shields and spears.
+- An artisan replaces worn bindings on old armor.
+- A historian sketches the remains of a watchpost.
+- A villager places an ancestral shield beside a memorial.
+- A hunter stores a bow safely inside a hut.
+- Two artisans discuss protective materials.
+- A group rehearses a traditional shield dance.
+- A veteran helps preserve old equipment for future generations.
+- A grandparent shows a child the markings on a family shield.
+- An apprentice carefully wraps an inherited bow for storage.
+- An elder teaches the names of tools passed down through the family.
+- A villager adds a new carving beside an ancestor's symbol.
+- Two relatives compare memories of the same ceremonial spear.
+- A young craftsperson copies a grandparent's weaving pattern.
+- A family repairs a well-loved digging stick rather than replacing it.
+- A keeper records the known history of a ceremonial helmet.
+- A child asks why an old shield is displayed but never used.
+- A bowyer passes a favorite tool to a trusted apprentice.
+- An elder tells a story that changes slightly with each retelling.
+- A villager studies faded designs on an inherited breastplate.
+- Several families gather to share stories about their heirlooms.
+- A craftsperson preserves a damaged spear shaft as a historical object.
+- A young villager learns that inheriting an object also means caring for it.
+
+END OF STANDALONE EXPANSION

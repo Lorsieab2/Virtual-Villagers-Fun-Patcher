@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe That Kept Going",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep07_canoe_kept_going",
+  "source": "draft_dep",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 25 or older; rare; one outcome removes (name1) from the village)"
+   },
+   {
+    "src": "L86",
+    "kind": "instruction",
+    "text": "[effect: (name1) disappears from the village (no grave); rare]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager who has built a sailing canoe tells a friend they mean to sail away: help them get ready, or ask them to wait a season.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For as long as anyone can remember, (subject) has looked at the horizon the way other people look at a closed door. (subject.He/she) has spent two seasons building a canoe, bigger than any fishing canoe, with a sail of woven leaves. Tonight (subject.he/she) tells (friend) that (subject.he/she) means to go and see what is out there. Not for a few days. For good, maybe. (subject.He/she) doesn't know.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Help (subject.him/her) Get Ready",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Ask (subject.him/her) to Wait One More Season",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) helps pack food, water and rope, and doesn't try to change (subject.his/her) mind. At dawn half the village is on the beach. (subject) hugs everyone, climbs in, and paddles out until the sail is a small pale shape and then nothing. Months later, fishers from another village bring a piece of bark that drifted ashore in a sealed gourd. It says, in (subject)'s hand: \"Alive and well. It's beautiful. Don't worry.\" Nobody knows where it came from.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "src": "L86"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L86"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"One more season,\" says (friend). \"So we can say goodbye properly.\" (subject) thinks about it and agrees. The canoe is pulled up under the trees and covered with leaves. Every so often (subject) goes and sits in it, looking out to sea. It is still there. Maybe next season. Maybe not. Nobody asks.",
+   "src": "L89"
+  }
+ }
+}

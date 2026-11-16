@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tallest Headdress on Isola",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum29_tallest",
+  "source": "draft_hum",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's festival headdress is too tall to fit through the door: crawl out backward, or take some feathers off.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For the festival, (name1) has made (him/her)self a headdress. It has feathers. It has flowers. It has more feathers. It is twice as tall as (name1), and it is magnificent. It is also, (name1) discovers when (he/she) tries to leave the hut, far too tall to fit through the door.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Crawl Out Backward",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Take Some Feathers Off",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) gets down on (his/her) knees and shuffles out of the door backward, tilting the headdress at a careful angle. It emerges, very slowly, followed by (name1). At the festival it is the tallest thing there by far. Two birds land on it during the dancing. (name1) wins no prizes, but is very easy to find all evening.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) takes off a feather. Then another. Then a flower. Then several more, until the headdress fits through the door, by which time it is a perfectly ordinary headdress. (name1) steps outside, thinks for a moment, then carries all the feathers out and puts them back on again. That night, rather than take it apart, (name1) sleeps outside next to it.",
+   "src": "L353"
+  }
+ }
+}

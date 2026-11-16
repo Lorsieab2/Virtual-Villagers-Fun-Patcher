@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea28_new_fruit",
+  "source": "draft_fea",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A cautious villager is offered a slice of a strange new fruit: try a tiny bit, or say no thank you.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor has brought a fruit nobody here has seen before. It's orange inside, with black seeds, and it smells sweet. Everyone is trying it. (subject) isn't. (subject.He/she) doesn't trust it. (subject.He/she) doesn't trust new foods in general. (friend) holds a slice out to (subject.him/her).",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Try a Tiny Bit",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Say No, Thank You",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes the smallest possible bite, and waits, as if expecting something terrible. Nothing terrible happens. It's sweet and soft and quite pleasant. \"Well?\" says (friend). \"It's fine,\" says (subject), carefully. (subject.He/she) doesn't have a second slice. One new thing per day is plenty.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"No, thank you,\" says (subject). \"I'll stick to what I know.\" (friend) doesn't push. (friend.He/she) just eats the slice. A week later, someone plants the seeds. If the tree grows, (subject) might try the fruit in a few years. Or not. (subject.He/she) is in no hurry.",
+   "src": "L341"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Shaking Hands, Steady Voice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea26_shaking_hands",
+  "source": "draft_hea",
+  "lines": [
+   311,
+   320
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L311",
+  "ledger": [
+   {
+    "src": "L312",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's hands shake before speaking at the gathering: try pressing their feet down, or hold something.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Tonight (subject) has to speak at the gathering about the new storehouse. (subject.He/she) knows exactly what to say. (subject.He/she) has said it a dozen times to the goats. But whenever (subject.he/she) thinks about all those faces, (subject.his/her) hands start to shake. (friend), who helps the healer, notices (subject.him/her) gripping a post outside.",
+   "src": "L314",
+   "choices": [
+    {
+     "label": "Try Pressing (subject.his/her) Feet Down",
+     "next": "o1",
+     "src": "L316"
+    },
+    {
+     "label": "Hold Something",
+     "next": "o2",
+     "src": "L319"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Press your feet into the ground,\" says (friend). \"Hard. Feel the sand under them. Keep doing it while you talk.\" It sounds daft. (subject) does it. (subject.His/her) hands still shake when (subject.he/she) stands up, and (subject.his/her) voice wobbles on the first sentence. But (subject.his/her) feet are planted, and the second sentence comes out steady. The storehouse plan is approved. Nobody mentions the hands.",
+   "src": "L317"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Hold something,\" suggests (friend), and finds (subject.him/her) a smooth piece of driftwood. (subject) grips it so hard (subject.his/her) knuckles go white. (subject.He/she) talks to the driftwood instead of the faces. Halfway through, (subject.he/she) realizes the hands have stopped shaking. Afterwards (subject.he/she) tries to give the driftwood back. \"Keep it,\" says (friend). \"You'll need it next time.\" (subject.He/she) does.",
+   "src": "L320"
+  }
+ }
+}

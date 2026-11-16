@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Going Into the Sea Caves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea22_going_sea_caves",
+  "source": "draft_fea",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager is invited to explore the dark sea caves and does not want to go: say no thank you, or decide at the entrance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At low tide, some villagers are going to explore the sea caves at the end of the beach. They've done it before. It's fun, they say: dark, echoing, full of strange pools. (subject) has been invited. (subject.He/she) really doesn't want to go. Tight dark places full of water are not (subject.his/her) idea of fun. (friend) is waiting for an answer.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Say No, Thank You",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Go to the Entrance and Decide There",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"No, thank you,\" says (subject). \"But I'll keep watch on the tide.\" (friend) says that's actually very useful. The others go in. (subject) sits on a rock at the entrance and watches the water, and calls them out in good time. Everyone agrees it was the most sensible job of the day.",
+   "src": "L266"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) walks with them to the cave mouth. (subject.He/she) looks in. Cold air breathes out of the dark. (subject.He/she) steps back. \"This is as far as I go.\" Nobody argues. (subject.He/she) waits outside in the sun, and is very glad, when they come back out wet and muddy, that (subject.he/she) stayed dry.",
+   "src": "L269"
+  }
+ }
+}

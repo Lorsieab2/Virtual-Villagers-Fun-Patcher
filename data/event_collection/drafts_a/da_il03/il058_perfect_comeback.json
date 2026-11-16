@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Perfect Comeback",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il058_perfect_comeback",
+  "source": "da_il03",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager finally thinks of the perfect comeback, two days too late: use it anyway, or save it for next time.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Two days ago, (friend) teased (subject) about (subject.his/her) wonky basket weaving, and (subject) couldn't think of a single thing to say. Now, while bathing in the stream, the perfect reply has finally arrived. It's clever. It's funny. It's two days too late.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Use It Anyway",
+     "next": "a",
+     "src": "L205"
+    },
+    {
+     "label": "Save It for Next Time",
+     "next": "b",
+     "src": "L208"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) marches over to (friend) and delivers the line. (friend) blinks. \"...About the basket? From Tuesday?\" \"Yes.\" (friend) thinks about it, then laughs. \"That's actually very good.\" (subject) feels tremendously satisfied, if slightly ridiculous.",
+   "src": "L206"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) tucks the comeback away for later. (subject.He/She) waits a whole week for (friend) to mention the basket again. (friend) never does. The perfect comeback lives on, unused, forever.",
+   "src": "L209"
+  }
+ }
+}

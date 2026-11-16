@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Seen as Two",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam223_seen_two",
+  "source": "draft_fam2",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two siblings close in age, aged 8-17 (where the game records it)"
+   }
+  ],
+  "description": "Two siblings who look alike are always called the two: speak up, or let it go this time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 17,
+   "relation": {
+    "sibling_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) were born close together and look very alike. Everyone calls them \"the two\" and talks about them as one person. (subject) loves (friend). (subject) is also tired of being half of \"the two.\" Today someone asks (friend) a question and expects (subject) to answer.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "(subject) Says Something",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "(subject) Lets It Go, This Time",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm (subject),\" says (subject), \"and that's (friend). We're two different people.\" The villager looks startled. \"Of course,\" they say. \"Sorry.\" Later, (friend) asks, \"Was that about me?\" \"No,\" says (subject). \"It's about me. I just want to be me sometimes.\" (friend) thinks. \"Me too, actually.\" They start doing a few things apart. It's strange. It's good.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) answers, as usual. But that evening (subject.he/she) goes for a walk alone, which (subject.he/she) never does, and finds a stream (subject.he/she) has never seen. (subject.He/she) doesn't tell (friend) about it. It's the first thing (subject.he/she) has ever had all to (subject.him/her)self. (subject.He/she) feels a bit guilty. (subject.He/she) also feels very, very pleased.",
+   "src": "L281"
+  }
+ }
+}

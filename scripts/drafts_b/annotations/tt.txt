@@ -1,0 +1,400 @@
+TT-01
+DESC: A villager's tale of a tiny crab nip grows bigger with every telling: keep telling it, or let a friend tell it straight.
+ROLES: name1=18+ name2=18+
+O1: 1
+REVIEW: ok
+
+TT-02
+DESC: A child asks an adult to show the famous climb to the top of the tallest palm: give it a go, or explain that the tree has grown.
+ROLES: name1=18+ name2=6-12
+S: 11
+O1: 11
+REVIEW: ok
+
+TT-03
+DESC: A villager boasting of fearing nothing finds a large spider between their feet: stay very calm, or admit it.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11
+O2: 11
+REVIEW: ok
+
+TT-04
+DESC: A villager claims to know everything already, so a friend makes up a fact: try the made-up fact, or give up the test.
+ROLES: name1=18+ name2=18+
+S: 12
+O1: 12
+REVIEW: ok
+
+TT-05
+DESC: A villager volunteers as feast taster and keeps checking every dish: keep up the good work, or let the cooks taste their own.
+ROLES: name1=18+
+FIG: k=cook:18+
+EDIT O2: "The head cook gently takes" => "[k], the head cook, gently takes"
+EDIT O2: "the head cook sets" => "[k] sets"
+O1: 11
+REVIEW: ok
+
+TT-06
+DESC: A villager keeps the best fireside spot warm for the elders until one arrives: offer it gracefully, or make room.
+ROLES: name1=18+
+FIG: e=elder:55+
+EDIT S: "Tonight one arrives" => "Tonight [e], an elder, arrives"
+EDIT O1: "The elder sits down" => "[e] sits down"
+EDIT O2: "The elder squeezes in" => "[e] squeezes in"
+EDIT O2: "finds the elder already there" => "finds [e] already there"
+S: 1
+O1: 1
+O2: 11
+REVIEW: ok
+
+TT-07
+DESC: A villager wants Turtle Rock renamed after themselves: keep at it, or settle for half.
+ROLES: name1=18+
+S: 11
+O2: 1
+REVIEW: ok
+
+TT-08
+DESC: A child hears an adult tell how a knee-high wave was taller than a hut: speak up, or say nothing.
+ROLES: name1=18+ name2=5-12
+S: 1
+O2: 2
+REVIEW: ok
+
+TT-09
+DESC: A villager's famous fish stew has a secret ingredient, but a friend sees only salt go in: ask about it, or keep the secret.
+ROLES: name1=18+ name2=18+
+S: 11
+REVIEW: ok
+
+TT-10
+DESC: A villager with small melons finds a giant wild one on the way to the contest: enter your own melon, or enter the wild one.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11
+O2: 11111
+REVIEW: ok
+
+TT-11
+DESC: A child asks an adult the names of the stars, and the adult starts inventing them: keep naming them, or admit it.
+ROLES: name1=18+ name2=5-10
+FIG: e=elder:55+
+EDIT O1: "to an elder who knows the old star names" => "to [e], an elder who knows the old star names"
+EDIT O1: "The elder listens" => "[e] listens"
+S: 211
+O2: 1
+REVIEW: ok
+
+TT-12
+DESC: An elder's old swim story gets farther every year, and a teen knows the real distance: ask about the shark, or offer to swim it.
+ROLES: name1=55+ name2=14-17
+S: 12
+O1: 122
+O2: 1
+REVIEW: ok
+
+TT-13
+DESC: A villager waits behind a tree to sweep into the festival in a new cape: make the entrance, or give up and walk in.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O1: "Then a child shouts" => "Then [c], a child, shouts"
+S: 111
+O1: 111
+O2: 11
+REVIEW: ok
+
+TT-14
+DESC: Two elders hold their yearly tall tale contest by the fire: answer with a bigger fish, or a smaller one.
+ROLES: name1=55+ name2=55+
+S: 2
+O2: 11
+REVIEW: ok
+
+TT-15
+DESC: Two villagers have both been watching the same perfect mango for a week: claim it first, or split it.
+ROLES: name1=18+ name2=18+
+S: 1
+REVIEW: ok
+
+TT-16
+DESC: A villager's stubbed toe has healed, but the limp brings drinks and the shady seat: keep limping, or stop limping.
+ROLES: name1=18+ name2=18+
+S: 1111111
+O1: 11
+O2: 1
+REVIEW: ok
+
+TT-17
+DESC: A villager fled from a pig, but everyone thinks they chased it off bravely: accept the praise, or tell what really happened.
+ROLES: name1=18+ name2=18+
+FIG: g=gardener:18+
+EDIT O2: "says one of the gardeners" => "says [g], one of the gardeners"
+S: 1
+O1: 11
+REVIEW: ok
+
+TT-18
+DESC: A villager generously mends nets every afternoon in the coolest shade in the village: keep it quiet, or invite a friend along.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1
+O2: 22
+REVIEW: ok
+
+TT-19
+DESC: A villager comes for the crispy bits at the bottom of the stew pot and finds a rival there: offer to share, or race for it.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "a small child darts in" => "[c], a small child, darts in"
+S: 1
+REVIEW: ok
+
+TT-20
+DESC: A villager settles an argument about fishing spots with a very convenient dream: accept the dream, or ask for details.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 2
+REVIEW: ok
+
+TT-21
+DESC: A child begs an adult to ask a seal for the ride from the adult's old story: ask the seal politely, or tell the truth.
+ROLES: name1=18+ name2=4-9
+S: 1
+O2: 2
+REVIEW: ok
+
+TT-22
+DESC: A villager has a new shell-braided hairstyle and nobody has said a word: a friend notices, or a friend does not.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "a small child stops dead" => "[c], a small child, stops dead"
+S: 11
+O1: 1
+REVIEW: ok
+
+TT-23
+DESC: A villager proudly sings a new song, and an elder joins in word for word: laugh about it, or say yours is different.
+ROLES: name1=18+ name2=55+
+S: 11
+O1: 1
+O2: 12
+REVIEW: ok
+
+TT-24
+DESC: An elder claims to have lifted the big stone overhead in youth, and a young adult asks to see it: give it a try, or teach instead.
+ROLES: name1=55+ name2=18-25
+S: 111
+O1: 11
+O2: 121111
+REVIEW: ok
+
+TT-25
+DESC: A friend saw the whale first, but a villager shouted first and wins the story: tell the story tonight, or say nothing about it.
+ROLES: name1=18+ name2=18+
+S: 2
+O1: 212
+O2: 22
+REVIEW: ok
+
+TT-26
+DESC: A child talks up a plain grey shell to win a friend's pink one: make the trade, or stop halfway.
+ROLES: name1=7-13 name2=7-13
+O1: 1
+REVIEW: ok
+
+TT-27
+DESC: A young villager offers to show an experienced one a better way to clean fish: let them show you, or make it a race.
+ROLES: name1=18-25 name2=40+
+S: 122
+L1: 1
+O1: 2221
+O2: 12
+REVIEW: ok
+
+TT-28
+DESC: A child challenges an elder who claims to have been the fastest runner: set the rules, or run it.
+ROLES: name1=55+ name2=6-12
+S: 111
+O1: 1
+O2: 11
+REVIEW: ok
+
+TT-29
+DESC: A villager keeps suggesting heroic changes to a friend's carving of them: carve it all, or carve what you see.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 1
+O2: 111
+REVIEW: ok
+
+TT-30
+DESC: A villager says everybody wants the new canoe red, and a friend is suspicious: ask everybody, or leave it to everybody.
+ROLES: name1=18+ name2=18+
+FIG: n=neighbor:18+ c=child:3-13
+EDIT O1: "(name1)'s neighbor, and a small child who likes all colors" => "(name1)'s neighbor [n], and [c], a small child who likes all colors"
+EDIT O2: "with some help from the child who likes all colors" => "with some help from [c]"
+O1: 1
+O2: 1
+REVIEW: ok
+
+TT-31
+DESC: A villager gave a friend a favorite bowl and now misses it: ask to borrow it, or carve another one.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11
+O2: 12
+REVIEW: ok
+
+TT-32
+DESC: The children ask an elder to defend an old coconut-husking title nobody remembers: defend the title, or retire undefeated.
+ROLES: name1=55+
+FIG: t=teen:14-17
+EDIT O1: "a teenager wins by a whisker" => "[t], a teenager, wins by a whisker"
+S: 11
+O1: 11
+O2: 1
+REVIEW: ok
+
+TT-33
+DESC: A villager calls dibs on the first fruit of a seedling that will take years to bear: agree on one condition, or claim the second.
+ROLES: name1=18+ name2=18+
+O1: 1
+O2: 1
+REVIEW: ok
+
+TT-34
+DESC: A child keeps inventing new rules whenever a friend is about to win: invent rules too, or ask for all the rules first.
+ROLES: name1=7-13 name2=7-13
+O2: 1
+REVIEW: ok
+
+TT-35
+DESC: A villager cuts a cake in half and keeps the bigger piece as a friend raises an eyebrow: swap, or explain yourself.
+ROLES: name1=18+ name2=18+
+S: 11
+REVIEW: ok
+
+TT-36
+DESC: A villager who has never left Isola tells the children about strange lands beyond the sea: keep going, or admit it is all made up.
+ROLES: name1=18+ name2=14-17
+FIG: c=child:3-13
+EDIT O2: "When a child asks how to get there" => "When [c], a child, asks how to get there"
+EDIT O2: "The child's face falls." => "[c]'s face falls."
+S: 1
+O1: 22
+REVIEW: ok
+
+TT-37
+DESC: A villager tells a scary story so well that walking home in the dark is now hard: walk home bravely, or ask a friend to come.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1111
+O2: 12
+REVIEW: ok
+
+TT-38
+DESC: A villager applauds their own new roof just as a friend comes round the corner: keep clapping, or pretend to swat a fly.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O1: "A child arrives and claps too" => "[c], a child, arrives and claps too"
+S: 111
+O1: 11
+O2: 1
+REVIEW: ok
+
+TT-39
+DESC: A villager says they watched over everyone through the storm, but a neighbor heard snoring: mention the snoring, or let it go.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11
+REVIEW: ok
+
+TT-40
+DESC: A villager sneaks out to a secret fishing spot and finds a friend already there: share the spot, or find a new one.
+ROLES: name1=18+ name2=18+
+S: 11
+O2: 111
+REVIEW: ok
+
+TT-41
+DESC: A villager's harvest thank-you speech keeps coming back to themselves: keep going, or catch yourself.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O1: "A child falls asleep." => "[c], a child, falls asleep."
+S: 1111
+O2: 11
+REVIEW: ok
+
+TT-42
+DESC: A villager comes last in the canoe race and claims other kinds of victory: agree with them, or offer to practice together.
+ROLES: name1=18+ name2=18+
+FIG: w=racer:18+
+EDIT O1: "The actual winner gets one prize." => "[w], the actual winner, gets one prize."
+S: 111
+L1: 1
+O2: 1
+REVIEW: ok
+
+TT-43
+DESC: A villager's daily predictions keep coming true and a gift seems possible: ask for a harder one, or try to make one fail.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 12
+O2: 2
+REVIEW: ok
+
+TT-44
+DESC: A villager stages a show to prove their pig is the cleverest animal on Isola: call the pig, or have it find a root.
+ROLES: name1=18+ name2=18+
+S: 1
+REVIEW: ok
+
+TT-45
+DESC: A villager's small crab story comes back from round the village far bigger: find out where it changed, or let it grow.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "an elder tells" => "[e], an elder, tells"
+O1: 1
+O2: 1
+REVIEW: ok
+
+TT-46
+DESC: A villager credits singing for the best beans in the village, and a friend doubts it: keep singing, or try an experiment.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 2
+O2: 1
+REVIEW: ok
+
+TT-47
+DESC: A villager loses an arm-wrestle and keeps asking for best of more: go for best of seven, or call it done.
+ROLES: name1=18+ name2=18+
+S: 11
+O2: 2
+REVIEW: ok
+
+TT-48
+DESC: A villager has saved the whole front row by the fire with baskets: move a basket, or add a basket of your own.
+ROLES: name1=18+ name2=18+
+FIG: t=storyteller:18+
+EDIT S: "The best storyteller in the village is telling stories" => "[t], the best storyteller in the village, is telling stories"
+EDIT O2: "By the time the storyteller arrives" => "By the time [t] arrives"
+EDIT O2: "The storyteller looks at the baskets" => "[t] looks at the baskets"
+S: 12
+O1: 2
+O2: 2
+REVIEW: ok
+
+TT-49
+DESC: A villager tells of a glowing fish nobody else saw, and a friend doubts it: go out and look together, or agree to disagree.
+ROLES: name1=18+ name2=18+
+S: 11
+REVIEW: ok
+
+TT-50
+DESC: A villager spends three days building a bamboo channel to skip a short walk: open the channel, or explain it to a friend.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+REVIEW: ok

@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two-Tribe Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy04_two_tribe",
+  "source": "anthology",
+  "lines": [
+   28728,
+   28741
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28728",
+  "ledger": [],
+  "description": "Two neighboring Isolan communities plan a shared feast.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two neighboring Isolan communities plan a shared feast.",
+   "src": "L28729",
+   "choices": [
+    {
+     "label": "Exchange Recipes",
+     "next": "a",
+     "src": "L28730"
+    },
+    {
+     "label": "Keep Separate Food Tables",
+     "next": "b",
+     "src": "L28733"
+    },
+    {
+     "label": "Let Young Cooks Collaborate",
+     "next": "c",
+     "src": "L28736"
+    },
+    {
+     "label": "Invite Everyone to Tell Food Stories",
+     "next": "d",
+     "src": "L28739"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28729"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The cooks discover a surprising favorite combination.",
+   "src": "L28731"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The unfamiliar spices divide opinion without causing offense.",
+   "src": "L28732"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Guests enjoy comparing traditions at their own pace.",
+   "src": "L28734"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some guests wish they had cooked together.",
+   "src": "L28735"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A new dish becomes the feast's surprise success.",
+   "src": "L28737"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The cooks accidentally make far too much soup.",
+   "src": "L28738"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Laughter fills the gathering as elders reminisce.",
+   "src": "L28740"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The stories run so long that the food grows cold.",
+   "src": "L28741",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28741"
+    }
+   ]
+  }
+ }
+}

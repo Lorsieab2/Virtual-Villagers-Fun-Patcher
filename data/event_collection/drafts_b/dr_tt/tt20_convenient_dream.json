@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Very Convenient Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt20_convenient_dream",
+  "source": "draft_tt",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager settles an argument about fishing spots with a very convenient dream: accept the dream, or ask for details.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been arguing for three days about where the best fishing is this season. This morning (subject) comes out of (subject.his/her) hut and announces that (subject.he/she) had a dream last night, and in the dream, the fish were all exactly where (subject) has been saying they were.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Accept the Dream",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Ask for Details",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Well,\" says (friend), \"if you dreamed it.\" They go to (subject)'s spot. The fish aren't there. (subject) explains that the dream was probably about tomorrow. The next morning (friend) announces that (friend.he/she) had a dream too, and in it, (friend) was right. This goes on for some time.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What were the fish wearing?\" asks (friend). \"What?\" \"In the dream. Were they wearing anything?\" (subject) thinks hard. \"...Little hats.\" (friend) laughs so much that the argument is quite forgotten. They fish both spots and catch a perfectly ordinary number of fish at each.",
+   "src": "L245"
+  }
+ }
+}

@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Turn at Stirring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim018_turn_stirring",
+  "source": "moments500",
+  "lines": [
+   297,
+   311
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L298",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L301",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L302",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L305",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L306",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L309",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L310",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L299",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(Name1), a parent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L303",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(Name1), a parent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L307",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(Name1), a parent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L311",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(Name1), a parent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A parent lets a child stir the evening meal.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a parent, lets a child stir the evening meal. Someone asks for the recipe before the bowl is empty.",
+   "src": "L299"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a parent, lets a child stir the evening meal. The result is edible, though nobody agrees on what it resembles.",
+   "src": "L303"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a parent, lets a child stir the evening meal. (Name1) quietly notes one change to try next time.",
+   "src": "L307"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a parent, lets a child stir the evening meal. The first taste is puzzling, but the second is better.",
+   "src": "L311"
+  }
+ }
+}

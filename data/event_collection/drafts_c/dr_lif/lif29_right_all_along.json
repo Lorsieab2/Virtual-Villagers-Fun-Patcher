@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Right All Along",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif29_right_all_along",
+  "source": "draft_lif",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 45 or older and another adult)"
+   }
+  ],
+  "description": "The council adopts a villager's idea from twenty years ago without remembering it: remind them, or enjoy it privately.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 45
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Twenty years ago, (subject) told everyone that the canoe landing should be moved to the sheltered side of the point. Everyone said no. (subject.He/she) was outvoted, ignored, and teased about it for a season. Today, the council has just decided to move the canoe landing to the sheltered side of the point. Nobody has mentioned that it was (subject)'s idea. Nobody remembers.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Remind Them",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Enjoy It Privately",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands up at the fire and says, very calmly, \"I suggested that twenty years ago.\" There's a silence. A few elders look sheepish. One says, \"Did you?\" Another says, \"...Oh. You did.\" (friend) bursts out laughing. (subject) sits down, enormously satisfied. The landing is moved. A small carving appears on the new post: \"(subject) said so first.\"",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. (subject.He/she) just smiles, very slightly, all through the meeting. Afterward (friend) asks why (subject.he/she) looks so pleased. \"No reason,\" says (subject). (subject.He/she) walks home in the moonlight, grinning like a child. Being right twenty years too late, all by (subject.him/her)self, turns out to be one of the best feelings (subject.he/she) has ever had.",
+   "src": "L341"
+  }
+ }
+}

@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Play Clearing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs03_play_clearing",
+  "source": "anthology",
+  "lines": [
+   29470,
+   29483
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29470",
+  "ledger": [
+   {
+    "src": "L29477",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29479",
+    "kind": "sensitivity",
+    "before": "A child overwhelmed by noise discovers",
+    "after": "(child), overwhelmed by noise, discovers",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29482",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29483",
+    "kind": "sensitivity",
+    "before": "A competitive grandparent",
+    "after": "(elder), a competitive grandparent,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A grassy clearing becomes an improvised playground of logs, stones, and woven hoops.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A grassy clearing becomes an improvised playground of logs, stones, and woven hoops.",
+   "src": "L29471",
+   "choices": [
+    {
+     "label": "Build a Cooperative Obstacle Course",
+     "next": "a",
+     "src": "L29472"
+    },
+    {
+     "label": "Let the Children Choose the Layout",
+     "next": "b",
+     "src": "L29475"
+    },
+    {
+     "label": "Make Quiet Corners Too",
+     "next": "c",
+     "src": "L29478"
+    },
+    {
+     "label": "Invite Older Villagers to Play",
+     "next": "d",
+     "src": "L29481"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Children invent a game in which helping counts more than speed.",
+   "src": "L29473"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One child prefers watching and becomes an enthusiastic scorekeeper.",
+   "src": "L29474"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their imaginative maze delights visitors but confuses adults.",
+   "src": "L29476"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) points out that the shortest route is not always the most fun.",
+   "src": "L29477"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child), overwhelmed by noise, discovers a peaceful place to draw.",
+   "src": "L29479"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The quiet area attracts storytellers and becomes louder than expected.",
+   "src": "L29480"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) demonstrates a childhood game nobody remembers.",
+   "src": "L29482"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder), a competitive grandparent, loses spectacularly and demands a rematch.",
+   "src": "L29483"
+  }
+ }
+}

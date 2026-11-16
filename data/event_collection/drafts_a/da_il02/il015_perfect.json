@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Almost Perfect Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il015_perfect",
+  "source": "da_il02",
+  "lines": [
+   81,
+   95
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L81",
+  "ledger": [
+   {
+    "src": "L83",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L95",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager's almost perfect day has one small hole in a sandal: repair it, or complain about it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Everything has gone wonderfully for (subject). The weather is pleasant, breakfast was delicious, and (subject.he/she) has finished (subject.his/her) work early. Then (subject) notices that one sandal has developed a small hole. It is the only disappointing thing that has happened all day.",
+   "src": "L85",
+   "choices": [
+    {
+     "label": "Repair the Sandal",
+     "next": "a",
+     "src": "L87"
+    },
+    {
+     "label": "Complain About the Sandal",
+     "next": "b",
+     "src": "L91"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) spends the afternoon repairing it. The result is slightly crooked but comfortable. By evening (subject.he/she) has forgotten about the hole entirely.",
+   "src": "L89"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"This sandal has ruined my day,\" (subject) announces. (friend) looks at the sunshine, the beautiful beach, and the enormous basket of fruit beside them. \"A terrible tragedy,\" (friend.he/she) agrees solemnly. (subject) begins laughing.",
+   "src": "L93"
+  }
+ }
+}

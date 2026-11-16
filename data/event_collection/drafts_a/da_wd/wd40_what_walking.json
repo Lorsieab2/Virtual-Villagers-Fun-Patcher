@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Walking Stick Doing on the Beach?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd40_what_walking",
+  "source": "da_wd",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L473",
+    "kind": "casting",
+    "before": "it belongs to an old fisher",
+    "after": "it belongs to (fisher), an old fisher",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A carved walking stick stands upright in the sand with no footprints near it: leave it, or take it to the elders.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "In the middle of the beach, standing perfectly upright, is a walking stick. Someone has pushed it firmly into the sand. It's a good stick: polished, carved at the top with a small fish. There is nobody around. There are no footprints. The stick is just there, standing up, like it's waiting for someone.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Leave It Standing",
+     "next": "a",
+     "src": "L469"
+    },
+    {
+     "label": "Take It to the Elders",
+     "next": "b",
+     "src": "L472"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) leaves it exactly where it is, in case someone comes back for it. All day, people walk past and look at it. By the evening, someone has hung a flower on it. Then someone else hangs a shell. By the next morning the stick has gone, flowers and all, and nobody saw who took it.",
+   "src": "L470"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) pulls it out of the sand and brings it to the elders. One of them recognizes the carved fish: it belongs to (fisher), an old fisher who walked over from another village yesterday to watch the sunset, and forgot it. (subject) walks the stick back. The old fisher laughs and says (fisher.he/she) wondered why (fisher.his/her) legs felt so wobbly on the way home.",
+   "src": "L473"
+  }
+ }
+}

@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Evening",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il200_long_evening",
+  "source": "da_il10",
+  "lines": [
+   224,
+   227
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder sits outside at sunset and looks back over the whole of their life, without needing a verdict.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(name1) is sitting outside (his/her) hut as the sun goes down, the way (he/she) has on thousands of evenings. Tonight (he/she) finds (him/her)self looking back over the whole of it: the long, ordinary, surprising business of (his/her) life. Some of it went the way (he/she) hoped. A lot of it didn't. Some of the best parts were things (he/she) never planned at all. There are things (he/she) would do differently, and things (he/she) wouldn't change for anything, and a great many things (he/she) has simply forgotten. (He/She) tries to decide whether it has been a good life, and finds (he/she) can't quite say, and that (he/she) doesn't really need to. The sky goes orange, then pink, then a deep, soft blue. Somebody calls out that dinner is ready. (name1) gets up, slowly, and goes to eat.",
+   "src": "L227"
+  }
+ }
+}

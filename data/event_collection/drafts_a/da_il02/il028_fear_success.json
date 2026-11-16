@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fear of Success",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il028_fear_success",
+  "source": "da_il02",
+  "lines": [
+   289,
+   303
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L289",
+  "ledger": [
+   {
+    "src": "L291",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L303",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager is offered the project they always wanted, and feels an unexpected uneasiness about success.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been offered responsibility for an important village project. It is exactly the opportunity (subject.he/she) has wanted for years. Everyone seems pleased. Yet (subject) feels an unexpected uneasiness. What if success means more responsibilities? What if people expect even greater things afterward?",
+   "src": "L293",
+   "choices": [
+    {
+     "label": "Discuss the Concern with (friend)",
+     "next": "a",
+     "src": "L295"
+    },
+    {
+     "label": "Take Time to Consider",
+     "next": "b",
+     "src": "L299"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Then you'll decide what you want to do next,\" says (friend). \"You don't have to agree to everything forever.\" (subject) thinks about this. The project still feels intimidating, but the future seems a little less fixed.",
+   "src": "L297"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) spends the afternoon weighing the opportunity against (subject.his/her) other priorities. By evening (subject.he/she) has not decided. The villagers agree to wait for an answer.",
+   "src": "L301"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Tired for a Perfect Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day18_tired_perfect",
+  "source": "draft_day",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "It is the most beautiful day of the season and a villager is exhausted: go swimming anyway, or stay in the shade.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It is the most beautiful day of the season: clear sky, warm sun, cool breeze, calm sea. Everyone is outside, swimming, playing games on the sand. (subject) slept terribly, and is so tired (subject.he/she) can barely keep (subject.his/her) eyes open. (subject.He/she) feels (subject.he/she) ought to be enjoying it. (friend) calls for (subject.him/her) to come and swim.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Go Anyway",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Stay in the Shade",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) drags (subject.him/her)self down to the water and swims a little. It's lovely, in a far-away sort of way. Then (subject.he/she) lies on the sand and falls asleep in the sun. (subject.He/she) wakes up at sunset, rested, and the day is gone. (subject.He/she) doesn't regret it, exactly. (subject.He/she) slept on a beautiful beach on a beautiful day. That's something.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'm too tired,\" calls (subject). \"I'll watch.\" (subject.He/she) sits under a tree and watches everyone else enjoy the beautiful day. (subject.He/she) feels a bit left out. (subject.He/she) also feels too tired to mind much. Some beautiful days are just for looking at. There'll be others.",
+   "src": "L221"
+  }
+ }
+}

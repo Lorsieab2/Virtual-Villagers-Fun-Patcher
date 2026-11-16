@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Right Now, Love",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam220_right_now_love",
+  "source": "draft_fam2",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it)"
+   }
+  ],
+  "description": "After a hard day, a villager's partner wraps them in a hug, but they need space: say so, or put up with it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has had a long, hard day and has just sat down. (friend), who missed (subject.him/her), wraps (friend.his/her) arms around (subject.him/her) from behind for a big hug. (subject) stiffens. Every inch of (subject.him/her) wants to be left alone for a while. Even by (friend).",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Say So",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Put Up with It",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Not right now,\" says (subject). \"Please. I just need a bit of space.\" (friend) lets go straight away. \"Of course.\" (friend.He/she) sits down on the other side of the hut and starts mending a basket. (subject) closes (subject.his/her) eyes and breathes. After a while, (subject.he/she) reaches out and takes (friend)'s hand. \"Thank you,\" (subject.he/she) says. \"Anytime,\" says (friend), and means it.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want to hurt (friend)'s feelings, so (subject.he/she) says nothing. The hug goes on. (subject) gets more and more prickly, until finally (subject.he/she) snaps, \"Can you stop?\" (friend) lets go at once, hurt. Later (subject) apologizes. \"I should have said it nicely, before.\" \"I'd rather you told me,\" says (friend). \"I'd always rather you told me.\" Next time, (subject) does.",
+   "src": "L245"
+  }
+ }
+}

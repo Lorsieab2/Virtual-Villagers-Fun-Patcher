@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cleverest Pig on Isola",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt44_cleverest_pig",
+  "source": "draft_tt",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager stages a show to prove their pig is the cleverest animal on Isola: call the pig, or have it find a root.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) insists that (subject.his/her) pig is the cleverest animal on the island. It knows its name. It can find buried roots. It once opened a gate. (friend) is doubtful, so (subject) has arranged a demonstration in front of half the village.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Call the Pig",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Have It Find a Root",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Come here!\" calls (subject). The pig lies down in the shade and goes to sleep. \"It's thinking,\" explains (subject). Everyone waits. The pig snores. People start to drift away. Then the pig gets up, trots straight to the garden gate, opens it with its nose and walks inside. Everyone is deeply impressed, except the gardeners.",
+   "src": "L530"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) buries a sweet root while the pig watches. The pig digs up three other roots that nobody knew were there, eats them all, and completely ignores the one (subject) buried. \"Well,\" says (friend) slowly, \"it IS good at finding roots.\" (subject) decides to count this as a win.",
+   "src": "L533"
+  }
+ }
+}

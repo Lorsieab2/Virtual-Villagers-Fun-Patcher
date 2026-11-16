@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lie That Became True",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon50_lie_became_true",
+  "source": "draft_hon",
+  "lines": [
+   596,
+   605
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager said they had practiced the drum for tomorrow's feast but has not: practice all night, or tell a friend the truth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) asked (subject) whether (subject.he/she) had been practicing the drum for the feast, as (subject.he/she) promised. (subject) said yes. (subject.He/she) hasn't touched it. The feast is tomorrow night.",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "Practice All Night",
+     "next": "o1",
+     "src": "L601"
+    },
+    {
+     "label": "Tell (friend) the Truth",
+     "next": "o2",
+     "src": "L604"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) practices all night, out by the far rocks where nobody can hear. By morning (subject.his/her) hands ache and (subject.he/she) knows the rhythm by heart. At the feast (subject.he/she) plays well. \"All that practice paid off,\" says (friend). (subject) agrees. It is, by now, technically true.",
+   "src": "L602"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) finds (friend) that afternoon. \"I said I'd practiced. I hadn't.\" (friend) frowns. \"The feast's tomorrow.\" \"I know. Will you help me?\" (friend) sighs, then sits down beside (subject.him/her) with a second drum. They practice until dark. At the feast, they play together. After that, (friend) never asks whether (subject.he/she) has practiced; (friend.he/she) just turns up with the second drum.",
+   "src": "L605"
+  }
+ }
+}

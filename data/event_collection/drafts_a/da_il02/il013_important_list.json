@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Very Important List",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il013_important_list",
+  "source": "da_il02",
+  "lines": [
+   49,
+   63
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L49",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L63",
+    "kind": "structural",
+    "why": "a separator between events"
+   },
+   {
+    "src": "L61",
+    "kind": "casting",
+    "before": "helps a neighbor,",
+    "after": "helps (neighbor), a neighbor,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager has written a very long list of things to do today, and by midday has only written the list.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has written a list of everything (subject.he/she) intends to accomplish today. It is impressively long. It includes repairing a basket, gathering herbs, cleaning the hut, visiting a friend, and learning how to whistle like a particular bird. By midday, (subject) has accomplished precisely one thing: writing the list.",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "Start with the Easiest Task",
+     "next": "a",
+     "src": "L55"
+    },
+    {
+     "label": "Put the List Away",
+     "next": "b",
+     "src": "L59"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) crosses out \"learn to whistle.\" After several attempts, (subject.he/she) produces a noise resembling an unhappy duck. A nearby bird answers. (subject) decides this counts.",
+   "src": "L57"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) folds the list and goes for a walk. Along the way (subject.he/she) helps (neighbor), a neighbor, finds a beautiful shell, and enjoys an excellent lunch. None of these things were on the list. (subject) decides it was a good day anyway.",
+   "src": "L61"
+  }
+ }
+}

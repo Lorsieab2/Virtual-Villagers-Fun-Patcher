@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Couple Who Bicker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam236_couple_bicker",
+  "source": "draft_fam2",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it)"
+   },
+   {
+    "src": "L431",
+    "kind": "sensitivity",
+    "before": "whispers to a neighbor",
+    "after": "whispers to (neighbor), a neighbor",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L433",
+    "kind": "sensitivity",
+    "before": "The Neighbor Explains:",
+    "after": "(neighbor) Explains:",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L434",
+    "kind": "sensitivity",
+    "before": "says the neighbor.",
+    "after": "says (neighbor).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A newcomer is worried by a couple who have bickered happily for years: a neighbor explains, or the newcomer asks them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have bickered happily for years: about the right way to fold a mat, who caught the bigger fish, whether it's going to rain. Today a newcomer, (third), hears them going at it and looks worried. \"Are they alright?\" (third.he/she) whispers to (neighbor), a neighbor.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "(neighbor) Explains",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "(third) Asks Them Directly",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Oh, them?\" says (neighbor). \"That's how they talk. If they ever stop arguing, THEN worry.\" (third) watches. (subject) says the fish was smaller. (friend) says it was bigger. They both laugh, and (subject) gives (friend) a quick kiss on the cheek and keeps arguing. (third) decides that people love each other in all sorts of ways.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) works up the courage to ask. \"Are you two alright?\" (subject) and (friend) look at each other, confused. \"We're having a lovely time,\" says (subject). \"Why?\" \"You're arguing,\" says (third). \"Oh! That's not arguing,\" says (friend). \"That's just talking very loudly.\" They invite (third) to dinner. It's very loud. (third) has a wonderful time.",
+   "src": "L437"
+  }
+ }
+}

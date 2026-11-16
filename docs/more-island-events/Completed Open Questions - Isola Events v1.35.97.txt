@@ -1,0 +1,646 @@
+OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)
+
+Answer in this file (or have ChatGPT help) and send it back. Keep the [tags] so I can match answers.
+Same rules as always: keep the owner's text, PG-13, Isola is a mystical Polynesian-coded island with
+neolithic-to-medieval technology, people are kind but not pushovers, no blaming or shaming.
+
+==============================================================================
+QUESTION 1: THE 500 TINY ISLAND MOMENTS: HOW SHOULD THEY APPEAR?
+==============================================================================
+The 500 moments are 125 opening sentences, each with 4 different endings (M001-M004 share an opening, and so on).
+Each ending sentence is also reused in about 4 different moments.
+
+Option A (my recommendation): 125 moments. When one appears, the game picks one of its 4 endings at random.
+  A group of 4 counts as one moment, so the same opening never shows up 4 times in a row.
+Option B: 500 separate moments, each with its own fixed ending.
+
+Your answer (A or B): A
+
+==============================================================================
+QUESTION 2: TITLES FOR THE TINY ISLAND MOMENTS
+==============================================================================
+The file's titles look like "Lanterns 2: The Afternoon". The part after the colon (A Quiet Moment, A Small
+Surprise, The Afternoon, A Little Memory) is given by position, not by what happens, and the "2", "3"...
+numbers would show in the game. Choose one:
+
+Option A: one short, natural, unique title per opening (125 titles), written below (or by ChatGPT).
+Option B: keep the titles exactly as written, numbers included.
+Option C: show only the topic word ("Lanterns"), no number or subtitle.
+
+Your answer (A, B or C): A
+
+If A, write a title after each opening (2-5 words, title case, fits the moment, no numbers):
+
+[T001] (Lanterns, from M001) (Name1) folds broad leaves around a small lantern frame.
+Title: The Leaf Lantern
+
+[T002] (Lanterns 2, from M005) A family gathers to decorate lanterns with shells and colored fibers.
+Title: Shells in the Lamplight
+
+[T003] (Lanterns 3, from M009) (Name1) helps an elder replace a lantern’s worn binding.
+Title: A Mended Lantern
+
+[T004] (Lanterns 4, from M013) Two friends compare the patterns their lanterns cast on the ground.
+Title: Patterns of Light
+
+[T005] (Lanterns 5, from M017) A child carries a lantern carefully toward the evening gathering.
+Title: The Careful Lantern Bearer
+
+[T006] (Leaf Boats, from M021) Two siblings float leaf boats along a shallow stream.
+Title: The Sibling Fleet
+
+[T007] (Leaf Boats 2, from M025) (Name1) fashions a tiny sail from a fallen petal.
+Title: A Petal Sail
+
+[T008] (Leaf Boats 3, from M029) A group of children marks a finish line beside a puddle.
+Title: The Puddle Regatta
+
+[T009] (Leaf Boats 4, from M033) An elder shows young villagers how to fold a leaf into a boat.
+Title: Folding Leaf Boats
+
+[T010] (Leaf Boats 5, from M037) (Name1) watches a miniature fleet drift toward the shore.
+Title: Boats Bound for Shore
+
+[T011] (Rain, from M041) Rain taps steadily on the roof while (Name1) sits inside.
+Title: Rain on the Roof
+
+[T012] (Rain 2, from M045) Two neighbors shelter from a shower beneath a broad overhang.
+Title: Shelter Together
+
+[T013] (Rain 3, from M049) A child watches raindrops race down a smooth stone.
+Title: Raindrop Races
+
+[T014] (Rain 4, from M053) (Name1) listens to distant thunder from the comfort of a hut.
+Title: Thunder Beyond the Hut
+
+[T015] (Rain 5, from M057) A family moves its afternoon crafts out of the rain.
+Title: Crafts Before the Storm
+
+[T016] (Cooking, from M061) (Name1) tests a new combination of herbs in a stew.
+Title: Herbs in the Stew
+
+[T017] (Cooking 2, from M065) Two cooks compare ways to roast a familiar root.
+Title: The Roasted Root Debate
+
+[T018] (Cooking 3, from M069) A parent lets a child stir the evening meal.
+Title: A Turn at Stirring
+
+[T019] (Cooking 4, from M073) (Name1) tries to recreate a dish remembered from childhood.
+Title: A Taste of Childhood
+
+[T020] (Cooking 5, from M077) Several villagers sample a new fruit-and-grain recipe.
+Title: The New Recipe
+
+[T021] (Potions, from M081) A researcher observes bubbles rising through a harmless herbal mixture.
+Title: Bubbles in the Mixture
+
+[T022] (Potions 2, from M085) (Name1) records the changing color of a plant infusion.
+Title: The Changing Infusion
+
+[T023] (Potions 3, from M089) Two apprentices compare the scents of their experimental potions.
+Title: Scents of Discovery
+
+[T024] (Potions 4, from M093) An elder demonstrates how to measure ingredients consistently.
+Title: A Careful Measure
+
+[T025] (Potions 5, from M097) (Name1) leaves a covered preparation to settle in the shade.
+Title: Settling in the Shade
+
+[T026] (Nets, from M101) (Name1) repairs a fine net while butterflies pass overhead.
+Title: Mending the Butterfly Net
+
+[T027] (Nets 2, from M105) A child learns to hold a butterfly net without tearing it.
+Title: The Gentle Grip
+
+[T028] (Nets 3, from M109) Two friends watch butterflies gathering near flowering plants.
+Title: Butterflies Among Flowers
+
+[T029] (Nets 4, from M113) An elder teaches how to observe delicate wings without touching them.
+Title: Wings Without Touching
+
+[T030] (Nets 5, from M117) (Name1) briefly catches a butterfly in a soft net for observation.
+Title: A Closer Look
+
+[T031] (Holidays, from M121) Neighbors prepare decorations for a village holiday.
+Title: Decorations for the Holiday
+
+[T032] (Holidays 2, from M125) (Name1) practices a song for the coming celebration.
+Title: Rehearsing the Song
+
+[T033] (Holidays 3, from M129) A family arranges a shared meal for a seasonal gathering.
+Title: The Seasonal Table
+
+[T034] (Holidays 4, from M133) Children help sweep the gathering place before a festival.
+Title: Sweeping for the Festival
+
+[T035] (Holidays 5, from M137) An elder recalls how the same holiday was celebrated years ago.
+Title: Holidays Remembered
+
+[T036] (Gifts, from M141) (Name1) wraps a small carved gift in a clean leaf.
+Title: The Leaf-Wrapped Gift
+
+[T037] (Gifts 2, from M145) A child presents a parent with a carefully chosen shell.
+Title: A Shell for a Parent
+
+[T038] (Gifts 3, from M149) Two friends secretly exchange handmade bracelets.
+Title: Bracelets Between Friends
+
+[T039] (Gifts 4, from M153) An elder gives an apprentice a well-used crafting tool.
+Title: The Apprentice’s Gift
+
+[T040] (Gifts 5, from M157) (Name1) leaves a basket of fruit for a tired neighbor.
+Title: Fruit for a Neighbor
+
+[T041] (Promises, from M161) (Name1) remembers promising to help repair a basket.
+Title: The Basket Promise
+
+[T042] (Promises 2, from M165) Two siblings make a pact to practice their knots together.
+Title: A Pact Between Siblings
+
+[T043] (Promises 3, from M169) A friend arrives exactly when promised for a shoreline walk.
+Title: Right on Time
+
+[T044] (Promises 4, from M173) (Name1) realizes a promised visit was forgotten.
+Title: The Forgotten Visit
+
+[T045] (Promises 5, from M177) Several neighbors agree to share responsibility for a difficult chore.
+Title: A Shared Responsibility
+
+[T046] (Elders Teaching Skills, from M181) An elder teaches (Name1) to splice two lengths of rope.
+Title: Splicing the Rope
+
+[T047] (Elders Teaching Skills 2, from M185) A grandparent demonstrates how to mend a fishing net.
+Title: The Grandparent’s Net
+
+[T048] (Elders Teaching Skills 3, from M189) An older farmer shows a child how to judge ripe fruit.
+Title: Choosing Ripe Fruit
+
+[T049] (Elders Teaching Skills 4, from M193) An elder guides an apprentice through a difficult weaving pattern.
+Title: The Difficult Weave
+
+[T050] (Elders Teaching Skills 5, from M197) A seasoned navigator explains how to read familiar shoreline markers.
+Title: Reading the Shoreline
+
+[T051] (Parents, from M201) A child helps a parent sort freshly gathered roots.
+Title: Sorting Roots Together
+
+[T052] (Parents 2, from M205) (Name1) watches a parent patiently mend a worn basket.
+Title: Watching a Parent Work
+
+[T053] (Parents 3, from M209) A young villager volunteers to carry light supplies home.
+Title: A Helpful Load
+
+[T054] (Parents 4, from M213) A parent shows a child how to prepare a simple breakfast.
+Title: Breakfast Lessons
+
+[T055] (Parents 5, from M217) A child asks to help clean and arrange the family’s tools.
+Title: The Family Tools
+
+[T056] (Siblings, from M221) An older sibling helps a younger child tie a sandal.
+Title: A Sandal Tied
+
+[T057] (Siblings 2, from M225) Two siblings divide the work of collecting fallen twigs.
+Title: Gathering Twigs Together
+
+[T058] (Siblings 3, from M229) A young villager comforts a sibling nervous about a new task.
+Title: A Sibling’s Reassurance
+
+[T059] (Siblings 4, from M233) One sibling saves the last ripe fruit for the other.
+Title: The Last Ripe Fruit
+
+[T060] (Siblings 5, from M237) Two children cooperate to carry a basket neither could lift alone.
+Title: A Basket for Two
+
+[T061] (Snakes, from M241) A harmless-looking snake crosses the path ahead of (Name1).
+Title: A Snake on the Path
+
+[T062] (Snakes 2, from M245) Two villagers spot a shed snakeskin beside a rock.
+Title: The Empty Snakeskin
+
+[T063] (Snakes 3, from M249) A child watches a snake slip quietly through tall grass.
+Title: Through the Tall Grass
+
+[T064] (Snakes 4, from M253) (Name1) notices a snake basking on a distant warm stone.
+Title: The Sunlit Stone
+
+[T065] (Snakes 5, from M257) An elder explains why snakes should be given room to move away.
+Title: Giving Snakes Space
+
+[T066] (Pebbles, from M261) (Name1) practices skipping flat pebbles across calm water.
+Title: Skipping Stones
+
+[T067] (Pebbles 2, from M265) Three friends invent a game using smooth stones and a circle in the sand.
+Title: The Circle Game
+
+[T068] (Pebbles 3, from M269) A child sorts pebbles by color beside the shore.
+Title: Pebbles by Color
+
+[T069] (Pebbles 4, from M273) Two villagers compete to build the tallest balanced pebble stack.
+Title: The Tallest Pebble Tower
+
+[T070] (Pebbles 5, from M277) (Name1) searches for a stone shaped like a tiny heart.
+Title: A Heart-Shaped Stone
+
+[T071] (Ropes, from M281) Two villagers twist plant fibers into a sturdy rope.
+Title: Twisting Strong Rope
+
+[T072] (Ropes 2, from M285) (Name1) practices a knot learned only yesterday.
+Title: Yesterday’s Knot
+
+[T073] (Ropes 3, from M289) A builder checks the bindings on a bundle of poles.
+Title: Checking the Bindings
+
+[T074] (Ropes 4, from M293) A child watches a rope-maker’s fingers move with practiced ease.
+Title: The Ropemaker’s Hands
+
+[T075] (Ropes 5, from M297) An elder untangles a hopeless-looking bundle of cord.
+Title: The Tangled Cord
+
+[T076] (Races, from M301) A group of villagers organizes a short beach race.
+Title: The Beach Race
+
+[T077] (Races 2, from M305) Two friends challenge each other to carry baskets without spilling anything.
+Title: The Basket Challenge
+
+[T078] (Races 3, from M309) Children draw a winding racecourse in the sand.
+Title: A Winding Course
+
+[T079] (Races 4, from M313) (Name1) volunteers to announce the start of a running contest.
+Title: The Starting Call
+
+[T080] (Races 5, from M317) An elder recalls a race that ended in a spectacular tumble years ago.
+Title: The Famous Tumble
+
+[T081] (Parchment, from M321) (Name1) smooths a piece of parchment for a short letter.
+Title: A Letter on Parchment
+
+[T082] (Parchment 2, from M325) A scholar practices making clear marks with a handmade writing tool.
+Title: Marks of a Scholar
+
+[T083] (Parchment 3, from M329) An elder dictates a family recipe while a younger villager records it.
+Title: The Written Recipe
+
+[T084] (Parchment 4, from M333) Two friends exchange brief notes about tomorrow’s plans.
+Title: Notes for Tomorrow
+
+[T085] (Parchment 5, from M337) (Name1) carefully copies an old story onto fresh parchment.
+Title: Copying the Old Story
+
+[T086] (Friendship, from M341) (Name1) considers joining a conversation already in progress.
+Title: Joining the Conversation
+
+[T087] (Friendship 2, from M345) Two neighbors invite a quiet villager to share their meal.
+Title: Room at the Meal
+
+[T088] (Friendship 3, from M349) A familiar friend is absent from the usual afternoon gathering.
+Title: The Missing Friend
+
+[T089] (Friendship 4, from M353) (Name1) sits beside (Name2) without feeling obliged to speak.
+Title: Comfortable Silence
+
+[T090] (Friendship 5, from M357) Several villagers make room for a newcomer in their game.
+Title: A Place in the Game
+
+[T091] (Workdays, from M361) (Name1) wakes with a task already weighing on their mind.
+Title: The Heavy Morning
+
+[T092] (Workdays 2, from M365) A farmer finishes the day earlier than expected.
+Title: An Early Finish
+
+[T093] (Workdays 3, from M369) (Name1) struggles to concentrate on a familiar chore.
+Title: The Wandering Mind
+
+[T094] (Workdays 4, from M373) A builder pauses to admire work completed over several days.
+Title: A Builder’s Pause
+
+[T095] (Workdays 5, from M377) (Name1) has been looking forward to supper since morning.
+Title: Waiting for Supper
+
+[T096] (Memories, from M381) An elder shows a child an old ceremonial shield.
+Title: The Ceremonial Shield
+
+[T097] (Memories 2, from M385) (Name1) examines a tool repaired by several generations.
+Title: Repairs Across Generations
+
+[T098] (Memories 3, from M389) A grandparent teaches the family’s traditional lantern pattern.
+Title: The Lantern Pattern
+
+[T099] (Memories 4, from M393) Two relatives compare different memories of a long-ago festival.
+Title: Two Memories of One Festival
+
+[T100] (Memories 5, from M397) (Name1) places an inherited carving beside a newer one.
+Title: Carvings Old and New
+
+[T101] (Gardens, from M401) (Name1) checks whether a newly planted seed has sprouted.
+Title: Waiting for a Sprout
+
+[T102] (Gardens 2, from M405) Two gardeners compare the growth of neighboring plants.
+Title: Neighboring Garden Beds
+
+[T103] (Gardens 3, from M409) A child helps carry water to a small patch of herbs.
+Title: Water for the Herbs
+
+[T104] (Gardens 4, from M413) An elder teaches how to recognize healthy leaves.
+Title: Reading Healthy Leaves
+
+[T105] (Gardens 5, from M417) (Name1) discovers a flower blooming where none was expected.
+Title: The Unexpected Blossom
+
+[T106] (Fishing, from M421) A fisher repairs a small net beside the shore.
+Title: The Fisher’s Net
+
+[T107] (Fishing 2, from M425) (Name1) learns to coil rope without tangling it.
+Title: Coiling the Line
+
+[T108] (Fishing 3, from M429) Two villagers compare the shells caught in a tide pool.
+Title: Shells in the Tidepool
+
+[T109] (Fishing 4, from M433) An elder shows a youngster how to read the changing tide.
+Title: Reading the Tides
+
+[T110] (Fishing 5, from M437) (Name1) waits patiently while a fishing float bobs offshore.
+Title: The Patient Fishing Float
+
+[T111] (Music, from M441) A villager practices a drum rhythm for a gathering.
+Title: The Drum Rehearsal
+
+[T112] (Music 2, from M445) Two friends teach each other steps from different dances.
+Title: Trading Dance Steps
+
+[T113] (Music 3, from M449) A child tries to copy an elder’s clapping pattern.
+Title: The Clapping Pattern
+
+[T114] (Music 4, from M453) (Name1) hums a tune while working with plant fibers.
+Title: A Workday Tune
+
+[T115] (Music 5, from M457) Several neighbors gather to sing after the evening meal.
+Title: Songs After Supper
+
+[T116] (Rest, from M461) (Name1) lies in the shade thinking about tomorrow.
+Title: Tomorrow in the Shade
+
+[T117] (Rest 2, from M465) A villager takes the long way home to enjoy the quiet.
+Title: The Longer Way Home
+
+[T118] (Rest 3, from M469) (Name1) watches clouds drift above the village.
+Title: Watching the Clouds
+
+[T119] (Rest 4, from M473) Someone sits alone with a cup of warm herbal drink.
+Title: A Cup in Solitude
+
+[T120] (Rest 5, from M477) (Name1) wakes from a brief afternoon nap.
+Title: After the Afternoon Nap
+
+[T121] (Sharing, from M481) Several neighbors help repair a weathered basket.
+Title: Mending a Basket Together
+
+[T122] (Sharing 2, from M485) (Name1) brings a portion of supper to an exhausted friend.
+Title: Supper for a Friend
+
+[T123] (Sharing 3, from M489) A group gathers to tidy a shared pathway.
+Title: Clearing the Path
+
+[T124] (Sharing 4, from M493) Two villagers offer to carry supplies for an older neighbor.
+Title: Helping Carry Supplies
+
+[T125] (Sharing 5, from M497) A family invites someone spending the evening alone to join them.
+Title: An Invitation to Supper
+
+==============================================================================
+QUESTION 3: EVENTS THAT SHARE A TITLE
+==============================================================================
+These pairs are two DIFFERENT events with the same title, so Pick Island Event would list the name twice.
+For each, write: KEEP BOTH, or a new title for the first and/or second event.
+
+[D01] "The Gods' Silence"
+  First: Companion Vol 1 Part 5, V048
+  Second: The Lives Between Legends 112
+  How alike: same premise, outcomes reworded
+  Answer: KEEP BOTH; rename second to "When the Gods Do Not Answer". Near-duplicate premise: retain both texts unchanged for now; review distinct outcomes before implementation.
+
+[D02] "The Shared River"
+  First: Companion Vol 1 Part 5, V046
+  Second: The Lives Between Legends 110
+  How alike: same premise, different outcomes
+  Answer: KEEP BOTH; rename second to "The River Between Neighbors". Different outcomes warrant separate selectable entries.
+
+[D03] "The Quiet Leader"
+  First: Companion Vol 1 Part 5, V033
+  Second: Four Ways of Knowing 049
+  How alike: similar idea
+  Answer: KEEP BOTH; rename second to "Leadership Without Many Words".
+
+[D04] "The Night Watch"
+  First: Companion Vol 1 Part 2, 058
+  Second: Companion Vol 1 Part 3, 018
+  How alike: different plots
+  Answer: KEEP BOTH; rename second to "The Watch After Dark". Different plots.
+
+[D05] "The Unsent Apology"
+  First: Companion Vol 1 Part 2, 024
+  Second: Stone, Spirit, Strangers 056
+  How alike: similar theme
+  Answer: KEEP BOTH; rename second to "Words Left Unspoken".
+
+[D06] "The Family Resemblance"
+  First: Companion Vol 1 Part 2, 035
+  Second: Companion Vol 1 Part 3, 032
+  How alike: different plots
+  Answer: KEEP BOTH; rename second to "A Face From the Family". Different plots.
+
+[D07] "The Forgotten Name"
+  First: Companion Vol 1 Part 2, 021
+  Second: Four Ways of Knowing 034
+  How alike: different plots
+  Answer: KEEP BOTH; rename second to "A Name Lost to Time". Different plots.
+
+[D08] "The False Alarm"
+  First: Grand collection V23.5
+  Second: Companion, Part 4 054
+  How alike: different plots
+  Answer: KEEP BOTH; rename second to "A Startling Mistake". Different plots.
+
+[D09] "The Cruel Joke"
+  First: Grand collection V27-08
+  Second: The Lives Between Legends 029
+  How alike: similar: a child or teen mocks another's voice
+  Answer: KEEP BOTH; rename second to "The Mocked Voice". Similar premise: preserve both original event texts; compare outcomes for meaningful distinction.
+
+[D10] "The Midnight Raft"
+  First: Grand collection V27-13
+  Second: The Lives Between Legends 026
+  How alike: near the same: teens launch a homemade raft after dark
+  Answer: KEEP BOTH; rename second to "The Raft After Sundown". Near-duplicate premise: preserve both original event texts; review for repetition.
+
+[D11] "The Dangerous Proof"
+  First: Grand collection V27-14
+  Second: The Lives Between Legends 082
+  How alike: similar: a teen tries to prove a legend
+  Answer: KEEP BOTH; rename second to "Testing the Old Legend". Similar premise: preserve both original event texts; review for repetition.
+
+[D12] "The Public Embarrassment"
+  First: Grand collection V27-15
+  Second: The Lives Between Legends 017
+  How alike: different plots
+  Answer: KEEP BOTH; rename second to "An Awkward Moment Before Everyone". Different plots.
+
+[D13] "The Special Friend"
+  First: Grand collection V27-42
+  Second: The Lives Between Legends 014
+  How alike: near the same: two inseparable villagers
+  Answer: KEEP BOTH; rename second to "Always Together". Near-duplicate premise: preserve both original event texts; review for repetition.
+
+==============================================================================
+QUESTION 4: STILL WAITING ON YOU
+==============================================================================
+* The follow-up lines and titles for the 35 armor flavor lines (M01-M35), from
+  "ChatGPT Prompt - Tiny Island Moments.txt". Until they arrive, those lines are used only as mixer openings.
+  Note: your new 500-moments file is a different set; it doesn't answer this one.
+
+
+
+==============================================================================
+QUESTION 4: COMPLETED ARMOR FLAVOR MOMENTS (M01-M35)
+==============================================================================
+Original openings preserved verbatim. Each follow-up is two short sentences; no choices or new mechanics.
+
+[M01] An armorer polishes a ceremonial breastplate.
+Title: The Polished Breastplate
+Follow-up: The metal catches the late light. A faint scratch remains visible beneath the shine.
+
+[M02] A bowyer examines a newly finished bow.
+Title: The Bowyer’s Inspection
+Follow-up: (Name1) tests the string with a practiced hand. The bow gives a soft, reassuring hum.
+
+[M03] An apprentice carries a bundle of wooden practice spears.
+Title: Practice Spears
+Follow-up: The bundle shifts against one shoulder. An older apprentice steadies the last spear before it slips.
+
+[M04] A hunter inspects a weathered quiver.
+Title: The Weathered Quiver
+Follow-up: One seam has begun to loosen. (Name1) sets aside a length of cord for repairs.
+
+[M05] A villager decorates a shield with family symbols.
+Title: Symbols on a Shield
+Follow-up: The newest mark sits beside an older, weathered one. (Name1) pauses to compare their shapes.
+
+[M06] Several children admire ceremonial helmets.
+Title: Helmets on Display
+Follow-up: One child points out a feathered crest. Another wonders how heavy the helmet might feel.
+
+[M07] A carpenter repairs a cracked wooden shield.
+Title: The Cracked Shield
+Follow-up: The new brace fits neatly against the wood. (Name1) runs a thumb along the join.
+
+[M08] An elder recounts the history of an ancestral spear.
+Title: The Ancestral Spear
+Follow-up: The elder traces a worn mark with one finger. A listener leans closer to hear the next part.
+
+[M09] A farmer tends to a well-used harvesting implement.
+Title: The Harvesting Tool
+Follow-up: The handle is smooth from years of use. (Name1) brushes away soil caught near the binding.
+
+[M10] A villager practices balancing a long wooden staff.
+Title: Balancing the Staff
+Follow-up: The staff wobbles once, then settles. (Name1) tries the movement again more slowly.
+
+[M11] A craftsperson weaves tough plant fibers into protective clothing.
+Title: A Protective Weave
+Follow-up: The new layer feels stiff between the fingers. A few careful adjustments make it sit more comfortably.
+
+[M12] Villagers compare traditional hunting implements.
+Title: Implements of the Hunt
+Follow-up: One has a beautifully carved grip. Another bears the marks of frequent repairs.
+
+[M13] A ceremonial procession carries decorated shields and spears.
+Title: Shields in Procession
+Follow-up: The painted patterns move gently with each step. Someone near the path recognizes a family emblem.
+
+[M14] An artisan replaces worn bindings on old armor.
+Title: Bindings Made New
+Follow-up: The old cord comes away in short pieces. Fresh fiber lies ready beside the work.
+
+[M15] A historian sketches the remains of a watchpost.
+Title: The Old Watchpost
+Follow-up: Only a few stones remain in place. (Name1) draws their positions before the light changes.
+
+[M16] A villager places an ancestral shield beside a memorial.
+Title: A Shield at the Memorial
+Follow-up: The shield rests quietly among the offerings. (Name1) straightens the cloth beneath its edge.
+
+[M17] A hunter stores a bow safely inside a hut.
+Title: The Bow Put Away
+Follow-up: The string is loosened before storage. (Name1) checks that the bow rests clear of damp ground.
+
+[M18] Two artisans discuss protective materials.
+Title: Materials for Protection
+Follow-up: One sample bends without cracking. The other feels lighter when held against the arm.
+
+[M19] A group rehearses a traditional shield dance.
+Title: Rehearsing the Shield Dance
+Follow-up: The dancers miss a beat and start again. A drummer taps the rhythm a little more clearly.
+
+[M20] A veteran helps preserve old equipment for future generations.
+Title: The Veteran’s Equipment
+Follow-up: An old strap has become brittle. The veteran places it beside a newer binding for comparison.
+
+[M21] A grandparent shows a child the markings on a family shield.
+Title: Markings on the Shield
+Follow-up: The child notices two marks that almost match. The grandparent points out the small difference.
+
+[M22] An apprentice carefully wraps an inherited bow for storage.
+Title: The Inherited Bow
+Follow-up: (Name1) tucks a soft leaf beneath the bowstring. The wrapping is tied loosely enough to remove later.
+
+[M23] An elder teaches the names of tools passed down through the family.
+Title: Names of Old Tools
+Follow-up: One name is still used every day. Another makes the elder smile at a half-forgotten expression.
+
+[M24] A villager adds a new carving beside an ancestor's symbol.
+Title: A New Family Mark
+Follow-up: The fresh carving looks pale beside the older mark. (Name1) brushes away the last curls of wood.
+
+[M25] Two relatives compare memories of the same ceremonial spear.
+Title: Memories of a Spear
+Follow-up: One remembers the painted tip. The other recalls how it was carried during festivals.
+
+[M26] A young craftsperson copies a grandparent's weaving pattern.
+Title: The Grandparent’s Pattern
+Follow-up: The first attempt comes out uneven. (Name1) studies the older weaving and tries another row.
+
+[M27] A family repairs a well-loved digging stick rather than replacing it.
+Title: The Repaired Digging Stick
+Follow-up: The handle has been patched more than once. A family member brings another strip of strong fiber.
+
+[M28] A keeper records the known history of a ceremonial helmet.
+Title: The Helmet’s History
+Follow-up: Some details have been lost over time. The keeper leaves a space beside an uncertain date.
+
+[M29] A child asks why an old shield is displayed but never used.
+Title: The Shield Not Used
+Follow-up: The adult turns the shield slightly toward the light. A worn edge becomes easier to see.
+
+[M30] A bowyer passes a favorite tool to a trusted apprentice.
+Title: The Bowyer’s Favorite Tool
+Follow-up: The apprentice recognizes the tool by its polished handle. The bowyer sets it gently into waiting hands.
+
+[M31] An elder tells a story that changes slightly with each retelling.
+Title: A Story Retold
+Follow-up: A listener notices the changed detail and smiles. The elder laughs softly before continuing.
+
+[M32] A villager studies faded designs on an inherited breastplate.
+Title: Faded Breastplate Designs
+Follow-up: Some lines are almost invisible now. (Name1) tilts the breastplate to follow their faint curves.
+
+[M33] Several families gather to share stories about their heirlooms.
+Title: The Heirloom Gathering
+Follow-up: One family brings a carved handle. Another unfolds a cloth carefully wrapped around an old ornament.
+
+[M34] A craftsperson preserves a damaged spear shaft as a historical object.
+Title: The Damaged Spear Shaft
+Follow-up: The wood has split along its grain. (Name1) places it where the markings can still be examined.
+
+[M35] A young villager learns that inheriting an object also means caring for it.
+Title: The Care of Heirlooms
+Follow-up: The young villager checks the wrapping for wear. The elder shows where it should be kept dry.
+

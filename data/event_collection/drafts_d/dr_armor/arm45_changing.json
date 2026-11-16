@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Changing Tradition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm45_changing",
+  "source": "armor45",
+  "lines": [
+   56,
+   56
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L56",
+    "kind": "structural",
+    "text": "45. The Changing Tradition  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Younger villagers adapt an ancestral shield dance while elders preserve the older steps.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Younger villagers adapt an ancestral shield dance while elders preserve the older steps. Both versions become part of the village's living history.",
+   "src": "L56"
+  }
+ }
+}

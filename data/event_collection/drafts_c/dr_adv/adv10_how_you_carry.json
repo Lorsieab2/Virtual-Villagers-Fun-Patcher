@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How You Carry a Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv10_how_you_carry",
+  "source": "draft_adv",
+  "lines": [
+   110,
+   119
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L110",
+  "ledger": [
+   {
+    "src": "L111",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend tells a villager carrying coconuts on their hip to carry them on their head: thank them and walk on, or try it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is carrying a heavy basket of coconuts on (subject.his/her) hip, the way (subject.he/she) always has. (friend) falls into step beside (subject.him/her). \"You know, if you carried it on your head, it would be much easier on your back. Here, let me show you...\"",
+   "src": "L113",
+   "choices": [
+    {
+     "label": "Thank (friend.him/her) and Keep Walking",
+     "next": "o1",
+     "src": "L115"
+    },
+    {
+     "label": "Try It on (subject.his/her) Head",
+     "next": "o2",
+     "src": "L118"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject), \"but I like it this way.\" (friend) looks a bit put out. \"But it's better on your head.\" \"Maybe,\" says (subject). \"I still like it this way.\" (subject.He/she) keeps walking. (friend) walks with (subject.him/her) for a while, clearly wanting to say more, and then, with a visible effort, doesn't.",
+   "src": "L116"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tries it on (subject.his/her) head. It's terrifying. The basket wobbles, the coconuts rumble, and (subject) walks like a heron for twenty steps before the whole thing comes down. Coconuts everywhere. (friend) helps pick them up. \"It takes practice,\" (friend.he/she) says. \"Then I'll practice another day,\" says (subject), and puts the basket back on (subject.his/her) hip.",
+   "src": "L119"
+  }
+ }
+}

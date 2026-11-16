@@ -1,0 +1,157 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "When Someone Will Not Change",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus30_when_someone",
+  "source": "anthology",
+  "lines": [
+   31183,
+   31197
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31183",
+  "ledger": [
+   {
+    "src": "L31184",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   }
+  ],
+  "description": "A repeat offender keeps exploiting others' goodwill despite warnings and opportunities to stop.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A repeat offender keeps exploiting others' goodwill despite warnings and opportunities to stop.",
+   "src": "L31185",
+   "choices": [
+    {
+     "label": "Document Conduct Fairly",
+     "next": "a",
+     "src": "L31186"
+    },
+    {
+     "label": "Protect Those Affected",
+     "next": "b",
+     "src": "L31189"
+    },
+    {
+     "label": "Offer a Final Bounded Opportunity",
+     "next": "c",
+     "src": "L31192"
+    },
+    {
+     "label": "Accept Limits of Reconciliation",
+     "next": "d",
+     "src": "L31195"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Specific incidents establish a pattern.",
+   "src": "L31187"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Unverified rumors are excluded from the decision.",
+   "src": "L31188"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The offender loses access to vulnerable duties.",
+   "src": "L31190"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Neighbors create safe ways to report further problems.",
+   "src": "L31191"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The offender refuses the conditions and faces exclusion.",
+   "src": "L31193"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They comply temporarily but trust is restored only through sustained action.",
+   "src": "L31194"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The community prioritizes safety over a comforting ending.",
+   "src": "L31196"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Villagers acknowledge that not everyone chooses to improve.",
+   "src": "L31197"
+  }
+ }
+}

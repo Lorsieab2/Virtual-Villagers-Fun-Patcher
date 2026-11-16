@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Predictions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt43_predictions",
+  "source": "draft_tt",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's daily predictions keep coming true and a gift seems possible: ask for a harder one, or try to make one fail.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has started making a prediction every morning. \"Today, someone will laugh.\" \"Today, the sun will set.\" \"Today, (friend) will eat a fish.\" Every single one has come true. (subject) is beginning to think (subject.he/she) might have a gift.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Ask for a Harder One",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Try to Make One Fail",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks for a prediction about something that might not happen. (subject) closes (subject.his/her) eyes, thinks, and says, \"Tomorrow it will rain on the far side of the island.\" Nobody goes to check. (subject) counts it as a success. (friend) isn't entirely sure (friend.he/she) can argue with that.",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) refuses to eat any fish all day, on principle. By evening (friend.he/she) is very hungry. (subject) points out that the prediction never said which day. (friend) eats a fish. (subject) declares a triumph.",
+   "src": "L521"
+  }
+ }
+}

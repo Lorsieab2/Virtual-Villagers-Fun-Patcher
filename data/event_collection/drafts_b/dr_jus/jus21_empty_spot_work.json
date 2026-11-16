@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Spot at Work Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus21_empty_spot_work",
+  "source": "draft_jus",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L254",
+    "kind": "sensitivity",
+    "before": "that the night fisher is resting",
+    "after": "that (fisher), the night fisher, is resting",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager has missed the last four shared work days, and people are grumbling: hear them out, or ask around first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every few days, the whole village spends a morning on shared work: clearing paths, mending the storehouse, carrying water to the gardens. (subject) hasn't turned up for the last four. (friend) has noticed, and so have others, and there's grumbling. The council has asked (subject) to come and explain.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Hear (subject) Out",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Ask Around First",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) explains that (fisher), the night fisher, is resting an injured ankle, so (subject.he/she) has been doing the night fishing alone all week, and sleeping through the mornings. Nobody knew. The grumbling stops. (friend) says (friend.he/she) is sorry for complaining, and the council asks two others to share the night fishing, so that (subject) can get some sleep.",
+   "src": "L254",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury talked about in the story; nobody's health changes -- the draft's notes: everything but the marked effects is story only",
+     "src": "L254"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council asks around before (subject) arrives. Several people have seen (subject) paddling out every night and coming back at dawn with fish; nobody connected it with the empty spot at work day. By the time (subject) gets there, the council already knows, and simply thanks (subject.him/her). The next morning (friend) brings (subject.him/her) breakfast, which is a kind of apology.",
+   "src": "L257"
+  }
+ }
+}

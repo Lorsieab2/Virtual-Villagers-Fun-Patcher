@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Rule With No Reason",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs15_rule_reason",
+  "source": "anthology",
+  "lines": [
+   29650,
+   29663
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29650",
+  "ledger": [],
+  "description": "An old rule forbids placing woven baskets on a particular stone, but nobody remembers why.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An old rule forbids placing woven baskets on a particular stone, but nobody remembers why.",
+   "src": "L29651",
+   "choices": [
+    {
+     "label": "Investigate the Stone",
+     "next": "a",
+     "src": "L29652"
+    },
+    {
+     "label": "Preserve the Custom for Now",
+     "next": "b",
+     "src": "L29655"
+    },
+    {
+     "label": "Hold a Small Discussion",
+     "next": "c",
+     "src": "L29658"
+    },
+    {
+     "label": "Try a Careful Exception",
+     "next": "d",
+     "src": "L29661"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A slippery patch explains the practical origin of the rule.",
+   "src": "L29653"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "No danger appears, and the villagers begin to question the custom.",
+   "src": "L29654"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Some elders appreciate the continuity.",
+   "src": "L29656"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Young villagers ask why respect must mean never revisiting a decision.",
+   "src": "L29657"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group agrees to revise the rule without mocking its history.",
+   "src": "L29659"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Several interpretations survive, and no unanimous decision is reached.",
+   "src": "L29660"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The baskets remain perfectly safe, prompting a quiet revision.",
+   "src": "L29662"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A basket slips, showing why testing traditions thoughtfully matters.",
+   "src": "L29663"
+  }
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Are Spirits Real?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf03_are_spirits_real",
+  "source": "draft_blf",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-11 and an adult relative of the child (where the game records it)"
+   }
+  ],
+  "description": "At bedtime a child asks an adult relative if spirits are real: say they do not know, or tell what different people believe.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's bedtime, and (subject) has just asked (friend) the big question: \"Are spirits real?\" (friend) has been dreading this one. Some people in the village are sure they are. Some are sure they aren't. (friend) honestly isn't sure (friend.him/her)self.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Say Honestly That (friend.he/she) Doesn't Know",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Tell (subject.him/her) What Different People Believe",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't know,\" says (friend). \"Some people believe they are. Some people believe they aren't. I'm still wondering.\" (subject) frowns. \"But you're a GROWN-UP.\" \"Grown-ups don't know everything,\" says (friend). \"Some things nobody knows for sure.\" (subject) thinks about this. \"Then I'll wonder too,\" (subject.he/she) decides, and falls asleep wondering.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Well,\" says (friend), \"some families believe the spirits live in the old trees. Some people think they're in the sea. Some people don't think there are any at all.\" (subject) listens, wide-eyed. \"Which is right?\" \"What do you think?\" asks (friend). (subject) thinks. \"I think there's one in the mango tree,\" (subject.he/she) says. \"A greedy one.\" Fair enough.",
+   "src": "L41"
+  }
+ }
+}

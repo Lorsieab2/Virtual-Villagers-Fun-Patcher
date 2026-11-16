@@ -410,6 +410,10 @@ CASES = [
     Case("Children Play", "assets/children_play/VVFP Children Play.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_children_play"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpChildrenPlayInstalled"))[1]),
+    # Change Sex and Gender Presentation (all five games): every read of the sex field in the villager draw routines.
+    Case("Gender Presentation", "assets/gender_presentation/VVFP Gender Presentation.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_gender_presentation"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGenderPresentationInstalled", g))[1]),
     # The Aspiring Adventurer (all five games): its draw, popup and answer sites.
     Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_island_events"],

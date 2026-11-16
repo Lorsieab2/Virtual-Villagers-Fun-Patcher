@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Watches",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div26_healer_watches",
+  "source": "draft_div",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer or an adult and another adult; in the story (name1) is deaf)"
+   },
+   {
+    "src": "L314",
+    "kind": "instruction",
+    "text": "[effect: (name2) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L317",
+    "kind": "instruction",
+    "text": "[effect: (name2) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A deaf healer's patient keeps telling the story of a sore shoulder while facing the wall: turn them around, or just examine it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is deaf and one of the village's best healers. (subject.He/she) listens with (subject.his/her) eyes and (subject.his/her) hands: how someone breathes, where they flinch, what their face does when (subject.he/she) presses. Today (friend) has come in with a sore shoulder and has not stopped talking, mostly while facing the wall, explaining the whole story of how it happened.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Turn (friend) Around",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Just Examine the Shoulder",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gently turns (friend) to face (subject.him/her) and signs and says, \"Again, please. Facing me.\" (friend) apologizes and starts again. Halfway through, (subject) presses a spot on the shoulder, and (friend) yelps. \"There,\" says (subject), satisfied. \"Also, you fell off the roof, not out of a tree. I can tell from the bruise.\" (friend) is astonished and slightly caught out.",
+   "src": "L314",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 10,
+     "max": 30,
+     "src": "L314"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) talk to the wall and gets on with it. By the time the story's over, (subject) has already found the problem, strapped the shoulder and made up a poultice. (friend) turns around. \"Did you get all that?\" (subject) smiles. \"None of it. But your shoulder told me everything.\"",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 10,
+     "max": 30,
+     "src": "L317"
+    }
+   ]
+  }
+ }
+}

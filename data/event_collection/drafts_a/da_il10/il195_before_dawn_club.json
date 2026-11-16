@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Before-Dawn Club",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il195_before_dawn_club",
+  "source": "da_il10",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L167",
+    "kind": "casting",
+    "before": "another elder.",
+    "after": "(elder), another elder.",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder who wakes before dawn finds other elders by the embers, and a little early club begins.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has started waking up long before dawn, for no reason at all. At first (subject.he/she) lay there in the dark, annoyed. Then, one morning, (subject.he/she) got up and went to sit by the embers of the fire. And found (friend) already there. And, a few mornings later, (elder), another elder. Without anyone deciding it, there's now a little group that meets in the dark every day.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Make It Official",
+     "next": "a",
+     "src": "L169"
+    },
+    {
+     "label": "Keep It Quiet",
+     "next": "b",
+     "src": "L172"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"We should have a name,\" says (subject) one morning. They argue about it, in whispers, until the sun comes up. The Early Ones? The Ember Folk? The Too-Old-To-Sleep? Nothing is decided. They agree to keep arguing about it tomorrow. They will, very happily, for months.",
+   "src": "L170"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Nobody says anything about it. They just sit by the embers, sometimes talking, sometimes not, poking the coals and watching the sky go from black to grey to pink. When the rest of the village wakes, the early ones are already up and about, and nobody else ever knows about the quiet hour they share.",
+   "src": "L173"
+  }
+ }
+}

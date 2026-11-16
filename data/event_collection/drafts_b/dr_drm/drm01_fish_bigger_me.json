@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish Bigger Than Me",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm01_fish_bigger_me",
+  "source": "draft_drm",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-10 and an adult)"
+   }
+  ],
+  "description": "A child sets out to catch a fish bigger than themselves: sit and fish together, or tell them about the biggest fish you ever saw.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has announced (subject.his/her) life's ambition: to catch a fish bigger than (subject.him/her)self. (subject.He/she) has a line, a hook made from a bent bone, and a worm (subject.he/she) has named Hope. (subject.He/she) has been sitting on the rocks since breakfast. (friend) comes by with lunch and asks how it's going.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Sit and Fish Together",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Tell (subject.him/her) About the Biggest Fish You Ever Saw",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits down. They fish all afternoon. (subject) catches a fish about the size of (subject.his/her) thumb, and holds it up next to (subject.his/her) arm, and then next to (subject.his/her) foot, trying to find some part of (subject.him/her)self it's bigger than. Eventually they settle on \"bigger than my ear.\" It's a start.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) describes a fish (friend.he/she) once saw from a canoe, longer than the canoe itself, gliding underneath without a sound. (subject) listens with enormous eyes. (subject.He/she) doesn't catch anything all day. That night (subject.he/she) dreams about the big fish, and in the morning (subject.he/she) is back on the rocks with a new worm, called Hope Two.",
+   "src": "L17"
+  }
+ }
+}

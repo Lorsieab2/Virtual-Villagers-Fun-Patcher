@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worst-Case Scenario",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il030_worst_case",
+  "source": "da_il02",
+  "lines": [
+   321,
+   335
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L321",
+  "ledger": [
+   {
+    "src": "L323",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L335",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager asked to speak at a gathering imagines every possible disaster, including a falling coconut.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been asked to speak at a village gathering. (subject.He/She) has prepared carefully, but now (subject.his/her) imagination is producing an extraordinary number of possible disasters. What if (subject.he/she) forgets everything? What if everyone laughs? What if a coconut falls from a tree at precisely the wrong moment?",
+   "src": "L325",
+   "choices": [
+    {
+     "label": "Practice with (friend)",
+     "next": "a",
+     "src": "L327"
+    },
+    {
+     "label": "Prepare for the Unexpected",
+     "next": "b",
+     "src": "L331"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) listens patiently. (subject) forgets a sentence, starts again, and eventually completes the speech. \"That wasn't so bad,\" says (friend). \"No,\" admits (subject). \"Although there weren't any coconuts.\"",
+   "src": "L329"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) checks the gathering place, arranges (subject.his/her) notes, and chooses a spot away from the coconut trees. The speech goes reasonably well. Halfway through, a bird interrupts with an enormous squawk. Everyone laughs, including (subject).",
+   "src": "L333"
+  }
+ }
+}

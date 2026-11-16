@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The People Who Live on Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz113_people_live",
+  "source": "draft_hz2",
+  "lines": [
+   402,
+   412
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L402",
+  "ledger": [
+   {
+    "src": "L403",
+    "kind": "sensitivity",
+    "before": "A fisher",
+    "after": "(Name1), a fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A fisher wonders whether distant people might build homes that float on rivers or lakes.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a fisher, wonders whether distant people might build homes that float on rivers or lakes.",
+   "src": "L403",
+   "choices": [
+    {
+     "label": "Imagine Floating Villages.",
+     "next": "a",
+     "src": "L404"
+    },
+    {
+     "label": "Imagine Their Daily Life.",
+     "next": "b",
+     "src": "L407"
+    },
+    {
+     "label": "Ask Whether Isola Has Anything Like It.",
+     "next": "c",
+     "src": "L410"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fisher imagines fishing from one's own doorway and finds the idea perfect.",
+   "src": "L405"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder wonders how anyone would keep the floors dry.",
+   "src": "L406"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A parent imagines children learning to swim before they can walk.",
+   "src": "L408"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder wonders whether they would ever miss solid ground.",
+   "src": "L409"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers realize a canoe left in the lagoon overnight is a tiny floating home for crabs.",
+   "src": "L411"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child declares they will sleep in a canoe pulled up on the sand tonight, and does, and comes home at dawn covered in dew.",
+   "src": "L412"
+  }
+ }
+}

@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sky and the Smoke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp63_sky_smoke",
+  "source": "anthology",
+  "lines": [
+   32240,
+   32254
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32240",
+  "ledger": [
+   {
+    "src": "L32241",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32245",
+    "kind": "sensitivity",
+    "before": "A watcher",
+    "after": "(watcher), a watcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32250",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32251",
+    "kind": "sensitivity",
+    "before": "A science-minded villager",
+    "after": "(villager), a science-minded villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A distant haze prompts concern about wildfire, volcanic activity, or an ordinary weather effect.",
+  "label_case": "title",
+  "cast_only": [
+   "watcher",
+   "elder",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "watcher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A distant haze prompts concern about wildfire, volcanic activity, or an ordinary weather effect.",
+   "src": "L32242",
+   "choices": [
+    {
+     "label": "Observe Safely",
+     "next": "a",
+     "src": "L32243"
+    },
+    {
+     "label": "Prepare Without Panic",
+     "next": "b",
+     "src": "L32246"
+    },
+    {
+     "label": "Consult Experienced Observers",
+     "next": "c",
+     "src": "L32249"
+    },
+    {
+     "label": "Help Vulnerable Neighbors",
+     "next": "d",
+     "src": "L32252"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The haze clears without incident.",
+   "src": "L32244"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(watcher), a watcher, spots signs requiring caution.",
+   "src": "L32245"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Families review evacuation routes.",
+   "src": "L32247"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Supplies are checked and stored.",
+   "src": "L32248"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) recalls a similar harmless haze.",
+   "src": "L32250"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager), a science-minded villager, notes the evidence is incomplete.",
+   "src": "L32251"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Caregivers organize transport plans.",
+   "src": "L32253"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Children practice where to meet adults.",
+   "src": "L32254"
+  }
+ }
+}

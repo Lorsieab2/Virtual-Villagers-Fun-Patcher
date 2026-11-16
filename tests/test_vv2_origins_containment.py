@@ -236,6 +236,9 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Original Looks: Reset to original is in the Origins Change
                 # Appearance windows, so it declares the Origins base.
                 "vv2_original_look",
+                # Change Sex and Gender Presentation: its choices are in the Origins Change Appearance
+                # window, so it declares the Origins base.
+                "vv2_gender_presentation",
                 *PUBLIC,
             }
             # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font)

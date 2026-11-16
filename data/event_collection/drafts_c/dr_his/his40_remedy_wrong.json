@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Remedy That Was Wrong",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his40_remedy_wrong",
+  "source": "draft_his",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer or an adult and an elder)"
+   }
+  ],
+  "description": "A young healer finds an old remedy on the healers' boards known to make burns worse: scratch it out, or leave it with a warning.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The healers keep old remedies carved on wooden boards in the healers' hut, some of them many generations old. Today (subject), a young healer, has found one that says to treat a burn by rubbing it with a certain red sap. (subject.He/she) has seen that sap make burns much worse. (subject.He/she) brings it to (friend), the oldest healer.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Scratch It Out",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Leave It with a Warning",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) looks at it for a long time. \"That one hurt people,\" (friend.he/she) says at last. \"We stopped using it before I was born, but nobody took it off the board.\" (subject) asks if they should. (friend) nods. They scratch out the remedy, and carve beneath it: \"This was wrong. Do not use.\" (friend) says that's better than pretending it was never there.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says the old board should stay as it is; it's part of the history of the healers' hut. Instead, they carve a warning next to it, big and clear. (subject) isn't sure that's enough. They argue about it, respectfully. In the end, they also take the board off the wall and put it in a basket, with the other things that are kept but no longer used.",
+   "src": "L485"
+  }
+ }
+}

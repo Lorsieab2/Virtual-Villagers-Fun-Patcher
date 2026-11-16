@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One Stone a Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il065_one_stone_day",
+  "source": "da_il04",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has added one stone a day to a pile on the beach for years, and someone finally asks why.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Years ago (subject) put a stone on a flat spot at the edge of the beach, for no reason at all. The next day (subject.he/she) put another one on top. (subject.He/She) has added one stone almost every day since. The pile is now taller than most children, and today (friend) stops beside it and asks the question (subject) has been dreading: \"Why?\"",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Try to Explain",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Shrug",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) opens (subject.his/her) mouth. Closes it. Tries again. \"It was one stone,\" (subject.he/she) says at last, \"and then it would have been rude to stop.\" (friend) considers the pile for a long moment, then picks up a small stone and holds it out. \"May I?\" (subject) thinks about it. \"Just this once.\"",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"No reason,\" says (subject), and puts today's stone on top. (friend) waits for more. There is no more. (friend) walks on, shaking (friend.his/her) head, and (subject) stands back to admire the pile. It is, (subject.he/she) thinks, a very good pile.",
+   "src": "L65"
+  }
+ }
+}

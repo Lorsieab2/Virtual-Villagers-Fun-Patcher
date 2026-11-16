@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Frame",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div43_new_frame",
+  "source": "draft_div",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a builder or another adult; in the story (name1) walks with a frame)"
+   }
+  ],
+  "description": "An elder complains all morning about the new walking frame: ask what would make it better, or let them grumble.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has started walking with a frame: a light square of bamboo with four feet that (subject.he/she) lifts and sets down ahead of (subject.him/her). (friend) built it, and it works very well. (subject), however, has been complaining about it all morning. It's ugly, it's slow, it makes (subject.him/her) feel old. (friend) is starting to wonder if (friend.he/she) should have built it at all.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Ask What Would Make It Better",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Let (friend.him/her) Grumble",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Too ugly?\" says (friend). \"Then let's fix that.\" (subject) is caught off guard. They spend the afternoon on it: carved handles, a little basket hung on the front for carrying things, a bright red cord wrapped round the top. (subject) takes it for a walk. Then another. By evening (subject.he/she) has named it. (subject.He/she) refuses to say what (subject.he/she) named it.",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leaves (subject.him/her) to grumble. (subject) grumbles all week. But (subject.he/she) also walks to the stream, the gardens and the far end of the beach, places (subject.he/she) hadn't been in a long time. At the end of the week (subject.he/she) tells (friend) the frame is still ugly. Then (subject.he/she) asks (friend) to make a second one for inside the hut.",
+   "src": "L521"
+  }
+ }
+}

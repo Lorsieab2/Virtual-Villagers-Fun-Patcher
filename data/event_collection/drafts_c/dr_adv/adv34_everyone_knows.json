@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everyone Knows How to Catch a Pig",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv34_everyone_knows",
+  "source": "draft_adv",
+  "lines": [
+   398,
+   407
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L398",
+  "ledger": [
+   {
+    "src": "L399",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The pig has escaped and everyone shouts advice at the villager chasing it: follow every piece of advice, or ignore everyone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The big pig has escaped, again, and (subject) is chasing it around the village. Every single person (subject.he/she) passes shouts advice. \"Go left!\" \"No, right!\" \"Wave your arms!\" \"Don't wave your arms!\" \"Throw a mango!\" \"Sing to it!\" (friend) is running alongside (subject.him/her), also shouting advice.",
+   "src": "L401",
+   "choices": [
+    {
+     "label": "Follow Every Piece of Advice",
+     "next": "o1",
+     "src": "L403"
+    },
+    {
+     "label": "Ignore Everyone",
+     "next": "o2",
+     "src": "L406"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes left, then right, waves (subject.his/her) arms, stops waving (subject.his/her) arms, throws a mango and starts singing. The pig stops dead and stares at (subject.him/her). The whole village goes quiet. Then the pig eats the mango and walks calmly back into its pen. Nobody can agree whose advice worked. Everyone is sure it was theirs.",
+   "src": "L404"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) stops running, sits down on a log and waits. The pig, confused that nobody is chasing it any more, wanders over to see what's going on. (subject) puts a rope round its neck. The whole village stares. \"How did you know to do that?\" asks (friend). \"I didn't,\" says (subject). \"I was tired.\"",
+   "src": "L407"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Letter (name1) Never Sent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il055_letter_never",
+  "source": "da_il03",
+  "lines": [
+   170,
+   179
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L170",
+  "ledger": [
+   {
+    "src": "L171",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has written a letter to someone they have not spoken to in a long time: give it to them, or keep it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has written a letter to someone (subject.he/she) hasn't spoken to in a long time. It says sorry for some things, thank you for others, and \"I still think about the day we built the raft.\" (subject.He/She) has read it eleven times. (subject.He/She) hasn't decided what to do with it.",
+   "src": "L173",
+   "choices": [
+    {
+     "label": "Give It to Them",
+     "next": "a",
+     "src": "L175"
+    },
+    {
+     "label": "Keep It",
+     "next": "b",
+     "src": "L178"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) walks over and hands it to (friend) without a word, then walks away very fast. That evening (friend) knocks on (subject)'s door holding the letter, and they sit and talk until the fire burns down. Not everything is fixed. But they remember the raft the same way.",
+   "src": "L176"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) folds the letter and tucks it into the roof thatch. Some letters are for sending. Some are just for writing. Maybe (subject.he/she) will send it someday. Maybe writing it was the important part.",
+   "src": "L179"
+  }
+ }
+}

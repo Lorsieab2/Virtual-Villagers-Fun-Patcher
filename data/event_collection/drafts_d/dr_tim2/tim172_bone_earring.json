@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bone Earring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim172_bone_earring",
+  "source": "draft_tim2",
+  "lines": [
+   331,
+   336
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L331",
+  "ledger": [
+   {
+    "src": "L332",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L333",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L334",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L335",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L336",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager finds a small carved bone earring lying beside the path.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) finds a small carved bone earring lying beside the path. (name1) asks around and returns it to its grateful owner.",
+   "src": "L332,L333"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) finds a small carved bone earring lying beside the path. The owner had been searching for days and hugs (name1).",
+   "src": "L332,L334"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) finds a small carved bone earring lying beside the path. (name1) leaves it on a stone where its owner will see it.",
+   "src": "L332,L335"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) finds a small carved bone earring lying beside the path. Nobody claims it, so (name1) hangs it by the communal water jar for safekeeping.",
+   "src": "L332,L336"
+  }
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teen Who Stopped Believing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf08_teen_stopped",
+  "source": "draft_blf",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an adult relative of the teen (where the game records it)"
+   }
+  ],
+  "description": "A teen tells an adult relative they no longer believe and will skip the evening songs: say it is alright, or ask what changed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always gone with (friend) to the evening songs for the spirits. Tonight (subject.he/she) says (subject.he/she) doesn't want to go. \"I don't think I believe it any more,\" (subject.he/she) says, not looking up. (friend) is quiet for a long moment.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "(friend) Says It's Alright",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "(friend) Asks What Changed",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Alright,\" says (friend) at last. \"You don't have to come.\" (subject) looks up, surprised. \"You're not angry?\" \"I'm a bit sad,\" says (friend) honestly. \"I liked going together. But what you believe is yours to decide.\" (friend.He/she) goes to the songs alone. When (friend.he/she) gets back, (subject) has saved (friend.him/her) a cup of tea. That helps.",
+   "src": "L98"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Can I ask what changed?\" says (friend). (subject) shrugs. \"I just don't feel it. I tried.\" (friend) nods. \"That happens. It happened to me once, for a while.\" (subject) is astonished. \"Really?\" \"Really. It came back, for me. It might not for you. Either way is alright.\" They talk late into the night. (subject) still doesn't go to the songs. But (subject.he/she) feels much less alone.",
+   "src": "L101"
+  }
+ }
+}

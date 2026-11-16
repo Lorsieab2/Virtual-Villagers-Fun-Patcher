@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Quiet Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf12_quiet_day",
+  "source": "draft_blf",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager keeps a monthly quiet day of no work, and the crew is short-handed: the crew leader asks anyway, or does not ask.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once every month, (subject) keeps a quiet day: no work, no fire-cooking, mostly silence, just thinking and walking. It's part of what (subject.he/she) believes. Nobody else in the village keeps it. Today is the quiet day, and the building crew is short-handed. (friend), who leads the crew, is looking for help.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "(friend) Asks Anyway",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "(friend) Doesn't Ask",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) comes to the door. \"I know it's your quiet day,\" (friend.he/she) says, \"but we really need you.\" (subject) hesitates, then shakes (subject.his/her) head. \"I'm sorry. I don't work today.\" (friend) sighs, then nods. \"Alright. Tomorrow, then?\" \"Tomorrow,\" says (subject). The crew manages. Barely. (subject) works twice as hard the next day, without being asked.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) knows what day it is. (friend.He/she) doesn't even knock. The crew manages, barely, with a lot of grumbling. In the evening, (subject) walks past the half-built hut and sees how hard they worked. The next morning, (subject.he/she) brings them all breakfast before starting. Nobody says anything about it. Nobody needs to.",
+   "src": "L149"
+  }
+ }
+}

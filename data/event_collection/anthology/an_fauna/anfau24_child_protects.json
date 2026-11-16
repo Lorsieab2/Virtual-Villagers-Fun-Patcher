@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Child Protects the Nest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau24_child_protects",
+  "source": "anthology",
+  "lines": [
+   32834,
+   32848
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32834",
+  "ledger": [
+   {
+    "src": "L32835",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / TEENS / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32836",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32841",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32844",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32845",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Adults preparing a festival overlook a tiny ground nest that only a child notices.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Adults preparing a festival overlook a tiny ground nest that only (child) notices.",
+   "src": "L32836",
+   "choices": [
+    {
+     "label": "Trust the Observation",
+     "next": "a",
+     "src": "L32837"
+    },
+    {
+     "label": "Check Together",
+     "next": "b",
+     "src": "L32840"
+    },
+    {
+     "label": "Ask the Child to Explain",
+     "next": "c",
+     "src": "L32843"
+    },
+    {
+     "label": "Make a Temporary Boundary",
+     "next": "d",
+     "src": "L32846"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The decorations are moved and the eggs remain safe.",
+   "src": "L32838"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some adults feel embarrassed by the oversight.",
+   "src": "L32839"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) learns how to confirm a nest without touching it.",
+   "src": "L32841"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The nest proves abandoned, but the caution was reasonable.",
+   "src": "L32842"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) confidently guides the group.",
+   "src": "L32844"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) becomes shy and requests an adult helper.",
+   "src": "L32845"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Festival guests avoid the nest.",
+   "src": "L32847"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A few visitors complain until they understand why.",
+   "src": "L32848"
+  }
+ }
+}

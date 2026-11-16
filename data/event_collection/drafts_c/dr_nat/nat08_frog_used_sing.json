@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Frog That Used to Sing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat08_frog_used_sing",
+  "source": "draft_nat",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 5-13)"
+   }
+  ],
+  "description": "An elder remembers a little frog's song not heard in thirty years: teach the child how it sounded, or go and listen properly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's a warm wet night, and the usual frogs are singing their usual songs. (subject) is listening with (subject.his/her) eyes closed. \"When I was your age,\" (subject.he/she) tells (friend), \"there was another frog, a little green one, that went pip-pip-pirrrrr. You heard it everywhere after rain. I haven't heard it in thirty years.\"",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Ask What It Sounded Like",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Go and Listen Properly",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) makes (subject) do the song again. And again. \"Pip-pip-pirrrrr.\" Then (friend) tries. It's not right. (subject) corrects (friend.him/her). They spend half the night pip-pip-pirrrring at each other on the doorstep until (friend)'s parent comes out to see what all the noise is. The frog is gone. But somebody on Isola can still sing its song.",
+   "src": "L98"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) insists they go down to the stream, where it's loudest, and listen to every single frog. (subject) goes along. They sit on a damp rock for a long time. (friend) keeps whispering, \"Is that it?\" It isn't. None of them are. On the way home, (friend) is quiet. \"It's not coming back, is it?\" (subject) shakes (subject.his/her) head. \"No. But these ones are still here. Listen to them.\" They do, all the way home.",
+   "src": "L101"
+  }
+ }
+}

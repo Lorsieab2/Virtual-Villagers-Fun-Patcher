@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hilltop Stargazers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy08_hilltop",
+  "source": "anthology",
+  "lines": [
+   28788,
+   28801
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28788",
+  "ledger": [
+   {
+    "src": "L28792",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28794",
+    "kind": "sensitivity",
+    "before": "A researcher",
+    "after": "(scholar), a researcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Several villagers climb a grassy hill to watch the night sky.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "scholar"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "scholar": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several villagers climb a grassy hill to watch the night sky.",
+   "src": "L28789",
+   "choices": [
+    {
+     "label": "Share Legends",
+     "next": "a",
+     "src": "L28790"
+    },
+    {
+     "label": "Study the Stars",
+     "next": "b",
+     "src": "L28793"
+    },
+    {
+     "label": "Bring Blankets",
+     "next": "c",
+     "src": "L28796"
+    },
+    {
+     "label": "Invite Another Tribe",
+     "next": "d",
+     "src": "L28799"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The group enjoys several conflicting star stories.",
+   "src": "L28791"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) invents a new constellation that everyone prefers.",
+   "src": "L28792"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(scholar), a researcher, improves their observations.",
+   "src": "L28794"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Clouds interrupt the study, so the group tells jokes.",
+   "src": "L28795"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The watchers stay comfortable until late.",
+   "src": "L28797"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A chilly breeze sends everyone home early.",
+   "src": "L28798"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Visitors share a different sky tradition.",
+   "src": "L28800"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The groups disagree cheerfully about a constellation's name.",
+   "src": "L28801"
+  }
+ }
+}

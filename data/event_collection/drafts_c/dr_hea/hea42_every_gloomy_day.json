@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Every Gloomy Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea42_every_gloomy_day",
+  "source": "draft_hea",
+  "lines": [
+   503,
+   512
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L503",
+  "ledger": [
+   {
+    "src": "L504",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "After three weeks of rain a villager feels heavier every day: sit by the fire with others, or wait for the sun.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It has rained for three weeks and (subject) feels heavier every day. (friend) has noticed it in other villagers too. \"Some people feel low when the sun hides for long,\" (friend.he/she) says. \"It's real, and it's common, and it's not your fault. I usually tell people to sit in the sun when it comes out.\" (subject) looks out at the rain. The sun is nowhere.",
+   "src": "L506",
+   "choices": [
+    {
+     "label": "Sit by the Fire with Others",
+     "next": "o1",
+     "src": "L508"
+    },
+    {
+     "label": "Wait for the Sun",
+     "next": "o2",
+     "src": "L511"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Then let's do the next best thing,\" says (friend). Every evening a few of the villagers who feel the same gather around one big fire, bright and warm, with music and food. It isn't the sun. It's something. When the sun finally returns, (subject) lies on the beach like a lizard for a whole afternoon. (subject.He/she) still misses the fire evenings a little.",
+   "src": "L509",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L509"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to wait it out. It's a long, grey wait. (subject.He/she) is quieter than usual, and the village leaves (subject.him/her) to it, with a few small kindnesses along the way. When the sun finally comes back, (subject) sits in it until (subject.his/her) nose gets burnt. \"That,\" (subject.he/she) says, \"was what I needed.\" (subject.He/she) isn't wrong. It isn't the whole answer either.",
+   "src": "L512"
+  }
+ }
+}

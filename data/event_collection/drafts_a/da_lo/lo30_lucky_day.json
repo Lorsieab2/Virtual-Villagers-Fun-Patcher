@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Lucky Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo30_lucky_day",
+  "source": "da_lo",
+  "lines": [
+   357,
+   366
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L357",
+  "ledger": [
+   {
+    "src": "L358",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L363",
+    "kind": "casting",
+    "before": "Another villager tries",
+    "after": "(cook), another villager, tries",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L363",
+    "kind": "casting",
+    "before": "A third finally asks a friend to go fishing, and the friend says yes",
+    "after": "A third, (third), finally asks (pal), a friend, to go fishing, and (pal) says yes",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder announces that today is a lucky day: try something bold, or carry on as normal.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 5
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "pal": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At breakfast, (subject), an elder, announces with complete confidence that today is a lucky day. (subject.He/She) can feel it in (subject.his/her) knees. A few of the younger villagers laugh. A few others start wondering what they should try, if today is really lucky.",
+   "src": "L360",
+   "choices": [
+    {
+     "label": "Try Something Bold",
+     "next": "a",
+     "src": "L362"
+    },
+    {
+     "label": "Carry on as Normal",
+     "next": "b",
+     "src": "L365"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) decides to try, at last, to climb the tall palm (friend.he/she) has never managed. (friend.He/She) gets further up than ever before, though not to the top. (cook), another villager, tries a new recipe, which is mostly good. A third, (third), finally asks (pal), a friend, to go fishing, and (pal) says yes. Was it a lucky day? Everyone has their own opinion. Most of them had a very good day, at least.",
+   "src": "L363"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Most people carry on as normal. It's a normal sort of day: some good things happen, some bad things happen. At dinner, (subject) asks if everyone had a lucky day. One person says yes. One person says no. Most say \"about average.\" (subject) nods wisely. \"Lucky days come in all sizes,\" (subject.he/she) says. Nobody is sure what that means.",
+   "src": "L366"
+  }
+ }
+}

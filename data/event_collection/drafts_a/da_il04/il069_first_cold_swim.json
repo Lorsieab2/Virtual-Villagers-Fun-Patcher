@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Cold Swim",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il069_first_cold_swim",
+  "source": "da_il04",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager setting off on the yearly first cold swim finds a friend waiting on the sand, asking to come.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every year, on the first cool morning of the season, (subject) walks into the sea before sunrise and swims out to the big rock and back. Nobody else does this. Nobody asked (subject.him/her) to. (subject.He/She) started years ago and has never missed one. This year, as (subject.he/she) heads for the water, (friend) is waiting on the sand with (friend.his/her) arms wrapped round (friend.him/her)self. \"Can I come?\"",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Say Yes",
+     "next": "a",
+     "src": "L109"
+    },
+    {
+     "label": "Ask (friend.him/her) to Watch This Time",
+     "next": "b",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They walk into the water together. (friend) makes a noise like a startled seabird at the first wave and keeps making it all the way to the rock. On the way back, though, the sun comes up over the water, and both of them stop swimming to watch. Afterward they sit wrapped in blankets, teeth chattering, grinning at each other.",
+   "src": "L110"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Watch this year,\" says (subject) gently. \"It's a bit of a quiet thing for me.\" (friend) nods and sits on the sand. (subject) swims to the rock and back alone, the way (subject.he/she) always has. When (subject.he/she) comes out, (friend) is holding a warm blanket and a hot drink. That part, (subject) decides, could become a tradition too.",
+   "src": "L113"
+  }
+ }
+}

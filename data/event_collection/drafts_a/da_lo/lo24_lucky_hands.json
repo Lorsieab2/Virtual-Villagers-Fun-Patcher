@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Lucky Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo24_lucky_hands",
+  "source": "da_lo",
+  "lines": [
+   285,
+   294
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L285",
+  "ledger": [
+   {
+    "src": "L286",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L291",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2), only where the game has one]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "Everything a villager plants grows, and a friend arrives with a basket of seeds to plant for luck.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Everything (subject) plants grows. Every seed, every cutting, every sickly little sapling. People have started bringing (subject.him/her) their seeds and asking (subject.him/her) to plant them, \"for luck.\" (subject) doesn't know if (subject.he/she) has lucky hands or just plants things properly. (friend) has arrived with a whole basket of seeds and a hopeful face.",
+   "src": "L288",
+   "choices": [
+    {
+     "label": "Plant Them, and Show (friend.him/her) How",
+     "next": "a",
+     "src": "L290"
+    },
+    {
+     "label": "Just Plant Them",
+     "next": "b",
+     "src": "L293"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) plants them, slowly, explaining each step: the depth, the soil, how much water. (friend) watches carefully. Most of the seeds come up. Was it luck or skill? \"Both,\" says (subject). \"You need some of each.\" (friend) goes home and plants some of (friend.his/her) own, the same way. Most of those come up too.",
+   "src": "L291",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L291"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) plants all the seeds without a word. Nearly every one comes up. (friend) is delighted and tells everyone about (subject)'s lucky hands. (subject) doesn't argue. It's quite nice, honestly, being thought of as lucky. Even if, deep down, (subject.he/she) knows it's mostly the watering.",
+   "src": "L294"
+  }
+ }
+}

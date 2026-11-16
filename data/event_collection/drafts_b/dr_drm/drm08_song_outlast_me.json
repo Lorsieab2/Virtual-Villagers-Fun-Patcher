@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Song to Outlast Me",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm08_song_outlast_me",
+  "source": "draft_drm",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 5-12)"
+   }
+  ],
+  "description": "An elder hopes a song about the island will outlast them, and a child asks what it is: teach it, or say it is not finished yet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has made up a song about the island: the sea, the fruit trees, the sound the rain makes on the roofs. It's a good song. What (subject.he/she) wants, more than anything, is for people to still be singing it long after (subject.he/she) is gone. (subject.He/she) has never told anyone that. Today (friend) hears (subject.him/her) humming it and asks what it is.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Teach It to (friend)",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Say It's Not Finished Yet",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sings it, line by line, and (friend) sings it back. (friend.He/she) gets the words wrong in a few places, in ways that are honestly better. By evening (friend) is singing it to the other children, wrong words and all. (subject) listens from (subject.his/her) doorway and doesn't correct a thing.",
+   "src": "L98"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It's not ready,\" says (subject). \"One more verse.\" (friend) asks to hear it anyway, and (subject), after some persuading, sings what there is. (friend) claps. (subject) goes back to working on the last verse, a little faster than before. It may never be finished. (subject.He/she) is enjoying the trying.",
+   "src": "L101"
+  }
+ }
+}

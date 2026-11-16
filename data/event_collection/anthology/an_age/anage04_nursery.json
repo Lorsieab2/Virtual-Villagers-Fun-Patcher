@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nursery Whisper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage04_nursery",
+  "source": "anthology",
+  "lines": [
+   30173,
+   30187
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30173",
+  "ledger": [
+   {
+    "src": "L30174",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L30175",
+    "kind": "sensitivity",
+    "before": "A nursery worker",
+    "after": "(worker), a nursery worker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30180",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A nursery worker cannot tell why several toddlers become upset at the same point each afternoon.",
+  "label_case": "title",
+  "cast_only": [
+   "worker",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "worker": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(worker), a nursery worker, cannot tell why several toddlers become upset at the same point each afternoon.",
+   "src": "L30175",
+   "choices": [
+    {
+     "label": "Ask Older Children What They Hear",
+     "next": "a",
+     "src": "L30176"
+    },
+    {
+     "label": "Observe Without Interrupting",
+     "next": "b",
+     "src": "L30179"
+    },
+    {
+     "label": "Invite Children to Make a Gentle Routine",
+     "next": "c",
+     "src": "L30182"
+    },
+    {
+     "label": "Ask Caregivers to Compare Notes",
+     "next": "d",
+     "src": "L30185"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They identify a startling echo from the nearby pounding stones.",
+   "src": "L30177"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They notice that the toddlers miss a familiar song that used to mark rest time.",
+   "src": "L30178"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) notices bright sunlight reaching the resting mats and suggests shade.",
+   "src": "L30180"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The older children recognize that one toddler is searching for a misplaced woven doll.",
+   "src": "L30181"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Their soft puppet story helps the toddlers settle.",
+   "src": "L30183"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The toddlers prefer quiet; the older children learn that helping sometimes means stepping away.",
+   "src": "L30184"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children contribute an observation the adults had missed.",
+   "src": "L30186"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The cause remains uncertain, but the nursery changes one thing at a time to learn what helps.",
+   "src": "L30187"
+  }
+ }
+}

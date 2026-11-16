@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Loudest Voice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp26_loudest_voice",
+  "source": "anthology",
+  "lines": [
+   31648,
+   31662
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31648",
+  "ledger": [
+   {
+    "src": "L31649",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31652",
+    "kind": "sensitivity",
+    "before": "A shy villager",
+    "after": "(villager), a shy villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31656",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "At a public meeting, confident speakers repeatedly interrupt quieter villagers.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a public meeting, confident speakers repeatedly interrupt quieter villagers.",
+   "src": "L31650",
+   "choices": [
+    {
+     "label": "Set Speaking Turns",
+     "next": "a",
+     "src": "L31651"
+    },
+    {
+     "label": "Invite Written or Private Input",
+     "next": "b",
+     "src": "L31654"
+    },
+    {
+     "label": "Ask Who Is Missing",
+     "next": "c",
+     "src": "L31657"
+    },
+    {
+     "label": "Accept Disagreement",
+     "next": "d",
+     "src": "L31660"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager), a shy villager, shares a useful concern.",
+   "src": "L31652"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some speakers struggle with the new pace.",
+   "src": "L31653"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A thoughtful proposal arrives anonymously.",
+   "src": "L31655"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) prefers to speak with a trusted friend.",
+   "src": "L31656"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Caregivers request a more accessible meeting time.",
+   "src": "L31658"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Children point out that the meeting blocks their play area.",
+   "src": "L31659"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The council records unresolved objections.",
+   "src": "L31661"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Participants leave without pretending to agree.",
+   "src": "L31662"
+  }
+ }
+}

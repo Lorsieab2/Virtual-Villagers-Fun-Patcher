@@ -1,0 +1,61 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Implements of the Hunt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm12_implements_hunt",
+  "source": "openq97",
+  "lines": [
+   551,
+   553
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L552",
+  "ledger": [
+   {
+    "src": "L551",
+    "kind": "structural",
+    "text": "[M12]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L553",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Villagers compare traditional hunting implements.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "Villagers compare traditional hunting implements. One has a beautifully carved grip. Another bears the marks of frequent repairs.",
+   "src": "L551,L553"
+  }
+ }
+}

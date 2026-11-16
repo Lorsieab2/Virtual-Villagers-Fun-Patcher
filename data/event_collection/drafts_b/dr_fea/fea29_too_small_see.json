@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Small to See",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea29_too_small_see",
+  "source": "draft_fea",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult or elder who is working)"
+   },
+   {
+    "src": "L350",
+    "kind": "sensitivity",
+    "before": "goes to the healer, who looks",
+    "after": "goes to (healer), the healer, who looks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L350",
+    "kind": "sensitivity",
+    "before": "The healer fetches",
+    "after": "(healer) fetches",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who does the finest work fears their eyesight is fading: ask the healer, or work only in the morning light.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always done the finest work in the village: the tiniest stitches, the most delicate carving. Lately the fine lines have begun to blur, especially in the evenings. (subject.He/she) is frightened that (subject.his/her) eyes are going, and that (subject.he/she) will lose the thing (subject.he/she) loves most. (subject.He/she) hasn't told anyone. (friend) notices (subject.him/her) squinting.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Ask the Healer",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Work in the Morning Light",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (healer), the healer, who looks at (subject.his/her) eyes and says this happens to many people with time. (healer) fetches a smooth, clear, rounded stone, polished thin. Held close, it makes the fine lines bigger. It isn't the same as before. It's slower and more awkward. But (subject) can still do the work. (subject.He/she) holds the stone very carefully.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to do the fine work only in the bright morning, and simpler work in the afternoons. It helps, mostly. Some days the lines blur anyway. (subject.He/she) is still frightened, some evenings. (subject.He/she) tells (friend), finally. (friend) says, \"Then I'll thread your needles,\" and does, every evening, without being asked.",
+   "src": "L353"
+  }
+ }
+}

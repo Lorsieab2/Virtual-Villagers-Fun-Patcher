@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friendly Games",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy11_friendly_games",
+  "source": "anthology",
+  "lines": [
+   28833,
+   28846
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28833",
+  "ledger": [],
+  "description": "Two tribes organize games in a meadow.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two tribes organize games in a meadow.",
+   "src": "L28834",
+   "choices": [
+    {
+     "label": "Compete for Fun",
+     "next": "a",
+     "src": "L28835"
+    },
+    {
+     "label": "Mix the Teams",
+     "next": "b",
+     "src": "L28838"
+    },
+    {
+     "label": "Let Elders Teach Games",
+     "next": "c",
+     "src": "L28841"
+    },
+    {
+     "label": "Avoid Keeping Score",
+     "next": "d",
+     "src": "L28844"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The teams cheer each other's clever plays.",
+   "src": "L28836"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The scores are tied and everyone claims victory.",
+   "src": "L28837"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "New friendships form across community lines.",
+   "src": "L28839"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Players take time to learn one another's styles.",
+   "src": "L28840"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "An old throwing game becomes popular again.",
+   "src": "L28842"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elders discover the children have invented new rules.",
+   "src": "L28843"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Everyone enjoys trying different activities.",
+   "src": "L28845"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A few competitive players organize a separate match.",
+   "src": "L28846"
+  }
+ }
+}

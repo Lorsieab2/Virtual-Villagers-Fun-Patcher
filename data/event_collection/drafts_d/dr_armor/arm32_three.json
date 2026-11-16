@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three Generations of Shieldmakers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm32_three",
+  "source": "armor45",
+  "lines": [
+   43,
+   43
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L43",
+  "ledger": [
+   {
+    "src": "L43",
+    "kind": "structural",
+    "text": "32. The Three Generations of Shieldmakers  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Three generations disagree about a shield's shape and decoration. Their finished work preserves something from each maker.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Three generations disagree about a shield's shape and decoration. Their finished work preserves something from each maker.",
+   "src": "L43"
+  }
+ }
+}

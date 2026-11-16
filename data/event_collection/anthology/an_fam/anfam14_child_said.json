@@ -1,0 +1,248 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Said No",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam14_child_said",
+  "source": "anthology",
+  "lines": [
+   28495,
+   28508
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28495",
+  "ledger": [
+   {
+    "src": "L28496",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28496",
+    "kind": "sensitivity",
+    "before": "a visiting relative",
+    "after": "(relative), a visiting relative,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28498",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28499",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28499",
+    "kind": "sensitivity",
+    "before": "a trusted adult",
+    "after": "(adult), a trusted adult,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28501",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28502",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28504",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28505",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28507",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28508",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child refuses to hug a visiting relative despite the family's expectations.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "relative",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) refuses to hug (relative), a visiting relative, despite the family's expectations.",
+   "src": "L28496",
+   "choices": [
+    {
+     "label": "Respect the Child's Choice",
+     "next": "a",
+     "src": "L28497"
+    },
+    {
+     "label": "Offer a Wave Instead",
+     "next": "b",
+     "src": "L28500"
+    },
+    {
+     "label": "Explain Boundaries to the Relative",
+     "next": "c",
+     "src": "L28503"
+    },
+    {
+     "label": "Talk Privately About Polite Greetings",
+     "next": "d",
+     "src": "L28506"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(relative) accepts a cheerful hello without a hug.",
+   "src": "L28498"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) stays close to (adult), a trusted adult, until comfortable.",
+   "src": "L28499"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) happily waves from across the gathering.",
+   "src": "L28501"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) chooses not to greet anyone immediately.",
+   "src": "L28502"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(relative) apologizes for insisting.",
+   "src": "L28504"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(relative) feels disappointed but respects the boundary.",
+   "src": "L28505"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) learns several ways to greet guests.",
+   "src": "L28507"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) explains that affection should not be forced.",
+   "src": "L28508"
+  }
+ }
+}

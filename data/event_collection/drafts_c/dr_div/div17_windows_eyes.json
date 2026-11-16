@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Little Windows for the Eyes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div17_windows_eyes",
+  "source": "draft_div",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a glassworker, scientist or another adult; in the story (name1) can no longer see things up close)"
+   },
+   {
+    "src": "L206",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An elder can no longer read carvings up close, and a villager grinds glass discs: offer the glass, or wait to be asked.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always been the one who could read the old carvings on the storehouse posts. Lately, the marks have gone fuzzy whenever (subject.he/she) brings them close. (subject.He/she) hasn't said anything. But (friend), who has been grinding glass from the black sand into smooth clear discs, has noticed (subject.him/her) squinting and holding things at arm's length.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Offer (subject.him/her) the Glass",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Wait for (subject.him/her) to Ask",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) brings over two little polished discs set in a frame of bent cane, to hold up in front of the eyes. (subject) is doubtful. Then (subject.he/she) looks through them at the carvings, and goes completely silent. Every mark is sharp. (subject.He/she) reads the whole post aloud, slowly, the way (subject.he/she) used to. Then (subject.he/she) reads it again. (friend) pretends not to see (subject.him/her) wiping (subject.his/her) eyes.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L206"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing. A week later, (subject) comes to (friend.him/her) at the glass fire and asks, gruffly, if those clear discs (friend.he/she) makes do anything useful. (friend) holds one up in front of (subject)'s eyes over a leaf, and (subject) sees the tiny hairs on it. They work on the frame together. It takes a few tries. It's worth it.",
+   "src": "L209"
+  }
+ }
+}

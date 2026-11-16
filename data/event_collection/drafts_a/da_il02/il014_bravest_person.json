@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bravest Person in the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il014_bravest_person",
+  "source": "da_il02",
+  "lines": [
+   65,
+   79
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L65",
+  "ledger": [
+   {
+    "src": "L67",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L79",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A child who wants to be the bravest in the village finds a large beetle beside the sleeping mat.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has decided to become the bravest person in the village. Unfortunately, this morning a particularly large beetle has appeared beside (subject.his/her) sleeping mat. The beetle is doing nothing threatening. It is simply being a beetle. (subject) watches it from a safe distance.",
+   "src": "L69",
+   "choices": [
+    {
+     "label": "Ask (friend) for Help",
+     "next": "a",
+     "src": "L71"
+    },
+    {
+     "label": "Investigate the Beetle",
+     "next": "b",
+     "src": "L75"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) gently carries the beetle outside. \"I thought you wanted to be brave,\" (friend.he/she) says. \"I do,\" replies (subject). \"But I think I'll start with smaller beetles.\"",
+   "src": "L73"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) approaches carefully. The beetle moves one leg. (subject) retreats. After several attempts, (subject.he/she) manages to examine it from a comfortable distance. By afternoon (subject) has drawn a remarkably accurate picture of the creature. (subject.He/She) still doesn't want it near the sleeping mat.",
+   "src": "L77"
+  }
+ }
+}

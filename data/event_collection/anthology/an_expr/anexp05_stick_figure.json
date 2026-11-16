@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stick-Figure Chronicle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp05_stick_figure",
+  "source": "anthology",
+  "lines": [
+   31312,
+   31326
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31312",
+  "ledger": [
+   {
+    "src": "L31313",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31316",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31320",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31322",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31323",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31326",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Stick figures drawn on a wall seem to tell a complicated story about the village.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Stick figures drawn on a wall seem to tell a complicated story about the village.",
+   "src": "L31314",
+   "choices": [
+    {
+     "label": "Ask the Young Artist",
+     "next": "a",
+     "src": "L31315"
+    },
+    {
+     "label": "Let the Figures Speak for Themselves",
+     "next": "b",
+     "src": "L31318"
+    },
+    {
+     "label": "Ask an Elder About Older Drawings",
+     "next": "c",
+     "src": "L31321"
+    },
+    {
+     "label": "Protect the Wall",
+     "next": "d",
+     "src": "L31324"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) explains a funny misunderstanding.",
+   "src": "L31316"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The drawing represents a worry no adult had noticed.",
+   "src": "L31317"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Villagers invent wildly different stories.",
+   "src": "L31319"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) laughs at the interpretations.",
+   "src": "L31320"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) remembers similar marks from childhood.",
+   "src": "L31322"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) admits nobody ever agreed what they meant.",
+   "src": "L31323"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The drawings are copied before the rain.",
+   "src": "L31325"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) agrees to use a reusable board next time.",
+   "src": "L31326"
+  }
+ }
+}

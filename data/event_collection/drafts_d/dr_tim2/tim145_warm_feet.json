@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Warm Feet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim145_warm_feet",
+  "source": "draft_tim2",
+  "lines": [
+   142,
+   147
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L142",
+  "ledger": [
+   {
+    "src": "L143",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L144",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L145",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L146",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L147",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A village dog falls asleep against a villager's feet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A village dog falls asleep against (name1)'s feet. (name1) decides not to move for a while.",
+   "src": "L143,L144"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A village dog falls asleep against (name1)'s feet. The dog twitches in its sleep, chasing something in a dream.",
+   "src": "L143,L145"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A village dog falls asleep against (name1)'s feet. (name1)'s feet fall asleep too, and standing up becomes an adventure.",
+   "src": "L143,L146"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A village dog falls asleep against (name1)'s feet. When the dog wakes, it stretches and wanders off as if nothing happened.",
+   "src": "L143,L147"
+  }
+ }
+}

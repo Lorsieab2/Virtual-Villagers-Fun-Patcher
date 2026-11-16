@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Season Away from the Canoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep38_season_away",
+  "source": "draft_dep",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager kept off the canoes for a season after risky trips sits alone on the beach: keep them company, or give them space.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Twice this season (subject) took a canoe out after the storm signs were up, and the second time the crew with (subject.him/her) barely made it back. Nobody was hurt, but it was close. The council has decided that (subject) will stay off the water for the rest of the season and work on the shore. It was talked through for a long time, and (subject) was heard. (subject.He/she) is still sitting alone on the beach, watching the canoes go out without (subject.him/her).",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Keep (subject.him/her) Company",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Give (subject.him/her) Some Space",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits down beside (subject.him/her). Neither of them says anything about the council. After a while (friend) says, \"The nets need mending. All of them. It's a mess.\" (subject) doesn't smile, but (subject.he/she) gets up. They mend nets together until sunset. The season is long. (subject) is there every morning.",
+   "src": "L458"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leaves (subject.him/her) be. Later (friend.he/she) brings a bowl of food and sets it down without a word. The next day (subject) is at the drying racks with everyone else, working hard and saying little. Some days are better than others. When the season ends, (subject) is the first to check the sky before the canoes go out.",
+   "src": "L461",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L461"
+    }
+   ]
+  }
+ }
+}

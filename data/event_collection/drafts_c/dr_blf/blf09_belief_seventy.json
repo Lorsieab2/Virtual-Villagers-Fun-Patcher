@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Belief at Seventy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf09_belief_seventy",
+  "source": "draft_blf",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   }
+  ],
+  "description": "An elder who never believed is found leaving flowers at the old carved stone: ask about it, or sit down without asking.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has never believed in spirits or blessings in (subject.his/her) whole long life. Recently, though, (subject.he/she) has started going down to the old carved stone in the evenings and just sitting there. Today (friend), who has known (subject.him/her) forever, finds (subject.him/her) there with a little offering of flowers.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Ask About It",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Sit Down Without Asking",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"You?\" says (friend), astonished. \"You never believed in anything.\" \"I know,\" says (subject). \"I don't know if I believe now. I just like sitting here. It feels like... something.\" (friend) sits down beside (subject.him/her). \"Well,\" (friend.he/she) says. \"You're never too old to change your mind.\" (subject) laughs. \"I'm finding that out.\"",
+   "src": "L110"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) doesn't say anything. (friend.He/she) just sits down beside (subject) on the stone and watches the sun go down. After a while, (subject) says, \"Don't tell anyone.\" \"Tell them what?\" says (friend). (subject) smiles. They sit there until it's dark. Whatever (subject) believes now, or doesn't, (subject.he/she) gets to keep it to (subject.him/her)self.",
+   "src": "L113"
+  }
+ }
+}

@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parent's Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm59_parent_apology",
+  "source": "draft_rm2",
+  "lines": [
+   279,
+   292
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L279",
+  "ledger": [
+   {
+    "src": "L280",
+    "kind": "sensitivity",
+    "before": "a parent",
+    "after": "(name1), a parent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After a long, tiring day, a parent snaps at their child for spilling a basket of beans, and the child goes quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a long, tiring day, (name1), a parent, snaps at their child for spilling a basket of beans, and the child goes quiet.",
+   "src": "L280",
+   "choices": [
+    {
+     "label": "Apologize to the Child Directly.",
+     "next": "a",
+     "src": "L281"
+    },
+    {
+     "label": "Explain Being Tired Without Making Excuses.",
+     "next": "b",
+     "src": "L284"
+    },
+    {
+     "label": "Do Something Kind Together.",
+     "next": "c",
+     "src": "L287"
+    },
+    {
+     "label": "Ask the Child How It Felt.",
+     "next": "d",
+     "src": "L290"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child hugs the parent, and they pick up the beans together.",
+   "src": "L282"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child needs a little while before speaking again, and the parent waits patiently.",
+   "src": "L283"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child nods and says they get grumpy when tired too.",
+   "src": "L285"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child does not quite understand, but the parent's gentle voice helps.",
+   "src": "L286"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They go for a short walk to the shore, and the evening ends well.",
+   "src": "L288"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child would rather stay home, and they sit quietly instead.",
+   "src": "L289"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child says it was scary, and the parent promises to try harder.",
+   "src": "L291"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child shrugs and says it is fine, but the parent remembers the moment anyway.",
+   "src": "L292"
+  }
+ }
+}

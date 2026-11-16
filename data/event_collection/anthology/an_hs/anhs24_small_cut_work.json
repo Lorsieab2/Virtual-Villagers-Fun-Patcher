@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Small Cut at Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs24_small_cut_work",
+  "source": "anthology",
+  "lines": [
+   29785,
+   29798
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29785",
+  "ledger": [
+   {
+    "src": "L29786",
+    "kind": "sensitivity",
+    "before": "A worker",
+    "after": "(worker), a worker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29788",
+    "kind": "sensitivity",
+    "before": "The worker",
+    "after": "(worker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29789",
+    "kind": "sensitivity",
+    "before": "the worker",
+    "after": "(worker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29791",
+    "kind": "sensitivity",
+    "before": "The healer",
+    "after": "(healer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29792",
+    "kind": "sensitivity",
+    "before": "The healer",
+    "after": "(healer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29794",
+    "kind": "sensitivity",
+    "before": "The worker",
+    "after": "(worker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29795",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(apprentice), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29797",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29797",
+    "kind": "sensitivity",
+    "before": "the injured villager",
+    "after": "(worker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29798",
+    "kind": "sensitivity",
+    "before": "The injured villager",
+    "after": "(worker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A worker gets a shallow cut while preparing reeds and is annoyed by the interruption.",
+  "label_case": "title",
+  "cast_only": [
+   "worker",
+   "healer",
+   "apprentice",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "worker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(worker), a worker, gets a shallow cut while preparing reeds and is annoyed by the interruption.",
+   "src": "L29786",
+   "choices": [
+    {
+     "label": "Clean and Cover the Wound",
+     "next": "a",
+     "src": "L29787"
+    },
+    {
+     "label": "Ask a Healer to Assess It",
+     "next": "b",
+     "src": "L29790"
+    },
+    {
+     "label": "Review the Tool Technique",
+     "next": "c",
+     "src": "L29793"
+    },
+    {
+     "label": "Let a Friend Finish the Task",
+     "next": "d",
+     "src": "L29796"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(worker) returns to lighter tasks after appropriate care.",
+   "src": "L29788"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The cut stings more than expected, and (worker) decides to rest.",
+   "src": "L29789"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(healer) confirms it appears minor and explains signs that would need reassessment.",
+   "src": "L29791"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(healer) finds debris that needs careful removal before bandaging.",
+   "src": "L29792"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(worker) learns a safer grip without embarrassment.",
+   "src": "L29794"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(apprentice), an apprentice, spots a damaged edge that contributed to the mishap.",
+   "src": "L29795"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(friend) completes the work while (worker) recovers.",
+   "src": "L29797",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29797"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(worker) struggles with accepting help but eventually thanks them.",
+   "src": "L29798",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29798"
+    }
+   ]
+  }
+ }
+}

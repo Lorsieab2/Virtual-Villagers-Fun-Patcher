@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Worked Too Young",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus17_child_worked",
+  "source": "anthology",
+  "lines": [
+   30975,
+   30989
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30975",
+  "ledger": [
+   {
+    "src": "L30976",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30977",
+    "kind": "sensitivity",
+    "before": "A teenager who arrived from another community is",
+    "after": "(teen), a teenager who arrived from another community, is",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30983",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30986",
+    "kind": "sensitivity",
+    "before": "A younger child",
+    "after": "(child), a younger child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30988",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager who arrived from another community is skilled at exhausting labor and uncomfortable with being offered leisure.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen), a teenager who arrived from another community, is skilled at exhausting labor and uncomfortable with being offered leisure.",
+   "src": "L30977",
+   "choices": [
+    {
+     "label": "Ask What They Enjoy",
+     "next": "a",
+     "src": "L30978"
+    },
+    {
+     "label": "Explain Shared Expectations",
+     "next": "b",
+     "src": "L30981"
+    },
+    {
+     "label": "Avoid Turning Their History into Gossip",
+     "next": "c",
+     "src": "L30984"
+    },
+    {
+     "label": "Build a Future at Their Pace",
+     "next": "d",
+     "src": "L30987"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They try a harmless game for the first time in years.",
+   "src": "L30979"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They prefer a quiet afternoon weaving.",
+   "src": "L30980"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Adults make clear that children are not responsible for adult workloads.",
+   "src": "L30982"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) asks to contribute modestly and chooses an age-appropriate task.",
+   "src": "L30983"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Friends protect their privacy.",
+   "src": "L30985"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child), a younger child, learns not to demand painful stories.",
+   "src": "L30986"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(teen) chooses an apprenticeship with proper rest.",
+   "src": "L30988"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They discover that being valued does not require constant productivity.",
+   "src": "L30989"
+  }
+ }
+}

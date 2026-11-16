@@ -1,0 +1,2107 @@
+TINY ISLAND MOMENTS — 500 NEW MOMENTS
+Virtual Villagers / Isola | Standalone creative supplement
+
+500 short, self-contained flavor moments. Each entry has a title and two sentences.
+These are new text-only ideas, not inserted into the master anthology.
+No new mechanics, sprites or buildings are implied. All moments can be adapted across VV1–VV5.
+(Name1) and (Name2) are story-only casting placeholders.
+
+====================================================================
+SECTION 01 — LANTERNS AND EVENING LIGHT
+====================================================================
+
+[M001]
+Title: Lanterns: A Quiet Moment
+(Name1) folds broad leaves around a small lantern frame. The crooked edges make (Name1) smile more than the perfect ones.
+
+[M002]
+Title: Lanterns: A Small Surprise
+(Name1) folds broad leaves around a small lantern frame. Someone suggests a different pattern, and the work becomes a lively conversation.
+
+[M003]
+Title: Lanterns: The Afternoon
+(Name1) folds broad leaves around a small lantern frame. The warm glow makes the ordinary evening feel like a celebration.
+
+[M004]
+Title: Lanterns: A Little Memory
+(Name1) folds broad leaves around a small lantern frame. (Name1) is looking forward to showing the finished work to a friend.
+
+[M005]
+Title: Lanterns 2: A Quiet Moment
+A family gathers to decorate lanterns with shells and colored fibers. Someone suggests a different pattern, and the work becomes a lively conversation.
+
+[M006]
+Title: Lanterns 2: A Small Surprise
+A family gathers to decorate lanterns with shells and colored fibers. The warm glow makes the ordinary evening feel like a celebration.
+
+[M007]
+Title: Lanterns 2: The Afternoon
+A family gathers to decorate lanterns with shells and colored fibers. (Name1) is looking forward to showing the finished work to a friend.
+
+[M008]
+Title: Lanterns 2: A Little Memory
+A family gathers to decorate lanterns with shells and colored fibers. For a little while, everyone forgets how tiring the day has been.
+
+[M009]
+Title: Lanterns 3: A Quiet Moment
+(Name1) helps an elder replace a lantern’s worn binding. The warm glow makes the ordinary evening feel like a celebration.
+
+[M010]
+Title: Lanterns 3: A Small Surprise
+(Name1) helps an elder replace a lantern’s worn binding. (Name1) is looking forward to showing the finished work to a friend.
+
+[M011]
+Title: Lanterns 3: The Afternoon
+(Name1) helps an elder replace a lantern’s worn binding. For a little while, everyone forgets how tiring the day has been.
+
+[M012]
+Title: Lanterns 3: A Little Memory
+(Name1) helps an elder replace a lantern’s worn binding. The crooked edges make (Name1) smile more than the perfect ones.
+
+[M013]
+Title: Lanterns 4: A Quiet Moment
+Two friends compare the patterns their lanterns cast on the ground. (Name1) is looking forward to showing the finished work to a friend.
+
+[M014]
+Title: Lanterns 4: A Small Surprise
+Two friends compare the patterns their lanterns cast on the ground. For a little while, everyone forgets how tiring the day has been.
+
+[M015]
+Title: Lanterns 4: The Afternoon
+Two friends compare the patterns their lanterns cast on the ground. The crooked edges make (Name1) smile more than the perfect ones.
+
+[M016]
+Title: Lanterns 4: A Little Memory
+Two friends compare the patterns their lanterns cast on the ground. Someone suggests a different pattern, and the work becomes a lively conversation.
+
+[M017]
+Title: Lanterns 5: A Quiet Moment
+A child carries a lantern carefully toward the evening gathering. For a little while, everyone forgets how tiring the day has been.
+
+[M018]
+Title: Lanterns 5: A Small Surprise
+A child carries a lantern carefully toward the evening gathering. The crooked edges make (Name1) smile more than the perfect ones.
+
+[M019]
+Title: Lanterns 5: The Afternoon
+A child carries a lantern carefully toward the evening gathering. Someone suggests a different pattern, and the work becomes a lively conversation.
+
+[M020]
+Title: Lanterns 5: A Little Memory
+A child carries a lantern carefully toward the evening gathering. The warm glow makes the ordinary evening feel like a celebration.
+
+====================================================================
+SECTION 02 — LEAF BOATS AND WATER GAMES
+====================================================================
+
+[M021]
+Title: Leaf Boats: A Quiet Moment
+Two siblings float leaf boats along a shallow stream. One boat spins in circles, to the delight of its maker.
+
+[M022]
+Title: Leaf Boats: A Small Surprise
+Two siblings float leaf boats along a shallow stream. (Name1) had expected to win and is surprised not to mind losing.
+
+[M023]
+Title: Leaf Boats: The Afternoon
+Two siblings float leaf boats along a shallow stream. A passing breeze changes everyone’s predictions.
+
+[M024]
+Title: Leaf Boats: A Little Memory
+Two siblings float leaf boats along a shallow stream. The smallest boat travels farthest, provoking delighted disbelief.
+
+[M025]
+Title: Leaf Boats 2: A Quiet Moment
+(Name1) fashions a tiny sail from a fallen petal. (Name1) had expected to win and is surprised not to mind losing.
+
+[M026]
+Title: Leaf Boats 2: A Small Surprise
+(Name1) fashions a tiny sail from a fallen petal. A passing breeze changes everyone’s predictions.
+
+[M027]
+Title: Leaf Boats 2: The Afternoon
+(Name1) fashions a tiny sail from a fallen petal. The smallest boat travels farthest, provoking delighted disbelief.
+
+[M028]
+Title: Leaf Boats 2: A Little Memory
+(Name1) fashions a tiny sail from a fallen petal. Nobody wants the game to end, even when supper is called.
+
+[M029]
+Title: Leaf Boats 3: A Quiet Moment
+A group of children marks a finish line beside a puddle. A passing breeze changes everyone’s predictions.
+
+[M030]
+Title: Leaf Boats 3: A Small Surprise
+A group of children marks a finish line beside a puddle. The smallest boat travels farthest, provoking delighted disbelief.
+
+[M031]
+Title: Leaf Boats 3: The Afternoon
+A group of children marks a finish line beside a puddle. Nobody wants the game to end, even when supper is called.
+
+[M032]
+Title: Leaf Boats 3: A Little Memory
+A group of children marks a finish line beside a puddle. One boat spins in circles, to the delight of its maker.
+
+[M033]
+Title: Leaf Boats 4: A Quiet Moment
+An elder shows young villagers how to fold a leaf into a boat. The smallest boat travels farthest, provoking delighted disbelief.
+
+[M034]
+Title: Leaf Boats 4: A Small Surprise
+An elder shows young villagers how to fold a leaf into a boat. Nobody wants the game to end, even when supper is called.
+
+[M035]
+Title: Leaf Boats 4: The Afternoon
+An elder shows young villagers how to fold a leaf into a boat. One boat spins in circles, to the delight of its maker.
+
+[M036]
+Title: Leaf Boats 4: A Little Memory
+An elder shows young villagers how to fold a leaf into a boat. (Name1) had expected to win and is surprised not to mind losing.
+
+[M037]
+Title: Leaf Boats 5: A Quiet Moment
+(Name1) watches a miniature fleet drift toward the shore. Nobody wants the game to end, even when supper is called.
+
+[M038]
+Title: Leaf Boats 5: A Small Surprise
+(Name1) watches a miniature fleet drift toward the shore. One boat spins in circles, to the delight of its maker.
+
+[M039]
+Title: Leaf Boats 5: The Afternoon
+(Name1) watches a miniature fleet drift toward the shore. (Name1) had expected to win and is surprised not to mind losing.
+
+[M040]
+Title: Leaf Boats 5: A Little Memory
+(Name1) watches a miniature fleet drift toward the shore. A passing breeze changes everyone’s predictions.
+
+====================================================================
+SECTION 03 — RAIN AND INDOOR DAYS
+====================================================================
+
+[M041]
+Title: Rain: A Quiet Moment
+Rain taps steadily on the roof while (Name1) sits inside. (Name1) is relieved to have an excuse to rest.
+
+[M042]
+Title: Rain: A Small Surprise
+Rain taps steadily on the roof while (Name1) sits inside. The sound brings back memories of another rainy season.
+
+[M043]
+Title: Rain: The Afternoon
+Rain taps steadily on the roof while (Name1) sits inside. Someone begins a quiet song, and another joins in.
+
+[M044]
+Title: Rain: A Little Memory
+Rain taps steadily on the roof while (Name1) sits inside. (Name1) had dreaded the weather but now finds it soothing.
+
+[M045]
+Title: Rain 2: A Quiet Moment
+Two neighbors shelter from a shower beneath a broad overhang. The sound brings back memories of another rainy season.
+
+[M046]
+Title: Rain 2: A Small Surprise
+Two neighbors shelter from a shower beneath a broad overhang. Someone begins a quiet song, and another joins in.
+
+[M047]
+Title: Rain 2: The Afternoon
+Two neighbors shelter from a shower beneath a broad overhang. (Name1) had dreaded the weather but now finds it soothing.
+
+[M048]
+Title: Rain 2: A Little Memory
+Two neighbors shelter from a shower beneath a broad overhang. The conversation wanders pleasantly without reaching any conclusion.
+
+[M049]
+Title: Rain 3: A Quiet Moment
+A child watches raindrops race down a smooth stone. Someone begins a quiet song, and another joins in.
+
+[M050]
+Title: Rain 3: A Small Surprise
+A child watches raindrops race down a smooth stone. (Name1) had dreaded the weather but now finds it soothing.
+
+[M051]
+Title: Rain 3: The Afternoon
+A child watches raindrops race down a smooth stone. The conversation wanders pleasantly without reaching any conclusion.
+
+[M052]
+Title: Rain 3: A Little Memory
+A child watches raindrops race down a smooth stone. (Name1) is relieved to have an excuse to rest.
+
+[M053]
+Title: Rain 4: A Quiet Moment
+(Name1) listens to distant thunder from the comfort of a hut. (Name1) had dreaded the weather but now finds it soothing.
+
+[M054]
+Title: Rain 4: A Small Surprise
+(Name1) listens to distant thunder from the comfort of a hut. The conversation wanders pleasantly without reaching any conclusion.
+
+[M055]
+Title: Rain 4: The Afternoon
+(Name1) listens to distant thunder from the comfort of a hut. (Name1) is relieved to have an excuse to rest.
+
+[M056]
+Title: Rain 4: A Little Memory
+(Name1) listens to distant thunder from the comfort of a hut. The sound brings back memories of another rainy season.
+
+[M057]
+Title: Rain 5: A Quiet Moment
+A family moves its afternoon crafts out of the rain. The conversation wanders pleasantly without reaching any conclusion.
+
+[M058]
+Title: Rain 5: A Small Surprise
+A family moves its afternoon crafts out of the rain. (Name1) is relieved to have an excuse to rest.
+
+[M059]
+Title: Rain 5: The Afternoon
+A family moves its afternoon crafts out of the rain. The sound brings back memories of another rainy season.
+
+[M060]
+Title: Rain 5: A Little Memory
+A family moves its afternoon crafts out of the rain. Someone begins a quiet song, and another joins in.
+
+====================================================================
+SECTION 04 — COOKING AND RECIPES
+====================================================================
+
+[M061]
+Title: Cooking: A Quiet Moment
+(Name1) tests a new combination of herbs in a stew. The first taste is puzzling, but the second is better.
+
+[M062]
+Title: Cooking: A Small Surprise
+(Name1) tests a new combination of herbs in a stew. (Name1) is nervous about the verdict and pretends otherwise.
+
+[M063]
+Title: Cooking: The Afternoon
+(Name1) tests a new combination of herbs in a stew. Someone asks for the recipe before the bowl is empty.
+
+[M064]
+Title: Cooking: A Little Memory
+(Name1) tests a new combination of herbs in a stew. The result is edible, though nobody agrees on what it resembles.
+
+[M065]
+Title: Cooking 2: A Quiet Moment
+Two cooks compare ways to roast a familiar root. (Name1) is nervous about the verdict and pretends otherwise.
+
+[M066]
+Title: Cooking 2: A Small Surprise
+Two cooks compare ways to roast a familiar root. Someone asks for the recipe before the bowl is empty.
+
+[M067]
+Title: Cooking 2: The Afternoon
+Two cooks compare ways to roast a familiar root. The result is edible, though nobody agrees on what it resembles.
+
+[M068]
+Title: Cooking 2: A Little Memory
+Two cooks compare ways to roast a familiar root. (Name1) quietly notes one change to try next time.
+
+[M069]
+Title: Cooking 3: A Quiet Moment
+A parent lets a child stir the evening meal. Someone asks for the recipe before the bowl is empty.
+
+[M070]
+Title: Cooking 3: A Small Surprise
+A parent lets a child stir the evening meal. The result is edible, though nobody agrees on what it resembles.
+
+[M071]
+Title: Cooking 3: The Afternoon
+A parent lets a child stir the evening meal. (Name1) quietly notes one change to try next time.
+
+[M072]
+Title: Cooking 3: A Little Memory
+A parent lets a child stir the evening meal. The first taste is puzzling, but the second is better.
+
+[M073]
+Title: Cooking 4: A Quiet Moment
+(Name1) tries to recreate a dish remembered from childhood. The result is edible, though nobody agrees on what it resembles.
+
+[M074]
+Title: Cooking 4: A Small Surprise
+(Name1) tries to recreate a dish remembered from childhood. (Name1) quietly notes one change to try next time.
+
+[M075]
+Title: Cooking 4: The Afternoon
+(Name1) tries to recreate a dish remembered from childhood. The first taste is puzzling, but the second is better.
+
+[M076]
+Title: Cooking 4: A Little Memory
+(Name1) tries to recreate a dish remembered from childhood. (Name1) is nervous about the verdict and pretends otherwise.
+
+[M077]
+Title: Cooking 5: A Quiet Moment
+Several villagers sample a new fruit-and-grain recipe. (Name1) quietly notes one change to try next time.
+
+[M078]
+Title: Cooking 5: A Small Surprise
+Several villagers sample a new fruit-and-grain recipe. The first taste is puzzling, but the second is better.
+
+[M079]
+Title: Cooking 5: The Afternoon
+Several villagers sample a new fruit-and-grain recipe. (Name1) is nervous about the verdict and pretends otherwise.
+
+[M080]
+Title: Cooking 5: A Little Memory
+Several villagers sample a new fruit-and-grain recipe. Someone asks for the recipe before the bowl is empty.
+
+====================================================================
+SECTION 05 — POTIONS AND CURIOSITY
+====================================================================
+
+[M081]
+Title: Potions: A Quiet Moment
+A researcher observes bubbles rising through a harmless herbal mixture. The unexpected result raises more questions than it answers.
+
+[M082]
+Title: Potions: A Small Surprise
+A researcher observes bubbles rising through a harmless herbal mixture. (Name1) feels impatient but waits for the experiment to finish.
+
+[M083]
+Title: Potions: The Afternoon
+A researcher observes bubbles rising through a harmless herbal mixture. A nearby villager offers a surprisingly useful observation.
+
+[M084]
+Title: Potions: A Little Memory
+A researcher observes bubbles rising through a harmless herbal mixture. The notes are messy, but the discovery feels exciting.
+
+[M085]
+Title: Potions 2: A Quiet Moment
+(Name1) records the changing color of a plant infusion. (Name1) feels impatient but waits for the experiment to finish.
+
+[M086]
+Title: Potions 2: A Small Surprise
+(Name1) records the changing color of a plant infusion. A nearby villager offers a surprisingly useful observation.
+
+[M087]
+Title: Potions 2: The Afternoon
+(Name1) records the changing color of a plant infusion. The notes are messy, but the discovery feels exciting.
+
+[M088]
+Title: Potions 2: A Little Memory
+(Name1) records the changing color of a plant infusion. Nobody is sure what happened, so they agree to repeat the test.
+
+[M089]
+Title: Potions 3: A Quiet Moment
+Two apprentices compare the scents of their experimental potions. A nearby villager offers a surprisingly useful observation.
+
+[M090]
+Title: Potions 3: A Small Surprise
+Two apprentices compare the scents of their experimental potions. The notes are messy, but the discovery feels exciting.
+
+[M091]
+Title: Potions 3: The Afternoon
+Two apprentices compare the scents of their experimental potions. Nobody is sure what happened, so they agree to repeat the test.
+
+[M092]
+Title: Potions 3: A Little Memory
+Two apprentices compare the scents of their experimental potions. The unexpected result raises more questions than it answers.
+
+[M093]
+Title: Potions 4: A Quiet Moment
+An elder demonstrates how to measure ingredients consistently. The notes are messy, but the discovery feels exciting.
+
+[M094]
+Title: Potions 4: A Small Surprise
+An elder demonstrates how to measure ingredients consistently. Nobody is sure what happened, so they agree to repeat the test.
+
+[M095]
+Title: Potions 4: The Afternoon
+An elder demonstrates how to measure ingredients consistently. The unexpected result raises more questions than it answers.
+
+[M096]
+Title: Potions 4: A Little Memory
+An elder demonstrates how to measure ingredients consistently. (Name1) feels impatient but waits for the experiment to finish.
+
+[M097]
+Title: Potions 5: A Quiet Moment
+(Name1) leaves a covered preparation to settle in the shade. Nobody is sure what happened, so they agree to repeat the test.
+
+[M098]
+Title: Potions 5: A Small Surprise
+(Name1) leaves a covered preparation to settle in the shade. The unexpected result raises more questions than it answers.
+
+[M099]
+Title: Potions 5: The Afternoon
+(Name1) leaves a covered preparation to settle in the shade. (Name1) feels impatient but waits for the experiment to finish.
+
+[M100]
+Title: Potions 5: A Little Memory
+(Name1) leaves a covered preparation to settle in the shade. A nearby villager offers a surprisingly useful observation.
+
+====================================================================
+SECTION 06 — NETS AND BUTTERFLIES
+====================================================================
+
+[M101]
+Title: Nets: A Quiet Moment
+(Name1) repairs a fine net while butterflies pass overhead. The butterfly is gently released after everyone has looked.
+
+[M102]
+Title: Nets: A Small Surprise
+(Name1) repairs a fine net while butterflies pass overhead. (Name1) is amazed by a pattern almost invisible from afar.
+
+[M103]
+Title: Nets: The Afternoon
+(Name1) repairs a fine net while butterflies pass overhead. A sudden flutter makes the youngest observer laugh.
+
+[M104]
+Title: Nets: A Little Memory
+(Name1) repairs a fine net while butterflies pass overhead. Someone sketches the colors before forgetting them.
+
+[M105]
+Title: Nets 2: A Quiet Moment
+A child learns to hold a butterfly net without tearing it. (Name1) is amazed by a pattern almost invisible from afar.
+
+[M106]
+Title: Nets 2: A Small Surprise
+A child learns to hold a butterfly net without tearing it. A sudden flutter makes the youngest observer laugh.
+
+[M107]
+Title: Nets 2: The Afternoon
+A child learns to hold a butterfly net without tearing it. Someone sketches the colors before forgetting them.
+
+[M108]
+Title: Nets 2: A Little Memory
+A child learns to hold a butterfly net without tearing it. The group stays a little longer, hoping to see another species.
+
+[M109]
+Title: Nets 3: A Quiet Moment
+Two friends watch butterflies gathering near flowering plants. A sudden flutter makes the youngest observer laugh.
+
+[M110]
+Title: Nets 3: A Small Surprise
+Two friends watch butterflies gathering near flowering plants. Someone sketches the colors before forgetting them.
+
+[M111]
+Title: Nets 3: The Afternoon
+Two friends watch butterflies gathering near flowering plants. The group stays a little longer, hoping to see another species.
+
+[M112]
+Title: Nets 3: A Little Memory
+Two friends watch butterflies gathering near flowering plants. The butterfly is gently released after everyone has looked.
+
+[M113]
+Title: Nets 4: A Quiet Moment
+An elder teaches how to observe delicate wings without touching them. Someone sketches the colors before forgetting them.
+
+[M114]
+Title: Nets 4: A Small Surprise
+An elder teaches how to observe delicate wings without touching them. The group stays a little longer, hoping to see another species.
+
+[M115]
+Title: Nets 4: The Afternoon
+An elder teaches how to observe delicate wings without touching them. The butterfly is gently released after everyone has looked.
+
+[M116]
+Title: Nets 4: A Little Memory
+An elder teaches how to observe delicate wings without touching them. (Name1) is amazed by a pattern almost invisible from afar.
+
+[M117]
+Title: Nets 5: A Quiet Moment
+(Name1) briefly catches a butterfly in a soft net for observation. The group stays a little longer, hoping to see another species.
+
+[M118]
+Title: Nets 5: A Small Surprise
+(Name1) briefly catches a butterfly in a soft net for observation. The butterfly is gently released after everyone has looked.
+
+[M119]
+Title: Nets 5: The Afternoon
+(Name1) briefly catches a butterfly in a soft net for observation. (Name1) is amazed by a pattern almost invisible from afar.
+
+[M120]
+Title: Nets 5: A Little Memory
+(Name1) briefly catches a butterfly in a soft net for observation. A sudden flutter makes the youngest observer laugh.
+
+====================================================================
+SECTION 07 — HOLIDAYS AND GATHERINGS
+====================================================================
+
+[M121]
+Title: Holidays: A Quiet Moment
+Neighbors prepare decorations for a village holiday. (Name1) is excited but a little overwhelmed by the preparations.
+
+[M122]
+Title: Holidays: A Small Surprise
+Neighbors prepare decorations for a village holiday. The decorations are uneven, and everyone likes them anyway.
+
+[M123]
+Title: Holidays: The Afternoon
+Neighbors prepare decorations for a village holiday. An old tradition returns with a slightly different tune.
+
+[M124]
+Title: Holidays: A Little Memory
+Neighbors prepare decorations for a village holiday. Someone arrives early just to enjoy the anticipation.
+
+[M125]
+Title: Holidays 2: A Quiet Moment
+(Name1) practices a song for the coming celebration. The decorations are uneven, and everyone likes them anyway.
+
+[M126]
+Title: Holidays 2: A Small Surprise
+(Name1) practices a song for the coming celebration. An old tradition returns with a slightly different tune.
+
+[M127]
+Title: Holidays 2: The Afternoon
+(Name1) practices a song for the coming celebration. Someone arrives early just to enjoy the anticipation.
+
+[M128]
+Title: Holidays 2: A Little Memory
+(Name1) practices a song for the coming celebration. (Name1) hopes there will be a quiet moment amid the festivities.
+
+[M129]
+Title: Holidays 3: A Quiet Moment
+A family arranges a shared meal for a seasonal gathering. An old tradition returns with a slightly different tune.
+
+[M130]
+Title: Holidays 3: A Small Surprise
+A family arranges a shared meal for a seasonal gathering. Someone arrives early just to enjoy the anticipation.
+
+[M131]
+Title: Holidays 3: The Afternoon
+A family arranges a shared meal for a seasonal gathering. (Name1) hopes there will be a quiet moment amid the festivities.
+
+[M132]
+Title: Holidays 3: A Little Memory
+A family arranges a shared meal for a seasonal gathering. (Name1) is excited but a little overwhelmed by the preparations.
+
+[M133]
+Title: Holidays 4: A Quiet Moment
+Children help sweep the gathering place before a festival. Someone arrives early just to enjoy the anticipation.
+
+[M134]
+Title: Holidays 4: A Small Surprise
+Children help sweep the gathering place before a festival. (Name1) hopes there will be a quiet moment amid the festivities.
+
+[M135]
+Title: Holidays 4: The Afternoon
+Children help sweep the gathering place before a festival. (Name1) is excited but a little overwhelmed by the preparations.
+
+[M136]
+Title: Holidays 4: A Little Memory
+Children help sweep the gathering place before a festival. The decorations are uneven, and everyone likes them anyway.
+
+[M137]
+Title: Holidays 5: A Quiet Moment
+An elder recalls how the same holiday was celebrated years ago. (Name1) hopes there will be a quiet moment amid the festivities.
+
+[M138]
+Title: Holidays 5: A Small Surprise
+An elder recalls how the same holiday was celebrated years ago. (Name1) is excited but a little overwhelmed by the preparations.
+
+[M139]
+Title: Holidays 5: The Afternoon
+An elder recalls how the same holiday was celebrated years ago. The decorations are uneven, and everyone likes them anyway.
+
+[M140]
+Title: Holidays 5: A Little Memory
+An elder recalls how the same holiday was celebrated years ago. An old tradition returns with a slightly different tune.
+
+====================================================================
+SECTION 08 — GIFTS AND THOUGHTFULNESS
+====================================================================
+
+[M141]
+Title: Gifts: A Quiet Moment
+(Name1) wraps a small carved gift in a clean leaf. The recipient seems touched and struggles to find words.
+
+[M142]
+Title: Gifts: A Small Surprise
+(Name1) wraps a small carved gift in a clean leaf. (Name1) had worried the gift was too simple.
+
+[M143]
+Title: Gifts: The Afternoon
+(Name1) wraps a small carved gift in a clean leaf. A quiet smile says more than a long speech could.
+
+[M144]
+Title: Gifts: A Little Memory
+(Name1) wraps a small carved gift in a clean leaf. The surprise makes an otherwise ordinary afternoon memorable.
+
+[M145]
+Title: Gifts 2: A Quiet Moment
+A child presents a parent with a carefully chosen shell. (Name1) had worried the gift was too simple.
+
+[M146]
+Title: Gifts 2: A Small Surprise
+A child presents a parent with a carefully chosen shell. A quiet smile says more than a long speech could.
+
+[M147]
+Title: Gifts 2: The Afternoon
+A child presents a parent with a carefully chosen shell. The surprise makes an otherwise ordinary afternoon memorable.
+
+[M148]
+Title: Gifts 2: A Little Memory
+A child presents a parent with a carefully chosen shell. Nobody mentions the crooked workmanship, except affectionately.
+
+[M149]
+Title: Gifts 3: A Quiet Moment
+Two friends secretly exchange handmade bracelets. A quiet smile says more than a long speech could.
+
+[M150]
+Title: Gifts 3: A Small Surprise
+Two friends secretly exchange handmade bracelets. The surprise makes an otherwise ordinary afternoon memorable.
+
+[M151]
+Title: Gifts 3: The Afternoon
+Two friends secretly exchange handmade bracelets. Nobody mentions the crooked workmanship, except affectionately.
+
+[M152]
+Title: Gifts 3: A Little Memory
+Two friends secretly exchange handmade bracelets. The recipient seems touched and struggles to find words.
+
+[M153]
+Title: Gifts 4: A Quiet Moment
+An elder gives an apprentice a well-used crafting tool. The surprise makes an otherwise ordinary afternoon memorable.
+
+[M154]
+Title: Gifts 4: A Small Surprise
+An elder gives an apprentice a well-used crafting tool. Nobody mentions the crooked workmanship, except affectionately.
+
+[M155]
+Title: Gifts 4: The Afternoon
+An elder gives an apprentice a well-used crafting tool. The recipient seems touched and struggles to find words.
+
+[M156]
+Title: Gifts 4: A Little Memory
+An elder gives an apprentice a well-used crafting tool. (Name1) had worried the gift was too simple.
+
+[M157]
+Title: Gifts 5: A Quiet Moment
+(Name1) leaves a basket of fruit for a tired neighbor. Nobody mentions the crooked workmanship, except affectionately.
+
+[M158]
+Title: Gifts 5: A Small Surprise
+(Name1) leaves a basket of fruit for a tired neighbor. The recipient seems touched and struggles to find words.
+
+[M159]
+Title: Gifts 5: The Afternoon
+(Name1) leaves a basket of fruit for a tired neighbor. (Name1) had worried the gift was too simple.
+
+[M160]
+Title: Gifts 5: A Little Memory
+(Name1) leaves a basket of fruit for a tired neighbor. A quiet smile says more than a long speech could.
+
+====================================================================
+SECTION 09 — PROMISES AND PACTS
+====================================================================
+
+[M161]
+Title: Promises: A Quiet Moment
+(Name1) remembers promising to help repair a basket. Keeping the promise feels more important than expected.
+
+[M162]
+Title: Promises: A Small Surprise
+(Name1) remembers promising to help repair a basket. (Name1) feels embarrassed and offers a sincere apology.
+
+[M163]
+Title: Promises: The Afternoon
+(Name1) remembers promising to help repair a basket. The agreement is simple enough to remember without writing it down.
+
+[M164]
+Title: Promises: A Little Memory
+(Name1) remembers promising to help repair a basket. A small delay tests everyone’s patience, but the work continues.
+
+[M165]
+Title: Promises 2: A Quiet Moment
+Two siblings make a pact to practice their knots together. (Name1) feels embarrassed and offers a sincere apology.
+
+[M166]
+Title: Promises 2: A Small Surprise
+Two siblings make a pact to practice their knots together. The agreement is simple enough to remember without writing it down.
+
+[M167]
+Title: Promises 2: The Afternoon
+Two siblings make a pact to practice their knots together. A small delay tests everyone’s patience, but the work continues.
+
+[M168]
+Title: Promises 2: A Little Memory
+Two siblings make a pact to practice their knots together. Someone suggests checking in again tomorrow rather than making grand declarations.
+
+[M169]
+Title: Promises 3: A Quiet Moment
+A friend arrives exactly when promised for a shoreline walk. The agreement is simple enough to remember without writing it down.
+
+[M170]
+Title: Promises 3: A Small Surprise
+A friend arrives exactly when promised for a shoreline walk. A small delay tests everyone’s patience, but the work continues.
+
+[M171]
+Title: Promises 3: The Afternoon
+A friend arrives exactly when promised for a shoreline walk. Someone suggests checking in again tomorrow rather than making grand declarations.
+
+[M172]
+Title: Promises 3: A Little Memory
+A friend arrives exactly when promised for a shoreline walk. Keeping the promise feels more important than expected.
+
+[M173]
+Title: Promises 4: A Quiet Moment
+(Name1) realizes a promised visit was forgotten. A small delay tests everyone’s patience, but the work continues.
+
+[M174]
+Title: Promises 4: A Small Surprise
+(Name1) realizes a promised visit was forgotten. Someone suggests checking in again tomorrow rather than making grand declarations.
+
+[M175]
+Title: Promises 4: The Afternoon
+(Name1) realizes a promised visit was forgotten. Keeping the promise feels more important than expected.
+
+[M176]
+Title: Promises 4: A Little Memory
+(Name1) realizes a promised visit was forgotten. (Name1) feels embarrassed and offers a sincere apology.
+
+[M177]
+Title: Promises 5: A Quiet Moment
+Several neighbors agree to share responsibility for a difficult chore. Someone suggests checking in again tomorrow rather than making grand declarations.
+
+[M178]
+Title: Promises 5: A Small Surprise
+Several neighbors agree to share responsibility for a difficult chore. Keeping the promise feels more important than expected.
+
+[M179]
+Title: Promises 5: The Afternoon
+Several neighbors agree to share responsibility for a difficult chore. (Name1) feels embarrassed and offers a sincere apology.
+
+[M180]
+Title: Promises 5: A Little Memory
+Several neighbors agree to share responsibility for a difficult chore. The agreement is simple enough to remember without writing it down.
+
+====================================================================
+SECTION 10 — ELDERS TEACHING SKILLS
+====================================================================
+
+[M181]
+Title: Elders Teaching Skills: A Quiet Moment
+An elder teaches (Name1) to splice two lengths of rope. The learner asks to see the movement one more time.
+
+[M182]
+Title: Elders Teaching Skills: A Small Surprise
+An elder teaches (Name1) to splice two lengths of rope. (Name1) is proud when the hands finally remember the steps.
+
+[M183]
+Title: Elders Teaching Skills: The Afternoon
+An elder teaches (Name1) to splice two lengths of rope. The elder admits the technique took years to master.
+
+[M184]
+Title: Elders Teaching Skills: A Little Memory
+An elder teaches (Name1) to splice two lengths of rope. A small mistake becomes a reason to try again, not a scolding.
+
+[M185]
+Title: Elders Teaching Skills 2: A Quiet Moment
+A grandparent demonstrates how to mend a fishing net. (Name1) is proud when the hands finally remember the steps.
+
+[M186]
+Title: Elders Teaching Skills 2: A Small Surprise
+A grandparent demonstrates how to mend a fishing net. The elder admits the technique took years to master.
+
+[M187]
+Title: Elders Teaching Skills 2: The Afternoon
+A grandparent demonstrates how to mend a fishing net. A small mistake becomes a reason to try again, not a scolding.
+
+[M188]
+Title: Elders Teaching Skills 2: A Little Memory
+A grandparent demonstrates how to mend a fishing net. The lesson lasts longer than planned because neither wants to stop.
+
+[M189]
+Title: Elders Teaching Skills 3: A Quiet Moment
+An older farmer shows a child how to judge ripe fruit. The elder admits the technique took years to master.
+
+[M190]
+Title: Elders Teaching Skills 3: A Small Surprise
+An older farmer shows a child how to judge ripe fruit. A small mistake becomes a reason to try again, not a scolding.
+
+[M191]
+Title: Elders Teaching Skills 3: The Afternoon
+An older farmer shows a child how to judge ripe fruit. The lesson lasts longer than planned because neither wants to stop.
+
+[M192]
+Title: Elders Teaching Skills 3: A Little Memory
+An older farmer shows a child how to judge ripe fruit. The learner asks to see the movement one more time.
+
+[M193]
+Title: Elders Teaching Skills 4: A Quiet Moment
+An elder guides an apprentice through a difficult weaving pattern. A small mistake becomes a reason to try again, not a scolding.
+
+[M194]
+Title: Elders Teaching Skills 4: A Small Surprise
+An elder guides an apprentice through a difficult weaving pattern. The lesson lasts longer than planned because neither wants to stop.
+
+[M195]
+Title: Elders Teaching Skills 4: The Afternoon
+An elder guides an apprentice through a difficult weaving pattern. The learner asks to see the movement one more time.
+
+[M196]
+Title: Elders Teaching Skills 4: A Little Memory
+An elder guides an apprentice through a difficult weaving pattern. (Name1) is proud when the hands finally remember the steps.
+
+[M197]
+Title: Elders Teaching Skills 5: A Quiet Moment
+A seasoned navigator explains how to read familiar shoreline markers. The lesson lasts longer than planned because neither wants to stop.
+
+[M198]
+Title: Elders Teaching Skills 5: A Small Surprise
+A seasoned navigator explains how to read familiar shoreline markers. The learner asks to see the movement one more time.
+
+[M199]
+Title: Elders Teaching Skills 5: The Afternoon
+A seasoned navigator explains how to read familiar shoreline markers. (Name1) is proud when the hands finally remember the steps.
+
+[M200]
+Title: Elders Teaching Skills 5: A Little Memory
+A seasoned navigator explains how to read familiar shoreline markers. The elder admits the technique took years to master.
+
+====================================================================
+SECTION 11 — PARENTS AND CHILDREN
+====================================================================
+
+[M201]
+Title: Parents: A Quiet Moment
+A child helps a parent sort freshly gathered roots. The parent is pleasantly surprised by the offer.
+
+[M202]
+Title: Parents: A Small Surprise
+A child helps a parent sort freshly gathered roots. The task takes longer together, but the company is welcome.
+
+[M203]
+Title: Parents: The Afternoon
+A child helps a parent sort freshly gathered roots. The child asks several questions nobody expected.
+
+[M204]
+Title: Parents: A Little Memory
+A child helps a parent sort freshly gathered roots. (Name1) feels useful and hopes someone noticed.
+
+[M205]
+Title: Parents 2: A Quiet Moment
+(Name1) watches a parent patiently mend a worn basket. The task takes longer together, but the company is welcome.
+
+[M206]
+Title: Parents 2: A Small Surprise
+(Name1) watches a parent patiently mend a worn basket. The child asks several questions nobody expected.
+
+[M207]
+Title: Parents 2: The Afternoon
+(Name1) watches a parent patiently mend a worn basket. (Name1) feels useful and hopes someone noticed.
+
+[M208]
+Title: Parents 2: A Little Memory
+(Name1) watches a parent patiently mend a worn basket. A little shared laughter makes the chore less tedious.
+
+[M209]
+Title: Parents 3: A Quiet Moment
+A young villager volunteers to carry light supplies home. The child asks several questions nobody expected.
+
+[M210]
+Title: Parents 3: A Small Surprise
+A young villager volunteers to carry light supplies home. (Name1) feels useful and hopes someone noticed.
+
+[M211]
+Title: Parents 3: The Afternoon
+A young villager volunteers to carry light supplies home. A little shared laughter makes the chore less tedious.
+
+[M212]
+Title: Parents 3: A Little Memory
+A young villager volunteers to carry light supplies home. The parent is pleasantly surprised by the offer.
+
+[M213]
+Title: Parents 4: A Quiet Moment
+A parent shows a child how to prepare a simple breakfast. (Name1) feels useful and hopes someone noticed.
+
+[M214]
+Title: Parents 4: A Small Surprise
+A parent shows a child how to prepare a simple breakfast. A little shared laughter makes the chore less tedious.
+
+[M215]
+Title: Parents 4: The Afternoon
+A parent shows a child how to prepare a simple breakfast. The parent is pleasantly surprised by the offer.
+
+[M216]
+Title: Parents 4: A Little Memory
+A parent shows a child how to prepare a simple breakfast. The task takes longer together, but the company is welcome.
+
+[M217]
+Title: Parents 5: A Quiet Moment
+A child asks to help clean and arrange the family’s tools. A little shared laughter makes the chore less tedious.
+
+[M218]
+Title: Parents 5: A Small Surprise
+A child asks to help clean and arrange the family’s tools. The parent is pleasantly surprised by the offer.
+
+[M219]
+Title: Parents 5: The Afternoon
+A child asks to help clean and arrange the family’s tools. The task takes longer together, but the company is welcome.
+
+[M220]
+Title: Parents 5: A Little Memory
+A child asks to help clean and arrange the family’s tools. The child asks several questions nobody expected.
+
+====================================================================
+SECTION 12 — SIBLINGS AND RESPONSIBILITY
+====================================================================
+
+[M221]
+Title: Siblings: A Quiet Moment
+An older sibling helps a younger child tie a sandal. The younger child insists on doing the final step independently.
+
+[M222]
+Title: Siblings: A Small Surprise
+An older sibling helps a younger child tie a sandal. They disagree about the best method, then try both.
+
+[M223]
+Title: Siblings: The Afternoon
+An older sibling helps a younger child tie a sandal. (Name1) feels unexpectedly grown-up afterward.
+
+[M224]
+Title: Siblings: A Little Memory
+An older sibling helps a younger child tie a sandal. The gesture goes unnoticed by everyone except the sibling.
+
+[M225]
+Title: Siblings 2: A Quiet Moment
+Two siblings divide the work of collecting fallen twigs. They disagree about the best method, then try both.
+
+[M226]
+Title: Siblings 2: A Small Surprise
+Two siblings divide the work of collecting fallen twigs. (Name1) feels unexpectedly grown-up afterward.
+
+[M227]
+Title: Siblings 2: The Afternoon
+Two siblings divide the work of collecting fallen twigs. The gesture goes unnoticed by everyone except the sibling.
+
+[M228]
+Title: Siblings 2: A Little Memory
+Two siblings divide the work of collecting fallen twigs. They finish laughing about a mistake from earlier in the day.
+
+[M229]
+Title: Siblings 3: A Quiet Moment
+A young villager comforts a sibling nervous about a new task. (Name1) feels unexpectedly grown-up afterward.
+
+[M230]
+Title: Siblings 3: A Small Surprise
+A young villager comforts a sibling nervous about a new task. The gesture goes unnoticed by everyone except the sibling.
+
+[M231]
+Title: Siblings 3: The Afternoon
+A young villager comforts a sibling nervous about a new task. They finish laughing about a mistake from earlier in the day.
+
+[M232]
+Title: Siblings 3: A Little Memory
+A young villager comforts a sibling nervous about a new task. The younger child insists on doing the final step independently.
+
+[M233]
+Title: Siblings 4: A Quiet Moment
+One sibling saves the last ripe fruit for the other. The gesture goes unnoticed by everyone except the sibling.
+
+[M234]
+Title: Siblings 4: A Small Surprise
+One sibling saves the last ripe fruit for the other. They finish laughing about a mistake from earlier in the day.
+
+[M235]
+Title: Siblings 4: The Afternoon
+One sibling saves the last ripe fruit for the other. The younger child insists on doing the final step independently.
+
+[M236]
+Title: Siblings 4: A Little Memory
+One sibling saves the last ripe fruit for the other. They disagree about the best method, then try both.
+
+[M237]
+Title: Siblings 5: A Quiet Moment
+Two children cooperate to carry a basket neither could lift alone. They finish laughing about a mistake from earlier in the day.
+
+[M238]
+Title: Siblings 5: A Small Surprise
+Two children cooperate to carry a basket neither could lift alone. The younger child insists on doing the final step independently.
+
+[M239]
+Title: Siblings 5: The Afternoon
+Two children cooperate to carry a basket neither could lift alone. They disagree about the best method, then try both.
+
+[M240]
+Title: Siblings 5: A Little Memory
+Two children cooperate to carry a basket neither could lift alone. (Name1) feels unexpectedly grown-up afterward.
+
+====================================================================
+SECTION 13 — SNAKES AND SMALL WILDLIFE
+====================================================================
+
+[M241]
+Title: Snakes: A Quiet Moment
+A harmless-looking snake crosses the path ahead of (Name1). Everyone keeps a respectful distance and lets the animal pass.
+
+[M242]
+Title: Snakes: A Small Surprise
+A harmless-looking snake crosses the path ahead of (Name1). (Name1) feels startled, then fascinated.
+
+[M243]
+Title: Snakes: The Afternoon
+A harmless-looking snake crosses the path ahead of (Name1). The children ask more questions than the elder can answer.
+
+[M244]
+Title: Snakes: A Little Memory
+A harmless-looking snake crosses the path ahead of (Name1). The encounter becomes the afternoon’s favorite story.
+
+[M245]
+Title: Snakes 2: A Quiet Moment
+Two villagers spot a shed snakeskin beside a rock. (Name1) feels startled, then fascinated.
+
+[M246]
+Title: Snakes 2: A Small Surprise
+Two villagers spot a shed snakeskin beside a rock. The children ask more questions than the elder can answer.
+
+[M247]
+Title: Snakes 2: The Afternoon
+Two villagers spot a shed snakeskin beside a rock. The encounter becomes the afternoon’s favorite story.
+
+[M248]
+Title: Snakes 2: A Little Memory
+Two villagers spot a shed snakeskin beside a rock. A quiet observer sketches the animal from memory afterward.
+
+[M249]
+Title: Snakes 3: A Quiet Moment
+A child watches a snake slip quietly through tall grass. The children ask more questions than the elder can answer.
+
+[M250]
+Title: Snakes 3: A Small Surprise
+A child watches a snake slip quietly through tall grass. The encounter becomes the afternoon’s favorite story.
+
+[M251]
+Title: Snakes 3: The Afternoon
+A child watches a snake slip quietly through tall grass. A quiet observer sketches the animal from memory afterward.
+
+[M252]
+Title: Snakes 3: A Little Memory
+A child watches a snake slip quietly through tall grass. Everyone keeps a respectful distance and lets the animal pass.
+
+[M253]
+Title: Snakes 4: A Quiet Moment
+(Name1) notices a snake basking on a distant warm stone. The encounter becomes the afternoon’s favorite story.
+
+[M254]
+Title: Snakes 4: A Small Surprise
+(Name1) notices a snake basking on a distant warm stone. A quiet observer sketches the animal from memory afterward.
+
+[M255]
+Title: Snakes 4: The Afternoon
+(Name1) notices a snake basking on a distant warm stone. Everyone keeps a respectful distance and lets the animal pass.
+
+[M256]
+Title: Snakes 4: A Little Memory
+(Name1) notices a snake basking on a distant warm stone. (Name1) feels startled, then fascinated.
+
+[M257]
+Title: Snakes 5: A Quiet Moment
+An elder explains why snakes should be given room to move away. A quiet observer sketches the animal from memory afterward.
+
+[M258]
+Title: Snakes 5: A Small Surprise
+An elder explains why snakes should be given room to move away. Everyone keeps a respectful distance and lets the animal pass.
+
+[M259]
+Title: Snakes 5: The Afternoon
+An elder explains why snakes should be given room to move away. (Name1) feels startled, then fascinated.
+
+[M260]
+Title: Snakes 5: A Little Memory
+An elder explains why snakes should be given room to move away. The children ask more questions than the elder can answer.
+
+====================================================================
+SECTION 14 — PEBBLES AND SHORE GAMES
+====================================================================
+
+[M261]
+Title: Pebbles: A Quiet Moment
+(Name1) practices skipping flat pebbles across calm water. The first attempt fails spectacularly, provoking laughter.
+
+[M262]
+Title: Pebbles: A Small Surprise
+(Name1) practices skipping flat pebbles across calm water. (Name1) becomes far more competitive than intended.
+
+[M263]
+Title: Pebbles: The Afternoon
+(Name1) practices skipping flat pebbles across calm water. A friend suggests changing the rules halfway through.
+
+[M264]
+Title: Pebbles: A Little Memory
+(Name1) practices skipping flat pebbles across calm water. The game ends only when the tide reaches their feet.
+
+[M265]
+Title: Pebbles 2: A Quiet Moment
+Three friends invent a game using smooth stones and a circle in the sand. (Name1) becomes far more competitive than intended.
+
+[M266]
+Title: Pebbles 2: A Small Surprise
+Three friends invent a game using smooth stones and a circle in the sand. A friend suggests changing the rules halfway through.
+
+[M267]
+Title: Pebbles 2: The Afternoon
+Three friends invent a game using smooth stones and a circle in the sand. The game ends only when the tide reaches their feet.
+
+[M268]
+Title: Pebbles 2: A Little Memory
+Three friends invent a game using smooth stones and a circle in the sand. One particularly pretty stone is carried home as a keepsake.
+
+[M269]
+Title: Pebbles 3: A Quiet Moment
+A child sorts pebbles by color beside the shore. A friend suggests changing the rules halfway through.
+
+[M270]
+Title: Pebbles 3: A Small Surprise
+A child sorts pebbles by color beside the shore. The game ends only when the tide reaches their feet.
+
+[M271]
+Title: Pebbles 3: The Afternoon
+A child sorts pebbles by color beside the shore. One particularly pretty stone is carried home as a keepsake.
+
+[M272]
+Title: Pebbles 3: A Little Memory
+A child sorts pebbles by color beside the shore. The first attempt fails spectacularly, provoking laughter.
+
+[M273]
+Title: Pebbles 4: A Quiet Moment
+Two villagers compete to build the tallest balanced pebble stack. The game ends only when the tide reaches their feet.
+
+[M274]
+Title: Pebbles 4: A Small Surprise
+Two villagers compete to build the tallest balanced pebble stack. One particularly pretty stone is carried home as a keepsake.
+
+[M275]
+Title: Pebbles 4: The Afternoon
+Two villagers compete to build the tallest balanced pebble stack. The first attempt fails spectacularly, provoking laughter.
+
+[M276]
+Title: Pebbles 4: A Little Memory
+Two villagers compete to build the tallest balanced pebble stack. (Name1) becomes far more competitive than intended.
+
+[M277]
+Title: Pebbles 5: A Quiet Moment
+(Name1) searches for a stone shaped like a tiny heart. One particularly pretty stone is carried home as a keepsake.
+
+[M278]
+Title: Pebbles 5: A Small Surprise
+(Name1) searches for a stone shaped like a tiny heart. The first attempt fails spectacularly, provoking laughter.
+
+[M279]
+Title: Pebbles 5: The Afternoon
+(Name1) searches for a stone shaped like a tiny heart. (Name1) becomes far more competitive than intended.
+
+[M280]
+Title: Pebbles 5: A Little Memory
+(Name1) searches for a stone shaped like a tiny heart. A friend suggests changing the rules halfway through.
+
+====================================================================
+SECTION 15 — ROPES AND USEFUL KNOTS
+====================================================================
+
+[M281]
+Title: Ropes: A Quiet Moment
+Two villagers twist plant fibers into a sturdy rope. (Name1) keeps losing track of which loop comes next.
+
+[M282]
+Title: Ropes: A Small Surprise
+Two villagers twist plant fibers into a sturdy rope. The finished knot holds, much to everyone’s relief.
+
+[M283]
+Title: Ropes: The Afternoon
+Two villagers twist plant fibers into a sturdy rope. Someone remembers a different method and demonstrates it.
+
+[M284]
+Title: Ropes: A Little Memory
+Two villagers twist plant fibers into a sturdy rope. The task is surprisingly soothing once a rhythm develops.
+
+[M285]
+Title: Ropes 2: A Quiet Moment
+(Name1) practices a knot learned only yesterday. The finished knot holds, much to everyone’s relief.
+
+[M286]
+Title: Ropes 2: A Small Surprise
+(Name1) practices a knot learned only yesterday. Someone remembers a different method and demonstrates it.
+
+[M287]
+Title: Ropes 2: The Afternoon
+(Name1) practices a knot learned only yesterday. The task is surprisingly soothing once a rhythm develops.
+
+[M288]
+Title: Ropes 2: A Little Memory
+(Name1) practices a knot learned only yesterday. A small victory makes (Name1) eager to practice again.
+
+[M289]
+Title: Ropes 3: A Quiet Moment
+A builder checks the bindings on a bundle of poles. Someone remembers a different method and demonstrates it.
+
+[M290]
+Title: Ropes 3: A Small Surprise
+A builder checks the bindings on a bundle of poles. The task is surprisingly soothing once a rhythm develops.
+
+[M291]
+Title: Ropes 3: The Afternoon
+A builder checks the bindings on a bundle of poles. A small victory makes (Name1) eager to practice again.
+
+[M292]
+Title: Ropes 3: A Little Memory
+A builder checks the bindings on a bundle of poles. (Name1) keeps losing track of which loop comes next.
+
+[M293]
+Title: Ropes 4: A Quiet Moment
+A child watches a rope-maker’s fingers move with practiced ease. The task is surprisingly soothing once a rhythm develops.
+
+[M294]
+Title: Ropes 4: A Small Surprise
+A child watches a rope-maker’s fingers move with practiced ease. A small victory makes (Name1) eager to practice again.
+
+[M295]
+Title: Ropes 4: The Afternoon
+A child watches a rope-maker’s fingers move with practiced ease. (Name1) keeps losing track of which loop comes next.
+
+[M296]
+Title: Ropes 4: A Little Memory
+A child watches a rope-maker’s fingers move with practiced ease. The finished knot holds, much to everyone’s relief.
+
+[M297]
+Title: Ropes 5: A Quiet Moment
+An elder untangles a hopeless-looking bundle of cord. A small victory makes (Name1) eager to practice again.
+
+[M298]
+Title: Ropes 5: A Small Surprise
+An elder untangles a hopeless-looking bundle of cord. (Name1) keeps losing track of which loop comes next.
+
+[M299]
+Title: Ropes 5: The Afternoon
+An elder untangles a hopeless-looking bundle of cord. The finished knot holds, much to everyone’s relief.
+
+[M300]
+Title: Ropes 5: A Little Memory
+An elder untangles a hopeless-looking bundle of cord. Someone remembers a different method and demonstrates it.
+
+====================================================================
+SECTION 16 — RACES AND FRIENDLY COMPETITION
+====================================================================
+
+[M301]
+Title: Races: A Quiet Moment
+A group of villagers organizes a short beach race. (Name1) feels nervous despite insisting it is only for fun.
+
+[M302]
+Title: Races: A Small Surprise
+A group of villagers organizes a short beach race. The spectators cheer for everyone approaching the finish.
+
+[M303]
+Title: Races: The Afternoon
+A group of villagers organizes a short beach race. Someone starts too early and sheepishly returns to the line.
+
+[M304]
+Title: Races: A Little Memory
+A group of villagers organizes a short beach race. The winner is less interested in the prize than in catching their breath.
+
+[M305]
+Title: Races 2: A Quiet Moment
+Two friends challenge each other to carry baskets without spilling anything. The spectators cheer for everyone approaching the finish.
+
+[M306]
+Title: Races 2: A Small Surprise
+Two friends challenge each other to carry baskets without spilling anything. Someone starts too early and sheepishly returns to the line.
+
+[M307]
+Title: Races 2: The Afternoon
+Two friends challenge each other to carry baskets without spilling anything. The winner is less interested in the prize than in catching their breath.
+
+[M308]
+Title: Races 2: A Little Memory
+Two friends challenge each other to carry baskets without spilling anything. Afterward, the competitors share water and compare stories.
+
+[M309]
+Title: Races 3: A Quiet Moment
+Children draw a winding racecourse in the sand. Someone starts too early and sheepishly returns to the line.
+
+[M310]
+Title: Races 3: A Small Surprise
+Children draw a winding racecourse in the sand. The winner is less interested in the prize than in catching their breath.
+
+[M311]
+Title: Races 3: The Afternoon
+Children draw a winding racecourse in the sand. Afterward, the competitors share water and compare stories.
+
+[M312]
+Title: Races 3: A Little Memory
+Children draw a winding racecourse in the sand. (Name1) feels nervous despite insisting it is only for fun.
+
+[M313]
+Title: Races 4: A Quiet Moment
+(Name1) volunteers to announce the start of a running contest. The winner is less interested in the prize than in catching their breath.
+
+[M314]
+Title: Races 4: A Small Surprise
+(Name1) volunteers to announce the start of a running contest. Afterward, the competitors share water and compare stories.
+
+[M315]
+Title: Races 4: The Afternoon
+(Name1) volunteers to announce the start of a running contest. (Name1) feels nervous despite insisting it is only for fun.
+
+[M316]
+Title: Races 4: A Little Memory
+(Name1) volunteers to announce the start of a running contest. The spectators cheer for everyone approaching the finish.
+
+[M317]
+Title: Races 5: A Quiet Moment
+An elder recalls a race that ended in a spectacular tumble years ago. Afterward, the competitors share water and compare stories.
+
+[M318]
+Title: Races 5: A Small Surprise
+An elder recalls a race that ended in a spectacular tumble years ago. (Name1) feels nervous despite insisting it is only for fun.
+
+[M319]
+Title: Races 5: The Afternoon
+An elder recalls a race that ended in a spectacular tumble years ago. The spectators cheer for everyone approaching the finish.
+
+[M320]
+Title: Races 5: A Little Memory
+An elder recalls a race that ended in a spectacular tumble years ago. Someone starts too early and sheepishly returns to the line.
+
+====================================================================
+SECTION 17 — PARCHMENT AND WRITTEN WORDS
+====================================================================
+
+[M321]
+Title: Parchment: A Quiet Moment
+(Name1) smooths a piece of parchment for a short letter. A smudged line requires a patient correction.
+
+[M322]
+Title: Parchment: A Small Surprise
+(Name1) smooths a piece of parchment for a short letter. (Name1) worries the words sound awkward but sends them anyway.
+
+[M323]
+Title: Parchment: The Afternoon
+(Name1) smooths a piece of parchment for a short letter. The reader smiles at a tiny drawing in the margin.
+
+[M324]
+Title: Parchment: A Little Memory
+(Name1) smooths a piece of parchment for a short letter. Someone pauses to remember the exact wording.
+
+[M325]
+Title: Parchment 2: A Quiet Moment
+A scholar practices making clear marks with a handmade writing tool. (Name1) worries the words sound awkward but sends them anyway.
+
+[M326]
+Title: Parchment 2: A Small Surprise
+A scholar practices making clear marks with a handmade writing tool. The reader smiles at a tiny drawing in the margin.
+
+[M327]
+Title: Parchment 2: The Afternoon
+A scholar practices making clear marks with a handmade writing tool. Someone pauses to remember the exact wording.
+
+[M328]
+Title: Parchment 2: A Little Memory
+A scholar practices making clear marks with a handmade writing tool. The finished page feels more precious than its materials suggest.
+
+[M329]
+Title: Parchment 3: A Quiet Moment
+An elder dictates a family recipe while a younger villager records it. The reader smiles at a tiny drawing in the margin.
+
+[M330]
+Title: Parchment 3: A Small Surprise
+An elder dictates a family recipe while a younger villager records it. Someone pauses to remember the exact wording.
+
+[M331]
+Title: Parchment 3: The Afternoon
+An elder dictates a family recipe while a younger villager records it. The finished page feels more precious than its materials suggest.
+
+[M332]
+Title: Parchment 3: A Little Memory
+An elder dictates a family recipe while a younger villager records it. A smudged line requires a patient correction.
+
+[M333]
+Title: Parchment 4: A Quiet Moment
+Two friends exchange brief notes about tomorrow’s plans. Someone pauses to remember the exact wording.
+
+[M334]
+Title: Parchment 4: A Small Surprise
+Two friends exchange brief notes about tomorrow’s plans. The finished page feels more precious than its materials suggest.
+
+[M335]
+Title: Parchment 4: The Afternoon
+Two friends exchange brief notes about tomorrow’s plans. A smudged line requires a patient correction.
+
+[M336]
+Title: Parchment 4: A Little Memory
+Two friends exchange brief notes about tomorrow’s plans. (Name1) worries the words sound awkward but sends them anyway.
+
+[M337]
+Title: Parchment 5: A Quiet Moment
+(Name1) carefully copies an old story onto fresh parchment. The finished page feels more precious than its materials suggest.
+
+[M338]
+Title: Parchment 5: A Small Surprise
+(Name1) carefully copies an old story onto fresh parchment. A smudged line requires a patient correction.
+
+[M339]
+Title: Parchment 5: The Afternoon
+(Name1) carefully copies an old story onto fresh parchment. (Name1) worries the words sound awkward but sends them anyway.
+
+[M340]
+Title: Parchment 5: A Little Memory
+(Name1) carefully copies an old story onto fresh parchment. The reader smiles at a tiny drawing in the margin.
+
+====================================================================
+SECTION 18 — FRIENDSHIP AND BELONGING
+====================================================================
+
+[M341]
+Title: Friendship: A Quiet Moment
+(Name1) considers joining a conversation already in progress. (Name1) feels welcome but still a little shy.
+
+[M342]
+Title: Friendship: A Small Surprise
+(Name1) considers joining a conversation already in progress. The conversation is ordinary, which is exactly what feels comforting.
+
+[M343]
+Title: Friendship: The Afternoon
+(Name1) considers joining a conversation already in progress. A small invitation changes the mood of the whole afternoon.
+
+[M344]
+Title: Friendship: A Little Memory
+(Name1) considers joining a conversation already in progress. (Name1) enjoys the company and also looks forward to time alone.
+
+[M345]
+Title: Friendship 2: A Quiet Moment
+Two neighbors invite a quiet villager to share their meal. The conversation is ordinary, which is exactly what feels comforting.
+
+[M346]
+Title: Friendship 2: A Small Surprise
+Two neighbors invite a quiet villager to share their meal. A small invitation changes the mood of the whole afternoon.
+
+[M347]
+Title: Friendship 2: The Afternoon
+Two neighbors invite a quiet villager to share their meal. (Name1) enjoys the company and also looks forward to time alone.
+
+[M348]
+Title: Friendship 2: A Little Memory
+Two neighbors invite a quiet villager to share their meal. Someone remembers an old joke, and the group starts laughing again.
+
+[M349]
+Title: Friendship 3: A Quiet Moment
+A familiar friend is absent from the usual afternoon gathering. A small invitation changes the mood of the whole afternoon.
+
+[M350]
+Title: Friendship 3: A Small Surprise
+A familiar friend is absent from the usual afternoon gathering. (Name1) enjoys the company and also looks forward to time alone.
+
+[M351]
+Title: Friendship 3: The Afternoon
+A familiar friend is absent from the usual afternoon gathering. Someone remembers an old joke, and the group starts laughing again.
+
+[M352]
+Title: Friendship 3: A Little Memory
+A familiar friend is absent from the usual afternoon gathering. (Name1) feels welcome but still a little shy.
+
+[M353]
+Title: Friendship 4: A Quiet Moment
+(Name1) sits beside (Name2) without feeling obliged to speak. (Name1) enjoys the company and also looks forward to time alone.
+
+[M354]
+Title: Friendship 4: A Small Surprise
+(Name1) sits beside (Name2) without feeling obliged to speak. Someone remembers an old joke, and the group starts laughing again.
+
+[M355]
+Title: Friendship 4: The Afternoon
+(Name1) sits beside (Name2) without feeling obliged to speak. (Name1) feels welcome but still a little shy.
+
+[M356]
+Title: Friendship 4: A Little Memory
+(Name1) sits beside (Name2) without feeling obliged to speak. The conversation is ordinary, which is exactly what feels comforting.
+
+[M357]
+Title: Friendship 5: A Quiet Moment
+Several villagers make room for a newcomer in their game. Someone remembers an old joke, and the group starts laughing again.
+
+[M358]
+Title: Friendship 5: A Small Surprise
+Several villagers make room for a newcomer in their game. (Name1) feels welcome but still a little shy.
+
+[M359]
+Title: Friendship 5: The Afternoon
+Several villagers make room for a newcomer in their game. The conversation is ordinary, which is exactly what feels comforting.
+
+[M360]
+Title: Friendship 5: A Little Memory
+Several villagers make room for a newcomer in their game. A small invitation changes the mood of the whole afternoon.
+
+====================================================================
+SECTION 19 — WORKDAYS AND INNER FEELINGS
+====================================================================
+
+[M361]
+Title: Workdays: A Quiet Moment
+(Name1) wakes with a task already weighing on their mind. The worry remains, but it seems smaller after a quiet break.
+
+[M362]
+Title: Workdays: A Small Surprise
+(Name1) wakes with a task already weighing on their mind. (Name1) is proud of the progress nobody else can see.
+
+[M363]
+Title: Workdays: The Afternoon
+(Name1) wakes with a task already weighing on their mind. A cheerful interruption is welcome for once.
+
+[M364]
+Title: Workdays: A Little Memory
+(Name1) wakes with a task already weighing on their mind. The afternoon feels unusually long, despite the simple work.
+
+[M365]
+Title: Workdays 2: A Quiet Moment
+A farmer finishes the day earlier than expected. (Name1) is proud of the progress nobody else can see.
+
+[M366]
+Title: Workdays 2: A Small Surprise
+A farmer finishes the day earlier than expected. A cheerful interruption is welcome for once.
+
+[M367]
+Title: Workdays 2: The Afternoon
+A farmer finishes the day earlier than expected. The afternoon feels unusually long, despite the simple work.
+
+[M368]
+Title: Workdays 2: A Little Memory
+A farmer finishes the day earlier than expected. (Name1) decides not every day has to be remarkable.
+
+[M369]
+Title: Workdays 3: A Quiet Moment
+(Name1) struggles to concentrate on a familiar chore. A cheerful interruption is welcome for once.
+
+[M370]
+Title: Workdays 3: A Small Surprise
+(Name1) struggles to concentrate on a familiar chore. The afternoon feels unusually long, despite the simple work.
+
+[M371]
+Title: Workdays 3: The Afternoon
+(Name1) struggles to concentrate on a familiar chore. (Name1) decides not every day has to be remarkable.
+
+[M372]
+Title: Workdays 3: A Little Memory
+(Name1) struggles to concentrate on a familiar chore. The worry remains, but it seems smaller after a quiet break.
+
+[M373]
+Title: Workdays 4: A Quiet Moment
+A builder pauses to admire work completed over several days. The afternoon feels unusually long, despite the simple work.
+
+[M374]
+Title: Workdays 4: A Small Surprise
+A builder pauses to admire work completed over several days. (Name1) decides not every day has to be remarkable.
+
+[M375]
+Title: Workdays 4: The Afternoon
+A builder pauses to admire work completed over several days. The worry remains, but it seems smaller after a quiet break.
+
+[M376]
+Title: Workdays 4: A Little Memory
+A builder pauses to admire work completed over several days. (Name1) is proud of the progress nobody else can see.
+
+[M377]
+Title: Workdays 5: A Quiet Moment
+(Name1) has been looking forward to supper since morning. (Name1) decides not every day has to be remarkable.
+
+[M378]
+Title: Workdays 5: A Small Surprise
+(Name1) has been looking forward to supper since morning. The worry remains, but it seems smaller after a quiet break.
+
+[M379]
+Title: Workdays 5: The Afternoon
+(Name1) has been looking forward to supper since morning. (Name1) is proud of the progress nobody else can see.
+
+[M380]
+Title: Workdays 5: A Little Memory
+(Name1) has been looking forward to supper since morning. A cheerful interruption is welcome for once.
+
+====================================================================
+SECTION 20 — MEMORIES AND PASSING THINGS DOWN
+====================================================================
+
+[M381]
+Title: Memories: A Quiet Moment
+An elder shows a child an old ceremonial shield. The old story changes slightly with every retelling.
+
+[M382]
+Title: Memories: A Small Surprise
+An elder shows a child an old ceremonial shield. (Name1) feels grateful and a little wistful.
+
+[M383]
+Title: Memories: The Afternoon
+An elder shows a child an old ceremonial shield. A younger villager asks why the pattern matters so much.
+
+[M384]
+Title: Memories: A Little Memory
+An elder shows a child an old ceremonial shield. The object is worn, but nobody suggests throwing it away.
+
+[M385]
+Title: Memories 2: A Quiet Moment
+(Name1) examines a tool repaired by several generations. (Name1) feels grateful and a little wistful.
+
+[M386]
+Title: Memories 2: A Small Surprise
+(Name1) examines a tool repaired by several generations. A younger villager asks why the pattern matters so much.
+
+[M387]
+Title: Memories 2: The Afternoon
+(Name1) examines a tool repaired by several generations. The object is worn, but nobody suggests throwing it away.
+
+[M388]
+Title: Memories 2: A Little Memory
+(Name1) examines a tool repaired by several generations. They agree that the next generation may add something of its own.
+
+[M389]
+Title: Memories 3: A Quiet Moment
+A grandparent teaches the family’s traditional lantern pattern. A younger villager asks why the pattern matters so much.
+
+[M390]
+Title: Memories 3: A Small Surprise
+A grandparent teaches the family’s traditional lantern pattern. The object is worn, but nobody suggests throwing it away.
+
+[M391]
+Title: Memories 3: The Afternoon
+A grandparent teaches the family’s traditional lantern pattern. They agree that the next generation may add something of its own.
+
+[M392]
+Title: Memories 3: A Little Memory
+A grandparent teaches the family’s traditional lantern pattern. The old story changes slightly with every retelling.
+
+[M393]
+Title: Memories 4: A Quiet Moment
+Two relatives compare different memories of a long-ago festival. The object is worn, but nobody suggests throwing it away.
+
+[M394]
+Title: Memories 4: A Small Surprise
+Two relatives compare different memories of a long-ago festival. They agree that the next generation may add something of its own.
+
+[M395]
+Title: Memories 4: The Afternoon
+Two relatives compare different memories of a long-ago festival. The old story changes slightly with every retelling.
+
+[M396]
+Title: Memories 4: A Little Memory
+Two relatives compare different memories of a long-ago festival. (Name1) feels grateful and a little wistful.
+
+[M397]
+Title: Memories 5: A Quiet Moment
+(Name1) places an inherited carving beside a newer one. They agree that the next generation may add something of its own.
+
+[M398]
+Title: Memories 5: A Small Surprise
+(Name1) places an inherited carving beside a newer one. The old story changes slightly with every retelling.
+
+[M399]
+Title: Memories 5: The Afternoon
+(Name1) places an inherited carving beside a newer one. (Name1) feels grateful and a little wistful.
+
+[M400]
+Title: Memories 5: A Little Memory
+(Name1) places an inherited carving beside a newer one. A younger villager asks why the pattern matters so much.
+
+====================================================================
+SECTION 21 — GARDENS AND GROWING THINGS
+====================================================================
+
+[M401]
+Title: Gardens: A Quiet Moment
+(Name1) checks whether a newly planted seed has sprouted. The progress is tiny, but it brightens the morning.
+
+[M402]
+Title: Gardens: A Small Surprise
+(Name1) checks whether a newly planted seed has sprouted. (Name1) worries about the weather and checks the sky again.
+
+[M403]
+Title: Gardens: The Afternoon
+(Name1) checks whether a newly planted seed has sprouted. A neighbor stops to admire the careful work.
+
+[M404]
+Title: Gardens: A Little Memory
+(Name1) checks whether a newly planted seed has sprouted. Someone proposes keeping notes on the next planting.
+
+[M405]
+Title: Gardens 2: A Quiet Moment
+Two gardeners compare the growth of neighboring plants. (Name1) worries about the weather and checks the sky again.
+
+[M406]
+Title: Gardens 2: A Small Surprise
+Two gardeners compare the growth of neighboring plants. A neighbor stops to admire the careful work.
+
+[M407]
+Title: Gardens 2: The Afternoon
+Two gardeners compare the growth of neighboring plants. Someone proposes keeping notes on the next planting.
+
+[M408]
+Title: Gardens 2: A Little Memory
+Two gardeners compare the growth of neighboring plants. The scent of damp earth makes (Name1) unexpectedly nostalgic.
+
+[M409]
+Title: Gardens 3: A Quiet Moment
+A child helps carry water to a small patch of herbs. A neighbor stops to admire the careful work.
+
+[M410]
+Title: Gardens 3: A Small Surprise
+A child helps carry water to a small patch of herbs. Someone proposes keeping notes on the next planting.
+
+[M411]
+Title: Gardens 3: The Afternoon
+A child helps carry water to a small patch of herbs. The scent of damp earth makes (Name1) unexpectedly nostalgic.
+
+[M412]
+Title: Gardens 3: A Little Memory
+A child helps carry water to a small patch of herbs. The progress is tiny, but it brightens the morning.
+
+[M413]
+Title: Gardens 4: A Quiet Moment
+An elder teaches how to recognize healthy leaves. Someone proposes keeping notes on the next planting.
+
+[M414]
+Title: Gardens 4: A Small Surprise
+An elder teaches how to recognize healthy leaves. The scent of damp earth makes (Name1) unexpectedly nostalgic.
+
+[M415]
+Title: Gardens 4: The Afternoon
+An elder teaches how to recognize healthy leaves. The progress is tiny, but it brightens the morning.
+
+[M416]
+Title: Gardens 4: A Little Memory
+An elder teaches how to recognize healthy leaves. (Name1) worries about the weather and checks the sky again.
+
+[M417]
+Title: Gardens 5: A Quiet Moment
+(Name1) discovers a flower blooming where none was expected. The scent of damp earth makes (Name1) unexpectedly nostalgic.
+
+[M418]
+Title: Gardens 5: A Small Surprise
+(Name1) discovers a flower blooming where none was expected. The progress is tiny, but it brightens the morning.
+
+[M419]
+Title: Gardens 5: The Afternoon
+(Name1) discovers a flower blooming where none was expected. (Name1) worries about the weather and checks the sky again.
+
+[M420]
+Title: Gardens 5: A Little Memory
+(Name1) discovers a flower blooming where none was expected. A neighbor stops to admire the careful work.
+
+====================================================================
+SECTION 22 — FISHING AND SHORE WORK
+====================================================================
+
+[M421]
+Title: Fishing: A Quiet Moment
+A fisher repairs a small net beside the shore. The waiting gives everyone time to talk.
+
+[M422]
+Title: Fishing: A Small Surprise
+A fisher repairs a small net beside the shore. (Name1) is secretly hoping the work ends before the heat rises.
+
+[M423]
+Title: Fishing: The Afternoon
+A fisher repairs a small net beside the shore. A small discovery makes the morning feel worthwhile.
+
+[M424]
+Title: Fishing: A Little Memory
+A fisher repairs a small net beside the shore. The sea breeze carries the smell of supper being prepared.
+
+[M425]
+Title: Fishing 2: A Quiet Moment
+(Name1) learns to coil rope without tangling it. (Name1) is secretly hoping the work ends before the heat rises.
+
+[M426]
+Title: Fishing 2: A Small Surprise
+(Name1) learns to coil rope without tangling it. A small discovery makes the morning feel worthwhile.
+
+[M427]
+Title: Fishing 2: The Afternoon
+(Name1) learns to coil rope without tangling it. The sea breeze carries the smell of supper being prepared.
+
+[M428]
+Title: Fishing 2: A Little Memory
+(Name1) learns to coil rope without tangling it. Someone offers help without being asked.
+
+[M429]
+Title: Fishing 3: A Quiet Moment
+Two villagers compare the shells caught in a tide pool. A small discovery makes the morning feel worthwhile.
+
+[M430]
+Title: Fishing 3: A Small Surprise
+Two villagers compare the shells caught in a tide pool. The sea breeze carries the smell of supper being prepared.
+
+[M431]
+Title: Fishing 3: The Afternoon
+Two villagers compare the shells caught in a tide pool. Someone offers help without being asked.
+
+[M432]
+Title: Fishing 3: A Little Memory
+Two villagers compare the shells caught in a tide pool. The waiting gives everyone time to talk.
+
+[M433]
+Title: Fishing 4: A Quiet Moment
+An elder shows a youngster how to read the changing tide. The sea breeze carries the smell of supper being prepared.
+
+[M434]
+Title: Fishing 4: A Small Surprise
+An elder shows a youngster how to read the changing tide. Someone offers help without being asked.
+
+[M435]
+Title: Fishing 4: The Afternoon
+An elder shows a youngster how to read the changing tide. The waiting gives everyone time to talk.
+
+[M436]
+Title: Fishing 4: A Little Memory
+An elder shows a youngster how to read the changing tide. (Name1) is secretly hoping the work ends before the heat rises.
+
+[M437]
+Title: Fishing 5: A Quiet Moment
+(Name1) waits patiently while a fishing float bobs offshore. Someone offers help without being asked.
+
+[M438]
+Title: Fishing 5: A Small Surprise
+(Name1) waits patiently while a fishing float bobs offshore. The waiting gives everyone time to talk.
+
+[M439]
+Title: Fishing 5: The Afternoon
+(Name1) waits patiently while a fishing float bobs offshore. (Name1) is secretly hoping the work ends before the heat rises.
+
+[M440]
+Title: Fishing 5: A Little Memory
+(Name1) waits patiently while a fishing float bobs offshore. A small discovery makes the morning feel worthwhile.
+
+====================================================================
+SECTION 23 — MUSIC AND DANCING
+====================================================================
+
+[M441]
+Title: Music: A Quiet Moment
+A villager practices a drum rhythm for a gathering. (Name1) misses a beat and laughs before trying again.
+
+[M442]
+Title: Music: A Small Surprise
+A villager practices a drum rhythm for a gathering. The familiar tune reminds someone of a dear friend.
+
+[M443]
+Title: Music: The Afternoon
+A villager practices a drum rhythm for a gathering. The rhythm slowly draws more listeners.
+
+[M444]
+Title: Music: A Little Memory
+A villager practices a drum rhythm for a gathering. A shy participant joins in when nobody makes a fuss.
+
+[M445]
+Title: Music 2: A Quiet Moment
+Two friends teach each other steps from different dances. The familiar tune reminds someone of a dear friend.
+
+[M446]
+Title: Music 2: A Small Surprise
+Two friends teach each other steps from different dances. The rhythm slowly draws more listeners.
+
+[M447]
+Title: Music 2: The Afternoon
+Two friends teach each other steps from different dances. A shy participant joins in when nobody makes a fuss.
+
+[M448]
+Title: Music 2: A Little Memory
+Two friends teach each other steps from different dances. The music continues until the stars appear.
+
+[M449]
+Title: Music 3: A Quiet Moment
+A child tries to copy an elder’s clapping pattern. The rhythm slowly draws more listeners.
+
+[M450]
+Title: Music 3: A Small Surprise
+A child tries to copy an elder’s clapping pattern. A shy participant joins in when nobody makes a fuss.
+
+[M451]
+Title: Music 3: The Afternoon
+A child tries to copy an elder’s clapping pattern. The music continues until the stars appear.
+
+[M452]
+Title: Music 3: A Little Memory
+A child tries to copy an elder’s clapping pattern. (Name1) misses a beat and laughs before trying again.
+
+[M453]
+Title: Music 4: A Quiet Moment
+(Name1) hums a tune while working with plant fibers. A shy participant joins in when nobody makes a fuss.
+
+[M454]
+Title: Music 4: A Small Surprise
+(Name1) hums a tune while working with plant fibers. The music continues until the stars appear.
+
+[M455]
+Title: Music 4: The Afternoon
+(Name1) hums a tune while working with plant fibers. (Name1) misses a beat and laughs before trying again.
+
+[M456]
+Title: Music 4: A Little Memory
+(Name1) hums a tune while working with plant fibers. The familiar tune reminds someone of a dear friend.
+
+[M457]
+Title: Music 5: A Quiet Moment
+Several neighbors gather to sing after the evening meal. The music continues until the stars appear.
+
+[M458]
+Title: Music 5: A Small Surprise
+Several neighbors gather to sing after the evening meal. (Name1) misses a beat and laughs before trying again.
+
+[M459]
+Title: Music 5: The Afternoon
+Several neighbors gather to sing after the evening meal. The familiar tune reminds someone of a dear friend.
+
+[M460]
+Title: Music 5: A Little Memory
+Several neighbors gather to sing after the evening meal. The rhythm slowly draws more listeners.
+
+====================================================================
+SECTION 24 — REST AND PRIVATE THOUGHTS
+====================================================================
+
+[M461]
+Title: Rest: A Quiet Moment
+(Name1) lies in the shade thinking about tomorrow. There is something to dread tomorrow, but not right now.
+
+[M462]
+Title: Rest: A Small Surprise
+(Name1) lies in the shade thinking about tomorrow. (Name1) feels happy without knowing why.
+
+[M463]
+Title: Rest: The Afternoon
+(Name1) lies in the shade thinking about tomorrow. A forgotten worry returns and then drifts away again.
+
+[M464]
+Title: Rest: A Little Memory
+(Name1) lies in the shade thinking about tomorrow. The silence feels comforting rather than lonely today.
+
+[M465]
+Title: Rest 2: A Quiet Moment
+A villager takes the long way home to enjoy the quiet. (Name1) feels happy without knowing why.
+
+[M466]
+Title: Rest 2: A Small Surprise
+A villager takes the long way home to enjoy the quiet. A forgotten worry returns and then drifts away again.
+
+[M467]
+Title: Rest 2: The Afternoon
+A villager takes the long way home to enjoy the quiet. The silence feels comforting rather than lonely today.
+
+[M468]
+Title: Rest 2: A Little Memory
+A villager takes the long way home to enjoy the quiet. (Name1) wishes the peaceful moment could last a little longer.
+
+[M469]
+Title: Rest 3: A Quiet Moment
+(Name1) watches clouds drift above the village. A forgotten worry returns and then drifts away again.
+
+[M470]
+Title: Rest 3: A Small Surprise
+(Name1) watches clouds drift above the village. The silence feels comforting rather than lonely today.
+
+[M471]
+Title: Rest 3: The Afternoon
+(Name1) watches clouds drift above the village. (Name1) wishes the peaceful moment could last a little longer.
+
+[M472]
+Title: Rest 3: A Little Memory
+(Name1) watches clouds drift above the village. There is something to dread tomorrow, but not right now.
+
+[M473]
+Title: Rest 4: A Quiet Moment
+Someone sits alone with a cup of warm herbal drink. The silence feels comforting rather than lonely today.
+
+[M474]
+Title: Rest 4: A Small Surprise
+Someone sits alone with a cup of warm herbal drink. (Name1) wishes the peaceful moment could last a little longer.
+
+[M475]
+Title: Rest 4: The Afternoon
+Someone sits alone with a cup of warm herbal drink. There is something to dread tomorrow, but not right now.
+
+[M476]
+Title: Rest 4: A Little Memory
+Someone sits alone with a cup of warm herbal drink. (Name1) feels happy without knowing why.
+
+[M477]
+Title: Rest 5: A Quiet Moment
+(Name1) wakes from a brief afternoon nap. (Name1) wishes the peaceful moment could last a little longer.
+
+[M478]
+Title: Rest 5: A Small Surprise
+(Name1) wakes from a brief afternoon nap. There is something to dread tomorrow, but not right now.
+
+[M479]
+Title: Rest 5: The Afternoon
+(Name1) wakes from a brief afternoon nap. (Name1) feels happy without knowing why.
+
+[M480]
+Title: Rest 5: A Little Memory
+(Name1) wakes from a brief afternoon nap. A forgotten worry returns and then drifts away again.
+
+====================================================================
+SECTION 25 — SHARING AND NEIGHBORLY CARE
+====================================================================
+
+[M481]
+Title: Sharing: A Quiet Moment
+Several neighbors help repair a weathered basket. The help is appreciated, even though nobody makes a speech.
+
+[M482]
+Title: Sharing: A Small Surprise
+Several neighbors help repair a weathered basket. (Name1) feels relieved not to do everything alone.
+
+[M483]
+Title: Sharing: The Afternoon
+Several neighbors help repair a weathered basket. Someone contributes a joke instead of useful advice.
+
+[M484]
+Title: Sharing: A Little Memory
+Several neighbors help repair a weathered basket. The work finishes faster with so many hands.
+
+[M485]
+Title: Sharing 2: A Quiet Moment
+(Name1) brings a portion of supper to an exhausted friend. (Name1) feels relieved not to do everything alone.
+
+[M486]
+Title: Sharing 2: A Small Surprise
+(Name1) brings a portion of supper to an exhausted friend. Someone contributes a joke instead of useful advice.
+
+[M487]
+Title: Sharing 2: The Afternoon
+(Name1) brings a portion of supper to an exhausted friend. The work finishes faster with so many hands.
+
+[M488]
+Title: Sharing 2: A Little Memory
+(Name1) brings a portion of supper to an exhausted friend. Afterward, the group lingers just to enjoy being together.
+
+[M489]
+Title: Sharing 3: A Quiet Moment
+A group gathers to tidy a shared pathway. Someone contributes a joke instead of useful advice.
+
+[M490]
+Title: Sharing 3: A Small Surprise
+A group gathers to tidy a shared pathway. The work finishes faster with so many hands.
+
+[M491]
+Title: Sharing 3: The Afternoon
+A group gathers to tidy a shared pathway. Afterward, the group lingers just to enjoy being together.
+
+[M492]
+Title: Sharing 3: A Little Memory
+A group gathers to tidy a shared pathway. The help is appreciated, even though nobody makes a speech.
+
+[M493]
+Title: Sharing 4: A Quiet Moment
+Two villagers offer to carry supplies for an older neighbor. The work finishes faster with so many hands.
+
+[M494]
+Title: Sharing 4: A Small Surprise
+Two villagers offer to carry supplies for an older neighbor. Afterward, the group lingers just to enjoy being together.
+
+[M495]
+Title: Sharing 4: The Afternoon
+Two villagers offer to carry supplies for an older neighbor. The help is appreciated, even though nobody makes a speech.
+
+[M496]
+Title: Sharing 4: A Little Memory
+Two villagers offer to carry supplies for an older neighbor. (Name1) feels relieved not to do everything alone.
+
+[M497]
+Title: Sharing 5: A Quiet Moment
+A family invites someone spending the evening alone to join them. Afterward, the group lingers just to enjoy being together.
+
+[M498]
+Title: Sharing 5: A Small Surprise
+A family invites someone spending the evening alone to join them. The help is appreciated, even though nobody makes a speech.
+
+[M499]
+Title: Sharing 5: The Afternoon
+A family invites someone spending the evening alone to join them. (Name1) feels relieved not to do everything alone.
+
+[M500]
+Title: Sharing 5: A Little Memory
+A family invites someone spending the evening alone to join them. Someone contributes a joke instead of useful advice.

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Hero",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his17_wrong_hero",
+  "source": "draft_his",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   }
+  ],
+  "description": "Old hidden carvings show the storm hero was a quiet old woman with no name in the songs: tell the village, or ask an elder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every child learns the story of the brave fisher who, in the great storm long ago, paddled out alone and brought the lost canoes home. There's a carving of the fisher by the canoe landing. Today, mending an old storehouse wall, (friend) has found older carvings, hidden for years behind the thatch. They tell the same story, but in these, the one who paddled out is a quiet old woman who has no carving and no name in the songs.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Tell the Village",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Ask (subject) What to Do",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) shows everyone. Some people are thrilled. Some are upset: the fisher is THEIR hero. One elder says maybe they both went out. Another says the old carvings are just a different version. It's argued for weeks. In the end, a second carving goes up by the landing, of an old woman with a paddle. Nobody takes down the first one. They stand side by side.",
+   "src": "L206"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) looks at the hidden carvings for a long time. \"Stories change,\" (subject.he/she) says. \"Sometimes they get it wrong. Sometimes the quiet ones get left out.\" (subject.He/she) suggests they leave the old wall uncovered so anyone can see. They do. Some people come and look and think. Some never do. The songs stay the same for now. But some people start adding a verse.",
+   "src": "L209"
+  }
+ }
+}

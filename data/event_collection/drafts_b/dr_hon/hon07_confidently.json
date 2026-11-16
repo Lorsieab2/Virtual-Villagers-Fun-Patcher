@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Confidently Wrong Directions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon07_confidently",
+  "source": "draft_hon",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager realizes they gave a friend wrong directions an hour ago: go after them, or wait and explain later.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) asked (subject) the way to the patch where the yellow dye flowers grow. (subject) gave clear, confident directions: past the big rock, left at the fallen tree, up the slope. (subject) has just realized that the flowers are past the big rock and RIGHT at the fallen tree, and that (friend) set off an hour ago.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Go After (friend.him/her)",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Wait and Explain When (friend.he/she) Gets Back",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) runs. (subject.He/she) finds (friend) halfway up the wrong slope, puzzled, holding a basket of perfectly good mushrooms. \"There aren't any flowers up here.\" \"No. I said left. I meant right.\" (friend) looks at the mushrooms. \"Well, I found these.\" They go to the right place together and come home with both.",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) comes home late and tired, with an empty basket. (subject) apologizes before (friend.he/she) can say a word. (friend) is annoyed; it was a long walk for nothing. \"Next time, say if you're not sure.\" \"I was sure,\" says (subject). \"That was the problem.\" (friend) almost smiles. Almost. The next day they go together.",
+   "src": "L89"
+  }
+ }
+}

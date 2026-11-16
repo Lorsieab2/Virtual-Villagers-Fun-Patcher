@@ -1,0 +1,244 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Quiet Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat08_quiet_choice",
+  "source": "fathers30",
+  "lines": [
+   159,
+   177
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L159",
+  "ledger": [
+   {
+    "src": "L160",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L161",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L165",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L167",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L168",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L170",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L171",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L173",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L174",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L176",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L177",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L163",
+    "kind": "sensitivity",
+    "before": "A man discovers",
+    "after": "(Name1) discovers",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "A man discovers an unexpected pregnancy.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1) discovers an unexpected pregnancy. He feels no immediate certainty about whether he wants to continue it, and he resents villagers who assume they know his answer.",
+   "src": "L163",
+   "choices": [
+    {
+     "label": "Seek Confidential Care",
+     "next": "a",
+     "src": "L166"
+    },
+    {
+     "label": "Speak with Someone He Trusts",
+     "next": "b",
+     "src": "L169"
+    },
+    {
+     "label": "Consider His Circumstances Privately",
+     "next": "c",
+     "src": "L172"
+    },
+    {
+     "label": "Ask for Practical Information",
+     "next": "d",
+     "src": "L175"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He learns what options and support are available to him.",
+   "src": "L167"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The healer cannot answer everything and helps him find more guidance.",
+   "src": "L168"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They listen and leave the decision to him.",
+   "src": "L170"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their initial reaction is unhelpful, and he asks for space.",
+   "src": "L171"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He identifies what he wants and what he fears.",
+   "src": "L173"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "He remains uncertain and gives himself more time where possible.",
+   "src": "L174"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He learns what each path would involve for his health and daily life.",
+   "src": "L176",
+   "text_only": [
+    {
+     "what": "\"health\"",
+     "reason": "health or an injury talked about in the story; nobody's health changes -- story only: the file marks no effect (no new mechanics)",
+     "src": "L176"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some answers are difficult, but the information helps him decide.",
+   "src": "L177"
+  }
+ }
+}

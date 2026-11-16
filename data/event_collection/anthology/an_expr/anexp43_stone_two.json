@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone of Two Tribes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp43_stone_two",
+  "source": "anthology",
+  "lines": [
+   31920,
+   31934
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31920",
+  "ledger": [
+   {
+    "src": "L31921",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31931",
+    "kind": "sensitivity",
+    "before": "A descendant",
+    "after": "(descendant), a descendant,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two neighboring tribes claim a carved stone as part of their history.",
+  "label_case": "title",
+  "cast_only": [
+   "descendant"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "descendant": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two neighboring tribes claim a carved stone as part of their history.",
+   "src": "L31922",
+   "choices": [
+    {
+     "label": "Compare Stories",
+     "next": "a",
+     "src": "L31923"
+    },
+    {
+     "label": "Share Stewardship",
+     "next": "b",
+     "src": "L31926"
+    },
+    {
+     "label": "Ask Descendants",
+     "next": "c",
+     "src": "L31929"
+    },
+    {
+     "label": "Make a Joint Record",
+     "next": "d",
+     "src": "L31932"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Both accounts contain pieces of truth.",
+   "src": "L31924"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The origin remains uncertain.",
+   "src": "L31925"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The stone is displayed in turns.",
+   "src": "L31927"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The tribes agree to leave it undisturbed.",
+   "src": "L31928"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Families contribute conflicting but valuable memories.",
+   "src": "L31930"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(descendant), a descendant, requests privacy around a sacred interpretation.",
+   "src": "L31931"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The tribes document their different views.",
+   "src": "L31933"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Children draw the stone without deciding who owns the past.",
+   "src": "L31934"
+  }
+ }
+}

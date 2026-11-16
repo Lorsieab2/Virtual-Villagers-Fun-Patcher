@@ -375,6 +375,7 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
+              "presentation",                                                # ... 31
               "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 31 (codes 27-32)
               "lose_name", "change_name", "change_age",                      # ... 31 (33, 34)
               "cure", "repair", "young_look")                                # ... 32 (35-37)
@@ -384,7 +385,8 @@ ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's wo
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
-                     "sex_change": 22,     # 29 (23 is kept for a cross-sex body look)
+                     "sex_change": 22,     # 29
+                     "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
                      "deliver_early": 24,   # 30
                      # 31 (the owner, 2026-11-15): known only at run time (the engine side)
                      "new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31,
@@ -426,10 +428,11 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
                     "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
                     "lose_name": 0, "change_name": 0, "change_age": 0,              # 32: known only at run time
                     "cure": 0, "repair": 0, "young_look": 0,
-                    "trait": 0})
+                    "trait": 0,
+                    "presentation": 0})    # 31: "VVFP Gender Presentation.dll", known only at run time
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
-                                          "deliver_early", "pregnant", "nursing", "clone",
+                                          "deliver_early", "presentation", "pregnant", "nursing", "clone",
                                           "body_swap", "lose_name", "change_name", "change_age", "cure",
                                           "young_look")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
@@ -1054,6 +1057,14 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 out[part] = v
             if "head" not in e and "body" not in e:
                 problems.append(f"{where}: appearance changes the head, the body or both")
+        elif do == "presentation":
+            # Section 31: the other sex's look (on, the default) or the villager's own again (off).
+            known.add("on")
+            on = e.get("on", True)
+            if not isinstance(on, bool):
+                problems.append(f"{where}: presentation on is true (the other sex's look) or false (their own)")
+                on = True
+            out["on"] = on
         if do == "die_unrecovered":
             # The owner's rule: a death with no body is ALWAYS "Unknown causes"; an author cannot word it.
             known.add("cause")
@@ -2874,6 +2885,7 @@ AUTO_LINES = {
     "baby_lost": "<R>'s baby is lost.",
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
+    "presentation": "<R>'s look changes.",
 }
 
 
@@ -2910,7 +2922,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
     if e.get("target") or r in NEW_ROLES:
         return []                                       # a group or a new villager: the engine's own lines
     if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change", "cure"):
+              "sex_change", "presentation", "cure"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
@@ -3983,6 +3995,8 @@ def _compile_v6(g: dict) -> bytes:
                 else:
                     flags, (a, b) = CHANGE_AGE_ADD, e["years"]
                 last = e.get("max_age", 0)
+            elif do == "presentation":
+                a = 1 if e["on"] else 0
             effects += _EFFECT.pack(code, role, flags, sel, a, b, st, last)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -4257,6 +4271,8 @@ def _decompile_v6(data: bytes) -> dict:
                         e["to"] = {v: k for k, v in CHANGE_AGE_TO.items()}[flags]
                     if last:
                         e["max_age"] = last
+                elif do == "presentation":
+                    e["on"] = a == 1
             if target is not None:
                 e["target"] = target
             effects.append(e)

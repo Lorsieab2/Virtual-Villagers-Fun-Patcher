@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worrying Hour",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea13_worrying_hour",
+  "source": "draft_hea",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A healer suggests a worrier keep one hour a day just for worrying: try the worrying hour, or decide it is not for them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) worries all day long: while fishing, while eating, while trying to sleep. (friend) has an odd suggestion. \"Keep one hour every afternoon just for worrying. When a worry comes at any other time, tell it to wait for the hour.\" (subject) is fairly sure worries don't listen. But (subject.he/she) is willing to try anything.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Try the Worrying Hour",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Decide It's Not for (subject.him/her)",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Every afternoon (subject) sits on the same rock and worries on purpose. It feels ridiculous. Some of the worries, when they finally get their turn, seem much smaller than they did at breakfast. Others are exactly as big. (subject.He/she) doesn't stop worrying at other times. But (subject.he/she) does catch (subject.him/her)self saying, \"Not now. Three o'clock rock,\" and sometimes the worry actually waits.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits on the rock for one hour and ends up worrying about whether (subject.he/she) is worrying properly. \"This isn't working,\" (subject.he/she) tells (friend). \"Then it isn't,\" says (friend), without a trace of disappointment. \"Different things help different people. Let's try something else next week.\" (subject) leaves feeling oddly better, mostly because nobody seems to think (subject.he/she) failed.",
+   "src": "L161"
+  }
+ }
+}

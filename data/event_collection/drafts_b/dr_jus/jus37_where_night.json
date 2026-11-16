@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where (name1) Was That Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus37_where_night",
+  "source": "draft_jus",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L449",
+    "kind": "sensitivity",
+    "before": "An elder takes (name1) aside",
+    "after": "(elder), an elder, takes (name1) aside",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L449",
+    "kind": "sensitivity",
+    "before": "The elder nods",
+    "after": "(elder) nods",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager seen near the storehouse the night fish went missing will not say why: accept that, or ask them privately.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two nights ago, someone took a bundle of dried fish from the storehouse. (friend) saw (subject) walking near the storehouse very late that night. The elders have asked (subject) where (subject.he/she) was going. (subject) won't say. (subject.He/she) says only that it had nothing to do with the fish.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Accept That (subject.he/she) Won't Say",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Ask (subject.him/her) Privately",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders say that not explaining is not the same as being guilty, and that without anything more, there is nothing to hold against (subject). Some villagers aren't satisfied. (subject) is left alone. A month later, a family of rats is found living in the storehouse wall. (subject) never does say where (subject.he/she) was. Nobody asks again.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(elder), an elder, takes (subject) aside and promises not to repeat what (subject.he/she) says unless it matters to the case. (subject) explains, quietly. (elder) nods, and tells the others only that (subject) was nowhere near the fish. Most people accept that. (friend) is curious for weeks, but lets it be. Whatever it was, it stays (subject)'s. The fish is never found.",
+   "src": "L449"
+  }
+ }
+}

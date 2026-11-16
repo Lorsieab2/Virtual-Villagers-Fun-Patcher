@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Flower Doing on the Roof?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd10_what_flower_doing",
+  "source": "da_wd",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A yellow flower is growing out of the top of a villager's roof: let it grow, or move it to the ground.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A flower is growing out of the top of (name1)'s roof. A real, living flower, bright yellow, rooted right in the thatch. A seed must have blown up there, and with the rain and the sun, it has decided to make a go of it. It's actually rather beautiful.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Let It Grow",
+     "next": "a",
+     "src": "L121"
+    },
+    {
+     "label": "Move It to the Ground",
+     "next": "b",
+     "src": "L124"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) decides the flower can stay. It grows taller. Another one appears next to it. By the end of the season, (name1)'s roof has a small yellow garden on top, and bees visit it, and children point at it. (name1) is extremely proud of a garden (he/she) did absolutely nothing to plant.",
+   "src": "L122"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) climbs up and carefully digs it out with a little bit of thatch, and plants it by the door. It droops for a day, then perks up. (name1) waters it every morning. (He/She) likes having it where (he/she) can see it. Sometimes, though, (he/she) glances up at the roof, just to check another hasn't started.",
+   "src": "L125"
+  }
+ }
+}

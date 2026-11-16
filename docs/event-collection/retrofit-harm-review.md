@@ -65,8 +65,8 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
   "father" for a man (sex-aware role words `(parent.mother/father)`, `(parent.he/she)`, `(parent.his/her)`,
   `(parent.son/daughter)`; each change is a `sensitivity` ledger entry, the owner's sentences otherwise unchanged), and
   children are never cast as a carrying parent.
-- **Wording (Q09):** "the baby is stillborn" (B9, C8) is shown as "the baby is born without signs of life", and "the
-  pregnancy ends in miscarriage" (C20) as "the pregnancy ends in loss" (Q02 lists both words as hint only).
+- **Wording:** the owner's own words are shown (the owner, 2026-11-15): "the baby is stillborn" (B9, C8) and "the
+  pregnancy ends in miscarriage" (C20), no sensitivity edit.
 - **Effects:** a premature birth where both live is the new `deliver_early` (cie-v6-binary.md 30: the game's own birth
   now, the baby younger and weaker the earlier it is, the parent lives); a frail newborn ("very frail", "significant /
   lasting / serious health challenges", "fragile health", "born frail") loses -30..-10 health more, "dangerously low"
@@ -98,7 +98,7 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
 | B6 | "The (parent.mother/father) survives, but the pregnancy ends unexpectedly in loss; the family mourns the child they had hoped to meet." | `baby_lost` | rare: 5 of 126 in choice B |
 | B7 | "Both survive, though the baby is born frail and struggles to regain strength." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 126 in choice B |
 | B8 | "The baby is born prematurely and survives, but the (parent.mother/father) dies after the birth." | `birth_then_die`, cause Unknown causes | very rare: 2 of 126 in choice B |
-| B9 | "The (parent.mother/father) survives, but the baby is born without signs of life; the family gathers to grieve." | `baby_lost` | rare: 5 of 126 in choice B |
+| B9 | "The (parent.mother/father) survives, but the baby is stillborn; the family gathers to grieve." | `baby_lost` | rare: 5 of 126 in choice B |
 | B10 | "Both survive, and the baby is born healthy despite the healers' fears." | none (told) | 20 of 126 in choice B |
 | B11 | "The premature baby survives the birth but dies soon afterward; the (parent.mother/father) and family mourn." | `baby_lost` | very rare: 2 of 126 in choice B |
 | B12 | "The (parent.mother/father) survives, and the baby is born with lasting health challenges; the family embraces their newest member." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 126 in choice B |
@@ -108,7 +108,7 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
 | C5 | "(parent.He/She) chooses gentler care; the baby arrives early and frail but survives." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
 | C6 | "(parent.He/She) chooses intervention; the baby survives, but (parent.he/she) dies after the birth." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
 | C7 | "(parent.He/She) chooses gentler care; the pregnancy ends in loss, and the family honors (parent.his/her) decision." | `baby_lost` | rare: 5 of 289 in choice C |
-| C8 | "(parent.He/She) chooses intervention; the baby is born without signs of life, but (parent.he/she) survives." | `baby_lost` | rare: 5 of 289 in choice C |
+| C8 | "(parent.He/She) chooses intervention; the baby is stillborn, but (parent.he/she) survives." | `baby_lost` | rare: 5 of 289 in choice C |
 | C9 | "(parent.He/She) chooses gentler care; both survive, and the baby is born healthy." | none (told) | 20 of 289 in choice C |
 | C10 | "(parent.He/She) chooses intervention; (parent.his/her) baby survives with serious health challenges and is welcomed with love." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
 | C11 | "(parent.He/She) chooses gentler care; the premature baby survives briefly before dying, leaving the family grieving." | `baby_lost` | very rare: 2 of 289 in choice C |
@@ -120,7 +120,7 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
 | C17 | "(parent.He/She) refuses to end the pregnancy despite the danger; the healers respect (parent.his/her) wishes, and both survive." | none (told) | 20 of 289 in choice C |
 | C18 | "(parent.He/She) refuses the procedure, but (parent.his/her) condition worsens; the baby survives a premature birth, while the (parent.mother/father) dies." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
 | C19 | "(parent.He/She) accepts the procedure after learning that (parent.his/her) life is in danger; (parent.he/she) survives, though the loss weighs heavily upon (parent.him/her)." | `baby_lost` | rare: 5 of 289 in choice C |
-| C20 | "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in loss, and the family grieves." | `baby_lost` | rare: 5 of 289 in choice C |
+| C20 | "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in miscarriage, and the family grieves." | `baby_lost` | rare: 5 of 289 in choice C |
 | C21 | "(parent.He/She) accepts the procedure with (parent.his/her) family's support; (parent.his/her) recovery is gradual, and (parent.he/she) mourns the pregnancy (parent.he/she) had hoped to continue." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 289 in choice C |
 | C22 | "(parent.He/She) refuses the procedure despite the healers' concerns; both survive, though the baby is born prematurely and frail." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
 | C23 | "(parent.He/She) asks for more time before deciding; the healers continue caring for (parent.him/her) while (parent.he/she) considers (parent.his/her) options." | none (told) | 20 of 289 in choice C |
@@ -333,3 +333,61 @@ harmless trial, a success, a compromise or a delay; injuries, illness, war and h
 speculation about distant peoples (text only). The only effects are six small skill gains (Horizon 009 A1 Building,
 018 A1 Research; RM-11 B1 and RM-25 A1 Building, RM-17 A1 Healing, RM-36 A2 Parenting). Both outcomes of every
 choice are equally likely.
+
+## The approved draft event files, group B (DRAFTS-B)
+
+Range: the owner's eight approved draft files of 2026-11-15 (HUM, TT, HON, JUS, DEP, DRM, FEA, DAY; 50 events each,
+`drafts_b/dr_<x>`), 400 events. Generator: `scripts/drafts_b/gen_drafts_b.py`. No `protected: "allow"` anywhere
+(protected villagers stay out of every harmful role). Each choice has one outcome, so a harmful effect is the player's
+chosen path, as the drafts wrote it:
+
+| Event | Outcome | Role | Effect |
+|---|---|---|---|
+| `dep07_canoe_kept_going` | A (Help Get Ready) | subject (25-) | vanish (sails away; later word "alive and well") |
+| `hon13_quite_cooked` | A, B | subject (18-) | health -30..-10 (an upset stomach) |
+| `hon20_step_meant_fix` | A, B | friend (18-) | health -30..-10 (a scraped knee) |
+| `hon01`, `hon12`, `hon15`, `hon22`, `hon27`, `hon39` | A, B | - | small food loss |
+| `jus40_dry_season_rule` | A | - | small food loss |
+
+The rest is small and good: food gains (HUM-49, TT-40, DEP-48, DRM-39, DAY-19 both outcomes), small tech gains
+(DRM-27, DRM-44), small skill gains (JUS-05 Farming, DEP-22 Healing, DRM-25 Building, DRM-48 one work skill at
+random), celebrations (DEP-46, DRM-04, DRM-14, DAY-24) and FEA-18's health gain.
+
+## The approved draft event files, group C (DRAFTS-C)
+
+Range: the owner's eight approved draft files of 2026-11-15 (HEA, ADV, FAM2, BLF, NAT, DIV, HIS, LIF; 50 events each,
+`drafts_c/dr_<x>`), 400 events. Generator: `scripts/drafts_c/gen_drafts_c.py`. No `protected: "allow"` anywhere. Each
+choice has one outcome, so a harmful effect is the player's chosen path, as the drafts wrote it; nobody dies or leaves:
+
+| Event | Outcome | Role | Effect |
+|---|---|---|---|
+| `hea28_more_better` | A (Go Back to the Healer) | subject (18+) | health -30..-10 (six spoons of syrup) |
+| `hea33_wrong_leaf` | A, B | friend (18+) | health -30..-10 (the wrong leaf: a rash) |
+| `nat26_shuffle_your` | B (Let Them Find Out) | friend (14-17) | health -30..-10 (a stingray sting) |
+| `nat36_hornets_path` | A (Move It at Night) | friend (18+) | health -30..-10 (one hornet sting) |
+| `nat30_well_tastes_salt` | A | - | small food loss |
+| `nat45_rain_didnt_come` | A, B | - | small food loss |
+
+The rest is small and good: food gains (ADV-33 both outcomes, BLF-25, DIV-09, NAT-04, 06, 09, 13, 21, 22, 23, 40, 48),
+small tech gains (BLF-20, BLF-39, DIV-17, NAT-31, HIS-37), small skill gains (HEA-23 and ADV-40 Healing, HEA-39
+Healing for the child, ADV-20 Building, DIV-27 Research), health gains (HEA-24, HEA-49, DIV-26 both outcomes) and
+celebrations (ADV-29, FAM2-34, BLF-36 both outcomes for both partners in both the men's and the women's version, DIV-30). LIF has no effect at all.
+
+## The approved files, group D (DRAFTS-D)
+
+Range: the owner's eight files of 2026-11-15 (`drafts_d/dr_<x>`: Role Models RM-41..90, Beyond the Horizon 081-130,
+Fathers, Pregnancy and Parenthood 01-30, Tiny Island Moments T001-T175, the armor moments M01-M35, Armor, Weapons and
+Inherited Traditions 01-45 and ARM-46..95), 435 events. Generator: `scripts/drafts_d/gen_drafts_d.py`. No effect at
+all: no harm, no reward, no `protected: "allow"`. Fathers 01-04 and 08 cast a male nursing parent, 05-07 a man who
+is a recorded parent of a young child (no effect on the pregnancy or the child); 19's pregnancy loss has already
+happened (story only).
+
+## The Animals anthology's newest volumes (ANTHOLOGY)
+
+Range: MOM, REL, CHILD, FAM, JOY, EVENT-HS/AGE/JUSTICE/EXPRESSION/FAUNA of the owner's all-in-one Animals file
+(`anthology/an_<x>`), 361 events. Generator: `scripts/anthology_new/gen_anthology.py`. No harmful effect anywhere: no
+death, disappearance, health loss, sickness or food loss; no `protected: "allow"`. Injuries, illnesses and deaths the
+volumes tell (HS-024..030, JUSTICE-011..013, 019, the animals) are the premise or story text. The effects are hair dye
+(the random head look: MOM-06 A1/A2, REL-30 A1/B1/C1), REL-15 B1's sex change (code 22; refused for a carrying or
+nursing villager, a special villager, or with a sex-keeping companion in the game) and REL-05 A1 / JOY-18 A1's couple
+celebrating.

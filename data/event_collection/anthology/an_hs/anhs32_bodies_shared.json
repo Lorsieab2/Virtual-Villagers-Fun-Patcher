@@ -1,0 +1,158 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Different Bodies, Shared Festival",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs32_bodies_shared",
+  "source": "anthology",
+  "lines": [
+   29905,
+   29918
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29905",
+  "ledger": [],
+  "description": "Organizers realize that a festival route excludes villagers with limited mobility or stamina.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Organizers realize that a festival route excludes villagers with limited mobility or stamina.",
+   "src": "L29906",
+   "choices": [
+    {
+     "label": "Ask Affected Villagers What Would Help",
+     "next": "a",
+     "src": "L29907"
+    },
+    {
+     "label": "Move Activities to Accessible Ground",
+     "next": "b",
+     "src": "L29910"
+    },
+    {
+     "label": "Offer Different Ways to Participate",
+     "next": "c",
+     "src": "L29913"
+    },
+    {
+     "label": "Review the Route for Next Year",
+     "next": "d",
+     "src": "L29916"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They suggest shorter paths and resting places.",
+   "src": "L29908"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Different needs lead to several options rather than one universal solution.",
+   "src": "L29909"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "More elders and injured villagers can attend comfortably.",
+   "src": "L29911",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29911"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The change also benefits families carrying young children.",
+   "src": "L29912"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Some villagers join from shaded seating and still feel included.",
+   "src": "L29914"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One villager prefers not to attend and is not pressured.",
+   "src": "L29915"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Organizers record practical improvements.",
+   "src": "L29917"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A participant points out that accessibility must be considered before invitations go out.",
+   "src": "L29918"
+  }
+ }
+}

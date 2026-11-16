@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Side of the Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep05_empty_side_hut",
+  "source": "draft_dep",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L59",
+    "kind": "sensitivity",
+    "before": "The villager who shared (name1)'s hut has moved",
+    "after": "(hutmate), who shared (name1)'s hut, has moved",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L59",
+    "kind": "sensitivity",
+    "before": "They are fine. They wave every morning.",
+    "after": "(hutmate.He/she) is fine. (hutmate.He/she) waves every morning.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's hut-mate has moved out, leaving half the hut bare: move into the space, or leave it for now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "hutmate"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "hutmate": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(hutmate), who shared (subject)'s hut, has moved to a new one across the clearing. (hutmate.He/she) is fine. (hutmate.He/she) waves every morning. But the other half of the hut is suddenly empty: a bare patch of floor where a mat used to be, a peg with nothing hanging on it. (subject) keeps walking around the space instead of through it.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Move Into the Space",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Leave It for Now",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) drags (subject.his/her) own mat into the middle of the floor and spreads (subject.his/her) things out a little. Baskets on both pegs. The water jar where the other mat used to be. It feels strange for a few nights and then it doesn't. Sometimes (subject.he/she) still walks around the bare patch out of habit, even though it isn't bare anymore.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) leaves the empty side empty. It isn't a shrine. (subject.He/she) just isn't ready to decide what goes there. A few weeks later (subject.he/she) catches (subject.him/her)self putting a basket on the empty peg without thinking. (subject.He/she) looks at it, decides that's fine, and leaves it there.",
+   "src": "L65"
+  }
+ }
+}

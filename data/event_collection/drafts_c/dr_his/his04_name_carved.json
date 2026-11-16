@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Carved Twice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his04_name_carved",
+  "source": "draft_his",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   }
+  ],
+  "description": "A name on the canoe-landing post was scratched out and carved again beside it: ask an elder what it means, or leave it alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the old post at the canoe landing, names have been carved for generations: fishers who brought home great catches, people who sailed far and came back. (friend) has just noticed something. One name has been deeply scratched out by someone. Right beside it, in a different, neater hand, the same name has been carved again.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Ask (subject) What It Means",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) is quiet for a long time. \"I don't know,\" (subject.he/she) says. \"It was like that when I was a child. My elders never said.\" (subject.He/she) runs a thumb over the scratches, then over the neat carving. \"Someone was angry. And someone else decided they should still be remembered.\" (friend) asks which one was right. (subject) doesn't know that either.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) almost asks, then doesn't. (friend.He/she) looks at the two names, the angry one and the careful one, side by side for who knows how long. Whatever happened, it's over now, and the people who knew are long gone. On the way home (friend) realizes (friend.he/she) hopes, quietly, that the neat carving came second. It probably did. Nobody will ever know.",
+   "src": "L53"
+  }
+ }
+}

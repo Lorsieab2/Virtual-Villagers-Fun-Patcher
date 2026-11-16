@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Island",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep30_little_island",
+  "source": "draft_dep",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager who dreams of living alone on a tiny island paddles out to try it: stay until sunset, or come back for dinner.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Out past the reef there is a tiny island, just a few palms and a beach, close enough to see but far enough to need a canoe. (name1) has always dreamed of living there by (him/her)self, in a little hut, fishing and thinking and talking to nobody. Today (he/she) paddles out for an afternoon to see what it's like.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Stay Until Sunset",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Come Back for Dinner",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) stays all afternoon. (He/she) swims, sleeps, eats a coconut and walks round the whole island eleven times. At sunset (he/she) watches the village lights come on across the water, small and warm. (He/she) paddles back in the dusk. (He/she) still wants the little island. Just not every day.",
+   "src": "L362"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After an hour, (name1) has seen everything there is to see. Twice. The palms are nice. The beach is nice. It is extremely quiet. (He/she) paddles home in time for dinner, a little puzzled. (He/she) might go back. It was lovely. It was also lonely in a way (he/she) hadn't expected, and (he/she) is still thinking about that.",
+   "src": "L365"
+  }
+ }
+}

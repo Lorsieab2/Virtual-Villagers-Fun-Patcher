@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Cousin",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp23_chief_cousin",
+  "source": "anthology",
+  "lines": [
+   31600,
+   31614
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31600",
+  "ledger": [
+   {
+    "src": "L31601",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31602",
+    "kind": "sensitivity",
+    "before": "a cousin",
+    "after": "(cousin), a cousin,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31604",
+    "kind": "sensitivity",
+    "before": "The cousin",
+    "after": "(cousin)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31613",
+    "kind": "sensitivity",
+    "before": "The cousin",
+    "after": "(cousin)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "The chief recommends a cousin for an important task, and villagers question the choice.",
+  "label_case": "title",
+  "cast_only": [
+   "cousin"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "cousin": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} recommends (cousin), a cousin, for an important task, and villagers question the choice.",
+   "src": "L31602",
+   "choices": [
+    {
+     "label": "Review Qualifications",
+     "next": "a",
+     "src": "L31603"
+    },
+    {
+     "label": "Ask for Public Reasoning",
+     "next": "b",
+     "src": "L31606"
+    },
+    {
+     "label": "Use a Fair Trial",
+     "next": "c",
+     "src": "L31609"
+    },
+    {
+     "label": "Protect Relationships",
+     "next": "d",
+     "src": "L31612"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(cousin) proves well prepared.",
+   "src": "L31604"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A more experienced applicant is discovered.",
+   "src": "L31605"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The {@chief} explains the criteria.",
+   "src": "L31607"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The {@chief} admits overlooking a conflict of interest.",
+   "src": "L31608"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both candidates complete the same task.",
+   "src": "L31610"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The tribe agrees to rotate responsibility.",
+   "src": "L31611"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(cousin) declines to avoid favoritism.",
+   "src": "L31613"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A disappointed applicant accepts a transparent decision.",
+   "src": "L31614"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader's Cousin"
+  }
+ ]
+}

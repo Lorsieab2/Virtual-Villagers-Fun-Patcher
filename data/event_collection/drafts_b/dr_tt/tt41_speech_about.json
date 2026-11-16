@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Speech About (name1)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt41_speech_about",
+  "source": "draft_tt",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L494",
+    "kind": "sensitivity",
+    "before": "A child falls asleep.",
+    "after": "(child), a child, falls asleep.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's harvest thank-you speech keeps coming back to themselves: keep going, or catch yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been asked to say a few words of thanks at the end of the harvest feast: thanks to the farmers, the cooks, the fishers. (subject.He/she) starts well. Somehow, though, every thank-you leads back to (subject): how (subject.he/she) carried the heaviest basket, how (subject.he/she) suggested the new planting, how (subject.he/she) was up earliest on the second day...",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Keep Going",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Catch Yourself",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The speech goes on. The fire burns low. (child), a child, falls asleep. At last (subject) thanks \"everybody else, as well,\" and sits down to warm, slightly sleepy applause. (friend) leans over. \"Very thorough.\" \"Thank you,\" says (subject), who knows exactly what (friend) means, and doesn't mind a bit.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Halfway through a sentence about the heaviest basket, (subject) stops. \"...Which (friend) helped me carry,\" (subject.he/she) says. Then (subject.he/she) starts naming everybody else: every farmer, every cook, every child who fetched water. It takes even longer than the first way. Everyone is thrilled to hear their name.",
+   "src": "L497"
+  }
+ }
+}

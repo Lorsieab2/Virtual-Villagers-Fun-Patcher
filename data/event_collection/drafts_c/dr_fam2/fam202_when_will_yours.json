@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "And When Will It Be Yours?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam202_when_will_yours",
+  "source": "draft_fam2",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who has no partner and an elder)"
+   }
+  ],
+  "description": "At a wedding feast, an elder asks a happily single villager when it will be their turn: answer plainly, or change the subject.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's a wedding feast, everyone's dancing, and (friend) has just cornered (subject) with a big smile. \"Such a lovely ceremony! And when will it be your turn, hmm?\" (subject) has been asked this four times tonight already. (subject.He/she) has no plans to marry anyone, now or perhaps ever, and is perfectly happy about it.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Answer Plainly",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Change the Subject",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Probably never,\" says (subject) cheerfully. \"I like my life as it is.\" (friend) blinks. \"Oh! But don't you want...\" \"No,\" says (subject), still smiling. \"I really don't. But I love a good wedding.\" (friend) considers this, then laughs. \"Then dance with me,\" (friend.he/she) says. They dance. Nobody asks (subject) again that night.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Ask me again when the honey cakes run out,\" says (subject), and steers (friend) straight to the honey cakes. They stand there eating cake and gossiping about the guests, and the question is completely forgotten. (subject) doesn't owe anyone an explanation, and doesn't give one. It's a lovely wedding. (subject.He/she) has a wonderful time.",
+   "src": "L29"
+  }
+ }
+}

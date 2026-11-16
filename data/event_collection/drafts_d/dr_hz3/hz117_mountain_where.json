@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mountain Where Breath Comes Short",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz117_mountain_where",
+  "source": "draft_hz2",
+  "lines": [
+   450,
+   460
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L450",
+  "ledger": [
+   {
+    "src": "L451",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After climbing a steep hill, a villager wonders whether there are mountains so high that people struggle to breathe.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After climbing a steep hill, (name1) wonders whether there are mountains so high that people struggle to breathe.",
+   "src": "L451",
+   "choices": [
+    {
+     "label": "Imagine Towering Mountains.",
+     "next": "a",
+     "src": "L452"
+    },
+    {
+     "label": "Imagine Mountain People.",
+     "next": "b",
+     "src": "L455"
+    },
+    {
+     "label": "Climb Isola's Highest Hill.",
+     "next": "c",
+     "src": "L458"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager imagines mountains that touch the clouds and feels dizzy just thinking about it.",
+   "src": "L453"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar wonders how anyone would live so high.",
+   "src": "L454"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests people born in such places might find the air there perfectly normal.",
+   "src": "L456"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child imagines them visiting Isola and finding the air thick and sleepy.",
+   "src": "L457"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers reach the top and feel on top of the world.",
+   "src": "L459"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They stop halfway, decide the view is good enough, and have lunch.",
+   "src": "L460"
+  }
+ }
+}

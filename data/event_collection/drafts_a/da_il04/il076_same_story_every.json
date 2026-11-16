@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Story Every Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il076_same_story_every",
+  "source": "da_il04",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child who knows every word of the same bedtime story asks for a new one tonight.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every night (subject) tells (friend) the same bedtime story, about a little turtle who was looking for the perfect rock. (friend) knows every word. Tonight (friend) sits up and says, \"Can I have a NEW story?\"",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Make Up a New One",
+     "next": "a",
+     "src": "L193"
+    },
+    {
+     "label": "Ask (friend) to Tell One Instead",
+     "next": "b",
+     "src": "L196"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) starts a story about a bird who wanted to learn to swim. It goes well for a while. Then, somehow, the bird meets a little turtle, and the turtle is looking for the perfect rock, and before (subject) knows it (subject.he/she) is telling the old story again. (friend) is asleep before (subject.he/she) notices. (subject) decides that counts as a new story.",
+   "src": "L194"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) tells a long story about a crab who became the leader of the whole ocean and then had a nap. It has no ending, because (friend) falls asleep in the middle of it. (subject) sits in the dark for a while, wondering how the crab's nap went.",
+   "src": "L197"
+  }
+ }
+}

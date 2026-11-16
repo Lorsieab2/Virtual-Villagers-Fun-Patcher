@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jungle at Dusk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea31_jungle_dusk",
+  "source": "draft_fea",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager gathering herbs is caught at the forest edge as night falls: walk home fast, or stand still and listen.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) was gathering herbs at the edge of the forest and lost track of time. Now the light is going, and the jungle has started making its evening noises: clicks, rustles, a long, low hoot, something that might be a frog or might not. None of it is dangerous, probably. (name1)'s heart is pounding anyway.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Walk Home Fast",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Stand Still and Listen",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) walks home very fast, not quite running, not looking back. Every rustle makes (him/her) jump. (He/she) reaches the village just as the first fires are lit, and stands in the light, breathing hard. (He/she) feels foolish. (He/she) also feels glad to be home, and decides the second feeling matters more.",
+   "src": "L374"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) makes (him/her)self stop and listen. The hoot is an owl. The clicks are insects. The rustle is a little ground bird, scratching. The thing that might be a frog is definitely a frog. (He/she) is still frightened, but now (he/she) knows what (he/she) is frightened of. (He/she) walks home steadily.",
+   "src": "L377"
+  }
+ }
+}

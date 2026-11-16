@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rule That Hurt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus28_rule_hurt",
+  "source": "anthology",
+  "lines": [
+   31151,
+   31165
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31151",
+  "ledger": [
+   {
+    "src": "L31152",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31155",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(villager), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31156",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31159",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A longstanding rule meant to preserve order is found to burden some families much more than others.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "elder",
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A longstanding rule meant to preserve order is found to burden some families much more than others.",
+   "src": "L31153",
+   "choices": [
+    {
+     "label": "Hear Affected Villagers",
+     "next": "a",
+     "src": "L31154"
+    },
+    {
+     "label": "Examine the Actual Purpose",
+     "next": "b",
+     "src": "L31157"
+    },
+    {
+     "label": "Test a Fair Revision",
+     "next": "c",
+     "src": "L31160"
+    },
+    {
+     "label": "Explain Authority and Accountability",
+     "next": "d",
+     "src": "L31163"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager), a caregiver, explains an overlooked obstacle.",
+   "src": "L31155"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) reveals why the rule was originally made.",
+   "src": "L31156"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council distinguishes safety from mere habit.",
+   "src": "L31158"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) proposes a simpler rule that meets the same goal.",
+   "src": "L31159"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A trial period improves access.",
+   "src": "L31161"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The first revision causes confusion and is adjusted.",
+   "src": "L31162"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Children learn rules can be questioned respectfully.",
+   "src": "L31164"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} agrees that consistency is not the same as justice.",
+   "src": "L31165"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

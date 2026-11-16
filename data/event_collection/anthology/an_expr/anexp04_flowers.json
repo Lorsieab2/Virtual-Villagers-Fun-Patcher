@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Flowers Without Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp04_flowers",
+  "source": "anthology",
+  "lines": [
+   31296,
+   31310
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31296",
+  "ledger": [
+   {
+    "src": "L31297",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31298",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31300",
+    "kind": "sensitivity",
+    "before": "The giver",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31301",
+    "kind": "sensitivity",
+    "before": "The recipient",
+    "after": "(recipient)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31304",
+    "kind": "sensitivity",
+    "before": "The giver",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31307",
+    "kind": "sensitivity",
+    "before": "The recipient",
+    "after": "(recipient)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager leaves a small bundle of flowers for someone who has been unusually quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "recipient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "recipient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) leaves a small bundle of flowers for someone who has been unusually quiet.",
+   "src": "L31298",
+   "choices": [
+    {
+     "label": "Thank Them Publicly",
+     "next": "a",
+     "src": "L31299"
+    },
+    {
+     "label": "Respond in Private",
+     "next": "b",
+     "src": "L31302"
+    },
+    {
+     "label": "Make a Return Gift",
+     "next": "c",
+     "src": "L31305"
+    },
+    {
+     "label": "Respect the Boundary",
+     "next": "d",
+     "src": "L31308"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) beams at the acknowledgment.",
+   "src": "L31300"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(recipient) dislikes being the center of attention.",
+   "src": "L31301",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31301"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The two share a gentle conversation.",
+   "src": "L31303"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) learns that no reply was expected.",
+   "src": "L31304"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A woven ribbon becomes a lasting keepsake.",
+   "src": "L31306"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(recipient) chooses a practical favor instead.",
+   "src": "L31307"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The flowers are accepted without conversation.",
+   "src": "L31309"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The gesture is declined kindly and no offense is taken.",
+   "src": "L31310"
+  }
+ }
+}

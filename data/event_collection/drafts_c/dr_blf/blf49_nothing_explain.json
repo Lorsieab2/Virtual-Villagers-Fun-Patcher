@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Nothing to Explain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf49_nothing_explain",
+  "source": "draft_blf",
+  "lines": [
+   578,
+   587
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L578",
+  "ledger": [
+   {
+    "src": "L579",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A new villager asks someone with no interest in romance if they have not met the right person yet: answer simply, or not at all.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has never been interested in romance, or partnering up, or any of it. (subject.He/she) doesn't mind other people's romances. (subject.He/she) just doesn't want one (subject.him/her)self. Today a new villager, (friend), has asked (subject.him/her), very kindly, whether (subject.he/she) has \"just not met the right person yet.\"",
+   "src": "L581",
+   "choices": [
+    {
+     "label": "Answer Simply",
+     "next": "o1",
+     "src": "L583"
+    },
+    {
+     "label": "Don't Answer at All",
+     "next": "o2",
+     "src": "L586"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"No,\" says (subject), smiling. \"I'm just not interested. That's how I am.\" (friend) looks thoughtful. \"Oh. I hadn't thought of that.\" \"Most people haven't,\" says (subject). \"That's fine. I'm very happy.\" (friend) nods, and then, to (subject)'s relief, starts talking about fishing instead. That's exactly what (subject) wanted.",
+   "src": "L584"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Have you tried the mangoes from the north tree?\" says (subject) pleasantly. \"They're very good this year.\" (friend) blinks, realizes the question isn't going to be answered and laughs. \"Yes. Very good.\" They talk about mangoes. (subject) doesn't owe anyone an explanation of (subject.his/her) heart, and doesn't give one.",
+   "src": "L587"
+  }
+ }
+}

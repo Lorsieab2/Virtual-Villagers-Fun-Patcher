@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's That Heron Looking At?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd15_what_heron",
+  "source": "da_wd",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A heron on the far bank of the stream has been staring at a villager, not at the fish, for some time.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) is washing (his/her) clothes at the stream when (he/she) notices a heron standing on the opposite bank, staring at (him/her). Not at the water. Not at the fish. At (name1). It has been staring, without blinking, for some time. (name1) is starting to feel self-conscious.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Stare Back",
+     "next": "a",
+     "src": "L181"
+    },
+    {
+     "label": "Ignore It and Keep Washing",
+     "next": "b",
+     "src": "L184"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) stops washing and stares back. The heron doesn't move. Neither does (name1). This goes on for a very long time. Finally the heron blinks first, slowly, and turns its back, as if it has seen everything it needs to see. (name1) has no idea whether (he/she) passed or failed.",
+   "src": "L182"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) keeps washing. The heron keeps staring. When (name1) has finished and picks up (his/her) basket, the heron, very deliberately, steps into the water exactly where (name1) was standing, and catches a fish that (name1) must have been scaring away all morning. (name1) decides to take that personally.",
+   "src": "L185"
+  }
+ }
+}

@@ -1,0 +1,244 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Clothes for a Changing Body",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat02_clothes_changing",
+  "source": "fathers30",
+  "lines": [
+   33,
+   51
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L33",
+  "ledger": [
+   {
+    "src": "L34",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L35",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L39",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L41",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L42",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L44",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L45",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L47",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L48",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L50",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L51",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L37",
+    "kind": "sensitivity",
+    "before": "A pregnant father finds",
+    "after": "(Name1), a pregnant father, finds",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "A pregnant father finds that his work clothes pinch and pull.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a pregnant father, finds that his work clothes pinch and pull. He likes some changes and dislikes others, and he wants to remain comfortable without surrendering his own style.",
+   "src": "L37",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- story only: the file marks no effect (no new mechanics)",
+     "src": "L37"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Sew a New Outfit",
+     "next": "a",
+     "src": "L40"
+    },
+    {
+     "label": "Ask a Tailor for Help",
+     "next": "b",
+     "src": "L43"
+    },
+    {
+     "label": "Adjust His Daily Tasks",
+     "next": "c",
+     "src": "L46"
+    },
+    {
+     "label": "Talk with a Close Friend",
+     "next": "d",
+     "src": "L49"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He makes a sturdy tunic that fits well and feels like him.",
+   "src": "L41"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The first seams split when he bends, and he starts again.",
+   "src": "L42"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Together they make clothing suited to his work and body.",
+   "src": "L44"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The tailor assumes he wants a different style; he corrects them.",
+   "src": "L45"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A change of routine reduces his discomfort.",
+   "src": "L47"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "He misses a favorite task and negotiates a different role.",
+   "src": "L48"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The friend listens without deciding how he should feel.",
+   "src": "L50"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The friend tries to reassure him too quickly and learns to listen.",
+   "src": "L51"
+  }
+ }
+}

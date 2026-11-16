@@ -240,6 +240,40 @@ LV-B (PEOPLES-01..37, UNSEEN-01..39, WAYS-01..38, AUTH-01..30, living L21665-238
 WAYS' and UNSEEN's capitalised ways of knowing ("a Magic adept", "the Nature master", "the Science master", "Nature
 knowledge") keep the source's capitals, as MED-19.
 
+### The approved drafts, group B (each file its own source; rows `| draft_<x> L<line> |`)
+
+The format has no "his/hers" placeholder (it would show the words "his/hers"), so the drafts' nine `(his/hers)` become
+`(his/her) own` ("his own" / "her own"), and HON-25's "It wasn't (his/hers) to mention" becomes "(his/her) place",
+where "own" would not read. Nothing else is fixed.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| draft_hum L425 | `(his/hers)` | `(his/her) own` | HUM-35 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L59 | `(his/hers)` | `(his/her) own` | HON-05 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L158 | `(his/hers)` | `(his/her) own` | HON-13 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L209 | `(his/hers)` | `(his/her) own` | HON-17 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L17 | `(his/hers)` | `(his/her) own` | JUS-01 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L185 | `(his/hers)` | `(his/her) own` | JUS-15 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L239 | `(his/hers)` | `(his/her) own` | JUS-20 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L245 | `(his/hers)` | `(his/her) own` | JUS-20 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L305 | `(his/hers) to mention` | `(his/her) place to mention` | HON-25 | no his/hers placeholder; "his own to mention" would not read |
+
+### The approved drafts, group C (each file its own source; rows `| draft_<x> L<line> |`)
+
+The same format limit: the ten `(his/hers)` of DIV, HIS and LIF become `(his/her) own` (one row covers every
+`(his/hers)` of its line), and DIV-39's "it isn't (his/hers)" becomes "(his/her) fault", where "own" would not read.
+Nothing else is fixed.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| draft_div L53 | `(his/hers)` | `(his/her) own` | DIV-04 | no his/hers placeholder: "his own" / "her own" |
+| draft_div L455 | `(his/hers)` | `(his/her) own` | DIV-38 | no his/hers placeholder: "his own" / "her own" |
+| draft_div L467 | `(his/hers)` | `(his/her) fault` | DIV-39 | no his/hers placeholder; "it isn't his own" would not read |
+| draft_his L287 | `(his/hers)` | `(his/her) own` | HIS-24 | no his/hers placeholder: "his own" / "her own" |
+| draft_his L530 | `(his/hers)` | `(his/her) own` | HIS-44 | no his/hers placeholder (twice on the line) |
+| draft_his L533 | `(his/hers)` | `(his/her) own` | HIS-44 | no his/hers placeholder (twice on the line) |
+| draft_lif L470 | `(his/hers)` | `(his/her) own` | LIF-40 | no his/hers placeholder (twice on the line) |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.
@@ -315,6 +349,39 @@ Shipped, with the two villagers' names (owner, 2026-11-14):
 | MIX-050 | `A confident a confident novice` | `(first), a confident novice,` | The personality repeats the role's own word; the repeat is dropped (lead decision, 2026-11-14) |
 | MIX-054 | `A skeptical a skeptical observer` | `(first), a skeptical observer,` | The same |
 
+### The owner-approved drafts, set A (2026-11-15; each file its own source)
+
+Each draft file (`collection_lib.DRAFTS_A`) has its own line numbers; its rows start with its source id, e.g.
+`| da_il07 L123 |`. `(his/hers)` has no placeholder (the engine knows `his/her`, not `his/hers`): such a line's
+smallest fix that reads the same is listed here.
+
+#### Group 1 (Inner Life II-V)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+
+#### Group 2 (Inner Life VI-IX)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| da_il06 L221 | `(name1) tips (his/hers) too` | `(name1) tips (his/her) own too` | il119_how_do_i_look | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
+| da_il07 L185 | `moves (his/hers)` | `moves (his/her) flower` | il135_matching_flower | `(his/hers)` has no placeholder; the noun it stands for reads the same |
+| da_il07 L218 | `drops all of (his/hers) too` | `drops all of (his/her) coconuts too` | il138_carrying_contest | `(his/hers)` has no placeholder; the noun it stands for reads the same |
+| da_il08 L167 | `This one is (his/hers), knots and all.` | `This one is (his/her) own, knots and all.` | il154_work_i_might | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
+| da_il09 L125 | `It's (his/hers).` | `It's (his/her) own.` | il170_shortcut | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
+| da_il09 L170 | `falls out of (his/hers) too` | `falls out of (his/her) canoe too` | il174_canoe_race | `(his/hers)` has no placeholder; the noun it stands for reads the same |
+
+#### Group 3 (Inner Life X, What's That Doing Here)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| da_wd L326 | `(his/hers)` | `(his/her) bowl` | wd27_what_bowl_fruit | `(his/hers)` has no placeholder; the noun it stands for reads the same |
+
+#### Group 4 (Luck, Omens and Lavastones)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| da_lo L590 | `It's still (his/hers).` | `It's still (his/her) own.` | lo48_stone_went_cold | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
 ### Fix `living-title-ampersand`: the MC category titles
 
 The six MC headings (Living L25161 and the five after it) use `&`, which no game's title can show. The event

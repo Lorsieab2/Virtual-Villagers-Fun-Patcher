@@ -1,0 +1,174 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Argument Over What Is Fair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs38_argument_over",
+  "source": "anthology",
+  "lines": [
+   29995,
+   30008
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29995",
+  "ledger": [
+   {
+    "src": "L30001",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(villager), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30008",
+    "kind": "sensitivity",
+    "before": "A quiet villager",
+    "after": "(villager), a quiet villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two families disagree over whether equal portions or need-based portions are fair when supplies are limited.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two families disagree over whether equal portions or need-based portions are fair when supplies are limited.",
+   "src": "L29996",
+   "choices": [
+    {
+     "label": "Compare the Consequences",
+     "next": "a",
+     "src": "L29997"
+    },
+    {
+     "label": "Ask People with the Greatest Need",
+     "next": "b",
+     "src": "L30000"
+    },
+    {
+     "label": "Use a Temporary Rule and Review It",
+     "next": "c",
+     "src": "L30003"
+    },
+    {
+     "label": "Allow Voluntary Sharing",
+     "next": "d",
+     "src": "L30006"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The families find a compromise that accounts for children and illness.",
+   "src": "L29998"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The discussion reveals that \"equal\" and \"fair\" are not always identical.",
+   "src": "L29999"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager), a caregiver, describes a practical shortage others overlooked.",
+   "src": "L30001"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A family declines special treatment and asks for privacy.",
+   "src": "L30002"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The arrangement works for the current week.",
+   "src": "L30004"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The rule creates an unintended burden and is revised openly.",
+   "src": "L30005"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several villagers offer extra supplies without pressure.",
+   "src": "L30007"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager), a quiet villager, chooses not to give and is not shamed.",
+   "src": "L30008"
+  }
+ }
+}

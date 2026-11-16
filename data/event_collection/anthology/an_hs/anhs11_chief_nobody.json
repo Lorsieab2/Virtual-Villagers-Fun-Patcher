@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief Nobody Wants to Hear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs11_chief_nobody",
+  "source": "anthology",
+  "lines": [
+   29590,
+   29603
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29590",
+  "ledger": [
+   {
+    "src": "L29596",
+    "kind": "sensitivity",
+    "before": "A respected worker",
+    "after": "(worker), a respected worker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29597",
+    "kind": "sensitivity",
+    "before": "The representative",
+    "after": "(worker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "The chief delivers yet another long announcement while villagers are trying to finish their work.",
+  "label_case": "title",
+  "cast_only": [
+   "worker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "worker": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} delivers yet another long announcement while villagers are trying to finish their work.",
+   "src": "L29591",
+   "choices": [
+    {
+     "label": "Ask for Shorter Announcements",
+     "next": "a",
+     "src": "L29592"
+    },
+    {
+     "label": "Choose a Representative to Speak",
+     "next": "b",
+     "src": "L29595"
+    },
+    {
+     "label": "Ignore the Speech",
+     "next": "c",
+     "src": "L29598"
+    },
+    {
+     "label": "Invite the {@Chief} to Work Alongside Them",
+     "next": "d",
+     "src": "L29601"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} learns to say the important part first.",
+   "src": "L29593"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The {@chief} is hurt by the criticism but later asks for practical feedback.",
+   "src": "L29594"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(worker), a respected worker, explains why timing matters.",
+   "src": "L29596"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(worker) discovers the {@chief} was trying to warn of a genuine supply issue.",
+   "src": "L29597"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Nothing urgent happens, but the {@chief} notices the silence.",
+   "src": "L29599"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A missed detail causes mild confusion, prompting a better communication plan.",
+   "src": "L29600"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The {@chief} understands the interruption firsthand.",
+   "src": "L29602"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The villagers learn the {@chief} has been carrying responsibilities they never noticed.",
+   "src": "L29603"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader Nobody Wants to Hear"
+  }
+ ]
+}

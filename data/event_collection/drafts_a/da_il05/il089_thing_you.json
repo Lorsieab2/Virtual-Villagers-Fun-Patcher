@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Thing You Remember",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il089_thing_you",
+  "source": "da_il05",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager is asked about their first memory: a bright yellow bird on the edge of a bowl.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Sitting by the shore, (friend) asks (subject) a question out of nowhere: \"What's the first thing you remember?\" (subject) thinks hard. The first thing (subject.he/she) remembers is a bright yellow bird sitting on the edge of a bowl, looking right at (subject.him/her). (subject.He/She) has never seen a bird like it since.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Wonder If It Was Real",
+     "next": "a",
+     "src": "L109"
+    },
+    {
+     "label": "Decide It Doesn't Matter",
+     "next": "b",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Was it real?\" (friend) asks. \"I don't know,\" says (subject). \"I've always thought so. But maybe it was a dream.\" They sit and think about it. (friend)'s first memory, it turns out, is of falling face first into a pile of mangoes. That one, (friend.he/she) is fairly sure, was real.",
+   "src": "L110"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Real or a dream, I still remember it,\" says (subject). \"So it's mine either way.\" (friend) likes that. They spend the afternoon trading earliest memories, and by the end of it neither of them is sure which ones are real, and neither of them minds.",
+   "src": "L113"
+  }
+ }
+}

@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Palm-Leaf Weaver",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp06_palm_leaf",
+  "source": "anthology",
+  "lines": [
+   31328,
+   31342
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31328",
+  "ledger": [
+   {
+    "src": "L31329",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31330",
+    "kind": "sensitivity",
+    "before": "a patient crafter",
+    "after": "(crafter), a patient crafter",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31332",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31333",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31336",
+    "kind": "sensitivity",
+    "before": "The repairer",
+    "after": "(crafter)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31338",
+    "kind": "sensitivity",
+    "before": "A newcomer",
+    "after": "(newcomer), a newcomer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Discarded palm leaves become tiny dolls, boats, and ornaments in the hands of a patient crafter.",
+  "label_case": "title",
+  "cast_only": [
+   "crafter",
+   "child",
+   "elder",
+   "newcomer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "crafter": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Discarded palm leaves become tiny dolls, boats, and ornaments in the hands of (crafter), a patient crafter.",
+   "src": "L31330",
+   "choices": [
+    {
+     "label": "Organize a Craft Exchange",
+     "next": "a",
+     "src": "L31331"
+    },
+    {
+     "label": "Repair Old Toys",
+     "next": "b",
+     "src": "L31334"
+    },
+    {
+     "label": "Make Gifts for Newcomers",
+     "next": "c",
+     "src": "L31337"
+    },
+    {
+     "label": "Reuse the Scraps",
+     "next": "d",
+     "src": "L31340"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) trades a doll for a handmade whistle.",
+   "src": "L31332"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) offers a new weaving method.",
+   "src": "L31333"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A damaged doll becomes more beloved after repair.",
+   "src": "L31335"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(crafter) asks before changing a treasured design.",
+   "src": "L31336"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(newcomer), a newcomer, recognizes a familiar weaving technique.",
+   "src": "L31338"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another appreciates the gesture but prefers something practical.",
+   "src": "L31339"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The leftovers become sturdy ties.",
+   "src": "L31341"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some scraps are returned to compost rather than wasted.",
+   "src": "L31342"
+  }
+ }
+}

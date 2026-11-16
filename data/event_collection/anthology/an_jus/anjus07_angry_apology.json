@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Angry Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus07_angry_apology",
+  "source": "anthology",
+  "lines": [
+   30815,
+   30829
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30815",
+  "ledger": [
+   {
+    "src": "L30816",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30817",
+    "kind": "sensitivity",
+    "before": "Two teenagers quarrel",
+    "after": "(teen1) and (teen2), two teenagers, quarrel",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30822",
+    "kind": "sensitivity",
+    "before": "The apologizing teen",
+    "after": "(teen1)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two teenagers quarrel; one offers an apology mostly to escape a consequence, while the other remains hurt.",
+  "label_case": "title",
+  "cast_only": [
+   "teen1",
+   "teen2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen1": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "teen2": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen1) and (teen2), two teenagers, quarrel; one offers an apology mostly to escape a consequence, while the other remains hurt.",
+   "src": "L30817",
+   "choices": [
+    {
+     "label": "Give the Hurt Teen Space",
+     "next": "a",
+     "src": "L30818"
+    },
+    {
+     "label": "Ask What the Apology Means",
+     "next": "b",
+     "src": "L30821"
+    },
+    {
+     "label": "Set a Behavior-Based Consequence",
+     "next": "c",
+     "src": "L30824"
+    },
+    {
+     "label": "Revisit Later",
+     "next": "d",
+     "src": "L30827"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They accept distance without being called unforgiving.",
+   "src": "L30819"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They ask for changed behavior rather than more words.",
+   "src": "L30820"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(teen1) recognizes the harm was real.",
+   "src": "L30822"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They admit they are not ready to mean it yet.",
+   "src": "L30823"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The teen repairs a damaged belonging.",
+   "src": "L30825"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A temporary boundary prevents another confrontation.",
+   "src": "L30826"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The pair rebuild a cautious friendship.",
+   "src": "L30828"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They remain civil without becoming friends.",
+   "src": "L30829"
+  }
+ }
+}

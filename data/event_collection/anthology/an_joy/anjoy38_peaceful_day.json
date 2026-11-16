@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Peaceful Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy38_peaceful_day",
+  "source": "anthology",
+  "lines": [
+   29238,
+   29251
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29238",
+  "ledger": [],
+  "description": "The village realizes that nothing urgent needs attention.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village realizes that nothing urgent needs attention.",
+   "src": "L29239",
+   "choices": [
+    {
+     "label": "Organize Games",
+     "next": "a",
+     "src": "L29240"
+    },
+    {
+     "label": "Visit Inland Paths",
+     "next": "b",
+     "src": "L29243"
+    },
+    {
+     "label": "Share a Communal Meal",
+     "next": "c",
+     "src": "L29246"
+    },
+    {
+     "label": "Do Absolutely Nothing",
+     "next": "d",
+     "src": "L29249"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Families enjoy an unexpected afternoon of play.",
+   "src": "L29241"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A few villagers prefer to keep working on hobbies.",
+   "src": "L29242"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Walkers discover a beautiful patch of wildflowers.",
+   "src": "L29244"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The group returns early after a light rain.",
+   "src": "L29245"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Neighbors bring simple dishes and stories.",
+   "src": "L29247"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The meal is small but deeply appreciated.",
+   "src": "L29248"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several villagers enjoy a rare restful day.",
+   "src": "L29250"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One restless apprentice starts a harmless new hobby.",
+   "src": "L29251"
+  }
+ }
+}

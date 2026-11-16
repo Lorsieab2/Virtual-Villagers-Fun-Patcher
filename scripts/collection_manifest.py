@@ -917,6 +917,328 @@ def _rolemodel_rows() -> None:
 
 _rolemodel_rows()
 
+# ---- The owner-approved drafts, set A (2026-11-15; collection_lib.DRAFTS_A, each file its own source) ---------------
+#
+# Inner Life I-X (events 1-200), What's That Doing Here (WD-01..50), Luck, Omens and Lavastones (LO-01..50).  Each
+# event: a heading "12. The Wrong Dream" / "WD-01. ..." / "LO-01. ...", a "(picks ...)" casting line, the setup, then
+# each choice's label line "Label:" and its outcome (none for a single popup).  The lines before the first heading
+# (the draft's title, its notes to the owner, Part II's ChatGPT preamble) and the closing NOTES FOR THE OWNER (Part II:
+# "A few more directions ...") are notes rows.  Series (the lead, 2026-11-15): one per file, so each file counts as one
+# draw in the rare roll.  Ids: il001_, wd01_, lo01_ and a slug of the title.
+
+DRAFT_HEAD_RE = re.compile(r"^(?:(WD|LO)-)?(\d{1,3})\.\s+(.+)$")
+DRAFT_LABEL_RE = r'^[A-Z(][^.!?"]{0,100}:$'
+DRAFT_END_RE = re.compile(r"^(?:NOTES FOR THE OWNER|A few more directions for the next batch)")
+# (first, last) credit lines of each draft: its title line(s)
+DRAFT_CREDIT_LINES = {"da_il02": (15, 17)}
+DRAFT_IDS: dict[str, str] = {}
+
+
+def _draft_rows() -> None:
+    for sid in lib.DRAFTS_A:
+        with lib.use_source(sid):
+            n_all = lib.n_lines()
+            heads = [n for n in range(1, n_all + 1) if DRAFT_HEAD_RE.match(lib.line(n).rstrip("\r"))]
+            end = next(n for n in range(heads[-1], n_all + 1) if DRAFT_END_RE.match(lib.line(n)))
+            CREDITS[sid] = ("mixed", [DRAFT_CREDIT_LINES.get(sid, (1, 1))], sid)
+            a_end = heads[0] - 1
+            while lib.is_blank_or_separator(a_end):
+                a_end -= 1
+            N(f"danotes_{sid[3:]}_intro", f"Draft {sid}: title, notes to the owner", 1, a_end, sid, sid, source=sid)
+            N(f"danotes_{sid[3:]}_end", f"Draft {sid}: closing notes to the owner", end, n_all, sid, sid, source=sid)
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else end
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = DRAFT_HEAD_RE.match(lib.line(h).rstrip("\r"))
+                pre, num, src_title = m.group(1), int(m.group(2)), lib.normalize_source_text(m.group(3)).strip()
+                eid = f"{pre.lower()}{num:02d}" if pre else f"il{num:03d}"
+                choices = sum(1 for n in range(h, e + 1)
+                              if re.match(DRAFT_LABEL_RE, lib.normalize_source_text(lib.line(n)).strip()))
+                R(DRAFT_IDS.get(eid) or f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  title_case(src_title), ALL, h, e, "event", sid, sid, choices, series=sid, source=sid,
+                  choice_re=DRAFT_LABEL_RE)
+
+
+_draft_rows()
+
+
+# ---- The owner-approved draft event files, group B (collection_lib.DRAFTS_B; each file its own source) ---------------
+#
+# "New Events - <Topic> (draft for owner).txt" (2026-11-15): lines 1-5 (title, premise, how to read it) and the closing
+# "NOTES FOR THE OWNER" block are notes rows; each "HUM-01. Title" heading starts an event (casting line, setup, two
+# "Label:" lines each followed by its outcome; a few are one popup with no choice).  One series per file (each file
+# counts as one draw in the rare roll).  Built by scripts/drafts_b/gen_drafts_b.py.
+
+for _sid, (_topic, _n, _sec, _pre) in lib.DRAFTS_B.items():
+    CREDITS[_sec] = ("mixed", [(1, 3)], _sid)
+DRAFTS_B_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_B.items()}      # source id -> its one series (the section)
+
+
+def _drafts_b_rows() -> None:
+    for sid, (topic, _n, sec, pre) in lib.DRAFTS_B.items():
+        with lib.use_source(sid):
+            heads = [n for n in range(1, lib.n_lines() + 1) if re.match(rf"^{pre}-\d\d\. ", lib.line(n))]
+            notes = next(n for n in range(1, lib.n_lines() + 1) if lib.line(n).startswith("NOTES FOR THE OWNER"))
+            last = max(n for n in range(1, lib.n_lines() + 1) if lib.line(n).strip())
+            N(f"{sec}_notes_intro", f"{topic}: title, premise and how to read the draft", 1, 5, sec, sec, source=sid)
+            N(f"{sec}_notes_end", f"{topic}: notes for the owner", notes, last, sec, sec, source=sid)
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else notes
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                eid = f"{pre.lower()}{num}"
+                nc = 2 if e - h > 3 else 0
+                R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  lib.title_case_label(src_title.replace('"', '')),              # a title holds no '"' (gap G6)
+                  ALL, h, e, "event", sec, sec, nc, series=sec, source=sid, choice_re=r"^[^.!?]{1,80}:$")
+
+
+_drafts_b_rows()
+
+# ---- The owner-approved draft event files, group C (collection_lib.DRAFTS_C), wired as group B ------------------------
+#
+# The same shape, plus: an event may offer three choices (HEA-15), and a heading's "(VV5 only)" tag is a game note
+# (the row is New Believers only; the tag is cut from the title).  Built by scripts/drafts_c/gen_drafts_c.py.
+
+for _sid, (_topic, _n, _sec, _pre) in lib.DRAFTS_C.items():
+    CREDITS[_sec] = ("mixed", [(1, 3)], _sid)
+DRAFTS_C_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_C.items()}      # source id -> its one series (the section)
+DRAFTS_C_VV5_TAG = " (VV5 only)"
+
+
+def _drafts_c_rows() -> None:
+    for sid, (topic, _n, sec, pre) in lib.DRAFTS_C.items():
+        with lib.use_source(sid):
+            heads = [n for n in range(1, lib.n_lines() + 1) if re.match(rf"^{pre}-\d\d\. ", lib.line(n))]
+            notes = next(n for n in range(1, lib.n_lines() + 1) if lib.line(n).startswith("NOTES FOR THE OWNER"))
+            last = max(n for n in range(1, lib.n_lines() + 1) if lib.line(n).strip())
+            N(f"{sec}_notes_intro", f"{topic}: title, premise and how to read the draft", 1, 5, sec, sec, source=sid)
+            N(f"{sec}_notes_end", f"{topic}: notes for the owner", notes, last, sec, sec, source=sid)
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else notes
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                games = ALL
+                if src_title.endswith(DRAFTS_C_VV5_TAG):
+                    games, src_title = [5], src_title[:-len(DRAFTS_C_VV5_TAG)]
+                eid = f"{pre.lower()}{num}"
+                nc = sum(1 for n in range(h + 2, e + 1) if re.match(r"^[^.!?]{1,80}:$", lib.line(n).strip()))
+                R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  lib.title_case_label(src_title.replace('"', '')),              # a title holds no '"' (gap G6)
+                  games, h, e, "event", sec, sec, nc, series=sec, source=sid, choice_re=r"^[^.!?]{1,80}:$")
+
+
+_drafts_c_rows()
+
+# ---- The owner-approved files, group D (collection_lib.DRAFTS_D; each file its own source and its own series) --------
+#
+# Five shapes (built by scripts/drafts_d/gen_drafts_d.py):
+#   draft_rm2   "EVENT RM-41 — TITLE", SETUP:, choices A-D each with two outcomes A1/A2 (Role Models' shape, a line each)
+#   draft_hz2   "EVENT 081 — TITLE", SETUP:, choices A-C each with two outcomes (Beyond the Horizon's shape)
+#   fathers30   "EVENT 01: Title", THEME / CAST lines (notes), the setup, choices A-D each with "Outcome 1/2:"
+#   moments500  125 moments: four "[M001] / Title: / text" entries share an opening (the owner's Question 1: one moment,
+#               its four endings equally likely); the title is the owner's T001-T125 (owner-title-changes.md)
+#   draft_tim2  "[T126] Title", "Opening:", "Ending 1:" .. "Ending 4:" (the same moment shape)
+#   openq97     the armor moments "[M01] opening" / "Title:" / "Follow-up:" (one popup); the rest of the file is notes
+#   armor45, draft_arm2   "NN. Title — one or two sentences" (one popup; one line each, so consecutive lines)
+# Lines between events (headers, flavor blocks, the owner's notes) are notes rows.
+
+NEVER = r"^(?!)"           # a one-popup event's choice_re: no line is a choice
+for _sid, (_name, _n, _sec, _topic) in lib.DRAFTS_D.items():
+    CREDITS[_sec] = ("mixed", [(1, 2)], _sid)
+DRAFTS_D_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_D.items()}      # source id -> its one series (the section)
+
+
+def _d_end(h: int, stop: int) -> int:
+    e = stop - 1
+    while lib.is_blank_or_separator(e):
+        e -= 1
+    return e
+
+
+def _d_notes(sid: str, sec: str, topic: str, spans: list[tuple[int, int, str]]) -> None:
+    for i, (a, b, what) in enumerate(spans):
+        N(f"{sec}_notes{i + 1}", f"{topic}: {what}", a, b, sec, sec, source=sid)
+
+
+def moment_titles() -> dict[int, str]:
+    """The owner's titles T001-T125 for the 500 moments (Completed Open Questions, Question 2): {1: "The Leaf Lantern"}.
+    They are owner-title-changes.md rows; here they only name the ids."""
+    out = {}
+    with lib.use_source("openq97"):
+        for n in range(1, lib.n_lines()):
+            m = re.match(r"^\[T(\d{3})\] ", lib.line(n))
+            if m and lib.line(n + 1).startswith("Title: "):
+                out[int(m.group(1))] = lib.normalize_source_text(lib.line(n + 1))[len("Title: "):].strip()
+    assert sorted(out) == list(range(1, 126)), sorted(set(range(1, 126)) - set(out))
+    return out
+
+
+def _drafts_d_rows() -> None:
+    def heads_of(rx: str) -> list[int]:
+        return [n for n in range(1, lib.n_lines() + 1) if re.match(rx, lib.line(n))]
+
+    def event(sid, sec, eid, title, h, e, nc, one_line=False, slug_from=None):
+        R(f"{eid}_{companion_slug(slug_from or title, VV1_ID_MAX - len(eid) - 1)}", title, ALL, h, e, "event", sec, sec, nc,
+          series=sec, source=sid, choice_re=(r"^\s*[A-D]\.\s" if nc else NEVER), **({"one_line": True} if one_line
+                                                                                   else {}))
+
+    D = lib.DRAFTS_D
+    # Role Models RM-41..RM-90 and Beyond the Horizon 081-130
+    for sid, rx, prefix, notes_from in (("draft_rm2", r"^EVENT RM-(\d\d) — (.+)$", "rm", 760),
+                                        ("draft_hz2", r"^EVENT (\d{3}) — (.+)$", "hz", 618)):
+        _name, _n, sec, topic = D[sid]
+        with lib.use_source(sid):
+            heads = heads_of(rx)
+            _d_notes(sid, sec, topic, [(1, _d_end(1, heads[0]), "title, premise and rules"),
+                                       (notes_from, lib.n_lines(), "notes for the owner")])
+            for i, h in enumerate(heads):
+                e = _d_end(h, heads[i + 1] if i + 1 < len(heads) else notes_from)
+                num, t = re.match(rx, lib.line(h)).groups()
+                t = lib.normalize_source_text(t)
+                nc = sum(1 for n in range(h, e + 1) if re.match(r"^\s*[A-D]\.\s", lib.line(n)))
+                # the owner (2026-11-15): titles in title case, the last word capitalized ("The Last Canoe In")
+                event(sid, sec, f"{prefix}{num}", lib.title_case_label(title_case(t.strip())), h, e, nc)
+    # Fathers, Pregnancy and Parenthood
+    sid = "fathers30"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^EVENT \d\d: ")
+        _d_notes(sid, sec, topic, [(1, 9, "title, format, scope and casting"), (432, 432, "the additional events"),
+                                   (644, 645, "end of the collection")])
+        for i, h in enumerate(heads):
+            e = _d_end(h, heads[i + 1] - 1 if i + 1 < len(heads) else 643)
+            if e >= 432 > h:
+                e = _d_end(h, 431)
+            num, t = re.match(r"^EVENT (\d\d): (.+)$", lib.normalize_source_text(lib.line(h))).groups()
+            event(sid, sec, f"fat{num}", lib.title_case_label(t.strip()), h, e, 4)
+    # The 500 Tiny Island Moments (T001-T125)
+    sid = "moments500"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        ms = heads_of(r"^\[M\d{3}\]$")
+        assert len(ms) == 500
+        new = moment_titles()
+        _d_notes(sid, sec, topic, [(1, 7, "title and introduction")]
+                 + [(n, n, "a section heading") for n in heads_of(r"^SECTION \d\d — ")])
+        for g in range(125):
+            h = ms[4 * g]
+            title = lib.normalize_source_text(lib.line(h + 1))[len("Title: "):].strip()
+            event(sid, sec, f"tim{g + 1:03d}", title, h, ms[4 * g + 3] + 2, 0, slug_from=new[g + 1])
+    # Tiny Island Moments T126-T175
+    sid = "draft_tim2"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^\[T\d{3}\] ")
+        _d_notes(sid, sec, topic, [(1, 5, "title, premise and shape"), (359, lib.n_lines(), "notes for the owner")])
+        for h in heads:
+            num, t = re.match(r"^\[T(\d{3})\] (.+)$", lib.normalize_source_text(lib.line(h))).groups()
+            event(sid, sec, f"tim{num}", t.strip(), h, h + 5, 0)
+    # The armor moments M01-M35 (Completed Open Questions, Question 4)
+    sid = "openq97"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^\[M\d\d\] ")
+        assert len(heads) == 35
+        _d_notes(sid, sec, topic, [(1, heads[0] - 2, "the owner's answers to the open questions (Questions 1-4; "
+                                                     "Question 2's titles are owner-title-changes.md rows)")])
+        for h in heads:
+            num = re.match(r"^\[M(\d\d)\] ", lib.line(h)).group(1)
+            title = lib.normalize_source_text(lib.line(h + 1))[len("Title: "):].strip()
+            event(sid, sec, f"armm{num}", title, h, h + 2, 0)
+    # Armor, Weapons and Inherited Traditions 01-45, and ARM-46..ARM-95
+    for sid, notes in (("armor45", [(1, 7, "title, style rules and heading"),
+                                    (40, 40, "the Passing Things Down heading"),
+                                    (58, 96, "the Living Event Engine flavor text (mixer seeds: pending) and end")]),
+                       ("draft_arm2", [(1, 8, "title, premise, style rules and heading"),
+                                       (61, lib.SOURCES["draft_arm2"][2], "the Living Event Engine flavor text "
+                                                                          "(mixer seeds: pending) and notes for the "
+                                                                          "owner")])):
+        _name, _n, sec, topic = D[sid]
+        with lib.use_source(sid):
+            _d_notes(sid, sec, topic, notes)
+            for h in heads_of(r"^\d\d\. .+ — "):
+                num, t = re.match(r"^(\d\d)\. (.+?) — ", lib.line(h)).groups()
+                event(sid, sec, f"arm{num}", lib.normalize_source_text(t).strip(), h, h, 0, one_line=True)
+
+
+_drafts_d_rows()
+
+
+# ---- The owner's all-in-one Animals anthology, its newest volumes (collection_lib.ANTHOLOGY; its own line numbers) ----
+#
+# The owner's newest all-in-one file (2026-11-15) is the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE
+# (MOM-01..08) in front and new volumes after it.  Only those newest volumes are rows (the rest is the Living file's,
+# built from collection_lib.LIVING): a heading ("[REL-01] The First Shared Walk", "CHILD-01 — The Shell ...",
+# "EVENT-AGE-001 — The Tiny Gap"), an optional "ELIGIBILITY:" line (the casting), the setup ("SETUP:"), and choices
+# A-B (MOM) or A-D, each with two outcomes (A1, A2 ...).  Each volume is one series (the lead, 2026-11-15) and its
+# contract block is a notes row.  Files: data/event_collection/anthology/<section>/<id>.json, built by
+# scripts/anthology_new/gen_anthology.py; "uncovered" is checked inside the volumes.
+
+ANT = lib.ANTHOLOGY_ID
+# (section, heading regex (number, title), id prefix, choices, notes row title)
+ANTHOLOGY_VOLUMES = [
+    ("an_mom", r"^\[MOM-(\d+)\] (.+)$", "anmom", 2, "Global Editorial Override: the full emotional spectrum"),
+    ("an_rel", r"^\[REL-(\d+)\] (.+)$", "anrel", 4, "Love by Choice, Coming Out, Names and Presentation: contract"),
+    ("an_child", r"^CHILD-(\d+) — (.+)$", "anchd", 4, "Childhood Curiosity, Puppy Love and Questions: contract"),
+    ("an_fam", r"^\[FAM-(\d+)\] (.+)$", "anfam", 4, "Family Friction and Reconciliation: social-conflict override"),
+    ("an_joy", r"^JOY-(\d+) — (.+)$", "anjoy", 4, "Celebrations, Leisure, Remembrance and Body Art: global rules"),
+    ("an_hs", r"^EVENT-HS-(\d+) — (.+)$", "anhs", 4, "The Human Spectrum: controlling additions"),
+    ("an_age", r"^EVENT-AGE-(\d+) — (.+)$", "anage", 4, "Every Age in the Limelight: implementation notes"),
+    ("an_jus", r"^EVENT-JUSTICE-(\d+) — (.+)$", "anjus", 4, "Justice, Trauma, Recovery and Defense: contract"),
+    ("an_expr", r"^EVENT-EXPRESSION-(\d+) — (.+)$", "anexp", 4, "Self-Expression and Island Society: contract"),
+    ("an_fauna", r"^EVENT-FAUNA-(\d+) — (.+)$", "anfau", 4, "Animals of Fur, Feathers, Scales, Claws and Hooves: contract"),
+]
+for _sec, *_ in ANTHOLOGY_VOLUMES:
+    CREDITS[_sec] = ("mixed", [(1, 2)], ANT)
+ANTHOLOGY_SPANS: list[tuple[int, int]] = []
+
+
+def anthology_event_end(h: int, choices: int) -> int:
+    """An event's last line: heading, [ELIGIBILITY], setup, then three lines a choice."""
+    elig = lib.line(h + 1).startswith("ELIGIBILITY:")
+    return h + 1 + elig + 3 * choices
+
+
+def _anthology_rows() -> None:
+    with lib.use_source(ANT):
+        n_all = lib.n_lines()
+        for sec, rx_s, prefix, nc, notes_title in ANTHOLOGY_VOLUMES:
+            rx = re.compile(rx_s)
+            heads = [n for n in range(1, n_all + 1) if rx.match(lib.line(n))]
+            assert heads, sec
+            # the contract block: back from the first heading to the gap of two blank lines before it
+            b = heads[0] - 1
+            while not lib.line(b).strip():
+                b -= 1
+            a = b
+            while lib.line(a - 1).strip() or lib.line(a - 2).strip():
+                a -= 1
+            N(f"{sec}_notes", notes_title, a, b, sec, sec, source=ANT)
+            last = b
+            for h in heads:
+                e = anthology_event_end(h, nc)
+                assert not lib.line(e + 1).strip() or rx.match(lib.line(e + 1)), (sec, h)
+                m = rx.match(lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                eid = f"{prefix}{int(num):02d}"
+                R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  lib.title_case_label(src_title), ALL, h, e, "event", sec, sec, nc, series=sec, source=ANT,
+                  choice_re=r"^[A-D]\.\s")
+                last = e
+            ANTHOLOGY_SPANS.append((a, last))
+
+
+_anthology_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -951,6 +1273,8 @@ def boundary_problems(row: dict) -> list[str]:
         out.append(f"line {a} (first) is blank")
     if not lib.line(b).strip():
         out.append(f"line {b} (last) is blank")
+    if row.get("one_line"):
+        return out          # a source whose events are one line each, one after another (collection_lib.DRAFTS_D)
     if a > 1 and not lib.is_blank_or_separator(a - 1) and not lib.is_separator(lib.line(a)):
         out.append(f"line {a - 1} before the row is not blank")
     if b < lib.n_lines() and not lib.is_blank_or_separator(b + 1):
@@ -1199,6 +1523,7 @@ def build() -> dict:
             row = {"id": row["id"], "title": owner["new"], "source_title": row["title"], **rest}
         row.pop("choice_re", None)
         row.pop("extra_labels", None)
+        row.pop("one_line", None)
         row["credit"] = credit_text(r["credit"])
         row["source_check"] = checks
         rows.append(row)
@@ -1234,6 +1559,19 @@ def build() -> dict:
             "overlaps": overlaps(liv),
         }
 
+    ant = [r for r in rows if r["source"] == lib.ANTHOLOGY_ID]
+    with lib.use_source(lib.ANTHOLOGY_ID):
+        inside = {n for a, b in ANTHOLOGY_SPANS for n in range(a, b + 1)}
+        anthology = {
+            "source": str(lib.ANTHOLOGY.relative_to(lib.ROOT)).replace("\\", "/"),
+            "source_sha256": lib.source_sha256(lib.ANTHOLOGY_ID),
+            "volumes": [lib.fmt_src(a, b) for a, b in ANTHOLOGY_SPANS],
+            "counts": counts(ant, tuple(lib.ANTHOLOGY_SECTIONS)),
+            # only lines inside the volumes above: the rest of the file is the Living Event Engine file's
+            "uncovered_lines": [u for u in uncovered(ant) if lib.src_lines(u)[0] in inside],
+            "overlaps": overlaps(ant),
+        }
+
     def whole_file(source: str, path, series: tuple) -> dict:
         """A source whose every line belongs to a row (Beyond the Horizon, Role Models and Good Examples)."""
         mine = [r for r in rows if r["source"] == source]
@@ -1258,6 +1596,16 @@ def build() -> dict:
         # "horizon" / "rolemodels".
         "horizon": whole_file(lib.HORIZON_ID, lib.HORIZON, HORIZON_SERIES_NAMES),
         "rolemodels": whole_file(lib.ROLEMODELS_ID, lib.ROLEMODELS, ()),
+        # The owner-approved drafts, set A (collection_lib.DRAFTS_A): one block per file, one series each.
+        "drafts_a": {sid: whole_file(sid, lib.SOURCES[sid][0], (sid,)) for sid in lib.DRAFTS_A},
+        # The approved drafts, group B (collection_lib.DRAFTS_B): rows with "source" "draft_hum", ...
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_B_SERIES[sid],)) for sid in lib.DRAFTS_B},
+        # The approved drafts, group C (collection_lib.DRAFTS_C): rows with "source" "draft_hea", ...
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_C_SERIES[sid],)) for sid in lib.DRAFTS_C},
+        # The approved files, group D (collection_lib.DRAFTS_D): rows with "source" "draft_rm2", ...
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_D_SERIES[sid],)) for sid in lib.DRAFTS_D},
+        # The Animals anthology's newest volumes (collection_lib.ANTHOLOGY): rows with "source" "anthology"
+        "anthology": anthology,
         "rows": rows,
     }
 
@@ -1285,9 +1633,11 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels"):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology"):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
+    for key, s in data["drafts_a"].items():
+        print(f"{key}: {s['counts']['events']} events, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     return 0
 
 

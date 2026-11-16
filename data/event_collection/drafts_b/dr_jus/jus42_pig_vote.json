@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pig Vote",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus42_pig_vote",
+  "source": "draft_jus",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L506",
+    "kind": "sensitivity",
+    "before": "One elder hasn't voted.",
+    "after": "One elder, (elder), hasn't voted.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L506",
+    "kind": "sensitivity",
+    "before": "The elder thinks it over.",
+    "after": "(elder) thinks it over.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L506",
+    "kind": "sensitivity",
+    "before": "sniffs the elder's foot",
+    "after": "sniffs (elder)'s foot",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L506",
+    "kind": "sensitivity",
+    "before": "says the elder",
+    "after": "says (elder)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "The village votes tonight on whether wandering pigs must be tied up: count the hands, or find a middle way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Pigs have been wandering all over the village this season: into huts, into gardens, and once into the middle of a wedding. (subject) wants a rule that pigs are tied up. (friend) says pigs have always wandered and always will. The village is deciding at the fire tonight, by a show of hands.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Count the Hands",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Find a Middle Way",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Exactly half the hands go up for tying the pigs. Exactly half go up against. One elder, (elder), hasn't voted. Everyone turns to look. (elder) thinks it over. A pig wanders into the circle, sniffs (elder)'s foot, and lies down on it. \"...Tied up,\" says (elder). Half the village cheers. The other half grumbles, and ties up its pigs.",
+   "src": "L506"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) put their heads together and propose: pigs may wander by day, but are tied up at night and kept out of the gardens. It passes easily. Nobody is completely happy. The pigs don't seem to have noticed that anything has changed.",
+   "src": "L509"
+  }
+ }
+}

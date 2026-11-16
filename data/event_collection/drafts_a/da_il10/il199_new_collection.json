@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Collection",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il199_new_collection",
+  "source": "da_il10",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder has started collecting fallen feathers late in life: show a friend the collection, or keep it private.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At an age when most people are giving things away, (subject) has started collecting feathers. Just feathers that fall, found on the ground. (subject.He/She) doesn't know why. (subject.He/She) found a beautiful blue one last week, and then a stripy one, and now (subject.he/she) can't walk anywhere without looking down. (subject.He/She) already has thirty-one.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Show (friend) the Collection",
+     "next": "a",
+     "src": "L217"
+    },
+    {
+     "label": "Keep It to (subject.him/her)self",
+     "next": "b",
+     "src": "L220"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) is shown every single feather, with where it was found and what kind of bird (subject) thinks it came from. Some of the guesses are probably wrong. (friend) doesn't mind. \"I never knew you liked feathers,\" (friend.he/she) says. \"Neither did I,\" says (subject), happily. \"Isn't it wonderful? I'm finding out new things about myself at my age.\"",
+   "src": "L218"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) keeps the feathers in a basket by (subject.his/her) bed and doesn't tell anyone. Every evening (subject.he/she) takes them out and lays them in a row and looks at them. It's a small, silly, private joy. (subject.He/She) didn't expect to find a new one this late in life. (subject.He/She) is glad (subject.he/she) did.",
+   "src": "L221"
+  }
+ }
+}

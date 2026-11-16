@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Thinking About the Big Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf47_thinking_about",
+  "source": "draft_blf",
+  "lines": [
+   554,
+   563
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L554",
+  "ledger": [
+   {
+    "src": "L555",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult)"
+   }
+  ],
+  "description": "A young villager asks a very old one what happens after we die: answer honestly, or ask them first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are sitting on the beach at sunset when (friend) asks, \"What do you think happens after we die?\" (subject) is very old. (friend) suddenly worries it was a terrible question to ask. But (subject) doesn't seem bothered at all.",
+   "src": "L557",
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L557"
+    }
+   ],
+   "choices": [
+    {
+     "label": "(subject) Answers Honestly",
+     "next": "o1",
+     "src": "L559"
+    },
+    {
+     "label": "(subject) Asks (friend.him/her) First",
+     "next": "o2",
+     "src": "L562"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't know,\" says (subject). \"I've changed my mind about it a dozen times. Some days I think we go somewhere. Some days I think we just stop, like a song ending. Some days I think we become part of everything.\" (friend) is quiet. \"Which do you believe now?\" \"Today?\" says (subject). \"Today I think it's a lovely sunset.\" They watch it until it's gone.",
+   "src": "L560"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What do you think?\" asks (subject). (friend) is startled. \"I don't know.\" \"Good,\" says (subject). \"Nobody really does. Some people are sure, and that's alright for them. I've never managed to be.\" They talk about it until the stars come out. Neither of them decides anything. It's one of the best conversations (friend) has ever had.",
+   "src": "L563"
+  }
+ }
+}

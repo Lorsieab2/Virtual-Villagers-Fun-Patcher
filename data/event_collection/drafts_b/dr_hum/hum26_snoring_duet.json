@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Snoring Duet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum26_snoring_duet",
+  "source": "draft_hum",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders)"
+   },
+   {
+    "src": "L317",
+    "kind": "sensitivity",
+    "before": "a child explains",
+    "after": "(child), a child, explains",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two elders doze off and snore in turns like a tune: let the children make a song of it, or wake them with applause.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have both dozed off in the shade after lunch, side by side, and both have begun to snore. Not together: in turns. One low, one high. One in, one out. It is almost a tune. A little group of children has gathered, sitting cross-legged in the grass, listening, enchanted.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Let the Children Make a Song of It",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Wake Them with Applause",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The children start tapping along on their knees, and then adding words. By the time the elders wake, the children have made a whole song, and they perform it with great ceremony. The elders are deeply puzzled and very flattered. The song is called \"The Afternoon Song,\" and nobody ever tells them why.",
+   "src": "L314"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "At a particularly fine moment, the children burst into applause. Both elders wake with a start. \"What?\" \"What happened?\" \"You were singing,\" (child), a child, explains. The elders look at each other. Neither of them remembers singing. They decide, on balance, to accept the applause.",
+   "src": "L317"
+  }
+ }
+}

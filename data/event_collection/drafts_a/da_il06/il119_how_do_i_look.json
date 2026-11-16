@@ -1,0 +1,58 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How Do I Look to a Bird?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il119_how_do_i_look",
+  "source": "da_il06",
+  "lines": [
+   218,
+   221
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A seabird tips its head at a villager, and the villager wonders what they look like to a bird.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "A seabird has landed on a rock nearby and is looking at (name1), with its head tipped to one side. (name1) looks back. And suddenly (he/she) wonders: what does (he/she) look like to the bird? Enormous, probably. Slow. Without wings, which must seem a very odd way to live. Maybe the bird thinks (name1) is a strange kind of tree that walks about. Maybe the bird thinks (he/she) is interesting. Maybe it doesn't think about (him/her) at all, and is just wondering whether (he/she) has any fish. The bird tips its head the other way. (name1) tips (his/her) own too. They stay like that for a while, two very different creatures, both wondering. Then the bird flies off, and (name1) never finds out.",
+   "src": "L221"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L221",
+   "before": "(name1) tips (his/hers) too",
+   "after": "(name1) tips (his/her) own too"
+  }
+ ]
+}

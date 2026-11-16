@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lesson on the Move",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm61_lesson_move",
+  "source": "draft_rm2",
+  "lines": [
+   309,
+   322
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L309",
+  "ledger": [
+   {
+    "src": "L310",
+    "kind": "sensitivity",
+    "before": "A teacher",
+    "after": "(Name1), a teacher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A teacher notices that one child cannot sit still during counting lessons but remembers everything said while walking.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a teacher, notices that one child cannot sit still during counting lessons but remembers everything said while walking.",
+   "src": "L310",
+   "choices": [
+    {
+     "label": "Hold Counting Lessons While Walking.",
+     "next": "a",
+     "src": "L311"
+    },
+    {
+     "label": "Let the Child Stand or Pace at the Back.",
+     "next": "b",
+     "src": "L314"
+    },
+    {
+     "label": "Count Things Along the Path.",
+     "next": "c",
+     "src": "L317"
+    },
+    {
+     "label": "Ask the Child What Helps.",
+     "next": "d",
+     "src": "L320"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child learns quickly, and several others enjoy the change too.",
+   "src": "L312"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some children prefer sitting, so the teacher alternates days.",
+   "src": "L313"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child pays more attention, and nobody minds.",
+   "src": "L315"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The pacing distracts one other student, and they find a spot where both are comfortable.",
+   "src": "L316"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Counting shells, trees and birds makes the lesson lively for everyone.",
+   "src": "L318"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children get distracted by the shells themselves, and the lesson turns into collecting.",
+   "src": "L319"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child suggests tapping a rhythm, and it works surprisingly well.",
+   "src": "L321"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child is not sure, so they try several ideas over the following days.",
+   "src": "L322"
+  }
+ }
+}

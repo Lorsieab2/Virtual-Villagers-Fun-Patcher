@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il191_same_stars",
+  "source": "da_il10",
+  "lines": [
+   122,
+   125
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder who cannot sleep looks up at the stars, the same stars they watched as a child.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(name1) can't sleep, so (he/she) sits outside and looks up. The stars are out, all of them, thick as sand. And it strikes (him/her) that they're exactly the same stars (he/she) looked at as a child, lying on this same beach. Everything else has changed. The huts have been rebuilt a dozen times. The people (he/she) grew up with are old now, or gone. (His/Her) own face would surprise (his/her) younger self. But the stars are in just the same places, doing just the same slow turn across the sky. (name1) isn't sure whether that's a comfort or just a fact. (He/She) watches them until (he/she) gets sleepy, then goes back inside, leaving them to it.",
+   "src": "L125"
+  }
+ }
+}

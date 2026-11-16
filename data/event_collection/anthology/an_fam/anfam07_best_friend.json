@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Best Friend's New Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam07_best_friend",
+  "source": "anthology",
+  "lines": [
+   28390,
+   28403
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28390",
+  "ledger": [
+   {
+    "src": "L28391",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28391",
+    "kind": "sensitivity",
+    "before": "a close friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28393",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28393",
+    "kind": "sensitivity",
+    "before": "the villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28399",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28400",
+    "kind": "sensitivity",
+    "before": "The old friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28402",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager feels left out when a close friend spends time with someone new.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) feels left out when (friend) spends time with someone new.",
+   "src": "L28391",
+   "choices": [
+    {
+     "label": "Speak Openly About Feeling Left Out",
+     "next": "a",
+     "src": "L28392"
+    },
+    {
+     "label": "Invite Both Friends to a Shared Activity",
+     "next": "b",
+     "src": "L28395"
+    },
+    {
+     "label": "Make Space for Separate Friendships",
+     "next": "c",
+     "src": "L28398"
+    },
+    {
+     "label": "Take Time Before Discussing the Hurt",
+     "next": "d",
+     "src": "L28401"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(friend) reassures (villager) without abandoning the new friendship.",
+   "src": "L28393"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The conversation reveals that both had felt distant lately.",
+   "src": "L28394"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The three enjoy an unexpectedly funny afternoon.",
+   "src": "L28396"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The gathering feels awkward, and they decide not to force it.",
+   "src": "L28397"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers another friendship can be rewarding.",
+   "src": "L28399"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(friend) misses their usual time together and reaches out.",
+   "src": "L28400"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) returns ready for a calmer conversation.",
+   "src": "L28402"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The silence causes confusion until someone asks what happened.",
+   "src": "L28403"
+  }
+ }
+}

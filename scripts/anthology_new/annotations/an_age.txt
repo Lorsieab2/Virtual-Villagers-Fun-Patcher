@@ -1,0 +1,151 @@
+# EVENT-AGE-001..036: Every Age in the Limelight.  The ELIGIBILITY tag is the casting (children 3-13, teens 14-17,
+# adults 18+, elders 55+, nursing mothers the game's nursing parent, female, 18+).
+AGE-001
+R child 3-13 : child
+R adult 18+ @A1,B1 : adult
+
+AGE-002
+R child 3-13 @B1,B2 : shy child | maker
+R elder 55+ @C1 : grandparent
+R adult 18+ @D2 : adult
+
+AGE-003
+R child 3-13 @C1,D2 : child | disappointed child
+
+AGE-004
+R worker 18+ : nursery worker
+R child 3-13 @B1 : child
+
+AGE-005
+R child 3-13 @B1,B2 : child
+
+AGE-006
+R child 3-13 : child
+
+AGE-007
+R apprentice 14-17 : teenage apprentice | apprentice | teen
+R mentor 18+ : mentor
+R crafts 18+ @B1 : second craftsperson
+E S: "but their mentor dismisses" => "but their mentor, [mentor], dismisses"
+
+AGE-008
+R teen1 14-17 :
+R teen2 14-17 :
+R elder 55+ : elder
+E S: "Two teenagers want" => "[teen1] and [teen2], two teenagers, want"
+
+AGE-009
+R teen 14-17 : teenager | teen
+R friend 14-17 : close friend- | friend
+
+AGE-010
+R teen 14-17 @D2 : outspoken teen
+
+AGE-011
+R teen 14-17 : teenager | teen
+R elder 55+ @D1,D2 : elder
+
+AGE-012
+R teen 14-17 @B1,B2,D2 : quiet teen | first coordinator | disappointed organizer
+
+AGE-013
+R adult 18+ : craftsperson | worker
+E S: "An adult who quietly repairs baskets and tools feels" => "[adult], an adult who quietly repairs baskets and tools, feels"
+
+AGE-014
+R adult 18+ : capable adult | villager
+
+AGE-015
+R partner1 18+ :
+R partner2 18+ :
+E S: "Two adults who love each other have" => "[partner1] and [partner2], two adults who love each other, have"
+
+AGE-016
+R trader 18+ : trader
+
+AGE-017
+R adult 18+ : experienced adult | villager | worker
+
+AGE-018
+R villager 18+ @C1,C2 : night-oriented worker | parent
+
+AGE-019
+R mother 18+/f/nursing : nursing mother | mother
+R friend 14+ @C1 : friend
+
+AGE-020
+R mother 18+/f/nursing : nursing mother | mother | teacher
+R apprentice 14+ : apprentice
+
+AGE-021
+R mother 18+/f/nursing : nursing mother | mother
+R helper 18+ @B2,C1 : relative | caregiver
+
+AGE-022
+R mother 18+/f/nursing : nursing mother | mother
+R companion 14+ @C1,C2 : companion
+
+AGE-023
+R mother 18+/f/nursing : skilled nursing mother | mother
+R relative 18+ @C2 : relative
+R apprentice 14+ @D1 : apprentice
+
+AGE-024
+R mother 18+/f/nursing : nursing mother
+R caregiver 18+ @C1 : trusted caregiver
+
+AGE-025
+R elder 55+ : eccentric elder | elder
+R crafts 18+ @C2 : craftsperson
+
+AGE-026
+R elder 55+ : elder
+R child 3-13 @A2 : child
+R visitor stranger @B1 : visitor
+
+AGE-027
+R elder 55+ : elder
+R friend 14+ @C1 : friend
+
+AGE-028
+R elder 55+ : elder
+R villager 18+ @B2,C2,D2 : descendant | adult | younger villager
+
+AGE-029
+R elder 55+ : elder
+R teen 14-17 @A1,A2 : teen
+R child 3-13 @B2 : child
+
+AGE-030
+R elder 55+ : respected elder | elder
+R child 3-13 @C1 : child
+R adult 18+ @C2 : adult
+R young 14+ @D2 : younger villager
+
+AGE-031
+R child 3-13 : child
+R scholar 18+ @A1,A2 : scholar
+R villager 14+ @C2 : villager
+
+AGE-032
+R child 3-13 : child
+R teen 14-17 :
+R adult 18+ :
+R elder 55+ : elder
+E S: "A child, a teenager, an adult, and an elder all disagree" => "[child], [teen], [adult], and [elder] all disagree"
+
+AGE-033
+R child 3-13 @A2 : shy child
+R adult 18+ @C2 : adult
+R elder 55+ @D1 : elder
+
+AGE-034
+R elder 55+ @D1,D2 : elder
+
+AGE-035
+R teen 14-17 @B2 : teen
+R elder 55+ @D1 : elder
+
+AGE-036
+R teen 14-17 : teenager | teen
+R child 3-13 : small child | child

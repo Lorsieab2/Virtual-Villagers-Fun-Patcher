@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nap That Ate the Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day13_nap_ate",
+  "source": "draft_day",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager wakes from a nap to find the whole afternoon gone: ask what time it is, or pretend you meant to do that.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) lay down after lunch for \"just a short rest.\" (subject.He/she) has now woken up. The light is completely different. (subject.He/she) has no idea what time it is. (subject.He/she) has no idea what day it is. For a moment (subject.he/she) isn't entirely sure who (subject.he/she) is. There is a mark on (subject.his/her) cheek from the mat, and (friend) is standing in the doorway looking amused.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Ask What Time It Is",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Pretend You Meant to Do That",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What time is it?\" asks (subject), very hoarse. \"Almost dinner,\" says (friend). \"You missed everything.\" \"What did I miss?\" (friend) thinks. \"Nothing, actually.\" (subject) lies back down. It was, (subject.he/she) decides, the best nap of the year, and (subject.he/she) has no regrets.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I was resting my eyes,\" says (subject), with great dignity, mat pattern still on (subject.his/her) face. \"For the whole afternoon?\" \"They needed it.\" (friend) laughs. (subject) gets up and goes to dinner, still a bit dazed, and is wide awake until the middle of the night.",
+   "src": "L161"
+  }
+ }
+}

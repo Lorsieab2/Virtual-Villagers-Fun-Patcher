@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everyone's Favorite Food",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm46_everyone",
+  "source": "draft_drm",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager wants to learn everyone's favorite food, but one friend always says anything: keep watching, or ask directly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has set (subject.him/her)self a quiet goal: to learn every single villager's favorite food. Not for any reason. (subject.He/she) just likes knowing. (subject.He/she) has been asking around, very casually, and has nearly everyone. The only one (subject.he/she) can't work out is (friend), who always says, \"Oh, anything.\"",
+   "src": "L551",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L551"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Keep Watching",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Ask Directly",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) watches (friend) at meals for a week. (friend) eats everything. But every time there are roasted sweet roots, (friend.he/she) eats them last, slowly, as if saving the best. A few days later (subject) leaves a bowl of roasted sweet roots on (friend)'s doorstep. (friend) stands in the doorway staring at it for a long time.",
+   "src": "L554"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Really,\" says (subject). \"What's your favorite?\" (friend) thinks. And thinks. \"I don't think I have one,\" (friend.he/she) says, a little puzzled. (subject) is fascinated. They spend the evening tasting things to find out. By the end, (friend) is fairly sure it's grilled fish with lime, and very sure it's (subject)'s company.",
+   "src": "L557"
+  }
+ }
+}

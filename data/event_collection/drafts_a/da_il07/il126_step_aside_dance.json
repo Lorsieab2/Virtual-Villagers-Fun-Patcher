@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Step-Aside Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il126_step_aside_dance",
+  "source": "da_il07",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L77",
+    "kind": "casting",
+    "before": "A child who happens to be watching applauds",
+    "after": "(child), a child who happens to be watching, applauds",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "Two villagers meet on a narrow path and keep stepping the same way: stand still, or make it a dance.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) meet head on, on a very narrow path. (subject) steps left to let (friend) pass. (friend) steps right, to let (subject) pass. They're still blocking each other. They both step the other way. Still blocked. They both apologize. They both step again.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Stand Still and Let (friend) Go",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Turn It Into an Actual Dance",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) plants (subject.his/her) feet and stays completely still, like a tree. (friend) edges past. \"Thank you,\" (friend.he/she) says. \"Sorry,\" says (subject). \"No, sorry,\" says (friend). They both start laughing halfway through apologizing for apologizing. The rest of the day, every time they pass each other, they do a tiny step left and right, just for fun.",
+   "src": "L74"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "On the next step, (subject) adds a twirl. (friend), without missing a beat, twirls too. They do a little shuffle, a bow, and swap places. (child), a child who happens to be watching, applauds wildly. (subject) bows again. (friend) curtsies. Then they both go on their way, as though nothing happened at all.",
+   "src": "L77"
+  }
+ }
+}

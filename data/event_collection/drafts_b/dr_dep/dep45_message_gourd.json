@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Message in the Gourd",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep45_message_gourd",
+  "source": "draft_dep",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers find a washed-up gourd holding a message from unknown travelers: tell everyone, or keep it and wonder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A sealed gourd has washed up on the beach. Inside is a small piece of bark and a tiny carved canoe. The bark says, in an unfamiliar hand: \"We arrived safely. Please tell everyone.\" Tell everyone who? Arrived where? (subject) and (friend) are sitting on the sand turning it over and over.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Tell Everyone",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Keep It and Wonder",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They take it to the fire that night and read it out. \"We arrived safely. Please tell everyone.\" There's a pause. Then someone starts clapping, and everyone joins in, and somebody makes a toast to the travelers, whoever they are, wherever they are. It is, (subject) thinks, a very nice way to do what they asked.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) keeps the gourd on a shelf in (subject.his/her) hut. Every so often (subject.he/she) takes it down and wonders who sent it, and where they went, and whether anyone they meant it for ever heard. Probably not. But somebody did hear. (subject) did. That has to count for something.",
+   "src": "L545"
+  }
+ }
+}

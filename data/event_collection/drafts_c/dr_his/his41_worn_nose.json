@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worn Nose",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his41_worn_nose",
+  "source": "draft_his",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The lucky carved figure's nose is nearly rubbed away: suggest rubbing something else, or let the nose go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "By the meeting hut stands an old carved figure, and its nose is worn completely flat and shiny. For generations, people have rubbed it for luck on their way past. (subject) has just noticed that the figure's nose is now almost gone entirely, and that if people keep rubbing it, in a generation or two, it won't have one at all.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Suggest Rubbing Something Else",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Let the Nose Go",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) suggests, at the evening fire, that people rub the figure's foot instead. There is outrage. \"The NOSE is lucky!\" \"My grandmother rubbed the nose!\" The vote fails badly. The next morning, (subject) notices (friend) rubbing the foot, very quickly, when nobody else is looking. (friend) notices (subject.him/her) noticing. Neither of them says anything.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides it's not (subject.his/her) business. The figure has been giving its nose to the village for generations. Maybe that's what it's for. (subject.He/she) rubs it on the way past, like everyone else. \"Sorry,\" (subject.he/she) whispers to it. (friend), passing, hears (subject.him/her) and grins. Some days later, (friend) whispers \"Sorry\" too.",
+   "src": "L497"
+  }
+ }
+}

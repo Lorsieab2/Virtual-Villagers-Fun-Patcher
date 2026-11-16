@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Slower Than (he/she) Wanted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea37_slower_wanted",
+  "source": "draft_hea",
+  "lines": [
+   443,
+   452
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L443",
+  "ledger": [
+   {
+    "src": "L444",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A villager's slowly healing wrist has a bad day after three good ones: say it is getting worse, or push through it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Six weeks ago (subject) hurt (subject.his/her) wrist badly. It's getting better. Very slowly. Some days it's almost normal and (subject.he/she) can grip a paddle. Other days it aches so much (subject.he/she) can't hold a cup. Today is one of the bad days, after three good ones, and (subject) is furious about it.",
+   "src": "L446",
+   "choices": [
+    {
+     "label": "Tell (friend) It's Getting Worse",
+     "next": "o1",
+     "src": "L448"
+    },
+    {
+     "label": "Push Through It",
+     "next": "o2",
+     "src": "L451"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It's going backwards,\" says (subject). (friend) examines the wrist carefully. \"It isn't,\" (friend.he/she) says. \"It's having a bad day. Healing isn't a straight path. Some days go back a step. It doesn't mean you've lost the others.\" (subject) doesn't fully believe (friend.him/her). The next day the wrist is better again. (subject.He/she) starts to believe (friend.him/her) a bit more.",
+   "src": "L449"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to paddle anyway. Halfway across the lagoon (subject.he/she) has to stop and switch hands. When (subject.he/she) gets back, (subject.he/she) sits on the beach, cradling the wrist and feeling cross with (subject.him/her)self. (friend) sits down too. \"Bad day?\" \"Bad day.\" \"Then tomorrow can be a better one,\" says (friend). \"Or not. Either way, rest it tonight.\"",
+   "src": "L452"
+  }
+ }
+}
