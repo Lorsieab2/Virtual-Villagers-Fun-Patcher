@@ -1,5 +1,5 @@
-"""The island events' content controls (v1.35.97, the owner 2026-11-15): content notes, content filters and rest
-periods for the NEW island events (the Isola Grand Event Collection's sources and the Living Event Engine's variants).
+"""The island events' content controls (v1.35.97, the owner 2026-11-15): content notes and content filters for the
+NEW island events (the Isola Grand Event Collection's sources and the Living Event Engine's variants).
 The game's own events are never touched.
 
 THE TAGS.  Every node of a new event carries the content filters (F01-F28) its own words or effects touch.  They come
@@ -21,14 +21,6 @@ WHAT THE BUILD WRITES INTO EACH COMPILED EVENT (inject), so the game needs nothi
   * the content note (Content Notes for Island Events, island_event_content_notes): the first text the event shows
     gets a variant that starts with "Content note: <labels>" -- the labels of what the event may contain, never
     which outcome comes -- each label left out while the ticked filters drop all of its content;
-  * a "rest" effect (code 25) beside every serious outcome -- a death, a pregnancy loss, a disappearance, a serious
-    injury or a bereavement -- and, on each weighted child leading to one, the guard "harmable(role)": with Rest
-    Periods for Island Events on (the owner, 2026-11-15), the villager and their recorded immediate family rest a
-    random 30 to 60 real days (rolled once per rest), when the random draw at a natural island event gives them no serious outcome; after it, a
-    serious outcome for them goes ahead with a chance rolled in 30..50 percent each time, else it is dropped like a
-    filtered one (the guard), or -- a role whose serious outcome cannot be dropped ("serious_fixed") -- they are not
-    cast.  Pick Island Event and Custom Island Events always come, and a Custom Island Event never starts a rest
-    (story_rest.inc);
   * STORY TRAITS (the owner, 2026-11-15): "The Quiet Hands" (Inner Life 3, il003_*) gives the villager it casts the
     story trait "mute" (a "trait" effect, code 26, kept in the same per-villager file); every role whose words have
     them speak (a "speaks" role: speaking_roles) never takes a story-mute villager.
@@ -78,7 +70,6 @@ FILTERS: dict[str, str] = {
 }
 FILTER_IDS = tuple(FILTERS)
 NOTES_PATCH = "island_event_content_notes"
-REST_PATCH = "island_event_rest_periods"
 
 
 def filter_patch(fid: str) -> str:
@@ -99,11 +90,6 @@ NOTE_LABELS: dict[str, tuple[str, ...]] = {
 NOTE_PREFIX = "Content note: "
 MAX_REMOVABLE_LABELS = 4            # past this many, every label is always shown (no combinations)
 
-# The rest periods: (filter, days, the villager themselves too).  A death or a pregnancy loss rests the surviving
-# immediate family 60 days; a disappearance, a serious injury or a bereavement the villager and their family 30.
-REST_DAYS_LONG = 60                 # a rest is 30..60 real days, rolled in the game (story_rest.inc): its top
-REST_DAYS_SHORT = 60                # one rule for every serious kind (the owner, 2026-11-15)
-REST_EFFECT_CODE = 25
 
 # Effects and the filters they always carry.  A sex change and a change of faith are never filtered (a kind of person
 # is never hidden).
@@ -119,9 +105,6 @@ EFFECT_FILTERS: dict[str, tuple[str, ...]] = {
     "appearance": ("F27",),
     "damage": ("F21",),
 }
-# The effects that rest the family, and for how long.
-REST_EFFECTS = {"kill": REST_DAYS_LONG, "die_unrecovered": REST_DAYS_LONG, "baby_lost": REST_DAYS_LONG,
-                "birth_then_die": REST_DAYS_LONG, "vanish": REST_DAYS_SHORT}
 
 # The words that tag a node (case-insensitive; whole words).  A careful pass over the new events' text: each pattern
 # names the subject itself, never a kind of person.
@@ -498,22 +481,6 @@ def _note_variants(node: dict, labels: list[tuple[str, list[str]]]) -> list[dict
     return out + list(node.get("variants", []))
 
 
-def _rest_roles(g: dict, node: dict) -> list[str]:
-    """The villager roles a node's words name (a serious injury or a bereavement rests them and their family)."""
-    words = _node_words(g, node)
-    roles = g["roles"]
-    lower = {r.lower(): r for r in roles}
-    default = next(iter(roles), None)
-    out = []
-    for m in re.finditer(r"\(([^()\n]*)\)", words):
-        token = m.group(1)
-        head = token.split(".", 1)[0].lower() if "." in token else token.lower()
-        rid = lower.get(head, default if "." not in token else None)
-        if rid is not None and roles[rid].get("kind") in ("villager", "alias") and rid not in out:
-            out.append(rid)
-    return out
-
-
 def _with_extras(g: dict, extras: dict | None) -> dict:
     """`g` (a copy when anything changes) with its speaking roles marked and its traits' effects written: on the
     start, or (a question, whose own effects are never made) on each of its answers' first nodes."""
@@ -568,52 +535,5 @@ def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> t
         for nid in _first_text_nodes(g):
             node = g["nodes"][nid]
             node["variants"] = _note_variants(node, p["labels"])
-    # The rest periods: beside each serious outcome (before it, while the villager is still there to be read).
-    for nid, node in g["nodes"].items():
-        node_t = set(tags.get(nid, ()))
-        rests: list[dict] = []
-        have = set()
-        for e in node.get("effects", []):
-            days = REST_EFFECTS.get(e.get("do"))
-            if days and e.get("role") and (e["role"], days) not in have:
-                rests.append({"do": "rest", "role": e["role"], "days": days})
-                have.add((e["role"], days))
-        if node_t & {"F05", "F06"} and not rests:
-            for rid in _rest_roles(g, node):
-                rests.append({"do": "rest", "role": rid, "days": REST_DAYS_SHORT})
-        if rests:
-            node["effects"] = rests + list(node.get("effects", []))
     g["patches"] = patches
-    _rest_guards(g)
     return g, p
-
-
-def _rest_guards(g: dict) -> None:
-    """Each weighted child (of a node with two or more, no else of its own) whose own part of the graph holds a rest
-    effect for role r gets "harmable(r)": the companion drops it for a villager the random draw at a natural island event may not give a serious
-    outcome now.  A role with a rest effect that no guard can keep away is marked "serious_fixed": the random draw at a natural island event
-    casts nobody in it who may not have one.  Run again on the finished graph (idempotent)."""
-    roles_of = {nid: {e["role"] for e in n.get("effects", []) if e.get("do") == "rest"} for nid, n in g["nodes"].items()}
-    every = _reach(g)
-    guarded: dict[str, set] = {}
-    for nid in every:
-        node = g["nodes"][nid]
-        kids = node.get("children", [])
-        if len(kids) < 2:
-            continue
-        for i, c in enumerate(kids):
-            if c.get("else"):
-                continue
-            alone = every - _reach(g, frozenset({(nid, i)}))
-            rs = sorted({r for n in alone for r in roles_of.get(n, ())})
-            for r in rs:
-                cond = {"harmable": r}
-                if cond == c.get("if") or (c.get("if") and cond in c["if"].get("all", [])):
-                    continue
-                c["if"] = _all(c.get("if"), cond)
-            for r in rs:
-                guarded.setdefault(r, set()).add((nid, i))
-    for r in {r for rs in roles_of.values() for r in rs}:
-        reach = _reach(g, frozenset(guarded.get(r, set())))
-        if any(r in roles_of.get(n, ()) for n in reach) and g["roles"].get(r, {}).get("kind") == "villager":
-            g["roles"][r]["serious_fixed"] = True

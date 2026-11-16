@@ -171,13 +171,11 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_SEX_CHANGE = 22,
        /* cie-v6-binary.md 30 */
        CGE_DELIVER_EARLY = 24,
-       /* cie-v6-binary.md 31: a rest period (src/vv_event_content.py), never a change to anyone */
-       CGE_REST = 25,
+       /* 25: reserved (a rest period once; the owner took the rest periods out, 2026-11-15) */
        /* cie-v6-binary.md 32: a story trait kept for the villager (The Quiet Hands: mute), never a change */
        CGE_TRAIT = 26 };
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
-#define CG_ROLE_SERIOUS_FIXED 0x40u   /* 31: ... bit 6: a serious outcome of the role no guard can keep away */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -910,7 +908,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
             if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > 3u || !cg_str_ok(g, cg_u16(r + 10), 1)
-                || (r[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_SERIOUS_FIXED)) > 1u || r[12] > 100u) {
+                || (r[13] & ~CG_ROLE_SPEAKS) > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
             if (r[0] == CG_ROLE_OTHER) {
@@ -1033,10 +1031,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST || e[0] == CGE_TRAIT;
+                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
-                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST
-                                         || e[0] == CGE_TRAIT));
+                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1079,7 +1076,6 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 /* 30: the newborn's extra health loss, a range -99..-1, or none (0, 0). */
                 ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
                 break;
-            case CGE_REST: ok = a >= 1 && a <= 3650 && b == 0 && str == CG_NONE; break;   /* 31: days */
             case CGE_TRAIT: ok = a == (int)CG_TRAIT_MUTE && b == 0 && str == CG_NONE; break;  /* 32: a trait */
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
@@ -1454,12 +1450,15 @@ static int cg_heathen(int game, const unsigned char *r) {
    The Lost Children's Esteemed Elder totem statues (never listed, c2_listed), The Secret City's stand-in records
    (+0xE94, not villagers), The Tree of Life's bodies and ghosts and New Believers' Reanimate in progress (never
    listed as living), the dead and the absent, the Golden Child in a sex change ("breaks things"), and New Believers'
-   Heathens in a believers-only role (they are not the tribe's).  Defined below (it reads the installed list). */
+   Heathens in a believers-only role (they are not the tribe's).  Defined below (it reads the installed list).
+   ONLY FOR THE NATURAL DRAW'S EVENTS (the owner, 2026-11-15): Pick Island Event and Custom Island Events are
+   independent of every new-event rule, No Safeguards on or off -- cg_ns_cast asks the cast's origin. */
 static int cg_no_safeguards(int game);
+static int cg_ns_cast(int game);
 
 static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
     int kind = ce_role(a, r, NULL);
-    if (cg_no_safeguards(game)) {
+    if (cg_ns_cast(game)) {
         return 0;                      /* No Safeguards: no special villager is kept out */
     }
     switch (game) {
@@ -1477,7 +1476,7 @@ static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
    "expecting" field, one state with carrying), a special villager (cg_special); A New Home's and The Lost
    Children's listed() already leave out what is not a villager (The Lost Children's totems). */
 static int cg_protected(const ce_adapter *a, int game, const unsigned char *r) {
-    if (cg_no_safeguards(game)) {
+    if (cg_ns_cast(game)) {
         return 0;                      /* No Safeguards: nobody living is protected */
     }
     return *(const int *)(r + a->off_pregnant) != 0 || cg_special(a, game, r);
@@ -1491,7 +1490,7 @@ static int cg_never_harmed(int game, const unsigned char *r) {
     if (game == 3) {
         return r[0xE94] != 0;
     }
-    if (game == 5 && !cg_no_safeguards(game)) {
+    if (game == 5 && !cg_ns_cast(game)) {
         int role = *(const int *)(r + 0x1CFC);
         return role >= 12 && role <= 17;
     }
@@ -1559,41 +1558,15 @@ static int cg_casting_origin(void) {
     return cg.phase == CG_IDLE || cg.phase == CG_DONE ? cg_origin_now_get() : cg.origin;
 }
 
-/* story_rest.inc: the rest periods of the island events' content controls. */
-static int rs_allowed(int game, const unsigned char *record, unsigned int nonce);
-static unsigned int cg_cast_nonce;    /* a new roll for each cast (cg_refusal): story_rest.inc's chance */
-static void rs_rest_role(const ce_adapter *a, int game, int index, int days);
+/* No Safeguards for the cast being made: installed, and the cast is the natural draw's (never Pick Island Event's
+   or a Custom Island Event's). */
+static int cg_ns_cast(int game) {
+    return cg_casting_origin() == CG_ORIGIN_NATURAL && cg_no_safeguards(game);
+}
+
+/* story_traits.inc: the new island events' story traits. */
 static void rs_set_trait(int game, int index, unsigned int trait);
 static int rs_has_trait(int game, const unsigned char *record, unsigned int trait);
-
-/* The roles a rest effect names (31): the roles a serious outcome can reach.  An alias names its members. */
-static unsigned int cg_serious_roles(void) {
-    static unsigned int crc_seen, mask_seen;
-    static const unsigned char *d_seen;
-    unsigned int mask = 0, crc;
-    int i;
-    if (cg_g.d == NULL || cg_g.version < 6) {
-        return 0;
-    }
-    crc = cg_u32(cg_g.d + 12);
-    if (cg_g.d == d_seen && crc == crc_seen) {
-        return mask_seen;
-    }
-    for (i = 0; i < cg_g.n_effect; ++i) {
-        const unsigned char *e = cg_effect_at(&cg_g, i);
-        if (e[0] == CGE_REST && e[1] < (unsigned int)cg_g.n_role) {
-            const unsigned char *r = cg_role_at(&cg_g, e[1]);
-            mask |= 1u << e[1];
-            if (r[0] >= CG_ROLE_ALIAS) {
-                mask |= cg_u16(r + 14);
-            }
-        }
-    }
-    d_seen = cg_g.d;
-    crc_seen = crc;
-    mask_seen = mask;
-    return mask;
-}
 
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
@@ -1606,7 +1579,7 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
         return 0;                      /* The Secret City's stand-in record */
     }
     /* Safety: never dropped. */
-    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0 && !cg_no_safeguards(game)) {
+    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0 && !cg_ns_cast(game)) {
         return 0;
     }
     if ((spec[1] & CG_ROLE_SPECIAL) && cg_special(a, game, r)) {
@@ -1626,13 +1599,6 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
         return 0;                      /* never harmed, even with protected "allow" */
-    }
-    if ((cg_serious_roles() >> role) & 1u && cg_casting_origin() == CG_ORIGIN_NATURAL
-        && !rs_allowed(game, r, (spec[13] & CG_ROLE_SERIOUS_FIXED) ? cg_cast_nonce : 0u)) {
-        /* Rest Periods for Island Events: resting after a serious new-event outcome -- or, after the rest, the
-           chance failed for a role whose serious outcome cannot be dropped.  Only the rare roll waits; Pick Island
-           Event and a Custom Island Event always come (the owner, 2026-11-15). */
-        return 0;
     }
     if (cg_g.version >= 6 && (spec[13] & CG_ROLE_SPEAKS) && rs_has_trait(game, r, CG_TRAIT_MUTE)) {
         return 0;                      /* a story-mute villager never takes a role whose words have them speak */
@@ -2571,7 +2537,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_SERIOUS_FIXED)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_SPEAKS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -2690,10 +2656,6 @@ static int cg_harmable(int r, int game) {
         return 0;
     }
     record = cg_villager(a, r);
-    if (record != NULL && cg.origin == CG_ORIGIN_NATURAL && ((cg_serious_roles() >> r) & 1u)
-        && !rs_allowed(game, record, 1u | (unsigned int)cg.when ^ (unsigned int)(cg.when >> 32))) {
-        return 0;                      /* Rest Periods: the serious outcome is dropped for them (story_rest.inc) */
-    }
     return record != NULL && !cg_protected(a, game, record) && !cg_never_harmed(game, record);
 }
 
@@ -4669,16 +4631,8 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     case CGE_DAMAGE:
         cg_damage(a, game, e, va);
         return;
-    case CGE_REST:
-        /* 31: the villager (and their immediate family) rest from serious new-event outcomes (story_rest.inc). */
-        role = cg_resolve_role(e[1]);
-        if (cg.origin != CG_ORIGIN_PURCHASE && role >= 0 && cg_villager(a, role) != NULL) {
-            /* A Custom Island Event (bought through the library) never starts a rest (the owner, 2026-11-15). */
-            rs_rest_role(a, game, cg.record[role], (int)cg_u32(e + 4));
-        }
-        return;
     case CGE_TRAIT:
-        /* 32: the villager keeps the story trait (story_rest.inc's file follows them), whatever is ticked. */
+        /* 32: the villager keeps the story trait (story_traits.inc's file follows them), whatever is ticked. */
         role = cg_resolve_role(e[1]);
         if (role >= 0 && cg_villager(a, role) != NULL) {
             rs_set_trait(game, cg.record[role], cg_u32(e + 4));
@@ -6283,11 +6237,6 @@ static int cg_no_safeguards(int game) {
     return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
 }
 
-/* No Safeguards (for "VVFP More Island Events.dll", which has its own pickers and gates). */
-__declspec(dllexport) int __stdcall VvfpStoryNoSafeguards(int game) {
-    return game >= 1 && game <= 5 && cg_no_safeguards(game);
-}
-
 /* Whether the patches named by the event are on: the installed patches' list when the patcher wrote one; without
    it (a game patched by an older patcher) only Guardians of Isola's rewrite (New Believers), seen in the game's own
    text as the Faith popup sees it -- which is also asked with the list, as before. */
@@ -6377,7 +6326,7 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         for (k = 0; k < all[1] && holds; ++k) {
             int c = (int)cg_u16(all + 2) + k;
             if (cg_cond_at(&cg_g, c)[0] != CGC_PUZZLE
-                && !(cg_cond_at(&cg_g, c)[0] == CGC_MIN_POPULATION && cg_no_safeguards(game))) {
+                && !(cg_cond_at(&cg_g, c)[0] == CGC_MIN_POPULATION && cg_ns_cast(game))) {
                 holds = cg_holds_cond(c, game, 0);
             }
         }
@@ -6385,7 +6334,7 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         cg.patches = keep_patches;
         cg.aliases_drawn = keep_drawn;
     }
-    if (holds && cg_g.min_eligible > 0 && !cg_no_safeguards(game)) {
+    if (holds && cg_g.min_eligible > 0 && !cg_ns_cast(game)) {
         holds = cg_eligible_count(a, game, needed) >= cg_g.min_eligible;
     }
     return holds;
@@ -6620,8 +6569,6 @@ static const char *cg_too_few_roles(unsigned int needed) {
 
 /* Why the loaded event cannot be queued in `game` now, or NULL; `planned` the roles it will bind. */
 static const char *cg_refusal(int game, unsigned int *planned) {
-    ++cg_cast_nonce;
-    cg_cast_nonce = 1u | ((GetTickCount() * 2654435761u) ^ cg_cast_nonce);   /* this cast's roll (story_rest.inc) */
     static char reason[400];
     const ce_adapter *a = ce_adapter_for(game);
     unsigned char used[CE_MAX_RECORDS];

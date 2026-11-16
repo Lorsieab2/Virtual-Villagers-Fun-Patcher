@@ -1,15 +1,14 @@
-"""The island events' content controls (v1.35.97, the owner 2026-11-15): content notes, content filters and rest
-periods for the new events (src/vv_event_content.py writes them into each compiled event; Story / Cheat Upgrades
+"""The island events' content controls (v1.35.97, the owner 2026-11-15): content notes, content filters and story
+traits for the new events (src/vv_event_content.py writes them into each compiled event; Story / Cheat Upgrades
 reads the ticked rows from the installed patches' list).
 
 Proves, in Python: the tagging (effects and words; a sex change and a change of faith are never tagged), the dropped
-outcomes and the skip, the note's labels and its variants, the rest effects beside every serious outcome, the
+outcomes and the skip, the note's labels and its variants, the
 compiled .cieg holding them (code 25), the tag tables covering every event of every source, the rows' defaults
-(notes and rest periods on in Owner's Defaults only, the filters off everywhere) and the Island Events section's
+(the notes on in Owner's Defaults only; the filters and No Safeguards off everywhere) and the Island Events section's
 rows and advisories.  In the emulator, with the test build of "VVFP Story Upgrades.dll": the compiled events load
 (up to 32 patch names), a ticked filter drops its outcome and skips an event that cannot do without it, the note
-starts the first page and leaves out a filtered subject, and a rest effect rests the villager and their family for
-the right number of days and keeps them out of a serious role while it lasts.
+starts the first page and leaves out a filtered subject.
 """
 from __future__ import annotations
 
@@ -80,8 +79,8 @@ class Injection(unittest.TestCase):
         out, plan = content.inject(g, content.tag_graph(g))
         dies = next(c for c in out["nodes"]["b"]["children"] if c["next"] == "dies")
         safe = next(c for c in out["nodes"]["b"]["children"] if c["next"] == "safe")
-        self.assertEqual(dies["if"]["all"][0], {"not": {"any": [{"patch": "island_event_filter_f03"},
-                                                                {"patch": "island_event_filter_f05"}]}})
+        self.assertEqual(dies["if"], {"not": {"any": [{"patch": "island_event_filter_f03"},
+                                                      {"patch": "island_event_filter_f05"}]}})
         self.assertIsNone(safe["if"])
         self.assertNotIn("if", out["requirement"], "never skipped: the safe ending is left")
         self.assertIn("island_event_filter_f03", out["patches"])
@@ -101,27 +100,6 @@ class Injection(unittest.TestCase):
         self.assertEqual(v[0]["text"], "Content note: Bereavement\n(Name) walks along the shore at dawn.")
         self.assertEqual(v[0]["if"]["all"][0], {"patch": "island_event_content_notes"})
         self.assertEqual(out["nodes"]["s"]["text"], "(Name) walks along the shore at dawn.", "no note when off")
-
-    def test_rest_effects_and_guards_stand_before_every_serious_outcome(self):
-        g = graph(TWO_ENDINGS)
-        out, _plan = content.inject(g, content.tag_graph(g))
-        self.assertEqual(out["nodes"]["dies"]["effects"][0], {"do": "rest", "role": "subject", "days": 60})
-        g = graph({"s": {"text": "(Name) is badly injured in the fall.", "children": []}})
-        out, _plan = content.inject(g, content.tag_graph(g))
-        self.assertEqual(out["nodes"]["s"]["effects"][0], {"do": "rest", "role": "subject", "days": 60})
-        self.assertTrue(out["roles"]["subject"].get("serious_fixed"), "the injury cannot be dropped")
-        g = graph(TWO_ENDINGS)
-        out, _plan = content.inject(g, content.tag_graph(g))
-        dies = next(c for c in out["nodes"]["b"]["children"] if c["next"] == "dies")
-        self.assertIn({"harmable": "subject"}, dies["if"]["all"])
-        self.assertFalse(out["roles"]["subject"].get("serious_fixed"), "the death can be dropped")
-
-    def test_the_compiled_event_holds_the_rest_effect(self):
-        g = graph(TWO_ENDINGS)
-        out, _plan = content.inject(g, content.tag_graph(g))
-        back = cg.decompile_graph(cg.compile_graph(out))
-        self.assertEqual(back["nodes"]["dies"]["effects"][0]["do"], "rest")
-        self.assertEqual(back["nodes"]["dies"]["effects"][0]["days"], 60)
 
     def test_an_untagged_event_is_unchanged(self):
         g = graph({"s": {"text": "(Name) bakes bread."}})
@@ -154,7 +132,7 @@ class Rows(unittest.TestCase):
     def test_defaults(self):
         import vv_fun_patcher_gui as gui
         for game in range(1, 6):
-            for ident in ("island_event_content_notes", "island_event_rest_periods"):
+            for ident in ("island_event_content_notes",):
                 pid = f"vv{game}_{ident}"
                 self.assertFalse(gui.default_fun_patch_selection(pid))
                 self.assertTrue(gui.owners_default_fun_patch_selection(pid))
@@ -170,7 +148,7 @@ class Rows(unittest.TestCase):
         ids = {p.id for p in fp.load_fun_patches()}
         for game in range(1, 6):
             self.assertIn(f"vv{game}_{content.NOTES_PATCH}", ids)
-            self.assertIn(f"vv{game}_{content.REST_PATCH}", ids)
+            self.assertIn(f"vv{game}_island_events_any_time", ids)
             for f in content.FILTER_IDS:
                 self.assertIn(f"vv{game}_{content.filter_patch(f)}", ids)
 
@@ -193,6 +171,8 @@ class Rows(unittest.TestCase):
                          "a small or new village.")
         self.assertTrue(gui.island_event_advisory("vv5_story_cheat_upgrades")[0].startswith(
             "Player-created events may contain sensitive subjects."))
+        self.assertIn("Warning: Pick Island Event and Custom Island Events ignore the island event safeguards",
+                      gui.island_event_advisory("vv5_story_cheat_upgrades")[0])
 
 
 try:
@@ -257,69 +237,6 @@ if rt is not None:
                     why = run.queue(data)
                     self.assertIsNotNone(why)
                     self.assertIn("content filters", why)
-
-        def test_a_rest_effect_rests_the_villager_for_real_days(self):
-            g = graph(TWO_ENDINGS)
-            out, _plan = content.inject(g, content.tag_graph(g))
-            data = cg.compile_graph(out)
-            buf = rt.SCRATCH + 0xC00
-            for game in GAMES:
-                if not have_stock(game):
-                    continue
-                with self.subTest(game=game):
-                    run = rt.Run(game)
-                    run.rolls([1] + [0] * 40)
-                    run.force(["dies"], graph=out)
-                    run.p.export("VvfpStoryProbeRest", 1, run.n, 0, buf)
-                    self.assertTrue(_natural(run, data, 2), "the rare roll's origin")
-                    run.play()
-                    # Bea died; nobody of hers is recorded in this village, so only her own record was kept.
-                    run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf)
-                    until, now = struct.unpack("<2I", run.p.read(buf, 8))
-                    self.assertIn((until - now) // 86400, range(30, 61), "30 to 60 real days")
-                    self.assertEqual((until - now) % 86400, 0)
-                    run.p.export("VvfpStoryProbeRest", -1, run.n, 0, 0)
-
-        def test_a_resting_villager_waits_only_for_the_rare_roll(self):
-            hurt = graph({"s": {"text": "(Name) is badly injured in the fall.", "children": []}})
-            hurt, _plan = content.inject(hurt, content.tag_graph(hurt))
-            walk = graph(TWO_ENDINGS)
-            walk, _plan = content.inject(walk, content.tag_graph(walk))
-            buf = rt.SCRATCH + 0xC00
-            for game in GAMES:
-                if not have_stock(game):
-                    continue
-                with self.subTest(game=game):
-                    run = rt.Run(game)
-                    run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf)
-                    # A Custom Island Event (bought) never starts a rest.
-                    run.rolls([1] + [0] * 40)
-                    run.force([], graph=hurt)
-                    self.assertIsNone(run.queue(cg.compile_graph(hurt)))
-                    run.play()
-                    self.assertEqual(run.state()["records"][0], 1, "Bea was hurt")
-                    self.assertEqual(run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf), 0, "bought: no rest")
-                    # Pick Island Event starts one: 30 real days after a serious injury.
-                    run.rolls([1] + [0] * 40)
-                    self.assertTrue(_natural(run, cg.compile_graph(hurt), 1))
-                    run.play()
-                    self.assertEqual(run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf), 1)
-                    until, now = struct.unpack("<2I", run.p.read(buf, 8))
-                    self.assertIn((until - now) // 86400, range(30, 61))
-                    # The rare roll gives her no serious outcome while she rests: the death is dropped...
-                    told = len(run.told())
-                    run.rolls([1] + [0] * 40)
-                    run.force(["dies"], graph=walk)
-                    self.assertTrue(_natural(run, cg.compile_graph(walk), 2))
-                    self.assertEqual(run.state()["records"][0], 1, "the walk may still be about her")
-                    run.play()
-                    self.assertEqual(len(run.told()), told, "her death is dropped while she rests")
-                    # ...Pick Island Event and a Custom Island Event still may.
-                    run.rolls([1] + [0] * 40)
-                    self.assertTrue(_natural(run, cg.compile_graph(walk), 1))
-                    self.assertEqual(run.state()["records"][0], 1, "Pick Island Event overrides the rest")
-                    run.play()
-                    run.p.export("VvfpStoryProbeRest", -1, run.n, 0, 0)
 
 
 if rt is not None:

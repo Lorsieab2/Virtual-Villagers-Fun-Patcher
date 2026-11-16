@@ -903,7 +903,7 @@ parent lives. `birth_then_die` (section 23) always kills the parent, so this is 
   25), as `birth_then_die`.
 - Not offered in the Custom Island Event library's Add menu (a collection effect for now; an owner question).
 
-## 31. The content controls (the owner, 2026-11-15): a rest period (`rest`, code 25) and up to 32 patch names
+## 31. The content controls (the owner, 2026-11-15): up to 32 patch names; code 25 reserved
 
 `src/vv_event_content.py` writes the island events' content controls into every NEW event as it is compiled (the
 collection's builder and the Living Event Engine's mixer); the event files are never changed, each source's tags are
@@ -920,16 +920,7 @@ in `data/event_collection/content_tags/<source>.json`.
   event content filters"), never by the requirement's other parts.
 - **The content note:** the first text node(s) get variants "Content note: <labels>\n<text>", each with the
   condition `island_event_content_notes` and which labels the ticked filters leave.
-- **`{"do": "rest", "role": r, "days": n}`** (n 1..3650; b 0; no string): made at its place like every effect, before
-  the serious outcome it stands beside, it keeps the villager and their recorded immediate family (spouse, parents,
-  children, siblings) resting a random 30 to `n` (60) REAL days, rolled once (a UTC date; the games' clock is real
-  time anyway), when Rest Periods for Island Events is installed (`story_rest.inc`, its own per-save file following
-  each villager). The build also writes the guard `harmable(r)` on each weighted child leading to it, and marks a
-  role whose serious outcome no guard can keep away with byte 13 bit 6 (`0x40`, "serious_fixed"). For the rare
-  roll's runs only: while a villager rests, or after the rest when the chance (rolled in 30..50 percent each time)
-  fails, `cg_harmable` drops the guarded outcome for them, and a serious_fixed role does not take them. Pick Island
-  Event and a Custom Island Event always come (the owner, 2026-11-15), and a Custom Island Event's rest effects are
-  never made (it never starts a rest). Never a change, never a line, never logged.
+- **Code 25 is reserved:** it was a rest period (`rest`); the owner took the rest periods out (2026-11-15), so nothing writes it and the engine refuses a file that holds it.
 
 ## 32. Story traits (`trait`, code 26) and speaking roles (the owner, 2026-11-15)
 

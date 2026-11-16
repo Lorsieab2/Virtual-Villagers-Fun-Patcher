@@ -80,7 +80,7 @@ which runs the roll and Pick Island Event.
 ## The content controls (v1.35.97, the owner 2026-11-15)
 
 Each game's patcher page has an **Island Events** section: More Island Events, the Isola Grand Event Collection (with
-the owner's red content advisories), **Content Notes for Island Events** and **Rest Periods for Island Events** (on in
+the owner's red content advisories), **Content Notes for Island Events** (on in
 Owner's Defaults, off elsewhere) and the 28 **content filters** (off everywhere). They are names in "VVFP Installed
 Patches.txt" only; the collection's compiled events carry what each does (cie-v6-binary.md 31), and More Island
 Events' events are kept out whole by `SC_MORE_FILTERS` (story_collection.inc). The game's own events never change.

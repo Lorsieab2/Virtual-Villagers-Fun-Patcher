@@ -15,7 +15,7 @@
    with the babies being carried, as the game's own rescue rule counts its population; New Believers' believers only);
    every other new event at any population, when its own requirements hold.  No Safeguards for Island Events (and Additional Events too)
    (island_events_any_time, "for masochists") lifts the gate, the opening-event and rescue rules, the trouble guard and
-   the rest periods; only the villagers each event needs remain.  Pick Island Event and Custom Island
+   the protected villagers (story_graph.inc cg_ns_cast); only the villagers each event needs remain.  Pick Island Event and Custom Island
    Events (player-chosen) ignore the gate and the chance.  The draw's weights are unchanged.
 
    WHEN.  Every frame (VvfpStoryInstall) the game's clock and its island timer (the second its next island event is
@@ -503,10 +503,19 @@ static int sc_gate;
 
 /* No Safeguards for Island Events (and Additional Events too) (island_events_any_time in the installed patches' list; the owner, 2026-11-15, "for
    masochists"): for the new events no 61-villager gate, rescue events and the two opening events may be replaced, no
-   trouble guard and no rest periods (story_rest.inc rs_on) -- only the villagers each event needs.  The game's own
+   trouble guard -- only the villagers each event needs.  The game's own
    events' conditions are another companion's. */
 static int sc_any_time(int game) {
     return cg_no_safeguards(game);
+}
+
+static int sc_drawing;                 /* the natural draw is running (More Island Events' possible checks) */
+
+/* No Safeguards for "VVFP More Island Events.dll" (its own pickers and gates): installed, and its event is the
+   natural draw's -- while that draw runs, or armed by it (pick_natural) -- never Pick Island Event's. */
+__declspec(dllexport) int __stdcall VvfpStoryNoSafeguards(int game) {
+    return game >= 1 && game <= 5 && cg_no_safeguards(game)
+           && (sc_drawing || (pick_slot >= 0 && pick_game == game && pick_natural));
 }
 
 /* Whether the compiled event `data` can kill a villager, make one disappear or lose a pregnancy. */
@@ -662,10 +671,12 @@ static void sc_apply(int game, int act) {
         sc_replace_natural = sc.decided_for;
         /* Below 61 villagers no deadly event is in the draw -- unless No Safeguards for Island Events (and Additional Events too) is installed. */
         sc_gate = !sc_any_time(game) && sc_population(game) < SC_MIN_POPULATION;
+        sc_drawing = 1;
         if (!sc_choose_and_arm(game)) {
             sc_replace_pending = 0;    /* nothing that can happen now: the game's own event comes */
         }
         sc_gate = 0;                   /* Pick Island Event and the library never see the gate */
+        sc_drawing = 0;
     }
 }
 

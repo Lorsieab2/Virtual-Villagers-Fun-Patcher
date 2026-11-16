@@ -1,7 +1,6 @@
 """Write the island events' content controls (v1.35.97, the owner 2026-11-15), one set of rows per game:
 
   * vvN_island_event_content_notes  -- Content Notes for Island Events (on in Owner's Defaults, off elsewhere);
-  * vvN_island_event_rest_periods   -- Rest Periods for Island Events (on in Owner's Defaults, off elsewhere);
   * vvN_island_event_filter_fNN     -- the 28 content filters F01-F28 (off everywhere, Owner's Defaults too).
 
 No executable byte and no file of their own: each row is a name in "VVFP Installed Patches.txt" (the patcher writes
@@ -69,26 +68,6 @@ def notes_row(game: int) -> dict:
                 "<labels>\" (a variant of that text compiled into the event, shown while this row is installed)."])
 
 
-def rest_row(game: int) -> dict:
-    return row(game, content.REST_PATCH, "Rest Periods for Island Events",
-               "After a new island event brings a death, a pregnancy loss, a disappearance, a serious injury or a "
-               "bereavement, that villager and their recorded immediate family (spouse, parents, children, brothers "
-               "and sisters) rest for a random 30 to 60 real days: no serious outcome of a new event comes to them "
-               "in that time. After the rest, a serious outcome for them goes ahead only 30 to 50 percent of the "
-               "time (rolled each time); otherwise it is left out like a filtered one (the event's other outcomes "
-               "keep their shares, or the event goes to someone else or is skipped). They still take part in every "
-               "other event. Only the random draw at a natural island event waits: an event chosen with Pick Island Event or a Custom "
-               "Island Event always comes, and a Custom Island Event never starts a rest. The dates are kept in the "
-               "patcher's own file beside the save (never in the save itself) and follow each villager. New events "
-               "only. "
-               f"Off by default; Owner's Defaults ticks it. {UNVERIFIED}",
-               ["A rest effect beside each serious outcome of a new event keeps \"rested until\" (a real date) for "
-                "the villager and their immediate family in \"Virtual Villagers Fun Patcher\\Save S\\Data\\Island "
-                "Events\\Island Event Rest - Save S.dat\"; while it holds, the random draw at a natural island event never casts them in a role of "
-                "a new event that a serious outcome can reach (Pick Island Event and Custom Island Events are not "
-                "held back, and a Custom Island Event never starts a rest)."])
-
-
 def filter_row(game: int, fid: str) -> dict:
     name = f"Content Filter: {content.FILTERS[fid]}"
     return row(game, content.filter_patch(fid), name,
@@ -106,7 +85,7 @@ ANY_TIME = "island_events_any_time"
 
 def any_time_row(game: int) -> dict:
     record = row(game, ANY_TIME, "No Safeguards for Island Events (and Additional Events too)",
-                 "For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit, trouble guard or rest period applies. Only the villagers an event needs are still required. "
+                 "For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit or trouble guard applies. Only the villagers an event needs are still required. "
                  "It applies to whichever island events are on in the game. No living villager is protected from "
                  "the new events (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' "
                  "story villagers included); objects that are not living villagers, such as The Lost Children's "
@@ -114,7 +93,7 @@ def any_time_row(game: int) -> dict:
                  "puzzle, the children or the special villager it names. "
                  f"Off by default, in Owner's Defaults and in Select All too. {UNVERIFIED}",
                  ["For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening "
-                  "events may be replaced, no trouble guard and no rest periods; only the villagers each event needs. "
+                  "events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. "
                   "The game's own events' conditions are lifted by another companion (later). It applies to whichever "
                   "island events are on in the game."])
     record["needs_on"] = []           # it applies to whichever island events are on (the owner, 2026-11-15)
@@ -122,7 +101,7 @@ def any_time_row(game: int) -> dict:
 
 
 def rows(game: int) -> list[dict]:
-    return ([notes_row(game), rest_row(game), any_time_row(game)]
+    return ([notes_row(game), any_time_row(game)]
             + [filter_row(game, f) for f in content.FILTER_IDS])
 
 

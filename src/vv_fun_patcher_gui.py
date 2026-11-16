@@ -156,17 +156,15 @@ TITLE_COLOURS = {
     LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
 }
 # The island events' content controls (the owner, 2026-11-15; scripts/build_island_event_content_features.py):
-# Content Notes and Rest Periods are on in Owner's Defaults and off everywhere else; the 28 content filters are off
+# Content Notes is on in Owner's Defaults and off everywhere else; the 28 content filters are off
 # everywhere, Owner's Defaults too.
 ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in range(1, 6)]
-ISLAND_EVENT_REST_IDS = ["vv%d_island_event_rest_periods" % game for game in range(1, 6)]
 # No Safeguards for Island Events (and Additional Events too) ("for masochists"; the owner, 2026-11-15): off everywhere, Owner's Defaults and Select All too.
 ISLAND_EVENT_ANY_TIME_IDS = ["vv%d_island_events_any_time" % game for game in range(1, 6)]
 ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
 # Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
 # them; the main list leaves them out.
-ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes",
-                             "island_event_rest_periods")
+ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes")
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -208,6 +206,10 @@ ISLAND_EVENT_ADVISORY_CUSTOM = (
     "custom events before enabling them.")
 ISLAND_EVENT_ADVISORY_ANY_TIME = (
     "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village.")
+ISLAND_EVENT_ADVISORY_PICK = (
+    "Warning: Pick Island Event and Custom Island Events ignore the island event safeguards (the 61-villager limit for "
+    "deadly events, rescue events, the opening events and a village in trouble). A picked or custom event can kill a "
+    "villager, make one disappear or lose a pregnancy at any time.")
 ISLAND_EVENT_INFO_NOTE = (
     "Original game events and their appearance rates remain unchanged. New events can take the place of natural "
     "island events (never rescue events or the two opening events). "
@@ -216,7 +218,8 @@ ISLAND_EVENT_INFO_NOTE = (
 ISLAND_EVENT_ADVISORIES = {
     "isola_grand_event_collection": (ISLAND_EVENT_ADVISORY_COLLECTION, True),
     "more_island_events": (ISLAND_EVENT_ADVISORY_MORE, True),
-    "story_cheat_upgrades": (ISLAND_EVENT_ADVISORY_CUSTOM, False),
+    # Story / Cheat Upgrades holds Pick Island Event and Custom Island Events: the owner's two warnings (2026-11-15).
+    "story_cheat_upgrades": (ISLAND_EVENT_ADVISORY_CUSTOM + "\n\n" + ISLAND_EVENT_ADVISORY_PICK, False),
     "island_events_any_time": (ISLAND_EVENT_ADVISORY_ANY_TIME, False),
 }
 ADVISORY_COLOUR = "#c00000"
@@ -334,9 +337,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
     # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
-    # The island events' content controls (the owner, 2026-11-15): Content Notes and Rest Periods on in Owner's
+    # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
-    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -406,9 +409,9 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
-    # The island events' content controls (the owner, 2026-11-15): notes and rest periods on in Owner's Defaults
+    # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
     # only, the filters off everywhere.
-    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -1869,7 +1872,7 @@ class App(tk.Tk):
     def _build_island_events_section(self, page, game_name: str, island_rows: list, filters: list,
                                      styles) -> None:
         """The game's Island Events section (the owner, 2026-11-15): the island-event rows (More Island Events, the
-        Isola Grand Event Collection, Content Notes, Rest Periods) in a list of their own, then the content filters
+        Isola Grand Event Collection, Content Notes) in a list of their own, then the content filters
         as a grid of ticks.  Its rows are the same rows as everywhere: the same variables, guides and rules."""
         requirement_font, description_font, background = styles
         box = ttk.LabelFrame(page, text=f"Island Events ({game_name})", padding=(8, 4, 8, 6))
