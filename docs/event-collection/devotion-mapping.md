@@ -13,7 +13,9 @@ carving, sculpture, weaving, pottery, canoe- and mask-making Building; stargazin
 and riddles Research; herbalism, bonesetting and midwifery Healing; teaching and storytelling to the young and
 nursery care Parenting; prayer, ritual and omens Devotion (VV5). Also: hunting and trapping Farming (food-gathering);
 jewelry, craftmaking, weaponsmithing and bow-making Building; archery as a practised skill Building (flavor when it is
-only sport); potions Research (alchemy), or Healing when the potion is a medicine; writing scrolls or books Research;
+only sport); potions and stews (cauldron brews) Research or Healing (the owner, 2026-11-16: list both,
+["Research", "Healing"], and the game draws one it has, unless the text clearly shows only one; cooking food is still
+Farming); writing scrolls or books Research;
 any other craft an event names goes to the obvious main skill, and doubt is flavor. A craft that fits two professions
 (archery: Farming by hunting, Building by bow-making; a medicine potion: Research and Healing) gives each when the text
 shows both, else one of them at random (a skill effect's list draws one). Each Devotion reward below was
