@@ -3318,8 +3318,14 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
    bound to read). */
 /* One of the likes (or `dislike`: the dislikes) the villager in `role` holds, drawn with the game's own random
    routine; -1 when the list is empty. */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike);
+
 static int cg_held_preference(const ce_adapter *a, int role, int dislike) {
-    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    return cg_held_preference_of(a, role >= 0 ? cg_villager(a, role) : NULL, dislike);
+}
+
+/* A random like (or dislike) this villager holds, to take away; -1 when the list is empty (no roll then). */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike) {
     const int *list;
     int held[64], n = 0, slot;
     if (r == NULL) {
@@ -6012,6 +6018,11 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
             continue;
         }
         ce_copy_name(who, CE_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM) && (e[2] & CG_PREF_REMOVE)) {
+            /* a random like or dislike each member holds, taken away (none held: nothing for them) */
+            cg_effect_on(a, game, e, cg_held_preference_of(a, rec, (e[2] & 4u) != 0), vb, r, -1, rec, pick[i], who);
+            continue;
+        }
         if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
             /* a random like or dislike each: the roll, then the word chosen from this villager */
             int k = ce_random_below(a, a->pref_count);

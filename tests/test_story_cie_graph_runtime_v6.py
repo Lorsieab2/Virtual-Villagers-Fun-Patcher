@@ -1595,6 +1595,45 @@ class EngineFollowups(unittest.TestCase):
                 self.assertIn("Ana's hair changes color.", text)
                 self.assertIn("The village gains food.", text)
 
+    def test_a_group_random_removal_takes_one_held_preference_each(self):
+        # cie-v6-binary.md 24 on a group (role 254): a random like taken away is drawn from each member's own likes
+        # (Codex on #771: the add's draw skips held words, so a removal from it was never made).  A member with none
+        # held: nothing for them, nothing refused.
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Tide", "games": [1, 2, 3, 4, 5],
+             "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p",
+             "nodes": {"p": {"text": "The tide turns.",
+                             "effects": [{"do": "preference", "role": "subject", "like": "random"}]}}}
+        data = bytearray(compiled(g))
+        fx = bytes([8, 0, 8, 0]) + bytes(8) + b"\xff\xff\0\0"
+        self.assertEqual(data.count(fx), 1)
+        at = data.index(fx)
+        data[at + 1], data[at + 2], data[at + 3] = 0xFE, 8 | 16, 1      # every villager, a random one taken away
+        struct.pack_into("<I", data, 12, 0)
+        struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                words = cg.GAMES[int(game[2])].preferences
+                r = V6(game, [(0, "f", 30, "Ana", 0, False), (1, "m", 40, "Bo", 0, False),
+                              (2, "m", 25, "Cy", 0, False)])
+                held = {0: ["ants", "work"], 1: ["resting"], 2: []}
+                for i, likes in held.items():
+                    for which in ("likes", "dislikes"):
+                        for k in range(r.v.L["slots"]):
+                            r.p.put32(r.v.record(i) + r.v.L[which] + 4 * k, 0xFFFFFFFF)
+                    for k, w in enumerate(likes):
+                        r.p.put32(r.v.record(i) + r.v.L["likes"] + 4 * k, words.index(w))
+                r.rolls([1] * 40)
+                self.assertIsNone(r.queue6(bytes(data), strict=True, origin=2))
+                text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
+                for i, likes in held.items():
+                    now = [words[w] for w in r.v.prefs(i, "likes") if w >= 0]
+                    self.assertEqual(len(now), max(len(likes) - 1, 0), (i, now))
+                    self.assertTrue(set(now) <= set(likes), (i, now))
+                    self.assertEqual([w for w in r.v.prefs(i, "dislikes") if w >= 0], [], "nothing disliked")
+                self.assertNotIn("could not be made", text)
+
 
     def head_looks(self, r) -> list[list[int]]:
         buf = r.p.alloc(4 * 32)
