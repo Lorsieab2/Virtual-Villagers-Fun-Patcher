@@ -169,6 +169,8 @@ EXPORTS
     VvfpStoryProbeLivingForget=_VvfpStoryProbeLivingForget@0
     VvfpStoryProbeLivingFile=_VvfpStoryProbeLivingFile@8
     VvfpStoryProbeLivingSetFile=_VvfpStoryProbeLivingSetFile@8
+    VvfpStoryProbeLivingGroupFile=_VvfpStoryProbeLivingGroupFile@8
+    VvfpStoryProbeLivingSetGroupFile=_VvfpStoryProbeLivingSetGroupFile@8
     VvfpStoryProbeLivingOrder=_VvfpStoryProbeLivingOrder@16
     VvfpStoryProbeLivingArm=_VvfpStoryProbeLivingArm@16
     VvfpStoryProbeLivingState=_VvfpStoryProbeLivingState@8

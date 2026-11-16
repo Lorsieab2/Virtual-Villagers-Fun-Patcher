@@ -379,6 +379,7 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
+ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Isolan), cast as the game's picker casts one
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
@@ -1178,8 +1179,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected", "relation"}
+                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                for flag in ("speaks", "heathen_ok"):
+                    # 32 / 33c: "speaks": true (the role's words have them speak; never a story-mute villager),
+                    # "heathen_ok": true (New Believers: an Isolan's role, cast only among the Heathens)
+                    if flag in r:
+                        if not isinstance(r[flag], bool):
+                            problems.append(f"{where}: {flag} is true or false")
+                        elif r[flag]:
+                            roles[rid][flag] = True
                 rel = r.get("relation")
                 if rel is not None:
                     # Section 21: one kinship relation to another villager role the event needs.
@@ -2640,6 +2649,8 @@ AUTO_LINES = {
     "health": "<R>'s health changes.",
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
+    "unlike": "<R> no longer likes <W>.",
+    "undislike": "<R> no longer dislikes <W>.",
     "skill+": "<R> learns more about <S>.",
     "skill-": "<R> feels less sure of <P> <S>.",
     "sick": "<R> falls sick.",
@@ -2660,6 +2671,15 @@ AUTO_LINES = {
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
     "presentation": "<R>'s look changes.",
+    # the engine's newer effects (cure 35, young look 37, repair 36, a skill gain to the villager's best skill)
+    "cure": "<R> is cured.",
+    "young_look": "<R> looks younger.",
+    "repair": "The damaged buildings are being repaired.",
+    "skill_best": "<R> gets better at what <P> does best.",
+    # New Believers' Faith (faith 38, join 39, apostasy 40)
+    "faith": "<R> feels closer to the tribe.",
+    "join": "<R> joins the tribe.",
+    "apostasy": "<R> becomes a Heathen.",
 }
 
 
@@ -3658,7 +3678,8 @@ def _compile_v6(g: dict) -> bytes:
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
                                  v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
-                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0), 0)
+                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
+                                 | (ROLE_HEATHEN if v.get("heathen_ok") else 0), 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -3850,7 +3871,7 @@ def _decompile_v6(data: bytes) -> dict:
     roles: dict[str, dict] = {}
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
-        speaks, pick = bool(pick & ROLE_SPEAKS), pick & ~ROLE_SPEAKS
+        speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -3875,6 +3896,8 @@ def _decompile_v6(data: bytes) -> dict:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
             if speaks:
                 roles[rid]["speaks"] = True
+            if heathen:
+                roles[rid]["heathen_ok"] = True
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}

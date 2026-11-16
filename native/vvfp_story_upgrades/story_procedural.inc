@@ -12,7 +12,8 @@
 #define PC_HEADER 64u
 #define PC_PIECE 64u
 #define PC_SLOT 16u
-#define PC_EFFECT 16u
+#define PC_EFFECT 16u                     /* VPCB v1's effect record */
+#define PC_EFFECT_V2 20u                  /* v2: byte 3 the group selector, and a u32 more (procedural-pieces.md 2.5) */
 #define PC_LINK 8u
 #define PC_FILE_MAX 0x00100000u           /* a pieces file: 1 MB (a sanity limit; past it the file is skipped) */
 #define PC_STR_NONE 0xFFFFFFFFu
@@ -45,6 +46,7 @@ typedef struct {
     const unsigned char *d;
     unsigned int size;
     unsigned int n_piece, o_piece, o_str, n_str_bytes, o_effect, n_effect, o_slot, n_slot, o_link, n_link;
+    unsigned int version, effect_bytes;
 } pc_file;
 
 typedef struct {
@@ -86,7 +88,18 @@ static void pc_put32(unsigned char *p, unsigned int v) {
 
 static const unsigned char *pc_piece(int i) { return pc_f.d + pc_f.o_piece + PC_PIECE * (unsigned int)i; }
 static const unsigned char *pc_slot(unsigned int i) { return pc_f.d + pc_f.o_slot + PC_SLOT * i; }
-static const unsigned char *pc_effect(unsigned int i) { return pc_f.d + pc_f.o_effect + PC_EFFECT * i; }
+static const unsigned char *pc_effect(unsigned int i) { return pc_f.d + pc_f.o_effect + pc_f.effect_bytes * i; }
+
+/* An effect's role byte that is no slot of its piece: every villager (0xFF), a group (0xFE), the villagers the event
+   made (0xFD the newest, 0xFC the one before it): kept as it is. */
+static int pc_role_kept(unsigned int b) {
+    return b == 0xFFu || b == CG_ROLE_GROUP || b == CG_ROLE_NEWEST || b == CG_ROLE_NEWEST2;
+}
+
+/* v2: an effect's extra u32 (a group's N or the skill's name string, change_age's cap); v1: 0 / none. */
+static unsigned int pc_effect_extra(const unsigned char *e) {
+    return pc_f.version >= 2u ? pc_u32(e + 16) : 0u;
+}
 static const unsigned char *pc_link(unsigned int i) { return pc_f.d + pc_f.o_link + PC_LINK * i; }
 
 /* The string at `off` (NULL for none; the table's last byte is a NUL, so every offset inside it is NUL-ended). */
@@ -108,12 +121,14 @@ static int pc_check(const unsigned char *data, unsigned int size) {
     unsigned int i;
     pc_file f;
     memset(&f, 0, sizeof f);
-    if (size < PC_HEADER || size > PC_FILE_MAX || memcmp(data, PC_MAGIC, 4) != 0 || pc_u16(data + 4) != 1u
+    if (size < PC_HEADER || size > PC_FILE_MAX || memcmp(data, PC_MAGIC, 4) != 0 || (pc_u16(data + 4) != 1u && pc_u16(data + 4) != 2u)
         || pc_u16(data + 6) != PC_HEADER || pc_u32(data + 8) != size || cg_crc32(data, size, 12) != pc_u32(data + 12)) {
         return 0;
     }
     f.d = data;
     f.size = size;
+    f.version = pc_u16(data + 4);
+    f.effect_bytes = f.version >= 2u ? PC_EFFECT_V2 : PC_EFFECT;
     f.n_piece = pc_u32(data + 20);
     f.o_piece = pc_u32(data + 24);
     f.o_str = pc_u32(data + 28);
@@ -126,7 +141,7 @@ static int pc_check(const unsigned char *data, unsigned int size) {
     f.n_link = pc_u32(data + 56);
     if (!pc_range(f.o_piece, f.n_piece, PC_PIECE, size) || !pc_range(f.o_str, f.n_str_bytes, 1, size)
         || f.n_str_bytes == 0 || data[f.o_str + f.n_str_bytes - 1] != 0
-        || !pc_range(f.o_effect, f.n_effect, PC_EFFECT, size) || !pc_range(f.o_slot, f.n_slot, PC_SLOT, size)
+        || !pc_range(f.o_effect, f.n_effect, f.effect_bytes, size) || !pc_range(f.o_slot, f.n_slot, PC_SLOT, size)
         || !pc_range(f.o_link, f.n_link, PC_LINK, size)) {
         return 0;
     }
@@ -159,8 +174,12 @@ static int pc_check(const unsigned char *data, unsigned int size) {
         for (k = 0; k < fx; ++k) {
             const unsigned char *e = pc_effect(first_fx + k);
             unsigned int str = pc_u32(e + 12);
-            if (e[0] < 1u || e[0] > 34u || e[0] == 23u || e[0] == 25u || (e[1] != 0xFFu && e[1] >= slots)
-                || (str != PC_STR_NONE && pc_str(str) == NULL)) {
+            unsigned int extra = pc_effect_extra(e);
+            if (e[0] < 1u || e[0] > 40u || e[0] == 25u || (!pc_role_kept(e[1]) && e[1] >= slots)
+                || (str != PC_STR_NONE && pc_str(str) == NULL)
+                || (e[1] == CG_ROLE_GROUP ? e[3] < 1u || e[3] > 7u : e[3] != 0u)
+                || (e[1] == CG_ROLE_GROUP && e[3] == CG_GROUP_SKILL && pc_str(extra) == NULL)
+                || (e[1] != CG_ROLE_GROUP && e[0] != CGE_CHANGE_AGE && extra != 0u && pc_f.version >= 2u)) {
                 pc_f.d = NULL;
                 return 0;
             }
@@ -763,7 +782,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                 unsigned int e, first = pc_u32(o + 48), count = pc_u16(o + 52);
                 for (e = 0; e < count; ++e) {
                     const unsigned char *fx = pc_effect(first + e);
-                    if (fx[1] != 0xFFu && pc_harmful(fx)) {
+                    if (!pc_role_kept(fx[1]) && pc_harmful(fx)) {
                         pc_roles[map[i][fx[1]]].harm = 1;
                     }
                 }
@@ -844,7 +863,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                 }
                 for (e = 0; e < count; ++e) {
                     const unsigned char *fx = pc_effect(first + e);
-                    if (fx[1] != 0xFFu && pc_harmful(fx) && pc_roles[map[i][fx[1]]].special == 0) {
+                    if (!pc_role_kept(fx[1]) && pc_harmful(fx) && pc_roles[map[i][fx[1]]].special == 0) {
                         harmed |= 1u << map[i][fx[1]];
                     }
                 }
@@ -958,7 +977,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                 }
                 for (e = 0; e < count; ++e) {
                     const unsigned char *fx = pc_effect(first + e);
-                    if (fx[1] != 0xFFu && pc_harmful(fx) && pc_roles[map[i][fx[1]]].special == 0) {
+                    if (!pc_role_kept(fx[1]) && pc_harmful(fx) && pc_roles[map[i][fx[1]]].special == 0) {
                         harmed |= 1u << map[i][fx[1]];
                     }
                 }
@@ -1011,8 +1030,9 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                     unsigned char *ef = out + o_effect + 16u * (unsigned int)effect++;
                     unsigned int a_value = pc_u32(fx + 4);
                     memcpy(ef, fx, 12);
-                    ef[1] = fx[1] == 0xFFu ? (unsigned char)0xFF : map[i][fx[1]];
-                    if ((fx[0] == CGE_PREGNANT || fx[0] == CGE_NURSING || fx[0] == CGE_BODY_SWAP) && a_value != 255u) {
+                    ef[1] = pc_role_kept(fx[1]) ? fx[1] : map[i][fx[1]];
+                    if ((fx[0] == CGE_PREGNANT || fx[0] == CGE_NURSING || fx[0] == CGE_BODY_SWAP)
+                        && a_value != 255u && !pc_role_kept(a_value)) {
                         /* the partner / the other role: a local slot too */
                         if (a_value >= pc_u16(o + 44)) {
                             return 0;
@@ -1020,7 +1040,12 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                         pc_put32(ef + 4, map[i][a_value]);
                     }
                     pc_put16(ef + 12, pc_u32(fx + 12) == PC_STR_NONE ? CG_NONE : pc_s(&w, pc_str(pc_u32(fx + 12))));
-                    pc_put16(ef + 14, 0);
+                    {
+                        /* the last H: a group's N, its skill's name (a string), change_age's cap (v2) */
+                        unsigned int extra = pc_effect_extra(fx);
+                        pc_put16(ef + 14, fx[1] == CG_ROLE_GROUP && fx[3] == CG_GROUP_SKILL ? pc_s(&w, pc_str(extra))
+                                                                                         : extra);
+                    }
                 }
             }
         }
@@ -1250,8 +1275,7 @@ static int pc_pick_fill(int game) {
             pc_varies(pc_str(pc_u32(p + 36)), sm_list.title[m], SM_TEXT);
             lstrcpynA(sm_list.description[m],
                       vvfp_tr("vvfp.story/story_procedural.pc_pick_fill.s0",
-                              "A new island event, put together each time from the Isola Grand Event Collection's "
-                              "pieces.", 200), SM_TEXT);
+                              "A new island event, put together each time from the collection's pieces.", 200), SM_TEXT);
             sm_list.k[m] = PC_PROC_BASE + pc_ref_count++;
             pc_dry = 1;
             pc_dry_state = 0x9E3779B9u ^ (i * 2654435761u) ^ (unsigned int)g;

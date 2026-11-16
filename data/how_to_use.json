@@ -267,19 +267,20 @@
     {
       "ids": ["vv1_island_events_any_time", "vv2_island_events_any_time", "vv3_island_events_any_time", "vv4_island_events_any_time", "vv5_island_events_any_time"],
       "guide": [
-        "Off everywhere, Owner's Defaults and Select All too. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
+        "Off everywhere, Owner's Defaults too; Select All does not tick it. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
         "All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events.",
-        "No population limit or trouble guard applies: anyone can be picked and any event can happen at any time, except when a pick makes no sense in the event (a child's role needs a child, a pregnancy needs a villager who can carry) or the event names someone the village does not have. It applies to whichever island events are on in the game.",
+        "No population limit or trouble guard applies: anyone can be picked and any event can happen at any time, except when a pick makes no sense in the event (a child's role needs a",
+        "child, a pregnancy needs a villager who can carry) or the event names someone the village does not have. It applies to whichever island events are on in the game.",
         "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village. Not yet tested in play."
       ]
     },
     {
       "ids": ["vv1_island_event_filter_f01", "vv1_island_event_filter_f02", "vv1_island_event_filter_f03", "vv1_island_event_filter_f04", "vv1_island_event_filter_f05", "vv1_island_event_filter_f06", "vv1_island_event_filter_f07", "vv1_island_event_filter_f08", "vv1_island_event_filter_f09", "vv1_island_event_filter_f10", "vv1_island_event_filter_f11", "vv1_island_event_filter_f12", "vv1_island_event_filter_f13", "vv1_island_event_filter_f14", "vv1_island_event_filter_f15", "vv1_island_event_filter_f16", "vv1_island_event_filter_f17", "vv1_island_event_filter_f18", "vv1_island_event_filter_f19", "vv1_island_event_filter_f20", "vv1_island_event_filter_f21", "vv1_island_event_filter_f22", "vv1_island_event_filter_f23", "vv1_island_event_filter_f24", "vv1_island_event_filter_f25", "vv1_island_event_filter_f26", "vv1_island_event_filter_f27", "vv1_island_event_filter_f28", "vv2_island_event_filter_f01", "vv2_island_event_filter_f02", "vv2_island_event_filter_f03", "vv2_island_event_filter_f04", "vv2_island_event_filter_f05", "vv2_island_event_filter_f06", "vv2_island_event_filter_f07", "vv2_island_event_filter_f08", "vv2_island_event_filter_f09", "vv2_island_event_filter_f10", "vv2_island_event_filter_f11", "vv2_island_event_filter_f12", "vv2_island_event_filter_f13", "vv2_island_event_filter_f14", "vv2_island_event_filter_f15", "vv2_island_event_filter_f16", "vv2_island_event_filter_f17", "vv2_island_event_filter_f18", "vv2_island_event_filter_f19", "vv2_island_event_filter_f20", "vv2_island_event_filter_f21", "vv2_island_event_filter_f22", "vv2_island_event_filter_f23", "vv2_island_event_filter_f24", "vv2_island_event_filter_f25", "vv2_island_event_filter_f26", "vv2_island_event_filter_f27", "vv2_island_event_filter_f28", "vv3_island_event_filter_f01", "vv3_island_event_filter_f02", "vv3_island_event_filter_f03", "vv3_island_event_filter_f04", "vv3_island_event_filter_f05", "vv3_island_event_filter_f06", "vv3_island_event_filter_f07", "vv3_island_event_filter_f08", "vv3_island_event_filter_f09", "vv3_island_event_filter_f10", "vv3_island_event_filter_f11", "vv3_island_event_filter_f12", "vv3_island_event_filter_f13", "vv3_island_event_filter_f14", "vv3_island_event_filter_f15", "vv3_island_event_filter_f16", "vv3_island_event_filter_f17", "vv3_island_event_filter_f18", "vv3_island_event_filter_f19", "vv3_island_event_filter_f20", "vv3_island_event_filter_f21", "vv3_island_event_filter_f22", "vv3_island_event_filter_f23", "vv3_island_event_filter_f24", "vv3_island_event_filter_f25", "vv3_island_event_filter_f26", "vv3_island_event_filter_f27", "vv3_island_event_filter_f28", "vv4_island_event_filter_f01", "vv4_island_event_filter_f02", "vv4_island_event_filter_f03", "vv4_island_event_filter_f04", "vv4_island_event_filter_f05", "vv4_island_event_filter_f06", "vv4_island_event_filter_f07", "vv4_island_event_filter_f08", "vv4_island_event_filter_f09", "vv4_island_event_filter_f10", "vv4_island_event_filter_f11", "vv4_island_event_filter_f12", "vv4_island_event_filter_f13", "vv4_island_event_filter_f14", "vv4_island_event_filter_f15", "vv4_island_event_filter_f16", "vv4_island_event_filter_f17", "vv4_island_event_filter_f18", "vv4_island_event_filter_f19", "vv4_island_event_filter_f20", "vv4_island_event_filter_f21", "vv4_island_event_filter_f22", "vv4_island_event_filter_f23", "vv4_island_event_filter_f24", "vv4_island_event_filter_f25", "vv4_island_event_filter_f26", "vv4_island_event_filter_f27", "vv4_island_event_filter_f28", "vv5_island_event_filter_f01", "vv5_island_event_filter_f02", "vv5_island_event_filter_f03", "vv5_island_event_filter_f04", "vv5_island_event_filter_f05", "vv5_island_event_filter_f06", "vv5_island_event_filter_f07", "vv5_island_event_filter_f08", "vv5_island_event_filter_f09", "vv5_island_event_filter_f10", "vv5_island_event_filter_f11", "vv5_island_event_filter_f12", "vv5_island_event_filter_f13", "vv5_island_event_filter_f14", "vv5_island_event_filter_f15", "vv5_island_event_filter_f16", "vv5_island_event_filter_f17", "vv5_island_event_filter_f18", "vv5_island_event_filter_f19", "vv5_island_event_filter_f20", "vv5_island_event_filter_f21", "vv5_island_event_filter_f22", "vv5_island_event_filter_f23", "vv5_island_event_filter_f24", "vv5_island_event_filter_f25", "vv5_island_event_filter_f26", "vv5_island_event_filter_f27", "vv5_island_event_filter_f28"],
       "guide": [
-        "Off everywhere, Owner's Defaults and Select All too: tick only the ones you want. In each game's Island Events section.",
+        "Off everywhere, Owner's Defaults too; Select All does not tick it: tick only the ones you want. In each game's Island Events section.",
         "A ticked filter keeps its content out of the new island events, before the random draw picks one.",
         "An outcome with that content is dropped where the event still makes sense; otherwise the event is skipped.",
-        "Filters never hide a kind of person. The game's own events are unchanged. Not yet tested in play."
+        "Filters never hide a kind of person. Needs the Isola Grand Event Collection. The game's own events are unchanged. Not yet tested in play."
       ]
     },
     {
@@ -1057,7 +1058,8 @@
     {
       "ids": ["vv5_devoted_soul_epitaph"],
       "guide": [
-        "A buried Devotee's grave reads the usual epitaph or \"Charitable Soul\", 50/50.", "The usual one is \"Respected Citizen\", or \"Respected Devotee\" with Guardians of Isola Rewrite.",
+        "A buried Devotee's grave reads the usual epitaph or \"Charitable Soul\", 50/50.",
+        "The usual one is \"Respected Citizen\", or \"Respected Devotee\" with Guardians of Isola Rewrite.",
         "Graves made earlier as \"Devoted Soul\" keep that epitaph.",
         "Click the gravestone to see it. You can still edit it."
       ]
@@ -1100,9 +1102,39 @@
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
-    {"ids": ["vv3_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.", "You pay when you buy it; with too few tech points nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {
+      "ids": ["vv3_story_cheat_upgrades_cost_tech_points"],
+      "guide": [
+        "The Origins Upgrades keep their normal tech-point prices instead of costing 0.",
+        "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.",
+        "You pay when you buy it; with too few tech points nothing happens and you are told.",
+        "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.",
+        "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.",
+        "Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"],
+      "guide": [
+        "The Origins Upgrades keep their normal tech-point prices instead of costing 0.",
+        "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.",
+        "You pay when the event is queued; with too few tech points nothing happens and you are told.",
+        "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.",
+        "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.",
+        "Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv2_story_cheat_upgrades_cost_tech_points"],
+      "guide": [
+        "The Origins Upgrades keep their normal tech-point prices instead of costing 0.",
+        "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.",
+        "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.",
+        "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.",
+        "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.",
+        "Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
     {
       "ids": ["vv1_cause_of_death"],
       "guide": [
@@ -1268,7 +1300,7 @@
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "2-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection and Change Sex and Gender Presentation are not ticked either.",
-        "It does not change the population mode."
+        "The island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either; it does not change the population mode."
       ]
     },
     "default_patches": {
@@ -1280,7 +1312,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
+        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points; and the island event controls.",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },
@@ -1294,7 +1326,7 @@
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
-        "It does not change the population mode."
+        "The island event controls: every Content Filter and No Safeguards for Island Events (and Additional Events too) are off here too; it does not change the population mode."
       ]
     },
     "deselect_all": {

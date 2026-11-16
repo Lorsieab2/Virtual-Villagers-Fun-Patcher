@@ -143,6 +143,22 @@ piece (0 .. slot count-1, `0xFF` every villager where the effect allows it) and 
 | 8 | i32 | b |
 | 12 | u32 | string (the effect's word, cause or skills list) |
 
+### 2.5a Version 2 (VPCB v2, 2026-11-16): the effect record is 20 bytes
+
+The header's version 2 (everything else as v1; a v1 file is still read, its effects 16 bytes with byte 3 and the
+extra 0). The effect record:
+
+| Offset | Type | Field |
+|---|---|---|
+| 0 | u8 | effect code (cie-v6-binary.md: 1..40, never 25) |
+| 1 | u8 | local slot, or a role byte kept as it is: `0xFF` every villager, `0xFE` a GROUP, `0xFD` the newest villager the event made ($newest), `0xFC` the one before it ($previous) |
+| 2 | u8 | flags (as in the `.cieg`) |
+| 3 | u8 | the group's selector (role `0xFE` only: 1 all, 2 by skill, 3 N random, 4 elders, 5 children, 6 teens, 7 adults); else 0 |
+| 4 | i32 | a (for `pregnant`, `nursing`, `body_swap`: a local slot, 255 none, or `0xFD` / `0xFC`) |
+| 8 | i32 | b |
+| 12 | u32 | string (the effect's word, cause or skills list) |
+| 16 | u32 | EXTRA -> the `.cieg` effect's last H: a group's N (selector 3, 1..255); the skill's name (selector 2: a string offset, written into the event's string table); `change_age`'s cap in years (0..120); else 0 |
+
 ### 2.6 Link record (8 bytes): what an outcome answers
 
 | Offset | Type | Field |

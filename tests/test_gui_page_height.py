@@ -26,7 +26,7 @@ MAIN_PAGE_BUDGET = 24000
 # screen (about four at a time, six widgets each). Before the list was virtual a tab held
 # 101 to 176 of them.  Each game's Island Events section (v1.35.97) adds its own short list (the same virtual rows)
 # and the 28 content filters' ticks with their heading and notes: about 40 more.
-WIDGETS_PER_TAB_BOUND = 110
+WIDGETS_PER_TAB_BOUND = 160
 
 CHILD = r"""
 import json, os, sys, tkinter

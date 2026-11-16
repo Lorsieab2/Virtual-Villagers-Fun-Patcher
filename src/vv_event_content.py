@@ -514,10 +514,12 @@ def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> t
         if pid not in patches:
             patches.append(pid)
 
-    for (nid, i), fs in p["edges"].items():
+    # Every set walked in sorted order: the patch names' order is the compiled file's, the same in every process
+    # (a frozenset's order follows the string hashes, which change per process).
+    for (nid, i), fs in sorted(p["edges"].items()):
         child = g["nodes"][nid]["children"][i]
         child["if"] = _all(child.get("if"), _none_on(fs))
-        for f in fs:
+        for f in sorted(fs):
             need(filter_patch(f))
     skip = _skip_cond(p["groups"])
     if skip is not None:
@@ -525,7 +527,7 @@ def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> t
         req["if"] = _all(req.get("if"), skip)
         for grp in p["groups"]:
             for fs in grp:
-                for f in fs:
+                for f in sorted(fs):
                     need(filter_patch(f))
     if p["labels"]:
         need(NOTES_PATCH)

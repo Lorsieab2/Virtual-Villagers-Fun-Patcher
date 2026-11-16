@@ -964,7 +964,8 @@ def compile_all(variants: list[Variant], bank: Bank | None = None) -> None:
         g = validate_variant(v)
         g, _plan = content.inject(g, variant_tags(v, g, bank), {"speaks": content.speaking_roles(g)})
         # A new event (the Story DLL's cg_is_collection_event: a "collection" block in the header).
-        g = dict(g, collection={"id": v.manifest_id, "source": "living_engine", "k": v.k})
+        g = dict(g, collection={"id": v.manifest_id, "source": "living_engine", "lines": [1, 1],
+                                "section": f"variant {v.k}"})
         v.cieg = cg.compile_graph(g)
         order = list(g["nodes"])
         v.outcomes = [(name, grp, arc) for name, grp, arc in v.outcomes]

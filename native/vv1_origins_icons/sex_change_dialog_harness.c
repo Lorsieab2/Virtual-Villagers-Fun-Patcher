@@ -17,6 +17,9 @@
      <exe> shot DIR   the screenshots: the real window shown, captured with PrintWindow, the button pressed, the
                       warning box captured, answered No, the window cancelled.  BMP files in DIR (the build
                       script makes the PNGs).  Nothing is changed anywhere. */
+#if HARNESS_GAME == 1
+#define VV_SEX_GC_OPTION1 1   /* as vv1_origins_icons.c: the Golden Child option 1 */
+#endif
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
@@ -486,11 +489,19 @@ static void h_checks_run(void) {
     }
 #if HARNESS_GAME == 1
     {
-        /* The Golden Child: never offered.  The button's own command does nothing and shows no box. */
+        /* The Golden Child (option 1, the owner 2026-11-15): offered only when the Gender Presentation
+           companion's draws follow (his look then stays a boy's); without them never offered, the button's own
+           command does nothing and shows no box. */
         static const UINT script[] = { VVFP_AX_CHANGE_SEX, IDOK };
         HWND w;
         h_villager("Golden Child", H_MALE);
         *(int *)(h_record + 0x36C) = 0xC7;
+        h_check(vvfp_ax_change_sex_offered(1, h_record), "the Golden Child: offered while the draws follow");
+        h_press(script, 2, IDYES);
+        h_check(H_SEX_NOW() == H_FEMALE, "the Golden Child: changed while the draws follow");
+        h_villager("Golden Child", H_MALE);
+        *(int *)(h_record + 0x36C) = 0xC7;
+        h_gp_draws = 0;
         h_press(script, 2, IDYES);
         h_check(H_SEX_NOW() == H_MALE && h_boxes == 0, "the Golden Child: the button's command does nothing, no box");
         h_check(!vvfp_ax_change_sex_offered(1, h_record), "the Golden Child: not offered");
@@ -515,6 +526,7 @@ static void h_checks_run(void) {
             *(int *)(h_record + 0x36C) = 0xC7;
             DestroyWindow(w);
         }
+        h_gp_draws = 1;
     }
 #endif
 }

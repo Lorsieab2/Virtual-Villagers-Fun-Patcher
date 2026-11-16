@@ -1512,7 +1512,7 @@ class FormatGaps(unittest.TestCase):
         import collection_check as cc
         shared = {"pools": cc.shared_pools()}
         files = sorted(p for p in (ROOT / "data" / "event_collection").rglob("*.json")
-                       if p.name not in ("manifest.json", "shared_pools.json"))
+                       if p.name not in ("manifest.json", "shared_pools.json") and "content_tags" not in p.parts)
         self.assertGreaterEqual(len(files), 10)
         for p in files:
             g = cc.graph_for_engine(read(p))

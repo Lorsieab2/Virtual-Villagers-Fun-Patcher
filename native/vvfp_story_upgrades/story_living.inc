@@ -1129,6 +1129,16 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeLivingGroupFile(void *out, int
     return (int)lv_test_gfile_size;
 }
 
+/* The group's history file replaced by `data` (`size` bytes; size 0: deleted), the memory's forgotten. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeLivingSetGroupFile(const void *data, int size) {
+    lv_h.group_loaded = 0;
+    if (size <= 0) {
+        lv_test_have_gfile = 0;
+        return;
+    }
+    lv_file_write(0, 0, "", (const unsigned char *)data, (unsigned int)size);
+}
+
 /* lv_order of pack seed `s` in `game` with the village's history (the rolls VvfpStoryProbeSetRolls gives): the
    variants into `out` (at most `cap`); the count, -1 without a pack or a history. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeLivingOrder(int game, int s, int *out, int cap) {
