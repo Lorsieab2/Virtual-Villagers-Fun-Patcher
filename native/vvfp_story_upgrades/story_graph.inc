@@ -209,6 +209,8 @@ enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 
        /* gap C2: through a living villager in between */
        CG_REL_GRANDPARENT = 5, CG_REL_GRANDCHILD = 6, CG_REL_AUNT = 7, CG_REL_COUSIN = 8 };
 #define CG_PREF_RANDOM 8u             /* a preference effect's flags: a random like or dislike (cie-v6-binary.md 24) */
+#define CG_PREF_REMOVE 16u            /* ... the like or dislike is taken away (the named one, or with CG_PREF_RANDOM
+                                         one the villager holds); held nowhere: nothing (the owner, 2026-11-15) */
 #define CG_NODE_AUTO_TEXT 1u          /* a node's flags (byte 3): its effects told in automatic lines (24) */
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
@@ -2949,6 +2951,24 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
 /* cie-v6-binary.md 24: a random like or dislike -- the walk's roll `k` over the game's list, then candidate k % count
    of the game's preferences (in list order) in NEITHER of the villager's lists now; -1 when there is none (or nobody
    bound to read). */
+/* One of the likes (or `dislike`: the dislikes) the villager in `role` holds, drawn with the game's own random
+   routine; -1 when the list is empty. */
+static int cg_held_preference(const ce_adapter *a, int role, int dislike) {
+    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    const int *list;
+    int held[64], n = 0, slot;
+    if (r == NULL) {
+        return -1;
+    }
+    list = (const int *)(r + (dislike ? a->off_dislikes : a->off_likes));
+    for (slot = 0; slot < a->pref_slots && n < 64; ++slot) {
+        if (list[slot] >= 0 && list[slot] < a->pref_count) {
+            held[n++] = list[slot];
+        }
+    }
+    return n > 0 ? held[ce_random_below(a, n)] : -1;
+}
+
 static int cg_random_preference(const ce_adapter *a, int role, int k) {
     const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
     const int *likes, *dislikes;
@@ -3061,7 +3081,10 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : hi == CG_LOOK_KEEP ? -1 : hi;
         break;
     case CGE_PREF:
-        if (e[2] & CG_PREF_RANDOM) {
+        if ((e[2] & CG_PREF_RANDOM) && (e[2] & CG_PREF_REMOVE)) {
+            /* A random like (or dislike) the villager holds, to take away; -1 when the list is empty. */
+            va = cg_held_preference(a, cg_resolve_role(e[1]), (e[2] & 4u) != 0);
+        } else if (e[2] & CG_PREF_RANDOM) {
             /* 24: the roll, then the word chosen from the villager as the walk finds them (a fixed word: no roll) */
             int k = ce_random_below(a, a->pref_count);
             va = cg_random_preference(a, cg_resolve_role(e[1]), k);
@@ -5216,7 +5239,7 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         const int *list = (const int *)(record + (dislike ? a->off_dislikes : a->off_likes));
         int k, have = 0, free_slot = 0;
         if (random && (value < 0 || value >= a->pref_count)) {
-            return;                    /* 24: no word left to give: nothing changed, nothing refused */
+            return;                    /* 24: no word left to give (or none held to take): nothing, nothing refused */
         }
         if (!(a->caps & CAP_PREFS) || value < 0) {
             ce_refuse(r, CE_WHY_OTHER);
@@ -5225,6 +5248,14 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         for (k = 0; k < a->pref_slots; ++k) {
             have |= list[k] == value;
             free_slot |= list[k] == -1;
+        }
+        if (e[2] & CG_PREF_REMOVE) {
+            /* Taken away through the Custom Island Event's own removal (CE_PREF_REMOVE): the game's own like or
+               dislike field, the slot freed.  Not held: nothing changes, nothing is refused. */
+            if (have) {
+                c->pref_ops[c->pref_op_count++] = CE_PREF_OP(dislike, 1, value);
+            }
+            break;
         }
         c->pref_ops[c->pref_op_count++] = CE_PREF_OP(!dislike, 1, value);   /* never liked and disliked at once */
         if (!have && !free_slot && a->pref_slots > 0) {
@@ -5383,6 +5414,8 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "health", "<R>'s health changes." },
     { "like", "<R> now likes <W>." },
     { "dislike", "<R> now dislikes <W>." },
+    { "unlike", "<R> no longer likes <W>." },
+    { "undislike", "<R> no longer dislikes <W>." },
     { "skill+", "<R> learns more about <S>." },
     { "skill-", "<R> feels less sure of <P> <S>." },
     { "sick", "<R> falls sick." },
@@ -5501,7 +5534,8 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
             } else {
                 lstrcpynA(word, cg_s(&cg_g, cg_u16(e + 12)), sizeof word);
             }
-            cg_auto_add(out, cap, (e[2] & 4u) ? "dislike" : "like", role, "", word);
+            cg_auto_add(out, cap, (e[2] & CG_PREF_REMOVE) ? ((e[2] & 4u) ? "undislike" : "unlike")
+                                                        : ((e[2] & 4u) ? "dislike" : "like"), role, "", word);
             break;
         case CGE_SKILL:
             if (skill != NULL && vb != 0) {
