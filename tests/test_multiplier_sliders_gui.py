@@ -1,7 +1,7 @@
 """The patcher window's multiplier sliders (the owner, 2026-11-15): 2-100x Tech Cost, Hungrier Villagers, 2-100x
 Sickness, Louder Wind Flutes and More Frequent Island Events all go from 2 to 100, keep their defaults (3, 2, 2,
-5 and 2) and Owner's Defaults values (2, 2, 2, Louder Wind Flutes' own 5 and 2), and each has a box beside it to type the number in: kept in sync with
-the slider both ways, out-of-range numbers kept within 2 to 100, anything else put back to the slider's number, and
+5 and 2) and Owner's Defaults values (2, 2, 2, Louder Wind Flutes' own 5 and 2), and each has a box beside it to
+type the number in: kept in sync with the slider both ways, out-of-range numbers kept within 2 to 100, anything else put back to the slider's number, and
 copy / cut / paste working in it.  Nothing out of range is ever saved."""
 from __future__ import annotations
 
