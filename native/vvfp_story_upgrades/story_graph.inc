@@ -205,6 +205,13 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
 enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AGE_50 = 4, CG_AGE_ELDER = 5,
        CG_AGE_ADD = 6 };
 #define CG_FX_ANY_BIRTH_SEX 1u          /* 28 / 29: flags bit 0 */
+/* 28 / 29: flags bits 1-2, the babies (the owner, 2026-11-15, "if the game allows"; every game's records hold a
+   litter of 1 to 3): bit 1 alone the stock multiple-birth roll whatever the tech gate (every game's: a multiple 7 in
+   100, of those triplets 25 in 100 -- VV1 0x43BC41 / 0x43BC7F, VV2 0x44BA6A, VV3 0x455B92 / 0x455BB2, VV4
+   0x45E893 / 0x45E8B3, VV5 0x465EE3 / 0x465F03), bit 2 alone twins, both triplets; each baby still only while the
+   game's own room predicate says there is room (the adapters' conceive). */
+#define CG_FX_LITTER_ROLL 2u
+#define CG_FX_LITTER_TWINS 4u
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
@@ -1176,7 +1183,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_PREGNANT: case CGE_NURSING:
                 ok = (a == 0xFF || a == CG_ROLE_NEWEST || a == CG_ROLE_NEWEST2 || (a >= 0 && a < g->n_role)) && b == 0
                      && str == CG_NONE
-                     && (e[2] & ~CG_FX_ANY_BIRTH_SEX) == 0;
+                     && (e[2] & ~(CG_FX_ANY_BIRTH_SEX | CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS)) == 0;
                 break;
             case CGE_BODY_SWAP:
                 ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
@@ -5126,7 +5133,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
     }
     switch (e[0]) {
     case CGE_PREGNANT: case CGE_NURSING: {
-        int partner = -1, early = 0, other = (int)cg_u32(e + 4);
+        int partner = -1, early = 0, other = (int)cg_u32(e + 4), litter = 1;
         if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
             || *(const int *)(record + a->off_pregnant) != 0
             || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(a, game, record))) {
@@ -5138,7 +5145,17 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
                 partner = at;
             }
         }
-        if (a->conceive(index, 1, partner, r) <= 0) {
+        {
+            unsigned int kind = e[2] & (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS);
+            if (kind == (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS)) {
+                litter = 3;
+            } else if (kind == CG_FX_LITTER_TWINS) {
+                litter = 2;
+            } else if (kind == CG_FX_LITTER_ROLL && ce_random_below(a, 100) < 7) {
+                litter = ce_random_below(a, 100) < 25 ? 3 : 2;   /* the stock rolls, the tech gate left out */
+            }
+        }
+        if (a->conceive(index, litter, partner, r) <= 0) {
             return;                    /* no room (the game's own predicate): nothing */
         }
         if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
