@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dolphin Who Wouldn't Leave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b346_dolphin_wouldnt",
+  "source": "balance",
+  "lines": [
+   15977,
+   16017
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15977",
+  "ledger": [
+   {
+    "src": "L15978",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15979",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15986",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15995",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15983",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15984",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15987",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15996",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15989",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15992",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15998",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16001",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16004-16017",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It has started waiting in the lagoon in the mornings.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a month, a young dolphin has followed (name) every time (he/she) goes out fishing, swimming beside the canoe, leaping and whistling. It has started waiting in the lagoon in the mornings. The elders say the dolphins were people once, long ago, who chose the sea, and that sometimes one comes back to ask a person to choose too.\nThis morning the dolphin is in the shallows, whistling at (name), and swimming out towards the reef and back, out and back, as if it wants (him/her) to follow. Should (name) swim out with it, or stay on the beach?",
+   "choices": [
+    {
+     "label": "Swim Out With It",
+     "next": "c1",
+     "src": "L15983"
+    },
+    {
+     "label": "Stay on the Beach",
+     "next": "c2",
+     "src": "L15984"
+    }
+   ],
+   "src": "L15980-15981"
+  },
+  "c1o1": {
+   "text": "(Name) never comes back. The fishers search for days and find nothing. But out by the reef, from then on, there are two young dolphins instead of one, and one of them always swims close to the village canoes, whistling, and leaps when anyone calls (name)'s name.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L15990"
+  },
+  "c1o2": {
+   "text": "They swim together for hours, far out in the blue, and the dolphin brings (name) back to the reef at sunset. (Name) staggers up the beach, exhausted and glowing, and when the others see (him/her) in the firelight, (his/her) face is young and bright, as if the sea has washed years off it. (His/her) age is the same. The dolphin whistles once from the lagoon and is gone.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15993"
+  },
+  "c1": {
+   "text": "(Name) wades in and swims after the dolphin, out over the lagoon, past the reef, into the deep blue water. The dolphin circles (him/her), whistling happily...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15987"
+  },
+  "c2o1": {
+   "text": "At last the dolphin gives up. It leaps once, high, right in front of (name), and swims out past the reef and never comes back. (Name) misses it terribly. Swimming, without the dolphin, doesn't seem worth the bother any more.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L15999"
+  },
+  "c2o2": {
+   "text": "The dolphin disappears for an hour, and then comes back and herds a huge shoal of fish right into the shallows, where the whole village wades in with baskets and scoops them out. It whistles once, as if to say \"that's for staying,\" and swims off. It comes back every season, and every season it brings the fish. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L16002",
+   "text_only": [
+    {
+     "src": "L16002",
+     "what": "\"disappears\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) sits down on the sand. The dolphin swims out and back, out and back, whistling more and more sadly...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15996"
+  }
+ }
+}

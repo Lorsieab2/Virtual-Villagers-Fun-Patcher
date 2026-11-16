@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ghost Light",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s097_ghost_light",
+  "source": "rewrites",
+  "lines": [
+   4533,
+   4575
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4533",
+  "ledger": [
+   {
+    "src": "L4534",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4535",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4543",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4552",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4540",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4541",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4544",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4553",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4546",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4549",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4555",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4558",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4561-4575",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For three nights now, a soft light has been bobbing among the trees beyond the edge of the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three nights now, a soft light has been bobbing among the trees beyond the edge of the village. It's pale green, about the size of a cooking pot, and it moves in a slow, bobbing way, up and down, back and forth, almost as if it were walking.\nEveryone has seen it. Nobody has gone to look. The elders have said, very firmly, that nobody is to go to look. They say it's a spirit searching for someone, and that it's best not to be the one it finds.\nOn the fourth night, (name) can't stand it any more. Long after everyone else has gone to sleep, (he/she) slips out of (his/her) hut and walks to the edge of the trees. The light is there, waiting, a little way in among the dark trunks. As (name) watches, it bobs once, as if it's nodding. Should (name) follow it into the trees, or stay at the edge and call out to it?",
+   "choices": [
+    {
+     "label": "Follow the Light",
+     "next": "c1",
+     "src": "L4540"
+    },
+    {
+     "label": "Call Out to It",
+     "next": "c2",
+     "src": "L4541"
+    }
+   ],
+   "src": "L4536-4538"
+  },
+  "c1o1": {
+   "text": "The light leads (name) through the forest for a long time, and at last into a small clearing (he/she) has never seen. The ground is covered, every inch of it, in mushrooms that glow the same soft green as the light. Hundreds of them. Thousands. The whole clearing is lit up like a pool of green fire. The light hangs in the middle of it for a moment, and then, slowly, fades away to nothing. (Name) gathers a basketful of the glowing mushrooms and finds (his/her) way home by their light. The researchers are absolutely thrilled. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4547"
+  },
+  "c1o2": {
+   "text": "The light leads (name) deeper and deeper into the trees, further than (he/she) has ever been, further than anyone has been, through forest that gets older and darker and quieter, until (name) can't remember which way the village is, and doesn't seem to care. (He/She) is never seen again. In the morning, (his/her) mat is empty, and (his/her) footprints lead into the trees and stop. The light is never seen again either. The elders say nothing at all, which is somehow worse.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L4550"
+  },
+  "c1": {
+   "text": "(Name) steps into the trees. The light drifts ahead of (him/her), never too fast, never too far, waiting whenever (he/she) stumbles, glowing softly on the trunks and the ferns and the ground...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4544"
+  },
+  "c2o1": {
+   "text": "The light stops. It hangs there, perfectly still, among the trees, as if it's listening. For a long moment nothing happens. Then, very slowly, it drifts away, deeper into the forest, fading, until it's gone. (Name) stands there for a long time. (He/She) can't explain it, but (he/she) feels oddly comforted, as if somebody (he/she) once knew has just said goodbye. (He/She) goes back to bed and sleeps better than (he/she) has in weeks. The light never comes back.",
+   "src": "L4556"
+  },
+  "c2o2": {
+   "text": "The light stops. Then it rushes towards (name), suddenly, silently, faster than anything should move. Before (he/she) can turn, it's on (him/her), and around (him/her), wrapping (him/her) in a soft, cool, green glow, like being underwater in sunlight. (Name) doesn't scream. It doesn't seem to hurt. And when the glow fades, (name) is gone, and the edge of the forest is dark and empty. (He/She) is never seen again. The village keeps a fire burning at the edge of the trees for a whole season, in case.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L4559"
+  },
+  "c2": {
+   "text": "(Name) doesn't step into the trees. (He/She) stays right at the edge, where the grass ends and the forest begins, and calls out, quietly, into the dark: \"Hello? Who are you? What do you want?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4553"
+  }
+ }
+}

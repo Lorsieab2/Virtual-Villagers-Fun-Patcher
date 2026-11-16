@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Fisher's Last Trip",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b138_fisher_trip",
+  "source": "balance",
+  "lines": [
+   6332,
+   6376
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6332",
+  "ledger": [
+   {
+    "src": "L6333",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6334",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6342",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6351",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6339",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6340",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6343",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6352",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6345",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6348",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6354",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6360-6376",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An island event: The Old Fisher's Last Trip.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(fisher) hasn't been out in a canoe for ten years. (subject.His/her) hands shake too much now, and (subject.his/her) eyes have gone cloudy. But this morning (subject.he/she) is down on the beach before anyone else, dragging (subject.his/her) old canoe to the water, muttering about a shoal of silverfish that comes in once a year past the far rocks.\n\"I want to see it one more time,\" (subject.he/she) says when (subject) runs down to stop (subject.him/her). \"I'm going whether you come or not.\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
+   "choices": [
+    {
+     "label": "Go With (subject.Him/Her)",
+     "next": "c1",
+     "src": "L6339"
+    },
+    {
+     "label": "Talk (subject.Him/Her) Out of It",
+     "next": "c2",
+     "src": "L6340"
+    }
+   ],
+   "src": "L6335-6337"
+  },
+  "c1o1": {
+   "text": "They find the shoal past the far rocks, exactly where (fisher) said it would be: a whole river of silver under the water, flashing in the sun. (fisher) doesn't fish. (subject.He/She) just watches, and talks, and tells (subject) everything (subject.he/she) knows about the sea, the tides and the patience of it all. They bring home a canoe-load of fish. (subject) carries what (subject.he/she) learned for the rest of (subject.his/her) life. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L6346"
+  },
+  "c1o2": {
+   "text": "They find the shoal. (fisher) watches it for a long time, smiling, with (subject.his/her) hand trailing in the water. Then (subject.he/she) leans back against the side of the canoe, closes (subject.his/her) eyes, and doesn't open them again. (subject) paddles home very slowly. The village buries (fisher) on the headland, looking out at the far rocks, and every year after, when the silverfish come in, someone goes out to watch them.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "fisher",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L6349"
+  },
+  "c1": {
+   "text": "(subject) climbs into the front of the canoe and takes the paddle. (fisher) sits in the back, steering with one hand and pointing with the other, calling out the names of rocks nobody has used in years...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6343"
+  },
+  "c2o1": {
+   "text": "(fisher) gives in, grumbling, and goes home. That night the canoe is gone from the beach. So is (fisher). They search for days, and find nothing: no canoe, no paddle, nothing on the rocks. The old fishers say that's how it should be. On the day the silverfish come in each year, the village leaves a basket of food on the beach, just in case, and in the morning it is always empty.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "fisher"
+    }
+   ],
+   "src": "L6355",
+   "text_only": [
+    {
+     "src": "L6355",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "(fisher) gives in, and is so cross about it that (subject.he/she) sits by the fire that night and tells every fisher in the village exactly what they've been doing wrong for the last ten years. It takes all night. The younger fishers listen, at first politely and then with their mouths open. By the end of the season they are catching more fish than they have in years. (fisher) says nothing about it, very smugly.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Farming"
+     ],
+     "target": {
+      "skill": "Farming"
+     }
+    }
+   ],
+   "src": "L6358"
+  },
+  "c2": {
+   "text": "(subject) sits down on the edge of the canoe so it can't move. \"You can't see,\" (subject.he/she) says. \"You'll go straight onto the rocks.\" (fisher) glares at (subject.him/her), then at the sea, then back at (subject.him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6352"
+  }
+ }
+}

@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knock After Midnight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b131_knock_after",
+  "source": "balance",
+  "lines": [
+   5996,
+   6041
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5996",
+  "ledger": [
+   {
+    "src": "L5997",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5998",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6006",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6015",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6003",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6004",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6007",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6016",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6009",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6012",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6018",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6021",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6024-6041",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Somebody knocks on a villager's door after midnight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Somebody knocks on (subject)'s door after midnight. Three knocks, soft and polite. When (subject) opens it, there is nobody there, only the rain dripping off the eaves and, on the doorstep, a bundle of dry leaves with a baby inside, wide awake and watching (subject.him/her) with very serious eyes.\nThere are footprints in the mud leading away towards the jungle, small and bare and quick, already filling with rain. Whoever left the baby chose this door on purpose. There is a little carved fish tied to the baby's wrist with a string.\nShould (subject) take the baby in, or follow the footprints before the rain washes them out?",
+   "choices": [
+    {
+     "label": "Take the Baby In",
+     "next": "c1",
+     "src": "L6003"
+    },
+    {
+     "label": "Follow the Footprints",
+     "next": "c2",
+     "src": "L6004"
+    }
+   ],
+   "src": "L5999-6001"
+  },
+  "c1o1": {
+   "text": "(subject) sits up the whole night with the baby on (subject.his/her) chest, listening to the rain. By morning the baby is warm and asleep and (subject) is not giving it to anyone. \"They picked my door,\" (subject.he/she) tells (healer), who comes to check. \"They must have had a reason.\" Nobody ever comes back for the carved fish. The baby wears it until the string wears through, and then (subject) wears it.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6010"
+  },
+  "c1o2": {
+   "text": "(friend) wakes up at the first cry and stumbles over, half asleep, and finds (subject) sitting on the floor with a baby. (friend) doesn't ask a single question. (friend.He/She) just sits down beside them and takes one of the baby's feet in (friend.his/her) hand, as if checking it's real. By sunrise they have decided, without really discussing it. They will raise the baby together.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6013"
+  },
+  "c1": {
+   "text": "(subject) scoops the bundle up and kicks the door shut behind (subject.him/her). The baby is cold but not crying. It grips (subject)'s thumb with a surprisingly strong little fist, and holds on...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6007"
+  },
+  "c2o1": {
+   "text": "High in the branches, a small, tired face looks down. It is a girl of about twelve from the far side of the island, soaked through. Her mother died last month, she says. She could not feed her baby brother, and someone said (subject) had a kind door. (subject) coaxes her down. She goes home to her uncle, who has been looking for her, and the baby stays with (subject). After that, nothing much seems worth complaining about.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6019"
+  },
+  "c2o2": {
+   "text": "The footprints end at the tree, and there is nobody up it. Only the rain, and a broken string hanging from a branch. (subject) carries the baby to the healers' hut, where (healer) has just had a baby of (subject.his/her) own and has milk to spare. \"Give him here,\" (healer) says, and the baby settles at once. The carved fish is hung up over the healers' door, in case anyone ever comes looking.",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "healer"
+    }
+   ],
+   "src": "L6022"
+  },
+  "c2": {
+   "text": "(subject) tucks the baby inside (subject.his/her) shirt and runs out into the rain after the footprints. They lead to the edge of the jungle and then, strangely, up the trunk of a tall tree, and stop...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6016"
+  }
+ }
+}

@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby at the Healers' Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b043_baby_healers_door",
+  "source": "balance",
+  "lines": [
+   1934,
+   1976
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1934",
+  "ledger": [
+   {
+    "src": "L1935",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1936",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1953",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1941",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1942",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1945",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1954",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1947",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1950",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1956",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1959",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1962-1976",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's not from this village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Early one morning, (subject) finds a baby asleep in a sling on the doorstep of the healers' hut, with a little carved shell token tucked into the wrap. It's not from this village. The pattern on the shell is one the elders say comes from a village three days' paddle away.\nWhoever left the baby did it carefully: the baby is fed, warm, and wrapped in good cloth. Whoever left the baby loved it. The elders say that in hard years, people sometimes do this, trusting a stronger village to care for a child they can't.\nThe baby wakes up and looks at (subject). Should (subject) take the baby in, or send word to the shell village first?",
+   "choices": [
+    {
+     "label": "Take the Baby In",
+     "next": "c1",
+     "src": "L1941"
+    },
+    {
+     "label": "Send Word to the Shell Village",
+     "next": "c2",
+     "src": "L1942"
+    }
+   ],
+   "src": "L1937-1939"
+  },
+  "c1o1": {
+   "text": "\"You found the baby,\" says the oldest healer. \"And the baby seems to have found you.\" (subject) takes the baby home that day. (subject.He/She) hangs the carved shell on a cord round the baby's neck, so that one day the child will know where they came from, and that someone there loved them enough to want them safe.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1948"
+  },
+  "c1o2": {
+   "text": "(friend) meets them at the door of their hut, looks at the baby, looks at (subject), and simply holds out (friend.his/her) arms. By noon there's a cradle. By evening, there's a name. By the end of the week, neither of them can remember what their hut sounded like without the crying.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1951"
+  },
+  "c1": {
+   "text": "(subject) lifts the sling and the baby settles against (subject.him/her) with a sigh, as if (subject.he/she) has been waiting for exactly this. The healers come out and look, and then look at (subject)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1945"
+  },
+  "c2o1": {
+   "text": "Six days later the canoe comes back with a thin, exhausted young parent in it, who had a terrible year and no one to help. When they see the baby asleep on (subject)'s chest, they sit down on the sand and cry. The parent stays. So does the arrangement: (subject) and the parent raise the baby between them, and the baby is never short of laps.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L1957"
+  },
+  "c2o2": {
+   "text": "The canoe comes back with no answer. Nobody in the shell village will say whose the baby is. So the baby stays with the healers, who take turns, and is spoiled rotten by all of them, and grows up in the herb-smell of the healers' hut. (subject) visits every day, and is the first person the baby learns to name.",
+   "src": "L1960"
+  },
+  "c2": {
+   "text": "A canoe goes out that morning, carrying the shell token and a message. (subject) cares for the baby while they wait, sleeping with the sling beside (subject.his/her) mat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1954"
+  }
+ }
+}

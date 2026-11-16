@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Gull",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b235_grey_gull",
+  "source": "balance",
+  "lines": [
+   10935,
+   10977
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10935",
+  "ledger": [
+   {
+    "src": "L10936",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10937",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10945",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10954",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10942",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10943",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10946",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10955",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10948",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10951",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10957",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10960",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10963-10977",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A grey gull with one bad wing has been following a villager for a week.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A grey gull with one bad wing has been following (name) for a week. (Name) runs everywhere, and the gull hops after (him/her), flapping its good wing and squawking, always just behind. The fishers say a grey gull following someone is a warning: \"slow down, or you'll be made to.\"\n(Name) laughs at that. This morning (he/she) is running down the steep path to the beach, the fast way, over the loose stones, and the gull is right behind, squawking louder than ever. Halfway down, it flaps in front of (him/her) and lands on the path, right in (his/her) way.\nShould (name) leap over the gull, or stop?",
+   "choices": [
+    {
+     "label": "Leap Over It",
+     "next": "c1",
+     "src": "L10942"
+    },
+    {
+     "label": "Stop",
+     "next": "c2",
+     "src": "L10943"
+    }
+   ],
+   "src": "L10938-10940"
+  },
+  "c1o1": {
+   "text": "(Name) slides and tumbles the rest of the way down the path and lands on the beach with a broken leg and a broken wrist. The healers set both. They heal, but stiffly, and (name) walks with a stick from then on, and never runs anywhere again. The grey gull sits on (his/her) roof every morning after that, quietly.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10949"
+  },
+  "c1o2": {
+   "text": "(Name) slides down on (his/her) back in a shower of stones, and lands on the beach bruised from head to foot, but whole. Something has changed, though. The next morning, (he/she) walks down the path. Slowly. The grey gull walks beside (him/her), and seems satisfied.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10952"
+  },
+  "c1": {
+   "text": "(Name) jumps the gull without breaking stride, and lands on the loose stones on the other side, and the stones go out from under (his/her) feet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10946"
+  },
+  "c2o1": {
+   "text": "Just ahead on the path, where (name) would have been in two more strides, a whole section of the path slides away down the hill with a roar. (Name) sits down very suddenly. (He/She) walks back up the hill, slowly, and from that day on walks everywhere. The gull flies off, its bad wing working perfectly.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "src": "L10958"
+  },
+  "c2o2": {
+   "text": "(Name) kneels down and looks at the gull's bad wing, and sees a fishing line tangled round it. (He/She) unpicks it, very carefully, while the gull glares at (him/her). When it's free, the gull flies straight up into the sky, and is gone. (Name) walks the rest of the way down the path, feeling very kindly towards everything.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10961"
+  },
+  "c2": {
+   "text": "(Name) skids to a halt, stones skittering away down the path, an arm's length from the gull. The gull looks up at (him/her) with one yellow eye...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10955"
+  }
+ }
+}

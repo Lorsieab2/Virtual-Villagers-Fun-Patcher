@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Carved in the Banyan",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b277_name_carved",
+  "source": "balance",
+  "lines": [
+   12898,
+   12938
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12898",
+  "ledger": [
+   {
+    "src": "L12899",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12900",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12907",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12916",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12904",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12905",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12908",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12917",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12910",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12913",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12919",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12922",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12925-12938",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "But underneath it, in the same old handwriting, someone has carved a villager's own face.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is sheltering from the rain under the old banyan when (he/she) notices a name carved into the trunk, half grown over with bark. It isn't (his/her) name. But underneath it, in the same old handwriting, someone has carved (name)'s own face. Not a face like (name)'s. (Name)'s face, exactly, freckle for freckle.\nThe elders say the banyan was planted by a woman who could see the future, and that she carved the names of people who hadn't been born yet. Should (name) scrape the bark away to read the whole name, or leave the tree alone?",
+   "choices": [
+    {
+     "label": "Scrape the Bark Away",
+     "next": "c1",
+     "src": "L12904"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c2",
+     "src": "L12905"
+    }
+   ],
+   "src": "L12901-12902"
+  },
+  "c1o1": {
+   "text": "The name sounds right. It sounds more right than (his/her) own ever did. (Name) says it again, and then again, and when (he/she) walks back to the village and introduces (himself/herself) by it, people just nod, as if they always knew. From that day on, (he/she) is (made1). Some evenings (he/she) goes back to the banyan and touches the carving, just to check it's still there.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L12911"
+  },
+  "c1o2": {
+   "text": "The carved name is only half there. The rest has been eaten away by beetles, and all (name) can read is the first part: \"Ahi\" for a man, the scroll-keepers say, or \"Soda\" for a woman, both old island names. (He/She) says it out loud. The children hear (him/her) and think it is (his/her) new name, and within a week everybody is calling (him/her) by it. (He/She) gives up correcting them.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L12914"
+  },
+  "c1": {
+   "text": "(Name) picks at the bark with (his/her) fingernails until the whole name is clear. (He/She) reads it out loud, without meaning to...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12908"
+  },
+  "c2o1": {
+   "text": "Somehow, knowing that somebody long ago knew (name) would exist, and thought (him/her) worth carving, makes (him/her) curious about the people who came before. (Name) has always found the scroll hut dull and dusty. The rain stops, and instead of going home, (he/she) goes to the scroll-keepers and asks about the woman who planted the banyan. (He/She) is still there, reading, at sunset.",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L12920"
+  },
+  "c2o2": {
+   "text": "When (name) comes back the next day to have another look, the bark has grown back over the carving completely, as smooth as if it had never been there. (Name) runs (his/her) hand over it, feeling slightly cheated. But from then on, (he/she) always nods to the banyan when (he/she) walks past it. Just in case.",
+   "src": "L12923"
+  },
+  "c2": {
+   "text": "(Name) decides that a face carved before (he/she) was born is none of (his/her) business. (He/She) waits out the rain on the far side of the trunk...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12917"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

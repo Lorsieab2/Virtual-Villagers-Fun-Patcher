@@ -24,8 +24,9 @@ WINDOWS_LIMIT = 32767
 MAIN_PAGE_BUDGET = 24000
 # Widgets under one game's patch tab: a header, the list, its scrollbar and the rows on
 # screen (about four at a time, six widgets each). Before the list was virtual a tab held
-# 101 to 176 of them.
-WIDGETS_PER_TAB_BOUND = 60
+# 101 to 176 of them.  Each game's Island Events section (v1.35.97) adds its own short list (the same virtual rows)
+# and the 28 content filters' ticks with their heading and notes: about 40 more.
+WIDGETS_PER_TAB_BOUND = 110
 
 CHILD = r"""
 import json, os, sys, tkinter

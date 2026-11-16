@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mirror of Another Age",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my012_mirror_another",
+  "source": "rewrites",
+  "lines": [
+   10523,
+   10578
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10523",
+  "ledger": [
+   {
+    "src": "L10524",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10525",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10534",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10541",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10548",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10555",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10529",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10530",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10531",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10532",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10535",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10542",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10549",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10556",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10536",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10543",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10545",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10550",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10552",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10557",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10559",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10562-10578",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep laugh lines, sunken cheeks, a crown of white hair.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Digging near the old ruins, (subject) unearths a round disc of polished bronze, green at the edges but still bright in the middle. (subject.He/She) rubs it clean on (subject.his/her) wrap and holds it up to see (subject.his/her) reflection.\nAn old face looks back. Deep laugh lines, sunken cheeks, a crown of white hair. It's (subject)'s face, (subject.he/she) is sure of it, but decades older. Behind it, in the reflection, the trees and sky look exactly the same as always. (subject) lowers the disc with shaking hands. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Look Again",
+     "next": "c1",
+     "src": "L10529"
+    },
+    {
+     "label": "Ask a Scholar",
+     "next": "c2",
+     "src": "L10530"
+    },
+    {
+     "label": "Offer It to a Spirit",
+     "next": "c3",
+     "src": "L10531"
+    },
+    {
+     "label": "Hide It",
+     "next": "c4",
+     "src": "L10532"
+    }
+   ],
+   "src": "L10526-10527"
+  },
+  "c1o1": {
+   "text": "For an instant, (subject) sees a child: round-cheeked, gap-toothed, about five years old, staring back at (subject.him/her) with big curious eyes. Then the reflection flickers, and it's just (subject) again, looking exactly as (subject.he/she) always does, only paler. (subject) wraps the disc in cloth and doesn't look into it for a very long time.",
+   "src": "L10537"
+  },
+  "c1o2": {
+   "text": "This time (subject) tilts the disc and watches (subject.his/her) face stretch and squash like dough. Old, then young, then a long thin goblin, then a fat little frog. (subject) bursts out laughing. The bronze is warped, bent from years in the ground. Nothing magic at all. (subject.He/She) spends the rest of the afternoon pulling faces into it with the children.",
+   "src": "L10539"
+  },
+  "c1": {
+   "text": "Heart pounding, (subject) slowly raises the disc again and makes (subject.himself/herself) look...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10535"
+  },
+  "c2o1": {
+   "text": "\"Ah, a curved surface,\" (friend) says, delighted. \"Watch.\" (friend.He/She) holds up a polished spoon and pulls faces into it, showing how curved surfaces stretch and shrink what they reflect. Lines become wrinkles, shadows become hollows. The children copy every face, giggling. By the end of the afternoon, the researchers have filled a whole bark sheet with notes on curved reflections. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10544"
+  },
+  "c2o2": {
+   "text": "(friend) holds the disc up confidently, ready to explain. Then (friend.he/she) goes very quiet. Whatever (friend.he/she) sees in it, (friend.he/she) doesn't say. After a long moment, (friend.he/she) wraps it carefully in cloth and puts it in a basket at the back of the research hut. \"Some things,\" (friend.he/she) says, \"are better studied later.\" (friend.He/She) never does.",
+   "src": "L10546"
+  },
+  "c2": {
+   "text": "(subject) brings the disc to (friend), who turns it over in (friend.his/her) hands with great interest...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10542"
+  },
+  "c3o1": {
+   "text": "For a moment, nothing happens. Then a gust of wind sweeps through the clearing, lifts the heavy bronze disc off the stone as if it were a leaf, and carries it tumbling into the brush. (subject) searches for an hour. It's nowhere to be found.",
+   "src": "L10551"
+  },
+  "c3o2": {
+   "text": "The disc stays where it is. But that night, (subject) dreams of an old, old ancestor sitting under a breadfruit tree. The ancestor says nothing at all. Just looks at (subject) for a long time, and smiles. (subject) wakes up feeling oddly calm about getting older, which is not something (subject.he/she) ever expected to feel.",
+   "src": "L10553"
+  },
+  "c3": {
+   "text": "Unsure what else to do, (subject) carries the disc to a quiet spot under the trees, sets it on a flat stone like an altar, and says a few awkward words to whatever might be listening...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10549"
+  },
+  "c4o1": {
+   "text": "(subject) wraps the disc in three layers of bark cloth, buries it deep under a tree no one ever visits, and stamps the earth flat. (subject.He/She) never tells anyone where. Some nights (subject.he/she) wonders who will dig it up next, and what they'll see.",
+   "src": "L10558"
+  },
+  "c4o2": {
+   "text": "(subject) buries it under a tree, but (subject.he/she) can't stop thinking about it. A week later, (subject.he/she) sneaks back with a digging stick, just for one more look. The hole is empty. The cloth is there, neatly folded. The disc is not. (subject) fills the hole back in and tells (subject.himself/herself) that's for the best.",
+   "src": "L10560"
+  },
+  "c4": {
+   "text": "(subject) decides nobody should look into this thing ever again, including (subject.himself/herself)...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10556"
+  }
+ }
+}

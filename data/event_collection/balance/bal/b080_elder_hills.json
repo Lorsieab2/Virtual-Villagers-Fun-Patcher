@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder in the Hills",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b080_elder_hills",
+  "source": "balance",
+  "lines": [
+   3612,
+   3654
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3612",
+  "ledger": [
+   {
+    "src": "L3613",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3614",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3622",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3631",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3619",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3620",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3623",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3632",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3625",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3628",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3634",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3637",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3640-3654",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A year ago a villager moved out of the village to a little hut in the hills.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A year ago (subject) moved out of the village to a little hut in the hills. \"I've talked enough,\" (subject.he/she) said. \"I want to listen to the birds.\" (young) brings (subject.him/her) food every few days, and comes back with stories of how well (subject.he/she) looks, and how little (subject.he/she) says.\nToday (young) finds (subject) sitting outside the hut, very thin, wrapped in a blanket though it's warm. (subject.He/She) smiles, and pats the ground beside (subject.him/her). \"Sit,\" (subject.he/she) says. \"Listen.\"\nShould (young) sit and listen, or run for the healers?",
+   "choices": [
+    {
+     "label": "Sit and Listen",
+     "next": "c1",
+     "src": "L3619"
+    },
+    {
+     "label": "Run for the Healers",
+     "next": "c2",
+     "src": "L3620"
+    }
+   ],
+   "src": "L3615-3617",
+   "text_only": [
+    {
+     "src": "L3615",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "They sit together all afternoon. As the sun goes down, (subject) leans against (young)'s shoulder, and sighs, and is still. (young) stays until the stars come out. The village carries (subject) down from the hills the next morning, and buries (subject.him/her) where the birds are loudest. (young) goes up to the hut sometimes, just to sit, and listen.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L3626"
+  },
+  "c1o2": {
+   "text": "After a long silence, (subject) starts to talk. And talks, and talks, as if a year of saving words has filled (subject.him/her) up: everything (subject.he/she) knows about the work (young) does, every trick and shortcut and mistake. (young) listens until dark, and goes home with (young.his/her) head buzzing. (subject) gets stronger after that, and comes down to the village for meals, sometimes.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L3629"
+  },
+  "c1": {
+   "text": "(young) sits. For a long time, neither of them says anything. The birds sing. The wind moves in the grass. (subject)'s hand finds (young)'s...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3623"
+  },
+  "c2o1": {
+   "text": "It's a fever, a slow one that had been creeping up on (subject) for weeks, alone in the hills. A few days in the healers' hut, and it breaks. (subject) stays in the village after that, but insists on a hut at the very edge, nearest the trees, where (subject.he/she) can still hear the birds.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L3635"
+  },
+  "c2o2": {
+   "text": "The healers fuss over (subject.him/her) for a week, and (subject) complains about every minute of it. But somewhere in that week, (subject.he/she) finds (subject.he/she) has missed the village: the noise, the children, the chatter by the fire. When (subject.he/she) is well, (subject.he/she) doesn't go back up the hill. \"The birds will manage,\" (subject.he/she) says.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "crowds",
+     "role": "subject"
+    }
+   ],
+   "src": "L3638"
+  },
+  "c2": {
+   "text": "(young) runs all the way down the hill and comes back with two healers and a stretcher. (subject) rolls (subject.his/her) eyes at the fuss, but lets them carry (subject.him/her) down...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3632"
+  }
+ }
+}

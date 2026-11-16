@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Torch Fishers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b062_torch_fishers",
+  "source": "balance",
+  "lines": [
+   2796,
+   2837
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2796",
+  "ledger": [
+   {
+    "src": "L2797",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2798",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2806",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2815",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2803",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2804",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2807",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2816",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2809",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2812",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2818",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2821",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2824-2837",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On moonless nights the fishers wade out on the reef flats with torches, and the fish swim up to the light.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 16
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On moonless nights the fishers wade out on the reef flats with torches, and the fish swim up to the light. It's the best fishing of the year, and the most dangerous: the tide comes in fast over the flats, and in the dark it's easy to lose the way back.\nTonight (name) has wandered further than the others, following a school of silver fish. When (he/she) looks up, the other torches are far away, and the water round (his/her) knees is rising. (His/Her) own torch is sputtering.\nShould (name) head straight for the other torches, or follow the reef edge, which is longer but shallower?",
+   "choices": [
+    {
+     "label": "Head for the Other Torches",
+     "next": "c1",
+     "src": "L2803"
+    },
+    {
+     "label": "Follow the Reef Edge",
+     "next": "c2",
+     "src": "L2804"
+    }
+   ],
+   "src": "L2799-2801"
+  },
+  "c1o1": {
+   "text": "The other fishers see (name)'s torch go out, and shout, and wave their own. There's no answer. They search the flats until the tide forces them back, and again at dawn, and for days after, along every beach. The sea doesn't give (name) back. On moonless nights after that, the fishers always leave one torch burning on the beach, all night, so that anyone lost on the flats can find the way.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L2810"
+  },
+  "c1o2": {
+   "text": "In the pitch black, (name) hears a voice, close, and a hand grabs (his/her) arm. It's the oldest fisher, who saw the torch go out and came straight for it, by memory. They wade back together, the old fisher counting the steps out loud. On the beach, the old fisher clips (name) round the ear and then hugs (him/her) hard.",
+   "src": "L2813"
+  },
+  "c1": {
+   "text": "(Name) wades towards the lights. The water is at (his/her) waist, then (his/her) chest. Then the torch goes out...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2807"
+  },
+  "c2o1": {
+   "text": "The reef edge leads round to the channel, where the water runs fast and deep. In the dark, (name) doesn't see it until (he/she) steps into it. The fishers find (him/her) on the beach at first light, where the tide has carried (him/her). The village buries (him/her) with (his/her) fishing spear and a torch, and the fishers mark the channel with a line of white stones that can be seen even on moonless nights.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L2819"
+  },
+  "c2o2": {
+   "text": "Halfway along the reef edge, the school of silver fish comes back, swirling round (his/her) knees in the torchlight, so thick (he/she) can scoop them up by hand. (Name) wades in at dawn with a full basket and a story nobody believes. It does something for (his/her) nerve: from then on, (he/she) is calmer and steadier at everything (he/she) turns (his/her) hand to.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2822"
+  },
+  "c2": {
+   "text": "(Name) turns along the reef edge, feeling for the coral with (his/her) feet. The water stays at (his/her) knees. It's slow. The torch sputters lower...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2816"
+  }
+ }
+}

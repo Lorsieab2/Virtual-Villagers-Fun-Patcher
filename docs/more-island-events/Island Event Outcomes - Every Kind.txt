@@ -1,0 +1,37 @@
+315 REWRITTEN EVENTS - OUTCOME CHECK (quick draft, 2026-11-15)
+
+Every effect used in your edited 315-event file, and whether the patcher can do it.
+
+ALREADY BUILT (written, waiting for the test turn)
+- Food gain / loss, small to large (random size from 61 villagers)        ~430 uses
+- Tech gain / loss, small to large                                        ~540 uses
+- Skill gains: Research, Building, Farming, Healing, Parenting...          ~150 uses
+- Likes and dislikes (add, remove, random; "or similar if available")       ~90 uses
+- Injured / ill / lose health / permanent disability (health 10-90%)       ~100 uses
+- Dies (with a grave) / disappears (no grave)                              ~30 uses
+- New villager (child, teen, adult, elder) who stays                       ~80 uses
+- Duplicate of a villager (same looks, new likes/skills, different name)    20 uses
+- Clone of a villager, one or two, each with a different name              23 uses
+- Body swap (and swapped back / reversed = no lasting change)              ~38 uses
+- Loses name ("?", from a bump on the head or similar)                     ~22 uses
+- Changes name (random default name, or a fixed one like "Lani")           26 uses
+- Changes age (to child, teen, 18, adult, 50, elder, or N years)           ~40 uses
+- Pregnant with a partner (born female 18+; ANY BIRTH SEX with magic)      ~17 uses
+- Nursing (a foundling or a partner's baby; ANY BIRTH SEX)                 ~4 uses
+- New look: head, clothes, the "old" head look                             ~35 uses
+- "Every villager is happier" (stock mood effect)                          24 uses
+
+BEING ADDED NOW (asked the engine agent)
+- Illness cured                                                            ~17 uses
+- Damaged huts repaired                                                     4 uses
+- Group effects: every villager / every healer / three random villagers    ~10 uses
+- Gain in the villager's BEST skill                                         6 uses
+- The YOUNG head look                                                       2 uses
+- A new villager who arrives as a BABY, and families arriving together
+  (two adults with their baby; an adult, a teen and a child)                ~16 uses
+- Twins or triplets for a pregnancy (where the game allows)                 (your note)
+- Age change that never goes past elder                                     2 uses
+
+STORY ONLY (no game effect needed)
+- "the chief's robe is kept" and similar notes describe what stays the same.
+- About 2,500 endings have no effect ("none"), by design.

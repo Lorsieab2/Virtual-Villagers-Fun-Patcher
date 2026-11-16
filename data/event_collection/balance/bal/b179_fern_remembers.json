@@ -1,0 +1,208 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fern That Remembers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b179_fern_remembers",
+  "source": "balance",
+  "lines": [
+   8291,
+   8335
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8291",
+  "ledger": [
+   {
+    "src": "L8292",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8293",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8301",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8310",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8298",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8299",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8302",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8311",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8304",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8307",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8313",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8316",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8319-8335",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the jungle grows a fern that curls up at a touch, and the healers say it does the same to time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the jungle grows a fern that curls up at a touch, and the healers say it does the same to time. Crushed and rubbed on a face, its fronds make the years \"curl back up\" a little. Burned, its smoke does the opposite: it unrolls them. The healers don't use it. \"Too unpredictable,\" says (healer).\n(subject) has found a whole patch of it, curled up tight in the shade. (subject.He/She) has a bundle of it in (subject.his/her) arms. (subject.He/She) has also just noticed that (subject.his/her) cooking fire, back at the hut, will be lit for supper soon, and the fronds are dry.\nShould (subject) rub the fern on (subject.his/her) face, or take it home to the healers?",
+   "choices": [
+    {
+     "label": "Rub It On",
+     "next": "c1",
+     "src": "L8298"
+    },
+    {
+     "label": "Take It to the Healers",
+     "next": "c2",
+     "src": "L8299"
+    }
+   ],
+   "src": "L8294-8296"
+  },
+  "c1o1": {
+   "text": "By the time (subject) gets home, (subject.his/her) face has curled back fifteen years. Smooth skin, bright eyes, not a line on (subject.him/her). The rest of (subject.him/her) is the same age as before. (healer) looks at (subject.him/her) for a long time. \"Unpredictable,\" (subject.he/she) says. \"But I'll admit it suits you.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8305"
+  },
+  "c1o2": {
+   "text": "The juice stings, then burns, then itches like fire. By evening (subject)'s face is red and swollen and covered in tiny blisters. The healers cover it in cool mud and tell (subject.him/her), not kindly, that \"unpredictable\" was the polite word. It heals in a week. (subject) looks exactly the same age as before, only pinker.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L8308"
+  },
+  "c1": {
+   "text": "(subject) crushes a handful of fronds and rubs them over (subject.his/her) cheeks and forehead. The juice stings, and smells green and sharp, and (subject.his/her) skin starts to feel tight, like it's drawing in...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8302"
+  },
+  "c2o1": {
+   "text": "The frond flares up with a hiss and a puff of sweet grey smoke, right in (subject)'s face. (subject) coughs and coughs. When the smoke clears, (subject.his/her) hair is grey and (subject.his/her) face is lined, as if fifteen years had unrolled in a breath. \"That's the other half,\" says (healer), very calmly. \"I did say.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8314"
+  },
+  "c2o2": {
+   "text": "The frond lands on the edge of the fire and (healer) snatches it out before it can catch. The healers store the bundle in a clay jar, far from any flame, and spend a month carefully testing tiny bits of it on their own hands. They learn a great deal from it, mostly about how careful a healer has to be.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L8317"
+  },
+  "c2": {
+   "text": "(subject) carries the bundle home, careful not to crush it, and drops it on the healers' table. While (subject.he/she) is explaining, a frond slips off the table and lands in the healers' cooking fire...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8311"
+  }
+ }
+}

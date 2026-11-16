@@ -104,8 +104,8 @@ class ThePage(unittest.TestCase):
         for game in GAMES:
             text = " ".join(t for t, _ in gc.lines(game))
             with self.subTest(game=game):
-                for words in ("never take a share of the game's own draw", f"{gc.RARE_ROLL_PERCENT[game]}% of the "
-                              "time", "once the village has seen two", "in trouble",
+                for words in ("never take a share of the game's own draw", f"{gc.REPLACE_PERCENT[0]}-{gc.REPLACE_PERCENT[1]}% chance", f"{gc.REPLACE_MIN_POPULATION} or more villagers",
+                              "two opening events are never replaced", "in trouble", "rescue event is never replaced",
                               "every event that can happen is equally likely",     # the owner, 2026-11-14
                               "a series counts as one event", "Story / Cheat Upgrades", "Scrolling Popups",
                               "nursing mother or father", gc.PROTECTED[game]):

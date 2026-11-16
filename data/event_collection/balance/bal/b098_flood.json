@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b098_flood",
+  "source": "balance",
+  "lines": [
+   4428,
+   4469
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4428",
+  "ledger": [
+   {
+    "src": "L4429",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4430",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4437",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4446",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4434",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4435",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4438",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4447",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4440",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4443",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4449",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4452",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4455-4469",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Others want to carry everything they can up to the hill and let the water have the huts.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The river has burst its banks in the night, and brown water is running knee-deep between the huts, carrying baskets, mats and squawking chickens with it. It's still rising. (builder) wants to build a wall of logs and stones to turn the water back towards the river. Others want to carry everything they can up to the hill and let the water have the huts.\n(subject) is standing in the flood with water swirling round (subject.his/her) legs. What should (subject) help with?",
+   "choices": [
+    {
+     "label": "Build the Wall",
+     "next": "c1",
+     "src": "L4434"
+    },
+    {
+     "label": "Carry Everything to the Hill",
+     "next": "c2",
+     "src": "L4435"
+    }
+   ],
+   "src": "L4431-4432"
+  },
+  "c1o1": {
+   "text": "By noon the wall is turning the water, and by evening the flood is draining back into the river. The huts are muddy and battered, but standing. The village spends a week scrubbing and rebuilding, and the wall of logs stays where it is, turned into a proper bank the next dry season.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4441"
+  },
+  "c1o2": {
+   "text": "A great log comes down the flood and hits the wall, and the wall bursts. (subject) is in the gap when it goes, and the brown water takes (subject.him/her). The others hold onto each other and the posts and are saved. They search the river, and the shore, and the sea beyond the river mouth, for days. They never find (subject). The new bank, when they build it, carries (subject.his/her) name.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L4444"
+  },
+  "c1": {
+   "text": "(subject) hauls logs with (builder) and a dozen others, waist-deep in brown water, wedging them into a line across the flow...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4438"
+  },
+  "c2o1": {
+   "text": "The water takes the huts' walls and leaves the posts. When it goes down, everything the village owns is safe on the hill, and the builders rebuild every hut on raised floors, a hand above the old flood line, learning as they go. Next time, they say, the river can come right in. It'll just go underneath.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L4450"
+  },
+  "c2o2": {
+   "text": "On the last trip down, for an elder's carving box, (subject) slips in the deepening water and is pulled under by the current between the huts. The others reach (subject.him/her) too late. When the flood goes down, the village buries (subject) on the hill where (subject.he/she) carried everything, and the elder keeps the carving box by the grave.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L4453"
+  },
+  "c2": {
+   "text": "(subject) carries baskets, mats, children and an outraged pig up the hill, trip after trip, while the water rises behind...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4447"
+  }
+ }
+}

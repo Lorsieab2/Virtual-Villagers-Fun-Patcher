@@ -1,0 +1,287 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beggar with the Golden Seed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my083_beggar_golden",
+  "source": "rewrites",
+  "lines": [
+   14686,
+   14741
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14686",
+  "ledger": [
+   {
+    "src": "L14687",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14688",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14696",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14703",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14710",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14717",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14691",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14692",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14693",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14694",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14697",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14704",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14711",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14718",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14698",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14700",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14705",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14707",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14712",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14714",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14719",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14721",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14724-14741",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An old beggar hobbles up to a villager's door and holds out a cracked palm.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An old beggar hobbles up to (name)'s door and holds out a cracked palm. In it sits a single seed, the size of a fingernail, shining like a drop of honey. \"One golden seed,\" the beggar croaks, \"for one hot meal. A fair trade, I think.\" When (name) takes it to look, (he/she) nearly drops it. It is far, far too heavy for its size, like holding a stone three times as big.\nThe beggar watches (name) with bright, amused eyes. (Name)'s stomach says the stew in the pot is worth more than any seed. (His/her) curiosity says otherwise. Should (name) make the trade?",
+   "choices": [
+    {
+     "label": "Feed the Beggar",
+     "next": "c1",
+     "src": "L14691"
+    },
+    {
+     "label": "Offer Shelter Instead",
+     "next": "c2",
+     "src": "L14692"
+    },
+    {
+     "label": "Demand Proof of the Seed",
+     "next": "c3",
+     "src": "L14693"
+    },
+    {
+     "label": "Refuse the Bargain",
+     "next": "c4",
+     "src": "L14694"
+    }
+   ],
+   "src": "L14689-14690"
+  },
+  "c1o1": {
+   "text": "By morning there is a sprout. By the end of the week it is knee-high. By the end of the season, it is a sturdy, shoulder-high plant with broad silver leaves, so heavy with fruit that the branches have to be propped up. The fruit tastes of honey and lime, and there is more than enough for the whole street. The farmers take cuttings and plant them all over the village. \"Best bowl of stew I ever gave away,\" (name) says, every time someone asks.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L14699"
+  },
+  "c1o2": {
+   "text": "Nothing grows. After two weeks, (name) digs it up, and discovers that the seed is a stone, a little piece of polished amber, beautiful and quite useless for growing anything. (He/she) is annoyed for about a day. Then (he/she) remembers the way the old beggar licked the bowl and whistled down the road, happy as a child, and decides that was worth a bowl of stew all by itself. (He/she) wears the amber on a cord.",
+   "src": "L14701"
+  },
+  "c1": {
+   "text": "\"Fair trade,\" (name) agrees, and ladles out the biggest bowl of stew (he/she) can manage. The beggar eats it all, every drop, licks the bowl, and hobbles off down the road whistling. (Name) plants the seed by (his/her) door that evening...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14697"
+  },
+  "c2o1": {
+   "text": "The beggar settles by the hearth with a grateful sigh, and after supper tells a story: about a farmer who gave away (his/her) last bowl of rice to a stranger, and found the next morning that (his/her) rice pot would never empty again. \"Of course,\" the beggar says, with a wink at (name), \"that was a very long time ago.\" In the morning the beggar is gone, and the seed is sitting on the hearthstone. (Name) never decides whether to plant it.",
+   "src": "L14706"
+  },
+  "c2o2": {
+   "text": "The beggar smiles and shakes (his/her) head. \"Kind. But there's a young traveler sleeping under the fig tree by the gate, hungry and with nowhere to go. Offer it to that one instead.\" And off (he/she) hobbles. (Name), puzzled, walks down to the gate, and there under the fig tree is exactly who the beggar described. (Name) brings (him/her) home and feeds (him/her), and the next morning the young traveler cannot stop thanking (him/her). The beggar is never seen again.",
+   "src": "L14708"
+  },
+  "c2": {
+   "text": "(Name) hands the seed back. \"Keep your seed,\" (he/she) says. \"You look like you need a roof more than I need a seed. Come and sit by the fire tonight.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14704"
+  },
+  "c3o1": {
+   "text": "The beggar chuckles, takes the seed between two fingers, and taps it gently with a fingernail. It rings, a clear, sweet note, like a tiny bell, that hangs in the air far longer than it should. The village children come running to see where the sound came from, and beg to hear it again, and again, and again. (Name) gives the beggar the whole pot, as promised. The beggar leaves the seed with the children, who carry it around for weeks, tapping it at every opportunity. It never grows. Nobody cares.",
+   "src": "L14713"
+  },
+  "c3o2": {
+   "text": "The beggar's smile fades. \"Proof,\" (he/she) says, closing (his/her) hand around the seed. \"Of course. Everyone wants proof.\" Without another word, (he/she) tucks the seed away and walks slowly off down the road, leaning on (his/her) stick. (Name) calls after (him/her), offering stew after all, but the beggar does not turn around. (Name) eats the stew alone that night. It does not taste as good as usual.",
+   "src": "L14715"
+  },
+  "c3": {
+   "text": "\"A golden seed?\" (name) says suspiciously. \"Prove it. Show me it's something special, and you can have the whole pot.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14711"
+  },
+  "c4o1": {
+   "text": "The beggar walks away down the road, and nothing at all unusual happens. The stew is eaten, the dishes are washed, the fire burns down. (Name) sleeps well and wakes up the next morning without a single strange omen or curse. It is, (he/she) reflects, a little anticlimactic. (He/she) finds (himself/herself) watching the road for a few days anyway.",
+   "src": "L14720"
+  },
+  "c4o2": {
+   "text": "The next morning, the golden seed is sitting right in the middle of (name)'s doorstep, shining in the sun. There are no footprints. The beggar is nowhere to be seen, and nobody in the village saw (him/her) come back. (Name) picks it up. It is still far too heavy for its size, and faintly warm. (He/she) puts it in a little pot by the door and waters it. Nothing has sprouted yet. (He/she) keeps watering it.",
+   "src": "L14722"
+  },
+  "c4": {
+   "text": "\"I'm sorry,\" (name) says, handing the seed back. \"We've barely enough for ourselves.\" The beggar nods, as if (he/she) had expected that, and closes (his/her) hand...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14718"
+  }
+ }
+}

@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Double Banana",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b326_double_banana",
+  "source": "balance",
+  "lines": [
+   15083,
+   15124
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15083",
+  "ledger": [
+   {
+    "src": "L15084",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15085",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15092",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15101",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15089",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15090",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15093",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15102",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15095",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15098",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15104",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15107",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15110-15124",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is a very ripe, very sweet-smelling banana.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has found a double banana: two fruits joined in one skin, growing on a plant behind the healers' hut that the healers' grandmother planted. The elders have an old saying about double fruit: \"eat it alone and you'll never be alone again.\" Nobody is sure if that's a blessing or a warning.\nIt is a very ripe, very sweet-smelling banana. Should (subject) eat it alone, or share it with someone?",
+   "choices": [
+    {
+     "label": "Eat It Alone",
+     "next": "c1",
+     "src": "L15089"
+    },
+    {
+     "label": "Share It",
+     "next": "c2",
+     "src": "L15090"
+    }
+   ],
+   "src": "L15086-15087"
+  },
+  "c1o1": {
+   "text": "When (subject) stands up, someone else stands up too, right beside (subject.him/her): someone with (subject)'s face, (subject)'s hands, and banana on (subject.his/her) chin. \"That was delicious,\" says the newcomer, in (subject)'s voice. The village names (subject.him/her) (made1). The healers dig up the banana plant and put it somewhere much harder to find.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L15096"
+  },
+  "c1o2": {
+   "text": "Someone sits up behind (subject) who looks exactly like (subject.him/her), but who complains at once that the banana was too ripe, and that (subject.he/she) never liked bananas anyway. (subject.He/She) has (subject)'s face and nothing else of (subject.him/her). The village names (subject.him/her) (made1), and (made1) never eats another banana as long as (subject.he/she) lives.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L15099"
+  },
+  "c1": {
+   "text": "(subject) peels it, sits down behind the healers' hut where nobody can see, and eats both halves, one after the other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15093"
+  },
+  "c2o1": {
+   "text": "They eat their halves at the same moment. Then there are {#made:three|four} of them standing behind the healers' hut: (subject), (friend), and {#made:an exact copy of one of them|an exact copy of each}, all {#made:three|four} with banana on their chins. \"I suppose,\" says (friend), \"we're never alone again.\" The village names {#made:the newcomer (made1)|the two newcomers (made1) and (made2)}, and the healers dig up the plant.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    },
+    {
+     "do": "clone",
+     "role": "friend"
+    }
+   ],
+   "src": "L15105"
+  },
+  "c2o2": {
+   "text": "They eat their halves, and nothing happens, except that it is the sweetest banana either of them has ever tasted. They become good friends after that, which the elders say is what the saying meant all along. (subject) isn't sure, but (subject.he/she) checks behind (subject.himself/herself) occasionally, just in case.",
+   "src": "L15108"
+  },
+  "c2": {
+   "text": "(subject) breaks the double banana in two and offers half to the nearest person: (friend), who happens to be walking past with a basket...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15102"
+  }
+ }
+}

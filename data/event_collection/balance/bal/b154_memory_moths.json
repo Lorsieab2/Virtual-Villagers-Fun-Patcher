@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memory Moths",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b154_memory_moths",
+  "source": "balance",
+  "lines": [
+   7098,
+   7141
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7098",
+  "ledger": [
+   {
+    "src": "L7099",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7100",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7108",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7117",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7105",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7106",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7109",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7118",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7111",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7114",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7120",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7123",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7126-7141",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every few years, on hot nights, pale grey moths come up out of the jungle in clouds and gather round the cooking fires.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every few years, on hot nights, pale grey moths come up out of the jungle in clouds and gather round the cooking fires. The elders call them memory moths. They say the moths drink small memories the way other moths drink nectar: where someone left a knife, what they had for breakfast. Usually that's all.\nTonight there are more moths than anyone has ever seen. They are crowding round (name)'s head, so thick that (he/she) can feel their wings on (his/her) eyelids and hear them whispering, a dry papery sound like someone turning leaves. One lands on (his/her) lips.\nShould (name) stay still and let them drink, or run to the sea and duck under?",
+   "choices": [
+    {
+     "label": "Stay Still",
+     "next": "c1",
+     "src": "L7105"
+    },
+    {
+     "label": "Run to the Sea",
+     "next": "c2",
+     "src": "L7106"
+    }
+   ],
+   "src": "L7101-7103"
+  },
+  "c1o1": {
+   "text": "The moths drink, and drink, and when they lift off and drift away into the dark, (name) opens (his/her) eyes and can't remember what (he/she) is called. Nor can anyone else. The moths have drunk the name out of everyone round the fire at once. They try every name they know, but none of them fits. The village calls (him/her) \"?\" from then on.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L7112"
+  },
+  "c1o2": {
+   "text": "The moths drink (name)'s name, and then, very gently, one of them brushes (his/her) lips again and leaves another one behind, like a moth leaving pollen from another flower. In the morning, everyone calls (him/her) (made1), and nobody can remember (him/her) ever being called anything else. Only (name) knows something has changed, and (he/she) can't remember what.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L7115"
+  },
+  "c1": {
+   "text": "(Name) closes (his/her) eyes and stands very still. The moths settle on (his/her) face and hair like a grey veil. (He/She) feels them drinking, small cold tugs, one after another, and tries to think about something unimportant...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7109"
+  },
+  "c2o1": {
+   "text": "The moths wait until (name) comes up for air, then give up and drift off to the fires again. (Name) walks home dripping and fine, apart from not remembering what (he/she) had for breakfast, or where (he/she) left (his/her) knife. (He/She) finds the knife three days later, in the cooking pot.",
+   "src": "L7121"
+  },
+  "c2o2": {
+   "text": "The moths wait, and wait, and (name) stays under the water as long as (he/she) can, again and again, until the moths finally give up near dawn. (Name) walks home shivering so hard (his/her) teeth knock together. By noon (he/she) has a fever and a cough. But (he/she) still has (his/her) name.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L7124"
+  },
+  "c2": {
+   "text": "(Name) runs, flapping at the moths, down the path to the beach, and wades in up to (his/her) chest and ducks under. The moths hover over the water in a grey cloud, waiting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7118"
+  }
+ }
+}

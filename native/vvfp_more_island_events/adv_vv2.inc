@@ -11,7 +11,7 @@
 
    THE DUE EVENT.  These events never take a share of the game's own draw (the owner's rule: stock island event
    chances never change): they come only when they are due -- picked with Pick Island Event, or drawn by Story /
-   Cheat Upgrades' separate rare roll (story_collection.inc).  Each has a draw value past the stock events: 21 The
+   Cheat Upgrades' natural-event replacement (story_collection.inc).  Each has a draw value past the stock events: 21 The
    Aspiring Adventurer (the value the stock draw never keeps), 22 The Climb.  The chooser's own call at 0x41F792
    comes here (v2_choose_event): only while one of them is due (mie_pick.inc mp_due_flow) is the draw's call 0x41F59D
    pointed here for that one run, and put back before the chooser returns -- so the draw's bytes are the stock bytes

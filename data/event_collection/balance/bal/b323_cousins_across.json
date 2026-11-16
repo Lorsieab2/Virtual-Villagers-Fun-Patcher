@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cousins From Across the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b323_cousins_across",
+  "source": "balance",
+  "lines": [
+   14949,
+   14989
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14949",
+  "ledger": [
+   {
+    "src": "L14950",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14951",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14958",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14967",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14955",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14956",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14959",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14968",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14961",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14964",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14970",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14973",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14976-14989",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L14962",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The cousin's own village, far to the south, has had three bad harvests, and the family is hungry.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader brings a message for (name): (his/her) cousin, who left the island as a child with (his/her) parents, wants to come home. The cousin's own village, far to the south, has had three bad harvests, and the family is hungry. The message asks only whether there is room.\n(Name) hasn't seen this cousin since they were both small enough to share a sleeping mat. The village's stores are not overflowing. Should (name) send word to come, or go and fetch them personally, in case the journey is too hard?",
+   "choices": [
+    {
+     "label": "Send Word to Come",
+     "next": "c1",
+     "src": "L14955"
+    },
+    {
+     "label": "Go and Fetch Them",
+     "next": "c2",
+     "src": "L14956"
+    }
+   ],
+   "src": "L14952-14953"
+  },
+  "c1o1": {
+   "text": "A month later a canoe comes in from the south, and (name)'s cousin wades ashore with a partner and a baby, thin and sunburnt and holding the carved shell. The two cousins recognise each other at once, somehow, after all those years. The village shares out the stores to feed three more, and nobody minds.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L14962"
+  },
+  "c1o2": {
+   "text": "The canoe that comes brings the cousin and two children: a long-legged teenager who has paddled half the way, and a small child who has been seasick the whole time. The cousin's partner, (he/she) explains quietly, didn't survive the last bad harvest. (Name) takes them all in, and the teenager, who has never seen so much fish in (his/her) life, eats until (he/she) has to lie down.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L14965"
+  },
+  "c1": {
+   "text": "(Name) sends back a carved shell with the trader: a fish, which in the old way means \"come home.\" Then (he/she) waits, watching the south every morning...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14959"
+  },
+  "c2o1": {
+   "text": "(Name) finds (his/her) cousin's village in a bad way, and brings the cousin, the cousin's partner and their baby home. On the long journey back, (name) does most of the steering, reading the stars, the swells and the birds, and by the time they land, (he/she) is a far better sailor than when (he/she) left.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14971"
+  },
+  "c2o2": {
+   "text": "At the cousin's village, (name) learns that the family left a week ago, for another island, where they had heard there was work. Nobody knows which. (Name) leaves the carved shell with the village elder, in case they come back. Nine days home, empty-handed. (Name) watches the south every morning for a year.",
+   "src": "L14974"
+  },
+  "c2": {
+   "text": "(Name) loads a canoe with dried fish, water and two strong paddlers, and sets out south. The journey takes nine days...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14968"
+  }
+ }
+}

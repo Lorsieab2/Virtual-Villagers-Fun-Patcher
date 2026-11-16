@@ -986,9 +986,35 @@ def validate_variant(v: Variant) -> dict:
     return g
 
 
-def compile_all(variants: list[Variant]) -> None:
+def variant_tags(v: Variant, g: dict, bank: Bank | None = None) -> dict[str, list[str]]:
+    """A variant's node tags for the content controls (src/vv_event_content.py): its words and effects, and each
+    ending's archetype's filters (outcome_categories)."""
+    import vv_event_content as content
+    tags = {n: set(t) for n, t in content.tag_graph(g).items()}
+    by_index = _arc_filters(bank)
+    for name, _grp, arc in v.outcomes:
+        if name in g["nodes"]:
+            tags.setdefault(name, set()).update(by_index.get(arc, ()))
+    return {n: sorted(t) for n, t in tags.items() if t}
+
+
+_ARC_FILTERS: dict[int, list[str]] | None = None
+
+
+def _arc_filters(bank: Bank | None = None) -> dict[int, list[str]]:
+    global _ARC_FILTERS
+    if _ARC_FILTERS is None:
+        _ARC_FILTERS = {c["index"]: c["filters"] for c in outcome_categories(bank).values()}
+    return _ARC_FILTERS
+
+
+def compile_all(variants: list[Variant], bank: Bank | None = None) -> None:
+    import vv_event_content as content
     for v in variants:
         g = validate_variant(v)
+        g, _plan = content.inject(g, variant_tags(v, g, bank), {"speaks": content.speaking_roles(g)})
+        # A new event (the Story DLL's cg_is_collection_event: a "collection" block in the header).
+        g = dict(g, collection={"id": v.manifest_id, "source": "living_engine", "k": v.k})
         v.cieg = cg.compile_graph(g)
         order = list(g["nodes"])
         v.outcomes = [(name, grp, arc) for name, grp, arc in v.outcomes]
@@ -1241,7 +1267,7 @@ def build(bank: Bank | None = None, k_total: int = K, extra: list[Variant] | Non
     already compiled (the static events' versions, scripts/living_from_static.py), packed in their own groups."""
     bank = bank or Bank()
     variants = generate(bank, k_total)
-    compile_all(variants)
+    compile_all(variants, bank)
     variants += extra or []
     return variants, {game: packs(game, variants, bank) for game in GAMES}
 

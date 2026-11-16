@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ghost in the Empty Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b360_ghost_empty_hut",
+  "source": "balance",
+  "lines": [
+   16599,
+   16639
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16599",
+  "ledger": [
+   {
+    "src": "L16600",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16601",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16608",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16617",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16605",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16606",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16609",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16618",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16611",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16614",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16620",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16623",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16626-16639",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say a hut that is left empty too long gets lonely and calls for someone to fix it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The hut at the end of the row has been empty for a year, since its last family moved to the far side of the island, and it has started to fall apart: the roof sags, the walls lean, and at night, people say, someone inside it hums. The elders say a hut that is left empty too long gets lonely and calls for someone to fix it.\n(Name) walks past it at dusk and hears the humming. It's a sad, tuneless sort of hum. Should (name) go inside, or fetch the builders in the morning to see to it?",
+   "choices": [
+    {
+     "label": "Go Inside",
+     "next": "c1",
+     "src": "L16605"
+    },
+    {
+     "label": "Fetch the Builders in the Morning",
+     "next": "c2",
+     "src": "L16606"
+    }
+   ],
+   "src": "L16602-16603"
+  },
+  "c1o1": {
+   "text": "Then the humming starts again, much happier, right beside (name)'s ear. (Name) runs. In the morning, (his/her) face in the water jar is different: still (his/hers), but shaped a little like the faces carved on the old hut's doorposts. The elders say the hut has said thank you for the visit. (Name) wishes it had said it in words.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L16612"
+  },
+  "c1o2": {
+   "text": "In the dark, (name) finds the problem at once: a cracked ridgepole, sagging in the middle, creaking in the wind with a sound exactly like humming. (He/She) fetches the builders in the morning anyway, and while they are mending the empty hut, they find three more with cracked ridgepoles, and mend those too. Nobody hears the humming again.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L16615"
+  },
+  "c1": {
+   "text": "(Name) pushes the sagging door open. Inside it is dark and smells of old thatch. The humming stops. Something brushes past (his/her) face, cool as a breath...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16609"
+  },
+  "c2o1": {
+   "text": "The builders mend the hut, and every other hut that needs it on the way. The very next week, a young couple with a baby come over the hill, looking for somewhere to live. The empty hut is ready for them, and they move straight in. That night, from inside, (name) hears a happy, tuneful sort of humming: the baby's parent, singing to the baby.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L16621"
+  },
+  "c2o2": {
+   "text": "The humming is a pair of nesting doves in the rafters, who have been cooing to each other all year. The builders mend the hut around them, carefully, leaving the nest where it is. The doves stay. The hut stays empty. But nobody calls it haunted any more, and the children go and listen to the doves on the way home.",
+   "src": "L16624"
+  },
+  "c2": {
+   "text": "(Name) goes home and sleeps badly. In the morning, (he/she) brings the builders, and they stand outside the empty hut listening. The humming is still there, in broad daylight...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16618"
+  }
+ }
+}

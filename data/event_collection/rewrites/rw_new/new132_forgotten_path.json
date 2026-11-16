@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new132_forgotten_path",
+  "source": "rewrites",
+  "lines": [
+   6194,
+   6239
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6194",
+  "ledger": [
+   {
+    "src": "L6195",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6196",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6204",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6211",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6200",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6201",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6202",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6205",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6212",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6219",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6208",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6213",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6220",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6225-6239",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager insists that there is a shortcut through the bamboo to the far beach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) insists that there is a shortcut through the bamboo to the far beach. A good one. A path (subject.he/she) ran along every day as a child, barefoot, racing (subject.his/her) friends.\nNone of the younger villagers have ever seen it. They have looked. There is only bamboo, very dense, very tall bamboo, and a lot of spiders.\n\"It's THERE,\" (subject) says. \"You're just not looking properly.\" (subject.He/She) is getting that stubborn look, the one (subject.his/her) family know well, the one that usually ends with (subject) marching off somewhere alone and everyone else chasing after (subject.him/her). Should (young) let (subject) lead the way, ask (subject.him/her) how to find an old path, or start clearing the bamboo for (subject.him/her)?",
+   "choices": [
+    {
+     "label": "Ask Where They Want to Walk",
+     "next": "c1",
+     "src": "L6200"
+    },
+    {
+     "label": "Map the Old Way",
+     "next": "c2",
+     "src": "L6201"
+    },
+    {
+     "label": "Clear the Bamboo Ahead of Them",
+     "next": "c3",
+     "src": "L6202"
+    }
+   ],
+   "src": "L6197-6199"
+  },
+  "c1o1": {
+   "text": "(subject) chooses to walk the path (subject.himself/herself), slowly, on (subject.his/her) own terms, poking the bamboo aside with a stick. (young) follows at a respectful distance. It takes all afternoon. And at the end of it, sure enough, they come out on the far beach, sandy and scratched and grinning. \"TOLD you,\" says (subject).",
+   "src": "L6207"
+  },
+  "c1o2": {
+   "text": "(subject) looks at the bamboo for a long moment, then holds out (subject.his/her) arm. \"Well? Don't just stand there.\" (subject.He/She) asks for a strong arm to lean on, surprising everyone who expected (subject.him/her) to insist on going alone. They go together, slowly, and (subject) tells stories about every bend.",
+   "src": "L6209"
+  },
+  "c1": {
+   "text": "(young) doesn't argue. (subject.He/She) just asks (subject) to show (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6205"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) how to find old paths by the lean of trees, which bend away from where people have walked for years, and by little stacks of stones the old walkers left at every turn. (young) is a fast learner. Following the signs together, they find the path, buried but still there, exactly where (subject) said it was.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6214"
+  },
+  "c2o2": {
+   "text": "They follow the signs for a while, and then (subject) stops at a fork, frowning. (subject.He/She) can't remember which way the path went here. \"Left. No. Right? It was left.\" After a lot of arguing, a few other elders are fetched to help work out where the path must have gone. They choose right. It was left.",
+   "src": "L6216"
+  },
+  "c2": {
+   "text": "(young) asks (subject) how (subject.he/she) would find an old path that's grown over. (subject) brightens immediately. \"Ah. Now THAT is a skill...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6212",
+   "text_only": [
+    {
+     "src": "L6212",
+     "what": "\"skill\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o1": {
+   "text": "Cutting back the bamboo, they uncover the old path, worn deep into the ground under all the growth. (subject) walks it comfortably, smiling more with every step, and when they reach the far beach, (subject.he/she) kicks off (subject.his/her) sandals and walks right into the sea, the way (subject.he/she) did as a child.",
+   "src": "L6221"
+  },
+  "c3o2": {
+   "text": "After half an hour of hacking, (subject) admits the walk is too much for today. (subject.His/Her) knees and back ache, and the heat is fierce. (subject.He/She) decides to rest at home instead, and the young villagers promise to finish clearing the path so (subject.he/she) can walk it another day. They do.",
+   "src": "L6223"
+  },
+  "c3": {
+   "text": "(young) fetches a cutting blade and a couple of friends, and they start hacking back the bamboo wherever (subject) points...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6219"
+  }
+ }
+}

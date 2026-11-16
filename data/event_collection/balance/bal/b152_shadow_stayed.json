@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shadow That Stayed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b152_shadow_stayed",
+  "source": "balance",
+  "lines": [
+   7003,
+   7045
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7003",
+  "ledger": [
+   {
+    "src": "L7004",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7005",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7013",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7022",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7010",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7011",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7014",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7023",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7016",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7019",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7025",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7028",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7031-7045",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is midday, and everyone's shadow is a small dark puddle under their feet.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It is midday, and everyone's shadow is a small dark puddle under their feet. Except (subject)'s. (subject)'s shadow is lying a few steps away, on its own, on the grass by the cooking fire, and it looks as if it is resting.\n(subject) noticed it this morning. The shadow was slow to get up when (subject.he/she) got out of bed, and it has been lagging behind all day, like a tired child. Now it has stopped altogether. (healer) says (subject.his/her) grandmother told a story about a shadow that was worked so hard it decided to live a life of its own.\nShould (subject) go and pick up (subject.his/her) shadow, or let it rest?",
+   "choices": [
+    {
+     "label": "Pick Up the Shadow",
+     "next": "c1",
+     "src": "L7010"
+    },
+    {
+     "label": "Let It Rest",
+     "next": "c2",
+     "src": "L7011"
+    }
+   ],
+   "src": "L7006-7008"
+  },
+  "c1o1": {
+   "text": "The shadow stands up, and fills in, from the feet up, like a pot filling with water, until there is another (subject) standing on the grass, exactly the same, blinking in the sun. Behind (subject), a new small shadow appears under (subject.his/her) feet, where it should be. The other (subject) takes the name (made1), and says it is very glad to have a face at last.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L7017"
+  },
+  "c1o2": {
+   "text": "The shadow stands up and fills in, but only on the outside. It looks exactly like (subject). It doesn't think like (subject.him/her) at all. It has spent its whole life lying on the ground watching (subject) do things, and it has strong opinions about all of them. It takes the name (made1), and picks all the jobs (subject) never does, and does them very well, out of spite.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L7020"
+  },
+  "c1": {
+   "text": "(subject) walks over to the shadow and stands on its feet, as if to stick it back on. It doesn't stick. It slides out from under (subject.him/her), sits up, and looks at (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7014"
+  },
+  "c2o1": {
+   "text": "By evening the shadow gets up and comes back to (subject)'s feet, stretching, as if after a long nap. (subject) feels rested too, more rested than (subject.he/she) has in years. (subject.He/She) starts taking the afternoon off once a week after that. One of the things (subject.he/she) used to dislike doesn't seem so bad when (subject.he/she) isn't so tired.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L7026"
+  },
+  "c2o2": {
+   "text": "At sunset the shadow gets up, looks at (subject), and walks off into the jungle. (subject) has no shadow for three days. Then, one morning, it comes back, looking pleased with itself and smelling faintly of the sea. (subject) never finds out where it went.",
+   "src": "L7029"
+  },
+  "c2": {
+   "text": "(subject) sits down on the grass beside (subject.his/her) shadow and decides to rest too. The two of them sit side by side in the sun, for the first time in (subject.his/her) life...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7023"
+  }
+ }
+}

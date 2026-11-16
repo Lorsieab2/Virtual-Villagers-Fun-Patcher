@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bark Boat Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b097_bark_boat_race",
+  "source": "balance",
+  "lines": [
+   4383,
+   4424
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4383",
+  "ledger": [
+   {
+    "src": "L4384",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4385",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4393",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4402",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4390",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4391",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4394",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4403",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4396",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4399",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4405",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4408",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4411-4424",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the fastest runner in the village and has won three years running.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every summer the village races little boats of folded bark down the stream from the hills to the lagoon, running alongside to push them free when they snag. (Name) is the fastest runner in the village and has won three years running. This year a younger villager's boat is neck and neck with (name)'s, and the younger one is crying with excitement.\nNear the end the stream splits around a rock. (Name)'s boat is caught on the near side. A quick push would free it and win. Or (name) could let it go and free the younger one's boat, which is stuck too.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Free (His/Her) Own Boat",
+     "next": "c1",
+     "src": "L4390"
+    },
+    {
+     "label": "Free the Younger One's Boat",
+     "next": "c2",
+     "src": "L4391"
+    }
+   ],
+   "src": "L4386-4388"
+  },
+  "c1o1": {
+   "text": "(Name) wins again. Four years running. The younger one comes second, and is so happy about coming second that it's impossible to feel bad. Winning four times does something for (name): from then on (he/she) throws (himself/herself) into everything with the same speed and certainty, and gets better at all of it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4397"
+  },
+  "c1o2": {
+   "text": "(Name) wins, and turns round, and sees the younger one standing by the rock, crying for real now, with a boat stuck fast. The village cheers for (name), but it sounds thin. After that day, the joy of running goes out of (name). (He/She) walks everywhere, slowly, and doesn't race again.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "src": "L4400"
+  },
+  "c1": {
+   "text": "(Name) splashes in and pushes (his/her) boat free, and races alongside it, faster than ever, down to the lagoon...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4394"
+  },
+  "c2o1": {
+   "text": "The younger one's boat wins. The younger one is speechless, and then screaming, and then hugging (name) round the knees. The whole village saw what happened at the rock, and talks about nothing else for days. It's the best race anyone can remember, and (name) didn't even finish.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L4406"
+  },
+  "c2o2": {
+   "text": "The younger one's boat wins. (Name)'s boat comes loose eventually and drifts down to the lagoon in last place, very slowly, to a big cheer. \"Next year,\" (name) tells the younger one. \"I'm not letting you win twice.\" (He/She) does, though.",
+   "src": "L4409"
+  },
+  "c2": {
+   "text": "(Name) reaches across the rock and gives the younger one's boat a push. It spins free and shoots off downstream. (Name)'s own boat stays stuck...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4403"
+  }
+ }
+}

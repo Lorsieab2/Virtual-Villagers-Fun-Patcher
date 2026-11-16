@@ -1,0 +1,318 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heat in the Classroom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new154_heat_classroom",
+  "source": "rewrites",
+  "lines": [
+   7390,
+   7445
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7390",
+  "ledger": [
+   {
+    "src": "L7391",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7392",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7401",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7408",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7415",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7422",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7396",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7397",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7398",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7399",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7402",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7409",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7416",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7423",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7403",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7405",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7410",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7412",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7417",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7419",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7424",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7426",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7429-7445",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The afternoon is scorching.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The afternoon is scorching. Not just hot: the kind of heat where the air wobbles and the birds stop singing and the dogs lie flat in the shade like dropped blankets.\nInside the lesson hut, it's an oven. The children are wilting over their counting pebbles. (Name), the teacher, is sweating straight through (his/her) wrap, and has asked \"What are seven and five?\" three times. Nobody can remember. (Name) can't remember either.\nOutside, the fruit on the drying racks is starting to blacken in the sun. The children, the fruit, the heat itself: what should (name) deal with first?",
+   "choices": [
+    {
+     "label": "Shade the Drying Racks",
+     "next": "c1",
+     "src": "L7396"
+    },
+    {
+     "label": "Check on Every Child",
+     "next": "c2",
+     "src": "L7397"
+    },
+    {
+     "label": "Track the Hottest Hours",
+     "next": "c3",
+     "src": "L7398"
+    },
+    {
+     "label": "Open Up the Hut Walls",
+     "next": "c4",
+     "src": "L7399"
+    }
+   ],
+   "src": "L7393-7395"
+  },
+  "c1o1": {
+   "text": "Quick hands move the fruit into the shade before the sun can scorch it, and save it as usable food for the stores. The children are very proud. (Name) declares that this counts as a counting lesson, because they counted the fruit. Seven racks and five racks. Twelve.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7404"
+  },
+  "c1o2": {
+   "text": "The fruit is saved, but the heat has already got into the storehouse. When (name) checks, a basket of fish has spoiled in the heat, and smells so terrible that the children run screaming. It has to be thrown out, quickly, and far away.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7406"
+  },
+  "c1": {
+   "text": "(Name) abandons the lesson, and sends the children running to help move the drying racks under the trees, which is the most exciting thing that's happened all day...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7402"
+  },
+  "c2o1": {
+   "text": "Everyone drinks plenty of water and is fine. (Name) moves the lesson under the trees by the stream, where it's cooler, and the children dip their feet in the water while they count. They remember that seven and five are twelve. Everyone is relieved.",
+   "src": "L7411"
+  },
+  "c2o2": {
+   "text": "(Name) makes sure every child drinks, but forgets to drink (himself/herself). Halfway down the row, (he/she) goes pale, sways, and faints, hitting (his/her) head on a hut post on the way down. The children run screaming for help. (He/She) is carried to the healer and will need care for a few days.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7413"
+  },
+  "c2": {
+   "text": "(Name) goes along the rows checking every child, making sure everyone drinks water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7409"
+  },
+  "c3o1": {
+   "text": "After a few days, the pebbles show it clearly: the hut is coolest in the hour after dawn, and hottest just after midday. (Name) moves lessons to the cool early mornings, and the farmers, hearing about it, start doing their heaviest work at dawn too. It's a useful pattern for planning the day.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7418"
+  },
+  "c3o2": {
+   "text": "The children's guesses about the hottest hour disagree wildly. One says the morning was hottest. One says it's always hot. One put all (his/her) pebbles in a pattern shaped like a fish. (Name) decides to measure again tomorrow, when everyone's brains are less cooked.",
+   "src": "L7420"
+  },
+  "c3": {
+   "text": "(Name) turns the heat into a lesson: every hour, the children feel the hut walls and the sand outside, and mark how hot they are with pebbles...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7416"
+  },
+  "c4o1": {
+   "text": "The workers cut windows and raise the lower walls on props, and before evening, the sea breeze blows straight through the lesson hut. The children cheer. It's so pleasant that the adults start sneaking in to nap there in the afternoons.",
+   "src": "L7425"
+  },
+  "c4o2": {
+   "text": "The work crew, sweltering in the heat, drinks its way through a whole pile of stored coconuts before the job is done, leaving less food in the stores. But the breeze blows through the hut by evening, and nobody complains.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7427"
+  },
+  "c4": {
+   "text": "(Name) gets the builders to come and open up the hut so the sea breeze can blow through...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7423"
+  }
+ }
+}

@@ -1,0 +1,5 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+living_st_a95f3c	The Aspiring Adventurer	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	A villager spots something glinting off the jungle path: go and investigate, or stay on the safe path.		
+living_st_df1250	The Playful Dolphins	4	1	living_st_mie	Written by Lorsieab2.	A villager sees dolphins playing just offshore: swim towards them, or hang back.		
+living_st_5f1436	The Mysterious Mask	4	1	living_st_mie	Written by Lorsieab2.	Children playing at the forest's edge find a strange carved mask: wait, cry for help, or walk.		

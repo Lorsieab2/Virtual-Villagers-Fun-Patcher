@@ -1,0 +1,256 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new123_first_fish",
+  "source": "rewrites",
+  "lines": [
+   5764,
+   5809
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5764",
+  "ledger": [
+   {
+    "src": "L5765",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5766",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5774",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5781",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5788",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5770",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5771",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5772",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5775",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5782",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5789",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5776",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5778",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5783",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5785",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5790",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5792",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5795-5809",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Using a bit of line and a bent bone hook, little a villager has caught a fish.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Using a bit of line and a bent bone hook, little (subject) has caught a fish. By (subject.himself/herself). (subject.His/Her) very first one.\nNow (subject.he/she) is standing at the water's edge holding it in both hands, frozen, torn between running up the beach to show everyone in the whole village, and letting it go. The fish is not very big. The fish also has strong opinions about the situation, and is expressing them by wriggling furiously.\n(adult) wanders down the beach and finds the two of them like this, staring at each other. How can (adult) help?",
+   "choices": [
+    {
+     "label": "Ask What the Child Wants",
+     "next": "c1",
+     "src": "L5770"
+    },
+    {
+     "label": "Show How to Hold It Gently",
+     "next": "c2",
+     "src": "L5771"
+    },
+    {
+     "label": "Let the Child Watch the Reef",
+     "next": "c3",
+     "src": "L5772"
+    }
+   ],
+   "src": "L5767-5769"
+  },
+  "c1o1": {
+   "text": "(subject)'s lip wobbles. It's (subject.his/her) very first fish, (subject.he/she) explains, and (subject.he/she) feels bad about eating it, because it's so little and it's looking at (subject.him/her). (adult) nods seriously. Together they let it go, and watch it dart away. (subject) feels truly heard, and runs up the beach to tell everyone anyway: \"I caught one AND I let it go!\"",
+   "src": "L5777"
+  },
+  "c1o2": {
+   "text": "(subject) starts to explain, then decides instead that the fish's name is Bubbles. This settles nothing at all, but it seems to make (subject) very happy, and that is perfectly all right. Bubbles, who does not like being named, flips out of (subject.his/her) hands and back into the sea. \"Bye, Bubbles!\"",
+   "src": "L5779"
+  },
+  "c1": {
+   "text": "(adult) kneels in the shallow water beside (subject). \"That's a fine fish. What do you want to do with it?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5775"
+  },
+  "c2o1": {
+   "text": "\"Fish don't breathe air like we do,\" (adult) explains, pointing out the little flaps on the fish's sides. \"They breathe the water. Dry hands hurt them.\" (subject) is fascinated and asks about fifty questions, most of which (adult) can answer. (subject.He/She) learns a little about how fish breathe, and decides to keep the fish for dinner after all, now that (subject.he/she) knows how to be gentle about it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L5784"
+  },
+  "c2o2": {
+   "text": "(subject) listens carefully, wets (subject.his/her) hands, and then asks if (subject.he/she) can please decide what to do with the fish on (subject.his/her) own. (adult) steps back a few paces and waits. After a long think, (subject) lets the fish go, then immediately casts the line again.",
+   "src": "L5786"
+  },
+  "c2": {
+   "text": "(adult) shows (subject) how to wet (subject.his/her) hands in the sea before holding a fish, and how to cup it gently instead of squeezing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5782"
+  },
+  "c3o1": {
+   "text": "Watching closely, (subject) notices something: the fish all gather in the patches where the reef shades the water, and hardly any are in the bright sunny parts. (subject.He/She) runs to tell the fishers, who are genuinely impressed. Some of them had never noticed, and they start casting into the shady spots from then on, with better catches.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5791"
+  },
+  "c3o2": {
+   "text": "While (subject) is busy watching the reef, the fish makes a heroic leap from (subject.his/her) hands and vanishes into the water. (subject) stares after it, open-mouthed. Then (subject.he/she) grins. \"That's okay. I know where they live now. I'm coming back tomorrow.\"",
+   "src": "L5793",
+   "text_only": [
+    {
+     "src": "L5793",
+     "what": "\"vanishes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(adult) suggests that before deciding anything, (subject) should look at where (subject.he/she) caught it. They wade out a little, and (subject) stares down into the clear water...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5789"
+  }
+ }
+}

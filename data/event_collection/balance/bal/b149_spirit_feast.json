@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spirit Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b149_spirit_feast",
+  "source": "balance",
+  "lines": [
+   6860,
+   6903
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6860",
+  "ledger": [
+   {
+    "src": "L6861",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6870",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6879",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6867",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6868",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6871",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6880",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6873",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6876",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6882",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6885",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6888-6903",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "By morning the plates are always empty and washed clean, stacked neatly at the high-tide line.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year, on the longest night, the village leaves a feast on the beach for the island spirits: the best fruit, the best fish, a pot of the best stew. Nobody stays to watch. By morning the plates are always empty and washed clean, stacked neatly at the high-tide line.\nThis year it is (name)'s turn to carry the stew down. (He/She) sets it on the sand with the rest, and then, instead of going home, hides behind a rock. (He/She) has always wanted to know. At midnight, the sea goes perfectly flat, and lights come walking up out of the water, tall and pale, towards the feast.\nOne of them stops and looks straight at the rock where (name) is hiding. Should (name) stay hidden, or step out and greet them?",
+   "choices": [
+    {
+     "label": "Step Out and Greet Them",
+     "next": "c1",
+     "src": "L6867"
+    },
+    {
+     "label": "Stay Hidden",
+     "next": "c2",
+     "src": "L6868"
+    }
+   ],
+   "src": "L6863-6865"
+  },
+  "c1o1": {
+   "text": "(Name) goes with them. Nobody sees it. In the morning, the plates are stacked at the tideline, washed clean, and beside them, folded neatly, are (name)'s clothes. (Name)'s footprints go down to the water and do not come back. Every year after, the village sets one more place at the spirits' feast.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L6874"
+  },
+  "c1o2": {
+   "text": "The spirits let (name) sit at the feast with them, and give (him/her) a taste of everything. It is the best food (he/she) will ever eat, and everything (he/she) eats afterwards will taste like ashes next to it. In the morning there are new baskets beside the empty plates, full of fish nobody can name. (Name) goes home and never cares much for food again. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L6877"
+  },
+  "c1": {
+   "text": "(Name) stands up, trembling, and says the old greeting. The lights go still. Then the tall one holds out a hand made of something like moonlight on water, and beckons...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6871"
+  },
+  "c2o1": {
+   "text": "(Name) watches the spirits eat until (he/she) falls asleep behind the rock. In the morning the plates are washed and stacked, and someone has put a blanket over (him/her) in the night. It is woven from seaweed, and dry. (Name) never tells anyone what (he/she) saw, except to say that the spirits like the stew, and to always make extra.",
+   "src": "L6883"
+  },
+  "c2o2": {
+   "text": "The spirits finish the feast and walk back into the sea, and (name) lets out a breath of relief. Then (he/she) sees the tall one has stopped at the water's edge and is waiting, without looking back. (Name) gets up. (He/She) doesn't know why. The village finds only the rock, and the stacked plates, and a line of footprints going down to the water.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L6886"
+  },
+  "c2": {
+   "text": "(Name) presses (himself/herself) flat behind the rock and doesn't breathe. The tall light looks at the rock for a long time. Then it turns back to the feast...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6880"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

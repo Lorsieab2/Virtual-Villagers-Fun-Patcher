@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger Who Took a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s088_stranger_took",
+  "source": "rewrites",
+  "lines": [
+   4124,
+   4167
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4124",
+  "ledger": [
+   {
+    "src": "L4125",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4126",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4135",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4144",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4132",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4133",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4136",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4145",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4141",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4147",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4150",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4153-4167",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A stranger spends a day in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A stranger spends a day in the village. A charming one, with a quick smile and a cloak of patchwork bark cloth in every shade of brown. (He/She) admires the huts, praises the cooking, and goes round asking everyone's name, and repeating it back to them with real delight, as if each one were a gift.\n(He/She) seems especially delighted with (name)'s. \"What a name,\" (he/she) says, again and again. \"What a name. Say it once more?\" And (he/she) holds up a little spiral shell, close to (name)'s mouth. Laughing, (name) says it, into the shell.\nThe stranger plugs the end of the shell with a blob of wax, very quickly. \"I'll have that,\" (he/she) says, with a wink, and tucks it into (his/her) cloak, and walks off down the path out of the village.\nOnly then does (name) find (he/she) can't remember what (he/she) is called. The elders tell stories of wanderers who collect names the way children collect shells. Should (name) chase after the stranger, or let it go?",
+   "choices": [
+    {
+     "label": "Chase After (Him/Her)",
+     "next": "c1",
+     "src": "L4132"
+    },
+    {
+     "label": "Let It Go",
+     "next": "c2",
+     "src": "L4133"
+    }
+   ],
+   "src": "L4127-4130"
+  },
+  "c1o1": {
+   "text": "(Name) catches up at last on the beach, where the stranger is sitting on a rock waiting, as if (he/she) expected it, swinging (his/her) feet. (He/She) laughs, a warm, delighted laugh. \"You're fast,\" (he/she) says. \"Good. That's the best kind of person.\" (He/She) picks the wax out of the spiral shell with a fingernail and holds it to (name)'s ear, and (his/her) name comes out of the shell, as clearly as the moment (he/she) said it, in (his/her) own voice. It all comes back at once. \"Just borrowing,\" says the stranger, and pats (him/her) on the head, and walks off along the beach, whistling.",
+   "src": "L4139"
+  },
+  "c1o2": {
+   "text": "(Name) runs until (he/she) can't run any more, all the way to the end of the island. But the stranger is gone. There are no footprints on the beach, no canoe on the water, no patchwork cloak among the trees. Just gone. And so is the shell, with (name)'s name sealed up inside it. (Name) walks home slowly. The village tries to help, but nobody can remember the name either. It's as if it never existed. (Name) is \"?\" now. Sometimes, on still days, (he/she) holds a shell up to (his/her) ear and listens, just in case.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L4142"
+  },
+  "c1": {
+   "text": "(Name) runs after the stranger, down the path, round the bend, through the palms, shouting \"Hey! HEY! You!\" because that's all (he/she) can shout. The patchwork cloak is always just disappearing round the next corner...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4136"
+  },
+  "c2o1": {
+   "text": "(Name) lets it go. And the village, who all saw what happened, gather round that evening at the fire to help (him/her) choose a new one. Everyone suggests something. There's a lot of laughing, and some very bad ideas, and one quite good one, from a child, which (name) likes at once: (renamed). Everyone toasts the new name with coconut milk. Somewhere, far away, someone is walking around with (name)'s old name in a shell, and (name) hopes they're taking good care of it.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L4148"
+  },
+  "c2o2": {
+   "text": "(Name) lets it go. The village gathers at the fire to help (him/her) choose a new one, but every name they try slides out of everyone's heads by morning, as if the stranger's shell is still drinking them up. After the fifth try, the elders give up. (He/She) is \"?\" from then on, through no choice of (his/her) own, and to everyone's surprise, (he/she) makes peace with it. \"At least nobody can take this one,\" (he/she) says, when people ask. (He/She) becomes rather well known for it. Visitors ask about (him/her). Children are told firmly never to say their names into a stranger's shell.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L4151"
+  },
+  "c2": {
+   "text": "(Name) stands in the middle of the path, watching the patchwork cloak disappear round the bend. (He/She) could run. But somehow (he/she) doesn't. \"Well,\" (he/she) says. \"I suppose (he/she) needed it more than I did.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4145",
+   "text_only": [
+    {
+     "src": "L4145",
+     "what": "\"disappear\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

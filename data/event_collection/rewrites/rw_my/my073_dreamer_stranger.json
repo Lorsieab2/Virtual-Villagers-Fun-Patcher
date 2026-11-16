@@ -1,0 +1,283 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dreamer's Stranger",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my073_dreamer_stranger",
+  "source": "rewrites",
+  "lines": [
+   14107,
+   14162
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14107",
+  "ledger": [
+   {
+    "src": "L14108",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14109",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14117",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14124",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14131",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14138",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14112",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14113",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14114",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14115",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14118",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14125",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14132",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14139",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14119",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14121",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14126",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14128",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14133",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14140",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14142",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14145-14162",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For the fifth night running, a villager has the same dream.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For the fifth night running, (subject) has the same dream. A crooked guava tree, heavy with fruit. A stranger sitting beneath it, open hands resting on (subject.his/her) knees. And the same question, asked gently, every single time: \"What did you leave unfinished?\"\n(subject) wakes up tired and cross, and tells (subject.his/her) friends about it over breakfast. One of them stops chewing. \"A crooked guava? There's one exactly like that past the old fields.\" (subject) puts down (subject.his/her) bowl. Is it just a dream, or is something calling (subject.him/her)? What should (subject) do?",
+   "choices": [
+    {
+     "label": "Visit the Tree",
+     "next": "c1",
+     "src": "L14112"
+    },
+    {
+     "label": "Answer the Question",
+     "next": "c2",
+     "src": "L14113"
+    },
+    {
+     "label": "Ask a Healer",
+     "next": "c3",
+     "src": "L14114"
+    },
+    {
+     "label": "Ignore the Dream",
+     "next": "c4",
+     "src": "L14115"
+    }
+   ],
+   "src": "L14110-14111"
+  },
+  "c1o1": {
+   "text": "Sitting under the tree, eating a guava, is a traveler: an ordinary, dusty, middle-aged traveler who looks up at (subject) in some alarm. \"I'm sorry,\" (subject) blurts out, \"but I've been dreaming about you.\" The traveler blinks. \"That's either very romantic or very worrying.\" They end up laughing about it and sharing the guavas, and the traveler stays for a few days. (subject) never does find out why (subject.he/she) dreamed of (subject.him/her), and the traveler never asks (subject) what (subject.he/she) left unfinished.",
+   "src": "L14120"
+  },
+  "c1o2": {
+   "text": "There is no one under the tree. But in the roots, half-buried in old leaves, something glints. It is (subject)'s own knife, the one (subject.he/she) lost two whole seasons ago, (subject.his/her) father's knife, its handle swollen with rain but its blade still sharp. (subject) had searched for it for days and finally given up. (subject.He/she) sits under the tree holding it for a long time. The dream never comes again.",
+   "src": "L14122"
+  },
+  "c1": {
+   "text": "(subject) walks out past the old fields, and there it is, exactly as in the dream: the same crooked trunk, the same heavy branches, the same patch of shade beneath. (subject.He/she) approaches slowly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14118"
+  },
+  "c2o1": {
+   "text": "In the morning, (subject) packs a basket of fruit, walks to the other end of the village, and knocks on a door (subject.he/she) has not knocked on in years. It belonged to a friend (subject.he/she) fell out with over something so small that neither of them can quite remember it. The door opens. There is a very long, very awkward silence. Then the old friend says, \"Is that guava?\" and lets (subject.him/her) in. They talk until dark. The dream does not come back.",
+   "src": "L14127"
+  },
+  "c2o2": {
+   "text": "(subject) remembers: the canoe. Years ago, (subject.he/she) started carving a canoe of (subject.his/her) own, and stopped when work got busy, and somehow never started again. It is still lying behind (subject.his/her) hut under a heap of palm leaves. The next morning, (subject.he/she) drags it out, brushes off the beetles, and picks up the adze. It takes all season. When (subject) finally paddles it out past the reef, half the village is on the beach cheering.",
+   "src": "L14129"
+  },
+  "c2": {
+   "text": "That night, when the stranger asks the question again, (subject) does not wake up. (subject.He/she) sits down under the dream tree, and thinks. And thinks. And finally, (subject.he/she) knows...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14125"
+  },
+  "c3o1": {
+   "text": "(healer) listens carefully and nods. \"Dreams that come back again and again are often the mind chewing on something it can't swallow,\" (subject.he/she) says. \"Worry, regret, things you haven't let yourself think about during the day. Rest well, eat well, and let yourself think about it while you are awake. Then perhaps you won't need to dream it.\" (subject) tries, and after a few nights the stranger stops coming. (subject.He/she) does think about the question, though, rather a lot.",
+   "src": "L14134"
+  },
+  "c3o2": {
+   "text": "(healer) begins to explain how stress shapes dreams, then stops as (subject) describes the tree. \"Crooked guava. Past the old fields. Fruit on the left side only.\" (healer) frowns. \"You've never been past the old fields, have you?\" (subject) shakes (subject.his/her) head. \"Then I can't explain how you know the fruit only grows on the left. I can't explain that at all.\" (healer) gives (subject) a sleeping draught anyway.",
+   "src": "L14136"
+  },
+  "c3": {
+   "text": "(subject) is worried that something might be wrong with (subject.him/her). (subject.He/she) goes to the healers' hut and describes the dream in every detail to (healer)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14132"
+  },
+  "c4o1": {
+   "text": "It takes a few more nights, but the dream slowly fades: the stranger becomes blurrier, the tree smaller, the question quieter, until one night (subject) simply dreams about fishing instead. (subject.He/she) wakes up feeling triumphant, and a little bit sorry, as if (subject.he/she) has missed something. But only a little.",
+   "src": "L14141"
+  },
+  "c4o2": {
+   "text": "On the very last night, the stranger under the tree does not ask the question. (subject.He/she) just looks at (subject) and smiles, a kind, patient smile, as though (subject.he/she) knows (subject) will figure it out on (subject.his/her) own. Then the dream fades, and the stranger never returns. (subject) wakes up feeling strangely warm, and spends the whole day trying very hard not to think about what (subject.he/she) left unfinished. By evening, (subject.he/she) has started thinking about it anyway.",
+   "src": "L14143"
+  },
+  "c4": {
+   "text": "(subject) decides it is just a silly dream, and (subject.he/she) is not going to let it ruin (subject.his/her) day. (subject.He/she) works extra hard, eats a large supper, and goes to bed determined to dream about something else...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14139"
+  }
+ }
+}

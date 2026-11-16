@@ -182,6 +182,33 @@ ANTHOLOGY_SECTIONS = {   # section: the volume's name (one series each)
     "an_fauna": "Animals of Fur, Feathers, Scales, Claws and Hooves",
 }
 SOURCES[ANTHOLOGY_ID] = (ANTHOLOGY, ANTHOLOGY_HASH_FILE, ANTHOLOGY_LINES)
+
+# The owner's GO (2026-11-16): the rewritten events S001-S100, NEW-001..NEW-100 and MY-001..MY-115, and the balance
+# events B001-B360, in the owner's own layout (src/vv_owner_layout.py), each a frozen source (byte for byte, SHA-256
+# in data/event_collection/REWRITES.sha256 / BALANCE.sha256): data/event_collection/<source>/<section>/<id>.json,
+# built by scripts/go_events/gen_go.py.  Each section is one series.
+GO_SOURCES = {   # source id: (file name, line count, {code prefix: (section, topic)})
+    "rewrites": ("Isola Rewritten Events S001-MY115.txt", 16597,
+                 {"S": ("rw_s", "Rewritten Events S001-S100"), "NEW-": ("rw_new", "Rewritten Events NEW-001 to NEW-100"),
+                  "MY-": ("rw_my", "Rewritten Mystery and Myth Events MY-001 to MY-115")}),
+    "balance": ("Isola Balance Events B001-B360.txt", 16669, {"B": ("bal", "Balance Events B001-B360")}),
+}
+for _sid, (_name, _n, _secs) in GO_SOURCES.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+GO_SECTIONS = {sec: (sid, topic) for sid, v in GO_SOURCES.items() for sec, topic in v[2].values()}
+
+# The owner's More Island Events file (2026-11-16): the nine events "VVFP More Island Events.dll" runs (The Aspiring
+# Adventurer ... The Rumblings), frozen byte for byte (SHA-256 in data/event_collection/MIE.sha256) and built as
+# collection events whose static form never ships (collection.mixer_only: only their mixer versions do):
+# data/event_collection/mie/mie/<id>.json, built by scripts/go_events/gen_mie.py.  Lines 816 on (The Cooking
+# Contest's draft) are a notes row.
+MIE_ID = "mie"
+MIE = ROOT / "docs" / "more-island-events" / "Additional Virtual Villagers Events By Lorsieab2.txt"
+MIE_HASH_FILE = COLLECTION_DIR / "MIE.sha256"
+MIE_LINES = 1395
+MIE_SECTION = "mie"
+MIE_DIR = COLLECTION_DIR / MIE_ID
+SOURCES[MIE_ID] = (MIE, MIE_HASH_FILE, MIE_LINES)
 _ACTIVE = [SOURCE_ID]
 
 

@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Basket in the Mangroves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b003_basket_mangroves",
+  "source": "balance",
+  "lines": [
+   116,
+   158
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L118",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L126",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L135",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L123",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L124",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L127",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L136",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L129",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L132",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L141",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L144-158",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The basket is good work, tightly plaited, the kind of thing someone makes with care.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is gathering crabs among the mangrove roots when (subject.he/she) hears a thin, hiccupping cry. Wedged between two roots, just above the waterline, is a woven basket with a baby inside, red-faced and furious and very much alive. The basket is good work, tightly plaited, the kind of thing someone makes with care.\nThere's a canoe track in the mud, already filling with water, leading out towards the channel. Whoever brought the baby here came by sea, and not long ago.\n(subject) lifts the basket out. The baby stops crying and grabs (subject.his/her) thumb. Should (subject) take the baby home, or wait here in case someone comes back?",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L123"
+    },
+    {
+     "label": "Wait for Someone to Come Back",
+     "next": "c2",
+     "src": "L124"
+    }
+   ],
+   "src": "L119-121"
+  },
+  "c1o1": {
+   "text": "The whole village comes to look. The baby looks back, unimpressed. The elders ask around, and the fishers watch the channel for days, but no one comes looking. \"I found you,\" (subject) tells the baby, \"so I'll take care of you.\" And (subject.he/she) does, every night and every day, through the crying and the feeding and the sleepless nights, with the basket hung over the door so the baby can see where (subject.he/she) came from one day.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L130"
+  },
+  "c1o2": {
+   "text": "(subject) gets the baby home, and the baby screams for an hour straight, and (subject) panics. Then (friend) comes in, and (healer) comes in, and somebody's grandmother comes in with a sling and a pot of mashed fruit, and suddenly there are six people in the hut, all with opinions. By nightfall the baby is fed, clean and fast asleep on (subject)'s chest. \"We'll take turns,\" says (friend). And they do.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L133"
+  },
+  "c1": {
+   "text": "(subject) tucks the basket against (subject.his/her) chest and wades back through the roots, talking to the baby the whole way about crabs, and mud, and how they're nearly home...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L127"
+  },
+  "c2o1": {
+   "text": "Just before dark, a canoe comes slipping back up the channel. Two exhausted people are in it, soaked to the skin, and when they see the basket they start crying before the canoe touches the mud. Their island had a sickness, and they had left the baby somewhere sheltered while they went back for their things, and then the tide turned and they got lost in the channels. (subject) walks them all back to the village. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L139"
+  },
+  "c2o2": {
+   "text": "Nobody comes. When the stars come out, (subject) carries the baby back to the village, where the elders and the healers take over. Within a week, a couple who have been hoping for a child for years have taken the baby in, and (subject) is the baby's favourite visitor. (subject.He/She) never quite stops watching the channel, though.",
+   "src": "L142"
+  },
+  "c2": {
+   "text": "(subject) sits down on a dry root with the basket on (subject.his/her) knees and waits, watching the channel, rocking the baby whenever (subject.he/she) starts to fuss. The tide comes in. The sun starts to drop...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L136"
+  }
+ }
+}

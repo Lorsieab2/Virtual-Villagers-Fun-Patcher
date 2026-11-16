@@ -1,0 +1,275 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Snake in the Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s069_snake_basket",
+  "source": "rewrites",
+  "lines": [
+   3258,
+   3300
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3258",
+  "ledger": [
+   {
+    "src": "L3259",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3260",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3268",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3277",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3265",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3266",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3269",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3278",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3271",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3274",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3280",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3283",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3286-3300",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The storehouse is dim and cool after the bright sun outside.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The storehouse is dim and cool after the bright sun outside. Dust floats lazily in the single beam of light from the doorway. (Name) has come in for a yam for supper, and is humming to (himself/herself), and reaches into the big basket in the corner without looking.\n(His/her) fingers touch something smooth. And cool. And moving.\n(Name) freezes, (his/her) arm deep in the basket. Something long and heavy slides slowly over the back of (his/her) hand. There is a soft, dry rustle among the yams, and then a quiet hiss. (Name)'s heart is pounding. Should (he/she) yank (his/her) hand out as fast as possible, or stay perfectly still and hope?",
+   "choices": [
+    {
+     "label": "Pull Your Hand Out Fast",
+     "next": "c1",
+     "src": "L3265"
+    },
+    {
+     "label": "Stay Very Still",
+     "next": "c2",
+     "src": "L3266"
+    }
+   ],
+   "src": "L3261-3263"
+  },
+  "c1o1": {
+   "text": "Fast enough. (Name)'s hand comes out of the basket in one piece, and (he/she) ends up sitting on the floor against the far wall with a yam in (his/her) lap and (his/her) heart going like a drum. A long brown snake pokes its head up over the edge of the basket, looks at (him/her) with deep offence, and slithers off out of the door into the sunshine. (Name) won't reach into a basket of anything without looking first, ever again, and if (he/she) can possibly get somebody else to do the gathering, (he/she) will.",
+   "children": [
+    {
+     "next": "c1o1_c3"
+    }
+   ],
+   "src": "L3272"
+  },
+  "c1o2": {
+   "text": "Not fast enough. As (name)'s arm comes out, the snake strikes, quick as a thought, and sinks its teeth into the side of (his/her) hand. (Name) yells. By the time (he/she) has run to the healers, the hand is swelling up, red and hot and tight, and by evening it's the size of a coconut. The healers cut, and suck, and pack it with cold leaves, and the swelling goes down over a few painful days. (Name) is very glad it wasn't worse.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L3275"
+  },
+  "c1": {
+   "text": "(Name) doesn't think. (He/She) yanks (his/her) arm out of the basket as hard and as fast as (he/she) can, staggering backwards across the storehouse, and yams go flying everywhere...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3269"
+  },
+  "c2o1": {
+   "text": "The snake takes its time. It slides slowly along (name)'s hand, and up round (his/her) wrist, and coils there, heavy and cool, and lifts its head up out of the yams to look at (him/her). They look at each other for a very long moment. Then the snake seems to decide that (name) is neither dangerous nor food, uncoils, and slips away over the edge of the basket and out of the door. (Name) does not move for another hour, just in case. Then (he/she) goes outside and sits in the sun until (he/she) stops shaking.",
+   "src": "L3281",
+   "text_only": [
+    {
+     "src": "L3281",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "(Name) stays perfectly still. The snake bites anyway. It's not a big bite, just two small marks, and for a moment (name) thinks it's all right. Then, an hour later, the poison starts. The world goes swimmy and strange, (his/her) heart races, and (he/she) is sick, and sick again. The healers keep (him/her) in the hospital for a week, giving (him/her) teas and keeping (him/her) cool, until the poison works its way out. (Name) is thinner, and paler, and very much alive.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L3284"
+  },
+  "c2": {
+   "text": "(Name) remembers what the elders say about snakes: they only bite if they're frightened. So (he/she) doesn't move. Not a finger. (He/She) stands there, arm deep in the basket, barely breathing, while the snake decides what to do...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3278"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "berries",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       1,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "coconuts",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g2",
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "else": "c1o1_c1"
+    }
+   ]
+  },
+  "c1o1_g3": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fruit",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c3": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g3",
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "else": "c1o1_c2"
+    }
+   ]
+  }
+ }
+}

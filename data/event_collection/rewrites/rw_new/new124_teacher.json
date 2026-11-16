@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teacher Who Listened",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new124_teacher",
+  "source": "rewrites",
+  "lines": [
+   5811,
+   5857
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5811",
+  "ledger": [
+   {
+    "src": "L5812",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5813",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5822",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5829",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5836",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5818",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5819",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5820",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5823",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5830",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5837",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5824",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5826",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5833",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5838",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5840",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5843-5857",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Excuse me, a villager says, very softly.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "teacher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(teacher) is in the middle of a lesson about the tides, pointing at a drawing in the sand with a long stick, when (subject), a quiet pupil who almost never speaks, raises a hand.\n\"Excuse me,\" (subject) says, very softly. \"I think you have the time of the high tide wrong.\"\nThe other children gasp. Someone drops a shell. Everyone turns to see what the teacher will do.\n(teacher), to (subject.his/her) credit, slowly puts down the pointing stick. How should (teacher) respond?",
+   "choices": [
+    {
+     "label": "Let the Pupil Explain",
+     "next": "c1",
+     "src": "L5818"
+    },
+    {
+     "label": "Check the Tide Together",
+     "next": "c2",
+     "src": "L5819"
+    },
+    {
+     "label": "Let the Shore Settle It",
+     "next": "c3",
+     "src": "L5820"
+    }
+   ],
+   "src": "L5814-5817"
+  },
+  "c1o1": {
+   "text": "(subject) explains, haltingly at first, then faster, that (subject.he/she) has been watching the beach every morning, and the tide comes in a little later every single day, not at the same time. (teacher) listens without interrupting. When (subject) finishes, (teacher) thanks (subject.him/her) in front of everyone. (subject) goes pink to the ears, but sits up a little straighter for the rest of the day.",
+   "src": "L5825"
+  },
+  "c1o2": {
+   "text": "(subject) opens (subject.his/her) mouth, looks at all the faces staring at (subject.him/her), and goes completely red. \"...I'll say it tomorrow,\" (subject.he/she) whispers. Nobody pushes. The next morning, (subject) shuffles up to (teacher) before lessons and explains it all, very quietly, just to (subject.him/her).",
+   "src": "L5827"
+  },
+  "c1": {
+   "text": "\"Go on,\" says (teacher), and sits down cross-legged in the sand with the others. \"Teach us.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5823"
+  },
+  "c2o1": {
+   "text": "For the next few days, (teacher) and (subject) visit the shore at the same time each morning and mark the waterline with a stick. (teacher) shows (subject) how to count the days on a knotted cord and how to line up the marks against a big rock so they can be compared. (subject) learns a little about counting days and marking the shore, and the marks prove (subject.him/her) right.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L5832"
+  },
+  "c2o2": {
+   "text": "(subject) asks shyly if (subject.he/she) can do the marking alone. \"I want to be sure it's really true. Not just because you helped.\" (teacher) understands completely, and waits further up the beach every morning, pretending to look for shells.",
+   "src": "L5834"
+  },
+  "c2": {
+   "text": "(teacher) packs up the lesson early, and walks down to the beach with (subject), to see for themselves...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5830"
+  },
+  "c3o1": {
+   "text": "After a week of marks in the sand, the pattern is impossible to argue with: (subject) was right. The tide arrives later each day, by about the same amount. (subject) explains it proudly to the adults, and the fishers, who had always just \"felt\" the tide, start using the marks to plan their trips. The tide lesson is corrected for good, and (teacher) puts (subject)'s name on it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5839"
+  },
+  "c3o2": {
+   "text": "On the fifth night, a storm wipes every mark off the beach. The class stands looking at the smooth, wet sand in dismay. (subject) is the first to pick up a stick. \"We'll just start again tomorrow,\" (subject.he/she) says, and this time, (subject.he/she) says it loud enough for everyone to hear.",
+   "src": "L5841"
+  },
+  "c3": {
+   "text": "(teacher) proposes a deal: the whole class will mark the high tide in the sand every day for a week, and whoever is right, is right...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5837"
+  }
+ }
+}

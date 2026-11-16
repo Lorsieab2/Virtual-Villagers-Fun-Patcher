@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blessing of the Old Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new106_blessing_tree",
+  "source": "rewrites",
+  "lines": [
+   4958,
+   5004
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L4958",
+  "ledger": [
+   {
+    "src": "L4959",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4960",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4969",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4976",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4983",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4965",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4966",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4967",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4970",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4977",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4984",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4971",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4973",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4978",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4980",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4985",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4987",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4990-5004",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have hoped for a child for a long time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have hoped for a child for a long time. They do not talk about it much anymore. They just sit together most evenings beneath the oldest tree on the island, the huge one with roots like folded arms, and watch the light go.\nTonight, a single leaf drifts down and lands in their joined hands.\nIt glows. A soft, warm gold, like a coal in a fire, and it stays as warm as a hearthstone even as the night cools. The two of them sit absolutely still, not daring to breathe.\nEveryone in the village has an opinion about it before sundown the next day. What should (subject) and (friend) do with the leaf?",
+   "choices": [
+    {
+     "label": "Keep Notes on the Leaf",
+     "next": "c1",
+     "src": "L4965"
+    },
+    {
+     "label": "Accept the Tree's Blessing",
+     "next": "c2",
+     "src": "L4966"
+    },
+    {
+     "label": "Ask the Tree's Keeper",
+     "next": "c3",
+     "src": "L4967"
+    }
+   ],
+   "src": "L4961-4964"
+  },
+  "c1o1": {
+   "text": "The leaf glows brightest at dawn, dimmest at noon, and pulses gently whenever it rains. (subject) takes the notes to the researchers, who are fascinated, and who learn a good deal about the old tree from watching its leaf. Whatever the leaf meant, it has taught the village something. (friend) keeps the notes in a safe place.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4972"
+  },
+  "c1o2": {
+   "text": "By evening the glow has faded completely, leaving an ordinary dry leaf that crumbles a little at the edges. (subject) and (friend) sit looking at it for a long time, not sure what to feel. Then (friend) quietly presses it between two pieces of bark to keep, and takes (subject)'s hand.",
+   "src": "L4974"
+  },
+  "c1": {
+   "text": "(subject) decides that before anyone gets their hopes up, someone should watch this leaf very carefully. (subject.He/She) sets it on a flat stone and checks it every hour, scratching notes into bark...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4970"
+  },
+  "c2o1": {
+   "text": "Within the month, one of them is expecting a baby. The healers confirm it twice, because the couple ask them to check twice. The two of them can hardly stop smiling, and they go back to the old tree to say thank you again, this time with a basket of the best fruit in the village, which they leave among the roots.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4979"
+  },
+  "c2o2": {
+   "text": "As the warmth fades, (friend) shakes (subject.his/her) head gently. \"If it happens, I want it to happen because it happens. Not because a tree said so.\" (subject) understands. They set the leaf among the roots with a word of thanks, and the village respects their choice, though one or two of the more nosy aunts are very disappointed.",
+   "src": "L4981"
+  },
+  "c2": {
+   "text": "(subject) and (friend) look at each other. Then, together, they close their hands around the leaf and say thank you to the tree, out loud, feeling a little silly and very hopeful. The glow sinks slowly into their hands, warm all the way up to their elbows...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4977"
+  },
+  "c3o1": {
+   "text": "\"It has blessed families before,\" (elder) says at last, \"or so my aunt swore. She also swore she once saw it walk, so.\" (subject.He/She) cannot promise them anything, and is honest enough not to try. The couple thank (subject.him/her) and decide to just enjoy the warm leaf while it lasts.",
+   "src": "L4986"
+  },
+  "c3o2": {
+   "text": "\"I can't tell you what the tree means. But I can teach you to read it.\" (elder) shows (subject) how to judge the tree's health from the colour of its bark and the pattern of its fallen leaves, an old way of watching that the village is glad to keep. Whatever the leaf was saying, (subject) is now one of the few people who can listen to the tree properly.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4988",
+   "text_only": [
+    {
+     "src": "L4988",
+     "what": "\"health\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(elder), who has tended the old tree's roots for decades, listens with (subject.his/her) hand resting on the bark, as if checking the tree's side of the story...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4984"
+  }
+ }
+}

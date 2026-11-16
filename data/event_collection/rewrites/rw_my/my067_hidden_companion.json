@@ -1,0 +1,308 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Companion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my067_hidden_companion",
+  "source": "rewrites",
+  "lines": [
+   13761,
+   13816
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13761",
+  "ledger": [
+   {
+    "src": "L13762",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13763",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13771",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13778",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13785",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13792",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13766",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13767",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13768",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13769",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13772",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13779",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13786",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13793",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13773",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13775",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13780",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13782",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13787",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13789",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13794",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13796",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13799-13816",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For several days now, a villager has been talking quietly to someone that nobody else can see.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For several days now, (subject) has been talking quietly to someone that nobody else can see. (subject.He/she) laughs at jokes nobody else hears, nods along to conversations nobody else is having, and at every meal saves a little food on a leaf beside (subject.him/her) \"for my friend.\" (friend) finally sits down beside (subject.him/her) and asks, gently, what is going on.\n\"It's all right,\" (subject) says, completely calm. \"My friend is real. You just can't see them.\" (subject.He/she) does not seem frightened in the least. In fact (subject.he/she) seems happier than (friend) has seen (subject.him/her) in a long time. Which, (friend) has to admit, is either a very good sign or a very worrying one. How should (friend) respond?",
+   "choices": [
+    {
+     "label": "Ask About the Companion",
+     "next": "c1",
+     "src": "L13766"
+    },
+    {
+     "label": "Listen Without Judgment",
+     "next": "c2",
+     "src": "L13767"
+    },
+    {
+     "label": "Invite the Companion to Join",
+     "next": "c3",
+     "src": "L13768"
+    },
+    {
+     "label": "Explore Other Explanations",
+     "next": "c4",
+     "src": "L13769"
+    }
+   ],
+   "src": "L13764-13765",
+   "text_only": [
+    {
+     "src": "L13764",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "\"They're very gentle,\" (subject) says, \"and very old, and they tell the best stories.\" And (subject.he/she) starts to repeat them: tales of trees taller than the mountain, of birds whose songs sang the island up out of the sea, of a time before anyone lived on Isola at all. (friend) listens, open-mouthed. The stories are beautiful, strange and full of details (subject) could not possibly have made up. Soon half the village is gathering around (subject) every evening to hear what \"the friend\" said today.",
+   "src": "L13774"
+  },
+  "c1o2": {
+   "text": "(subject) goes quiet for a moment. \"They just... keep me company,\" (subject.he/she) says. \"Everyone's always so busy. My friend isn't. They listen to me. I don't feel so alone when they're here.\" (friend)'s heart sinks a little. (subject.He/she) had not realized how lonely (subject) had been. From that day on, (friend) makes a point of sitting with (subject) at every meal, and slowly, there is a little less food saved on the leaf for the friend.",
+   "src": "L13776",
+   "text_only": [
+    {
+     "src": "L13776",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "\"Tell me about your friend,\" (friend) says. (subject)'s face lights up, and (subject.he/she) glances at the empty air beside (subject.him/her) as if asking permission. Apparently permission is granted...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13772"
+  },
+  "c2o1": {
+   "text": "(subject) talks for nearly an hour. When (subject.he/she) finally runs out of things to say, (subject.he/she) smiles and squeezes (friend)'s hand. \"Thank you for not laughing,\" (subject.he/she) says. After that, (subject) goes back to (subject.his/her) work and (subject.his/her) friends and (subject.his/her) usual life, perfectly cheerful. (subject.He/she) still mentions the companion now and then, but less and less, until one day (friend) realizes (subject.he/she) has not heard about the friend in weeks.",
+   "src": "L13781"
+  },
+  "c2o2": {
+   "text": "Among the details, (subject) describes the companion's face: a long nose, a scar through one eyebrow, a wooden earring shaped like a fish. (friend) goes cold. Hanging in the elders' hut is a very old painted portrait of one of the village's founders, and that is exactly the founder's face, scar and earring and all. (subject) has never been inside the elders' hut. (friend) checks. (subject.He/she) has never been inside the elders' hut.",
+   "src": "L13783"
+  },
+  "c2": {
+   "text": "(friend) decides not to argue. \"All right,\" (subject.he/she) says simply. \"I believe you.\" And (subject.he/she) listens as (subject) chatters on about everything the friend has said and done...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13779"
+  },
+  "c3o1": {
+   "text": "All through supper, (subject) chats happily with the empty seat, passing it pieces of fruit and laughing at its jokes. The rest of the family, after an awkward start, find themselves joining in: \"Would your friend like more stew?\" \"Your friend has excellent manners.\" By the end of the meal, everyone is laughing, and (subject) looks more pleased than anyone has seen (subject.him/her) look in years. The extra seat becomes a family tradition.",
+   "src": "L13788"
+  },
+  "c3o2": {
+   "text": "Halfway through the meal, a traveler stops at the door, hungry and tired, and asks whether there might be anything to spare. (subject.He/she) looks at the empty seat and the full bowl and raises an eyebrow. \"Were you expecting someone?\" (subject) turns to the empty air, listens, and then nods. \"My friend says you should sit there.\" The traveler sits, eats, and leaves the next morning. (subject) never mentions the companion again.",
+   "src": "L13790"
+  },
+  "c3": {
+   "text": "That evening, (friend) sets an extra place at the family meal, with an empty seat, a bowl of stew and a cup of water. \"For your friend,\" (subject.he/she) says. (subject) beams...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13786"
+  },
+  "c4o1": {
+   "text": "(healer) spends a long afternoon with (subject), checking (subject.his/her) eyes, (subject.his/her) sleep, (subject.his/her) food and (subject.his/her) mood. \"(subject.He/she) has been working very hard and sleeping very little,\" the healer says. \"That can do strange things to anyone. Rest, good meals and company, that's my advice.\" (subject) grumbles, but rests. The companion still visits sometimes, but (subject) admits, a little sheepishly, that it is mostly when (subject.he/she) is very tired.",
+   "src": "L13795",
+   "text_only": [
+    {
+     "src": "L13795",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o2": {
+   "text": "The healer finds nothing at all wrong with (subject). (subject.He/she) is healthy, well rested, eating properly and perfectly cheerful. \"I can't explain it,\" the healer admits. \"Some people see things the rest of us don't. Whether that's a gift or something else, I don't know.\" The village decides to respect (subject)'s uncertainty, and (subject)'s friend. Nobody laughs, and nobody pries, and (subject) seems grateful for both.",
+   "src": "L13797"
+  },
+  "c4": {
+   "text": "(friend) is worried. (subject.He/she) quietly asks (healer), one of the healers, to come and have a look at (subject), just to make sure (subject.he/she) is well...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13793"
+  }
+ }
+}

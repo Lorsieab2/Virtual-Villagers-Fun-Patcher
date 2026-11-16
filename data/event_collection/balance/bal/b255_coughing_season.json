@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coughing Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b255_coughing_season",
+  "source": "balance",
+  "lines": [
+   11901,
+   11943
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11901",
+  "ledger": [
+   {
+    "src": "L11902",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11903",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11911",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11920",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11908",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11909",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11912",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11921",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11917",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11926",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11929-11943",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A cough has gone through the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "sick": {
+   "kind": "villager",
+   "min_age": 0
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A cough has gone through the village. It started with one of the fishers and now half the huts are barking like seals at night. (sick) has it worst. (subject.He/She) has been coughing for nine days and can barely lift (subject.his/her) head.\n(subject), the healer on duty, has two ideas. The elders' way is a steam hut: hot stones, wet leaves, and the patient sitting in it until they can breathe again. The other is a salve of crushed eucalyptus leaves that a traveller once showed the healers, which nobody has tried yet.\nWhich should (subject) try?",
+   "choices": [
+    {
+     "label": "Build a Steam Hut",
+     "next": "c1",
+     "src": "L11908"
+    },
+    {
+     "label": "Try the Traveller's Salve",
+     "next": "c2",
+     "src": "L11909"
+    }
+   ],
+   "src": "L11904-11906"
+  },
+  "c1o1": {
+   "text": "(sick) sits in the steam for an hour and comes out pink, dripping and breathing easy for the first time in nine days. So the healers bring everyone else with the cough, one by one, all day, until the steam hut has been used by half the village. By the next week the village is quiet at night again. The healers are exhausted and very pleased with themselves.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L11915"
+  },
+  "c1o2": {
+   "text": "The steam works, but (subject) gets the stones too hot. (sick) comes out cured and the colour of a boiled crab. That night (subject.he/she) can't sleep for the itching, nor the night after, and somewhere in all that scratching (subject.he/she) loses all love for (subject.his/her) sleeping mat. \"I'll lie down,\" (subject.he/she) says, \"but I won't enjoy it.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "sick",
+     "remove": true,
+     "like": "resting"
+    }
+   ],
+   "src": "L11918"
+  },
+  "c1": {
+   "text": "(subject) and the other healers heat stones in the fire all morning and roll them into a little hut of woven leaves. They pour water on them, and the hut fills with thick white steam...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11912"
+  },
+  "c2o1": {
+   "text": "By morning (sick)'s cough has loosened, and by the next day (subject.he/she) is sitting up and complaining about the smell, which (subject) takes as a good sign. The healers make jars and jars of the salve and soon the whole village smells like a forest. (subject) keeps a careful note of the recipe, and adds the traveller's name at the top.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11924"
+  },
+  "c2o2": {
+   "text": "The salve gives (sick) a rash from (subject.his/her) neck to (subject.his/her) belly, on top of the cough. (subject) washes it off as quickly as (subject.he/she) can and goes back to the elders' way after all. The cough eases slowly over the following weeks. (sick) does not trust anything that smells like trees for a long time after that.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "sick",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L11927"
+  },
+  "c2": {
+   "text": "(subject) crushes a basket of eucalyptus leaves with a little coconut oil and rubs it onto (sick)'s chest and back. The smell is so strong it makes everyone's eyes water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11921"
+  }
+ }
+}

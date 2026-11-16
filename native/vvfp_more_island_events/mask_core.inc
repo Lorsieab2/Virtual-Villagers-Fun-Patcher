@@ -105,7 +105,7 @@ static int mk_at(const mk_game *t, int adult, const int *taken, int n, int k) {
 }
 
 static int mk_possible(const mk_game *t) {
-    return t != NULL && t->g != NULL && t->population() >= MK_POPULATION && mk_count(t, 0, NULL, 0) >= MK_GROUP_MIN
+    return t != NULL && t->g != NULL && (t->population() >= MK_POPULATION || adv_no_safeguards(t->g->game)) && mk_count(t, 0, NULL, 0) >= MK_GROUP_MIN
         && mk_count(t, 1, NULL, 0) >= MK_EXPEDITION && adv_possible(t->g);
 }
 

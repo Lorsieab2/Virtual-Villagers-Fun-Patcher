@@ -1,0 +1,236 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut Bonanza",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s008_coconut_bonanza",
+  "source": "rewrites",
+  "lines": [
+   341,
+   384
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L341",
+  "ledger": [
+   {
+    "src": "L342",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L343",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L350",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L359",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L347",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L348",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L351",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L360",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L353",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L356",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L362",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L365",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L368-384",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every palm on the island has decided, all at once, that this is the year to sprout coconuts.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every palm on the island has decided, all at once, that this is the year to sprout coconuts. Nobody knows why. The elders say it happens once in a lifetime, if a village is lucky. The whole village smells of split husks and sweet milk, and ripe, tasty coconuts fall day and night, thudding into the sand, bouncing off roofs, rolling down the paths and into the cooking pots.\nEveryone can hear the thuds from every hut. Babies have stopped flinching at them. Nobody walks under a palm tree any more without looking straight up first, and the chickens have learned to run in zigzags.",
+   "choices": [
+    {
+     "label": "Gather Them All",
+     "next": "c1",
+     "src": "L347"
+    },
+    {
+     "label": "Throw a Coconut Festival",
+     "next": "c2",
+     "src": "L348"
+    }
+   ],
+   "src": "L344-345"
+  },
+  "c1o1": {
+   "text": "Every basket in the village is filled, then every pot, then every bowl, then every hat. When they run out of hats, they start piling coconuts in a great pyramid in the middle of the village, and the children climb it and refuse to come down. The stores have never been so full. For a whole season the village drinks coconut milk with every meal, and the coconut-shell pile grows into a little hill that the goats use as a lookout. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L354"
+  },
+  "c1o2": {
+   "text": "The gathering goes well, right up until (name) stops under a palm to tie a sandal and forgets to look up. The coconut that finds (him/her) is a big one. There's a loud, hollow thunk, and (name) sits down very suddenly in the sand. (He/She) gets a bump the size of a hen's egg and sees two of everything, including two healers, who keep (him/her) for a day and make (him/her) count their fingers until (he/she) gets the right answer. Everyone else is a little more careful after that. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L357"
+  },
+  "c1": {
+   "text": "The village puts down every other job and turns out with baskets. Children race each other to the fallen nuts, adults haul full baskets on their shoulders, and the elders sit in the open sand well away from the trees, shouting directions...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L351"
+  },
+  "c2o1": {
+   "text": "There is coconut milk and coconut bread and coconut stew and coconut sweets. There are coconut-rolling races and coconut-catching contests and a very serious coconut-balancing competition that one of the elders wins easily. There's even a band of coconut-shell drummers, who are terrible and loud and wonderful. Everyone eats too much and nobody regrets it. The leftovers alone fill the stores. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L363"
+  },
+  "c2o2": {
+   "text": "The festival is so good that it goes on for three days, and half the coconuts on the island are eaten right there, on the spot, by people lying in the sand with their eyes closed. By the time anybody thinks about filling the stores, the palms have gone quiet again and there are only a few baskets' worth left. Nobody minds. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L366"
+  },
+  "c2": {
+   "text": "\"We'll never eat all these anyway,\" someone says, \"so let's not try. Let's celebrate!\" The idea catches like fire in dry grass. Within an hour there are cooking fires lit all over the village and the first drums are going...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L360",
+   "text_only": [
+    {
+     "src": "L360",
+     "what": "\"celebrate\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

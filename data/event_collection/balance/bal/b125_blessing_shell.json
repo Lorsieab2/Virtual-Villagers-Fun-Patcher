@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blessing Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b125_blessing_shell",
+  "source": "balance",
+  "lines": [
+   5710,
+   5754
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5710",
+  "ledger": [
+   {
+    "src": "L5711",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5712",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5729",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5717",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5718",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5721",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5730",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5723",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5732",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5735",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5738-5754",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A spiral shell as big as a cooking pot has washed up on the beach, pink inside and smooth as skin.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A spiral shell as big as a cooking pot has washed up on the beach, pink inside and smooth as skin. Held to the ear, it gives the sound of children laughing instead of the sea. The fishers swear it came from the deep water past the reef, where the whales sing, and that whales leave these shells for people they like.\n(subject) and (friend) have been hoping for a baby for a long time. They have tried every old saying in the village and a few that (friend) made up. When the shell is passed round the fire that night, it hums in (subject)'s hands, and nobody else's.\nShould they take the shell home, or give it back to the whales?",
+   "choices": [
+    {
+     "label": "Take the Shell Home",
+     "next": "c1",
+     "src": "L5717"
+    },
+    {
+     "label": "Give It Back to the Whales",
+     "next": "c2",
+     "src": "L5718"
+    }
+   ],
+   "src": "L5713-5715"
+  },
+  "c1o1": {
+   "text": "A few weeks later the shell goes quiet. When (subject) holds it to (subject.his/her) ear, there is only one small laugh left in it, and then the sea. That same morning (subject) knows (subject.he/she) is pregnant. They keep the shell by the door, and when the baby comes it is the first thing (subject.he/she) ever reaches for.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L5724"
+  },
+  "c1o2": {
+   "text": "The shell gets louder every night. More laughter, and more voices, until (friend) has to sleep with a blanket over (friend.his/her) head. Then, all at once, it goes quiet. (subject) is pregnant, and the healers, feeling (subject.his/her) belly a few weeks later, look at each other and start counting on their fingers. \"{#babies:Just the one, for all that noise|Two|Three},\" says the eldest healer. \"I'd start weaving {#babies:a cradle|two cradles|three cradles}.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L5727"
+  },
+  "c1": {
+   "text": "They carry the shell between them like a full pot of water, and set it by the door of their hut. All night it hums, very softly, a tune that (friend) swears (friend.his/her) mother used to sing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5721"
+  },
+  "c2o1": {
+   "text": "On the way back, a strange canoe comes drifting round the point with a torn sail, carrying a young couple and a baby who has been crying for a day. Their island is far, the storm was long and their water ran out yesterday. (subject) and (friend) tow them in. The couple stay. Before long the baby is spending half its time in (subject) and (friend)'s hut, and they don't mind one bit.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L5733"
+  },
+  "c2o2": {
+   "text": "As the shell sinks, a whale sings somewhere under the canoe, so close that the water shivers and the paddles buzz in their hands. It is the loveliest sound either of them has ever heard. Nothing else happens. They paddle home holding hands, and the old fishers say they were lucky to hear it at all.",
+   "src": "L5736"
+  },
+  "c2": {
+   "text": "\"It's not ours,\" says (subject). \"If the whales want us to have a baby, they'll find a way.\" They paddle out past the reef at dawn with the shell between them in the canoe, and lower it into the deep blue water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5730"
+  }
+ }
+}

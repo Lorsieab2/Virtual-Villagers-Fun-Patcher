@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rock Slide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s083_rock_slide",
+  "source": "rewrites",
+  "lines": [
+   3896,
+   3938
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3896",
+  "ledger": [
+   {
+    "src": "L3897",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3898",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3906",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3915",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3903",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3904",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3907",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3916",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3909",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3912",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3918",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3921",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3924-3938",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After a week of heavy rain, the hillside above the gardens is soft and dark and soaking.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a week of heavy rain, the hillside above the gardens is soft and dark and soaking. (Name) is up there gathering, pulling the wild roots that come up easily from the wet ground, when the ground under (his/her) feet gives a long, low groan.\n(Name) straightens up. Small stones start trickling down the slope past (his/her) ankles. Then bigger ones, bouncing. The air fills with the smell of torn earth, and every bird on the hill takes off at once in a great clattering cloud.\nAbove (him/her), the whole side of the hill is starting to move. Should (name) run for the bottom of the hill, or throw (himself/herself) down behind the big boulder just below?",
+   "choices": [
+    {
+     "label": "Run Downhill",
+     "next": "c1",
+     "src": "L3903"
+    },
+    {
+     "label": "Hide Behind a Boulder",
+     "next": "c2",
+     "src": "L3904"
+    }
+   ],
+   "src": "L3899-3901"
+  },
+  "c1o1": {
+   "text": "(Name) runs faster than (he/she) has ever run in (his/her) life, skidding and sliding, and reaches the flat ground at the bottom of the hill just as the slide comes to a stop behind (him/her) with a last great rumble. A rock the size of a hut rolls to a halt a few steps from (his/her) heels. (Name) turns round, and looks at it, and sits down very suddenly on the grass. When the others come running, (he/she) is still sitting there, laughing and crying at the same time, and doesn't stop for quite a while.",
+   "src": "L3910"
+  },
+  "c1o2": {
+   "text": "The slide is faster. It catches (name) halfway down, and the noise of it is so loud that nobody in the village hears anything else. When the dust finally settles, the whole lower slope is a wide grey field of rubble and mud and broken trees. The villagers come running with digging sticks and their bare hands, and dig until dark, calling (his/her) name. They find (him/her) at last, under the rocks. (He/She) has died. They carry (him/her) home very slowly, and lay (him/her) to rest in the garden (he/she) loved, at the foot of the hill.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L3913"
+  },
+  "c1": {
+   "text": "(Name) drops the basket and runs, down the slope, as fast as (his/her) legs will go, leaping over roots and rocks, with the roar growing louder and louder behind (him/her), and stones whizzing past on both sides...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3907"
+  },
+  "c2o1": {
+   "text": "The boulder holds. The slide parts around it like a river round a rock, roaring past on both sides, stones and mud and whole trees, for what feels like forever. Then, slowly, it rumbles to a stop. Silence. A few last pebbles trickle down. (Name) waits a long time, until (he/she) is completely sure, then climbs out, shaking from head to toe, plastered with mud, and completely unhurt. (He/She) pats the boulder, and thanks it, out loud, and doesn't care who hears.",
+   "src": "L3919"
+  },
+  "c2o2": {
+   "text": "The boulder holds. Mostly. As the slide roars past, a big rock bounces off the top of the boulder and comes down hard on (name)'s foot, pinning it. (Name) screams, but nobody can hear. When it's over, the villagers come digging, and find (him/her) behind the boulder, white and shaking, and pull the rock off, and carry (him/her) home. The foot is crushed. The healers do what they can, but (name) walks with a limp for the rest of (his/her) life, and never runs again.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3922"
+  },
+  "c2": {
+   "text": "There's no time to run. Just below (him/her) is a great old boulder, half buried in the hillside, as big as a hut. (Name) throws (himself/herself) down behind it, curls up tight, and covers (his/her) head with (his/her) arms. The roar comes down over (him/her) like a wave...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3916"
+  }
+ }
+}

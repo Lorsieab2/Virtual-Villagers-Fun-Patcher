@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Falling Star",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b174_falling_star",
+  "source": "balance",
+  "lines": [
+   8053,
+   8098
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8053",
+  "ledger": [
+   {
+    "src": "L8054",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8055",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8063",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8072",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8060",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8061",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8064",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8073",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8066",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8069",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8075",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8078",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8081-8098",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the only one there.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Last night a star fell. Half the village saw it: a long white streak across the sky, and then a flash beyond the hill, and a sound like a giant clapping its hands once. This morning (subject) is the first to find where it came down: a smoking hole in the ferns, and at the bottom of it, a black stone the size of a fist, still warm, with tiny sparks of light moving inside it like fish in a pool.\n(researcher) has always said falling stars carry the memories of the sky. (healer) has always said they make people ill. (subject) is the only one there.\nShould (subject) pick up the stone, or fetch the others first?",
+   "choices": [
+    {
+     "label": "Pick Up the Stone",
+     "next": "c1",
+     "src": "L8060"
+    },
+    {
+     "label": "Fetch the Others First",
+     "next": "c2",
+     "src": "L8061"
+    }
+   ],
+   "src": "L8056-8058"
+  },
+  "c1o1": {
+   "text": "The sparks pour out of the stone and into (subject)'s hand, and up (subject.his/her) arm, and for a moment (subject.he/she) sees everything the star ever saw, falling for a thousand years through the dark. When (subject.he/she) comes back to (subject.himself/herself), sitting in the ferns, the stone is cold and black and (subject.his/her) own name has gone. It seems the sky took a memory in exchange. The village calls (subject.him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L8067"
+  },
+  "c1o2": {
+   "text": "The sparks rush out of the stone, and swirl round (subject), and settle beside (subject.him/her) into a shape, and the shape becomes another (subject), standing in the ferns and looking very surprised to have legs. The star, (researcher) decides later, must have wanted a body to walk around in for a while. The second (subject) takes the name (made1), and spends a lot of time looking at the sky.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L8070"
+  },
+  "c1": {
+   "text": "(subject) climbs down into the hole and picks up the stone. It's heavy and warm, and the sparks inside rush to where (subject.his/her) fingers are, as if they are curious...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8064"
+  },
+  "c2o1": {
+   "text": "(researcher) lifts the stone out with two sticks, very carefully. The sparks inside slowly go out over the next week, but not before the researchers have learned a great deal from watching them, about the sky, about stone, about things nobody can explain yet. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8076"
+  },
+  "c2o2": {
+   "text": "(researcher) picks the stone up with (subject.his/her) bare hands, before anyone can stop (subject.him/her). By evening (subject.he/she) has a fever and a rash all up (subject.his/her) arm in the shape of little stars. (healer) is not happy about being right, and says so all week while nursing (subject.him/her). The stone is buried at the bottom of the hole.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "researcher"
+    }
+   ],
+   "src": "L8079"
+  },
+  "c2": {
+   "text": "(subject) runs back to the village and fetches (researcher) and (healer), who argue the whole way there. By the time they get back, the hole has stopped smoking...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8073"
+  }
+ }
+}

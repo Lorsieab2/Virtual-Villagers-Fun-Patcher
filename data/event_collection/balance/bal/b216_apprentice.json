@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's First Patient",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b216_apprentice",
+  "source": "balance",
+  "lines": [
+   10039,
+   10083
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10039",
+  "ledger": [
+   {
+    "src": "L10040",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10041",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10049",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10058",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10046",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10047",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10050",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10059",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10052",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10055",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10061",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10064",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10067-10083",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been the healers' apprentice for a year.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been the healers' apprentice for a year. (subject.He/She) has fetched water, ground roots, and watched. Today, for the first time, (healer), the head healer, has gone to the far side of the island for a birth, and left (subject) in charge. And today, of course, (friend) has come in burning with fever and covered in spots.\n(subject) has two ideas. (subject.He/She) can do exactly what (healer) would do: bitter bark tea, cool cloths, wait. Or (subject.he/she) can try the thing (subject.he/she) has been reading about in the old scrolls, a paste of crushed moss that (healer) says is \"old nonsense.\"\nShould (subject) do it (healer)'s way, or try the moss?",
+   "choices": [
+    {
+     "label": "(Healer)'s Way",
+     "next": "c1",
+     "src": "L10046"
+    },
+    {
+     "label": "Try the Moss",
+     "next": "c2",
+     "src": "L10047"
+    }
+   ],
+   "src": "L10042-10044"
+  },
+  "c1o1": {
+   "text": "The fever breaks at midnight. By morning the spots are fading. When (healer) gets back, (subject.he/she) looks at (friend), and at (subject), and nods once. That's all. It is the proudest moment of (subject)'s life, and (subject.he/she) is a much better healer for having done it alone.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10053"
+  },
+  "c1o2": {
+   "text": "It works, slowly, over three days. When (healer) comes back, (subject) tells (subject.him/her) everything, and (healer) asks so many questions that by the end of it they are both teaching the other healers what they found out. The healers' hut is a busier place after that.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L10056"
+  },
+  "c1": {
+   "text": "(subject) brews the bitter bark tea exactly as (subject.he/she) has watched (healer) brew it a hundred times, and lays the cool cloths on (friend)'s forehead, and waits...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10050"
+  },
+  "c2o1": {
+   "text": "By evening the spots are gone, and the fever with them. (subject) puts the paste on everyone else in the village who has a cough, a rash or a fever, and by the time (healer) gets back, nobody in the village is sick. (healer) looks at the moss for a long time. \"Old nonsense,\" (subject.he/she) says at last. \"I'll want to see the scroll.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10062"
+  },
+  "c2o2": {
+   "text": "The moss makes the spots much worse. (friend)'s whole skin comes up in a red, itching rash on top of the fever. (subject) washes it off in a panic and does it (healer)'s way, and (friend) gets better, slowly, over a week. When (healer) gets back, (subject.he/she) doesn't say anything at all, which is worse than anything (subject.he/she) could have said.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L10065"
+  },
+  "c2": {
+   "text": "(subject) crushes the moss into a green paste and spreads it on (friend)'s spots, feeling (subject.his/her) heart pound. (friend) says it smells like a wet dog...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10059"
+  }
+ }
+}

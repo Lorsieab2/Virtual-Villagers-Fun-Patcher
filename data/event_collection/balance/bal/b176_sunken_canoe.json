@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sunken Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b176_sunken_canoe",
+  "source": "balance",
+  "lines": [
+   8149,
+   8193
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8149",
+  "ledger": [
+   {
+    "src": "L8150",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8151",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8159",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8168",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8156",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8157",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8160",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8169",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8162",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8165",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8171",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8174",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8177-8193",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The fishers have found an old canoe on the bottom of the lagoon, in the deep blue water past the coral.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The fishers have found an old canoe on the bottom of the lagoon, in the deep blue water past the coral. It is carved all over with patterns nobody in the village uses any more, and there is something in it, a bundle wrapped in oiled cloth, that glints when the sun is high.\n(subject) is the best diver in the village. (fisher) has rowed (subject.him/her) out to the spot, and is holding the canoe steady above the deep water. It's a long way down. The water at the bottom is dark and cold, and the fishers say there's a current that comes and goes.\nShould (subject) dive for the bundle, or mark the spot and come back with others?",
+   "choices": [
+    {
+     "label": "Dive Now",
+     "next": "c1",
+     "src": "L8156"
+    },
+    {
+     "label": "Mark the Spot",
+     "next": "c2",
+     "src": "L8157"
+    }
+   ],
+   "src": "L8152-8154"
+  },
+  "c1o1": {
+   "text": "(subject) reaches the canoe, and grabs the bundle, and the current comes. (fisher) sees bubbles, and then nothing. (subject.He/She) dives, and dives again, until (subject.he/she) can't. The village searches the lagoon for days. They never find (subject), or the bundle. The old canoe, when the fishers next go out, is gone from the bottom too.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L8163"
+  },
+  "c1o2": {
+   "text": "(subject) grabs the bundle and kicks for the surface with (subject.his/her) lungs on fire, and comes up gasping beside the canoe. Inside the oiled cloth are tools: fine bone needles, a stone blade sharper than anything the village can make, and a small carved figure of a fish. The researchers spend a month on the blade alone. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8166"
+  },
+  "c1": {
+   "text": "(subject) takes three long breaths and goes down, kicking hard, into the blue. The light fades. The cold bites. The old canoe comes up out of the dark below (subject.him/her), and the bundle inside it glints...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8160"
+  },
+  "c2o1": {
+   "text": "The next day, three divers go down together on ropes, and bring up the bundle and two carved paddles as well. The patterns on the paddles are the same as the ones on the oldest huts in the village. The elders spend days looking at them and remembering things they had forgotten. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8172"
+  },
+  "c2o2": {
+   "text": "That night a storm comes in. In the morning the float is gone, the rope is gone, and (fisher), who went out at first light to check on it, is found on the reef. The village lays (subject.him/her) to rest on the headland. Nobody goes looking for the old canoe again, and (subject) never dives in the lagoon after that.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "fisher",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L8175"
+  },
+  "c2": {
+   "text": "(subject) ties a float to a long rope and drops a weighted end down to the canoe. \"Tomorrow,\" (subject.he/she) says. \"With three divers and a rope each.\" (fisher) looks relieved...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8169"
+  }
+ }
+}

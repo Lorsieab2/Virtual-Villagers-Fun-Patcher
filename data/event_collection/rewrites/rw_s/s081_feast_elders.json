@@ -1,0 +1,266 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast for the Elders",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s081_feast_elders",
+  "source": "rewrites",
+  "lines": [
+   3804,
+   3847
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3804",
+  "ledger": [
+   {
+    "src": "L3805",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3806",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3814",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3823",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3811",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3812",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3815",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3824",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3817",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3820",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3826",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3829",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3832-3847",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L3818",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L3821",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L3827",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The village has decided, all together, that the elders have done quite enough work for one lifetime and deserve a feast.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The village has decided, all together, that the elders have done quite enough work for one lifetime and deserve a feast. A huge one. In their honour.\nThe elders protest. They say it's too much fuss. They say they don't need anything. They say they're not even hungry. Then they see the food, and go quiet.\nLong mats are being laid out in the shade of the great banyan tree. The cooks have been up since before dawn. The children have been weaving flower crowns all morning, one for every elder, and are now chasing the elders around trying to put them on. The cooks want to know how much to bring out of the stores. Should the village spare no expense, or keep it simple?",
+   "choices": [
+    {
+     "label": "Spare No Expense",
+     "next": "c1",
+     "src": "L3811"
+    },
+    {
+     "label": "Keep It Simple",
+     "next": "c2",
+     "src": "L3812"
+    }
+   ],
+   "src": "L3807-3809",
+   "text_only": [
+    {
+     "src": "L3808",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The feast lasts all night. When the food is finally gone, nobody wants to leave, so the elders start telling stories. Stories from when they were young, stories their own grandparents told them, stories about the village nobody under fifty has ever heard. The children fall asleep in heaps on the mats. The adults lean back against the banyan roots and listen. The elders tell stories until the sun comes up, and the whole village walks home in the dawn feeling closer than it has in years.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "auto_text": true,
+   "src": "L3818"
+  },
+  "c1o2": {
+   "text": "The feast is wonderful, and the elders are so moved by it, with their flower crowns and their full bellies, that when the drums start up, they get to their feet and dance. All of them. Slowly at first, then faster. (elder), one of the oldest, dances longest, laughing, (subject.his/her) crown slipping over one eye, until (subject.he/she) finally spins round one last time and collapses, happy and completely exhausted, into a hammock, and falls asleep with a smile. (subject.He/She) is still smiling in the morning.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "auto_text": true,
+   "src": "L3821",
+   "text_only": [
+    {
+     "src": "L3821",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "Out comes everything: the best fish, the sweetest fruit, the special bread, the honey cakes that are only made at weddings. Platter after platter after platter, until the mats under the banyan tree can't hold any more...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3815"
+  },
+  "c2o1": {
+   "text": "It's a simple meal. Fish and taro and fruit, nothing fancy. But it's warm, and it's shared, and the children bring the elders their bowls with great ceremony, and pour their water, and keep refilling it whether they want it or not. The elders love it just as much as any feast. One of them says it's the nicest day in years, and has to wipe away a tear.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L3827"
+  },
+  "c2o2": {
+   "text": "The elders take one look at the simple meal being prepared and announce that if this is a feast for them, then they'll cook it themselves, thank you very much. Nobody can stop them. They push the young cooks out of the way, roll up their sleeves, and get to work with the old recipes nobody else remembers. It turns out to be the best meal anyone has had in years, and there's somehow more left over at the end than there was at the start. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3830"
+  },
+  "c2": {
+   "text": "The stores are not what they could be this season, so the village keeps it simple: a good warm meal under the banyan tree, flower crowns, and everyone sitting together...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3824"
+  }
+ }
+}

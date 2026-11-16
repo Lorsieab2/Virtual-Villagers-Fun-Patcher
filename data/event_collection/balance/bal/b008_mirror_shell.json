@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mirror Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b008_mirror_shell",
+  "source": "balance",
+  "lines": [
+   345,
+   386
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L345",
+  "ledger": [
+   {
+    "src": "L346",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L347",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L355",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L364",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L352",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L353",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L356",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L365",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L358",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L361",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L370",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L373-386",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A storm has washed a strange shell up on the beach, as big as a cooking pot, with an inside so polished it works like a mirror.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A storm has washed a strange shell up on the beach, as big as a cooking pot, with an inside so polished it works like a mirror. (Name) found it first and carried it home, and now half the village is queuing outside (his/her) hut to look at themselves.\nThere's something odd about it, though. The face in the shell isn't quite the face looking in. It's (name), but it keeps shifting, younger one moment, older the next, as if the shell can't decide who (he/she) is. One of the fishers says shells like this come from very deep water, where the old sea creatures live a hundred years, and that they \"keep\" a little of every face they've seen.\n(Name) is half delighted, half nervous. Should (he/she) keep looking, or wrap it up and put it away?",
+   "choices": [
+    {
+     "label": "Keep Looking",
+     "next": "c1",
+     "src": "L352"
+    },
+    {
+     "label": "Wrap It Up and Put It Away",
+     "next": "c2",
+     "src": "L353"
+    }
+   ],
+   "src": "L348-350"
+  },
+  "c1o1": {
+   "text": "The flickering stops on a younger face, and when (name) looks down into a water bowl, it's (his/her) own face too. Not a different person, just (name) from a few years ago, before the worry lines set in. (He/She) runs outside, and the queue gasps. For a week (name) can't walk past anyone without being asked to tilt (his/her) head to the light. \"I feel exactly the same,\" (he/she) insists. \"But I look like I slept.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L359"
+  },
+  "c1o2": {
+   "text": "The shell stops on an old face, lined and weathered and kind, and when (name) touches (his/her) cheek, the lines are there under (his/her) fingers. (Name) stares into the water bowl for a long time. Then (he/she) starts laughing. \"I look like my grandmother,\" (he/she) says. \"She was the best person I ever knew.\" The elders take one look at (him/her) and invite (him/her) to sit with them by the fire.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L362"
+  },
+  "c1": {
+   "text": "(Name) sits cross-legged in front of the shell and stares. The face in the mirror flickers faster and faster, young, old, young, old, like a fish flashing in a stream...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L356"
+  },
+  "c2o1": {
+   "text": "In the morning, (name)'s face is different. Not older or younger, just different, as if the shell sorted through all the faces it was keeping and lent (him/her) one. (His/Her) friends know (him/her) at once by (his/her) voice and the way (he/she) walks. The shell goes back to the sea that afternoon. (Name) keeps the face, and after a while (he/she) can't remember the old one at all.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L368"
+  },
+  "c2o2": {
+   "text": "The silver light fades by morning, and the shell is just a shell, pretty and polished and showing (name) nobody but (himself/herself). The village is a little disappointed. The children use it as a drum for a while, and then somebody uses it as a bowl for the fish scraps, and that's the end of that.",
+   "src": "L371"
+  },
+  "c2": {
+   "text": "(Name) sends the queue home, wraps the shell in an old mat and shoves it under (his/her) sleeping shelf. That night, (he/she) wakes up to a faint silver light leaking out from under the mat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L365"
+  }
+ }
+}

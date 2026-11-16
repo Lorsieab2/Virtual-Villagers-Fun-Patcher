@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon's Mirror",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s054_moon_mirror",
+  "source": "rewrites",
+  "lines": [
+   2559,
+   2603
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2559",
+  "ledger": [
+   {
+    "src": "L2560",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2561",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2569",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2578",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2566",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2567",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2570",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2579",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2572",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2575",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2581",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2587-2603",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The water is still and warm as a bath, and little silver fish keep leaping through both moons at once, sending out rings of light.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Tonight the full moon is reflected in the lagoon so perfectly that it looks like there are two of them: one in the sky, one in the water, both exactly as bright. The water is still and warm as a bath, and little silver fish keep leaping through both moons at once, sending out rings of light.\n(Name) can't sleep, and has come down to look. The elders say that on the one night a year the moon sees itself perfectly in the lagoon, it gets lonely, and makes a copy of whatever it finds in the water. It's so beautiful that (he/she) wades in, up to (his/her) waist, to get closer to the moon in the water.\nWhen (he/she) wades back out, there are two sets of footprints in the wet sand behind (him/her). And two shadows. (Name) turns round. Standing in the shallows, dripping, smiling, is (name). Should (name) welcome (his/her) double, or wait for sunrise and see if it's still there?",
+   "choices": [
+    {
+     "label": "Welcome the Second One",
+     "next": "c1",
+     "src": "L2566"
+    },
+    {
+     "label": "Wait for Sunrise",
+     "next": "c2",
+     "src": "L2567"
+    }
+   ],
+   "src": "L2562-2564"
+  },
+  "c1o1": {
+   "text": "The second (name) is exactly the same in every way. Same voice, same laugh, same habit of humming while (he/she) works, same favourite food, same scar, same everything. It walks back to the village beside (name), step for step, and when the village wakes up in the morning, nobody can tell them apart. The second one agrees to be called (made1), \"to keep things simple,\" and goes straight to work without being asked, doing exactly what (name) would have done. It's very efficient. It's also slightly unsettling, and the village never quite gets used to it.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L2573",
+   "text_only": [
+    {
+     "src": "L2573",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The second one takes (name)'s hand for a moment. It's cool, like the lagoon. Then it smiles, and lets go, and shimmers, like the moon on the water when a fish jumps. It turns and walks back out into the lagoon, deeper and deeper, until the water is over its head, and when (name) looks up, the moon in the water has gone. Only the one in the sky is left. The lagoon is very dark and very quiet. (Name) walks home slowly, and doesn't tell anyone for a long time.",
+   "src": "L2576"
+  },
+  "c1": {
+   "text": "(Name) takes a long breath. Then (he/she) holds out (his/her) hand. \"Well,\" (he/she) says, a little shakily. \"You'd better come and get dry.\" The second one smiles (his/her) own smile back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2570"
+  },
+  "c2o1": {
+   "text": "At sunrise, the second one is still there. Yawning. Rubbing its arms. Complaining, loudly, about how cold it is, how damp the sand is, how its back aches from sitting all night. It's a perfect copy, so it complains exactly the same way (name) does, with exactly the same words, at exactly the same moment as (name). They both stop and stare at each other. Then they both burst out laughing. The second one takes the name (made1), and the two of them walk up to the village for breakfast, still complaining.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L2582"
+  },
+  "c2o2": {
+   "text": "As the first light touches the water, the second one gets up, stretches, gives (name) a little wave, and simply isn't there any more. Just one set of footprints on the sand. Just one shadow. (Name) gets up, and nearly falls down again. (He/She) feels very, very tired, more tired than (he/she) has ever felt, as if (he/she) has done twice the work, or lived twice the night. (He/She) sleeps all the next day, and wakes up feeling perfectly normal, and very confused.",
+   "src": "L2585"
+  },
+  "c2": {
+   "text": "(Name) doesn't trust anything that comes out of the water by moonlight. (He/She) sits down on the sand, arms round (his/her) knees, and waits. The second one sits down too, a little way off, in exactly the same position. They wait together, in silence, for the dawn...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2579"
+  }
+ }
+}

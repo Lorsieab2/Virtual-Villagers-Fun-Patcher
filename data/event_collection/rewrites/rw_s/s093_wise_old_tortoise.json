@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wise Old Tortoise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s093_wise_old_tortoise",
+  "source": "rewrites",
+  "lines": [
+   4353,
+   4395
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4353",
+  "ledger": [
+   {
+    "src": "L4354",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4355",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4363",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4372",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4360",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4361",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4364",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4373",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4366",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4369",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4375",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4378",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4381-4395",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L4370",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Everyone has to squeeze round it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A huge old tortoise has come up out of the sea, walked up the beach and into the village, very slowly, all morning, and is now sitting in the middle of the main path. Everyone has to squeeze round it. Nobody wants to move it.\nIt's enormous: bigger than a cooking pot, older than anybody can guess. Its shell is scratched all over with marks and grooves that look older than the village, and from one crack near the top, a small yellow flower is growing.\nIt is looking at (name). Only at (name). With deep, slow, ancient eyes, as if it has a great deal to say and all the time in the world to say it. Should (name) sit with it and see, or follow it wherever it goes?",
+   "choices": [
+    {
+     "label": "Sit with It",
+     "next": "c1",
+     "src": "L4360"
+    },
+    {
+     "label": "Follow It",
+     "next": "c2",
+     "src": "L4361"
+    }
+   ],
+   "src": "L4356-4358"
+  },
+  "c1o1": {
+   "text": "(Name) sits there all afternoon. The tortoise says nothing at all. It doesn't move. Once, it slowly stretches out its neck, and slowly draws it back in. That's all. But somewhere in the middle of the long, hot, quiet afternoon, (name) understands something about patience that (he/she) never understood before: about waiting, and listening, and letting things take the time they take. At sunset the tortoise turns round and walks away. And from then on, (name) is the gentlest, most patient person with the little ones in the whole village.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Parenting"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L4367"
+  },
+  "c1o2": {
+   "text": "(Name) sits so long that (he/she) completely forgets about work. All afternoon (he/she) sits there, gazing into the tortoise's eyes, while (his/her) share of the harvesting doesn't get done, and the fruit sits unpicked, and the birds get at it. When the farmers come back in the evening and find (him/her) still sitting there, they are very annoyed. The tortoise, as far as anyone can tell, is not sorry at all.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L4370"
+  },
+  "c1": {
+   "text": "(Name) sits down cross-legged in the dust in front of the tortoise, and looks back at it. The tortoise blinks, very slowly. (Name) blinks back. People walk round them, carefully, and the afternoon goes on...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4364"
+  },
+  "c2o1": {
+   "text": "The tortoise leads (name) very, very slowly, all afternoon, out of the village, along a stream (he/she) has never followed, up into the hills, through a gap in the rocks (he/she) has walked past a hundred times without seeing. On the other side is a hidden grove full of herbs: dozens of kinds, some (name) knows and many (he/she) doesn't, growing thick and green and sweet-smelling. The tortoise starts eating one of them. (Name) watches what it eats, and what it doesn't, and picks a little of everything, and comes home knowing more about healing plants than anyone in the village.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Healing"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L4376"
+  },
+  "c2o2": {
+   "text": "The tortoise leads (name) very, very slowly, all afternoon, out of the village, down the path, across the beach, all the way to the edge of the water. Then it walks straight into the sea, and swims away. That's it. That's where it was going. (Name) stands there in the shallows at sunset, feeling slightly foolish. The little yellow flower on its shell is the last thing to disappear under the waves.",
+   "src": "L4379",
+   "text_only": [
+    {
+     "src": "L4379",
+     "what": "\"disappear\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "At last, the tortoise turns, very slowly, all the way round, and starts to walk away, and looks back over its shell at (name). Clearly, unmistakably, it wants (him/her) to come. So (name) follows. Very, very slowly...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4373"
+  }
+ }
+}

@@ -1,0 +1,291 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor Who Cast No Shadow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my023_visitor_cast",
+  "source": "rewrites",
+  "lines": [
+   11172,
+   11227
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11172",
+  "ledger": [
+   {
+    "src": "L11173",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11174",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11183",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11190",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11197",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11204",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11178",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11179",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11180",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11181",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11184",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11191",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11198",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11205",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11185",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11187",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11192",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11194",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11199",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11201",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11208",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11211-11227",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A perfectly ordinary request.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At high noon, when the sun is straight overhead and the dust in the square is white with heat, a traveler walks into the village and asks (name) for directions. A perfectly ordinary request. A perfectly ordinary traveler.\nExcept that everyone in the square has stopped what they're doing to stare. Under every villager, every hut, every chicken, there's a little puddle of shadow. Under the traveler, there's no shadow of (his/her) own. The traveler waits politely for an answer, apparently not noticing a thing. What should (name) do?",
+   "choices": [
+    {
+     "label": "Offer Directions",
+     "next": "c1",
+     "src": "L11178"
+    },
+    {
+     "label": "Invite the Traveler to Eat",
+     "next": "c2",
+     "src": "L11179"
+    },
+    {
+     "label": "Ask About the Shadow",
+     "next": "c3",
+     "src": "L11180"
+    },
+    {
+     "label": "Follow the Traveler",
+     "next": "c4",
+     "src": "L11181"
+    }
+   ],
+   "src": "L11175-11176"
+  },
+  "c1o1": {
+   "text": "The traveler thanks (name) warmly and sets off. That evening, a fisher coming home along the coast passes the very same traveler walking along the beach, and in the low golden light, the traveler casts a long, perfectly ordinary shadow on the sand. \"Must have been the noon sun,\" people say. Most of them believe it.",
+   "src": "L11186"
+  },
+  "c1o2": {
+   "text": "Before leaving, the traveler pauses. \"In return, a word. The hill trail past the waterfall. Don't use it for a while.\" Then the traveler is gone. Two days later, a landslide buries that exact stretch of trail under a mountain of red mud. Nobody was on it, because (name) had told everyone.",
+   "src": "L11188"
+  },
+  "c1": {
+   "text": "(Name) clears (his/her) throat, tries very hard not to look at the ground, and gives the traveler directions as best (he/she) can...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11184"
+  },
+  "c2o1": {
+   "text": "Over the meal, the traveler tells stories of places so far away they sound like dreams: a beach of black sand, a mountain that breathes smoke, a sea so still it holds the moon like a bowl. The children forget to eat. The adults forget to look at the ground. When the traveler leaves at dusk, everyone agrees it was the best supper they've had in ages.",
+   "src": "L11193"
+  },
+  "c2o2": {
+   "text": "The traveler eats, thanks them all, and leaves. In the spot where (he/she) sat, (name) finds a basket of fruit that nobody has ever seen before: knobbly, purple, with sweet orange flesh. The healers taste a little first, and pronounce it perfectly edible. It's delicious. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11195"
+  },
+  "c2": {
+   "text": "\"You've come a long way. Sit, eat with us,\" (name) says. The traveler accepts, delighted, and joins the villagers around the cooking fire...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11191"
+  },
+  "c3o1": {
+   "text": "The traveler looks down and laughs. \"Oh! It's that roof, see?\" And sure enough, the traveler is standing right at the edge of the eaves of the meeting hut, and the roof's shadow falls exactly where (his/her) own should be, swallowing it up. The traveler steps out into the open, and there it is, a little shadow, just like everyone else's. Several villagers laugh a bit too loudly.",
+   "src": "L11200"
+  },
+  "c3o2": {
+   "text": "The traveler smiles a strange, gentle smile. \"I left it where I was born,\" (he/she) says, as if that's a perfectly normal thing to say. \"It wanted to stay.\" Then (he/she) asks again about the directions, firmly changing the subject. (Name) gives them. Nobody else asks anything at all.",
+   "src": "L11202"
+  },
+  "c3": {
+   "text": "(Name) can't help it. \"Excuse me,\" (he/she) says, pointing at the ground. \"But where's your shadow?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11198"
+  },
+  "c4o1": {
+   "text": "The traveler's footprints lead through the jungle for hours, until they come out on a ridge above a village (name) has never seen, with smoke rising from its cooking fires. A woman below looks up and waves at (name), as if she's been expecting (him/her) all along. (Name) waves back, then turns and runs all the way home. When (he/she) goes back with friends a week later, the ridge looks down on empty jungle.",
+   "src": "L11207"
+  },
+  "c4o2": {
+   "text": "The traveler walks around a bend in the path, and (name) hurries to catch up. Around the bend there's nothing but a sheer drop and a thick wall of jungle. There is no other path. There is no traveler. (Name) stands there for a very long time, then walks home.",
+   "src": "L11209"
+  },
+  "c4": {
+   "text": "(Name) gives the directions, then sneaks after the traveler as (he/she) leaves the village, keeping well back...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11205"
+  }
+ }
+}

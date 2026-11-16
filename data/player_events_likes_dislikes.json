@@ -1,0 +1,1952 @@
+{
+ "VV1 A New Home": {
+  "ants": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "crowds": {
+   "like": "nothing",
+   "dislike": "sits out village-wide celebrations",
+   "evidence": "dislike test 0x4372E0 word 1; vv_game_mechanics_vv1.py:167-171"
+  },
+  "resting": {
+   "like": "nothing",
+   "dislike": "never relaxes in a well-off village",
+   "evidence": "0x4372E0 word 2; vv_game_mechanics_vv1.py:169"
+  },
+  "laundry": {
+   "like": "nothing",
+   "dislike": "never does laundry",
+   "evidence": "0x4372E0 word 3; vv_game_mechanics_vv1.py:169"
+  },
+  "medicine": {
+   "like": "nothing",
+   "dislike": "passes over the Healing job more than half the time (still heals when picked)",
+   "evidence": "0x4372E0 word 4; vv_game_mechanics_vv1.py:163; hidden-gates doc #13"
+  },
+  "turnips": {
+   "like": "nothing",
+   "dislike": "skips crop (turnip field) trips 75% of the time",
+   "evidence": "dislike test 0x443A1E; vv_game_mechanics_farmers_vv1.py:174-177"
+  },
+  "butterflies": {
+   "like": "nothing",
+   "dislike": "never chases butterflies",
+   "evidence": "0x4372E0 word 6; vv_game_mechanics_vv1.py:169"
+  },
+  "flowers": {
+   "like": "nothing",
+   "dislike": "no garden work and no flower gathering",
+   "evidence": "0x4372E0 word 7; vv_game_mechanics_vv1.py:169"
+  },
+  "bees": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "the dark": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "caves": {
+   "like": "nothing",
+   "dislike": "dropped on one cave spot, does nothing",
+   "evidence": "0x4372E0 word 10; vv_game_mechanics_vv1.py:170"
+  },
+  "herbs": {
+   "like": "nothing",
+   "dislike": "refuses to study the strange plants when dropped on them",
+   "evidence": "0x424ADF etc.; vv_game_mechanics_items_vv1.py:353-355"
+  },
+  "berries": {
+   "like": "nothing",
+   "dislike": "refuses foraging (berry bushes) 75% of the time",
+   "evidence": "0x4372E0 word 12; vv_game_mechanics_farmers_vv1.py:151-156"
+  },
+  "snakes": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "wind": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "rocks": {
+   "like": "nothing",
+   "dislike": "refuses clearing the lagoon blockage 75% of the time",
+   "evidence": "vv_game_mechanics_items_vv1.py:463"
+  },
+  "rough wood": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "the ocean": {
+   "like": "nothing",
+   "dislike": "keeps away from the lagoon and swimming; dropped in water it says \"Leaving the water\"",
+   "evidence": "0x4372E0 word 17; vv_game_mechanics_vv1.py:167"
+  },
+  "playing": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "exploring": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "blue": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "green": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "red": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "yellow": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "drums": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "bushes": {
+   "like": "nothing",
+   "dislike": "refuses foraging (berry bushes) 75% of the time",
+   "evidence": "0x4372E0 word 25; vv_game_mechanics_vv1.py:164"
+  },
+  "bananas": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "coconuts": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "sand": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "sunlight": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "drift wood": {
+   "like": "nothing",
+   "dislike": "skips the beach clean-up 85% of the time",
+   "evidence": "vv_game_mechanics_items_vv1.py:460"
+  },
+  "crab meat": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "whale meat": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "fish": {
+   "like": "nothing",
+   "dislike": "always refuses fishing (\"Running away\")",
+   "evidence": "0x43F45B; vv_game_mechanics_farmers_vv1.py:188-192"
+  },
+  "fruit": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "papaya": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "flies": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "swimming": {
+   "like": "nothing",
+   "dislike": "keeps away from the lagoon and swimming; dropped in water it says \"Leaving the water\"",
+   "evidence": "0x4372E0 word 37; vv_game_mechanics_vv1.py:167"
+  },
+  "running": {
+   "like": "an adult (14+) runs on walks: speed 300 instead of 100 (elders always walk slowly at 40)",
+   "dislike": "every villager, any age, is slowed: walks instead of running (seen live by the owner; the code path read so far only showed children under 14)",
+   "evidence": "like test 0x437310 at 0x43CD33 (the ONLY like test in the game); dislike 0x43CD20..0x43CD2C; vv_game_mechanics_vv1.py:147-162"
+  },
+  "dancing": {
+   "like": "nothing",
+   "dislike": "never dances, and skips the dance steps at celebrations and honouring",
+   "evidence": "0x4372E0 word 39; vv_game_mechanics_vv1.py:168; Golden Child dance 0x4407D0"
+  },
+  "monkeys": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "birds": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "work": {
+   "like": "nothing",
+   "dislike": "70% of idle job picks end in no job (lazy)",
+   "evidence": "0x439B05 push 2Ah, rand<70 -> no job; vv_game_mechanics_vv1.py:163"
+  },
+  "lifting": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "surprises": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "jokes": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "sleeping": {
+   "like": "nothing (proven: the game never tests this)",
+   "dislike": "nothing (proven: the game never tests this)",
+   "evidence": "vv_game_mechanics_vv1.py:172-180 (all 34 dislike calls, 1 like call scanned)"
+  },
+  "_note": "Only ONE like does anything in A New Home: running (the game tests likes only for running). Every other like is cosmetic. 19 dislikes act; the other 28 are cosmetic. This is proven: every one of the 34 calls of the dislike test was scanned (vv_game_mechanics_vv1.py:172-180). A New Home has no 'learning', 'heights', 'wood', 'rain', 'fire', 'children' or 'talking' words; liking or disliking learning cannot be given and the skill check reads no like (0x43D440)."
+ },
+ "VV2 The Lost Children": {
+  "ants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "crowds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never joins Heat Wave, Isola Day, Day of Honor, the Blessings Days, completion celebrations or Gong watching",
+   "evidence": "vv_game_mechanics_vv2.py:129-130"
+  },
+  "resting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses resting",
+   "evidence": "vv_game_mechanics_vv2.py:135-136"
+  },
+  "laundry": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses laundry",
+   "evidence": "vv_game_mechanics_vv2.py:135-136"
+  },
+  "medicine": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "passes over the Healing job half the time",
+   "evidence": "0x449D55..0x449D70; vv_game_mechanics_vv2.py:127"
+  },
+  "turnips": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses crop trips 75% of the time",
+   "evidence": "0x459400; farmers_vv2.py:114,209"
+  },
+  "butterflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flowers": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bees": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "the dark": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "caves": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "herbs": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses to study the strange plants (\"Running away\")",
+   "evidence": "items_vv2.py:259; vv_game_mechanics_vv2.py:131"
+  },
+  "berries": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "snakes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wind": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "rocks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "heights": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses coconut trips (climbing) 75% of the time; \"Running away\" at that spot",
+   "evidence": "0x456F94; farmers_vv2.py:113, chances_vv2.py:208"
+  },
+  "the ocean": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses the ocean activity",
+   "evidence": "vv_game_mechanics_vv2.py:135-136"
+  },
+  "playing": {
+   "like": "a child picks one of 4 lively plays (and never starts stock tag)",
+   "dislike": "stock: no effect found; with the Children Play patch never plays tag or sandcastles",
+   "evidence": "vv_game_mechanics_vv2.py:137; children_play.py:26-29,50-52"
+  },
+  "exploring": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "blue": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "green": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "red": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "yellow": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "drums": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bushes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bananas": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "coconuts": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses coconut trips 75% of the time; \"Running away\" at that spot",
+   "evidence": "0x456F94; farmers_vv2.py:113"
+  },
+  "sand": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses the sand/beach activity",
+   "evidence": "vv_game_mechanics_vv2.py:135-136"
+  },
+  "sunlight": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wood": {
+   "like": "a builder always takes the short route to the wood and never walks off a job",
+   "dislike": "a builder walks off the building job about 1 trip in 5 (50% short route x 40% walk off), and refuses half of drops on the firewood",
+   "evidence": "0x457284 / 0x457382; chances_vv2.py:219-222"
+  },
+  "crab meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "whale meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fish": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "always refuses fishing",
+   "evidence": "0x4507AB; farmers_vv2.py:114,223"
+  },
+  "fruit": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "papaya": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "swimming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "\"Running away\" when sent or dropped at the swimming spot",
+   "evidence": "vv_game_mechanics_vv2.py:131"
+  },
+  "running": {
+   "like": "walks at speed 300 instead of 100 (any age)",
+   "dislike": "walks at 40 on every walk, children too (elders always 40)",
+   "evidence": "0x44D848..0x44D899; farmers_vv2.py:46-48"
+  },
+  "learning": {
+   "like": "every skill try passes at skill+66 instead of skill+33 and the skill gain is doubled",
+   "dislike": "skill try passes at skill+16 and the gain is halved",
+   "evidence": "skill roll 0x44E170, likes 0x445510 / dislikes 0x4454E0 word 0x27; chances_vv2.py:142-149"
+  },
+  "dancing": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never dances",
+   "evidence": "vv_game_mechanics_vv2.py:136"
+  },
+  "monkeys": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "parrots": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "work": {
+   "like": "never takes the 15% 'no job' skip and always keeps a job the player gave",
+   "dislike": "also gives up 70% of job picks; drops a player-given job 52% of the time",
+   "evidence": "0x449C66..0x449CAC, 0x461582..0x4615D4; vv_game_mechanics_vv2.py:125-127"
+  },
+  "lifting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "surprises": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jokes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sleeping": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jumping": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never jumps (only when edited in)",
+   "evidence": "vv_game_mechanics_vv2.py:136"
+  },
+  "cooking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "\"Running away\" at the stew pot; with the Empty Stew Pot patch it runs away instead of emptying the pot (only when edited in)",
+   "evidence": "vv_game_mechanics_vv2.py:48,131; items_vv2.py:471"
+  },
+  "fire": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "\"Running away\" at the fire spot (only when edited in: not rolled at birth)",
+   "evidence": "vv_game_mechanics_vv2.py:131"
+  },
+  "eating": {
+   "like": "snacks instead of walking to the pond, and always eats a ready stew (only when edited in)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "vv_game_mechanics_vv2.py:135"
+  },
+  "dragonflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "owls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dreaming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "children": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "as a storyteller tells a story only 2% of the time (only when edited in)",
+   "evidence": "vv_game_mechanics_vv2.py:136-137"
+  },
+  "talking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses talking (only when edited in)",
+   "evidence": "vv_game_mechanics_vv2.py:135-136"
+  },
+  "holidays": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "vegetables": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses crop trips 75% of the time (only when edited in)",
+   "evidence": "0x459400; farmers_vv2.py:114"
+  },
+  "quiet": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "clouds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dirt": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "_note": "New villagers only ever roll from the first 47 words; jumping, cooking, fire, eating, children, talking and vegetables appear only when edited in (patcher tools / Custom Island Events can set them). The other 37 words: no effect found, but about 90 places read likes and not all were traced (UNCONFIRMED that they do nothing)."
+ },
+ "VV3 The Secret City": {
+  "ants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "crowds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "left out of celebrations",
+   "evidence": "vv_game_mechanics_vv3.py:156"
+  },
+  "resting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses resting; when sick, paces instead of lying down",
+   "evidence": "vv_game_mechanics_vv3.py:154-155"
+  },
+  "laundry": {
+   "like": "does laundry 37% of the time it could (10% otherwise)",
+   "dislike": "never does laundry",
+   "evidence": "vv_game_mechanics_vv3.py:144"
+  },
+  "medicine": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "passes over Healing half the time, and half of cures that pass the skill test fail anyway (at Healing 50: 42% instead of 84%)",
+   "evidence": "0x459808, 0x4573B5; vv_game_mechanics_vv3.py:147-150"
+  },
+  "turnips": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "butterflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flowers": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses the flower activity",
+   "evidence": "vv_game_mechanics_vv3.py:154"
+  },
+  "bees": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of honey jobs become running away; a drop on the hive refused 60%",
+   "evidence": "0x45B129..0x45B163"
+  },
+  "the dark": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses a drop on a dark spot",
+   "evidence": "vv_game_mechanics_vv3.py:153"
+  },
+  "caves": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses a drop on a cave",
+   "evidence": "vv_game_mechanics_vv3.py:153"
+  },
+  "herbs": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses herbs; refuses to gather herbs",
+   "evidence": "vv_game_mechanics_vv3.py:154; items_vv3.py:413"
+  },
+  "berries": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "snakes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wind": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "rocks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of rubble / bath-repair jobs become running away",
+   "evidence": "items_vv3.py:282; vv_game_mechanics_vv3.py:151"
+  },
+  "heights": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses the high-place activity",
+   "evidence": "vv_game_mechanics_vv3.py:154"
+  },
+  "the ocean": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses fishing (\"Running away\")",
+   "evidence": "chances_vv3.py:202-204; vv_game_mechanics_vv3.py:150-151"
+  },
+  "playing": {
+   "like": "a child picks only from the plays (sandcastles 1 of 5 choices)",
+   "dislike": "a child never makes sandcastles or plays in the dirt; never joins patched tag",
+   "evidence": "vv_game_mechanics_vv3.py:144-145; children_play.py:30-33,53-56"
+  },
+  "exploring": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "blue": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "green": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "red": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "yellow": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "drums": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bushes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of clearing (bushes) jobs become running away",
+   "evidence": "vv_game_mechanics_vv3.py:151"
+  },
+  "bananas": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "coconuts": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sand": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses the sand/beach activity",
+   "evidence": "vv_game_mechanics_vv3.py:154"
+  },
+  "sunlight": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wood": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of wood jobs become running away; walks off a hut 40%; refuses half of drops on the driftwood",
+   "evidence": "0x453A9D; chances_vv3.py:204; vv_game_mechanics_vv3.py:152"
+  },
+  "crab meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "whale meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fish": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses fishing (\"Running away\"); a fish-hater who does start walks off",
+   "evidence": "0x45B145; chances_vv3.py:202-204"
+  },
+  "fruit": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of fruit-tree jobs become \"Running away\"",
+   "evidence": "0x45B0AC; chances_vv3.py:202"
+  },
+  "papaya": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "swimming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses fishing (\"Running away\")",
+   "evidence": "chances_vv3.py:202-204; vv_game_mechanics_vv3.py:150-151"
+  },
+  "running": {
+   "like": "an adult walks at 300 instead of 100",
+   "dislike": "any age walks at 40, even when running away",
+   "evidence": "farmers_vv3.py:57; vv_game_mechanics_vv3.py:142"
+  },
+  "learning": {
+   "like": "skill test at skill+66 instead of skill+33 and every skill gain doubled",
+   "dislike": "skill test at skill+16 and every gain halved",
+   "evidence": "0x45A2C0, 0x45A309..0x45A31B, gain 0x45A476..0x45A48D; vv_game_mechanics_vv3.py:123-131"
+  },
+  "dancing": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses dancing",
+   "evidence": "vv_game_mechanics_vv3.py:154"
+  },
+  "monkeys": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "parrots": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "work": {
+   "like": "never takes the 15% 'no job' skip; always keeps an assigned spot",
+   "dislike": "70% of the remaining job picks end in no job; keeps an assigned fishing spot 47.5% (80% otherwise)",
+   "evidence": "job chooser 0x459730, 0x459746, 0x459783; vv_game_mechanics_vv3.py:135-141"
+  },
+  "lifting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of rubble / bath-repair jobs become running away",
+   "evidence": "items_vv3.py:282; vv_game_mechanics_vv3.py:151"
+  },
+  "surprises": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jokes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sleeping": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jumping": {
+   "like": "Dancing becomes a 30-hop dance",
+   "dislike": "no hops",
+   "evidence": "vv_game_mechanics_vv3.py:145-146"
+  },
+  "cooking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fire": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses a drop on the fire",
+   "evidence": "vv_game_mechanics_vv3.py:153"
+  },
+  "eating": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dragonflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "owls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dreaming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "children": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "storytelling to a child is called off 69 times in 70",
+   "evidence": "vv_game_mechanics_vv3.py:155"
+  },
+  "talking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never chooses talking",
+   "evidence": "vv_game_mechanics_vv3.py:154"
+  },
+  "holidays": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "vegetables": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "quiet": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "clouds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dirt": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "alchemy": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses a drop on the alchemy spot",
+   "evidence": "vv_game_mechanics_vv3.py:153"
+  },
+  "potions": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "refuses a drop on the potion spot",
+   "evidence": "vv_game_mechanics_vv3.py:153"
+  },
+  "magic": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "plants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of clearing (plants) jobs become running away",
+   "evidence": "vv_game_mechanics_vv3.py:151"
+  },
+  "rain": {
+   "like": "in heavy rain stops work to go \"Drinking rain\"",
+   "dislike": "in heavy rain stops work to go \"Getting out of the rain\"",
+   "evidence": "0x459537; chances_vv3.py:198-201; vv_game_mechanics_vv3.py:143"
+  },
+  "fog": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sitting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "when sick, paces instead of sitting down",
+   "evidence": "vv_game_mechanics_vv3.py:155"
+  },
+  "sharks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "honey": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of honey jobs become running away; a drop on the hive refused 60%",
+   "evidence": "0x45B129..0x45B163"
+  },
+  "stories": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "an adult dropped on a child tells no story",
+   "evidence": "vv_game_mechanics_vv3.py:155-156"
+  },
+  "coral": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "thunder": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "lightning": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "pearls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "stars": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "mango": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "nature": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "_note": "The other 44 words: no effect found in the running game (UNCONFIRMED that none exists). The island events' liking/disliking ants, liking clouds, liking medicine and liking crowds are known to change nothing (events_vv3.py:73-74). The potion 'feels smarter' gives the same skill-test bonus as liking learning, but not the doubled gain."
+ },
+ "VV4 The Tree of Life": {
+  "ants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "crowds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "skips the Celebrating rally",
+   "evidence": "vv_game_mechanics_vv4.py:187"
+  },
+  "resting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no Relaxing; when unwell, paces instead of lying down",
+   "evidence": "vv_game_mechanics_vv4.py:187"
+  },
+  "laundry": {
+   "like": "does laundry 38% of the time (11% otherwise)",
+   "dislike": "never does laundry",
+   "evidence": "vv_game_mechanics_vv4.py:181-182"
+  },
+  "medicine": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "considers Healing half as often and cures about half as often",
+   "evidence": "0x461DC9, cure 0x45FDE8; vv_game_mechanics_vv4.py:171"
+  },
+  "turnips": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "butterflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flowers": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never \"Curious about the herbs\"",
+   "evidence": "vv_game_mechanics_vv4.py:189"
+  },
+  "bees": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "the dark": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "caves": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "herbs": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never \"Curious about the herbs\"",
+   "evidence": "vv_game_mechanics_vv4.py:189"
+  },
+  "berries": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from berry picking",
+   "evidence": "0x463BB2; vv_game_mechanics_vv4.py:185"
+  },
+  "snakes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wind": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "rocks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from clearing rubble",
+   "evidence": "vv_game_mechanics_vv4.py:186; hidden-gates doc #39"
+  },
+  "heights": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "the ocean": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from fishing; no water leisure",
+   "evidence": "0x463AD9; vv_game_mechanics_vv4.py:185-186"
+  },
+  "playing": {
+   "like": "a child only plays (sandcastles 1 of 6 choices)",
+   "dislike": "no dirt or sandcastle play; never joins patched tag",
+   "evidence": "vv_game_mechanics_vv4.py:182-183; children_play.py:34-37,57-60"
+  },
+  "exploring": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "blue": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "green": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "red": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "yellow": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "drums": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bushes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bananas": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "coconuts": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sand": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no beach lounging",
+   "evidence": "vv_game_mechanics_vv4.py:189"
+  },
+  "sunlight": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wood": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "takes hut building 29% of the time instead of 70%; 41% stop half-way (\"Running away\"); half of drops on the wood pile end in running away",
+   "evidence": "0x463CAA, 0x45C7FC; vv_game_mechanics_vv4.py:171-173"
+  },
+  "crab meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "whale meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fish": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from fishing",
+   "evidence": "0x463AD9; vv_game_mechanics_vv4.py:185"
+  },
+  "fruit": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from fruit gathering",
+   "evidence": "0x463B47; vv_game_mechanics_vv4.py:185"
+  },
+  "papaya": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "swimming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from fishing; no water leisure",
+   "evidence": "0x463AD9; vv_game_mechanics_vv4.py:185-186"
+  },
+  "running": {
+   "like": "an adult walks at 300 instead of 100 (children run anyway)",
+   "dislike": "walks at 40, children too",
+   "evidence": "walk speed 0x45E2C0 (300 at 0x45E2FF, 40 at 0x45E325); vv_game_mechanics_vv4.py:176-180"
+  },
+  "learning": {
+   "like": "skill check at skill+67 in 100 instead of skill+34 (always succeeds from skill 33) and doubled gain",
+   "dislike": "skill check at skill+17 in 100 and halved gain",
+   "evidence": "0x462A80, 0x462AB9, 0x462AC6; vv_game_mechanics_vv4.py:164-167"
+  },
+  "dancing": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never dances, and dance steps are cut from 5 other actions",
+   "evidence": "vv_game_mechanics_vv4.py:183"
+  },
+  "monkeys": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "parrots": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "work": {
+   "like": "idle self-picks drop from 18.7% to 5%; a job you give is always done",
+   "dislike": "75.9% of self-picks idle; a job you give is done 47.9% of the time (food under 8,000)",
+   "evidence": "0x461CCC..0x461D15, task gate 0x4634D0; vv_game_mechanics_vv4.py:168-170"
+  },
+  "lifting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from clearing rubble and debris",
+   "evidence": "vv_game_mechanics_vv4.py:186"
+  },
+  "surprises": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jokes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sleeping": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jumping": {
+   "like": "Dancing becomes 30 hops",
+   "dislike": "every hop is skipped",
+   "evidence": "vv_game_mechanics_vv4.py:179-180"
+  },
+  "cooking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fire": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "dropped on the fire pit runs away (always when lit, 81% unlit)",
+   "evidence": "vv_game_mechanics_vv4.py:190"
+  },
+  "eating": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dragonflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "owls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dreaming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "children": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "\"Telling a story\" ends 99% of the time",
+   "evidence": "vv_game_mechanics_vv4.py:191"
+  },
+  "talking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no Chatting",
+   "evidence": "vv_game_mechanics_vv4.py:190"
+  },
+  "holidays": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "vegetables": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "quiet": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "clouds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dirt": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "frogs": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "dropped on the cooking table runs away (100% / 76%)",
+   "evidence": "vv_game_mechanics_vv4.py:190-191"
+  },
+  "soap": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "magic": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "plants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% run away from clearing debris",
+   "evidence": "vv_game_mechanics_vv4.py:186; hidden-gates doc #39"
+  },
+  "rain": {
+   "like": "always \"Drinking rain\" in the rain",
+   "dislike": "always \"Getting out of the rain\"",
+   "evidence": "vv_game_mechanics_vv4.py:181"
+  },
+  "fog": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sitting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "when unwell, paces instead of sitting down",
+   "evidence": "vv_game_mechanics_vv4.py:187"
+  },
+  "sharks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "honey": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "stories": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no story when either villager dislikes stories",
+   "evidence": "vv_game_mechanics_vv4.py:191-192"
+  },
+  "coral": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "thunder": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "lightning": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "pearls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "stars": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "mango": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "nature": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "_note": "The rest: no effect found in the running game (UNCONFIRMED that none exists). Note: the Game Mechanics page says 'the other 46', but it names 29 acting words, which leaves 50; the page's count looks off. Which of fish/ocean/swimming blocks 'water leisure' on its own is not split out in the source (shown here for ocean and swimming)."
+ },
+ "VV5 New Believers": {
+  "ants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "crowds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never joins village celebrations",
+   "evidence": "vv_game_mechanics_vv5.py:94-95"
+  },
+  "resting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no relaxing; when unwell paces instead of lying down",
+   "evidence": "vv_game_mechanics_vv5.py:85-86"
+  },
+  "laundry": {
+   "like": "does laundry 53% of the time (12.3% otherwise)",
+   "dislike": "never does laundry",
+   "evidence": "vv_game_mechanics_vv5.py:82-83"
+  },
+  "medicine": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "takes the Healing job 42.6% instead of 78.5%; a cure works 36.7% instead of 73.5%",
+   "evidence": "0x46A4C7, 0x468C7B..0x468C99; vv_game_mechanics_vv5.py:90-91"
+  },
+  "turnips": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "butterflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flowers": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bees": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "the dark": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "caves": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "herbs": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "berries": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of noni picking becomes running away",
+   "evidence": "0x46C6F3..0x46C717; vv_game_mechanics_vv5.py:86-87"
+  },
+  "snakes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wind": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "rocks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never works on the statue; running away",
+   "evidence": "0x46CBD5..0x46CBF9; vv_game_mechanics_vv5.py:89"
+  },
+  "heights": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never goes to the waterfall",
+   "evidence": "vv_game_mechanics_vv5.py:85"
+  },
+  "the ocean": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no swimming or pools; 60% of fishing becomes running away",
+   "evidence": "vv_game_mechanics_vv5.py:83-84"
+  },
+  "playing": {
+   "like": "a child picks from 5 plays",
+   "dislike": "never plays in the dirt; never joins patched tag",
+   "evidence": "vv_game_mechanics_vv5.py:94; children_play.py:61-62"
+  },
+  "exploring": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "blue": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "green": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "red": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "yellow": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "drums": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bushes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "bananas": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "coconuts": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sand": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sunlight": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "wood": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "wooden projects offered only 16% of the time; 37% of hut building becomes running away; a drop on the wood pile refused half the time",
+   "evidence": "0x46C80B..0x46C829, 0x463CF9; vv_game_mechanics_vv5.py:88-89"
+  },
+  "crab meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "whale meat": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fish": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "60% of fishing becomes running away",
+   "evidence": "vv_game_mechanics_vv5.py:86-87; farmers_vv5.py:113"
+  },
+  "fruit": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "papaya": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "flies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "swimming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no swimming, pools, lake or waterfall; 60% of fishing becomes running away",
+   "evidence": "0x46C647..0x46C699; vv_game_mechanics_vv5.py:83-84"
+  },
+  "running": {
+   "like": "walks at 300 instead of 100",
+   "dislike": "walks at 40, except when fleeing (children run unless they dislike it)",
+   "evidence": "300 at 0x4659BF, 40 at 0x465A06; vv_game_mechanics_vv5.py:77-80"
+  },
+  "learning": {
+   "like": "skill check at skill+66 instead of skill+33; gain doubled",
+   "dislike": "skill check at skill+16; gain halved",
+   "evidence": "gain 0x46B3EE..0x46B41C; chances_vv5.py:94-95; vv_game_mechanics_vv5.py:69-71"
+  },
+  "dancing": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no dancing or rain dancing, no dance moves at celebrations",
+   "evidence": "vv_game_mechanics_vv5.py:82"
+  },
+  "monkeys": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "parrots": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "work": {
+   "like": "skips the 15% 'do nothing' chance; keeps a player-given task 99% (86% otherwise)",
+   "dislike": "70% of job picks end in nothing; player-given task kept 63%; while catching up 78% find no job (29% otherwise)",
+   "evidence": "0x46A3CC..; task gate 0x46BD04..0x46BD2E; vv_game_mechanics_vv5.py:74-76"
+  },
+  "lifting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "surprises": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jokes": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sleeping": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "jumping": {
+   "like": "Dancing becomes a 30-jump dance",
+   "dislike": "jump steps skipped",
+   "evidence": "vv_game_mechanics_vv5.py:80"
+  },
+  "cooking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "fire": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "dropped on the fire pit runs away (80% unlit, always when burning)",
+   "evidence": "vv_game_mechanics_vv5.py:92"
+  },
+  "eating": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dragonflies": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "owls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "the granary job offered only 16% of the time",
+   "evidence": "vv_game_mechanics_vv5.py:89; hidden-gates doc VV5 #26"
+  },
+  "dreaming": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "children": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "\"Telling a story\" stops 69 times in 70",
+   "evidence": "vv_game_mechanics_vv5.py:93-94"
+  },
+  "talking": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "never praises",
+   "evidence": "vv_game_mechanics_vv5.py:85"
+  },
+  "holidays": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "vegetables": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "quiet": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "clouds": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "dirt": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "frogs": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "soap": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "magic": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "plants": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "rain": {
+   "like": "drinks the rain 98.7% of the time in rain (12% otherwise)",
+   "dislike": "gets out of the rain 98.7% of the time",
+   "evidence": "0x46A100; vv_game_mechanics_vv5.py:78-79"
+  },
+  "fog": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "sitting": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "when unwell paces instead of sitting down",
+   "evidence": "vv_game_mechanics_vv5.py:85-86"
+  },
+  "sharks": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "honey": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "stories": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "no story when either villager dislikes stories",
+   "evidence": "vv_game_mechanics_vv5.py:92-93"
+  },
+  "coral": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "thunder": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "lightning": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "pearls": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "stars": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "mango": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "nature": {
+   "like": "nothing found (UNCONFIRMED)",
+   "dislike": "nothing found (UNCONFIRMED)",
+   "evidence": "not in any traced like/dislike read (Game Mechanics HIDDEN_LINES)"
+  },
+  "_note": "Heathen adults ignore their likes and dislikes entirely (heathen children follow the children's ways). The other 55 words (plants and lifting among them): no code that reads them was found (UNCONFIRMED that none exists)."
+ },
+ "_intents": {
+  "Afraid of / avoids water": {
+   "VV1": "swimming + the ocean",
+   "VV2": "swimming (runs away) + the ocean (never chosen)",
+   "VV3": "swimming or the ocean",
+   "VV4": "swimming or the ocean",
+   "VV5": "swimming (strongest: no swimming, pools, lake or waterfall)"
+  },
+  "Afraid of heights": {
+   "VV1": "NO VALUE (word not in the game)",
+   "VV2": "heights (refuses coconut climbing 75%)",
+   "VV3": "heights (never picks the high place)",
+   "VV4": "NO VALUE (heights does nothing here)",
+   "VV5": "heights (never goes to the waterfall)"
+  },
+  "Hates getting dirty / tidy": {
+   "VV1": "NO VALUE ('laundry' like does nothing)",
+   "VV2": "NO VALUE (dirt does nothing)",
+   "VV3": "like laundry (does more laundry); for a child, dislike playing (no dirt play)",
+   "VV4": "like laundry; for a child, dislike playing (no dirt play)",
+   "VV5": "like laundry; for a child, dislike playing (no dirt play)"
+  },
+  "Loves learning / quick learner": {
+   "VV1": "NO VALUE (no learning word)",
+   "VV2": "like learning",
+   "VV3": "like learning",
+   "VV4": "like learning",
+   "VV5": "like learning"
+  },
+  "Slow learner / hates school": {
+   "VV1": "NO VALUE",
+   "VV2": "dislike learning",
+   "VV3": "dislike learning",
+   "VV4": "dislike learning",
+   "VV5": "dislike learning"
+  },
+  "Avoids children / not a storyteller": {
+   "VV1": "NO VALUE",
+   "VV2": "dislike children (only edited in)",
+   "VV3": "dislike children",
+   "VV4": "dislike children (or stories)",
+   "VV5": "dislike children (or stories)"
+  },
+  "Avoids sick people / squeamish healer": {
+   "VV1": "dislike medicine",
+   "VV2": "dislike medicine",
+   "VV3": "dislike medicine",
+   "VV4": "dislike medicine",
+   "VV5": "dislike medicine"
+  },
+  "Loves food / glutton": {
+   "VV1": "NO VALUE",
+   "VV2": "like eating (snacks, eats every ready stew)",
+   "VV3": "NO VALUE",
+   "VV4": "NO VALUE",
+   "VV5": "NO VALUE"
+  },
+  "Hates work / lazy": {
+   "VV1": "dislike work",
+   "VV2": "dislike work",
+   "VV3": "dislike work",
+   "VV4": "dislike work",
+   "VV5": "dislike work"
+  },
+  "Hard worker / diligent": {
+   "VV1": "NO VALUE (like work does nothing)",
+   "VV2": "like work",
+   "VV3": "like work",
+   "VV4": "like work",
+   "VV5": "like work"
+  },
+  "Fast, athletic": {
+   "VV1": "like running (adults only)",
+   "VV2": "like running",
+   "VV3": "like running (adults)",
+   "VV4": "like running (adults)",
+   "VV5": "like running"
+  },
+  "Slow, injured, frail": {
+   "VV1": "dislike running (children only in code)",
+   "VV2": "dislike running",
+   "VV3": "dislike running",
+   "VV4": "dislike running",
+   "VV5": "dislike running"
+  },
+  "Shy / avoids crowds": {
+   "VV1": "dislike crowds",
+   "VV2": "dislike crowds",
+   "VV3": "dislike crowds",
+   "VV4": "dislike crowds",
+   "VV5": "dislike crowds"
+  },
+  "Hates rain": {
+   "VV1": "NO VALUE",
+   "VV2": "NO VALUE",
+   "VV3": "dislike rain",
+   "VV4": "dislike rain",
+   "VV5": "dislike rain"
+  },
+  "Loves rain": {
+   "VV1": "NO VALUE",
+   "VV2": "NO VALUE",
+   "VV3": "like rain",
+   "VV4": "like rain",
+   "VV5": "like rain"
+  },
+  "Afraid of fire": {
+   "VV1": "NO VALUE (no fire)",
+   "VV2": "dislike fire (only edited in)",
+   "VV3": "dislike fire",
+   "VV4": "dislike fire",
+   "VV5": "dislike fire"
+  },
+  "Won't dance": {
+   "VV1": "dislike dancing",
+   "VV2": "dislike dancing",
+   "VV3": "dislike dancing",
+   "VV4": "dislike dancing",
+   "VV5": "dislike dancing"
+  },
+  "Loves dancing / bouncy": {
+   "VV1": "NO VALUE",
+   "VV2": "NO VALUE",
+   "VV3": "like jumping (30-hop dance)",
+   "VV4": "like jumping",
+   "VV5": "like jumping"
+  },
+  "Afraid of caves / the dark": {
+   "VV1": "dislike caves",
+   "VV2": "NO VALUE",
+   "VV3": "dislike caves or the dark",
+   "VV4": "NO VALUE",
+   "VV5": "NO VALUE"
+  },
+  "Hates heavy labour": {
+   "VV1": "dislike rocks",
+   "VV2": "dislike wood",
+   "VV3": "dislike rocks, lifting or wood",
+   "VV4": "dislike rocks, lifting, plants or wood",
+   "VV5": "dislike wood or rocks"
+  },
+  "Hates fishing": {
+   "VV1": "dislike fish",
+   "VV2": "dislike fish",
+   "VV3": "dislike fish",
+   "VV4": "dislike fish",
+   "VV5": "dislike fish"
+  },
+  "Hates fruit/berry picking": {
+   "VV1": "dislike berries or bushes",
+   "VV2": "dislike coconuts",
+   "VV3": "dislike fruit (or bees/honey)",
+   "VV4": "dislike berries or fruit",
+   "VV5": "dislike berries"
+  },
+  "Hates farming crops": {
+   "VV1": "dislike turnips",
+   "VV2": "dislike turnips or vegetables",
+   "VV3": "NO VALUE",
+   "VV4": "NO VALUE",
+   "VV5": "NO VALUE"
+  },
+  "Quiet, doesn't chat": {
+   "VV1": "NO VALUE",
+   "VV2": "dislike talking (only edited in)",
+   "VV3": "dislike talking",
+   "VV4": "dislike talking",
+   "VV5": "dislike talking"
+  },
+  "Restless, never rests": {
+   "VV1": "dislike resting",
+   "VV2": "dislike resting",
+   "VV3": "dislike resting",
+   "VV4": "dislike resting",
+   "VV5": "dislike resting"
+  },
+  "Dislikes herbs / plant lore": {
+   "VV1": "dislike herbs",
+   "VV2": "dislike herbs",
+   "VV3": "dislike herbs",
+   "VV4": "dislike herbs or flowers",
+   "VV5": "NO VALUE"
+  },
+  "Serious child, doesn't play": {
+   "VV1": "NO VALUE",
+   "VV2": "NO VALUE (patch only: dislike playing skips tag)",
+   "VV3": "dislike playing",
+   "VV4": "dislike playing",
+   "VV5": "dislike playing"
+  },
+  "Playful child": {
+   "VV1": "NO VALUE",
+   "VV2": "like playing",
+   "VV3": "like playing",
+   "VV4": "like playing",
+   "VV5": "like playing"
+  },
+  "Builder who hates wood / woodwork": {
+   "VV1": "NO VALUE (drift wood = beach clean-up)",
+   "VV2": "dislike wood",
+   "VV3": "dislike wood",
+   "VV4": "dislike wood",
+   "VV5": "dislike wood"
+  }
+ }
+}

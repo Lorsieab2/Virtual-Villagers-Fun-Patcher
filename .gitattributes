@@ -172,3 +172,5 @@ docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collecti
 /docs/more-island-events/Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt -text
 # The owner's all-in-one Animals anthology (frozen byte for byte; its newest volumes: scripts/anthology_new/)
 /docs/more-island-events/Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt -text
+# The owner's More Island Events file (frozen byte for byte; scripts/go_events/gen_mie.py, data/event_collection/MIE.sha256)
+/docs/more-island-events/Additional[[:space:]]Virtual[[:space:]]Villagers[[:space:]]Events[[:space:]]By[[:space:]]Lorsieab2.txt -text

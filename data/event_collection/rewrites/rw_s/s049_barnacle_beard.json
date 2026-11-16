@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Barnacle Beard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s049_barnacle_beard",
+  "source": "rewrites",
+  "lines": [
+   2321,
+   2365
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2321",
+  "ledger": [
+   {
+    "src": "L2322",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2323",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2331",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2340",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2328",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2329",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2332",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2341",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2334",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2337",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2343",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2346",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2349-2365",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "By evening there are four.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been spending so long in the sea, diving for shellfish from sunrise to sunset, that (his/her) family says (he/she) is turning into a fish. Lately (he/she) has been diving at the old wreck reef, where the elders say the sea likes to claim things for its own. This morning, (he/she) wakes up, scratches (his/her) chin, and finds a small barnacle growing there.\nBy evening there are four.\nBy the next morning (he/she) has something that might, if someone were being very generous, be called a beard. A grey-white, crusty, clicking beard of barnacles, all over (his/her) chin and jaw. It clicks faintly when (he/she) talks. It clicks a lot when (he/she) laughs. A small crab has been seen sitting in it. Should (name) keep (his/her) new beard, or scrape it off?",
+   "choices": [
+    {
+     "label": "Keep It",
+     "next": "c1",
+     "src": "L2328"
+    },
+    {
+     "label": "Scrape Them Off",
+     "next": "c2",
+     "src": "L2329"
+    }
+   ],
+   "src": "L2324-2326"
+  },
+  "c1o1": {
+   "text": "The barnacles are oddly flattering. They give (him/her) a rugged, sea-weathered, mysterious kind of look, like a person in an old story who came out of the waves. The children are fascinated. They follow (name) around asking to touch it, and then they all want barnacles too, and spend a whole week sitting in the shallows with their chins in the water, very disappointed when nothing grows. The crab moves out eventually, which (name) is a little sad about.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L2335"
+  },
+  "c1o2": {
+   "text": "(Name) keeps the beard, and something about it makes (him/her) feel more at home in the sea than ever. (He/She) spends even longer under the water. (He/She) learns to hold (his/her) breath for longer than anyone in the village, to read the currents, to find the fattest shellfish under the deepest ledges. The fish don't seem to be afraid of (him/her) any more. By the end of the season (name) is the best diver in the village by a long way, and brings home more food than anyone.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L2338",
+   "text_only": [
+    {
+     "src": "L2338",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "(Name) looks at (himself/herself) in a bowl of still water for a long time, turning (his/her) head this way and that. \"Actually,\" (he/she) says slowly, as the barnacles click, \"I think I like it.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2332"
+  },
+  "c2o1": {
+   "text": "It hurts. A lot. Barnacles, it turns out, hold on very tightly to whatever they're growing on, and they take little bits of (name) with them when they go. By the time the last one comes off, (name)'s chin is red and raw and bleeding in little dots, and (he/she) has to go to the healers, who clean it, cover it in soothing paste and tell (him/her) very firmly not to do that again. The little marks fade by the next full moon. The memory doesn't.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L2344"
+  },
+  "c2o2": {
+   "text": "Off they come, one at a time, with a very satisfying pop each. It doesn't even hurt much. (Name) holds up the last one, glares at it, and throws it back into the sea. And then (he/she) stands at the edge of the water for a long time, thinking about how (he/she) was slowly being turned into a rock. (Name) swears there and then never to swim again. And (he/she) doesn't. Not ever.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L2347"
+  },
+  "c2": {
+   "text": "(Name) has had enough. (He/She) takes a flat shell, sharpens the edge on a rock, grits (his/her) teeth, and starts to scrape...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2341"
+  }
+ }
+}

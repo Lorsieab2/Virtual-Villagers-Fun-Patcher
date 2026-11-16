@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Feared Thunder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new126_child_feared",
+  "source": "rewrites",
+  "lines": [
+   5906,
+   5952
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5906",
+  "ledger": [
+   {
+    "src": "L5907",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5917",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5924",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5931",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5913",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5914",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5915",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5918",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5925",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5932",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5919",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5921",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5926",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5928",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5933",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5935",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5938-5952",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A huge storm rolls over the island in the middle of the night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A huge storm rolls over the island in the middle of the night. Rain hammers the thatch. The wind howls through the palms.\nAnd every time the thunder crashes, little (subject) jumps.\n(subject.He/She) refuses to lie down. (subject.He/She) is sitting bolt upright on (subject.his/her) mat with a blanket over (subject.his/her) head, flinching at every boom, making small noises. Nobody else in the hut is getting any sleep either. (adult) rolls over for the fourth time, sighs, and sits up.\nCRASH. \"Eep.\" How can (adult) help (subject) feel safe?",
+   "choices": [
+    {
+     "label": "Ask What Scares Them",
+     "next": "c1",
+     "src": "L5913"
+    },
+    {
+     "label": "Count the Thunder Together",
+     "next": "c2",
+     "src": "L5914"
+    },
+    {
+     "label": "Let the Child Watch from the Doorway",
+     "next": "c3",
+     "src": "L5915"
+    }
+   ],
+   "src": "L5909-5912"
+  },
+  "c1o1": {
+   "text": "\"The thunder sounds like the mountain is angry,\" (subject) whispers. \"What if it's angry at us?\" (adult) does not laugh. (subject.He/She) explains that the mountain is very old and very big, and probably doesn't even know their little hut is there. (subject) is comforted just to be taken seriously, and falls asleep leaning against (adult)'s arm, which (adult) then cannot move for the rest of the night.",
+   "src": "L5920"
+  },
+  "c1o2": {
+   "text": "(subject) starts to explain about the thunder, then stops. \"Actually... it's the drip.\" It turns out the real problem is a leak in the roof, dripping steadily onto the end of (subject.his/her) mat, plip, plip, plip, which is somehow much more frightening in the dark than the thunder. Someone fetches a bowl to catch the drip. (subject) is asleep within minutes.",
+   "src": "L5922"
+  },
+  "c1": {
+   "text": "(adult) shuffles over and sits beside the blanket-shaped lump. \"Hey. What's the matter?\" A small voice comes out from under the blanket...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5918"
+  },
+  "c2o1": {
+   "text": "At the next flash, they count together, slowly: one... two... three... four... five... BOOM. \"Five. That means it's far away, out over the sea.\" They count every flash, and (subject) learns a little about how light is faster than sound and how to tell the storm's distance. By the end, (subject.he/she) is more interested than scared, and keeps poking (adult) awake to count.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L5927"
+  },
+  "c2o2": {
+   "text": "After two flashes, (subject) whispers that (subject.he/she) wants to keep counting on (subject.his/her) own. So (adult) sits nearby in the dark and listens to a small voice counting, very seriously, through the rest of the storm. Somewhere around \"eleven,\" the voice turns into gentle snoring.",
+   "src": "L5929"
+  },
+  "c2": {
+   "text": "(adult) lifts a corner of the blanket. \"Want to know a secret? You can tell how far away a storm is. Watch for the next flash...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5925"
+  },
+  "c3o1": {
+   "text": "Watching the flashes over the water, (subject) starts counting between flash and boom on (subject.his/her) own, and notices the counts are getting longer and longer. \"It's going away!\" (subject.he/she) announces proudly, and runs to tell the other adults it's leaving. In the morning, (subject.he/she) tells the fishers too, and they start using the same trick to tell whether a storm is coming or going before they set out.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5934"
+  },
+  "c3o2": {
+   "text": "They watch the lightning dance over the sea for a long time. It is actually quite beautiful. (subject) falls asleep before the storm passes, wrapped up tight in the doorway, and has to be carried back to (subject.his/her) mat. In the morning, (subject.he/she) asks if they can watch the next storm too.",
+   "src": "L5936"
+  },
+  "c3": {
+   "text": "(adult) wraps (subject) in an extra blanket and sits with (subject.him/her) in the doorway, where they can watch the storm out over the sea, safe and dry under the overhang...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5932"
+  }
+ }
+}

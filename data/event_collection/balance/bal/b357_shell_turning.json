@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell of Turning Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b357_shell_turning",
+  "source": "balance",
+  "lines": [
+   16466,
+   16506
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16466",
+  "ledger": [
+   {
+    "src": "L16467",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16468",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16475",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16484",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16472",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16473",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16476",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16485",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16478",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16481",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16487",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16490",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16493-16506",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Put it to your ear, the trader said, and listen to the sea, and turn it the way the spiral goes: you get younger.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader has given (name) a spiral shell, cream and brown, that (he/she) says comes from an island where nobody grows old. \"Put it to your ear,\" the trader said, \"and listen to the sea, and turn it the way the spiral goes: you get younger. Turn it the other way: you get older. Only once, though. The shell only turns once.\"\n(Name) is holding it to (his/her) ear. The sea inside is very loud. (He/She) can't remember which way the trader said the spiral goes. Should (name) turn it to the left, or to the right?",
+   "choices": [
+    {
+     "label": "Turn It Left",
+     "next": "c1",
+     "src": "L16472"
+    },
+    {
+     "label": "Turn It Right",
+     "next": "c2",
+     "src": "L16473"
+    }
+   ],
+   "src": "L16469-16470"
+  },
+  "c1o1": {
+   "text": "(Name) feels it from (his/her) feet up: the ache going out of (his/her) knees, the stiffness out of (his/her) back, the weight off (his/her) shoulders. Ten years, gone like water down a drain. When (he/she) looks in the water jar, the face is (his/hers) from ten years ago. The shell has gone silent, and stays silent forever after. (Name) keeps it on the shelf anyway.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16479"
+  },
+  "c1o2": {
+   "text": "(Name) feels it from (his/her) head down: the grey coming into (his/her) hair, the lines into (his/her) face, the creak into (his/her) knees. Ten years in a moment. (He/She) sits down heavily. \"Left,\" (he/she) says, to nobody. \"It was right. Of course it was right.\" The shell is silent now. (Name) throws it in the sea.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "max_age": 75,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16482"
+  },
+  "c1": {
+   "text": "(Name) turns the shell slowly to the left. The sea inside rushes, roars, and then goes very quiet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16476"
+  },
+  "c2o1": {
+   "text": "The shell, apparently, was only half sure what it was doing. (Name)'s body stays exactly the same age, knees and all. But (his/her) face, in the water jar, is younger by years, bright and smooth. \"Not that way,\" the shell said. (Name) decides it was being modest.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16488"
+  },
+  "c2o2": {
+   "text": "Nothing happens. The sea inside the shell goes quiet, and stays quiet. (Name) is the same age and the same face as before. It was, (he/she) decides, just a shell, and the trader was just a trader, and the voice was just the wind. (He/She) keeps the shell anyway, and the children listen to it, and say they can still hear the voice.",
+   "src": "L16491"
+  },
+  "c2": {
+   "text": "(Name) turns the shell slowly to the right. The sea inside rushes and roars, and then a voice inside it says, very clearly, \"Oh, not that way\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16485"
+  }
+ }
+}

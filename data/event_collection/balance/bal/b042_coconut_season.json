@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b042_coconut_season",
+  "source": "balance",
+  "lines": [
+   1889,
+   1930
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1889",
+  "ledger": [
+   {
+    "src": "L1890",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1899",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1896",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1897",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1900",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1909",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1902",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1905",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1911",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1917-1930",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's coconut season, and everyone knows the rule: don't stand under the palms when the wind gets up.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's coconut season, and everyone knows the rule: don't stand under the palms when the wind gets up. (Name) knows the rule. (Name) is also very tired, and the shade under the big palm by the gardens is the best in the village.\n(He/She) has been dozing there for a while when (he/she) hears a creak overhead, and looks up to see a bunch of coconuts, heavy as a child, swaying loose on a broken stalk.\nShould (name) roll out of the way, or try to catch it?",
+   "choices": [
+    {
+     "label": "Roll Out of the Way",
+     "next": "c1",
+     "src": "L1896"
+    },
+    {
+     "label": "Try to Catch It",
+     "next": "c2",
+     "src": "L1897"
+    }
+   ],
+   "src": "L1892-1894"
+  },
+  "c1o1": {
+   "text": "(Name) rolls clear of the bunch, but one coconut bounces off the trunk and catches (him/her) right on the head. (He/She) comes round with the gardeners standing over (him/her), and a lump like a second head. (He/She) knows the gardeners, the palm and the rule, and now has a very good reason to remember it. What (he/she) doesn't know anymore is (his/her) name. It never comes back, and the village calls (him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1903"
+  },
+  "c1o2": {
+   "text": "The coconuts land exactly where (name)'s head was a moment ago, with a sound like a drum. (Name) lies in the grass, very still, looking at the dent in the ground. Then (he/she) gets up, collects the coconuts, and carries them home. (He/She) naps in (his/her) hut from now on. The palm keeps the best shade in the village to itself.",
+   "src": "L1906"
+  },
+  "c1": {
+   "text": "(Name) rolls. The coconuts let go. There's a thud, and a second thud, and a third, much closer, and then a very loud one...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1900"
+  },
+  "c2o1": {
+   "text": "(Name) catches it. All of it. The force sits (him/her) down hard in the dirt with six coconuts in (his/her) lap, and the gardeners cheer so loudly that the whole village comes to see. By nightfall the children are calling (him/her) \"(renamed),\" after the coconut catcher in the old children's song, and by the end of the week, so is everyone else. (Name) gives up correcting them and decides (he/she) likes it.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1912"
+  },
+  "c2o2": {
+   "text": "(Name) catches it, staggers, and somehow keeps (his/her) feet. It's the kind of thing that makes a person feel they can do anything, and for a while, (name) does: (he/she) throws (himself/herself) into (his/her) work with a new confidence that lasts all season and gets (him/her) better at it than ever.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1915"
+  },
+  "c2": {
+   "text": "(Name) leaps up, arms out, like a fisher waiting for a thrown net. The bunch comes down faster than (he/she) expected...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1909"
+  }
+ }
+}

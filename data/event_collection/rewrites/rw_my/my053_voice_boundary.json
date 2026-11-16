@@ -1,0 +1,295 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Voice at the Old Boundary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my053_voice_boundary",
+  "source": "rewrites",
+  "lines": [
+   12942,
+   12997
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12942",
+  "ledger": [
+   {
+    "src": "L12943",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12953",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12960",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12967",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12974",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12948",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12949",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12950",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12951",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12954",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12961",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12968",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12975",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12955",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12957",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12962",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12964",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12969",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12971",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12976",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12978",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12981-12997",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the edge of the village stand the old boundary stones, leaning together like old friends, crusted with grey lichen.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village stand the old boundary stones, leaning together like old friends, crusted with grey lichen. Nobody knows who put them there. They were here long before the village.\n(subject) is walking past them at dusk when a voice speaks, quiet and clear, from somewhere between the stones. \"You are not the first to build a home here.\" (subject) whirls around. Nobody is there. Just the stones, and the lichen, and the evening wind. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Ask About Those Before",
+     "next": "c1",
+     "src": "L12948"
+    },
+    {
+     "label": "Invite the Speaker to Appear",
+     "next": "c2",
+     "src": "L12949"
+    },
+    {
+     "label": "Bring an Elder",
+     "next": "c3",
+     "src": "L12950"
+    },
+    {
+     "label": "Leave Respectfully",
+     "next": "c4",
+     "src": "L12951"
+    }
+   ],
+   "src": "L12945-12946"
+  },
+  "c1o1": {
+   "text": "The voice speaks, slowly, for a long time. It describes a settlement: stone floors in a ring, a great fire pit in the middle, a path down to a hidden spring. It tells (subject) where it was. The next morning, (subject) leads the researchers out into the jungle, and there, under thick vines, are the ruins: a ring of stone floors and a fire pit, still black with ash after all these years. The researchers learn a tremendous amount. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12956"
+  },
+  "c1o2": {
+   "text": "The voice falls silent. (subject) waits, and waits, and asks again, and again. The stones say nothing. They just lean together in the dusk, keeping their secrets the way they always have. (subject) walks home slowly, wondering whether (subject.he/she) imagined it, and knowing (subject.he/she) didn't.",
+   "src": "L12958"
+  },
+  "c1": {
+   "text": "(subject) swallows hard. \"Who was here before us?\" (subject.he/she) asks the stones. \"Tell me.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12954"
+  },
+  "c2o1": {
+   "text": "A figure steps out from behind the stones, into the moonlight: tall, robed, face in shadow. It looks at (subject) for a long moment. Then it bows, slowly and deeply, and without a word or a name, steps back between the stones, and is gone. (subject) looks behind the stones. There's nothing there but more lichen.",
+   "src": "L12963"
+  },
+  "c2o2": {
+   "text": "\"Oh, sorry, sorry,\" says a sheepish voice, and a traveler pops up from behind the stones, where (subject.he/she) had been resting with (subject.his/her) pack. \"I didn't mean to frighten you! I just meant there are old ruins all over this island. I've seen them. People have always lived here.\" The traveler offers (subject) a sip of water as an apology. (subject)'s heart is still pounding.",
+   "src": "L12965"
+  },
+  "c2": {
+   "text": "\"Whoever you are,\" (subject) says, \"please, show yourself. I won't hurt you.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12961"
+  },
+  "c3o1": {
+   "text": "(friend) doesn't hear any voice. But as (friend.he/she) holds the lantern close to the stones, (friend.he/she) gasps. Beneath the lichen, carved deep into the rock, is a symbol: a circle with a line through it. \"My grandmother drew that,\" (friend) whispers. \"She said it meant 'home'. She said her grandmother taught it to her.\" The elder traces it with a finger, very gently, for a long time.",
+   "src": "L12970"
+  },
+  "c3o2": {
+   "text": "(friend) listens and hears nothing. But (friend.he/she) sits down on a rock by the stones anyway and starts telling (subject) stories of earlier generations: the first families, the great storm, the year the river moved. Stories (subject) has never heard. They sit there until long after dark, and (subject) realizes the stones aren't the only ones who remember.",
+   "src": "L12972"
+  },
+  "c3": {
+   "text": "(subject) runs back to fetch (friend), who comes hobbling out to the boundary stones with a walking stick and a lantern...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12968"
+  },
+  "c4o1": {
+   "text": "(subject) goes home with a head full of new questions about the island and the people who lived here before. Who were they? Where did they go? Did they love this place too? (subject.He/She) starts asking the elders, and the researchers, and anyone who'll listen. (subject.He/She) never stops asking.",
+   "src": "L12977"
+  },
+  "c4o2": {
+   "text": "As (subject) walks down the path, a warm breeze follows (subject.him/her), soft and gentle, all the way to the edge of the village. It smells of cooking fires, wood smoke and roasting roots, though no one is cooking. Then, at the first hut, it fades away, as if whatever sent it was only walking (subject) home.",
+   "src": "L12979"
+  },
+  "c4": {
+   "text": "(subject) bows to the stones, as if to an elder, and says, \"Thank you for telling me.\" Then (subject.he/she) walks away...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12975"
+  }
+ }
+}

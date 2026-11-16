@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Nobody Expected",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b297_wedding_nobody",
+  "source": "balance",
+  "lines": [
+   13791,
+   13832
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13791",
+  "ledger": [
+   {
+    "src": "L13792",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13793",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13800",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13809",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13797",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13798",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13801",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13810",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13803",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13806",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13812",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13815",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13818-13832",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have been together for years, and everyone assumed they'd never bother with a ceremony.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been together for years, and everyone assumed they'd never bother with a ceremony. Then this morning (friend) stood up at breakfast and announced, red to the ears, that they are getting joined at sunset, under the big banyan, and everyone is invited. (subject) didn't know either. She is still holding her spoon.\nThere is no food prepared, nothing decorated, and the drummers are out fishing. Should (subject) insist on putting it off until it can be done properly, or say yes to sunset?",
+   "choices": [
+    {
+     "label": "Yes, at Sunset",
+     "next": "c1",
+     "src": "L13797"
+    },
+    {
+     "label": "Put It Off",
+     "next": "c2",
+     "src": "L13798"
+    }
+   ],
+   "src": "L13794-13795",
+   "text_only": [
+    {
+     "src": "L13795",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Somehow, by sunset, there are flowers on the banyan, food on the mats, and the drummers have rowed in at full speed and are still dripping as they play. (subject) and (friend) are joined in front of the whole village, and the feast goes on until the stars are out. The goat is never explained.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L13804",
+   "text_only": [
+    {
+     "src": "L13804",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The ceremony is a glorious, chaotic success. And a few weeks later, (subject) has a surprise of her own to announce at breakfast. She waits until (friend) has a mouthful of soup, and then tells (subject.him/her) she's pregnant. (friend) chokes. The village decides it was worth putting on a wedding just to see that.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L13807"
+  },
+  "c1": {
+   "text": "\"Sunset,\" says (subject). The village explodes into action. People run in every direction, carrying flowers, food, mats and a very confused goat...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13801",
+   "text_only": [
+    {
+     "src": "L13801",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "With a whole month, everyone wants to help, and everyone tries something new: the fishers weave flower garlands, the builders cook, the cooks carve a wedding post. Most of it goes surprisingly well. By the full moon, the ceremony is beautiful, and several villagers have discovered talents they didn't know they had.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "random": 4
+     }
+    }
+   ],
+   "src": "L13813"
+  },
+  "c2o2": {
+   "text": "By the full moon, (subject) is already pregnant, and so tired she can barely stay awake for her own wedding. They have a quiet ceremony under the banyan, just the two of them and the elders, and (subject) falls asleep against (friend)'s shoulder before the feast even starts. (friend) says it was perfect.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L13816"
+  },
+  "c2": {
+   "text": "\"Not like this,\" says (subject). \"Let's do it properly. Next full moon.\" (friend) deflates a little, but agrees. The village gets a month to prepare...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13810"
+  }
+ }
+}

@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe That Came Back Twice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b358_canoe_came_back",
+  "source": "balance",
+  "lines": [
+   16510,
+   16550
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16510",
+  "ledger": [
+   {
+    "src": "L16511",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16512",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16519",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16528",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16516",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16517",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16520",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16529",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16522",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16525",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16531",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16534",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16537-16550",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager stops paddling.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) paddled out past the reef at dawn to fish, into a strange flat calm where the sea was like glass and the sky reflected in it so perfectly that (he/she) couldn't tell which was which. Now (he/she) is paddling home, and there is a second canoe following (him/her), exactly the same as (his/hers), with someone in it paddling exactly in time.\n(Name) stops paddling. The other canoe stops. (Name) can't see the other paddler's face in the glare. Should (name) wait for it to catch up, or paddle hard for the beach?",
+   "choices": [
+    {
+     "label": "Wait for It",
+     "next": "c1",
+     "src": "L16516"
+    },
+    {
+     "label": "Paddle Hard for the Beach",
+     "next": "c2",
+     "src": "L16517"
+    }
+   ],
+   "src": "L16513-16514"
+  },
+  "c1o1": {
+   "text": "It's (name). Exactly (name), down to the fish scales on (his/her) hands. \"The calm made two of us,\" the other one says, sounding as puzzled as (name) feels. \"I suppose we'd better go home.\" They paddle in side by side, in time, and the fishers on the beach drop their nets. The village names the newcomer (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L16523"
+  },
+  "c1o2": {
+   "text": "The other paddler reaches out and takes (name)'s hand, and for a moment the whole world tilts, sky and sea swapping places. When it rights itself, only one canoe comes back to the beach. The person in it has (name)'s face, (name)'s laugh and (name)'s every habit, but answers only to (made1), and sometimes stares out past the reef at the glass-flat sea as if looking for someone.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    },
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L16526"
+  },
+  "c1": {
+   "text": "(Name) waits. The other canoe drifts closer and closer, until it bumps gently against (his/hers). The other paddler looks up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16520"
+  },
+  "c2o1": {
+   "text": "At the edge of the calm, where the waves start again, (name) shoots out into choppy water, and the other canoe doesn't. It stops at the edge of the glass, and the paddler lifts a hand, and waves. Then the calm closes over it like a lid. (Name) gets home with a full basket of fish and doesn't go past the reef for a month.",
+   "src": "L16532"
+  },
+  "c2o2": {
+   "text": "They hit the beach at the same moment, side by side, and jump out at the same moment, and look at each other. The fishers on the beach say nothing at all for a long time. \"Well,\" says one of them at last, \"at least you caught twice as much fish.\" The village names the newcomer (made1), and the two of them never go fishing on a calm day again.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L16535"
+  },
+  "c2": {
+   "text": "(Name) digs in and paddles as hard as (he/she) can. The other canoe keeps pace, stroke for stroke, until the edge of the calm...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16529"
+  }
+ }
+}

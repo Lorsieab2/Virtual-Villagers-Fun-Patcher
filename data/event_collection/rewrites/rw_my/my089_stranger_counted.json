@@ -1,0 +1,287 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger Who Counted the Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my089_stranger_counted",
+  "source": "rewrites",
+  "lines": [
+   15034,
+   15089
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15034",
+  "ledger": [
+   {
+    "src": "L15035",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15036",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15044",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15058",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15065",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15039",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15040",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15041",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15042",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15045",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15052",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15059",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15066",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15046",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15048",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15053",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15055",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15060",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15062",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15067",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15069",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15072-15089",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Four hundred and thirteen... a villager stops and looks up too.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Walking home late, (name) passes a figure in a pale cloak sitting on the flat rock outside the village, pointing at the sky with one long finger and murmuring numbers in a voice like dry leaves. \"...four hundred and twelve... four hundred and thirteen...\" (Name) stops and looks up too. There are maybe forty stars out tonight, if that. The clouds have hidden the rest.\n\"...four hundred and fourteen,\" says the stranger, and pauses, and glances sideways at (name), as if waiting to see whether (name) will join in, or ask, or keep walking. (Name) is curious about this odd stranger, and wants to know what (he/she) is counting.",
+   "choices": [
+    {
+     "label": "Count Along",
+     "next": "c1",
+     "src": "L15039"
+    },
+    {
+     "label": "Ask Why They Count",
+     "next": "c2",
+     "src": "L15040"
+    },
+    {
+     "label": "Offer a Place to Sleep",
+     "next": "c3",
+     "src": "L15041"
+    },
+    {
+     "label": "Return the Next Night",
+     "next": "c4",
+     "src": "L15042"
+    }
+   ],
+   "src": "L15037-15038"
+  },
+  "c1o1": {
+   "text": "As they count, the stranger shows (name) things: how certain stars always travel together, how some never move at all, and how three bright ones in a row always point due south, no matter the season. By the end of the night, (name) can find south with (his/her) eyes closed, or at least with them open, looking up. (He/she) teaches it to the fishers, and from then on, nobody coming home after dark ever paddles the wrong way.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15047"
+  },
+  "c1o2": {
+   "text": "They count until the sky turns grey, and the stranger finally stops. \"Nine hundred and ninety-one,\" (he/she) says, and walks away. (Name) thinks nothing of it until a week later, clearing vines from the old carved stones at the edge of the village, (he/she) finds a column of ancient marks, and the researchers, after much frowning, read it as a number. Nine hundred and ninety-one. Nobody knows what it was counting.",
+   "src": "L15049"
+  },
+  "c1": {
+   "text": "(Name) sits down on the rock beside the stranger, squints up at the sky, and says, \"Four hundred and fifteen?\" The stranger chuckles, and points, and they count on together...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15045"
+  },
+  "c2o1": {
+   "text": "\"Because each star is a promise,\" the stranger says. \"Someone, somewhere, made each one. 'I'll come back.' 'I'll wait for you.' 'I'll never forget.' I count them to make sure none have gone missing.\" (He/she) goes back to counting. (Name) sits for a while, thinking of the promises (he/she) has made, and the ones (he/she) has not kept. When (he/she) gets home, (he/she) goes straight to (his/her) oldest friend's hut, and keeps one.",
+   "src": "L15054"
+  },
+  "c2o2": {
+   "text": "\"It helps me remember someone,\" the stranger says quietly. \"We used to count them together, every night. Now I count for both of us.\" (His/her) voice catches on the next number, and the counting stops for a while. (Name) does not say anything. (He/she) just sits beside the stranger in the dark until the counting starts again. After a while, (name) counts the next one, and the stranger smiles.",
+   "src": "L15056"
+  },
+  "c2": {
+   "text": "\"Excuse me,\" (name) says politely, \"but why are you counting stars no one can see?\" The stranger lowers (his/her) finger...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15052"
+  },
+  "c3o1": {
+   "text": "The stranger considers this for a long time, then nods, and follows (name) home. (He/she) sleeps by the fire, curled in the pale cloak, still murmuring numbers in (his/her) sleep. At sunrise, (he/she) thanks (name) warmly and walks away down the path. Scratched into the earth floor beside where (he/she) slept is a small, neat number. (Name) decides not to sweep it up.",
+   "src": "L15061"
+  },
+  "c3o2": {
+   "text": "\"That's kind,\" the stranger says. \"But I haven't finished counting.\" (He/she) points to the sky again, and the murmuring starts up. (Name) brings (him/her) a blanket and a cup of something hot, which the stranger accepts without missing a number. In the morning, the blanket is folded on the rock, the cup is washed, and the stranger is gone.",
+   "src": "L15063"
+  },
+  "c3": {
+   "text": "\"It's cold out here,\" (name) says. \"You're welcome to sleep in my hut tonight, if you'd like. The stars will still be there tomorrow.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15059"
+  },
+  "c4o1": {
+   "text": "The figure is gone. But in the sand at the foot of the rock, someone has written a number, very neatly, with a stick: the same number the stranger had reached when (name) walked away. Nothing has been added. It is as if the counting simply stopped when (name) left. (Name) sits on the rock for a long time, counting the stars (he/she) can actually see, and gets to forty-three.",
+   "src": "L15068"
+  },
+  "c4o2": {
+   "text": "The stranger is not there. Instead, sitting on the flat rock, is one of (name)'s neighbours, an older villager who lost (his/her) partner last season, wrapped in a blanket and watching the sky in silence. (Name) sits down beside (him/her). Neither of them says anything for a long time. Then the neighbour says, \"Someone told me counting helps.\" (Name) nods, and they count together until it is too cold to stay.",
+   "src": "L15070"
+  },
+  "c4": {
+   "text": "(Name) decides not to disturb the stranger tonight, and goes home to bed. But (he/she) cannot stop thinking about it, and the next night, (he/she) walks back out to the flat rock...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15066"
+  }
+ }
+}

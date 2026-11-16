@@ -21,7 +21,8 @@ src/vv_cie_graph.py (validate, then compile_graph) and writes:
   * data/vvN_isola_grand_event_collection_feature.json -- the five rows, pinning every file by SHA-256.
 
 No executable byte, no DLL of its own: Story / Cheat Upgrades (the row's prerequisite) runs the events -- its separate
-rare roll after a natural island event, Pick Island Event and the in-game library's "Isola Grand Event Collection"
+choice at a natural island event (half of them, from 61 villagers), Pick Island Event and the in-game library's
+"Isola Grand Event Collection"
 group.  The script works on whatever event files exist (none yet is fine: the rows then ship only the manifest header
 and the credits).
 
@@ -39,6 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 import vv_cie_graph as cie  # noqa: E402
 import vv_living_mixer as living  # noqa: E402
+import vv_event_content as content  # noqa: E402  (the content notes, filters and story traits)
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from collection_check import graph_for_engine  # noqa: E402  (drops the authoring-only keys)
@@ -314,10 +316,21 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
             "section": meta.get("section", ""),
-            "cieg": cie.compile_graph(g),
+            # collection.mixer_only (the coordinator, 2026-11-16): an event that already runs elsewhere (More Island
+            # Events' own DLL) gives only its mixer versions; its static form is in no manifest
+            "mixer_only": meta.get("mixer_only") is True,
+            # The content controls written in (src/vv_event_content.py): the source's tag table's node tags.
+            "cieg": cie.compile_graph(content.inject(g, content.node_tags_for(meta.get("source", "v28"), ident, g),
+                                                         content.extras_for(meta.get("source", "v28"), ident, g))[0]),
         })
     return sorted(out, key=lambda e: e["id"])
 
+
+# How the new events come (the owner, 2026-11-15), the plain words every island-event row says.
+PLAIN = ("Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the "
+         "two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen "
+         "once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take "
+         "come in a random size each time (small, normal, large or huge, in the game's own ranges).")
 
 GUARDIANS = "guardians_of_isola"            # Guardians of Isola Rewrite (New Believers): the engine's patch name
 
@@ -353,7 +366,7 @@ def manifest_text(game: int, events: list[dict], living_rows: list[dict] | None 
     rows = ["# Isola Grand Event Collection: the events of this game, read by VVFP Story Upgrades.dll.",
             "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
     for e in events:
-        if game in e["games"]:
+        if game in e["games"] and not e.get("mixer_only"):
             rows.append(manifest_line(game, e))
     for r in living_rows or []:
         rows.append(living_line(r))
@@ -419,6 +432,8 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     if not events:
         out.append("(No event of the collection is in this build yet.)\n")
     for e in events:
+        if e.get("mixer_only"):
+            continue      # More Island Events' own events: their credits are that patch's, never listed twice
         which = SOURCE_LINE_WORDS.get(e.get("source"), "source lines")
         where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")
@@ -442,17 +457,16 @@ def sha(data: bytes) -> str:
 def description(game: int, count: int, living_count: int = 0) -> str:
     return (
         "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; "
-        "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"), as rare, separate events: "
-        "the game's own island events and their chances never change. After a natural island event, a separate rare "
-        "roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours "
-        "later, between two natural ones: about three in seven days of game time, never during a village's two "
-        "opening events, never while the village is in trouble (the game's own rescue rule, little food, much "
-        "sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names "
+        "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"). " + PLAIN + " "
+        "It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- "
+        "then comes in the natural event's place (Story / "
+        "Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much "
+        "sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names "
         "(never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event "
         "lists them (with what each needs), and the Custom Island Event library has them in its own \"" + NAME
         + "\" group. " + (f"{count} events in this game in this build. " if count else "")
         + (f"The Living Event Engine adds {living_count} situations, each shown as one of its owner-written "
-           "variants with the villagers' names (each category counts as one event in the rare roll). "
+           "variants with the villagers' names (each category counts as one event in the draw). "
            if living_count else "")
         + "Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. "
         "**Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** "
@@ -473,15 +487,20 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
         "output_tag": "Isola Grand Event Collection",
         "dependencies": [f"vv{game}_story_cheat_upgrades", f"vv{game}_scrolling_popups"],
         "behavior_changes": [
-            "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural "
-            "island event (the Island Events Seen count went up with nothing armed or on its way), past the two "
-            "opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The "
-            "roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is "
-            "armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble "
-            "guard cancels it. Every event that can happen is equally likely, More Island Events' and the "
-            "collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, "
-            "each collection event by its draw weight (1), a series as one event; the event is armed as a purchase "
-            "arms one, so the island timer's keeper puts the natural next time back after it.",
+            "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island "
+            "event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New "
+            "Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, "
+            "much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and "
+            "then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living "
+            "villagers the game lists and the babies being carried; New Believers' believers only) an event that "
+            "can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards "
+            "for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random "
+            "size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen "
+            "is equally likely, More Island Events' and the collection's alike: one draw over all of them, each "
+            "collection event by its draw weight (1), a series as one event; when none can be cast the game's own "
+            "event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given "
+            "a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), "
+            "so the new event takes the natural event's place.",
             f"The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\{FOLDER}\", "
             "listed in its manifest-*.txt files (one per source section and living series); Pick Island Event lists them (strict casting: every requirement must hold) "
             "and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a "
@@ -603,7 +622,7 @@ def game_manifests(game: int, events: list[dict], variants: list, groups: dict[s
     """{file group: manifest-<group>.txt bytes} for one game."""
     per_group: dict[str, list[tuple[str, str]]] = {}
     for e in events:
-        if game in e["games"]:
+        if game in e["games"] and not e.get("mixer_only"):
             per_group.setdefault(groups[e["id"]], []).append((e["series"], manifest_line(game, e)))
     for r in living.manifest_rows(game, variants):
         per_group.setdefault(living_group(r["series"], lg), []).append((r["series"], living_line(r)))

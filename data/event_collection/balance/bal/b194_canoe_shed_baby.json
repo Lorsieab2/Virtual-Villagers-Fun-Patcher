@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe Shed Baby",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b194_canoe_shed_baby",
+  "source": "balance",
+  "lines": [
+   9001,
+   9045
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9001",
+  "ledger": [
+   {
+    "src": "L9002",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9003",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9011",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9020",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9008",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9009",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9012",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9021",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9017",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9023",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9026",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9029-9045",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A fishing family from the next bay came through last week, heading for the big islands to the south.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A fishing family from the next bay came through last week, heading for the big islands to the south. This morning, in the canoe shed, (subject) finds a basket that wasn't there before, tucked behind the paddles. In it is a baby, perhaps three months old, asleep, with a full gourd of milk beside it and a string of the family's red beads round its ankle.\nThere is a message too, scratched on a piece of bark by someone who has only just learned to write: \"Too many mouths. Please.\" Their canoe is long gone. The bay is empty to the horizon.\nShould (subject) take the baby home, or take it to the {@chief}?",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L9008"
+    },
+    {
+     "label": "Take It to the {@Chief}",
+     "next": "c2",
+     "src": "L9009"
+    }
+   ],
+   "src": "L9004-9006"
+  },
+  "c1o1": {
+   "text": "(subject) keeps the bark message, folded in a cloth. When the baby is old enough, (subject) will show it to (subject.him/her), and explain that (subject.his/her) family loved (subject.him/her) enough to find (subject.him/her) a home where there was food. Until then, (subject) gets up at night, and walks the beach with (subject.him/her), and learns all the songs.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9015",
+   "text_only": [
+    {
+     "src": "L9015",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "(friend) reads the message twice, and then sits down and holds out (friend.his/her) arms without a word. The baby is passed over, and frowns at (friend) too, and then, slowly, smiles. \"Well,\" says (friend). \"That's that decided.\" They raise the baby together, and wear a red bead each, to match.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9018"
+  },
+  "c1": {
+   "text": "(subject) picks up the basket, bark message and all. The baby wakes, looks up at (subject.him/her) with a frown, and starts to suck its fist thoughtfully...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9012"
+  },
+  "c2o1": {
+   "text": "\"Who will take this child?\" asks the {@chief}. There's a silence. Then (healer), who has a baby of (subject.his/her) own and milk enough for two, stands up. \"Give (subject.him/her) here,\" (subject.he/she) says. The baby grows up in the healers' hut, with a milk-brother and a lot of very bossy healers.",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "healer"
+    }
+   ],
+   "src": "L9024"
+  },
+  "c2o2": {
+   "text": "\"Who will take this child?\" asks the {@chief}, and before (subject) knows it, (subject.he/she) is standing up. The village cheers. Every family brings something that night: a mat, a little blanket, a carved spoon. (subject) ends up with more baby things than one baby could ever use, and passes them on to every new baby in the village for years.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L9027"
+  },
+  "c2": {
+   "text": "(subject) carries the basket to the {@chief}'s hut. The {@chief} reads the message, sighs, and calls the whole village together at the cooking fire...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9021"
+  }
+ }
+}

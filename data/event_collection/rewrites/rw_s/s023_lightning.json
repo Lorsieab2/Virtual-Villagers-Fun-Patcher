@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Lightning on the Research Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s023_lightning",
+  "source": "rewrites",
+  "lines": [
+   1060,
+   1105
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1060",
+  "ledger": [
+   {
+    "src": "L1061",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1062",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1070",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1079",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1067",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1068",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1071",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1080",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1073",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1076",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1082",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1085",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1088-1105",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1077",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L1086",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A storm sits over the village all night, grumbling like a hungry belly and flashing white behind the hills.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A storm sits over the village all night, grumbling like a hungry belly and flashing white behind the hills. Nobody sleeps much. Just before dawn, a single bolt of lightning splits the sky and strikes the research hut with a crack so loud that half the village falls out of bed.\nFlames lick up through the thatch. Smoke pours out of the door in a thick grey column.\nAnd then, out of the smoke, comes a researcher, coughing, blackened from head to foot, (his/her) hair standing straight up on end, waving (his/her) arms and shouting, at the top of (his/her) lungs, that something \"ABSOLUTELY FASCINATING\" has happened. The thatch is still burning. Should the village go and see, or put out the fire first?",
+   "choices": [
+    {
+     "label": "Go and See",
+     "next": "c1",
+     "src": "L1067"
+    },
+    {
+     "label": "Put Out the Fire First",
+     "next": "c2",
+     "src": "L1068"
+    }
+   ],
+   "src": "L1063-1065"
+  },
+  "c1o1": {
+   "text": "In the middle of the floor, where the lightning came down through the roof, the sand that the researchers keep for their experiments has melted into glass. Not a lump: shapes. Long, branching, twisting shapes, like frozen flowers, like the roots of a tree made of ice. They glow faintly in the firelight. Everyone forgets about the fire for a moment and just stares. The researchers will have new questions for a year about how heat can do such a thing, and the bucket chain gets the fire out just in time. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1074"
+  },
+  "c1o2": {
+   "text": "It turns out the fascinating thing is that the roof is gone. Entirely. The researcher points up at the open sky with a delighted look, and everyone looks up, and then down at the floor, where the roof has landed, still burning, on top of the shelf where the notes were kept. Nobody wants to be the one to point that out. By the time the fire is out, the notes are ash. The researcher stops being excited quite suddenly.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1077"
+  },
+  "c1": {
+   "text": "The researcher is so excited that a small crowd follows (him/her) right back into the smoking hut, ducking under the burning edge of the thatch and coughing, to see what all the fuss is about...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1071"
+  },
+  "c2o1": {
+   "text": "The bucket chain works like a dream. The fire is out before it can reach the shelves, and nothing is lost but the roof thatch, which can be replaced. Everyone stands around steaming, soot-faced and pleased with themselves. The fascinating thing, when the researcher finally gets to show it, turns out to be a small scorch mark in the shape of a fish. Everyone agrees it does look like a fish. The researcher's hair takes a whole week to lie down.",
+   "src": "L1083"
+  },
+  "c2o2": {
+   "text": "By the time the fire is out, half the notes are ash and the hut is a black, dripping shell. But the bucket chain was so well run, so quick and clever, that the builders were watching it and learned something: where to put people, how to pass things fastest, which way the wind carries sparks. They rebuild the hut stronger and better than before, with everyone who carried a bucket helping, and every one of them comes away knowing a little more about building.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "auto_text": true,
+   "src": "L1086"
+  },
+  "c2": {
+   "text": "\"Fascinating later! Water now!\" someone bellows. In moments the whole village is lined up from the river to the hut, passing buckets, pots and bowls hand over hand, while the smoke rolls overhead...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1080"
+  }
+ }
+}

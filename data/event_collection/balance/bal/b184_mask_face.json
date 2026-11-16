@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask of No Face",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b184_mask_face",
+  "source": "balance",
+  "lines": [
+   8529,
+   8573
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8529",
+  "ledger": [
+   {
+    "src": "L8530",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8531",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8539",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8548",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8536",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8537",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8540",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8549",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8542",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8545",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8554",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8557-8573",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L8555",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "In the back of the elders' hut hangs a mask with no face carved on it at all: just smooth, pale wood, with two eye holes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the back of the elders' hut hangs a mask with no face carved on it at all: just smooth, pale wood, with two eye holes. The elders call it the Mask of No Face. The story goes that a long-ago {@chief} made it to hide from a debt to the sea spirits, and that whoever wears it is forgotten by the sea, and by everyone else too, a little.\n(subject) owes (fisher) a whole canoe-load of fish from a bet (subject.he/she) lost, and (fisher) has been following (subject.him/her) round the village for a week, reminding (subject.him/her) loudly. (subject) is in the elders' hut, alone, looking at the mask.\nShould (subject) put on the mask, or go and pay the debt?",
+   "choices": [
+    {
+     "label": "Put On the Mask",
+     "next": "c1",
+     "src": "L8536"
+    },
+    {
+     "label": "Pay the Debt",
+     "next": "c2",
+     "src": "L8537"
+    }
+   ],
+   "src": "L8532-8534"
+  },
+  "c1o1": {
+   "text": "It works. (fisher) walks straight past (subject.him/her) outside without a word. So does everyone else. When (subject) takes the mask off that evening, people recognise (subject.him/her) again, mostly. But nobody, (subject) included, can remember (subject.his/her) name. The debt is forgotten too. The village calls (subject.him/her) \"?\", and the mask goes back on its peg, looking smooth and pleased.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L8543"
+  },
+  "c1o2": {
+   "text": "The mask works too well. When (subject) takes it off, the village doesn't remember (subject.him/her) at all, and welcomes (subject.him/her) as a newcomer. The elders, kind as ever, give the newcomer a name: (made1). (subject) decides not to argue. The debt is gone. So is (subject.his/her) old name. (fisher) offers to take (made1) fishing.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L8546"
+  },
+  "c1": {
+   "text": "(subject) lifts the mask down and ties it on. The wood is cool and smells of old smoke. Through the eye holes, the hut looks very slightly grey, as if everything has faded a little...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8540"
+  },
+  "c2o1": {
+   "text": "It takes four days of fishing from dawn to dusk. By the end of it the canoe is full, (subject) is sunburnt and exhausted, and (subject.he/she) has learned more about patience and hard work than in the rest of (subject.his/her) life. (fisher) is so impressed that (subject.he/she) gives half the fish back. They become good friends.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8552"
+  },
+  "c2o2": {
+   "text": "(subject) fills half the canoe, then bets (fisher) the other half that (subject.he/she) can catch more by sunset. (subject.He/She) loses. Now (subject.he/she) owes two canoe-loads. The village has to help out of its own stores, and everyone tells (subject) to stop betting.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L8555"
+  },
+  "c2": {
+   "text": "(subject) leaves the mask where it is. A debt is a debt. (subject.He/She) takes (subject.his/her) spear and nets and goes down to the water at dawn, to fill a canoe with fish...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8549"
+  }
+ }
+}
