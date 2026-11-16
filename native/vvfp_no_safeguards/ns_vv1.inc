@@ -28,14 +28,18 @@
      [11] The Greedy Little Monkey, [13] The North Wind, [14] The Helpful Honeybees:
           no condition in the stock game (class 0 -> 0x428671); nothing to lift.
      [3]  A Plague of Locusts
-          LIFTED  0x42861D  Farming technology (world+0xA2E4) at level 2 or more (jl re-roll -> six nops).
+          KEPT (text)  0x42861D  Farming technology (world+0xA2E4) at level 2 or more: the text is about the
+                       village's crops ("descended upon your crops ... completely devoured") and the outcome
+                       empties the crop field, a food source only from Farming 2, which also refills it
+                       (0x4472EB, 0x42EC16).  (Owner's final scope, 2026-11-15; site removed.)
      [4]  The Measles Epidemic
           KEPT (casting)  0x4284FA..0x42860E  a living child under 14 (present, health > 0, age < 0x118):
                           every child falls ill, so the event needs one.  Its result reaches the shared je at
                           0x42866B, which is why the Barrel's lift is made at the call, not at that je.
      [9]  The Big Wave
           KEPT (puzzle)   0x428644  the beach clean-up puzzle solved (byte world+0x9FB8 == 1): the wave
-                          covers the cleaned beach again and clears that flag.
+                          covers the cleaned beach again and clears that flag ("covering the beach with
+                          debris!" makes no sense on a beach still full of debris).
      [12] The Barrel O` Babies
           LIFTED  0x428664  the room check 0x43A1A0 (population below 90 -- or the population mode's cap --
                           and huts 1/2/3 at 15/25/50 people): the call becomes "mov al, 1" + nops, so the
@@ -45,18 +49,18 @@
                           toddler allocation (0x428263, 0x4282C6, 0x4282E3, 0x42833C, 0x428359, 0x428376) goes
                           through the always-applied record guards in data/builds.json safety_patches, which
                           make a toddler only while a record is free (else -1, nothing made).  Not touched.
+                          The text names no hut and no head count, so the lift stands under the final scope.
      [1]  A Mighty Storm: developer-dead (class 5 = the re-roll); not a condition, stays dead (the patcher's
           Restore Missing Island Events owns it, with its own stored-food test, untouched).
 
    ENCOUNTER family (chooser 0x418920: rand(16) at 0x418932 re-rolled until the class check passes; class
    bytes 0x4189A4, handlers 0x418990; subject 0x43BCD0(0), any living villager, unless noted)
      [64] The Trapped Whale
-          LIFTED  0x41895B  Spirituality technology (world+0xA2BC) below level 3 (jge re-roll -> nops).
-          KEPT-FOR-SAFETY none needed: the "free the whale" result caps the level at 3 (0x4193F4), so at level
-                          3 that answer changes nothing.
+          KEPT (outcome)  0x41895B  Spirituality technology (world+0xA2BC) below level 3: "Help free the
+                          whale" raises Spirituality one level (capped at 3, 0x4193F4).  (Site removed.)
      [68] The Visitor
-          LIFTED  0x41896F  Medicine technology (world+0xA2D4) below level 3 (jge re-roll -> nops).
-          KEPT-FOR-SAFETY none needed: the "gather samples" result caps the level at 3 (0x41981B).
+          KEPT (outcome)  0x41896F  Medicine technology (world+0xA2D4) below level 3: "Allow him to gather
+                          samples" raises Medicine one level (capped at 3, 0x41981B).  (Site removed.)
      [71] The Troubled Child
           KEPT (casting)  0x418977 (0x43BE70 != -1) and 0x418DCB: a living child under 14 is the subject.
      [73] The Suspicious Monkey
@@ -67,6 +71,9 @@
      [72] A Mysterious Vial (blue), [74] The Wild Mushroom, [75] The Black Pearl, [76] The Dream,
      [77] The Moth, [78] The Book, [79] The Brass Compass:
           no condition (class 1 -> 0x418987); KEPT (casting): a living villager as the subject.
+          Stock, reported only (nothing may be stricter than stock, so no rule is added): The Strange
+          Berries' "young again" sets age 250 (12.5 years) and the blue vial's toddler result sets age 80
+          (4 years) on any living villager, so a younger child can be made older.
      [69] The Furry Food: developer-dead (class 4 = the re-roll); stays dead (Restore Missing Island Events).
      Result-time room checks (not event conditions, unchanged): The Mysterious Face's newcomer 0x419700 (a
      safety-patch site with a free-record guard).
@@ -93,14 +100,8 @@ static const ns_site NS_VV1_SITES[] = {
     /* trigger: no living villager of 14 or more -> go on to the family roll instead of skipping the event
        (je 0x423ABE -> je 0x423816; ZF from cmp ebp,-1 at 0x4237EC, the mov between keeps flags) */
     { 0x4237F1u, 6, { 0x0F, 0x84, 0xC7, 0x02, 0x00, 0x00 }, { 0x0F, 0x84, 0x1F, 0x00, 0x00, 0x00 } },
-    /* A Plague of Locusts: Farming >= 2 (jl 0x4284D6 -> nops) */
-    { 0x42861Du, 6, { 0x0F, 0x8C, 0xB3, 0xFE, 0xFF, 0xFF }, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 } },
     /* The Barrel O` Babies: room check call 0x43A1A0 -> mov al, 1 (test al,al / je at 0x42866B passes) */
     { 0x428664u, 5, { 0xE8, 0x37, 0x1B, 0x01, 0x00 }, { 0xB0, 0x01, 0x90, 0x90, 0x90 } },
-    /* The Trapped Whale: Spirituality < 3 (jge 0x418930 -> nops) */
-    { 0x41895Bu, 2, { 0x7D, 0xD3 }, { 0x90, 0x90 } },
-    /* The Visitor: Medicine < 3 (jge 0x418930 -> nops) */
-    { 0x41896Fu, 2, { 0x7D, 0xBF }, { 0x90, 0x90 } },
 };
 
 #define NS_VV1_COUNT (sizeof NS_VV1_SITES / sizeof NS_VV1_SITES[0])

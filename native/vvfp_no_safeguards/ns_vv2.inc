@@ -41,19 +41,27 @@
                             someone who has passed (the owner's rule for the later games' Day of Honor: "at least
                             1" grave).  The body (0x433A31) itself reads no memorial slot.
      [11] The Epidemic, [14] Rats!, [17] The Foul Passing
-          KEPT (puzzle) 0x4347E5 -> 0x4261D0  all 16 puzzles solved (flags world+0x2E768..+0x2E7E8): a
-                            puzzle-state condition, kept as the feature keeps every puzzle condition.  Lifting it
-                            would be one site (0x4347F2 setne bl -> mov bl,1; nop) -- the owner's choice.
+          LIFTED  0x4347F2  all 16 puzzles solved (0x4261D0, flags world+0x2E768..+0x2E7E8): setne bl -> mov bl,1;
+                            nop.  None of the three texts mentions a puzzle (a sick parrot's epidemic; rats; a
+                            foul passing).  The call 0x4261D0 still runs (it only reads flags).  The Epidemic and
+                            Rats! work through 0x4332F0, which takes only records in use with health > 0
+                            (0x43332C / 0x433336); The Foul Passing only sets the food to 0 (0x433E30).
      [15] Where Are The Infants?
-          KEPT    0x434639..0x4347A9  a living villager (in use, health > 0) aged 18 or more with +0x540 > 0
-                            (pregnant or nursing): the event takes infants, so it needs a mother of one.
-          KEPT (puzzle) 0x4347B3 / 0x4347BA  all 16 puzzles solved (0x4261D0), as [11].
+          LIFTED  0x4345E5  the mother's age of 18 or more: the scan's bound esi = 0x168 becomes 0 (esi is used
+                            by nothing else in the chooser: the eight `cmp [eax+4], esi` of the unrolled scan and
+                            its push/pop).  The text is about mothers and infants; being pregnant or nursing is the
+                            need, not the age.
+          KEPT    0x434639..0x4347A9  a living villager (in use 0x434656, health > 0 0x43465A) with +0x540 > 0
+                            (pregnant or nursing): "the village infants disappeared! The mothers are in a panic".
+          LIFTED  0x4347BA  all 16 puzzles solved (0x4261D0): jne 0x434822 -> jmp 0x434822 (reached only after the
+                            scan found a mother: 0x4347AB still rejects when none).  The text mentions no puzzle.
+                            The body (0x433D3A) clears +0x540 only of records in use with health > 0 (0x433D6C,
+                            0x433D70).
      [16] A Dangerous Mission
-          LIFTED  0x4347E0  population (0x425860) above 60: setg bl -> mov bl,1; nop.  The body (0x433E3E) frees
-                            up to 8 records that are in use, living (health > 0) and aged 281..499 units (the
-                            young adults); with fewer it frees those there are, with none it frees nobody (the
-                            message still shows) -- no crash: it scans the 256 records by stride.  A small
-                            village can now lose all of its young adults.
+          KEPT    0x4347D2  population (0x425860) above 60: the text says "Eight villagers depart", the strongest
+                            and youngest adults; the body (0x433E3E) takes up to 8 living villagers aged 281..499
+                            units.  No byte change can test "8 such villagers exist", and with the population
+                            lifted the text would name eight who are not there; the stock 61 is the guard.
      [21] The Barrel O` Babies, [25] Old Friends
           KEPT-FOR-SAFETY 0x434809 / 0x4347F7 -> 0x44B310  the game's room check.  Its population cap (90 + 5
                             per finished children's collection, 0x44B3AD -- the base the population modes
@@ -72,16 +80,19 @@
    Events' site), up to 10 draws; none passing -> case 5; condition table 0x41F6C8; setups 0x420454; answers
    0x422264)
      [64] The Ancient Gold Coin
-          LIFTED  0x41F5C5  Culture (world+0x2EA74) below 2: setl bl -> mov bl,1; nop.  Safe: "wear it" raises
-                            Culture by 1 only while it is below 2 (0x420524); "give it" pays tech points.
+          KEPT    0x41F5B9  Culture (world+0x2EA74) below 2: "wear it" raises Culture (0x42052E inc, while
+                            below 2), so the level the answer raises keeps its condition (owner's rule).
           KEPT    subject: a random living villager of any age (0x44BAE0(0), setup 0x41F7BC).
      [65] The Cursed Idol
-          LIFTED  0x41F5DD  at least 250 food (world+0x2EAA4): setge bl -> mov bl,1; nop.  Safe: the food
-                            offering (0x420684) subtracts and then clamps the food at 0 (0x420690..0x420698).
+          KEPT    0x41F5CD  at least 250 food (world+0x2EAA4): the offering answer takes 250 food (x2 / x3 by
+                            population, 0x420678..0x420684), so the food it takes keeps its condition.
           KEPT    subject: a random living villager of any age.
      [66] The Prettiest Tribe Girl
-          KEPT    0x41F5E5  a living female aged 14 or more (0x44BC80(1, 2)): the event needs a young woman.
-                            (Stock: the setup then casts ANY living female, 0x44BC80(0, 2), a girl included.)
+          KEPT    0x41F5E5  a living female aged 14 or more (0x44BC80(1, 2)): the text speaks of "lots of male
+                            attention" and "the most beautiful girl in the tribe" -- an adult-attention text,
+                            kept to the stock 14 (the Isola content rules: no adult-minor romance).  Sex: the
+                            event is about a girl.  (Stock: the setup then casts ANY living female, 0x44BC80(0, 2)
+                            at 0x41F8BB, a girl included -- unchanged, nothing stricter.)
      [67] The Strange Request
           no condition (stock); the Record Guards' table entry 0x41F6D4 may add a free-record check.  Nothing.
      [68] The Savage Child
@@ -98,9 +109,11 @@
                             0x41F636 with its jump (to also need two living villagers, so the finder has someone
                             to trade places with) -- a collision, and the check is a casting need once fixed.
      [78] The Silver Mirror
-          LIFTED  0x41F648  population (0x425860) of at least 2: setge bl -> mov bl,1; nop.  Safe: the first word
+          LIFTED  0x41F648  population (0x425860) of at least 2: setge bl -> mov bl,1; nop.  The text names only
+                            the finder (and an old man seen in the mirror, not a villager).  Safe: the first word
                             only shows text; the second copies the subject only after its own room check
-                            (0x4217DF, kept; the record guards' site).
+                            (0x4217DF, kept; the record guards' site).  The subject is picked by 0x44BAE0(0)
+                            (0x44BB00 health > 0, 0x44BB0A in use): never a totem, so no totem is ever copied.
           KEPT    subject: a random living villager of any age.
      [82] The Spyglass
           KEPT (stock, the owner 2026-11-15: "keep the Spyglass fully vanilla")  Exploration (world+0x2EA94)
@@ -123,7 +136,11 @@
      in 0x433600..0x4344F0 (0x4337D1, 0x43388E, 0x43394E, 0x4339E0, 0x433AEE, 0x433C0E, 0x433D70, 0x433DB0,
      0x433EFE, 0x433F50, 0x4343E0); the population count 0x425860 leaves totems out.  So no event can cast,
      harm or remove a totem.  No site below touches any of those tests.  Day of Elders (0x433B68) only reads
-     +0x558.  The stock game casts no totem.
+     +0x558.  The stock game casts no totem.  Per site: 0x42EF01 casts nobody (the drawn index is dropped);
+     0x4345E5 / 0x4347BA keep the infants scan's in-use and health > 0 tests (0x434656, 0x43465A) and the body's
+     (0x433D6C, 0x433D70); 0x4347F2 leads to 0x4332F0 (in use 0x43332C, health > 0 0x433336) or a food write;
+     0x41F648's subject is 0x44BAE0(0)'s (health > 0 0x44BB06, in use 0x44BB0D).  A totem held by the VV2 Totems
+     companion is in no record, so no scan can reach it.
 
    OTHER COMPANIONS, checked (+-12 bytes of every site): Island Timer 0x42EECD; Story Upgrades 0x42EEDB, 0x42EEED,
    0x42EF28, 0x41F59D, 0x41F5A5, 0x4349B2; Story Upgrades / More Island Events 0x434607, 0x434617; More Island
@@ -135,12 +152,12 @@
 static const ns_site NS_VV2_SITES[] = {
     /* trigger: a living villager of 14 or more -- je 0x42F1F9 re-aimed at the family roll 0x42EF26 */
     { 0x42EF01u, 6, { 0x0F, 0x84, 0xF2, 0x02, 0x00, 0x00 }, { 0x0F, 0x84, 0x1F, 0x00, 0x00, 0x00 } },
-    /* [16] A Dangerous Mission: population above 60 -- setg bl -> mov bl,1; nop */
-    { 0x4347E0u, 3, { 0x0F, 0x9F, 0xC3 }, { 0xB3, 0x01, 0x90 } },
-    /* [64] The Ancient Gold Coin: Culture below 2 -- setl bl -> mov bl,1; nop */
-    { 0x41F5C5u, 3, { 0x0F, 0x9C, 0xC3 }, { 0xB3, 0x01, 0x90 } },
-    /* [65] The Cursed Idol: 250 food -- setge bl -> mov bl,1; nop */
-    { 0x41F5DDu, 3, { 0x0F, 0x9D, 0xC3 }, { 0xB3, 0x01, 0x90 } },
+    /* [15] Where Are The Infants?: the mother's 18 -- mov esi,0x168 -> mov esi,0 */
+    { 0x4345E5u, 5, { 0xBE, 0x68, 0x01, 0x00, 0x00 }, { 0xBE, 0x00, 0x00, 0x00, 0x00 } },
+    /* [15] Where Are The Infants?: all 16 puzzles -- jne 0x434822 -> jmp 0x434822 */
+    { 0x4347BAu, 2, { 0x75, 0x66 }, { 0xEB, 0x66 } },
+    /* [11] The Epidemic, [14] Rats!, [17] The Foul Passing: all 16 puzzles -- setne bl -> mov bl,1; nop */
+    { 0x4347F2u, 3, { 0x0F, 0x95, 0xC3 }, { 0xB3, 0x01, 0x90 } },
     /* [78] The Silver Mirror: population of 2 -- setge bl -> mov bl,1; nop */
     { 0x41F648u, 3, { 0x0F, 0x9D, 0xC3 }, { 0xB3, 0x01, 0x90 } },
     /* [82] The Spyglass: as in the stock game (the owner, 2026-11-15) -- no site. */

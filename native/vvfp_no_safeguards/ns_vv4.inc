@@ -56,8 +56,10 @@
      18 The Cold Snap (0x414BC0)
          KEPT (sense)  the village fire burning (0x432600 on 0x4D867C): the event puts the fire out.
      22 The Festival of the Banyan (0x414CB0)
-         LIFTED  0x414CBA the delivery counter [0x4D6DF4] >= 500 (the "500th mushroom").
-         KEPT (puzzle)  the Tree of Life healthy: 3 of the 5 tree puzzles solved (0x41F570 >= 3 at 0x414CC8).
+         LIFTED  0x414CCB the Tree of Life healthy (3 of the 5 tree puzzles solved, 0x41F570 >= 3): the text
+                 never mentions the tree's health.
+         KEPT (text)  the delivery counter [0x4D6DF4] >= 500 (0x414CB0): the text celebrates "their 500th
+                 mushroom".
      25 Daredevil Barrel...of Babies! (0x414D50)
          LIFTED  0x414D5C the room check (see ROOM).
          KEPT (puzzle)  The Stream solved (puzzle 1, 0x414D65) and the stream flowing (0x4396E0 >= 1, 0x414D78).
@@ -71,25 +73,30 @@
                  still takes a woman of 18 or more, as in the stock game).
          KEPT-FOR-SAFETY  the table size (see ROOM).
      32 The Mosquito Larvae (0x4159C0)
-         KEPT (casting)  a living villager of 14 or more.
-         KEPT (puzzle)  Soap solved (3), The Stream solved (1), the stream flowing (0x4396E0 >= 1).
-     33 Faces in the Night (0x415AD0)   KEPT (casting)  a living villager of 14 or more.  Nothing to lift.
+         LIFTED  0x4159D5 the age 14 or more (the text: "{name} notices ... the villagers decide").
+         KEPT (text)  Soap solved (3: "put soap in the pond"), The Stream solved (1) and the stream flowing
+                 (0x4396E0 >= 1) -- the pond the text uses (UNCONFIRMED that the pond needs the stream).
+     33 Faces in the Night (0x415AD0)
+         LIFTED  0x415AE5 the age 14 or more (nothing in the text needs an adult).   KEPT (casting)  any villager.
      34 The Screaming Baby (0x415BD0)
          LIFTED  0x415BDB not sick.   KEPT (casting)  a pregnant or nursing woman of 14 or more (the mother).
      35 The Sealed Box (0x415CF0)
-         LIFTED  0x415D11 not pregnant or nursing.   KEPT (casting)  a living villager of 14 or more.
+         LIFTED  0x415D11 not pregnant or nursing; 0x415D17 the age 14 or more (a swimmer of any age).
                  (The wave 0x415D91 sets health -1 and clears present +0x1CC4 -- the same end state as the game's
                  own death of a pregnant villager at 0x46A977.)
      45 Innovation in Construction (0x416780)
-         LIFTED  0x41679C not sick; 0x4167A1 not pregnant or nursing.   KEPT (casting)  a villager of 14 or more.
+         LIFTED  0x41679C not sick; 0x4167A1 not pregnant or nursing.
+         KEPT (text)  a villager of 14 or more: hut construction is adults' work (children never build).
      46 Innovation in Farming (0x4168A0)
-         LIFTED  0x4168BC not sick; 0x4168C1 not pregnant or nursing.   KEPT (casting)  a villager of 14 or more.
+         LIFTED  0x4168BC not sick; 0x4168C1 not pregnant or nursing.
+         KEPT (text)  a villager of 14 or more: cooking at the pit is the farmers' work (children never farm).
          KEPT (puzzle)  The Cooking Pit solved (puzzle 6, 0x4168EB).
      47 Tough Lessons (0x4169D0)
          KEPT (casting)  a living child under 14 (stuck in the tree) and a villager of 14 or more.  Nothing to lift.
      48 The Pretty Shell (0x416AE0)
          LIFTED  0x416B18 2 villagers of 14 or more -> 1 (the effect 0x416B60 uses only the one subject).
-         KEPT (casting)  a living villager of 14 or more.
+         KEPT (text)  a living villager of 14 or more (the one who parents the children).  The text's "two
+                 children" are not checked by the stock game; adding that would be stricter than stock, so not done.
      The rolls inside conditions (Sealed Box 0x415CF5, Innovations 0x416785 / 0x4168A5) decide outcomes, not
      whether the event comes; unchanged.
      Never in the game (developer-dead, untouched): 1 The Tsunami, 6 The Canoe from the Other Side, 16 The Medical
@@ -102,8 +109,8 @@
 static const ns_site NS_VV4_SITES[] = {
     /* 5 Day of Honor: 2 graves -> 1 */
     { 0x414ADAu, 3, { 0x83, 0xF8, 0x02 }, { 0x83, 0xF8, 0x01 } },
-    /* 22 The Festival of the Banyan: the 500 delivery counter (jl -> nops) */
-    { 0x414CBAu, 2, { 0x7C, 0x14 }, { 0x90, 0x90 } },
+    /* 22 The Festival of the Banyan: the tree-health gate (jl -> nops); the 500 counter stays */
+    { 0x414CCBu, 2, { 0x7C, 0x03 }, { 0x90, 0x90 } },
     /* 25 Daredevil Barrel: the room check (je -> nops) */
     { 0x414D5Cu, 2, { 0x74, 0x22 }, { 0x90, 0x90 } },
     /* 28 The Abandoned Infants: sick allowed; room; 6 -> 1 (the minimum age 14 stays the stock one) */
@@ -112,10 +119,15 @@ static const ns_site NS_VV4_SITES[] = {
     { 0x414FA6u, 4, { 0x83, 0x3C, 0x24, 0x06 }, { 0x83, 0x3C, 0x24, 0x01 } },
     /* 13 The Arc of Brilliant Colors: pregnant / nursing allowed */
     { 0x41502Du, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
+    /* 32 The Mosquito Larvae: any age (minimum age 280 -> -1) */
+    { 0x4159D5u, 5, { 0x68, 0x18, 0x01, 0x00, 0x00 }, { 0x68, 0xFF, 0xFF, 0xFF, 0xFF } },
+    /* 33 Faces in the Night: any age */
+    { 0x415AE5u, 5, { 0x68, 0x18, 0x01, 0x00, 0x00 }, { 0x68, 0xFF, 0xFF, 0xFF, 0xFF } },
     /* 34 The Screaming Baby: sick allowed */
     { 0x415BDBu, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
-    /* 35 The Sealed Box: pregnant / nursing allowed */
+    /* 35 The Sealed Box: pregnant / nursing allowed; any age */
     { 0x415D11u, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
+    { 0x415D17u, 5, { 0x68, 0x18, 0x01, 0x00, 0x00 }, { 0x68, 0xFF, 0xFF, 0xFF, 0xFF } },
     /* 45 Innovation in Construction: sick, pregnant / nursing allowed */
     { 0x41679Cu, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
     { 0x4167A1u, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
