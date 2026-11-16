@@ -144,22 +144,36 @@ HIDDEN_LINES = (
      'Mushroom and the rotting crate take health that comes back only when he eats on the food store or from The '
      'Black Pearl. See Island events and Golden Child.', gm.OWNER),
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
-    ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
-     "walks instead of running, and the dislike works for adults too.", gm.OWNER),
+    # The owner, live (2026-11-16, outranks the code reading): disliking running slows every villager, of every age.
+    ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: every villager who "
+     "dislikes running is slower, children and adults alike (seen in the game).", gm.OWNER),
     # The code beside the owner's word (the owner, 2026-10-27: where code and what is seen differ, write both).  The
     # dislike test 0x4372E0 is called for word 38 (running) only at 0x43CD25 (every call scanned); the walk 0x43CCF0
     # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
     # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
     # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
-    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.  "In one place only": the
-    # walk step 0x43CCF0.
-    ("In the game's code the dislike of running is read in one place only, the speed of a walk: a villager under 14 who dislikes running is not given the running speed, and from 14 on only a like "
-     "is read, so on that walk an adult who dislikes running moves exactly as one who neither likes nor dislikes "
-     "it.", gm.CODE),
+    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.
+    # The speed is a field of the villager's record, +0x58, written in three places only (every write of +0x58
+    # after a villager-record index scanned): 300 at 0x43CBF7 (step 1, under 14) and 0x43CD3C (step 3: a child
+    # who does not dislike running, or anyone who likes it), and 40 at 0x43CD5F (elderly).  Step 3 hands the field
+    # to the walk (0x43CD69 -> 0x439D40 -> 0x439CC0), and so does the walk's continuation (0x43D2E4).  Nothing
+    # sets a walking speed for an adult who neither likes nor dislikes running in these three places, so the
+    # walking speed that adults are seen to use is set somewhere this scan did not find (another base or a block
+    # copy); the save keeps only +0x33C..+0x3D8 of a record (src/vv_last_names.py), so +0x58 starts again each time
+    # the game is opened.  NOT FOUND: the code path that slows an adult who dislikes running.
+    ("In the game's code the dislike of running is read in one place only, a child's walk (the speed the villager "
+     "keeps, which nothing in that code resets at 14); the path that makes an adult who dislikes running slower, as "
+     "seen in the game, has not been found in the code.", gm.CODE),
     # The other step: 0x43CBD0 (step 1 of the dispatcher 0x43DEF0).
     ("Another movement step gives every villager under 14 the running speed without reading the dislike; which "
      "actions use that step was not traced, so whether a child who dislikes running ever runs through it is not "
      "settled.", False),
+    # The chooser 0x439AE0: rand(100) < 15 -> no job (0x439AEB..0x439AFD) whatever is liked; with Fix Vanilla
+    # Bugs (vv1_fix_vanilla_bugs: 0x439AF8 -> 0x455491 / 0x4554B2) the like test 0x437310(index, 42 = work) is
+    # asked first, as The Lost Children (0x449C7F), The Secret City (0x45973A), The Tree of Life (0x461CCC) and
+    # New Believers (0x46A3CC) do, and a villager who likes work goes on to choose.
+    ("Work: 15% of idle picks take no job, whatever the villager likes; with Fix Vanilla Bugs, as in the later "
+     "games, a villager who likes work is never one of those 15%.", gm.CODE),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
@@ -173,7 +187,8 @@ HIDDEN_LINES = (
     # 0x4372E0 (+0x3A8..+0x3B4) at 34 places, for 19 words: 1 2 3 4 5 6 7 10 11 12 15 17 25 30 33 37 38 39 42.  The
     # walking speed 0x43CCF0: running (300) for a child unless running is disliked (0x43CD20), for an adult only when
     # it is liked; past the elderly age (42 + 8 x Medicine years) always 40 (0x43CD43..0x43CD5F).
-    ("Every other like does nothing: the game tests a like only for running. The dislikes it never tests do "
+    ("Every other like does nothing: the game tests a like only for running (and, with Fix Vanilla Bugs, work). "
+     "The dislikes it never tests do "
      "nothing either: ants, bees, the dark, snakes, wind, rough wood, playing, exploring, blue, green, red, yellow, "
      "drums, bananas, coconuts, sand, sunlight, crab meat, whale meat, fruit, papaya, flies, monkeys, birds, "
      "lifting, surprises, jokes and sleeping (28 of the 47 words). An elderly villager (past 50, 58 or 66 years at "
