@@ -1,6 +1,6 @@
 """The patcher window's multiplier sliders (the owner, 2026-11-15): 2-100x Tech Cost, Hungrier Villagers, 2-100x
-Sickness and Louder Wind Flutes all go from 2 to 100, keep their defaults (3, 2, 2 and 5) and Owner's Defaults
-values (2, 2, 2 and Louder Wind Flutes' own 5), and each has a box beside it to type the number in: kept in sync with
+Sickness, Louder Wind Flutes and More Frequent Island Events all go from 2 to 100, keep their defaults (3, 2, 2,
+5 and 2) and Owner's Defaults values (2, 2, 2, Louder Wind Flutes' own 5 and 2), and each has a box beside it to type the number in: kept in sync with
 the slider both ways, out-of-range numbers kept within 2 to 100, anything else put back to the slider's number, and
 copy / cut / paste working in it.  Nothing out of range is ever saved."""
 from __future__ import annotations
@@ -21,6 +21,8 @@ SLIDERS = (  # (variable, scale, box, range, default, help key)
     ("sickness_var", "sickness_scale", "sickness_box", "SICKNESS_MULTIPLIER_RANGE", 2, "sickness_multiplier"),
     ("louder_flutes_var", "louder_flutes_scale", "louder_flutes_box", "LOUDER_FLUTES_MULTIPLIER_RANGE", 5,
      "louder_flutes_multiplier"),
+    ("island_frequency_var", "island_frequency_scale", "island_frequency_box", "ISLAND_FREQUENCY_MULTIPLIER_RANGE", 2,
+     "island_frequency_multiplier"),
 )
 
 
@@ -44,7 +46,10 @@ class Source(unittest.TestCase):
         self.assertEqual((patcher.TECH_COST_MULTIPLIER_DEFAULT, patcher.MEAL_MULTIPLIER_DEFAULT,
                           patcher.SICKNESS_MULTIPLIER_DEFAULT, patcher.LOUDER_FLUTES_MULTIPLIER_DEFAULT), (3, 2, 2, 5))
         self.assertIn("self.louder_flutes_var = tk.IntVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)", text)
-        for label in ("2-100x Tech Cost:", "Hungrier Villagers:", "2-100x Sickness:", "Louder Wind Flutes:"):
+        self.assertEqual(patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT, 2)
+        self.assertIn("self.island_frequency_var = tk.IntVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)", text)
+        for label in ("2-100x Tech Cost:", "Hungrier Villagers:", "2-100x Sickness:", "Louder Wind Flutes:",
+                      "More Frequent Island Events:"):
             self.assertIn(f'text="{label}"', text)
 
     def test_owners_defaults_keeps_its_values(self) -> None:
@@ -55,6 +60,24 @@ class Source(unittest.TestCase):
         self.assertEqual(gui.OWNERS_DEFAULT_SLIDER, 2)
         self.assertIn("self.louder_flutes_var.set(LOUDER_FLUTES_MULTIPLIER_DEFAULT)", body)
         self.assertTrue(gui.owners_default_fun_patch_selection("vv4_louder_wind_flutes"))
+        self.assertIn("self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)", body)
+        for game in range(1, 6):
+            self.assertTrue(gui.owners_default_fun_patch_selection(f"vv{game}_more_frequent_island_events"))
+            self.assertFalse(gui.default_fun_patch_selection(f"vv{game}_more_frequent_island_events"))
+            self.assertFalse(gui.select_all_fun_patch_selection(f"vv{game}_more_frequent_island_events"))
+
+    def test_the_frequency_slider_is_saved_restored_and_followed(self) -> None:
+        text = source()
+        self.assertIn('"island_frequency_multiplier": (App._island_frequency_multiplier(self)', text)
+        self.assertIn("            self.island_frequency_var.set(saved_island_frequency_multiplier(data))", text)
+        self.assertIn('self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())',
+                      text)
+        self.assertIn("        self._island_frequency_changed()    # the saved number", text)
+        for saved, restored in ((2, 2), (10, 10), (100, 100), (1, 2), (101, 2), ("50", 2), (True, 2), (None, 2)):
+            with self.subTest(saved=saved):
+                self.assertEqual(gui.saved_island_frequency_multiplier({"island_frequency_multiplier": saved}),
+                                 restored)
+        self.assertEqual(gui.saved_island_frequency_multiplier({}), 2)
 
     def test_the_flute_slider_is_saved_restored_and_followed(self) -> None:
         text = source()
