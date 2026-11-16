@@ -1,0 +1,247 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Bad Idea",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "s026_chief_bad_idea",
+  "source": "rewrites",
+  "lines": [
+   1206,
+   1251
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1206",
+  "ledger": [
+   {
+    "src": "L1207",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1208",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1216",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1225",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1213",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1214",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1217",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1226",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1219",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1228",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1231",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1234-1251",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1220",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Chief a villager has had an idea in the night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "tribal_chief",
+   "protected": "allow"
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Chief (subject) has had an idea in the night. The whole village can tell, because (subject.he/she) is up before everyone else and practically bouncing on (subject.his/her) toes by the cooking fire. At breakfast (subject.he/she) climbs onto a stool and announces it: tomorrow, everyone in the village will swap jobs for a day. \"So we can understand one another!\" (subject.he/she) says, beaming. \"Farmers will build! Builders will research! Researchers will farm!\"\nThe farmers look at the builders. The builders look at the researchers. The researchers look at their breakfast.\nSomewhere at the back, a baby starts clapping. Nobody wants to say no to the Chief. Should the village go along with it, or gently talk (subject.him/her) out of it?",
+   "choices": [
+    {
+     "label": "Do as the Chief Says",
+     "next": "c1",
+     "src": "L1213"
+    },
+    {
+     "label": "Gently Talk the Chief Out of It",
+     "next": "c2",
+     "src": "L1214"
+    }
+   ],
+   "src": "L1209-1211"
+  },
+  "c1o1": {
+   "text": "The day is chaos. A builder plants an entire field of seedlings upside down, roots in the air. A researcher tries to fix a fence and knocks down three others. A farmer spends six hours trying to understand one research scroll and then uses it to start a fire. Half a day's harvest is trampled. But at supper, sore, filthy and exhausted, everyone has a new respect for everyone else's work. \"I had no idea,\" a builder says, staring at a pair of blistered farming hands. Everyone learns a little of a trade they never tried before.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "auto_text": true,
+   "src": "L1220"
+  },
+  "c1o2": {
+   "text": "It turns out that half the village was in the wrong job all along. The fishers are surprisingly good at building. The healers are surprisingly good at fishing. And one of the builders, (friend), sits down at the researchers' table for the first time in (friend.his/her) life, picks up a scroll, and doesn't look up again until it's dark. By the end of the day (friend.he/she) has worked out a problem the researchers have been stuck on for a month. (friend.He/She) never goes back to building. Chief (subject) tells everyone that this was the plan all along. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Research"
+     ]
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "like": "learning"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1223"
+  },
+  "c1": {
+   "text": "The Chief has spoken. The next morning, the village sets off to its new jobs with great reluctance, and the sound of a lot of people asking \"which end do I hold?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1217"
+  },
+  "c2o1": {
+   "text": "Chief (subject) listens to every word. (subject.He/She) sighs a very long sigh, the sigh of a great leader whose vision is not understood in (subject.his/her) own time. \"Next year, then,\" (subject.he/she) says. Everyone nods enthusiastically and agrees that next year would be perfect. Everyone also quietly hopes that by next year (subject.he/she) will have forgotten. (subject.He/She) has not. (subject.He/She) has written it down.",
+   "src": "L1229"
+  },
+  "c2o2": {
+   "text": "Chief (subject) agrees. But (subject.he/she) sulks. For a week afterwards, (subject.he/she) insists on doing everyone's job (subject.himself/herself), \"to understand.\" (subject.He/She) is terrible at all of them. (subject.He/She) is especially terrible at farming, gets sunburnt, gets blisters, gets chased by the pig, and comes to hate the feel of soil with a deep and lasting passion. Mending the fences goes much better, though. (subject.He/She) turns out to have quite a knack for it, and comes away from the week a decent fence-builder and a much humbler Chief.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "chief",
+     "dislike": "turnips"
+    },
+    {
+     "do": "skill",
+     "role": "chief",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Building"
+     ]
+    }
+   ],
+   "src": "L1232"
+  },
+  "c2": {
+   "text": "The village elders take Chief (subject) aside after breakfast and explain, very kindly and very carefully, that the harvest is nearly due, the fences need mending, and perhaps this wonderful idea could wait for a quieter time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1226"
+  }
+ }
+}

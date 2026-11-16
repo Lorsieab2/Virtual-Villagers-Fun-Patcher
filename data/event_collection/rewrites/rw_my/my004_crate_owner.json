@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crate with No Owner",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my004_crate_owner",
+  "source": "rewrites",
+  "lines": [
+   10051,
+   10106
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10051",
+  "ledger": [
+   {
+    "src": "L10052",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10053",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10062",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10069",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10076",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10083",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10057",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10058",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10059",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10060",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10063",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10070",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10077",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10084",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10064",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10066",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10071",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10073",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10078",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10080",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10085",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10087",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10090-10106",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10088",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The wood is a kind no one on Isola has ever seen, dark and oily.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a calm, windless night, (name) goes down to the beach and finds a sealed wooden crate sitting on the sand, as if someone had set it down there on purpose. The wood is a kind no one on Isola has ever seen, dark and oily. Barnacles crust one corner. The rope around it is braided in a pattern no fisher knows.\nAnd from inside comes a faint tapping. Tap. Tap. Tap. A pause. Then again, in slow, patient threes. A small crowd gathers. Nobody wants to be the one to touch it. Everyone is looking at (name), since (he/she) found it. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Open It Carefully",
+     "next": "c1",
+     "src": "L10057"
+    },
+    {
+     "label": "Listen Before Opening",
+     "next": "c2",
+     "src": "L10058"
+    },
+    {
+     "label": "Return It to the Sea",
+     "next": "c3",
+     "src": "L10059"
+    },
+    {
+     "label": "Store It for Its Owner",
+     "next": "c4",
+     "src": "L10060"
+    }
+   ],
+   "src": "L10054-10055"
+  },
+  "c1o1": {
+   "text": "Inside, packed in dry straw, are rows and rows of sealed jars of preserved fruit: golden, red, purple, some kinds nobody can name. Every single jar is still good. The tapping was a jar knocking against the side as the crate settled. The village eats like royalty for days, and the children argue about which colour is best. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10065"
+  },
+  "c1o2": {
+   "text": "Out pops a crab. A big, cross, extremely offended crab, who has apparently spent the whole voyage trapped among a pile of empty jars, tapping its claw against the wood. It scuttles sideways out of the crate, glares at everyone individually, and makes straight for the surf. The villagers laugh until they cry. The jars are all empty, but nobody minds very much.",
+   "src": "L10067"
+  },
+  "c1": {
+   "text": "(Name) borrows a stone blade, takes a deep breath, and works the lid loose inch by inch while everyone else takes a big step back. The tapping stops. The lid creaks open...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10063"
+  },
+  "c2o1": {
+   "text": "Then (name) goes pale. Beneath the tapping, very faintly, something seems to be counting backward. Seven. Six. Five. (Name) scrambles back. When some brave soul finally pries the crate open, there's nothing inside at all but a heap of broken shells. Everyone agrees it must have been the sea in (name)'s ear. (Name) agrees too, out loud.",
+   "src": "L10072"
+  },
+  "c2o2": {
+   "text": "The tapping only happens when the tide turns, (name) realizes. The villagers drag the crate up into the village to be safe, but even far from the water, every time the tide turns, it taps. Three and three and three. After a while people stop flinching and start using it to tell the time. \"Crate's tapping, tide's turning, boats out!\"",
+   "src": "L10074"
+  },
+  "c2": {
+   "text": "(Name) kneels and presses (his/her) ear against the damp wood. The others hold their breath. For a while, there's only the tapping...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10070"
+  },
+  "c3o1": {
+   "text": "The next morning, the crate is back on the beach in exactly the same spot. But the rope has been retied. The new knot is neat and complicated, the kind an old sailor ties without even thinking. No fisher on Isola knows how to tie it. The crate stays on the beach after that, and nobody tries to send it anywhere again.",
+   "src": "L10079"
+  },
+  "c3o2": {
+   "text": "The moment the crate passes the breakers, it sinks like a stone, straight down, without a single bubble. The tapping stops. Nobody ever learns what was inside it, and (name) is left with an itch of curiosity (he/she) will never get to scratch.",
+   "src": "L10081"
+  },
+  "c3": {
+   "text": "\"It isn't ours,\" (name) says. With a few helpers, (he/she) pushes the crate back out past the breakers and watches it bob away...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10077"
+  },
+  "c4o1": {
+   "text": "A month later, a weathered traveler comes through, sees the braided rope and gasps. \"That's my family's mark!\" The traveler explains that the crate washed off a raft in a storm a whole season ago, and nearly cries with gratitude. The traveler thanks (name) a dozen times before heading home with it.",
+   "src": "L10086"
+  },
+  "c4o2": {
+   "text": "In the damp of the storehouse, the strange dark wood swells and then splits with a crack that wakes half the village. A sour black sap oozes out of it and seeps into several baskets of dried food stacked nearby. Everything it touched has to be thrown out. (Name) never lives it down.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L10088"
+  },
+  "c4": {
+   "text": "\"Somebody lost this,\" (name) says. \"Somebody will come looking.\" The crate is hauled into the storehouse and set carefully in a corner...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10084"
+  }
+ }
+}

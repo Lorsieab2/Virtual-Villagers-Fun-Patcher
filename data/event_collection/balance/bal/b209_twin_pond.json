@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twin Pond",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b209_twin_pond",
+  "source": "balance",
+  "lines": [
+   9710,
+   9753
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9710",
+  "ledger": [
+   {
+    "src": "L9711",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9712",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9729",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9717",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9718",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9721",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9730",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9723",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9732",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9735",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9738-9753",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Should a villager swim across and back, or just paddle?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "High on the mountain there are two ponds side by side, exactly the same size, with a ridge of rock between them as narrow as a path. The left one is warm. The right one is cold. The story is that anyone who swims across one and back through the other \"comes out twice.\" Nobody knows what that means, because nobody has tried in living memory.\n(subject) has climbed up on a dare from (subject.his/her) cousin. It's very hot. Both ponds look lovely. The cousin, (friend), is sitting on the ridge with (friend.his/her) feet in the warm one, grinning.\nShould (subject) swim across and back, or just paddle?",
+   "choices": [
+    {
+     "label": "Swim Across and Back",
+     "next": "c1",
+     "src": "L9717"
+    },
+    {
+     "label": "Just Paddle",
+     "next": "c2",
+     "src": "L9718"
+    }
+   ],
+   "src": "L9713-9715"
+  },
+  "c1o1": {
+   "text": "Climbing out of the warm pond at the same moment is another (subject), dripping and shivering, who looks exactly like (subject.him/her) and immediately starts complaining about the cold. The second (subject) likes different food, different work, and hates mountains. \"Twice,\" says (friend), faintly. The newcomer takes the name (made1), and won't swim in anything ever again.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L9724",
+   "text_only": [
+    {
+     "src": "L9724",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Two more (subject)s climb out, one from each pond: one warm and cheerful, one cold and cross. They have (subject)'s face and their own ideas about everything, and they start arguing with each other before they've stopped dripping. (friend) has to walk all three home. The newcomers take the names (made1) and (made2).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    },
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L9727"
+  },
+  "c1": {
+   "text": "(subject) dives into the warm pond, swims across, climbs over the ridge at the far end, and slides into the cold one, gasping, and swims back. As (subject.he/she) climbs out, (friend) stops grinning...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9721"
+  },
+  "c2o1": {
+   "text": "(subject) sits there all afternoon with one foot in each pond, feeling very calm and very balanced, as if the two halves of (subject.him/her) have made peace. (subject.He/She) walks down the mountain at dusk with a cool head, and finds that something (subject.he/she) has always disliked doesn't bother (subject.him/her) any more.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9733"
+  },
+  "c2o2": {
+   "text": "(friend), laughing, slips off the ridge into the warm pond, splashes across, and comes up in the cold one, spluttering. And climbing out of the warm one is another (friend), looking very cross. \"That's not fair,\" says (friend). \"It was YOUR dare.\" The newcomer takes the name (made1), and the two of them never agree about anything.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "friend"
+    }
+   ],
+   "src": "L9736"
+  },
+  "c2": {
+   "text": "(subject) sits on the ridge beside (friend) and dangles one foot in each pond, one warm, one cold. It is very strange. (subject.His/her) feet seem to be arguing with each other...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9730"
+  }
+ }
+}

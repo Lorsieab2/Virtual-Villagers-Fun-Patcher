@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blessing Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b005_blessing_stones",
+  "source": "balance",
+  "lines": [
+   207,
+   249
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L207",
+  "ledger": [
+   {
+    "src": "L208",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L209",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L217",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L226",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L214",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L215",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L218",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L227",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L220",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L223",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L229",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L232",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L235-249",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have been hoping for a baby for a long time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been hoping for a baby for a long time. They don't talk about it much, but everyone knows, the way everyone in a small village knows everything.\n(healer), the oldest healer, finds them one evening and presses two smooth river stones into their hands, warm from (healer.his/her) pocket. \"My grandmother gave these to me,\" (healer.he/she) says. \"Put them under your sleeping mat, and drink the leaf tea I'll leave you. It might do nothing. But it might not.\" Then (healer.he/she) goes away before they can thank (healer.him/her).\nThey look at each other. Should they try the stones and the tea, or just let things happen in their own time?",
+   "choices": [
+    {
+     "label": "Try the Stones and the Tea",
+     "next": "c1",
+     "src": "L214"
+    },
+    {
+     "label": "Let Things Happen in Their Own Time",
+     "next": "c2",
+     "src": "L215"
+    }
+   ],
+   "src": "L210-212"
+  },
+  "c1o1": {
+   "text": "A few weeks later, (subject) can't stand the smell of fish, and then can't stop eating mangoes, and then (healer) comes round with a knowing smile. A baby is expected. (friend) runs round the whole village telling everybody, including people who already know, including the pigs. The stones go back to (healer), who puts them in (healer.his/her) pocket and says, \"Well. It might not have been the stones.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L221"
+  },
+  "c1o2": {
+   "text": "A baby is expected. Then, as the weeks go by, (healer) listens to (subject)'s belly for a long time, and frowns, and listens again, and starts counting on (healer.his/her) fingers. \"{#babies:One, just the one, i was sure there were more|Two, you'll want a bigger sleeping mat|Three, you'll want a much bigger sleeping mat},\" (healer.he/she) says at last. (friend) has to sit down. The village starts building {#babies:a cradle|two cradles|three cradles}.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L224"
+  },
+  "c1": {
+   "text": "The tea tastes of grass and something sweet. The stones go under the mat. (subject) and (friend) lie awake for a long time that night, holding hands, feeling a little silly and a little hopeful...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L218"
+  },
+  "c2o1": {
+   "text": "They stop counting the days. They go fishing together, and build a new shelf, and argue cheerfully about where to put it. And one morning, a few months later, (subject) wakes up feeling sick as a dog and knows, before (healer) even says it. A baby is expected. \"No stones,\" (friend) tells everyone proudly. \"No tea. Just us.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L230"
+  },
+  "c2o2": {
+   "text": "No baby comes that season, or the next. Instead, (subject) and (friend) somehow become the couple every child in the village runs to: for a story, for a scraped knee, for a place to hide from chores. Their hut is never quiet. \"We'll see,\" (subject) says, when anyone asks, and means it. Their life is already full.",
+   "src": "L233"
+  },
+  "c2": {
+   "text": "They thank (healer) the next day, and give the stones back. \"We'd like to just see what happens,\" (subject) says. (healer) nods as if (healer.he/she) expected nothing else...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L227"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L224",
+   "before": "{#babies:One. Just the one. I was sure there were more|Two. You'll want a bigger sleeping mat|Three. You'll want a much bigger sleeping mat}",
+   "after": "{#babies:One, just the one, i was sure there were more|Two, you'll want a bigger sleeping mat|Three, you'll want a much bigger sleeping mat}"
+  }
+ ]
+}

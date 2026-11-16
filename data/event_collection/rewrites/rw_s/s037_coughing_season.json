@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coughing Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s037_coughing_season",
+  "source": "rewrites",
+  "lines": [
+   1740,
+   1784
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1740",
+  "ledger": [
+   {
+    "src": "L1741",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1742",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1749",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1758",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1746",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1747",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1750",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1759",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1752",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1755",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1761",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1764",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1767-1784",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A cough is going round the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A cough is going round the village. It started with one sneeze at breakfast, a week ago. Nobody thought anything of it. Then the person next to the sneezer started coughing, and then the person next to them, and now at night the village sounds as if a flock of geese has moved into every single hut.\nThe healers have run out of honey. The children have been sent to bed early for three nights running. And nobody, nobody at all, will admit to being the one who sneezed first. Should the healers take everyone in, or should the village let it run its course?",
+   "choices": [
+    {
+     "label": "Send Everyone to the Healers",
+     "next": "c1",
+     "src": "L1746"
+    },
+    {
+     "label": "Let It Run Its Course",
+     "next": "c2",
+     "src": "L1747"
+    }
+   ],
+   "src": "L1743-1744"
+  },
+  "c1o1": {
+   "text": "The healers work day and night. They make tea after tea, rub chests with strong-smelling ointment, hold steaming bowls under people's noses and make them breathe. They sleep in shifts and eat standing up. By the end of the week, the last cough is gone, and the village is quiet at night again. The healers are so exhausted that they sleep for two whole days, but every one of them comes out of it knowing more than before.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L1753"
+  },
+  "c1o2": {
+   "text": "The healers try. But crowding everyone together in one long line turns out to be the worst idea anyone has had all year. For every villager they cure, two more catch it from the people waiting in line. By the end of the week three of them are properly sick, burning with fever and too weak to get up, and the healers have to keep them in the hospital while everyone else is sent home to cough in peace.",
+   "effects": [
+    {
+     "do": "sick",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L1756"
+  },
+  "c1": {
+   "text": "The healers set up mats all round the hospital, boil every pot of herbs they have, and line up the whole coughing, sneezing, sniffling village outside the door, one at a time...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1750"
+  },
+  "c2o1": {
+   "text": "It runs its course. Slowly, one by one, everyone gets better on their own, with a lot of grumbling and a great deal of nose-blowing into leaves. After two weeks the geese have left the huts and the village is quiet at night again. Somebody finally admits to being the first sneezer, and is made to fetch everyone's water for a week as punishment.",
+   "src": "L1762"
+  },
+  "c2o2": {
+   "text": "It runs its course. For most people, it passes in a week or two. But for the oldest villager, (elder), it goes deep into (subject.his/her) chest and stays there. (Elder) is laid up for a very long time, wrapped in blankets by the fire, coughing in long, tired fits. (subject.He/She) gets better, in the end. But (subject.he/she) never quite gets back (subject.his/her) strength. Work that was easy becomes hard, and then too hard, and (elder) comes to dread it. The healers say (subject.he/she) was lucky. (Elder) says (subject.he/she) doesn't feel lucky.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": -20,
+     "max": -20
+    },
+    {
+     "do": "preference",
+     "dislike": "work",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1765"
+  },
+  "c2": {
+   "text": "\"It's just a cough,\" say the elders. \"We've all had coughs. It'll pass.\" So everyone keeps working, keeps sneezing, keeps coughing, and waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1759"
+  }
+ }
+}

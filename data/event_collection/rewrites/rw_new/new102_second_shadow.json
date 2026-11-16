@@ -1,0 +1,304 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Shadow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new102_second_shadow",
+  "source": "rewrites",
+  "lines": [
+   4759,
+   4814
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L4759",
+  "ledger": [
+   {
+    "src": "L4760",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4770",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4777",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4784",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4791",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4765",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4766",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4767",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4768",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4771",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4778",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4785",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4792",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4772",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4774",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4781",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4786",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4788",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4793",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4795",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4798-4814",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "One moves the way a shadow should.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At sunset on the beach, (subject) looks down and notices (subject.he/she) has two shadows.\nOne moves the way a shadow should. The other copies every move a heartbeat late, like a shy dancer trying to keep up with the music. When (subject) raises an arm, it raises an arm... eventually. When (subject.he/she) turns to run, it stumbles after (subject.him/her).\nThe children have already started waving at it. It waves back, a little late, and they shriek with delight. (subject) does not shriek, but only because (subject.he/she) is too busy trying not to. What should (subject.he/she) do about it?",
+   "choices": [
+    {
+     "label": "Time the Delay",
+     "next": "c1",
+     "src": "L4765"
+    },
+    {
+     "label": "Let the Shadow Step Forward",
+     "next": "c2",
+     "src": "L4766"
+    },
+    {
+     "label": "Question the Keeper of Tales",
+     "next": "c3",
+     "src": "L4767"
+    },
+    {
+     "label": "Walk Home Before Dark",
+     "next": "c4",
+     "src": "L4768"
+    }
+   ],
+   "src": "L4762-4764"
+  },
+  "c1o1": {
+   "text": "Every clap comes back after exactly the same count, as steady as a drum. (subject) practices until (subject.he/she) can keep the beat without thinking, and the fishers later borrow the trick for timing when to haul their nets. Nobody asks where (subject.he/she) learned it. (subject.He/She) does not volunteer the answer.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4773"
+  },
+  "c1o2": {
+   "text": "Halfway through the count, the sun slips into the sea, and the second shadow goes down with it like someone sinking into deep water. (subject) waits a long time on the darkening sand. It does not come back up. (subject.He/She) is surprised to find (subject.he/she) is a little sad about that.",
+   "src": "L4775"
+  },
+  "c1": {
+   "text": "(subject) decides that if (subject.he/she) is going to be haunted, (subject.he/she) might as well be haunted precisely. (subject.He/She) claps once, then counts heartbeats until the shadow claps back. One... two...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4771"
+  },
+  "c2o1": {
+   "text": "It fills out, gains colour, and stands up as a whole person with (subject)'s exact face and build, right down to the freckle (subject) always thought nobody noticed. The newcomer looks around at the gaping crowd, clears (subject.his/her) throat, and politely asks to be called by a different name so as not to cause any confusion. Then (subject.he/she) asks where supper is. It turns out (subject.he/she) has a mind entirely of (subject.his/her) own, and the village has one more mouth to feed.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L4780"
+  },
+  "c2o2": {
+   "text": "The shadow rises halfway, a dark shape the size of a person, and (subject) loses (subject.his/her) nerve completely. \"No. No, sorry, I changed my mind!\" (subject.He/She) steps out of the sunset, and the shape slumps back down onto the sand. No one argues with (subject.him/her). The shadow just goes on being late, every evening, for about a week, and then stops.",
+   "src": "L4782"
+  },
+  "c2": {
+   "text": "(subject) takes a deep breath and steps aside, leaving room on the sand. \"Well? Go on then.\" The second shadow hesitates... and then peels up off the beach like a wet leaf lifting from a rock...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4778"
+  },
+  "c3o1": {
+   "text": "\"...but I could never tell you if it is a true story or just a very good way to get children inside at dusk.\" (elder) opens one eye. \"Is it working?\" It is. The children are all suddenly very keen to be indoors.",
+   "src": "L4787"
+  },
+  "c3o2": {
+   "text": "\"...and here is what my teacher did with it.\" (elder) shows (subject) how to push sticks into the sand at the tip of a shadow through the day, an old method for telling the hour and the turning of the seasons. By the end of the week there is a neat arc of sticks on the beach, and the researchers are measuring it with great excitement.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4789"
+  },
+  "c3": {
+   "text": "(elder) hears the whole thing with (subject.his/her) eyes closed, nodding slowly. \"Shadows that ran off to be people. Yes. I know that one...\"",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4785"
+  },
+  "c4o1": {
+   "text": "...and by the time (subject.he/she) reaches the fire, (subject.he/she) has turned it into a pretty good story. The village decides the second shadow will be something to tell tales about, not a project. (subject) still checks the sand behind (subject.him/her) every sunset.",
+   "src": "L4794"
+  },
+  "c4o2": {
+   "text": "The next evening, (subject) casts only one shadow. The beach shows nothing but footprints. The story rests on the word of the few who saw it, and they tell it so often and so loudly that nobody quite believes them anymore.",
+   "src": "L4796"
+  },
+  "c4": {
+   "text": "(subject) decides this is not (subject.his/her) problem and walks briskly up the beach without looking back. (subject.He/She) can hear the children giggling behind (subject.him/her)...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4792"
+  }
+ }
+}

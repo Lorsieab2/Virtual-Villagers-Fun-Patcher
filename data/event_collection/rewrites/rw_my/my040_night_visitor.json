@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Visitor's Secret",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my040_night_visitor",
+  "source": "rewrites",
+  "lines": [
+   12175,
+   12230
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12175",
+  "ledger": [
+   {
+    "src": "L12176",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12177",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12186",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12193",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12200",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12207",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12181",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12182",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12183",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12184",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12187",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12194",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12201",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12208",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12188",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12190",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12195",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12197",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12202",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12204",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12209",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12211",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12214-12230",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is out at the village boundary after dark, checking the fence, when a hooded stranger steps out of the shadows.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is out at the village boundary after dark, checking the fence, when a hooded stranger steps out of the shadows. The face is lost in the hood. The stranger smells of woodsmoke and river mud.\n\"Someone your village lost,\" the stranger whispers, so softly (name) has to lean in. \"Someone you thought was gone for good. They may still be alive.\" And then the stranger just waits, as if to see whether (name) will believe it. (Name)'s heart is hammering. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Ask for Proof",
+     "next": "c1",
+     "src": "L12181"
+    },
+    {
+     "label": "Gather a Search Party",
+     "next": "c2",
+     "src": "L12182"
+    },
+    {
+     "label": "Keep the Secret",
+     "next": "c3",
+     "src": "L12183"
+    },
+    {
+     "label": "Confront the Stranger",
+     "next": "c4",
+     "src": "L12184"
+    }
+   ],
+   "src": "L12178-12179"
+  },
+  "c1o1": {
+   "text": "The stranger reaches into the folds of the hood and holds out a bracelet. (Name) gasps. (He/She) knows it. It's the woven bracelet \\(the lost one\\) always wore, with the blue bead that never matched. \"Where did you get this?\" (name) demands. But the stranger only presses it into (name)'s hand, shakes (his/her) head, and refuses to say another word.",
+   "src": "L12189"
+  },
+  "c1o2": {
+   "text": "The stranger gives (name) directions to a place two days' walk away. (Name) goes, with two friends, and finds an abandoned camp: a cold fire pit, a lean-to falling apart, a broken pot. Someone was here, a long time ago. There's no sign of who. (Name) brings back the broken pot, and nobody can say for sure whose it was.",
+   "src": "L12191"
+  },
+  "c1": {
+   "text": "\"Prove it,\" (name) says, voice shaking. \"If you know so much, prove it.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12187"
+  },
+  "c2o1": {
+   "text": "After four days of hard walking, the search party crests a ridge above a distant valley, and there, sheltering under a rock overhang, is a thin, sunburned figure. It's \\(the lost one\\). Alive. (He/She) weeps when the search party appears over the ridge, and so does everyone else. \\(The lost one\\) is too weak to come home just yet, so the searchers stay and care for (him/her); the story of the rescue is told in the village for years. \\(Story only: the lost villager does not rejoin the game.\\)",
+   "src": "L12196"
+  },
+  "c2o2": {
+   "text": "They search for a week. They find footprints, old ones, half washed away, and a few broken branches, and once a scrap of cloth caught on a thorn. But no person. Eventually they have to turn back. (Name) comes home tired and aching, not sure whether to grieve again or to keep hoping, and in the end, (he/she) does a bit of both.",
+   "src": "L12198"
+  },
+  "c2": {
+   "text": "(Name) runs back into the village and wakes everyone. By dawn, a search party is setting off in the direction the stranger pointed...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12194"
+  },
+  "c3o1": {
+   "text": "(Name) carries the hope privately, day after day. (He/She) looks up the road at dawn and down the shore at dusk. (He/She) never knows whether telling the others would be a kindness or a cruelty, raising hopes that might be dashed again. So (he/she) keeps it, quietly, like a coal kept warm in a shell.",
+   "src": "L12203"
+  },
+  "c3o2": {
+   "text": "The secret is too heavy. After a week of sleepless nights, (name) finally breaks down and tells (his/her) closest friend everything. The friend listens, holds (his/her) hand, and promises to help, whatever that means. It doesn't change anything about the stranger's words. But (name) sleeps that night for the first time in days.",
+   "src": "L12205"
+  },
+  "c3": {
+   "text": "(Name) decides not to tell anyone. Not yet. Not until (he/she) knows more. (He/She) walks home with the secret burning inside (him/her)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12201"
+  },
+  "c4o1": {
+   "text": "The stranger pulls back the hood, revealing a tired, ordinary face. \"I'm sorry,\" the stranger says. \"I didn't mean to frighten you. I heard a rumor in another settlement, about someone who arrived there years ago from this direction. I thought you should know. That's all.\" It's not much. But it's something, and (name) thanks the stranger, and means it.",
+   "src": "L12210"
+  },
+  "c4o2": {
+   "text": "The figure steps backward, into the darkness, and is simply gone. (Name) lunges after it, but there's nothing there. Only a rustle in the cane, then silence. (Name) searches until the moon sets. (He/She) never finds the stranger again, and never knows whether to believe what (he/she) heard.",
+   "src": "L12212"
+  },
+  "c4": {
+   "text": "\"Who are you?\" (name) demands, stepping closer. \"Why tell me this? What do you want?\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12208"
+  }
+ }
+}

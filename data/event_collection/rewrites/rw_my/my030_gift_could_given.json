@@ -1,0 +1,329 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift That Could Not Be Given",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my030_gift_could_given",
+  "source": "rewrites",
+  "lines": [
+   11585,
+   11640
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11585",
+  "ledger": [
+   {
+    "src": "L11586",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11587",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11596",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11603",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11610",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11617",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11591",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11592",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11593",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11594",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11597",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11604",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11611",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11618",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11598",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11600",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11605",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11607",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11612",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11614",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11619",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11621",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11624-11640",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For you, the stranger says.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wandering stranger stops (subject) on the path and holds something out with both hands, as if it were very precious: a necklace of black seeds with a single white shell in the middle. \"For you,\" the stranger says. \"Only you.\"\nThe moment (subject) takes it, the stranger smiles and walks off. The necklace is light. Pretty, even. But later, when (subject) tries to hand it to a friend to admire, it suddenly feels as heavy as a stone. When (subject) takes it back, it's light again. (subject) stares at it. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Keep the Necklace",
+     "next": "c1",
+     "src": "L11591"
+    },
+    {
+     "label": "Give It to a Friend",
+     "next": "c2",
+     "src": "L11592"
+    },
+    {
+     "label": "Ask Its Maker",
+     "next": "c3",
+     "src": "L11593"
+    },
+    {
+     "label": "Return It to the Stranger",
+     "next": "c4",
+     "src": "L11594"
+    }
+   ],
+   "src": "L11588-11589"
+  },
+  "c1o1": {
+   "text": "It's heavy around (subject.his/her) neck for the first few days, then less, then not at all. Before long (subject) can't imagine going without it. (subject.He/She) starts noticing other people's bracelets and necklaces, trading for pretty shells, stringing beads in the evenings. \"You've gone fancy,\" (subject.his/her) friends tease. (subject) just grins and adjusts the white shell.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L11599"
+  },
+  "c1o2": {
+   "text": "Once (subject) stops worrying about it, the necklace feels completely ordinary. Light, simple, a little scratchy. (subject.He/She) forgets (subject.he/she) is wearing it most days. Maybe the weight was in (subject.his/her) head all along. Maybe that's the point.",
+   "src": "L11601"
+  },
+  "c1": {
+   "text": "(subject) decides that if it wants to stay with (subject.him/her) that badly, so be it. (subject.He/She) puts it on...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11597"
+  },
+  "c2o1": {
+   "text": "The moment (friend)'s fingers close around it, the necklace drops out of both their hands and hits the ground with a thump, as if it were a rock. Neither of them can lift it. They try together, red-faced and straining, while a crowd gathers to watch. Then (subject) reaches down alone, and it lifts as lightly as a feather. Both of them laugh, but it's a rather uneasy laugh.",
+   "src": "L11606"
+  },
+  "c2o2": {
+   "text": "(friend) takes it without any trouble at all. \"Feels like a normal necklace to me,\" (friend.he/she) says, swinging it on one finger. (subject) is baffled. Was the weight imagined after all? (friend) wears it for a day, then gives it back, saying it suits (subject) better. It's light in (subject)'s hands. Probably.",
+   "src": "L11608"
+  },
+  "c2": {
+   "text": "(subject) is determined to test it properly. (subject.He/She) takes the necklace off and holds it out to (friend). \"Here. Take it. Tell me if it gets heavy.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11604"
+  },
+  "c3o1": {
+   "text": "(friend), the oldest craftsperson in the village, takes one look and cackles. \"Oh, that's an old trick! A teaching puzzle.\" The old one shows (subject) how: one of the seeds is hollow and filled with sand, and the way it's strung makes the sand slide whenever the necklace is held at a certain angle, the angle it is held at when handing it over. The village's craftspeople are delighted, and soon they're making clever little puzzles of their own. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11613"
+  },
+  "c3o2": {
+   "text": "Nobody recognizes it. Not the carvers, not the weavers, not even the very oldest villagers, who have seen just about every kind of necklace there is. The seeds are from no tree on Isola. The shell is from no beach anyone knows. (subject) puts it back around (subject.his/her) neck with a shrug, and a shiver.",
+   "src": "L11615"
+  },
+  "c3": {
+   "text": "(subject) goes around the village showing the necklace to every craftsperson and every elder, hoping someone knows who made it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11611"
+  },
+  "c4o1": {
+   "text": "The stranger takes the necklace back with a gentle smile. \"Thank you,\" (subject.he/she) says. \"Not everyone gives things back.\" Then the stranger steps into the trees and is gone, so quickly and completely that (subject) isn't sure (subject.he/she) saw (subject.him/her) go.",
+   "src": "L11620"
+  },
+  "c4o2": {
+   "text": "The stranger takes it back without a word. (subject) walks home, relieved. The next morning, the necklace is hanging from the latch of (subject)'s door, swinging slightly, though there is no wind. (subject) takes it down. It's light in (subject.his/her) hand. (subject.He/She) decides to keep it after all.",
+   "src": "L11622"
+  },
+  "c4": {
+   "text": "(subject) hurries off down the path after the stranger, the necklace light in (subject.his/her) hand, and catches up just before the trees...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11618"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "pearls",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

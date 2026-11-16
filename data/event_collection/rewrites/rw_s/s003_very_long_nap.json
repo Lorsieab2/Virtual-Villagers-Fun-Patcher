@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Very Long Nap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s003_very_long_nap",
+  "source": "rewrites",
+  "lines": [
+   99,
+   143
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L99",
+  "ledger": [
+   {
+    "src": "L100",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L101",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L109",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L118",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L106",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L107",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L110",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L119",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L112",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L115",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L121",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L124",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L127-143",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is the hottest afternoon of the year.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 40
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It is the hottest afternoon of the year. The cicadas are whirring like a hundred tiny saws and even the chickens have given up and lain down in the dust. (Name) has been working since dawn and spots a strange tree at the edge of the clearing, with leaves the soft blue of a morning sky and a patch of shade beneath it that looks cool as a river.\n\"Five minutes,\" (he/she) tells nobody, and lies down.\nWhen (name) wakes, (his/her) back aches. (His/her) knees creak like an old door. And there are little white flowers growing in (his/her) hair, rooted in it, as though (he/she) were part of the ground.",
+   "choices": [
+    {
+     "label": "Hurry Home",
+     "next": "c1",
+     "src": "L106"
+    },
+    {
+     "label": "Lie Back Down",
+     "next": "c2",
+     "src": "L107"
+    }
+   ],
+   "src": "L102-104"
+  },
+  "c1o1": {
+   "text": "Nobody recognises (him/her) at first. A child points and asks if a visitor has come. Only one night has passed in the village, but while (name) slept, the tree's roots drank years from (him/her) and pushed them out again as those little white flowers. The elders look at the flowers for a long time and say nothing helpful. (Name) sits down heavily on (his/her) own doorstep, looks at (his/her) wrinkled hands, and takes it surprisingly well. \"At least I'm well rested,\" (he/she) says. \"Somebody else can do the afternoon work.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      20,
+      20
+     ],
+     "max_age": 75,
+     "role": "subject"
+    }
+   ],
+   "src": "L113"
+  },
+  "c1o2": {
+   "text": "(Name) gets away before the roots can drink more than a few years. One by one the little white flowers drop out of (his/her) hair on the path home, and wither the moment they touch the ground. By the time (he/she) reaches the village, all that's left is a streak of grey at (his/her) temples and a few new lines around (his/her) eyes. \"You look distinguished,\" everyone says, very kindly, which is what people say when they mean older. (Name) avoids the blue tree from then on, and spends the next hot afternoon resting in the most ordinary shade (he/she) can find.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      5,
+      5
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L116"
+  },
+  "c1": {
+   "text": "(Name) scrambles up, groaning, brushing at the flowers, and hobbles towards the village as fast as (his/her) complaining knees will go. Behind (him/her), the blue leaves rustle, though there is no wind...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L110"
+  },
+  "c2o1": {
+   "text": "Then (he/she) remembers. Whoever eats the blue tree's flowers gets back what the tree drank. (Name) sits up and picks every single white flower out of (his/her) hair, wincing, and eats them one by one. They are horribly bitter, like chewing a sandal. Then (he/she) lies down and naps again, just to be sure. (He/She) wakes up with (his/her) own knees, (his/her) own back, and (his/her) own luscious hair, and runs home, and is late for supper. Nobody believes a word of it, which (name) feels is very unfair.",
+   "src": "L122"
+  },
+  "c2o2": {
+   "text": "The second nap is even longer. The roots go deeper, and drink more, and the flowers grow thicker until (name)'s hair is a white crown of them. When (he/she) finally wakes, the sun is setting and (name) is an elder, with soft grey skin and slow, careful hands. (He/She) lies there for a while looking up through the blue leaves. \"Well,\" (he/she) says at last. \"That's that, then.\" (He/She) is so comfortable under the tree that (he/she) doesn't mind one bit, and the village has to send two strong young people to carry (him/her) home for dinner.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "elder",
+     "role": "subject"
+    }
+   ],
+   "src": "L125"
+  },
+  "c2": {
+   "text": "(Name) is very comfortable, and very tired, and the shade is very cool. (He/She) remembers something the elders once said about blue trees, though not quite what. (He/She) closes (his/her) eyes to think about it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L119"
+  }
+ }
+}

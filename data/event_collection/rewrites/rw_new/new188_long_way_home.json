@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Way Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new188_long_way_home",
+  "source": "rewrites",
+  "lines": [
+   9114,
+   9160
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9114",
+  "ledger": [
+   {
+    "src": "L9115",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9116",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9125",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9132",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9139",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9121",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9122",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9123",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9126",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9133",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9140",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9127",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9129",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9134",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9136",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9141",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9143",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9146-9160",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every morning, the workers cross the old log bridge over the gully to get to the fields.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every morning, the workers cross the old log bridge over the gully to get to the fields. It saves an hour's walk.\nEvery morning, (subject) refuses. (subject.He/She) takes the long way around, through the bamboo, down the slope and up the other side, and arrives an hour late, muddy and scratched.\nPeople have started making comments. \"Taking the scenic route?\" \"Lost again?\" Someone called (subject.him/her) a coward yesterday, loudly, and (subject) didn't answer.\nThe bridge, to be fair, creaks. Loudly. Every time someone steps on it. And yesterday, if anyone listened very closely, it made a new noise. Is (subject) being a coward, or does (subject.he/she) know something about that bridge?",
+   "choices": [
+    {
+     "label": "Inspect the Old Bridge",
+     "next": "c1",
+     "src": "L9121"
+    },
+    {
+     "label": "Start Their Day Later",
+     "next": "c2",
+     "src": "L9122"
+    },
+    {
+     "label": "Ask a Bridge Builder for Help",
+     "next": "c3",
+     "src": "L9123"
+    }
+   ],
+   "src": "L9117-9120"
+  },
+  "c1o1": {
+   "text": "(subject) goes too, and looking closely at the underside of the bridge, (subject.he/she) sees exactly what (subject.he/she) was afraid of: rot. Soft, dark, crumbling rot, at the joints where the logs rest on the banks, eating its way in. (subject.He/She) learns how rot always starts at the joints first, where water collects, a practical building lesson. The bridge is closed that very morning. Nobody calls (subject) a coward again.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L9128"
+  },
+  "c1o2": {
+   "text": "The bridge looks fine, more or less. But (subject) explains that nobody ever actually said the bridge was safe. Nobody checked it. Nobody even knew who built it. (subject.He/She) was being careful, not lazy. The others, a little uncomfortably, realize they've just been assuming. A builder is asked to check it properly.",
+   "src": "L9130"
+  },
+  "c1": {
+   "text": "Someone finally does what nobody has done in years: crawls underneath the log bridge to have a proper look at it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9126"
+  },
+  "c2o1": {
+   "text": "Starting work an hour later lets (subject) keep taking the safe path, at a pace that works for everyone. (subject.He/She) also works an hour later in the evenings, when it's cooler. It turns out to suit (subject.him/her) very well. The comments stop.",
+   "src": "L9135"
+  },
+  "c2o2": {
+   "text": "The later start throws off the whole team's schedule. Jobs that need two people can't start until (subject) arrives. The others stand around waiting. They agree to rework it tomorrow, and the comments get a little louder.",
+   "src": "L9137"
+  },
+  "c2": {
+   "text": "The village suggests that (subject) simply start work an hour later than everyone else, so (subject.he/she) can take the long way without falling behind...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9133"
+  },
+  "c3o1": {
+   "text": "(builder) teaches (subject) how to tie a rope bridge: strong vine ropes, plank steps, handrails, anchored to the trees on both sides. The two of them build one across the gully together, over a week, right next to the old log bridge. (subject) is the first to cross it. Then everybody else crosses it too, and the old log bridge is left for the moss.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9142"
+  },
+  "c3o2": {
+   "text": "(builder) looks over at the old bridge, and then lowers (subject.his/her) voice. \"I haven't trusted that log in years,\" (subject.he/she) admits. \"I go around too. Early, before anyone sees.\" (subject) stares. Then, the next morning, the two of them take the long way together.",
+   "src": "L9144"
+  },
+  "c3": {
+   "text": "(subject) goes to (builder), and asks, quietly, whether (subject.he/she) thinks the old bridge is safe...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9140"
+  }
+ }
+}

@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b196_second_tide",
+  "source": "balance",
+  "lines": [
+   9097,
+   9139
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9097",
+  "ledger": [
+   {
+    "src": "L9098",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9099",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9107",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9116",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9104",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9105",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9108",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9117",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9110",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9113",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9119",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9122",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9125-9139",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is walking across the bare lagoon floor with a basket, picking up stranded fish.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Twice a year the tide goes out further than usual, much further, so far that the reef stands up out of the water and the whole lagoon is a field of wet sand and puddles. The old fishers call it the Second Tide, and they say that what the sea gives back on the Second Tide should be left where it lies.\n(Name) is walking across the bare lagoon floor with a basket, picking up stranded fish. In the middle of the lagoon (he/she) comes across a hollow in the sand, full of water, perfectly still, and lying in it, asleep, is someone with (his/her) own face.\nShould (name) wake the sleeper, or leave it where it lies?",
+   "choices": [
+    {
+     "label": "Wake the Sleeper",
+     "next": "c1",
+     "src": "L9104"
+    },
+    {
+     "label": "Leave It Where It Lies",
+     "next": "c2",
+     "src": "L9105"
+    }
+   ],
+   "src": "L9100-9102"
+  },
+  "c1o1": {
+   "text": "\"Thank you,\" says the sleeper, in (name)'s voice, and sits up. It is (name) exactly, the same in every way, as if the sea had been keeping a spare. It walks back across the lagoon floor beside (name) as the tide starts to turn, and into the village, and takes the name (made1). The old fishers shake their heads and say nothing at all.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L9111"
+  },
+  "c1o2": {
+   "text": "The sleeper sits up and stretches. It has (name)'s face and nothing else of (name)'s at all. It doesn't like fish, it hates the sun, and it laughs at (name)'s jokes in a way that suggests it doesn't find them funny. It follows (name) home anyway, and takes the name (made1). \"The sea gives back what it wants,\" say the old fishers. \"Not what you want.\"",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L9114"
+  },
+  "c1": {
+   "text": "(Name) kneels and touches the sleeper's shoulder. It's cold and wet, like a stone from the sea. Its eyes open, (name)'s own eyes, and look up at (him/her) without surprise...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9108"
+  },
+  "c2o1": {
+   "text": "By the time (name) reaches the beach, the lagoon is full again, and the hollow, and whatever was in it, is under the water. (Name) sits on the sand for a long time, shaking. That night, (he/she) dreams of sleeping at the bottom of the lagoon, very peacefully, and wakes up rested.",
+   "src": "L9120"
+  },
+  "c2o2": {
+   "text": "That evening there's a knock on (name)'s door. On the doorstep, dripping seawater, is (name). Exactly. \"You left me,\" it says, sadly. \"On the Second Tide.\" (Name) lets it in, because what else can (he/she) do. It takes the name (made1). It always sleeps very soundly, and never once goes near the sea.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L9123"
+  },
+  "c2": {
+   "text": "(Name) backs away, slowly, and walks on across the lagoon, not looking back. Behind (him/her), the water starts to come back in over the sand, very fast...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9117"
+  }
+ }
+}

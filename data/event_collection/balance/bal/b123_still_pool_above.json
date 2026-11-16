@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Still Pool Above the Falls",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b123_still_pool_above",
+  "source": "balance",
+  "lines": [
+   5616,
+   5659
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5616",
+  "ledger": [
+   {
+    "src": "L5617",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5618",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5626",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5635",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5623",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5624",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5627",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5636",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5629",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5632",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5641",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5644-5659",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Above the waterfall there is a pool so still it looks like a hole in the ground filled with sky.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Above the waterfall there is a pool so still it looks like a hole in the ground filled with sky. The children are told never to swim in it, because it is very deep and very cold. The elders say it remembers everyone who has ever looked into it, and gives a little of what it remembers back.\n(Name) has climbed up to fill a gourd, and kneels at the edge. In the water, (his/her) reflection looks back at (him/her) the way (he/she) looked twenty years ago: smooth cheeks, luscious hair, no tired lines at the eyes. The real (name) touches (his/her) face. The reflection doesn't.\nShould (name) reach into the pool and take back what it remembers, or leave the pool alone?",
+   "choices": [
+    {
+     "label": "Reach Into the Pool",
+     "next": "c1",
+     "src": "L5623"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c2",
+     "src": "L5624"
+    }
+   ],
+   "src": "L5619-5621"
+  },
+  "c1o1": {
+   "text": "When (name) pulls (his/her) hand out, the reflection has gone, and (name) can feel the difference all the way up (his/her) arm and into (his/her) back. (He/She) walks down the hill without stopping for breath once. In the village, people stare. \"You look like you did when we were young,\" says (his/her) oldest friend, a little jealously. (Name) spends the evening doing all the things (his/her) knees wouldn't let (him/her) do last week, then sleeps like a stone.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5630"
+  },
+  "c1o2": {
+   "text": "The pool gives back the face, and only the face. (Name)'s knees still creak, (his/her) back still aches on the climb down, and (he/she) still needs a rest halfway. But the face that looks out of the cooking pot that evening is twenty years younger and very surprised. \"It's a bit of a cheat,\" (name) admits to the healers. \"Everything else still feels fifty.\" The children keep asking (him/her) to prove how old (he/she) is.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5633"
+  },
+  "c1": {
+   "text": "(Name) pushes (his/her) hand into the water. It is so cold it burns. The young reflection reaches up from below and takes (his/her) fingers, firmly, the way a parent takes a child's hand to cross a stream...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5627"
+  },
+  "c2o1": {
+   "text": "As (name) stands, a cold drop falls from the gourd and lands back in the pool. The pool takes it as a gift. By the time (name) reaches home, (his/her) hair has gone grey at the temples and (his/her) face has the soft, crumpled look of a grandparent. \"Well, that's what I get for being polite,\" (he/she) says. The elders say the pool only ever takes what's offered, so (name) has nobody to blame but the gourd.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5639"
+  },
+  "c2o2": {
+   "text": "On the way down, (name) keeps thinking about the reflection's smile, and the cold of the water. That night (he/she) dreams of being pulled down into a deep, still pool, gently, by (his/her) own young hands. (He/She) wakes up with no wish to go anywhere near the water. (He/She) used to run down to the water every morning. Now (he/she) walks, slowly, and keeps well back from the waves.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "src": "L5642"
+  },
+  "c2": {
+   "text": "(Name) sits back on (his/her) heels. There is something about the way the reflection is smiling that (he/she) doesn't like, as if it wants something too. (He/She) fills (his/her) gourd from the stream below instead, and gets up to go...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5636"
+  }
+ }
+}

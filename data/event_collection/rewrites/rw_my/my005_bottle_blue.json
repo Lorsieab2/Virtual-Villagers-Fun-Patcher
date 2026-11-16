@@ -1,0 +1,308 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bottle of Blue Light",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my005_bottle_blue",
+  "source": "rewrites",
+  "lines": [
+   10110,
+   10165
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10110",
+  "ledger": [
+   {
+    "src": "L10111",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10112",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10121",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10128",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10135",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10142",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10116",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10117",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10118",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10119",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10122",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10129",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10136",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10143",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10123",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10125",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10130",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10132",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10137",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10139",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10144",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10146",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10149-10165",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "While pulling up roots in the jungle, a villager uncovers a glass bottle tangled in the dirt.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "While pulling up roots in the jungle, (subject) uncovers a glass bottle tangled in the dirt. It's glowing. Not brightly, just a soft blue, pulsing slowly like something breathing. The stopper is sealed with wax stamped with a symbol no one in the village has ever seen, and moths have already started gathering around it in a soft grey ring.\n(subject)'s friend (friend) has been sick with a fever for days, and the healers have run out of ideas. A little voice in (subject)'s head wonders if this could be medicine. A louder voice says that glowing mystery liquid is how stories about very foolish villagers begin. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Unseal the Bottle",
+     "next": "c1",
+     "src": "L10116"
+    },
+    {
+     "label": "Study It Without Opening",
+     "next": "c2",
+     "src": "L10117"
+    },
+    {
+     "label": "Offer It to a Healer",
+     "next": "c3",
+     "src": "L10118"
+    },
+    {
+     "label": "Bury It Again",
+     "next": "c4",
+     "src": "L10119"
+    }
+   ],
+   "src": "L10113-10114"
+  },
+  "c1o1": {
+   "text": "The mist drifts across the hut where (friend) lies sleeping. (subject) sits up all night, not sure what (subject.he/she) has done. By morning, (friend) sits up, asks for water, and says (friend.he/she) feels better than (friend.he/she) has in days. The healers say fevers break on their own sometimes. (subject) nods and says nothing, and keeps the empty bottle wrapped in a cloth.",
+   "src": "L10124"
+  },
+  "c1o2": {
+   "text": "The bottle slips, and the glowing liquid splashes all over (subject)'s hands. (subject) shrieks. Then... nothing. No burning, no fainting, no curse. Just hands as blue as a summer sky. It doesn't wash off. For three days (subject) waves at everyone with bright blue fingers, and the children line up to shake hands. On the fourth morning it fades, and the children are terribly disappointed.",
+   "src": "L10126"
+  },
+  "c1": {
+   "text": "(subject) breaks the wax with (subject.his/her) thumbnail and pulls the stopper. There's a soft pop, and a breath of cool, sweet-smelling mist curls out...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10122"
+  },
+  "c2o1": {
+   "text": "The researchers are thrilled. After days of squinting, scraping and arguing, they work out that the glow comes from a fine mineral dust suspended in the liquid, a mineral that shines in the dark under certain conditions. They find more of it in the clay near the roots where (subject) dug. Soon they're working out all kinds of uses for it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10131"
+  },
+  "c2o2": {
+   "text": "The moment the bottle leaves the shade of the roots, its light starts to fade. By the time (subject) reaches the researchers, it's just a dusty bottle of murky water. They poke at it for a week and come up with nothing but theories. Everyone has a different one. None of them can be proven.",
+   "src": "L10133"
+  },
+  "c2": {
+   "text": "(subject) carries the bottle very, very carefully to the researchers, holding it at arm's length the whole way...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10129"
+  },
+  "c3o1": {
+   "text": "The healer sniffs the wax, dabs a drop on a leaf, and watches it. \"Willowbark, sea fern, and something else... I think this is a fever draught,\" (healer.he/she) says. \"A good one. But I wouldn't dare guess the dose. Too much of a good thing is a poison.\" (healer) writes down everything (healer.he/she) can work out, and the healers' knowledge grows a little. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10138"
+  },
+  "c3o2": {
+   "text": "\"Absolutely not,\" (healer) says. \"I don't give people things I can't name.\" The bottle is wrapped in leaves, sealed in a jar, and put on the highest shelf where no child can reach it. It glows up there at night, softly, like a nightlight nobody asked for.",
+   "src": "L10140"
+  },
+  "c3": {
+   "text": "(subject) brings the bottle to the healers' hut and sets it down in front of (healer), the oldest healer, who peers at it for a very long time...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10136"
+  },
+  "c4o1": {
+   "text": "A few weeks later, a patch of flowers springs up right over the spot: pale blue, a kind no one has ever seen. Even stranger, the petals close whenever someone walks past, and open again once they've gone. The children dare each other to sneak up on them. Nobody ever manages it.",
+   "src": "L10145"
+  },
+  "c4o2": {
+   "text": "Nothing unusual happens. The bottle stays buried, the moths go elsewhere, and the bottle of blue light becomes one more story villagers tell around the fire. With every telling, the glow gets a little brighter and (subject) gets a little braver.",
+   "src": "L10147"
+  },
+  "c4": {
+   "text": "(subject) decides that whatever this is, it was buried for a reason. (subject.He/She) puts it back among the roots, covers it up, and pats the earth down firmly...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10143"
+  }
+ }
+}

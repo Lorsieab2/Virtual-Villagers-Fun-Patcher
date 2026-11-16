@@ -1,0 +1,276 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bitter Berry Week",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b139_bitter_berry_week",
+  "source": "balance",
+  "lines": [
+   6380,
+   6425
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6380",
+  "ledger": [
+   {
+    "src": "L6393",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'three random villagers each lose one like (at random; only some likes change behaviour in each game)'"
+   },
+   {
+    "src": "L6396",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'the children each lose one dislike (at random)'"
+   },
+   {
+    "src": "L6381",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6382",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6390",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6387",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6388",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6391",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6400",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6393",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6396",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6405",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6408-6425",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A new bush has sprung up all along the village paths after the rains, covered in fat yellow berries.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  },
+  "elder": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A new bush has sprung up all along the village paths after the rains, covered in fat yellow berries. They taste like nothing. Then, a moment later, like everything the eater has ever disliked. A few of the children have eaten them already and gone very quiet, and now won't touch their favourite foods.\n(subject) has been watching. (child) won't go near the swimming pool, which (subject.he/she) loves. (elder) has stopped going to the fire for stories. (healer) says (subject.he/she) thinks the berries take away what a person likes, the way a bitter taste takes away an appetite, and that the bushes came up from seeds a passing trader dropped.\nShould (subject) dig up every bush, or try eating one to understand them?",
+   "choices": [
+    {
+     "label": "Dig Up Every Bush",
+     "next": "c1",
+     "src": "L6387"
+    },
+    {
+     "label": "Try a Berry",
+     "next": "c2",
+     "src": "L6388"
+    }
+   ],
+   "src": "L6383-6385",
+   "text_only": [
+    {
+     "src": "L6383",
+     "what": "\"disliked\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Everyone who stood in the smoke gets a faceful of it. By evening three of the diggers have gone off something they loved: one stops caring about fishing, one about dancing, one about the stew. It's not the end of the world. But they sit at the fire looking puzzled, as if they've lost something in the grass and can't think what.",
+   "src": "L6394"
+  },
+  "c1o2": {
+   "text": "The bushes are gone by sunset, and the children who ate the berries get their tastes back over the next few days, and then some. The yellow berries seem to have taken away more than likes. The children have stopped hating the things they used to hate, too. (child) eats a whole plate of greens and asks for more. The parents are so happy they throw a little feast.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6397"
+  },
+  "c1": {
+   "text": "(subject) gets the strongest villagers together with digging sticks, and they work their way along every path, pulling the yellow bushes up by the roots and piling them on the fire. The smoke smells sweet and sour at the same time...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6391"
+  },
+  "c2o1": {
+   "text": "The bitterness passes. (subject) sits with it for a while and finds that the berry took away (subject.his/her) love of food, and also one of the things (subject.he/she) has always disliked. \"It doesn't add anything,\" (subject.he/she) tells (healer). \"It just takes away whatever you hold on to hardest.\" The healers dig up the bushes the next day, carefully, and keep one in a pot, just in case they ever need it.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L6403",
+   "text_only": [
+    {
+     "src": "L6403",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The berry tastes like everything (subject) dislikes, all at once. It also burns through (subject)'s chest like a hot drink, and the cough (subject.he/she) has had for a month is suddenly gone. Unfortunately, (subject.he/she) can't stand lying in the shade any more. \"Worth it,\" (subject) says, getting up for the third time that afternoon, unable to sit still.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "resting",
+     "role": "subject"
+    },
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L6406"
+  },
+  "c2": {
+   "text": "(subject) picks one fat yellow berry and eats it, while (healer) watches with (subject.his/her) arms folded. It tastes like nothing. Then it tastes like everything (subject) has ever disliked, all at once...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6400",
+   "text_only": [
+    {
+     "src": "L6400",
+     "what": "\"disliked\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

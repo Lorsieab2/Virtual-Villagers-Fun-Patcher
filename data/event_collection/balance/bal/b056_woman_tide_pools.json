@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Woman of the Tide Pools",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b056_woman_tide_pools",
+  "source": "balance",
+  "lines": [
+   2525,
+   2566
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2525",
+  "ledger": [
+   {
+    "src": "L2526",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2527",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2535",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2544",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2532",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2533",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2536",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2545",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2550",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2553-2566",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children say an old woman sits in the tide pools at low tide, combing her long grey hair with a fish bone.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The children say an old woman sits in the tide pools at low tide, combing her long grey hair with a fish bone. Nobody grown-up has ever seen her. Today (name) has gone down at low tide to gather sea urchins, and there she is, sitting on a rock, combing, and smiling at (him/her).\n\"You look tired,\" she says. \"You work too hard. Sit with me, and let me comb your hair, and I'll take some of the years off. Or would you rather take some of mine? Old age has its comforts too.\"\nNobody knows where she comes from. The children say she's as old as the sea. Should (name) let her comb (his/her) hair?",
+   "choices": [
+    {
+     "label": "Sit and Let Her Comb",
+     "next": "c1",
+     "src": "L2532"
+    },
+    {
+     "label": "Politely Say No",
+     "next": "c2",
+     "src": "L2533"
+    }
+   ],
+   "src": "L2528-2530"
+  },
+  "c1o1": {
+   "text": "When she's finished, the old woman holds up a still pool like a mirror. The face in it is (name)'s, but younger: bright-eyed and smooth, the way (he/she) looked before the years of work. \"Better,\" she says, and slips off the rock into the water, and is gone. (Name) walks home touching (his/her) cheeks all the way.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2539"
+  },
+  "c1o2": {
+   "text": "When she's finished, she holds up a still pool like a mirror, and (name)'s face in it is older, and kinder, and lined, with grey at the temples. \"I gave you some of mine,\" says the old woman. \"They're good years. Look after them.\" She slips into the water and is gone. (Name) is surprised to find (he/she) likes the face.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2542"
+  },
+  "c1": {
+   "text": "(Name) sits on the warm rock, and the old woman combs (his/her) hair with the fish bone, slowly, humming a song (he/she) almost knows. The tide pools sparkle...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2536"
+  },
+  "c2o1": {
+   "text": "\"Polite,\" she says. \"That deserves something.\" She reaches out and touches (name)'s forehead with one cold wet finger, and is gone. When (name) gets home, (his/her) family stares. (His/Her) face is years younger. \"I said no,\" (name) keeps saying. \"I definitely said no.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2548"
+  },
+  "c2o2": {
+   "text": "When (name) looks again, the rock is empty. There's a fish bone lying on it, and a few long grey hairs. The tide is coming in. (Name) gathers (his/her) urchins and goes home, and when (he/she) tells the story, the children nod knowingly and the grown-ups laugh. (Name) doesn't laugh.",
+   "src": "L2551"
+  },
+  "c2": {
+   "text": "\"Thank you,\" says (name), \"but I'm happy with the years I have.\" The old woman laughs, a sound like water running out of a pool, and keeps on combing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2545"
+  }
+ }
+}

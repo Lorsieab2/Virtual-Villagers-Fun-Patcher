@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Undertow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b001_undertow",
+  "source": "balance",
+  "lines": [
+   23,
+   66
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L23",
+  "ledger": [
+   {
+    "src": "L24",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L25",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L33",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L42",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L30",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L31",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L34",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L43",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L36",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L39",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L45",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L48",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L51-66",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Halfway back, a villager feels it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) loves swimming more than anything, and today (subject.he/she) has swum out further than ever, past the reef, where the water turns from green to a deep, cold blue. (friend), the head fisher, is mending nets on the beach and has told (subject.him/her) twice already that the tide is turning.\nHalfway back, (subject) feels it. The water pulls at (subject.his/her) legs, gently at first, then like a hand around (subject.his/her) ankle, dragging (subject.him/her) out towards the open sea. The shore is getting smaller.\n(subject) could fight across the current, the way (subject.he/she) was taught as a child, or wave and shout and hope (friend) looks up from the nets in time.",
+   "choices": [
+    {
+     "label": "Swim Across the Current",
+     "next": "c1",
+     "src": "L30"
+    },
+    {
+     "label": "Wave and Shout for Help",
+     "next": "c2",
+     "src": "L31"
+    }
+   ],
+   "src": "L26-28"
+  },
+  "c1o1": {
+   "text": "(friend) looks up from the nets and sees nothing but water. (subject.He/She) shouts, and the whole village comes running. The canoes go out before anyone has finished asking what happened, and they search until dark, and again at first light, calling (subject)'s name across the water until their voices give out. They find nothing, not even (subject.his/her) shell necklace. The sea has kept (subject.him/her). Every evening for a long time afterwards, someone sits on the beach and watches the place past the reef where the water turns blue.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L37"
+  },
+  "c1o2": {
+   "text": "It works, slowly. (subject) crawls up onto the sand a long way down the beach, coughing up half the lagoon, and lies there until (friend) comes jogging over with a gourd of water and a face like thunder. \"Twice,\" (friend) says. \"I told you twice.\" (subject) still goes into the water after that, but only to wash, and only up to the knees. The joy of it is gone. When the children race out to the reef, (subject.he/she) watches from the shore and counts them all back in.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L40"
+  },
+  "c1": {
+   "text": "(subject) stops fighting the pull and turns sideways, swimming along the beach instead of towards it, the way the old fishers always said. (subject.His/Her) arms burn. A wave slaps (subject.him/her) in the face, and then another...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L34"
+  },
+  "c2o1": {
+   "text": "(friend) is in a canoe before the shout has finished. (subject.He/She) paddles out along the edge of the current, never into it, throws a coil of rope with a float tied to the end, and hauls (subject) in hand over hand like the biggest catch of (friend.his/her) life. Back on the beach, the village crowds round (friend) and asks how (friend.he/she) knew exactly where to paddle. (friend) shrugs and goes back to the nets, but (friend.he/she) teaches the trick to every young fisher who will listen, and gets better at it every time.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L46"
+  },
+  "c2o2": {
+   "text": "(friend) hears, and is in the canoe in moments, paddling harder than (friend.he/she) has ever paddled. But the current is faster than any canoe. By the time (friend) reaches the place where (subject) was, the water is empty and smooth. The fishers find (subject) the next morning, washed against the far rocks, and carry (subject.him/her) home wrapped in a sail. The village buries (subject.him/her) above the beach, facing the reef. (friend) mends nets alone for a long time after that, and nobody tries to talk (friend.him/her) out of it.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L49"
+  },
+  "c2": {
+   "text": "(subject) throws an arm up and yells (friend)'s name as loud as (subject.his/her) aching lungs will let (subject.him/her). The wind takes most of it. On the beach, (friend) stops mending, and lifts (friend.his/her) head...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L43"
+  }
+ }
+}

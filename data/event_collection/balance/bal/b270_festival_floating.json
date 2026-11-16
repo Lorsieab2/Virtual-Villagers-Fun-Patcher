@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Floating Lanterns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b270_festival_floating",
+  "source": "balance",
+  "lines": [
+   12580,
+   12622
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12580",
+  "ledger": [
+   {
+    "src": "L12581",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12582",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12590",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12599",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12587",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12588",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12591",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12600",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12596",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12602",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12605",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12608-12622",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has never organised anything bigger than a fishing trip.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year, on the longest night, the village floats little lanterns made of leaves and candlenut oil out onto the lagoon, one for every person who has ever lived in the village. This year (chief) has asked (subject) to organise it. (subject) has never organised anything bigger than a fishing trip.\nThere are two ways to do it. The old way: each family folds its own lanterns, quietly, the way they always have. Or (subject)'s idea: everyone folds them together in the meeting hall, all at once, with music.\nWhich should (subject) choose?",
+   "choices": [
+    {
+     "label": "The Old Way",
+     "next": "c1",
+     "src": "L12587"
+    },
+    {
+     "label": "All Together, With Music",
+     "next": "c2",
+     "src": "L12588"
+    }
+   ],
+   "src": "L12583-12585"
+  },
+  "c1o1": {
+   "text": "At midnight everyone walks down to the lagoon and sets their lanterns on the water. Hundreds of little lights drift out towards the reef. Nobody speaks. It is the most beautiful thing many of them have ever seen, and the next morning the whole village is gentle with each other, as if everyone slept well for the first time in a year.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L12594"
+  },
+  "c1o2": {
+   "text": "Folding the lanterns for (subject.his/her) own family, (subject) says the name of (subject.his/her) grandparent, who always had a lap full of small children and never minded the noise. (subject) has never been able to stand the shrieking of little ones. As (subject.his/her) lantern drifts out onto the water, a small child climbs into (subject)'s lap without asking, and (subject) lets (subject.him/her) stay. The noise, it turns out, isn't so bad.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L12597"
+  },
+  "c1": {
+   "text": "Each family sits in its own doorway in the evening, folding leaves and filling them with oil, saying the names of the people the lanterns are for...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12591"
+  },
+  "c2o1": {
+   "text": "Everyone in the hall ends up teaching everyone else something: how to fold a leaf so it doesn't leak, how to fill a lantern without spilling, how to carry it without burning anyone's fingers, how to tie a knot one-handed, how to sing the old lantern songs. By the time the lanterns float out onto the lagoon, the whole village is a little cleverer than it was this morning.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L12603"
+  },
+  "c2o2": {
+   "text": "Somebody knocks over the oil pot, and it spills across the floor and onto the food the cooks have brought. Everything tastes of candlenut oil, which tastes like a very bitter nut that someone has set on fire. (subject) eats it anyway, to be polite, and so does everyone else. The lanterns go out on the water as planned, and the festival is lovely. But for (subject), food never quite tastes right again.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L12606",
+   "text_only": [
+    {
+     "src": "L12606",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "The whole village crams into the meeting hall. The drummers drum, the children fold lanterns badly and the elders fold them beautifully, and it gets very hot and very loud...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12600"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "children",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

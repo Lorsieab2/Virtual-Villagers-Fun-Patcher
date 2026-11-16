@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Fisher's Last Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s030_fisher_tide",
+  "source": "rewrites",
+  "lines": [
+   1401,
+   1446
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1401",
+  "ledger": [
+   {
+    "src": "L1402",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1403",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1411",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1420",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1408",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1409",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1412",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1421",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1417",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1423",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1426",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1429-1446",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "I want to show you where the big ones sleep. another villager has never been asked before.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has fished from the same rock every morning since (subject.he/she) was a child. There's a dip worn into the stone where (subject.he/she) always sits, and an old grey heron that stands nearby every day, waiting for scraps, as patient as (subject) is.\nThis morning, as the sky is just going pale, (subject) stops at (friend)'s door, two fishing rods over (subject.his/her) shoulder. \"Come along with me today,\" (subject.he/she) says. \"I want to show you where the big ones sleep.\"\n(friend) has never been asked before. Nobody has. (subject) has always fished alone. There's something in (subject.his/her) voice this morning, gentle and a little tired, that (friend) can't quite read. But the fields are waiting. Should (friend) go with (subject.him/her), or say not today?",
+   "choices": [
+    {
+     "label": "Go with (subject.Him/Her)",
+     "next": "c1",
+     "src": "L1408"
+    },
+    {
+     "label": "Say Not Today",
+     "next": "c2",
+     "src": "L1409"
+    }
+   ],
+   "src": "L1404-1406"
+  },
+  "c1o1": {
+   "text": "They fish all morning. (subject) shows (friend) everything: where the big ones sleep under the ledge, how to read the ripples, how to tie the knot that never slips, how to wait. (subject.He/She) shows it slowly and carefully, as if there's all the time in the world. They come home with a full basket. On the walk back, (subject) stops, looks back at the rock and the heron, and says quietly, \"Good. Now I can rest.\" That night (subject) dies peacefully in (subject.his/her) sleep. The village buries (subject.him/her) facing the sea, and the next morning (friend) goes down to the rock alone, and sits in the worn dip, and the heron is waiting. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Farming"
+     ]
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L1415"
+  },
+  "c1o2": {
+   "text": "They catch nothing at all. Not a single fish, all morning, which (subject) says has only happened to (subject.him/her) three times in sixty years. So instead they talk. (subject) tells (friend) about (subject.his/her) mother, and the storm the year (subject.he/she) was born, and the person (subject.he/she) loved and lost, and the heron's mother, and the heron's grandmother. (friend) comes home empty-handed, knowing a great deal more about (subject), and about patience, and about how to sit quietly with someone. (friend) agrees that this was the real catch, and the little ones in the village notice that (friend) is suddenly much better at listening.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Parenting"
+     ]
+    }
+   ],
+   "src": "L1418"
+  },
+  "c1": {
+   "text": "(friend) pulls on a wrap and follows (subject) down to the rock in the grey dawn. They sit side by side in the cold, (subject) in (subject.his/her) worn dip, (friend) on the bare stone beside (subject.him/her), and cast their lines out into the water...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1412"
+  },
+  "c2o1": {
+   "text": "(subject) goes alone, as always, sits in (subject.his/her) dip, as always, and comes back at noon with a basket of fish, as always, and a few scraps for the heron. Nothing is different. When (friend) asks about the big ones that evening, (subject) just smiles and says, \"Another time.\" Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1424"
+  },
+  "c2o2": {
+   "text": "(friend) works in the fields all day, and can't stop thinking about it. About the two rods. About the way (subject) said \"another time.\" The next morning (friend) gets up before dawn without being asked, and goes down to the rock. (subject) is already there in (subject.his/her) dip, with the heron beside (subject.him/her). The second rod is lying ready on the stone. (subject) doesn't say anything. (subject.He/She) just moves over a little. They fish together every morning after that, and (friend) finds (friend.he/she) loves it. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "like": "fish"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1427"
+  },
+  "c2": {
+   "text": "\"Not today,\" says (friend), rubbing (friend.his/her) eyes. \"I've got the fields. Maybe another time?\" (subject) nods, slowly. \"Another time,\" (subject.he/she) agrees, and walks off alone down the path towards the sea, the two rods still over (subject.his/her) shoulder...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1421"
+  }
+ }
+}

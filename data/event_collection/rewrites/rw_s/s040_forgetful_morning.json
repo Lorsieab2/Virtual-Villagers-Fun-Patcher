@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgetful Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s040_forgetful_morning",
+  "source": "rewrites",
+  "lines": [
+   1884,
+   1929
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1884",
+  "ledger": [
+   {
+    "src": "L1885",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1886",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1895",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1904",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1892",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1893",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1896",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1905",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1898",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1901",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1907",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1910",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1913-1929",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager wakes up feeling absolutely marvellous.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) wakes up feeling absolutely marvellous. The sun is warm on (his/her) mat, the smell of roasting breadfruit is drifting in through the doorway, and (he/she) slept like a stone. (He/She) stretches, gets up, and runs through the day in (his/her) head. (He/She) knows how to farm, how to build, how to cook, how to climb. (He/She) knows the names of everyone in the village, and their children's names, and their goats' names.\nExcept one. (His/her) own.\nIt's gone. Clean out of (his/her) head, like a dream on waking. (He/She) stands there in the doorway, opening and closing (his/her) mouth, and nothing comes.\nThen (he/she) notices the pale flowers. In the night a moon-vine has crept in over the doorway, the one the elders call forget-me-all, and its sweet smell is still thick in the hut and drifting out over the village. Should (name) ask around until someone remembers, or just make up a new name?",
+   "choices": [
+    {
+     "label": "Ask Around",
+     "next": "c1",
+     "src": "L1892"
+    },
+    {
+     "label": "Make One Up",
+     "next": "c2",
+     "src": "L1893"
+    }
+   ],
+   "src": "L1887-1890"
+  },
+  "c1o1": {
+   "text": "The trouble is that, the moment (he/she) asks, everyone else realises they've forgotten it too. And nobody wants to admit it. So each of them, very confidently, tells (him/her) a different name. The baker says one thing. The fisher says another. (His/her) own mother says something that turns out to be the name of a cousin. By lunchtime (name) has been given nine names and none of them feels right, because the moon-vine took the real one, and without it (name) is left with no name at all: just \"?\". The real one never comes back.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1899"
+  },
+  "c1o2": {
+   "text": "Nobody can quite remember. They scratch their heads, they look at each other, they say \"it's on the tip of my tongue.\" Then a very small child tugs at (name)'s wrap, looks up at (him/her), and says (his/her) name, without the slightest hesitation, as if it were the most obvious thing in the world. It all comes rushing back at once. (Name) is so grateful that (he/she) picks the child up, spins (him/her) round, and gives (him/her) (his/her) dessert that night, and the next night too.",
+   "src": "L1902"
+  },
+  "c1": {
+   "text": "(Name) wanders out into the village and starts asking people, as casually as (he/she) can manage: \"Morning! Remind me, what's my name again?\" People look at (him/her) very oddly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1896"
+  },
+  "c2o1": {
+   "text": "...(renamed)! It's a fine name. It rolls off the tongue. It sounds as if it's always been (his/hers). Everyone tries it out, and it fits so well that within a week nobody remembers the old one at all, and within a month even (his/her) mother uses it without thinking. Every so often, (name) gets a funny feeling that (he/she) used to be called something else. But (he/she) can never remember what.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1908"
+  },
+  "c2o2": {
+   "text": "...well. (He/She) stands there. (He/She) can't think of one. Not a single name comes into (his/her) head, good or bad. So (he/she) shrugs. And every time someone asks after that, (he/she) shrugs again. Whatever the moon-vine took, it isn't giving back, and (he/she) is left with no name at all: just \"?\". To everyone's surprise, (name) rather likes it. \"It's honest,\" (he/she) says. \"Nobody really knows who they are anyway.\"",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1911"
+  },
+  "c2": {
+   "text": "(Name) decides that if (his/her) name can't be bothered to stay, (he/she) can't be bothered to go looking for it. (He/She) stands in the middle of the village, clears (his/her) throat, and announces that from now on (he/she) shall be called...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1905"
+  }
+ }
+}

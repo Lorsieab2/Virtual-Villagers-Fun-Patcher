@@ -80,10 +80,12 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
     + tuple(v[2] for v in lib.DRAFTS_B.values()) \
     + tuple(v[2] for v in lib.DRAFTS_C.values()) \
     + tuple(v[2] for v in lib.DRAFTS_D.values()) \
-    + tuple(lib.ANTHOLOGY_SECTIONS)  # the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
+    + tuple(lib.GO_SECTIONS) \
+    + tuple(lib.ANTHOLOGY_SECTIONS)  # the GO files (rewrites/, balance/); the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
-                 "description_variants", "cast_only", "label_case")
+                 "description_variants", "cast_only", "label_case",
+                 "exact_amounts")   # the owner's own skill amounts (the GO files: "gains 20 to 30 Farming")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
@@ -113,7 +115,7 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "birth_then_die": "birth_then_die", "deliver_early": "deliver_early", "old_look": "appearance",
                "sex_change": "appearance", "presentation": "appearance"}
 
-PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
+PRONOUN_WORDS = {"he/she", "his/her", "him/her", "his/hers", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
                  "son/daughter"}
 NAME_WORDS = {"name", "name1", "name2"}
 ALLOWED_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,!?:-'\"\n;/&%")
@@ -414,11 +416,16 @@ def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = No
                 bare = r"\s*/\s*".join(re.escape(i) for i in items)
                 parts.append(f"(?:{PH_RE}|{bare})" if len(items) > 1 else PH_RE)
             else:
+                count = None
                 if s.startswith("#"):
-                    # a count token {#babies:A|B|C} (cie-v6-binary.md 33): its options are the source's "(A/B/C)"
-                    s = s.partition(":")[2]
+                    # a count token {#babies:A|B|C} (cie-v6-binary.md 33): its options are the source's "(A/B/C)",
+                    # or the token itself where the source already writes it (the GO files' rule 13)
+                    count, _c, s = s.partition(":")
                 alts = [text_regex(a, words, False, pools) for a in split_alts(s)]
-                parts.append(r"\(?" + r"\s*/\s*".join(alts) + r"\)?")
+                rx_alts = r"\(?" + r"\s*/\s*".join(alts) + r"\)?"
+                if count:
+                    rx_alts = f"(?:{rx_alts}|" + re.escape("{" + count + ":") + r"\|".join(alts) + r"\})"
+                parts.append(rx_alts)
     rx = "".join(parts)
     if top:
         m = re.match(r"([A-Za-z])", text)
@@ -856,8 +863,8 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
                                         f"{len(roles)} roles)")
                 else:
                     used_roles.add("subject")
-            elif inner in ("award", "award_unit"):
-                pass
+            elif inner in ("award", "award_unit") or inner.lower() in ("made1", "made2", "renamed"):
+                pass                # the engine's own (cie-v6-binary.md: the villagers the event made, a new name)
             else:
                 rep.add("d TOKENS", f"{f.where}: ({inner}) is not a placeholder (a literal parenthesis is \\( \\))")
         for inner in braces_in(t):
@@ -1072,6 +1079,11 @@ def check_effects(doc: dict, rep: Report) -> None:
                 if "set" in e:
                     if e["set"] != 100:
                         rep.add("e EFFECTS", f"{where}: set is 100 ('masters') only")
+                elif (doc.get("collection") or {}).get("exact_amounts") is True:
+                    # the owner's own numbers (the GO files): any amount the game can give, one sign
+                    lo, hi = e.get("min", 0), e.get("max", 0)
+                    if not (lo <= hi and -100 <= lo and hi <= 100 and lo and hi and (lo > 0) == (hi > 0)):
+                        rep.add("e EFFECTS", f"{where}: skill {lo}..{hi} is not an amount of one sign within 100")
                 else:
                     pair = (abs(e.get("min", 0)), abs(e.get("max", 0)))
                     sign = e.get("min", 0) < 0
@@ -1130,7 +1142,7 @@ def check_effects(doc: dict, rep: Report) -> None:
                     rep.add("e EFFECTS", f"{where}: {do} acts on a villager role")
                 if do == "body_swap" and (e.get("with") == e.get("role") or not (e.get("with") in NEW_ROLES or roles.get(e.get("with"), {}).get("kind") == "villager")):
                     rep.add("e EFFECTS", f"{where}: body_swap with names another villager role")
-            elif do in ("cure", "young_look") and not (e.get("role") in NEW_ROLES or roles.get(e.get("role"), {}).get("kind") == "villager") and not e.get("target"):
+            elif do in ("cure", "young_look") and not (e.get("role") in NEW_ROLES or doc.get("roles", {}).get(e.get("role"), {}).get("kind") == "villager") and not e.get("target"):
                 rep.add("e EFFECTS", f"{where}: {do} acts on a villager role or a group target")
             elif do == "repair" and e.get("structures", "any") != "any" and not (
                     isinstance(e["structures"], list) and e["structures"]):
@@ -1555,7 +1567,8 @@ def collection_files() -> list[Path]:
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
                   + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_A_DIR.glob("*/*.json"))
                   + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json"))
-                  + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json")))
+                  + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json"))
+                  + [p for sid in lib.GO_SOURCES for p in (lib.COLLECTION_DIR / sid).glob("*/*.json")])
 
 
 def ledger_summary(doc: dict) -> list[str]:

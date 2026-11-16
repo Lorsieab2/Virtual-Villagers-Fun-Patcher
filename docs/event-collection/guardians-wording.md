@@ -142,3 +142,12 @@ What a collection event needs, and the warning before a purchase, name the villa
 - "The Homesick Convert" became "The Homesick Newcomer" (the owner's rule for the noun).
 - The game's own island events (Pick Island Event's list of New Believers' stock events, such as "The Heathen Toy"
   and "The Defector") are not new text and are not changed here.
+
+## The GO files (rewritten and balance events)
+
+<!-- GO Guardians wording: written by scripts/go_events/gen_go.py -->
+The owner's GO files (2026-11-16): each sentence New Believers shows with the patch (docs/event-collection/guardians-wording.md "Believers": by sense).
+
+| Event | Where | Before | After |
+|---|---|---|---|
+<!-- end of GO Guardians wording -->

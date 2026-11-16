@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dolphin Who Waits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b186_dolphin_waits",
+  "source": "balance",
+  "lines": [
+   8623,
+   8667
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8623",
+  "ledger": [
+   {
+    "src": "L8624",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8625",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8633",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8642",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8630",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8631",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8634",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8643",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8636",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8639",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8645",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8648",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8651-8667",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It doesn't come for anyone else.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A dolphin has been coming into the bay every morning for a week, and every morning it swims straight to wherever (subject) is, rolls on its side, and looks at (subject.him/her). It doesn't come for anyone else. When (subject) wades in, it swims in circles round (subject.him/her), squeaking, then heads out towards the open sea and stops, and waits, and looks back.\n(fisher) says dolphins sometimes lead people to fish. (subject.His/her) grandmother said dolphins sometimes lead people to the islands of the dead. (fisher) says (subject.his/her) grandmother said a lot of things.\nShould (subject) swim out after the dolphin, or follow in a canoe?",
+   "choices": [
+    {
+     "label": "Swim After It",
+     "next": "c1",
+     "src": "L8630"
+    },
+    {
+     "label": "Follow in a Canoe",
+     "next": "c2",
+     "src": "L8631"
+    }
+   ],
+   "src": "L8626-8628"
+  },
+  "c1o1": {
+   "text": "The fishers on the shore watch (subject) swim out further and further, until (subject.he/she) is a speck, and then nothing. They take the canoes out and search all day. They find nothing at all, not even the dolphin. A month later, a trader from far away mentions an island where a stranger walked up out of the sea one morning, very tired, and very happy, and stayed.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L8637"
+  },
+  "c1o2": {
+   "text": "Out past the reef, the dolphin dives, and comes up in the middle of a great shoal of fish, flashing silver, so thick (subject) can feel them brushing past. The dolphin herds them all the way back to the bay, with (subject) swimming beside it, and the fishers on the shore fill every net. (subject) swims better than anyone in the village after that week. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8640"
+  },
+  "c1": {
+   "text": "(subject) dives in and swims after the dolphin, out past the shallows, out past the reef, into the deep blue water where the waves are long and slow. The dolphin swims just ahead, always just ahead...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8634"
+  },
+  "c2o1": {
+   "text": "On the far side of the island, in a rock pool cut off by the tide, there is a baby dolphin, stranded and crying. (subject) and (fisher) lift it out together and carry it to the sea, and the big dolphin squeaks and leaps clear out of the water. On the way home, (subject) finds (subject.he/she) understands the sea a little better than before.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8646"
+  },
+  "c2o2": {
+   "text": "Round the far point, the current catches the canoe and spins it, and tips them both into the sea. (subject) is pulled back onto the rocks by the dolphin, pushing and squeaking. (fisher) is not. The village searches for days. The dolphin never comes back to the bay. (subject) goes and sits on the rocks at the point sometimes, and talks to the sea.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "fisher"
+    }
+   ],
+   "src": "L8649"
+  },
+  "c2": {
+   "text": "(subject) and (fisher) take a canoe out after the dolphin, paddling hard to keep up. It leads them past the reef, past the point, round the far side of the island where nobody fishes...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8643"
+  }
+ }
+}

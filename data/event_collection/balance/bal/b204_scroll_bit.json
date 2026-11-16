@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scroll That Bit",
+ "games": [
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b204_scroll_bit",
+  "source": "balance",
+  "lines": [
+   9473,
+   9517
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9473",
+  "ledger": [
+   {
+    "src": "L9474",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9475",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9483",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9492",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9480",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9481",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9484",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9493",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9486",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9489",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9495",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9501-9517",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager loves learning.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "researcher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) loves learning. (subject.He/She) reads every scroll in the research hut twice, and asks the elders so many questions they hide when they see (subject.him/her) coming. Today (subject.he/she) has found a scroll nobody has opened in a generation, tied with a red cord, in a box at the very back of the hut. The label says, in old writing, \"Cures. Do not read for fun.\"\n(friend) has been ill for weeks, and the healers are out of ideas. (subject) unties the cord. The scroll is warm. The writing on it moves very slightly, as if it is breathing.\nShould (subject) read it to find a cure, or tie it back up?",
+   "choices": [
+    {
+     "label": "Read It for a Cure",
+     "next": "c1",
+     "src": "L9480"
+    },
+    {
+     "label": "Tie It Back Up",
+     "next": "c2",
+     "src": "L9481"
+    }
+   ],
+   "src": "L9476-9478"
+  },
+  "c1o1": {
+   "text": "When (subject) wakes on the floor, (subject.he/she) knows exactly how to cure (friend), and does, that afternoon. But something has gone out of (subject.him/her). The scrolls in the research hut look like scrolls now, nothing more. \"Do not read for fun,\" (researcher) says sadly. \"It took the fun.\" (friend) is very grateful.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    }
+   ],
+   "src": "L9487"
+  },
+  "c1o2": {
+   "text": "The cures settle in (subject)'s head in good order, as if someone had tidied them. (subject.He/She) gets up, and goes to the healers, and tells them everything. By the end of the week every sick villager is well. The scroll, when (subject) goes back for it, is blank. (researcher) says it was meant to be read once.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L9490"
+  },
+  "c1": {
+   "text": "(subject) reads. The writing crawls across the bark into (subject.his/her) eyes and into (subject.his/her) head, cure after cure, more than (subject.he/she) can hold, and the hut goes dark round the edges...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9484"
+  },
+  "c2o1": {
+   "text": "(subject) spends a week reading every ordinary scroll on illness in the hut, and finds, in an old healer's notes, a brew nobody has tried for years. It works. (friend) is up and about in days. The healers are delighted, and take the notes back to their own hut, and learn from them.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L9496"
+  },
+  "c2o2": {
+   "text": "The next morning the box is empty and the red cord is lying on the floor beside it. Nobody admits to anything. (friend) gets better slowly, on (subject.his/her) own. (subject) keeps an eye on everyone in the village for a month, looking for anyone who suddenly knows too many cures. Nobody does.",
+   "src": "L9499"
+  },
+  "c2": {
+   "text": "(subject) ties the red cord very tightly round the scroll, puts it back in its box and puts the box back at the very back of the hut. Then (subject.he/she) goes to (friend)'s hut, and sits down, and thinks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9493"
+  }
+ }
+}

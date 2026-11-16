@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spring That Talks Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s001_spring_talks_back",
+  "source": "rewrites",
+  "lines": [
+   2,
+   47
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2",
+  "ledger": [
+   {
+    "src": "L27",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'one of these, 50:50: loses one dislike (at random), OR gains 10 to 20 in one random skill (never Farming)'"
+   },
+   {
+    "src": "L3",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L21",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L22",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L18",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L24",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L27",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L30-47",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been walking in the hills all morning and is thirsty enough to drink a river.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been walking in the hills all morning and is thirsty enough to drink a river. At last (he/she) finds a little spring tucked under a rock, where ferns lean over the water and a single blue dragonfly keeps guard on a reed. (Name) kneels and cups (his/her) hands. Before (he/she) can drink, the water clears its throat.\n\"Ask me anything,\" it says, in a voice like a very old aunt who has been interrupted in the middle of something. \"But only one thing. I'm busy.\"\n(Name) looks around for whoever is playing the joke. There is nobody, only the dragonfly, which looks as if it has heard all this before.",
+   "choices": [
+    {
+     "label": "Ask What to Be Good At",
+     "next": "c1",
+     "src": "L9"
+    },
+    {
+     "label": "Ask Nothing and Just Drink",
+     "next": "c2",
+     "src": "L10"
+    }
+   ],
+   "src": "L5-7"
+  },
+  "c1o1": {
+   "text": "\"Plants,\" says the spring. \"You've always liked plants. You just never noticed. Who do you think kept that bean vine alive by your door all last summer?\" (Name) opens (his/her) mouth to argue, and finds (he/she) can't. On the walk home (he/she) stops to look at every leaf, every seedling, every weed pushing through a crack in the path. By the end of the week (he/she) has dirt under every fingernail and can't stop talking about soil. The farmers, who have been asking for help for years, are delighted. Everyone else is a little tired of hearing about soil.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L16"
+  },
+  "c1o2": {
+   "text": "\"Not swimming, that's for sure,\" says the spring, and gurgles with laughter. \"I've seen you paddle. You swim like a coconut with ambitions.\" It goes on for some time about (name)'s kicking, (his/her) splashing, and one particular afternoon at the lagoon that (name) had hoped nobody remembered. (Name) gets up, red to the ears, and stomps off down the hill without drinking a drop. From that day on, (he/she) can't stand the sound of running water, and nobody can talk (him/her) into so much as wading.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L19"
+  },
+  "c1": {
+   "text": "(Name) clears (his/her) own throat, feeling very silly. \"What am I meant to be good at?\" (he/she) asks. The spring bubbles thoughtfully for a long moment, the way a person drums their fingers on a table...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13"
+  },
+  "c2o1": {
+   "text": "The spring seems almost insulted to be treated like a spring, and says nothing more. The water is cold, sweet and perfectly ordinary. (Name) drinks until (his/her) belly sloshes, fills (his/her) gourd, thanks the spring anyway, and walks home very refreshed. When (he/she) tells the story at supper, half the village laughs and the other half goes quiet and asks exactly which rock it was.",
+   "src": "L25"
+  },
+  "c2o2": {
+   "text": "The water tastes faintly of honey, and something else, something like the first warm day after the rains. (Name) drinks, sits back on (his/her) heels, and feels a knot (he/she) didn't know (he/she) had come undone somewhere in (his/her) chest. (He/She) comes home humming. The next morning (he/she) picks up the one job (he/she) has always grumbled about, or never had the knack for, and does it, and does it well, and doesn't grumble once. The others keep glancing at (him/her) as if (he/she) might be ill. \"The spring,\" is all (name) will say.",
+   "src": "L28"
+  },
+  "c2": {
+   "text": "(Name) decides that talking water is none of (his/her) business. (He/She) says \"No thank you,\" politely, and drinks. The spring goes very quiet, as if it is deciding whether to be offended...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L22"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "vegetables",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

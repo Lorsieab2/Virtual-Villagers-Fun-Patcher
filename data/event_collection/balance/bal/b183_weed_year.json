@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weed Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b183_weed_year",
+  "source": "balance",
+  "lines": [
+   8481,
+   8525
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8481",
+  "ledger": [
+   {
+    "src": "L8482",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8483",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8491",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8500",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8488",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8489",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8492",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8501",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8494",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8497",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8503",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8506",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8509-8525",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A creeping vine with little purple flowers has been spreading through the village all season.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  },
+  "farmer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A creeping vine with little purple flowers has been spreading through the village all season. It is pretty. It is also strong. It has climbed every hut wall, pushed between the thatch, pried apart the posts, and this morning a whole wall of the cooking hut fell in with a soft crunch, vine and all. Two more huts are leaning.\n(subject) has been put in charge of getting rid of it. (builder) wants to tear it all out and rebuild the walls. (farmer) says the vine's roots are good to eat boiled, and that it would be a waste.\nShould (subject) tear out the vine, or dig up the roots for food?",
+   "choices": [
+    {
+     "label": "Tear It Out and Rebuild",
+     "next": "c1",
+     "src": "L8488"
+    },
+    {
+     "label": "Dig Up the Roots for Food",
+     "next": "c2",
+     "src": "L8489"
+    }
+   ],
+   "src": "L8484-8486",
+   "text_only": [
+    {
+     "src": "L8486",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "By the end of the week every hut is free of vine and every wall is straight. Everyone helped, even the elders, who mostly held the ends of things and gave advice. Everyone in the village is a little better with a post and a rope than they were. The purple flowers are piled up and burned, and smell surprisingly nice.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L8495"
+  },
+  "c1o2": {
+   "text": "The walls are rebuilt by the end of the week, and the vine is back by the end of the next one, curling up through the floors. In the end (builder) sets the posts on flat stones, which the vine can't get through, and it gives up and goes off to climb the trees instead. The huts stand. The trees are very purple.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L8498"
+  },
+  "c1": {
+   "text": "The whole village spends a day pulling vine off the walls in long, tearing strips. It comes away with whole handfuls of thatch. Then the builders start on the walls...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8492"
+  },
+  "c2o1": {
+   "text": "The roots, boiled, taste like a cross between a yam and a nut, and there are baskets and baskets of them. With the roots gone, the vine withers off the walls in a week, and the builders patch the gaps without any trouble. \"Waste not,\" says (farmer), eating (subject.his/her) fifth root. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8504"
+  },
+  "c2o2": {
+   "text": "The roots are fine to eat. The sap is not fine to touch. Three of the diggers come up in a terrible itching rash all over their arms by evening, and spend a week with their arms in buckets of seawater. The cooking hut stays fallen down while everyone argues about whose fault it was.",
+   "effects": [
+    {
+     "do": "sick",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L8507"
+  },
+  "c2": {
+   "text": "(subject) sides with (farmer). The farmers dig all round the huts, very carefully, and pull up the roots: long, pale, knobbly things like fat fingers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8501"
+  }
+ }
+}

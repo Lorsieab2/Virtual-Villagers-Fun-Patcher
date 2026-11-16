@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepwalker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b026_sleepwalker",
+  "source": "balance",
+  "lines": [
+   1161,
+   1203
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1161",
+  "ledger": [
+   {
+    "src": "L1162",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1163",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1171",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1180",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1168",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1169",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1172",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1181",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1174",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1177",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1186",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1189-1203",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been sleepwalking for a week.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been sleepwalking for a week. Every night (subject.he/she) gets up, eyes open but seeing nothing, and walks out of the hut and up the path towards the headland. (friend), the neighbour, has followed (subject.him/her) twice and led (subject.him/her) gently home.\nTonight, (friend) wakes late, and (subject)'s mat is empty. The path to the headland is lit by moonlight, and at the end of it, right at the edge, (friend) can see (subject) standing with (subject.his/her) toes over the drop, looking out to sea.\nThe old people say never to wake a sleepwalker suddenly. Should (friend) wake (subject.him/her), or try to guide (subject.him/her) back without waking?",
+   "choices": [
+    {
+     "label": "Wake (subject.Him/Her)",
+     "next": "c1",
+     "src": "L1168"
+    },
+    {
+     "label": "Guide (subject.Him/Her) Back Asleep",
+     "next": "c2",
+     "src": "L1169"
+    }
+   ],
+   "src": "L1164-1166"
+  },
+  "c1o1": {
+   "text": "(subject) staggers backwards in fright, trips over a root and goes down hard, cracking (subject.his/her) head on a stone. (friend) carries (subject.him/her) home. (subject) wakes the next morning with a lump on (subject.his/her) head and no idea what (subject.his/her) name is, though (subject.he/she) knows (friend) at once and thanks (friend.him/her) for the hundredth time. The sleepwalking stops. So does the name. The village calls (subject.him/her) \"?\" from then on.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1175"
+  },
+  "c1o2": {
+   "text": "(subject) wakes, and gasps, and steps the wrong way. (friend) grabs for (subject.him/her) and catches only the edge of (subject.his/her) sleeping wrap. The village brings (subject) home from the rocks at first light. (friend) is not to blame; everyone tells (friend.him/her) so, again and again, and in time (friend.he/she) almost believes it. The village builds a low stone wall along the headland, and every child is taught why it's there.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L1178"
+  },
+  "c1": {
+   "text": "(friend) creeps close, takes (subject)'s arm, and says (subject.his/her) name, loud and clear. (subject) jerks awake, sees the drop below (subject.his/her) feet, and gasps...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1172"
+  },
+  "c2o1": {
+   "text": "On the way back, (subject) stops at the garden and, still fast asleep, starts weeding. Perfectly. Every weed, roots and all, in neat little piles. (friend) sits down and watches. In the morning, (subject) remembers nothing, but whatever (subject.he/she) is best at, (subject.he/she) seems to have practised all night. The sleepwalking goes on, on and off, for years. The village learns to leave tools out.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1184"
+  },
+  "c2o2": {
+   "text": "(subject) gets home safely. But when (friend) tells (subject.him/her) the next morning where (subject.he/she) was standing, (subject) goes white. From then on, (subject.he/she) can't bear to lie down for long, in case (subject.he/she) wanders. (subject.He/She) sleeps sitting up, and badly, and never naps again. (friend) hangs a string of shells across the doorway that rattles if anyone goes out, and the walking stops.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L1187"
+  },
+  "c2": {
+   "text": "(friend) takes (subject)'s hand very gently. \"Come on,\" (friend.he/she) whispers. \"Time to go home.\" (subject) turns, still asleep, and follows, step by careful step...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1181"
+  }
+ }
+}

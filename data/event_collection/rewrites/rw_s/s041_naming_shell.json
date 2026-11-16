@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Naming Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s041_naming_shell",
+  "source": "rewrites",
+  "lines": [
+   1933,
+   1977
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1933",
+  "ledger": [
+   {
+    "src": "L1934",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1943",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1952",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1940",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1941",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1944",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1953",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1946",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1949",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1955",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1958",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1961-1977",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1947",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Every year, on the morning after the first storm of the season, a shell washes up on the beach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every year, on the morning after the first storm of the season, a shell washes up on the beach. Always the same kind: pearly pink inside, big as two cupped hands, with dark markings on the outside that look a little like writing. The elders say whoever finds it must take the name written on it. It's an old custom: the elders say the sea itself writes the markings, and only names people it has been watching. Hardly anyone believes it any more. Everybody still goes down to look.\nThis year it's (name) who finds it, half buried in the wet sand by (his/her) foot.\n(He/She) turns it over. The markings are very clear this year. They spell out a name. And it is very clearly not (name). The whole beach is watching. Should (name) take the name the sea has given (him/her), or throw the shell back?",
+   "choices": [
+    {
+     "label": "Take the New Name",
+     "next": "c1",
+     "src": "L1940"
+    },
+    {
+     "label": "Throw It Back",
+     "next": "c2",
+     "src": "L1941"
+    }
+   ],
+   "src": "L1936-1938"
+  },
+  "c1o1": {
+   "text": "(Name) takes the new name proudly, standing up straight in front of everyone. It's (renamed). The elders say it out loud three times, the way it's always been done, and the whole village repeats it after them. Then, because a new name deserves a celebration, they hold a small feast in (his/her) honour that evening, with fish and fruit and the special sweet bread, and everybody makes a speech using the new name as many times as they can.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1947",
+   "text_only": [
+    {
+     "src": "L1947",
+     "what": "\"celebration\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "(Name) takes the name. (He/She) feels very strange about it for a day or two, answering to something new, like wearing someone else's sandals. But it fits. It fits so well, so naturally, that within a month people say they can't imagine (him/her) ever being called anything else. \"Was there an old one?\" a child asks once. Nobody can quite remember. (He/She) keeps the shell on a shelf by the door, markings facing out.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1950"
+  },
+  "c1": {
+   "text": "(Name) carries the shell up the beach to the elders with both hands, and holds it out. The elders read the markings, one after the other, and then they all look at (him/her) with great solemnity...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1944"
+  },
+  "c2o1": {
+   "text": "The very next wave picks the shell up, carries it all the way back in, rolls it up the beach, and drops it, with a smack, right on (name)'s foot. (Name) hops about, yelling. Then (he/she) picks the shell up and looks at it, and at the sea, which is doing its very best to look innocent. \"Fine,\" (he/she) says. (He/She) takes the hint. And the name: (renamed). The elders nod. It's always worked that way, they say.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1956"
+  },
+  "c2o2": {
+   "text": "The shell sinks without a trace. The sea stays flat. Nothing comes back. The elders tut and shake their heads and say that a naming shell hasn't been refused in living memory, and they're not at all sure what will happen now. As it turns out, nothing happens. Nothing at all. (Name) keeps (his/her) own name, and the elders talk about it for years, and next season's shell is never found, and everyone privately blames (name) for that.",
+   "src": "L1959"
+  },
+  "c2": {
+   "text": "(Name) doesn't want a new name. (He/She) likes (his/her) old one. Before anyone can stop (him/her), (he/she) winds up and throws the shell as far out to sea as (he/she) can. It spins through the air, glinting pink, and splashes down past the breakers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1953"
+  }
+ }
+}

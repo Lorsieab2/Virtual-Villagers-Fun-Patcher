@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worker Who Said No",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new190_worker_said",
+  "source": "rewrites",
+  "lines": [
+   9212,
+   9259
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9212",
+  "ledger": [
+   {
+    "src": "L9213",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9214",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9224",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9231",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9238",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9220",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9221",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9222",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9225",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9232",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9239",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9226",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9228",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9233",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9235",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9240",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9242",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9245-9259",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has just finished building the new canoe shed.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has just finished building the new canoe shed. It took a whole season. Every post, every beam, every scrap of thatch. It's beautiful, and everyone says so.\nThe next morning, (subject) was asked to start hauling stone for the new sea wall.\n\"No,\" said (subject). \"I'm spent.\"\nSome people think (subject.he/she) has gone soft. They've said so, at the fire, not quite quietly enough.\nThose people have not hauled stone recently. Or ever, in some cases. Should the village push (subject), or listen to (subject.him/her)?",
+   "choices": [
+    {
+     "label": "Ask What Makes It Exhausting",
+     "next": "c1",
+     "src": "L9220"
+    },
+    {
+     "label": "Give Them Lighter Work for Now",
+     "next": "c2",
+     "src": "L9221"
+    },
+    {
+     "label": "Ask a Stone Hauler for Tricks",
+     "next": "c3",
+     "src": "L9222"
+    }
+   ],
+   "src": "L9215-9219"
+  },
+  "c1o1": {
+   "text": "(subject) shows them the stone sled, and as (subject.he/she) demonstrates, (subject.he/she) sees the problem: its wooden runners dig deep into the sand with every pull, so it's like dragging a plough. (subject.He/She) learns to fit it with rollers instead, logs underneath that turn as it moves. It's a practical building lesson, and the sled moves three times as easily. (subject) agrees to haul stone after all. Next week.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L9227"
+  },
+  "c1o2": {
+   "text": "(subject) explains that no one ever said how much stone was needed. Ten stones? A hundred? A whole cliff? (subject.He/She) just finished a season of building with no rest, and was asked to start an endless job the next morning. (subject.He/She) was worn out, not lazy. When the builders actually count, it's forty stones. That sounds much more possible.",
+   "src": "L9229"
+  },
+  "c1": {
+   "text": "Instead of arguing, someone asks (subject) to show them what hauling stone is actually like...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9225"
+  },
+  "c2o1": {
+   "text": "Moving to lighter thatching work lets (subject) keep working, at a pace (subject.he/she) can sustain, sitting in the shade, weaving. (subject.His/Her) strength comes back slowly. A moon later, (subject.he/she) turns up at the sea wall, unasked, and starts hauling.",
+   "src": "L9234"
+  },
+  "c2o2": {
+   "text": "The thatching team is already full, and (subject) joining makes it awkward: too many hands, not enough thatch, and the head thatcher keeps giving (subject.him/her) things to hold. Everyone agrees to rethink it tomorrow.",
+   "src": "L9236"
+  },
+  "c2": {
+   "text": "The builders suggest (subject) take some lighter work for a while, like thatching...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9232"
+  },
+  "c3o1": {
+   "text": "(mentor) teaches (subject) how to move heavy stones the clever way: a long lever and a log pivot, so one person can lift what three couldn't. \"Never lift with your back,\" (subject.he/she) says. \"Lift with the log.\" (subject) tries it, and a stone (subject.he/she) couldn't budge yesterday rolls over like a pebble. (subject.He/She) learns a great deal about building, and agrees to haul stone after all, the clever way.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9241"
+  },
+  "c3o2": {
+   "text": "(mentor) listens, and then admits that (subject.he/she) once refused the very same job, years ago, after a hard season. \"Best thing I ever did. If I'd kept going, I'd have broken my back.\" (subject.He/She) claps (subject) on the shoulder. \"You're not soft. You're sensible.\" (subject) feels much better.",
+   "src": "L9243"
+  },
+  "c3": {
+   "text": "(mentor), who has hauled more stone than anyone in the village, comes over to help...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9239"
+  }
+ }
+}

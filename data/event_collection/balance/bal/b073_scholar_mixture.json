@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scholar's Mixture",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b073_scholar_mixture",
+  "source": "balance",
+  "lines": [
+   3297,
+   3338
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3297",
+  "ledger": [
+   {
+    "src": "L3298",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3299",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3307",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3316",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3304",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3305",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3308",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3317",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3310",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3313",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3319",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3322",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3325-3338",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Tonight the mixture is bubbling in a clay pot, giving off a pale green steam.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been working for months on a mixture from the old scholars' bark notes: ground shell, a glowing moss from the caves and three drops of the sap of the twin-trunk tree. The notes say it \"copies what it touches,\" and the old scholars apparently stopped when it copied a scholar's sandal and then the scholar's foot.\nTonight the mixture is bubbling in a clay pot, giving off a pale green steam. (Name) leans over to look, and a fat drop of it splashes onto (his/her) hand.\nShould (name) wash it off at once, or watch what it does?",
+   "choices": [
+    {
+     "label": "Wash It Off at Once",
+     "next": "c1",
+     "src": "L3304"
+    },
+    {
+     "label": "Watch What It Does",
+     "next": "c2",
+     "src": "L3305"
+    }
+   ],
+   "src": "L3300-3302"
+  },
+  "c1o1": {
+   "text": "The steam from the bowl rises straight into (name)'s face, and (he/she) breathes it in, and sits down very suddenly. The notes, it turns out, had a second warning on the back: the fumes \"take the newest things first.\" When (name) comes round, (he/she) remembers everything except (his/her) own name, which is apparently the newest thing a person has. The village calls (him/her) \"?\" after that, and the scholars add a third warning to the notes.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3311"
+  },
+  "c1o2": {
+   "text": "The green steam settles on (name)'s face like dew, and when (he/she) wipes it off, the skin underneath is smooth and fresh. The mixture copied (his/her) face from years ago, it seems, from some memory held in the skin. (Name) writes it all down very carefully. Then (he/she) pours the rest of the mixture into a sealed jar and buries it.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3314"
+  },
+  "c1": {
+   "text": "(Name) plunges (his/her) hand into the water bowl and scrubs. The water turns green, then bright green, then starts to steam...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3308"
+  },
+  "c2o1": {
+   "text": "The glow peels away from (name) like a shed skin, stands up on its own, and becomes another (name), exactly, down to the ink stains on (his/her) fingers. It looks at the pot, and at (name), and says, \"We should write this down.\" It takes the name (made1), and the two of them become the most productive scholars the village has ever had.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L3320"
+  },
+  "c2o2": {
+   "text": "The glow fades. Nothing is copied. But watching it, (name) understands at last what the mixture is doing, and why, and spends the whole night writing it down. The other scholars are thrilled, and a little disappointed there aren't two of anyone. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3323"
+  },
+  "c2": {
+   "text": "(Name) holds (his/her) hand very still, and watches. The drop spreads, and glows, and then the glow climbs up (his/her) arm, and over (his/her) shoulder, and then all over (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3317"
+  }
+ }
+}

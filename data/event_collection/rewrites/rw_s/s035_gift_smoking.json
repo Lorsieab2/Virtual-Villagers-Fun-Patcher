@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Gift from the Smoking Mountain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s035_gift_smoking",
+  "source": "rewrites",
+  "lines": [
+   1642,
+   1686
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1642",
+  "ledger": [
+   {
+    "src": "L1643",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1644",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1652",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1661",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1649",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1650",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1653",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1662",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1655",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1658",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1664",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1667",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1670-1686",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The mountain has been rumbling all week.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The mountain has been rumbling all week. Everyone can feel it through their bare feet: a low hum in the ground, like a giant snoring. The birds have gone quiet. A thin grey plume leans across the sky from the peak, and everything smells faintly of struck flint.\nThis morning, while (name) is sweeping (his/her) doorstep, there's a rattle and a crunch from up the hill. A black stone, the size of a fist, comes rolling and bouncing all the way down the path, through the village, past the cooking fire, and stops dead at (name)'s feet.\nIt's hot. (Name) can feel the heat coming off it. Thin lines of orange light glow in the cracks, like something inside is still awake. Should (name) try to pick it up, or leave it well alone?",
+   "choices": [
+    {
+     "label": "Pick It Up with Tongs",
+     "next": "c1",
+     "src": "L1649"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c2",
+     "src": "L1650"
+    }
+   ],
+   "src": "L1645-1647"
+  },
+  "c1o1": {
+   "text": "(Name) carries it to the research hut and drops it into a bucket of water, where it hisses and spits and boils the water half away. When it finally cools, the researchers tap it with a mallet. It breaks open like a nut. Inside, it's full of crystals: deep green ones, and clear ones, and some that change colour when they are turned in the light. Nobody has ever seen anything like them. The researchers are so thrilled they forget to eat lunch. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1656"
+  },
+  "c1o2": {
+   "text": "Halfway to the research hut, the tongs slip. The stone drops, and without thinking, (name) grabs for it with (his/her) bare hands. (He/She) screams and lets go, but too late: (his/her) palms are burned bright red and blistering. The healers plunge (his/her) hands into cold water and wrap them in soothing leaves, and (name) can't hold anything for weeks. The stone, rolled the rest of the way by somebody with more sense and a shovel, cools and cracks open into a few green crystals for the researchers. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1659"
+  },
+  "c1": {
+   "text": "(Name) fetches the long wooden tongs from the cooking fire, gets a grip on the glowing stone, and lifts it very, very carefully, holding it as far away from (his/her) body as (his/her) arms will go...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1653"
+  },
+  "c2o1": {
+   "text": "By evening the stone has cooled, and the orange glow in the cracks has gone dark. It cracks open on its own with a little pop, like a coal in a fire. Inside, it's just stone. Ordinary grey stone, all the way through. Everyone is a little disappointed. The children use it to crack nuts for the rest of the season, and it's very good at it.",
+   "src": "L1665"
+  },
+  "c2o2": {
+   "text": "The stone sits there glowing softly all night, giving off a steady, gentle warmth, like a little cooking fire that never needs feeding. Somebody puts a few nuts down beside it to see what happens. Then somebody else adds a few more. Then everyone does. People sit round it, warm, talking, late into the night. In the morning the stone has gone cold and grey, and there's a great ring of perfectly roasted nuts all around it. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1668"
+  },
+  "c2": {
+   "text": "(Name) steps back, carefully, and puts a ring of stones around it so nobody treads on it by accident. Then (he/she) calls the others over. Everybody stands in a circle around it, at a respectful distance, and watches it glow...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1662"
+  }
+ }
+}

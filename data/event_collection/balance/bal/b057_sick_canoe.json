@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sick Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b057_sick_canoe",
+  "source": "balance",
+  "lines": [
+   2570,
+   2611
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2570",
+  "ledger": [
+   {
+    "src": "L2571",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2572",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2580",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2589",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2577",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2578",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2581",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2590",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2583",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2586",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2592",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2595",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2598-2611",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A canoe has come in with a family aboard, and one of them is coughing.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A canoe has come in with a family aboard, and one of them is coughing. They say they've left their island because a fever went through it, and they're well now, mostly. They're asking to stay.\n(healer), the healer, is worried. If the fever comes with them, the village could catch it. But the family is exhausted, and the sea is getting rough.\nShould (healer) let them into the village, or ask them to camp at the far end of the beach until the healers are sure?",
+   "choices": [
+    {
+     "label": "Let Them In",
+     "next": "c1",
+     "src": "L2577"
+    },
+    {
+     "label": "Camp at the Far End First",
+     "next": "c2",
+     "src": "L2578"
+    }
+   ],
+   "src": "L2573-2575"
+  },
+  "c1o1": {
+   "text": "The cough was only a cough. Within a week the parent is helping in the gardens, the teenager is out with the fishers and the youngest has made friends with every child in the village. Nobody else gets sick. (healer) breathes out for the first time in a week. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L2584"
+  },
+  "c1o2": {
+   "text": "The cough wasn't only a cough. Within a few days, three villagers are feverish, and the healers are busy day and night. The newcomers are horrified, and help nurse the sick themselves, and when everyone is well again, they decide it's kinder to move on, and paddle away with the village's blessing and enough food to get them home.",
+   "effects": [
+    {
+     "do": "sick",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L2587",
+   "text_only": [
+    {
+     "src": "L2587",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "(healer) checks each of them carefully, listening to their chests and looking in their eyes, and then waves them up to the village...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2581"
+  },
+  "c2o1": {
+   "text": "On the tenth day, (healer) walks down the beach and checks them all again, and they're well. The baby who had been hidden under the shelter the whole time is passed round the village that evening like a prize. They decide to stay, and are very glad, they say, to sleep under a proper roof.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L2593"
+  },
+  "c2o2": {
+   "text": "After three days of camping, the family decides that they don't want to be a worry, and that they'll go on to their cousins on another island. The village loads their canoe with food and water, and they wave from the reef. (healer) feels guilty for a week. Everyone tells (healer.him/her) not to.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L2596"
+  },
+  "c2": {
+   "text": "The family nods; they understand. They pitch a shelter at the far end of the beach, and the village leaves food and water halfway between, every morning, for ten days...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2590",
+   "text_only": [
+    {
+     "src": "L2590",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Washing Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b109_washing_stones",
+  "source": "balance",
+  "lines": [
+   4926,
+   4967
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4926",
+  "ledger": [
+   {
+    "src": "L4927",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4928",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4936",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4945",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4933",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4934",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4937",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4946",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4939",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4942",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4948",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4951",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4954-4967",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager loves washing day.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) loves washing day. (subject.He/She) loves the cold stream, the smooth washing stones, the slap of wet cloth and the smell of clean wraps drying in the sun. Everyone else hates it, and lets (subject) do far more than (subject.his/her) share.\nToday (subject) has been washing since dawn and the pile is still taller than (subject.he/she) is. (subject.His/Her) hands are raw. A friend comes down to the stream and offers to take over, if (subject) will mend nets instead.\nShould (subject) keep washing, or swap with the friend?",
+   "choices": [
+    {
+     "label": "Keep Washing",
+     "next": "c1",
+     "src": "L4933"
+    },
+    {
+     "label": "Swap with the Friend",
+     "next": "c2",
+     "src": "L4934"
+    }
+   ],
+   "src": "L4929-4931"
+  },
+  "c1o1": {
+   "text": "By sunset (subject) has washed every wrap in the village, and (subject.his/her) hands are cracked and bleeding, and (subject.he/she) never wants to see a washing stone again. The love of it is just gone, worn away like the stones. (subject.He/She) still does (subject.his/her) share. Just (subject.his/her) share.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "laundry",
+     "role": "subject"
+    }
+   ],
+   "src": "L4940"
+  },
+  "c1o2": {
+   "text": "(subject) washes until the very last wrap, and hangs it up, and stands back, and looks at the whole village's washing flapping in the sun. It's the most satisfying thing (subject.he/she) has ever seen. The next day the village takes it in turns, and (subject) only does (subject.his/her) share, and is a little disappointed.",
+   "src": "L4943"
+  },
+  "c1": {
+   "text": "(subject) waves the friend away and picks up the next wrap. The stream is cold, the stones are hard, the pile doesn't seem to get any smaller...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4937"
+  },
+  "c2o1": {
+   "text": "By the end of the afternoon, the friend has stopped grumbling and started humming. \"It's not so bad,\" the friend admits, \"with the stream so cold and the sun so hot.\" After that, washing day has two people at the stream instead of one, and it goes twice as fast.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "laundry"
+    }
+   ],
+   "src": "L4949"
+  },
+  "c2o2": {
+   "text": "(subject) turns out to be very good with nets, much to everyone's surprise, including (subject.his/her) own. The careful, patient hands that washed a thousand wraps make perfect knots. Swapping jobs once in a while, it turns out, makes (subject.him/her) better at everything.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4952"
+  },
+  "c2": {
+   "text": "(subject) hands over the washing and sits down with the nets. The friend scrubs, and grumbles, and scrubs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4946"
+  }
+ }
+}

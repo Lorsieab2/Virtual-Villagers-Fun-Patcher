@@ -1,0 +1,208 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Octopus in the Fish Trap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b341_octopus_fish_trap",
+  "source": "balance",
+  "lines": [
+   15750,
+   15791
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15750",
+  "ledger": [
+   {
+    "src": "L15751",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15752",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15759",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15768",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15756",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15757",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15760",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15769",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15762",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15765",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15771",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15774",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15777-15791",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Inside is an octopus as big as a sleeping dog, deep red, with eyes that look far too clever.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been checking fish traps together since dawn, and the last trap is so heavy they can barely haul it into the canoe. Inside is an octopus as big as a sleeping dog, deep red, with eyes that look far too clever. The elders say the old octopus of the reef can change its shape and its colour, and anyone else's too, if it's annoyed.\nThe octopus has wrapped one arm around (subject)'s wrist and one around (friend)'s, and is squeezing. Should they let it go back into the sea, or try to bring it home for supper?",
+   "choices": [
+    {
+     "label": "Let It Go",
+     "next": "c1",
+     "src": "L15756"
+    },
+    {
+     "label": "Bring It Home",
+     "next": "c2",
+     "src": "L15757"
+    }
+   ],
+   "src": "L15753-15754"
+  },
+  "c1o1": {
+   "text": "Then it lets go and slides away into the blue. The next morning, every trap they set is full to the brim with fish. And the morning after, and for a week. (subject) starts going out alone too, and somehow always knows exactly where to set a trap, as if someone had whispered it to (subject.him/her). Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L15763"
+  },
+  "c1o2": {
+   "text": "Then it lets go and slides away. For the rest of the day, (subject) and (friend) keep seeing flashes of red and gold out of the corners of their eyes, and their wrists are ringed with faint pink marks shaped like suckers. By morning the marks are gone. They both agree, privately, that the octopus was laughing at them.",
+   "src": "L15766"
+  },
+  "c1": {
+   "text": "They tip the trap over the side. The octopus doesn't let go at once. It holds both their wrists a moment longer, its skin rippling through every colour of the reef...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15760"
+  },
+  "c2o1": {
+   "text": "Halfway to the beach, the octopus squeezes once, very hard, and (subject) and (friend) both see stars. When the stars clear, (subject) is looking out of (friend)'s eyes at (subject.his/her) own face. The octopus is already over the side and gone. They paddle home in silence, in the wrong bodies, and never set a trap on that reef again.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L15772"
+  },
+  "c2o2": {
+   "text": "On the beach, the octopus squeezes through a gap in the trap no bigger than a coconut and pours itself back into the sea, leaving a cloud of ink over (friend)'s face. (friend) spends the evening scrubbing, and can't get the taste of ink out of (subject.his/her) mouth for a week. After that, fish of any kind just tastes of ink to (subject.him/her).",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "fish"
+    }
+   ],
+   "src": "L15775"
+  },
+  "c2": {
+   "text": "They lash the trap shut and paddle for the beach as fast as they can. The octopus squeezes harder, and harder, and its skin turns black...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15769"
+  }
+ }
+}

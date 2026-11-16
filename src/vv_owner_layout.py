@@ -670,6 +670,12 @@ def normalize_text(text: str) -> str:
         md = re.fullmatch(r"(?i)(name[12])(?:\.|:\s*)(.+)", inner)    # "(name2.he/she)", "(name2: he/she)"
         if md:          # "(name2.he/she)": the second villager's ("friend"), "(name1.he/she)" the first's
             return f"(friend.{md.group(2)})" if md.group(1).lower() == "name2" else f"({md.group(2)})"
+        mr = re.fullmatch(r"(?i)([a-z][a-z ]*?) name(?:\.|:\s*)([A-Za-z]+/[A-Za-z]+)", inner)
+        if mr and role_of(mr.group(1) + " name"):    # "(healer name: his/her)" -> "(healer.his/her)"
+            return f"({role_of(mr.group(1) + ' name')}.{mr.group(2)})"
+        mc = re.fullmatch(r"([A-Z][a-z]+)\.([A-Za-z]+/[A-Za-z]+)", inner)
+        if mc and mc.group(1).lower() not in ("name", "name1", "name2"):    # "(Child.He/She)" -> "(child.He/She)"
+            return f"({mc.group(1).lower()}.{mc.group(2)})"
         mm = re.fullmatch(r"([A-Za-z]+) (name|Name)( \d)?", inner)
         if mm:
             if mm.group(1).lower() == "new":

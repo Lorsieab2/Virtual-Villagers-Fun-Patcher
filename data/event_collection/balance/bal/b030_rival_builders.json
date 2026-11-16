@@ -1,0 +1,269 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rival Builders",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b030_rival_builders",
+  "source": "balance",
+  "lines": [
+   1343,
+   1385
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1343",
+  "ledger": [
+   {
+    "src": "L1344",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1345",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1353",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1362",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1350",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1351",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1354",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1363",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1356",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1359",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1365",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1368",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1371-1385",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager are the two best builders in the village, and they cannot agree on anything.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are the two best builders in the village, and they cannot agree on anything. (subject) builds low and wide. (friend) builds tall and narrow. Every hut in the village has been built by one of them and criticised by the other.\nNow a storm has damaged several roofs, and both of them have a plan for fixing them, and the plans are completely different. The elders are tired of the shouting.\nShould the elders let them work together, or give each of them half the huts and see whose roofs last?",
+   "choices": [
+    {
+     "label": "Make Them Work Together",
+     "next": "c1",
+     "src": "L1350"
+    },
+    {
+     "label": "Half the Huts Each",
+     "next": "c2",
+     "src": "L1351"
+    }
+   ],
+   "src": "L1346-1348"
+  },
+  "c1o1": {
+   "text": "They argue for a whole morning. Then, somewhere around noon, (subject) grudgingly tries one of (friend)'s knots, and (friend) grudgingly admits that (subject)'s low beam makes sense, and by evening they're finishing each other's sentences. Both of them learn more in that week than in the ten years before it. They still argue. But now they argue on the same side.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L1357"
+  },
+  "c1o2": {
+   "text": "They never agree. But they're both so determined to show the other one up that they fix every damaged roof in the village in three days flat, racing each other from hut to hut. The roofs are a bit odd: half low and wide, half tall and narrow, sometimes on the same hut. They don't leak, though.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L1360"
+  },
+  "c1": {
+   "text": "The elders put them on the same roof with one ladder and one bundle of thatch. The village gathers to watch, as if it's a festival...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1354"
+  },
+  "c2o1": {
+   "text": "The next storm comes a month later. (subject)'s low roofs hold. (friend)'s tall roofs mostly hold, but two of them blow clean off, and the whole village sees. (friend) can't look at a roof beam anymore without seeing those two roofs lifting off in the wind. The pleasure of tying a good knot is simply gone. (subject) feels much worse about it than (subject.he/she) expected.",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L1366"
+  },
+  "c2o2": {
+   "text": "Working alone, (subject) finds (subject.he/she) misses the arguing. Every time (subject.he/she) ties a knot, (subject.he/she) hears (friend) telling (subject.him/her) it's wrong. By the end, (subject.he/she) goes over to (friend)'s side of the line just to have someone to disagree with. (subject), who never had much time for chatting, finds (subject.he/she) has missed the sound of (subject.his/her) rival's voice.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L1369"
+  },
+  "c2": {
+   "text": "The elders draw a line down the middle of the village. (subject) gets the huts on the beach side, and (friend) the huts on the hill side. They set to work without speaking...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1363"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "wood"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "talking",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

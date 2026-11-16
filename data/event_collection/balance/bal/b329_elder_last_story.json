@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Last Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b329_elder_last_story",
+  "source": "balance",
+  "lines": [
+   15216,
+   15257
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15216",
+  "ledger": [
+   {
+    "src": "L15228",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'every child gains 5 in a random skill'"
+   },
+   {
+    "src": "L15217",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15225",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15234",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15222",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15223",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15226",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15235",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15228",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15231",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15237",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15240",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15243-15257",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the oldest person in the village, and the best storyteller anyone can remember.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "grandchild": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is the oldest person in the village, and the best storyteller anyone can remember. Lately (subject.he/she) has been very tired, sleeping most of the day. Tonight (subject.he/she) asks to be carried to the cooking fire, because (subject.he/she) has one more story to tell, the longest one, about how the first people found the island. (subject.He/She) has never told it all the way through.\nThe healers say (subject.he/she) should rest. (subject) says (subject.he/she) has rested enough. Should the village carry (subject.him/her) to the fire, or keep (subject.him/her) in bed and ask for the story another night?",
+   "choices": [
+    {
+     "label": "Carry (subject.Him/Her) to the Fire",
+     "next": "c1",
+     "src": "L15222"
+    },
+    {
+     "label": "Keep (subject.Him/Her) in Bed",
+     "next": "c2",
+     "src": "L15223"
+    }
+   ],
+   "src": "L15219-15220"
+  },
+  "c1o1": {
+   "text": "(subject) tells it all: the first canoes, the storm, the great turtle that guided them in, the first planting, the first death, the first birth. It takes until dawn. Nobody leaves. At the very end, (subject) says, \"And that's how we got here,\" closes (subject.his/her) eyes, and is gone. The children who heard it remember every word, and tell it to their own children, and the knowledge in it, of plants and stars and tides, stays with them for life.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L15229"
+  },
+  "c1o2": {
+   "text": "(subject) gets halfway, to the part where the first people see the island for the first time, and stops. \"That's enough for tonight,\" (subject.he/she) says, with a wicked grin. \"Come back tomorrow.\" The next night, (subject.he/she) tells the next part. And the next. (subject.He/She) keeps it going for a month, getting stronger every night, and the whole village gathers at the fire every evening to hear it.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L15232"
+  },
+  "c1": {
+   "text": "Four young villagers carry (subject) to the cooking fire on (subject.his/her) sleeping mat. The whole village gathers. The children sit closest. (subject) clears (subject.his/her) throat...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15226"
+  },
+  "c2o1": {
+   "text": "(subject) tells the story to (subject.his/her) grandchild, (grandchild), alone, in a whisper, all night. In the morning, (subject) is gone, peacefully, and (grandchild) is sitting by the mat with (subject.his/her) eyes red, repeating the story under (subject.his/her) breath so as not to forget it. (subject.He/She) tells it at the fire that night, and becomes the village's storyteller, and is very good at it.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "grandchild",
+     "min": 10,
+     "max": 10,
+     "best": true
+    },
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L15238"
+  },
+  "c2o2": {
+   "text": "(subject) sleeps through the night and wakes up hungry and cross. \"I could have told it,\" (subject.he/she) grumbles over breakfast. The healers shrug. (subject) lives another two years, and tells the story many times, never all the way through. Nobody ever finds out how it ends, and (subject.he/she) seems to like it that way.",
+   "src": "L15241"
+  },
+  "c2": {
+   "text": "\"Tomorrow,\" the healers say. (subject) sighs, and lies back, and asks for (subject.his/her) grandchild to sit with (subject.him/her) instead...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15235"
+  }
+ }
+}

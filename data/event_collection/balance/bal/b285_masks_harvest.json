@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Masks of the Harvest Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b285_masks_harvest",
+  "source": "balance",
+  "lines": [
+   13256,
+   13297
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13256",
+  "ledger": [
+   {
+    "src": "L13257",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13258",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13265",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13274",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13262",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13263",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13266",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13275",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13268",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13271",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13277",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13280",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13283-13297",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The dance is going wonderfully.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "dancer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every harvest, the village dances in the old masks: carved faces of the island's spirits, kept wrapped in bark cloth in the meeting hut all year. The rule is that dancers must take their masks off before the moon rises, because the elders say the spirits get comfortable, and a mask left on too long starts to become the face underneath.\nThe dance is going wonderfully. The drums are loud and everyone is laughing. (subject) and (dancer) are still dancing, masks on, and the moon is just coming up over the trees. Should (subject) take (subject.his/her) mask off right now, or finish the dance?",
+   "choices": [
+    {
+     "label": "Take It Off Now",
+     "next": "c1",
+     "src": "L13262"
+    },
+    {
+     "label": "Finish the Dance",
+     "next": "c2",
+     "src": "L13263"
+    }
+   ],
+   "src": "L13259-13260"
+  },
+  "c1o1": {
+   "text": "The mask comes away with a soft sucking sound. Underneath, (subject)'s face is (subject)'s face, but changed: a little more like the spirit's, in the shape of the cheeks and the curve of the brow. People keep looking at (subject.him/her) twice. \"It's still me,\" (subject) says, again and again. It is, mostly.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L13269"
+  },
+  "c1o2": {
+   "text": "(subject)'s mask comes off clean. (dancer)'s doesn't come off at all until long after moonrise, and when it finally does, (dancer) has a completely different face. (subject.His/Her) own mother needs a moment to recognise (subject.him/her). (dancer), looking at (subject.himself/herself) in the water, decides (subject.he/she) likes it better than the old one.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "dancer",
+     "head": "random"
+    }
+   ],
+   "src": "L13272"
+  },
+  "c1": {
+   "text": "(subject) stops in the middle of the dance and pulls at the mask. It doesn't want to come. It clings to (subject.his/her) cheeks, warm as skin. (subject.He/She) pulls harder...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13266"
+  },
+  "c2o1": {
+   "text": "The mask is the face of the oldest spirit on the island, the grandmother of the mountain, and when (subject) finally peels it off at dawn, (subject.he/she) has the grandmother's face: deep lines, heavy brows, the works. (subject.His/her) age hasn't changed. The children are frightened of (subject.him/her) for a week. Then they start bringing (subject.him/her) flowers, just in case.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13278"
+  },
+  "c2o2": {
+   "text": "The mask is the face of the youngest spirit, the one who runs along the reef at dawn, and when (subject) takes it off, (subject.his/her) face is young and bright and smooth, though (subject.his/her) age is the same. The elders shake their heads and say the young spirit always was a show-off. (subject) is in no hurry to change back.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13281"
+  },
+  "c2": {
+   "text": "The drums are too good to stop. (subject) dances on under the rising moon, and the mask gets warmer and warmer against (subject.his/her) face...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13275"
+  }
+ }
+}

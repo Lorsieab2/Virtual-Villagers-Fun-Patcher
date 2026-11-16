@@ -1,0 +1,246 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Vote That Tied",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new120_vote_tied",
+  "source": "rewrites",
+  "lines": [
+   5621,
+   5668
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5621",
+  "ledger": [
+   {
+    "src": "L5622",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5623",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5633",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5640",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5647",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5629",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5630",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5631",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5634",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5641",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5648",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5635",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5637",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5642",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5644",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5649",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5651",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5654-5668",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Should the village build a new fishing canoe, or a second cooking hut?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 17
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Should the village build a new fishing canoe, or a second cooking hut?\nThe argument has gone on all evening. The fishers have made speeches. The cooks have made speeches. One fisher made a speech so long that a cook fell asleep in the middle of it and had to be poked.\nFinally, the hands go up. (leader) counts. Then counts again.\nExactly half and half.\nThe only villager who has not voted is (elder), who slept peacefully through the entire evening and is still snoring gently by the fire, with a small lizard sitting on (subject.his/her) knee. How should (leader) break the tie?",
+   "choices": [
+    {
+     "label": "Ask Who Each Choice Helps",
+     "next": "c1",
+     "src": "L5629"
+    },
+    {
+     "label": "Tally the Logs and Thatch",
+     "next": "c2",
+     "src": "L5630"
+    },
+    {
+     "label": "Wake the Elder and Explain",
+     "next": "c3",
+     "src": "L5631"
+    }
+   ],
+   "src": "L5624-5628"
+  },
+  "c1o1": {
+   "text": "(subject) explains simply that the old canoe leaks so badly now that every trip past the reef is a risk. Last week (subject.he/she) bailed water the whole way home, and one big wave could have sunk it. The gathering listens. The cooks look at each other. A second vote is taken, and this time the canoe wins easily.",
+   "src": "L5636"
+  },
+  "c1o2": {
+   "text": "(friend), the cook's young helper, who has never said a word at a gathering, stands up and points out that the old cooking hut's roof is about to fall in anyway. \"I can see the stars through it. It's quite nice, but the rain gets in the soup.\" The discussion turns completely. A second cooking hut isn't a luxury, it's a replacement, and the cooks win the second vote.",
+   "src": "L5638"
+  },
+  "c1": {
+   "text": "(leader) asks for no more speeches. Just one plain answer from each side: who does it help, and how?...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5634"
+  },
+  "c2o1": {
+   "text": "Tallying everything up, they discover that the canoe can be carved from a single big trunk that is already lying by the beach, which frees up all the thatch and most of the workers for the hut. They can build both! It is a practical detail that improves the whole plan, and the builders learn a better way to work out what a job really needs before they begin.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5643"
+  },
+  "c2o2": {
+   "text": "In the middle of the tally, someone accuses the other side of counting a child's raised hand in the vote. There is outrage. There is a recount. It turns out the \"child\" was a very short adult, who is now deeply offended. Nobody is in trouble, the vote is still a tie, and the short adult is given the first bowl of stew in apology.",
+   "src": "L5645"
+  },
+  "c2": {
+   "text": "(leader) sends everyone off to count logs, thatch and willing workers, and they gather again at dawn with knotted cords and scratched boards...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5641"
+  },
+  "c3o1": {
+   "text": "They explain everything, which takes a while because (elder) keeps asking questions about the fisher's very long speech. Finally (subject.he/she) votes, for the canoe, \"because I like fish more than I like waiting for fish.\" The losing side grumbles, but they understand why. The cooks are promised the next big project.",
+   "src": "L5650"
+  },
+  "c3o2": {
+   "text": "(elder) listens, then waves the whole thing away. \"You're not going to let one old person who was asleep decide this. Vote again tomorrow when you've all slept as well as I have.\" (leader) admits declaring a winner tonight would have been too quick, and the gathering agrees to vote again next evening.",
+   "src": "L5652"
+  },
+  "c3": {
+   "text": "(leader) gently shakes (elder) awake. The lizard leaves in a huff. (elder) blinks around at the whole silent village staring at (subject.him/her). \"What? What did I miss?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5648"
+  }
+ }
+}

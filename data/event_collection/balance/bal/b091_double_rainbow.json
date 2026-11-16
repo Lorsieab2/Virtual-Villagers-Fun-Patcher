@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Double Rainbow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b091_double_rainbow",
+  "source": "balance",
+  "lines": [
+   4111,
+   4152
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4111",
+  "ledger": [
+   {
+    "src": "L4112",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4113",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4121",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4130",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4118",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4119",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4122",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4131",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4124",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4127",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4133",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4136",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4139-4152",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children are already running for it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a morning of rain, a double rainbow arches right over the village, so bright and so low that one end seems to touch the ground just beyond the gardens. The children are already running for it. The elders say that where a double rainbow touches down, \"everything is twice as much,\" and that nobody should stand there unless they're happy with themselves.\n(Name) is closest. The end of the rainbow is shimmering in the grass, a few steps away.\nShould (name) step into it, or call the whole village to see it first?",
+   "choices": [
+    {
+     "label": "Step into It",
+     "next": "c1",
+     "src": "L4118"
+    },
+    {
+     "label": "Call the Whole Village",
+     "next": "c2",
+     "src": "L4119"
+    }
+   ],
+   "src": "L4114-4116"
+  },
+  "c1o1": {
+   "text": "The rainbow fades, and the double vision doesn't. There are two of (name) standing in the wet grass, exactly alike. \"Everything is twice as much,\" says the eldest, arriving out of breath. \"We did say.\" The newcomer takes the name (made1), and is just as happy with (himself/herself) as (name) is, which is lucky.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L4125"
+  },
+  "c1o2": {
+   "text": "The colours wash over (name) and fade. (He/She) walks back to the village, and the children stop and stare. (His/Her) face has changed, as if the colours mixed it up and painted it again. (Name) looks in a water bowl, tilts (his/her) head, and decides (he/she) likes the new paint.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L4128"
+  },
+  "c1": {
+   "text": "(Name) steps into the shimmer. The air is full of colours, red and gold and violet, warm on (his/her) skin, and everything seems to blur, as if (he/she) is seeing double...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4122"
+  },
+  "c2o1": {
+   "text": "Everyone stands at the edge of the colours together, and nobody quite dares step in, and then it fades. Nothing happens to anyone. But the whole village is in such a good mood that the rest of the day turns into a sort of festival, with the children painting each other in berry juice, rainbow stripes from head to toe.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L4134"
+  },
+  "c2o2": {
+   "text": "By the time everyone arrives, the rainbow has moved on, the way rainbows do, and is standing over the sea, out of reach. (Name) gets some teasing for that. But (he/she) saw it first, up close, and the children believe (him/her), which is all that matters.",
+   "src": "L4137"
+  },
+  "c2": {
+   "text": "\"Come and see!\" (name) shouts, and the whole village comes running, and crowds round the shimmering end of the rainbow, elbowing for a look...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4131"
+  }
+ }
+}

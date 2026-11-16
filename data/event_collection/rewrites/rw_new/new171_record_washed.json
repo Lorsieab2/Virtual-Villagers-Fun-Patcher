@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Record Washed Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new171_record_washed",
+  "source": "rewrites",
+  "lines": [
+   8283,
+   8328
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8283",
+  "ledger": [
+   {
+    "src": "L8284",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8285",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8293",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8300",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8307",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8289",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8290",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8291",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8294",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8301",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8308",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8295",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8297",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8302",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8304",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8311",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8314-8328",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Somewhere in the night, the roof of the record hut sprang a leak.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Somewhere in the night, the roof of the record hut sprang a leak. A small one. It dripped, patiently, for hours, directly onto the stack of bark sheets that hold the village's earliest harvest records: which crops failed, which thrived, which seasons brought rain and which brought hunger.\n(subject) opens the door in the morning and freezes.\nThe charcoal marks are running down the sheets in long grey streaks, like tears. Whole seasons are dissolving in front of (subject.his/her) eyes. The drip goes on dripping. (subject) is staring at it in horror, unable to decide what to grab first. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Rescue the Driest Sheets",
+     "next": "c1",
+     "src": "L8289"
+    },
+    {
+     "label": "Ask the Oldest Farmers",
+     "next": "c2",
+     "src": "L8290"
+    },
+    {
+     "label": "Start a Fresh Harvest Record",
+     "next": "c3",
+     "src": "L8291"
+    }
+   ],
+   "src": "L8286-8288"
+  },
+  "c1o1": {
+   "text": "(subject) copies the clearest sheets onto fresh bark before they can fade, working until (subject.his/her) hand cramps and the sun goes down. Much is lost, but much is saved: planting times, crop rotations, a list of which seeds failed in the dry years. It's useful planting knowledge, kept safe for the village. (subject) moves the record hut's stack to a high, dry shelf that very night.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8296"
+  },
+  "c1o2": {
+   "text": "Before (subject) can copy more than a few lines, the last readable sheets soften, sag, and dissolve into grey pulp in (subject.his/her) hands. A great deal of old farming knowledge, generations of it, is lost for good. (subject) sits in the wet record hut for a long time, holding a handful of mush that used to be a hundred harvests.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8298"
+  },
+  "c1": {
+   "text": "(subject) snatches up the sheets that are still mostly dry and spreads them out in the sun, then sits down with fresh bark and charcoal and starts copying as fast as (subject.his/her) hand will go...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8294"
+  },
+  "c2o1": {
+   "text": "(subject) sits the three oldest farmers down and has them tell everything they remember. Comparing their memories turns up a forgotten trick: planting just before the rains, not just after, so the seeds are already in the ground when the first storm hits. Nobody had done it in years. The farmers try it that season, and it works.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8303"
+  },
+  "c2o2": {
+   "text": "The old farmers disagree about nearly everything. Was the famine year before the big storm or after? Did the yams fail or the taro? One of them insists it was the year of the purple sky, which nobody else remembers. Nobody pretends to know whose memory is right, and (subject) writes down all three versions.",
+   "src": "L8305"
+  },
+  "c2": {
+   "text": "The records may be ruined, but the people who lived through those harvests aren't. (subject) goes to find (elder) and the other oldest farmers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8301"
+  },
+  "c3o1": {
+   "text": "The village starts a careful new harvest record, carved into wooden boards instead of written on bark, and kept under a sound new roof. Every season, the farmers gather to add what they've learned. It's a record that will last for generations, and a better one than the old: this time, they write down why.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8310"
+  },
+  "c3o2": {
+   "text": "As the new record is begun, (subject) pauses over one season: the famine year, when the old sheets recorded who went hungry and who didn't make it. (subject.He/She) decides that some things are better left unwritten, and starts the new record with the year after. The families who remember are quietly grateful.",
+   "src": "L8312"
+  },
+  "c3": {
+   "text": "(subject) decides that what's gone is gone. What matters is never letting this happen again...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8308"
+  }
+ }
+}

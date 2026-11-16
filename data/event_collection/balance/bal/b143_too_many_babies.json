@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Many Babies",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b143_too_many_babies",
+  "source": "balance",
+  "lines": [
+   6574,
+   6618
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6574",
+  "ledger": [
+   {
+    "src": "L6575",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6576",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6584",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6593",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6581",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6582",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6585",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6594",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6587",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6590",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6596",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6599",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6602-6618",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L6600",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Another villager had twins last month, and has not slept since.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(friend) had twins last month, and has not slept since. (friend.He/She) walks about the village with one baby on each hip, grey under the eyes, and has twice fallen asleep standing up. This morning (friend.he/she) fell asleep at the cooking fire with a spoon in (friend.his/her) hand, and the stew boiled over.\nNow (friend) is sitting on (subject)'s doorstep, both babies yelling, and looking at (subject) the way a drowning person looks at a canoe. \"Just one of them,\" (friend.he/she) says. \"Just for a while. Please. I'll take (subject.him/her) back when they sleep through the night. If they ever do.\"\nShould (subject) take one of the twins, or help (friend) some other way?",
+   "choices": [
+    {
+     "label": "Take One of the Twins",
+     "next": "c1",
+     "src": "L6581"
+    },
+    {
+     "label": "Help Some Other Way",
+     "next": "c2",
+     "src": "L6582"
+    }
+   ],
+   "src": "L6577-6579"
+  },
+  "c1o1": {
+   "text": "\"Just for a while\" turns into a season, and then a year. The twin sleeps better at (subject)'s, eats better at (subject)'s, and screams when anyone tries to take it home. In the end (friend) and (subject) agree to raise them side by side, one twin in each hut, and the twins grow up with two homes and twice the uncles, aunts and grandparents. (friend) sleeps for a whole day.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6588"
+  },
+  "c1o2": {
+   "text": "The next night, (friend) knocks again, with the other twin. \"It won't settle without its sister,\" (friend.he/she) says. So (subject) has both of them for a night, and (friend) sleeps for the first time in a month. After that the whole village takes turns. There is a rota, with shells, by the cooking fire. One twin stays with (subject) for good. The village is loud and tired and cheerful for a year.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6591"
+  },
+  "c1": {
+   "text": "(subject) holds out (subject.his/her) arms. (friend) hands over the louder one, which immediately goes silent and stares at (subject) with enormous, astonished eyes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6585"
+  },
+  "c2o1": {
+   "text": "(friend) sleeps all afternoon on (subject)'s doorstep, in the sun, with (friend.his/her) mouth open. (subject) walks both twins up and down until they sleep too. When (friend) wakes up, (friend.he/she) is a different person: calm, cheerful, and suddenly able to face things (friend.he/she) used to dread. \"That's all I needed,\" (friend.he/she) says. (subject) comes round every afternoon after that.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L6597"
+  },
+  "c2o2": {
+   "text": "(subject) keeps both twins all afternoon so (friend) can sleep, and forgets that (subject.he/she) left a pot on the fire. By the time (subject.he/she) smells it, the stew is a black crust and half the store's beans with it. The twins are asleep. (friend) is asleep. (subject) stands in the smoke and decides it was worth it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L6600"
+  },
+  "c2": {
+   "text": "(subject) sits down beside (friend) on the doorstep and takes one of the babies on (subject.his/her) knee, just to hold. \"Go to sleep,\" (subject.he/she) says. \"Here. Now. I'll wake you when they're hungry.\" (friend) is asleep before (subject) has finished the sentence...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6594"
+  }
+ }
+}

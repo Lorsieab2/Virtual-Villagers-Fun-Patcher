@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three Knocks at Midnight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my054_three_knocks",
+  "source": "rewrites",
+  "lines": [
+   13001,
+   13056
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13001",
+  "ledger": [
+   {
+    "src": "L13002",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13003",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13012",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13019",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13026",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13033",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13007",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13008",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13009",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13010",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13013",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13020",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13027",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13034",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13016",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13021",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13023",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13028",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13030",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13035",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13037",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13040-13056",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everyone in the hut is fast asleep when the knocks come.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Everyone in the hut is fast asleep when the knocks come. Knock. Knock. Knock. Slow and even. (subject) sits bolt upright in the dark.\n(subject.He/She) creeps to the door and peers through a crack. Outside, in the pouring rain, stands a soaked traveler, hood dripping, holding out a parcel wrapped in waxed leaves and tied with string. The parcel hasn't been opened. The traveler waits, silent and patient, rain dripping off the end of (subject.his/her) nose. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Invite the Traveler In",
+     "next": "c1",
+     "src": "L13007"
+    },
+    {
+     "label": "Accept Only the Parcel",
+     "next": "c2",
+     "src": "L13008"
+    },
+    {
+     "label": "Ask the Traveler to Wait",
+     "next": "c3",
+     "src": "L13009"
+    },
+    {
+     "label": "Refuse to Open the Door",
+     "next": "c4",
+     "src": "L13010"
+    }
+   ],
+   "src": "L13004-13005"
+  },
+  "c1o1": {
+   "text": "The traveler warms up by the fire, eats a bowl of leftover stew, and falls asleep sitting up. In the morning, (subject) wakes to find the traveler already up and outside, cheerfully stacking firewood in the drizzle. \"Nice village,\" the traveler says. \"Mind if I stay?\" Nobody minds. The traveler joins the village that same day, and the parcel, it turns out, was a gift for whoever opened the door: a fine bone fishhook.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L13015"
+  },
+  "c1o2": {
+   "text": "The traveler sits by the fire and dries off, smiling but saying very little, and (subject) dozes off. When (subject.he/she) wakes at sunrise, the traveler is gone. The parcel sits by the fire, untied. Inside, wrapped neatly in leaves, is a generous bundle of dried fish, salted and smoked. A thank-you, apparently, for opening the door. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13017"
+  },
+  "c1": {
+   "text": "(subject) pulls the door open. \"Come in, come in, before you drown!\" The traveler stumbles gratefully inside and huddles by the embers...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13013"
+  },
+  "c2o1": {
+   "text": "Inside the parcel is a map, drawn on bark, showing a path into the hills and an X beside a little cluster of trees. (subject) follows it a few days later and finds an abandoned orchard, overgrown but alive, the branches heavy with fruit no one has picked in years. (subject) brings back as much as (subject.he/she) can carry, and goes back for more. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13022"
+  },
+  "c2o2": {
+   "text": "Inside the parcel is a wooden mask, split down the middle, and a note in shaky charcoal letters: \"I am sorry. Please forgive me.\" Nothing else. No name. No explanation. (subject) opens the door to ask the traveler what it means, but the traveler is gone, and the rain has washed away any footprints. (subject) keeps the mask, and the note, and wonders who was sorry, and for what.",
+   "src": "L13024"
+  },
+  "c2": {
+   "text": "(subject) opens the door just a crack and reaches out a hand. \"I'll take that,\" (subject.he/she) says. The traveler hands it over without a word, and (subject) shuts the door...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13020"
+  },
+  "c3o1": {
+   "text": "When (subject) and a sleepy (friend) come back, the traveler is still standing there patiently, dripping. They invite the traveler in together and sit up talking by the fire until dawn. The traveler is just a lost wanderer who saw the light in (subject)'s hut. In the morning, they send (subject.him/her) on (subject.his/her) way with directions and a full belly.",
+   "src": "L13029"
+  },
+  "c3o2": {
+   "text": "When (subject) comes back with (friend), the doorstep is empty. The traveler is gone. But the parcel is still there, sitting on the step, perfectly dry despite the rain, its string untouched. Nobody dares open it. In the end, (subject) puts it on a high shelf, and there it stays.",
+   "src": "L13031"
+  },
+  "c3": {
+   "text": "\"Just a moment,\" (subject) calls through the door. \"Wait there, please.\" (subject.He/She) hurries next door to wake (friend), so (subject.he/she) won't be alone...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13027"
+  },
+  "c4o1": {
+   "text": "After a while, the knocking stops. (subject) waits a long time, then creeps back to bed. Nothing else happens. The village sleeps undisturbed until morning, and the next day (subject) almost wonders if (subject.he/she) dreamed it.",
+   "src": "L13036"
+  },
+  "c4o2": {
+   "text": "At dawn, (subject) opens the door. On the muddy ground outside are footprints: a single set, leading away from the door, down through the village, across the dunes, all the way to the shore. They end at the water's edge. There are no footprints coming back. (subject) stands on the beach for a long time, looking out at the grey sea.",
+   "src": "L13038"
+  },
+  "c4": {
+   "text": "Nobody good knocks at midnight, (subject) decides. (subject.He/She) stays very still behind the door, holding (subject.his/her) breath, and doesn't answer...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13034"
+  }
+ }
+}

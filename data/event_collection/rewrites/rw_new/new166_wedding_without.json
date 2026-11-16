@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Without a Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new166_wedding_without",
+  "source": "rewrites",
+  "lines": [
+   8042,
+   8088
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8042",
+  "ledger": [
+   {
+    "src": "L8043",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8044",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8053",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8060",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8067",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8049",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8050",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8051",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8054",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8061",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8068",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8055",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8057",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8062",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8064",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8069",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8071",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8074-8088",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager want a quiet wedding.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) want a quiet wedding. Just the two of them, on the beach, at sunrise, with nothing but the waves for company.\nTheir relatives have other ideas.\nTheir relatives are planning a three-day feast. With drums. And dancers. And a fish the size of a canoe, which an uncle has already gone out to catch, and has promised not to come back without. One aunt has started weaving garlands. There are already forty garlands. There are going to be more garlands.\n(subject) and (friend) are sitting on the beach at sunrise, the way they want to get married, hiding. How can they tell their families what they really want?",
+   "choices": [
+    {
+     "label": "Speak to the Relatives Alone",
+     "next": "c1",
+     "src": "L8049"
+    },
+    {
+     "label": "Slip Away for an Afternoon",
+     "next": "c2",
+     "src": "L8050"
+    },
+    {
+     "label": "Ask a Married Friend",
+     "next": "c3",
+     "src": "L8051"
+    }
+   ],
+   "src": "L8045-8048"
+  },
+  "c1o1": {
+   "text": "The pair explain how they feel, gently, without demanding that anyone give in. There is a long silence. Then (subject)'s grandmother says, \"Well, why didn't you say so?\" A compromise is found: a sunrise wedding on the beach, just the two of them, and THEN the feast. With the fish. The uncle is relieved.",
+   "src": "L8056"
+  },
+  "c1o2": {
+   "text": "Halfway through, (friend) stops, and confesses that, actually, secretly, (subject.he/she) wants the feast after all. The drums. The dancers. Maybe even the fish. (subject) stares at (subject.him/her), then accepts it with a laugh. \"Fine. But I'm not wearing forty garlands.\"",
+   "src": "L8058"
+  },
+  "c1": {
+   "text": "(subject) and (friend) gather their families together, take a deep breath, and try to explain...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8054"
+  },
+  "c2o1": {
+   "text": "On the rocks, away from the garlands, they remember that it doesn't really matter how they get married, only that they do. They promise each other many more quiet afternoons like this, after the wedding, whatever kind it turns out to be. They come home calm. The relatives think they've been kidnapped.",
+   "src": "L8063"
+  },
+  "c2o2": {
+   "text": "Talking it through, they find they want very different weddings, even though they want each other completely. One dreams of quiet. One, it turns out, dreams of drums. They don't solve it that afternoon. But they hold hands the whole way home.",
+   "src": "L8065"
+  },
+  "c2": {
+   "text": "The two of them escape the planning entirely, and spend an afternoon alone on the rocks above the sea...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8061"
+  },
+  "c3o1": {
+   "text": "(Name3) listens to them both, and leaves the choice to them. \"The wedding is one day,\" (subject.he/she) says. \"The marriage is the rest. Choose the day that starts it right for you.\" The couple decide, that evening, on a sunrise wedding. And then a feast. A small one.",
+   "src": "L8070"
+  },
+  "c3o2": {
+   "text": "(Name3)'s advice is simply: \"Elope.\" That's all. Just \"Elope,\" and then a wink. This is not helpful, so the couple follow their own judgment. But they do think about it. For a while. Quite seriously.",
+   "src": "L8072"
+  },
+  "c3": {
+   "text": "(subject) and (friend) go to (name3), who has been happily married for many years...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8068"
+  }
+ }
+}

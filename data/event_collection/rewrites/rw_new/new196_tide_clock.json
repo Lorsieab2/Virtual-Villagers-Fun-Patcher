@@ -1,0 +1,322 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tide Clock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new196_tide_clock",
+  "source": "rewrites",
+  "lines": [
+   9556,
+   9612
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9556",
+  "ledger": [
+   {
+    "src": "L9557",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9558",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9568",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9575",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9582",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9589",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9563",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9564",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9565",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9566",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9569",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9576",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9583",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9590",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9570",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9572",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9577",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9579",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9586",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9591",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9596-9612",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Several others think it's a lot of stick-carrying.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has an idea. Every day, at exactly the same moment \\(when the sun touches the top of the big rock on the point\\), (subject.he/she) will plant a marker stick in the sand at the waterline.\n\"If we know the tide,\" (subject.he/she) explains to the other fishers, \"we know the fish.\"\nSeveral of the fishers think this is brilliant. Several others think it's a lot of stick-carrying. One fisher has pointed out that they already know the tide, because it's \"the wet bit.\" (subject) is ignoring that fisher.\n(subject) has already gathered a large bundle of sticks. Is it a brilliant idea, or just a lot of stick-carrying?",
+   "choices": [
+    {
+     "label": "Plant a Stick Every Day",
+     "next": "c1",
+     "src": "L9563"
+    },
+    {
+     "label": "Test Moon Against Wind",
+     "next": "c2",
+     "src": "L9564"
+    },
+    {
+     "label": "Ask Whether the Rock Moves",
+     "next": "c3",
+     "src": "L9565"
+    },
+    {
+     "label": "Teach the Stick Line",
+     "next": "c4",
+     "src": "L9566"
+    }
+   ],
+   "src": "L9559-9562"
+  },
+  "c1o1": {
+   "text": "After a moon of sticks, there's a long, curving line of them across the beach, and (subject) can see it clearly: the waterline creeps along the beach in a steady order, day after day, and then comes back again. It's a repeatable pattern that adds to village knowledge, and the fishers start planning their trips by the stick line. Even the \"wet bit\" fisher.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9571"
+  },
+  "c1o2": {
+   "text": "Storms and wind scatter the line of sticks, and some get used as firewood by someone who didn't know. (subject) records honestly that (subject.he/she) can't be sure of anything. Then (subject.he/she) starts again, with heavier sticks.",
+   "src": "L9573"
+  },
+  "c1": {
+   "text": "Every day for a whole moon, (subject) waits for the sun to touch the rock, and plants a stick at the water's edge...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9569"
+  },
+  "c2o1": {
+   "text": "Comparing the sticks with the shape of the moon each night shows it clearly: the moon fits the tide's pattern far better than the wind does. The highest sticks are at full and new moon, every time. It's a useful discovery, and the fishers start planning their biggest trips by the moon. (subject) is unbearably smug for a week.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9578"
+  },
+  "c2o2": {
+   "text": "Both the moon and the wind still seem to matter, pulling the sticks in different directions. More sticks are needed. The other fishers groan.",
+   "src": "L9580"
+  },
+  "c2": {
+   "text": "(subject) wonders: is the tide following the moon, or the wind? (subject.He/She) starts noting both, beside each stick...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9576"
+  },
+  "c3o1": {
+   "text": "(child) asks, innocently, \"But does the sun touch the rock at the same time every day? Doesn't it go up later in the winter?\" There's a long silence. Everyone had assumed the moment was always the same. It's a hidden assumption in the whole method, exposed by a child, and (subject) has to rethink the whole thing. The village learns to always check the thing it's measuring with.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9585"
+  },
+  "c3o2": {
+   "text": "The fishers argue about what \"touching the rock\" means. The bottom of the sun? The middle? When it first goes behind? They finally agree on the very top edge of the rock. The arguing takes longer than planting the sticks.",
+   "src": "L9587"
+  },
+  "c3": {
+   "text": "(subject) invites everyone to poke holes in the method...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9583"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the daily stick marking without needing the big rock at all: counting breaths from sunrise, using shadow lengths, keeping a knotted cord of days. (novice) learns a great deal about measuring time and tide, and keeps the line perfectly while (subject) is away.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9592"
+  },
+  "c4o2": {
+   "text": "(novice) notices that two of the sticks were planted at the wrong time, on cloudy days when nobody could see the sun touch the rock. They were guesses. The group revises its notes, and marks the cloudy-day sticks with a ring of shells.",
+   "src": "L9594"
+  },
+  "c4": {
+   "text": "(subject) decides to teach (novice) how to keep the stick line, so it can carry on when (subject) is out fishing...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9590"
+  }
+ }
+}

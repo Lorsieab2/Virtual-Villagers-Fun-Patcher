@@ -1,0 +1,334 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Basket of Unknown Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my095_basket_unknown",
+  "source": "rewrites",
+  "lines": [
+   15382,
+   15437
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15382",
+  "ledger": [
+   {
+    "src": "L15383",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15384",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15392",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15406",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15413",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15387",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15388",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15389",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15390",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15393",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15400",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15407",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15414",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15394",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15396",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15401",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15403",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15408",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15410",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15415",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15417",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15420-15437",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A covered basket has appeared outside the food store overnight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "botanist": {
+   "kind": "villager"
+  },
+  "farmer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A covered basket has appeared outside the food store overnight. Inside, nestled in fresh leaves, are fruits nobody has ever seen: pear-shaped, with skins like purple velvet, and they smell of honey and cut grass. Tucked among them is a note: \"For those who dare to taste.\"\nA crowd has gathered. Everyone wants to try one. Nobody wants to be first. All eyes slowly turn to (subject), who was unwise enough to be standing nearest the basket and holding one. Should (subject) take the first bite?",
+   "choices": [
+    {
+     "label": "Identify the Fruit",
+     "next": "c1",
+     "src": "L15387"
+    },
+    {
+     "label": "Try a Small Portion",
+     "next": "c2",
+     "src": "L15388"
+    },
+    {
+     "label": "Search for the Giver",
+     "next": "c3",
+     "src": "L15389"
+    },
+    {
+     "label": "Plant the Seeds",
+     "next": "c4",
+     "src": "L15390"
+    }
+   ],
+   "src": "L15385-15386",
+   "text_only": [
+    {
+     "src": "L15385",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The botanist sniffs one, cuts one, examines the seeds, and finally consults a battered old book. \"Velvet pear,\" (subject.he/she) announces. \"Grows on the far side of the island. Perfectly safe, and supposed to be delicious. I've only ever seen a drawing.\" Everyone digs in. It is delicious: pink and sweet, with a hint of spice. The basket is empty in minutes, and (botanist) organizes an expedition to find the trees, which returns with a great deal more.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L15395"
+  },
+  "c1o2": {
+   "text": "(botanist) examines the fruit for a very long time, consults three books and an elder, and finally shakes (subject.his/her) head. \"I have no idea what this is,\" (subject.he/she) admits. \"It could be the most delicious thing on the island, or it could kill us all. I'm not willing to find out.\" The basket is set aside. Over the next week, the fruits slowly wrinkle and dry up, and the whole village sighs every time they walk past.",
+   "src": "L15397"
+  },
+  "c1": {
+   "text": "\"Nobody eats anything,\" (subject) says firmly, \"until someone who knows plants has a look.\" (subject.He/she) fetches (botanist), the village botanist, who arrives with a magnifying shell and a great deal of self-importance...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15393"
+  },
+  "c2o1": {
+   "text": "\"It's... actually quite nice,\" (subject) says. Then (subject.his/her) face changes. By evening, (subject.he/she) is burning with fever and clutching (subject.his/her) stomach, and the healers put (subject.him/her) to bed with nothing but rest and broth for several days. (subject.He/she) recovers, slowly. The rest of the basket is thrown far into the sea. \"For those who dare to taste\" becomes the village's way of describing anything that seemed like a good idea at the time.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L15402"
+  },
+  "c2o2": {
+   "text": "(subject) chews. (subject.His/her) eyes go wide. \"Oh,\" (subject.he/she) says. \"Oh, that's good.\" The flesh is pink and sweet, with a hint of spice, and the crowd falls on the basket like starving gulls. The children beg for more. (subject) has never tasted anything like it, and from that day on (subject.he/she) cannot get enough fruit of any kind, and becomes a familiar sight at every fruit tree on the island, hoping for anything half as good.",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "fruit",
+     "role": "subject"
+    }
+   ],
+   "src": "L15404"
+  },
+  "c2": {
+   "text": "\"Fine,\" (subject) says, with the air of a hero going into battle. (subject.He/she) cuts a tiny sliver of the fruit, holds it up to the crowd, and pops it in (subject.his/her) mouth. Everyone holds their breath...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15400"
+  },
+  "c3o1": {
+   "text": "It does not take long. (farmer), a farmer from the edge of the village, turns pink and admits it. \"I found the trees on the far side of the island last season, and I've been growing them in secret,\" (subject.he/she) confesses. \"I wanted to surprise everyone. I thought the note was funny.\" (farmer) is mildly scolded for the note, then enthusiastically thanked for the fruit, and spends the next month being followed around by children.",
+   "src": "L15409"
+  },
+  "c3o2": {
+   "text": "Nobody claims the basket. Nobody saw anyone near the food store. Nobody on the island, as far as anyone knows, grows such a fruit. And yet the leaves lining the basket are fresh, the stems still green, as if it was packed only hours ago. The fruits are eaten in the end, and are lovely. But the village spends a long time wondering who dared them to.",
+   "src": "L15411",
+   "text_only": [
+    {
+     "src": "L15411",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(subject) wants to know who leaves mysterious fruit outside food stores in the middle of the night. (subject.He/she) sets off around the village, basket on (subject.his/her) hip, asking everyone (subject.he/she) meets...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15407",
+   "text_only": [
+    {
+     "src": "L15407",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o1": {
+   "text": "Within a week, every seed has sprouted. By the end of the season, the row is a line of sturdy young trees with velvety leaves, already budding. It will be years before they fruit. But the farmers are delighted, the children are impatient, and (subject) visits the row every evening to check on (subject.his/her) trees, which (subject.he/she) has, of course, given names.",
+   "src": "L15416"
+  },
+  "c4o2": {
+   "text": "(subject) waters them every day. Nothing comes up. Not a single sprout. When (subject.he/she) finally digs one up to look, the seed has simply vanished from the soil, as though it was never there. The rest of the fruit, set aside in the meantime, has rotted to mush. The mystery remains, and so does a faint smell of honey and cut grass at the edge of the garden, which never quite goes away.",
+   "src": "L15418",
+   "text_only": [
+    {
+     "src": "L15418",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4": {
+   "text": "Rather than risk eating them, (subject) suggests planting them. (subject.He/she) cuts the fruits open, carefully takes out the big glossy seeds, and plants a row of them along the edge of the garden...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15414"
+  }
+ }
+}

@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Footprint",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my003_second_footprint",
+  "source": "rewrites",
+  "lines": [
+   9992,
+   10047
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L9992",
+  "ledger": [
+   {
+    "src": "L9993",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9994",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10003",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10010",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10017",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10024",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9998",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9999",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10000",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10001",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10004",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10011",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10018",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10025",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10005",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10007",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10012",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10019",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10021",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10026",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10028",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10031-10047",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "What should a villager do?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) comes back from a long walk alone with mud up to (subject.his/her) ankles and a very puzzled look on (subject.his/her) face. \"Did anyone follow me?\" (subject.he/she) asks around. Nobody did. But behind (subject.him/her), all the way down the path, there are two sets of footprints. One is (subject)'s. The other is smaller and lighter, pressed only at the toes, as if whoever made it had been tiptoeing very carefully right beside (subject.him/her) the whole way.\n(subject) swears up and down that (subject.he/she) walked alone. The others are starting to look at (subject.him/her) funny. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Follow the Prints",
+     "next": "c1",
+     "src": "L9998"
+    },
+    {
+     "label": "Ask the Elders",
+     "next": "c2",
+     "src": "L9999"
+    },
+    {
+     "label": "Wait at the Path",
+     "next": "c3",
+     "src": "L10000"
+    },
+    {
+     "label": "Leave an Offering",
+     "next": "c4",
+     "src": "L10001"
+    }
+   ],
+   "src": "L9995-9996"
+  },
+  "c1o1": {
+   "text": "The prints lead to the hollow of a fallen log, where (subject) finds a sealed clay bottle stoppered with wax. Inside is a scrap of bark cloth with a map drawn in faded red dye: a coastline, a cove, a little mark like a star. Nobody recognizes the cove. The elders hang the map in the meeting hut, and the young ones spend weeks arguing about where it might be.",
+   "src": "L10006"
+  },
+  "c1o2": {
+   "text": "The tiptoeing prints lead all the way to the water's edge and stop. There, neatly side by side at the tide line, sits a pair of small woven sandals that belong to no one in the village. The tide is coming in. (subject) picks them up before the sea can take them, and they sit by (subject.his/her) door for a long time, waiting for someone to come back for them. No one ever does.",
+   "src": "L10008"
+  },
+  "c1": {
+   "text": "(subject) grabs a walking stick and sets off back down the path, eyes on the ground. The second set of prints stays beside (subject.his/her) own for a long way, then veers off into the trees all on its own...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10004"
+  },
+  "c2o1": {
+   "text": "(friend), one of the oldest villagers, goes very quiet. \"That happened to my cousin, when I was small,\" (friend.he/she) says at last. \"Two sets of prints, and only one walker.\" The others lean in. \"And then what?\" (subject) asks. The elder shakes (friend.his/her) head, gets up, and goes home. No amount of asking will get the rest out of (friend.him/her), which is honestly worse than any ending (friend.he/she) could have told.",
+   "src": "L10013"
+  },
+  "c2o2": {
+   "text": "The elders do some detective work, and by evening they've caught the culprit: a giggling youngster with two little carved wooden soles strapped to a stick, who has been sneaking along behind people for days, \"walking\" fake footprints next to theirs. The child gets a stern talking-to. (subject) gets teased for a month. \"Careful, (subject), your friend's behind you!\"",
+   "src": "L10015"
+  },
+  "c2": {
+   "text": "(subject) brings the whole puzzle to the elders, who listen gravely, then go look at the path themselves, muttering...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10011"
+  },
+  "c3o1": {
+   "text": "At dusk, (subject) hears it: light footsteps on the path, right beside the stump, pausing exactly where (subject.he/she) is sitting. There's no one there. (subject) holds very still. After a long, long moment, the footsteps move on toward the village. (subject) goes home by a different path, very fast.",
+   "src": "L10020"
+  },
+  "c3o2": {
+   "text": "Just after dark, a small, light-footed traveler comes padding down the path on tiptoe, trying not to wake anyone. \"Oh! Sorry!\" (subject.he/she) whispers when (subject.he/she) spots (subject). \"I cut through here every night on my way to the coast. I always walk on my toes. Bad knees.\" Mystery solved. (subject) feels a little silly, and a little disappointed.",
+   "src": "L10022"
+  },
+  "c3": {
+   "text": "(subject) decides to settle it once and for all. (subject.He/She) sits on a stump beside the path as the sun goes down, arms folded, watching...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10018"
+  },
+  "c4o1": {
+   "text": "By morning, the fruit is gone, and in its place lies a fresh fish, still glistening and cold, as if it had just left the water. The sea is a long walk away. (subject) cooks it for the family that night, and nobody can decide whether to be delighted or nervous, so they settle for both. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10027"
+  },
+  "c4o2": {
+   "text": "The fruit sits there, untouched, for three days. Then the rain comes and washes it all away. The second set of prints never appears again. Maybe whoever it was didn't like fruit.",
+   "src": "L10029"
+  },
+  "c4": {
+   "text": "Just in case, (subject) leaves a small bowl of fruit at the spot where the second prints began, and says a quiet word of thanks to whoever \\(or whatever\\) kept (subject.him/her) company...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10025"
+  }
+ }
+}

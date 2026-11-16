@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Laziest Summer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b288_laziest_summer",
+  "source": "balance",
+  "lines": [
+   13390,
+   13430
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13390",
+  "ledger": [
+   {
+    "src": "L13391",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13392",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13408",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13396",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13397",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13400",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13409",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13405",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13417-13430",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's been so hot for so long that a villager has given up on everything except lying in a hammock.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's been so hot for so long that (name) has given up on everything except lying in a hammock. (He/She) loves lying in a hammock. (He/She) has always loved it. But this summer (he/she) has done it so much that the hammock has worn a groove in each palm, and the other villagers have started leaving their chores at the foot of the hammock as a hint.\nThis morning there is a pile of baskets, a broken spear and a goat. The goat is looking at (him/her). Should (name) get up and do the chores, or roll over and ignore the goat?",
+   "choices": [
+    {
+     "label": "Get Up and Do Them",
+     "next": "c1",
+     "src": "L13396"
+    },
+    {
+     "label": "Roll Over",
+     "next": "c2",
+     "src": "L13397"
+    }
+   ],
+   "src": "L13393-13394"
+  },
+  "c1o1": {
+   "text": "By the time (he/she) has finished the pile, (name) has found out (he/she) rather likes being busy. When (he/she) goes back to the hammock that evening, it feels strangely dull. (He/She) lies there for a minute, gets up again, and goes to see if anyone needs help with supper. The hammock hangs empty for the rest of the summer, and the goat moves into it.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L13403"
+  },
+  "c1o2": {
+   "text": "The goat does not want to be milked. It kicks the bucket over, kicks (name), and finally sits on (him/her). By the time (name) gets out from under it, (he/she) has made up (his/her) mind about work for good: it is a trap, and the goat is in on it. \"I got up once,\" (he/she) says darkly, climbing back into the hammock. \"Look where it got me.\"",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "work",
+     "role": "subject"
+    }
+   ],
+   "src": "L13406"
+  },
+  "c1": {
+   "text": "(Name) groans, swings (his/her) legs out of the hammock and starts on the pile. The baskets first, then the spear, then the goat, which turns out to need milking...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13400"
+  },
+  "c2o1": {
+   "text": "The goat stands there all day. It stands there all night. In the morning it is still there, chewing slowly, staring. (Name) cracks. (He/She) gets up and works through the whole pile, the baskets, the spear and the goat, and finds, to (his/her) annoyance, that the worst part of work was lying in the hammock thinking about it. The goat follows (him/her) everywhere after that, as if to make sure.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "work",
+     "role": "subject"
+    }
+   ],
+   "src": "L13412"
+  },
+  "c2o2": {
+   "text": "The goat starts chewing on the hammock rope. (Name) doesn't notice until the rope gives way and (he/she) lands on (his/her) back in the dust with a thump that knocks the breath out of (him/her). After that, (he/she) can't relax in a hammock, or on a mat, or anywhere at all, without listening for chewing.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L13415"
+  },
+  "c2": {
+   "text": "(Name) rolls over to face the other way. The goat walks around the hammock and looks at (him/her) from the other side...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13409"
+  }
+ }
+}

@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Harvest Moon Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b356_harvest_moon",
+  "source": "balance",
+  "lines": [
+   16421,
+   16462
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16421",
+  "ledger": [
+   {
+    "src": "L16422",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16423",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16430",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16439",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16427",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16428",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16431",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16440",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16433",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16436",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16442",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16445",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16448-16462",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is mostly an excuse for the young people to show off.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the harvest moon, the couples of the village dance in a ring around the fire, and the old saying is that the couple who dances longest will have a child before the next harvest. It is mostly an excuse for the young people to show off. This year, (subject) and (friend) are determined to outlast everyone, and by midnight they are the last couple still dancing.\n(subject)'s feet are aching. (friend) is staggering. Should they keep dancing until dawn, or stop now while they've already won?",
+   "choices": [
+    {
+     "label": "Dance Until Dawn",
+     "next": "c1",
+     "src": "L16427"
+    },
+    {
+     "label": "Stop Now",
+     "next": "c2",
+     "src": "L16428"
+    }
+   ],
+   "src": "L16424-16425"
+  },
+  "c1o1": {
+   "text": "At dawn they fall in a heap by the embers, and the whole village cheers. Before the next harvest, (subject) is pregnant, just as the saying promised. The elders tell the story at every harvest dance after that, and the young couples dance even longer, trying to beat it. Nobody ever does.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L16434"
+  },
+  "c1o2": {
+   "text": "As the sun comes up and they finally stop, a traveller who has been watching from the edge of the firelight comes forward with a baby in (subject.his/her) arms. \"I can't care for (subject.him/her),\" the traveller says quietly. \"I've been looking for a village where people love each other this much.\" The traveller leaves the baby with them and walks away down the beach.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L16437"
+  },
+  "c1": {
+   "text": "They dance on, slower and slower, holding each other up, while the drummers swap places three times and the village cheers them on...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16431"
+  },
+  "c2o1": {
+   "text": "They won, after all. Before the next harvest, (subject) is pregnant. \"It's the winning, not the dawn,\" the eldest says, which is not what (subject.he/she) said last year. (friend) is so happy that (subject.he/she) dances alone around the fire the night the baby is born, until (subject.his/her) feet give out again.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L16443"
+  },
+  "c2o2": {
+   "text": "The saying doesn't hold. No baby comes before the next harvest. But (subject) and (friend) don't mind. They dance again the next year, and stop at midnight again, and decide that the dancing was the point. \"Next year,\" says (friend), \"we'll go to dawn.\" They never do.",
+   "src": "L16446"
+  },
+  "c2": {
+   "text": "\"We've won,\" gasps (friend). \"Sit down. Please.\" They sit by the fire, and someone brings them coconut water, and the drums play on...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16440"
+  }
+ }
+}

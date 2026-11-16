@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island Wedding",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b238_island_wedding",
+  "source": "balance",
+  "lines": [
+   11074,
+   11118
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11074",
+  "ledger": [
+   {
+    "src": "L11075",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11076",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11084",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11093",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11081",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11082",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11085",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11094",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11087",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11090",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11096",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11099",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11102-11118",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Which string should they choose?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are being joined today, under the old flowering tree at the top of the beach, with the whole village there. At the end of the ceremony, the custom is that the eldest elder ties a string of shells round both their wrists, and the number of shells on the string, the saying goes, is \"the number of babies the island will send.\"\n(elder), the eldest elder, has brought two strings. One has one shell on it. One has three. (subject.He/She) is holding them both up, with a wicked smile, and asking the couple to choose.\nWhich string should they choose?",
+   "choices": [
+    {
+     "label": "The Three-Shell String",
+     "next": "c1",
+     "src": "L11081"
+    },
+    {
+     "label": "The One-Shell String",
+     "next": "c2",
+     "src": "L11082"
+    }
+   ],
+   "src": "L11077-11079"
+  },
+  "c1o1": {
+   "text": "Before the next rains, (subject) is pregnant, and the healers, feeling (subject.his/her) belly, tell them to expect {#babies:a baby|twins|triplets}. \"{#babies:The island must have lost count|Two out of three|The island always keeps its word},\" says (elder), very pleased with (subject.himself/herself). (friend) goes and sits down under the flowering tree for a while.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L11088"
+  },
+  "c1o2": {
+   "text": "The next morning, there's a basket under the flowering tree with a baby in it, and nobody in the village knows whose. (elder) looks at the three-shell string, and at the baby, and says, \"Well, that's one.\" (subject) and (friend) take the baby home. They wait, a little nervously, for the other two.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11091"
+  },
+  "c1": {
+   "text": "\"Three,\" says (friend), before (subject) can stop (subject.him/her). The village roars with laughter. (elder) ties the three-shell string round both their wrists, and it rattles...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11085"
+  },
+  "c2o1": {
+   "text": "Before the next rains, (subject) is pregnant with one baby, exactly as the string said. (friend) is delighted. (subject) is relieved. (elder) keeps the three-shell string for the next wedding, and shows it to every couple with the same wicked smile.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L11097"
+  },
+  "c2o2": {
+   "text": "Before the next rains, (subject) is pregnant, and the healers tell them to expect {#babies:a baby|twins|triplets}. \"{#babies:Just as the string said|The island can't count|The island has a sense of humour},\" says (elder), when (subject.he/she) has stopped laughing. (subject) looks at the one-shell string on (subject.his/her) wrist for a long time.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L11100"
+  },
+  "c2": {
+   "text": "\"One,\" says (subject), firmly. \"One is plenty to start with.\" (elder) ties the one-shell string round their wrists, looking slightly disappointed...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11094"
+  }
+ }
+}

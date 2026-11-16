@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sea's Three Warnings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my038_sea_three",
+  "source": "rewrites",
+  "lines": [
+   12057,
+   12112
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12057",
+  "ledger": [
+   {
+    "src": "L12058",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12059",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12068",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12075",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12082",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12089",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12063",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12064",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12065",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12066",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12069",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12076",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12083",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12090",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12070",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12072",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12077",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12079",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12084",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12086",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12091",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12093",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12096-12112",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L12085",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The sea will give you three signs, the stranger says, very seriously.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is mending a canoe on the beach when a stranger walks up out of the surf, barefoot and soaking, with seaweed tangled in (his/her) hair, as if (he/she) had just strolled out of the waves.\n\"The sea will give you three signs,\" the stranger says, very seriously. \"Three. And after the third, it will take something back.\" Then the stranger just stands there, dripping, waiting to see what (name) will do. The sea behind (him/her) is calm and blue. What should (name) do?",
+   "choices": [
+    {
+     "label": "Watch the Tides",
+     "next": "c1",
+     "src": "L12063"
+    },
+    {
+     "label": "Ask What Will Be Taken",
+     "next": "c2",
+     "src": "L12064"
+    },
+    {
+     "label": "Ignore the Warning",
+     "next": "c3",
+     "src": "L12065"
+    },
+    {
+     "label": "Share the Warning",
+     "next": "c4",
+     "src": "L12066"
+    }
+   ],
+   "src": "L12060-12061"
+  },
+  "c1o1": {
+   "text": "On the third day, three strange waves arrive, one after the other, far bigger than anything else that day, rolling up the sand in long, foaming lines. (Name) leaps up, braced for the worst. And then... nothing. The sea goes calm again. No storm, no flood, no disaster. (Name) sits back down, very confused, and eventually goes home for supper.",
+   "src": "L12071"
+  },
+  "c1o2": {
+   "text": "On the third day, the sea goes strangely still, and pulls back from the shore. (Name) doesn't wait for anything else. (He/She) races down and hauls every basket of dried fish and stored food up the beach, yelling for help. They've just finished when a wave rolls in further than any wave all season, right over the spot where the baskets stood. The village saves every bit of it. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12073"
+  },
+  "c1": {
+   "text": "(Name) sits up on the dunes for three days, watching the sea for signs. The other villagers think (he/she) has lost (his/her) mind...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12069"
+  },
+  "c2o1": {
+   "text": "The stranger looks at (name) with deep, calm eyes. \"Only what was borrowed,\" (he/she) says. Then the stranger turns and walks back into the surf, and keeps walking, until the waves close over (his/her) head. (Name) runs down to the water's edge, but there's nothing there. Only foam, and the sound of the sea.",
+   "src": "L12078"
+  },
+  "c2o2": {
+   "text": "The stranger laughs and wrings out (his/her) hair. \"Oh, nothing in particular! It's an old fisher's proverb from my village. 'The sea gives three signs before it takes.' It just means be careful.\" The stranger was swimming across from the next cove, it turns out, and thought it would be fun to say it dramatically. It was. (Name) is still a bit annoyed.",
+   "src": "L12080"
+  },
+  "c2": {
+   "text": "\"What do you mean, take something back?\" (name) demands. \"Take what?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12076"
+  },
+  "c3o1": {
+   "text": "That evening, a big wave sneaks up the beach and drags a basket of food out into the water. It's a good basket, too, the one with the red stripe, full of dried fish. It bobs out past the reef while (name) splashes after it, and then it's gone. \"Was that the third sign?\" someone asks. Nobody knows.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L12085"
+  },
+  "c3o2": {
+   "text": "Nothing happens. Not that day, not the next, not that whole season. No signs, no waves, nothing taken. The warning fades into memory, and (name) forgets all about it, until one day years later (he/she) catches (himself/herself) saying it to a child: \"The sea gives three signs, you know...\"",
+   "src": "L12087"
+  },
+  "c3": {
+   "text": "\"Thanks, I'll keep it in mind,\" (name) says, and goes back to (his/her) canoe. The stranger shrugs and wanders off down the beach...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12083"
+  },
+  "c4o1": {
+   "text": "The village takes it seriously. Canoes are dragged up above the tideline and tied down, nets are brought in, stores are moved to higher ground. When a squall blows in two days later, rough and nasty, not a single boat is lost. Whether the stranger knew, or whether they were just ready, the fishers save (name) the best fish from the next catch.",
+   "src": "L12092"
+  },
+  "c4o2": {
+   "text": "The warning spreads, and grows, and changes as it goes, until by the next day the children are convinced the sea is going to come up the beach and gobble them up. Little ones refuse to go near the water. Several have nightmares. (Name) spends a whole week trying to calm everyone down, and feels terrible about the whole thing.",
+   "src": "L12094"
+  },
+  "c4": {
+   "text": "(Name) runs to tell the fishers and the elders, and the warning spreads around the village faster than fire...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12090"
+  }
+ }
+}

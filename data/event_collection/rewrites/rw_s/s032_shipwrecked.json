@@ -1,0 +1,246 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shipwrecked Family",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s032_shipwrecked",
+  "source": "rewrites",
+  "lines": [
+   1498,
+   1543
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1498",
+  "ledger": [
+   {
+    "src": "L1499",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1500",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1508",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1517",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1505",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1506",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1509",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1518",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1511",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1514",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1520",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1523",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1526-1543",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1512",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "There are three people clinging to it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At dawn, under a sky still grey and heavy with last night's rain, the fishers spot something out past the reef: a battered outrigger canoe, low in the water, half its float torn away, drifting slowly towards the bay. There are three people clinging to it. A tired, sunburnt adult. A teenager with an arm hooked round the mast. And a small child, wrapped in a soaked cloth, tucked between them.\nThey are cold. They are hungry. They don't seem quite sure where they are, or which way is land.\nThey only know where they want to be, the adult calls hoarsely across the water: anywhere dry. The swell over the reef is rough. Should the village risk the canoes to bring them ashore, or send food out to them?",
+   "choices": [
+    {
+     "label": "Bring Them Ashore",
+     "next": "c1",
+     "src": "L1505"
+    },
+    {
+     "label": "Send Food Out to Them",
+     "next": "c2",
+     "src": "L1506"
+    }
+   ],
+   "src": "L1501-1503",
+   "text_only": [
+    {
+     "src": "L1503",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The three of them are carried up the beach and wrapped in every blanket the village owns. The cooks bring warm soup, and then more soup, and then mashed fruit for the little one, and the village keeps feeding them until they finally stop shivering and start to smile. They were fishing, the adult says, and the storm took them, and they've been drifting for four days. When they've rested, the elders offer them a hut. The adult looks at the teenager. The teenager looks at the child, who is already playing with the village children in the sand. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1512"
+  },
+  "c1o2": {
+   "text": "They rest for several days, eating and sleeping and slowly getting their strength back. The adult is very grateful, but restless, and spends a lot of time looking out to sea. \"The rest of our people will think we're lost,\" (he/she) says. The builders help mend the outrigger, and the adult and the child paddle off to find home, with full bellies and a basket of food. But the teenager asks to stay. \"I like it here,\" (he/she) says simply. \"It's quiet.\" The adult hugs (him/her) for a long time, then lets (him/her) go.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "teen"
+    }
+   ],
+   "src": "L1515",
+   "text_only": [
+    {
+     "src": "L1515",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "Three canoes go out at once. The fishers paddle hard through the swell, lash the wreck to their own boats with rope, and tow it in, while the whole village gathers on the sand with blankets, shouting encouragement...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1509"
+  },
+  "c2o1": {
+   "text": "They take the food gratefully and eat it there on the drifting wreck. Then the current catches them and carries them on past the bay and round the point, and they're gone. A week later, the very same outrigger comes back into the bay, mended and fully patched, paddled by the same adult and two other strangers, and loaded to the brim with fresh fish, as thanks. \"You fed us when we were starving,\" the adult says. \"Now we feed you.\" Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1521"
+  },
+  "c2o2": {
+   "text": "They wave from the boat, and eat, and then, to everyone's surprise, they start paddling. Not out to sea: straight for the shore, as hard as they can, wrecked float and all. They wash up on the beach in a tangle of rope and wet cloth. \"We could smell the cooking,\" the child explains, very seriously, as the villagers help them out. The teenager, it turns out, had only been helping them out at sea, and swims off round the point to (his/her) own people. The adult and the child stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L1524"
+  },
+  "c2": {
+   "text": "The reef is rough and the swell is high. Instead of risking more canoes, the fishers paddle out just far enough to throw a bundle of food and a gourd of water across to the wreck. The adult catches them, clumsily, and holds them up with a tired wave...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1518",
+   "text_only": [
+    {
+     "src": "L1518",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

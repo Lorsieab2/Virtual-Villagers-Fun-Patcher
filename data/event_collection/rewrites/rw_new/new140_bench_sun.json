@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bench in the Sun",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new140_bench_sun",
+  "source": "rewrites",
+  "lines": [
+   6584,
+   6631
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6584",
+  "ledger": [
+   {
+    "src": "L6585",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6586",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6596",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6603",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6610",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6592",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6593",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6594",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6597",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6604",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6611",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6598",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6600",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6605",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6607",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6612",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6614",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6617-6631",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has asked for a bench.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has asked for a bench.\nNot just any bench. A bench on the bluff above the shore, where (subject.he/she) can sit and watch the fishing canoes come home each evening, the way (subject.he/she) used to watch for (subject.his/her) own family's canoe when (subject.he/she) was young.\nIt is a steep climb up the bluff. The builders are busy. Someone mentions this.\n(subject) points out, quite reasonably, that (subject.he/she) will not be asking for many more things.\nThere is a very uncomfortable silence. (young) finds (subject.himself/herself) already reaching for a hammer. But where exactly should the bench go, and how will (subject) get up there every evening?",
+   "choices": [
+    {
+     "label": "Ask Where Exactly It Should Go",
+     "next": "c1",
+     "src": "L6592"
+    },
+    {
+     "label": "Learn What They Watch For",
+     "next": "c2",
+     "src": "L6593"
+    },
+    {
+     "label": "Build Steps Up the Bluff",
+     "next": "c3",
+     "src": "L6594"
+    }
+   ],
+   "src": "L6587-6591"
+  },
+  "c1o1": {
+   "text": "(subject) knows exactly where: (subject.he/she) describes the spot down to the angle of the sunset and which rock it should face, with no one else deciding. (young) builds it right there. That evening, (subject) sits on (subject.his/her) new bench for the first time and watches the canoes come home, and doesn't say a word for an hour.",
+   "src": "L6599"
+  },
+  "c1o2": {
+   "text": "(subject) wants to choose the spot (subject.himself/herself), but asks for help getting up the bluff. (subject.He/She) surprises everyone who expected (subject.him/her) to march up there alone. With (young) on one side and a grandchild on the other, (subject.he/she) makes it to the top, catches (subject.his/her) breath, and points. \"There.\"",
+   "src": "L6601"
+  },
+  "c1": {
+   "text": "(young) asks (subject) exactly where the bench should go. (subject)'s face lights up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6597"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) how to read the coming weather from the clouds over the sea: the fluffy ones are safe, the long flat ones mean wind tomorrow, the dark piled ones mean get the canoes in now. It is a useful skill for any fisher, and (young) goes straight to the fishers to share it. The bench gets built that week.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6606"
+  },
+  "c2o2": {
+   "text": "(subject) starts listing the old names for clouds, \"fish-scale clouds, old-woman's-hair clouds, the angry ones\", and then can't remember the rest. (subject.He/She) asks the other elders to help recall them, and the whole bench-building turns into a lively afternoon of elders pointing at the sky and arguing.",
+   "src": "L6608"
+  },
+  "c2": {
+   "text": "(young) sits with (subject) on the beach and asks what (subject.he/she) used to watch for from up there...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6604"
+  },
+  "c3o1": {
+   "text": "A few flat stone steps let (subject) reach the new bench and enjoy it comfortably, every evening, without anyone's help. Soon other elders are climbing the steps too, and the bench has to be made longer. It becomes known as \"(subject)'s bench,\" and the elders guard it fiercely from young couples.",
+   "src": "L6613"
+  },
+  "c3o2": {
+   "text": "Even with the steps, the climb is too much for (subject) today. (subject.He/She) decides to watch the canoes from the beach instead, and (young) carries a mat down for (subject.him/her). \"I'll go up tomorrow,\" (subject.he/she) says, and enjoys the sunset just the same.",
+   "src": "L6615"
+  },
+  "c3": {
+   "text": "(young) and some friends haul flat stones up the bluff, setting them into the slope one by one to make a gentle stair...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6611"
+  }
+ }
+}

@@ -1,0 +1,300 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Woman Who Asked for Nothing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my087_woman_asked",
+  "source": "rewrites",
+  "lines": [
+   14918,
+   14973
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14918",
+  "ledger": [
+   {
+    "src": "L14919",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14920",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14928",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14942",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14949",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14923",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14924",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14925",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14926",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14929",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14936",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14943",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14950",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14930",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14932",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14937",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14939",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14944",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14946",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14951",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14953",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14956-14973",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "As the evening insects start their song, a small old woman appears on a villager's doorstep.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "As the evening insects start their song, a small old woman appears on (name)'s doorstep. She is bright-eyed and wrapped in a shawl patterned like fish scales. Before (name) can say a word, she holds up a hand. \"I don't need anything,\" she says firmly. \"Not food, not a bed, not a thing. I only want to know whether this household has room for one more story.\"\n(Name) has never had a visitor ask for that before. The old woman stands patiently on the step, smiling, as though she has all the time in the world. Should (name) let her in?",
+   "choices": [
+    {
+     "label": "Invite Her to Tell It",
+     "next": "c1",
+     "src": "L14923"
+    },
+    {
+     "label": "Offer Her Supper",
+     "next": "c2",
+     "src": "L14924"
+    },
+    {
+     "label": "Ask Why She Came",
+     "next": "c3",
+     "src": "L14925"
+    },
+    {
+     "label": "Send Her Away",
+     "next": "c4",
+     "src": "L14926"
+    }
+   ],
+   "src": "L14921-14922",
+   "text_only": [
+    {
+     "src": "L14921",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Her story is about a healer who lost all her medicines in a flood, and had to learn to keep them strong again: drying the leaves between two hot stones, then wrapping them tightly in bark so the damp could never reach them. As she talks, her hands show exactly how it is done. By the end, (name) realizes it is a lesson as much as a story. (He/she) takes it straight to the village healers, who try it, and find their dried herbs last twice as long as before.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14931"
+  },
+  "c1o2": {
+   "text": "Her story is a sad one: about two sisters separated by the sea, who each spent their whole lives thinking of the other, and never met again. She tells it simply and beautifully, and when she finishes, nobody speaks. The fire crackles. The children have crept close to their parents. After a long while, the old woman thanks them all and leaves. The family sits together quietly until late into the night, and nobody wants to be the first to go to bed.",
+   "src": "L14933"
+  },
+  "c1": {
+   "text": "\"There's always room for a story,\" (name) says, and the old woman beams and settles herself by the fire. The family gathers round, the children elbowing each other for the best spots...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14929"
+  },
+  "c2o1": {
+   "text": "She eats with great enthusiasm for someone who needed nothing, and over the meal she shares news from all the villages she has passed through: who has married whom, whose canoe sank, which village has a new {@chief}, and which one is having a terrible problem with goats. She is wickedly funny about all of it. By the end of supper, the family is in fits of laughter and knows more gossip than the rest of the village combined.",
+   "src": "L14938"
+  },
+  "c2o2": {
+   "text": "She sits at the table, smiling, but does not lift the spoon. \"I'm afraid I cannot eat,\" she says gently, \"but thank you for offering me a place at your table. It has been a very long time since anyone did.\" She sits with them all through the meal, listening to every word as though it were precious. When (name) turns to offer her more water, the seat is empty, and the shawl is gone with her.",
+   "src": "L14940"
+  },
+  "c2": {
+   "text": "\"Nothing at all? Not even a little supper?\" (name) asks. \"We've plenty. Please, sit down.\" The old woman hesitates, then sits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14936"
+  },
+  "c3o1": {
+   "text": "\"Someone sent me,\" she says. \"Someone who remembered your kindness, a long time ago, and asked me to come and see how you were getting on.\" She will not say who. (Name) racks (his/her) brains, trying to think of everyone (he/she) has ever helped, and cannot think who it might be. The old woman tells her story, which is lovely, and leaves. Weeks later, (name) still finds (himself/herself) wondering who remembered.",
+   "src": "L14945"
+  },
+  "c3o2": {
+   "text": "The old woman's smile wobbles a little. \"I live alone,\" she admits. \"Out past the point. My family are all gone. I just... missed hearing other people laugh.\" The family exchange glances, and someone in the family pulls out a chair. She stays until the fire burns low, telling stories and laughing louder than anyone, and from then on she comes for supper every week. She never does ask for anything.",
+   "src": "L14947"
+  },
+  "c3": {
+   "text": "\"Forgive me,\" (name) says, \"but why come all this way just to tell a story?\" The old woman's eyes twinkle...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14943"
+  },
+  "c4o1": {
+   "text": "\"Of course,\" she says, without the slightest bit of anger. \"Another time.\" She pulls her shawl around her and walks off into the dusk, humming. The household goes back to its evening. Nothing unusual happens. It is just a little quieter than usual, and nobody can quite say why.",
+   "src": "L14952"
+  },
+  "c4o2": {
+   "text": "The next morning, (name) finds a piece of bark tucked into the doorframe. On it, in a neat, old-fashioned hand, is written: \"Thank you for listening.\" (Name) reads it three times. (He/she) did not listen. (He/she) sent her away. (He/she) asks around the village, but nobody else saw an old woman in a fish-scale shawl, and nobody knows anyone living out past the point.",
+   "src": "L14954"
+  },
+  "c4": {
+   "text": "\"I'm sorry,\" (name) says, \"it's late, and we're tired. Perhaps another time.\" The old woman nods kindly...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14950"
+  }
+ }
+}

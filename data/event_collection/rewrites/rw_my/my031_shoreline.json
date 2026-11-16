@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shoreline Procession",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my031_shoreline",
+  "source": "rewrites",
+  "lines": [
+   11644,
+   11699
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11644",
+  "ledger": [
+   {
+    "src": "L11645",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11646",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11655",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11662",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11669",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11676",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11650",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11651",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11652",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11653",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11656",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11663",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11670",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11677",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11657",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11659",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11664",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11666",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11671",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11673",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11678",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11680",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11683-11699",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There must be thirty of them.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) can't sleep, so (he/she) walks down to the beach for some air. The moon is low. And there, between the surf and the dunes, a line of people is walking slowly along the sand, each carrying a small yellow light at chest height.\nThere must be thirty of them. They move in a perfectly even line, without a word, without a sound. Not a single footfall. Not a single voice. (Name) doesn't recognize anyone. They don't seem to notice (him/her) at all. They just keep walking, slowly, toward the point at the end of the beach. What should (name) do?",
+   "choices": [
+    {
+     "label": "Follow at a Distance",
+     "next": "c1",
+     "src": "L11650"
+    },
+    {
+     "label": "Call the Village",
+     "next": "c2",
+     "src": "L11651"
+    },
+    {
+     "label": "Offer a Greeting",
+     "next": "c3",
+     "src": "L11652"
+    },
+    {
+     "label": "Wait Until Morning",
+     "next": "c4",
+     "src": "L11653"
+    }
+   ],
+   "src": "L11647-11648"
+  },
+  "c1o1": {
+   "text": "At the point, the lights stop, and then they're simply gone. In the dark where they were, (name) hears coughing. Under an upturned hull on the rocks, (he/she) finds a family of castaways, soaked and shivering, wrecked on the reef at dusk. (Name) runs for help, and by sunrise they're wrapped in blankets by a fire in the village. Later, when (name) asks about the procession, they look at (him/her) blankly. They saw no one else on that beach all night.",
+   "src": "L11658"
+  },
+  "c1o2": {
+   "text": "At the point, the procession doesn't stop. It walks straight out over the water, one by one, the little lights moving across the waves as if the sea were solid ground. Farther and farther, smaller and smaller, until the last light winks out over the horizon. (Name) stands on the rocks until dawn. There's no one there. There's nothing to find. (He/She) goes home and doesn't tell anyone for a long time.",
+   "src": "L11660"
+  },
+  "c1": {
+   "text": "(Name) creeps along the dunes behind the procession, keeping low, keeping quiet, following the little lights all the way to the rocky point...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11656"
+  },
+  "c2o1": {
+   "text": "A crowd stumbles down to the beach just in time to see the lights moving along the sand. Everyone sees the lights. But nobody agrees about the rest. Some say they saw people carrying them. Some say they were just lights, floating on their own. Some say they were glowing jellyfish washed up in a line. The argument lasts well into the next week.",
+   "src": "L11665"
+  },
+  "c2o2": {
+   "text": "By the time the others arrive, the beach is empty and dark. Not a light anywhere. The villagers yawn, grumble, look at (name) sideways and go back to bed. (Name) stays on the beach alone for a while, shaken and uncertain. Did (he/she) dream it? (He/She) honestly doesn't know anymore.",
+   "src": "L11667"
+  },
+  "c2": {
+   "text": "(Name) runs back up to the huts, banging on doors. \"Come quick! Down on the beach! Bring torches!\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11663"
+  },
+  "c3o1": {
+   "text": "One of the figures, at the very end of the line, stops. It turns toward (name). (Name) can't make out a face, only the soft glow of the light it carries. Then it bows, deeply and slowly, the way the elders bow at a funeral, and turns back to rejoin the line. The procession walks on. (Name) bows back, without knowing why.",
+   "src": "L11672"
+  },
+  "c3o2": {
+   "text": "None of the figures turns. But from somewhere, everywhere, nowhere, a voice says softly: \"Remember us.\" Then the lights are gone, all at once, and the beach is dark. (Name) searches the dunes with a torch. There's no one. No one could have spoken. (Name) remembers. (He/She) never forgets.",
+   "src": "L11674"
+  },
+  "c3": {
+   "text": "(Name) steps out onto the open sand, raises a hand, and says, as steadily as (he/she) can, \"Good evening...\"",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11670"
+  },
+  "c4o1": {
+   "text": "At dawn the shore is quiet and empty. The sand is smooth: no footprints, not even (name)'s own from the night before, washed clean by the tide. The fishers go out, the village wakes up, and work goes on as usual. (Name) helps with the nets and says nothing at all.",
+   "src": "L11679"
+  },
+  "c4o2": {
+   "text": "At dawn, the tide has scoured the sand at the rocky point where the procession was heading, and uncovered a stone half buried in the beach: an old burial marker, carved with faded patterns, older than anyone in the village. When (name) brings the others, nobody laughs. The villagers bring flowers and stand quietly around the stone for a long while as the gulls wheel overhead.",
+   "src": "L11681"
+  },
+  "c4": {
+   "text": "(Name) sits down in the dunes, wraps (his/her) arms around (his/her) knees, and decides that whatever this is, it can be dealt with in daylight...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11677"
+  }
+ }
+}

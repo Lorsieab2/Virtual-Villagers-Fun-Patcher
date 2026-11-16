@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancestor Masks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b071_ancestor_masks",
+  "source": "balance",
+  "lines": [
+   3205,
+   3246
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3205",
+  "ledger": [
+   {
+    "src": "L3206",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3207",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3215",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3224",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3212",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3213",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3216",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3225",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3218",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3221",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3227",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3230",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3233-3246",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This year a villager has been chosen to dance.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 23,
+   "max_age": 50
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a generation, the village brings out two carved masks kept wrapped in the elders' hut: one of a very old face, one of a child's face. At the harvest dance, one person wears each, and the old stories say the masks \"lend their years\" for the length of a song, and sometimes forget to take them back.\nThis year (name) has been chosen to dance. The elders hold out both masks. (Name) can choose which to wear.\nWhich should (name) choose?",
+   "choices": [
+    {
+     "label": "Wear the Old Face",
+     "next": "c1",
+     "src": "L3212"
+    },
+    {
+     "label": "Wear the Child's Face",
+     "next": "c2",
+     "src": "L3213"
+    }
+   ],
+   "src": "L3208-3210"
+  },
+  "c1o1": {
+   "text": "When the song ends and (name) takes the mask off, the elders go quiet. The mask has kept its years where they were: in (name). (He/She) is ten years older, grey at the temples, with the old ones' slow way of standing. \"It forgets sometimes,\" says the eldest. \"It's very old.\" (Name) sits down with the elders that night, and finds the conversation better than expected.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3219"
+  },
+  "c1o2": {
+   "text": "When the mask comes off, (name)'s face is younger, not older. The elders are puzzled, then delighted. \"It lent you its years,\" says the eldest, \"and you gave them back with interest.\" Nobody quite knows what that means, but (name) looks wonderful.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3222"
+  },
+  "c1": {
+   "text": "The old mask is heavy, and smells of smoke and wood oil. Behind it, (name) feels (his/her) back bend and (his/her) steps slow, and (he/she) dances the old dance the way the old ones did...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3216"
+  },
+  "c2o1": {
+   "text": "When the song ends and the mask comes off, (name) is breathless and flushed and five years younger. Not a child, but younger, with five years of aches and worries simply gone. \"That one forgets as well,\" says the eldest, a little enviously. (Name) dances till dawn.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -5,
+      -5
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L3228"
+  },
+  "c2o2": {
+   "text": "The mask comes off, and (name) is (himself/herself), just very hot and very happy. The children make (him/her) do the running dance again, and again, until (he/she) begs for mercy. The masks are wrapped up and put away for another generation.",
+   "src": "L3231"
+  },
+  "c2": {
+   "text": "The child's mask is light as a leaf. Behind it, (name) feels like running, and does, round and round the fire, laughing, while the drums go faster and faster...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3225"
+  }
+ }
+}

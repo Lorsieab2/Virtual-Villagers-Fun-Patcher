@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Storehouse Key",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new117_storehouse_key",
+  "source": "rewrites",
+  "lines": [
+   5479,
+   5524
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5479",
+  "ledger": [
+   {
+    "src": "L5480",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5481",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5489",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5496",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5503",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5485",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5486",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5487",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5490",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5497",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5504",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5491",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5493",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5500",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5505",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5507",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5510-5524",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The storehouse key is a carved wooden peg that holds the door bar shut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 17
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The storehouse \"key\" is a carved wooden peg that holds the door bar shut. It hangs on a cord around the neck of (subject), the storehouse keeper, and in all the years (subject.he/she) has kept it, (subject.he/she) has never once refused to open the door.\nUntil today. The feast is tonight. The feast cooks are lined up outside the storehouse with empty baskets and growing impatience. And (subject) is standing in front of the door with (subject.his/her) hand closed tight around the peg, refusing to hand it over, and refusing to say why.\nSomebody's stomach growls loudly. Nobody laughs. How should (leader) handle this?",
+   "choices": [
+    {
+     "label": "Ask the Keeper Privately",
+     "next": "c1",
+     "src": "L5485"
+    },
+    {
+     "label": "Count Every Basket",
+     "next": "c2",
+     "src": "L5486"
+    },
+    {
+     "label": "Release One Basket at a Time",
+     "next": "c3",
+     "src": "L5487"
+    }
+   ],
+   "src": "L5482-5484"
+  },
+  "c1o1": {
+   "text": "Away from the crowd, (subject)'s shoulders slump. The stores are much lower than anyone realizes. A big feast tonight could leave the village short before the next harvest. (subject.He/She) didn't want to be the one to ruin the celebration. (leader) thanks (subject.him/her), and the feast goes ahead, smaller, with fish from the morning's catch instead of the stores.",
+   "src": "L5492",
+   "text_only": [
+    {
+     "src": "L5492",
+     "what": "\"celebration\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Before (subject) can say anything, (friend), the young helper who sweeps out the storehouse, peeks around the corner. \"Is this about the rats?\" Rats got into the yams last week, and (subject) didn't want to start a panic before (subject.he/she) had dealt with them. Now everyone knows. Within an hour, the village's best trap-setters are at work, and the feast goes ahead.",
+   "src": "L5494"
+  },
+  "c1": {
+   "text": "(leader) sends the cooks off to \"check the fire\" and takes (subject) behind the storehouse, where no one can hear...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5490"
+  },
+  "c2o1": {
+   "text": "Counting the baskets together, they find that the newest food has been stacked at the front and the oldest pushed to the back, where some of it is starting to go soft. They work out a better way to stack them, so the oldest food is always eaten first. It is a practical improvement that saves a great deal of spoiled food in the seasons to come, and (subject) finally hands over the peg, smiling for the first time all day.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5499",
+   "text_only": [
+    {
+     "src": "L5499",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The count matches (subject)'s tally exactly, down to the last coconut. Nobody has been sneaking food, and no one is punished. It turns out (subject) simply forgot to tell the cooks that half the feast food was already set aside in a different hut. There is a lot of embarrassed laughter, and the cooks fill their baskets.",
+   "src": "L5501",
+   "text_only": [
+    {
+     "src": "L5501",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(leader) suggests that everyone go in together, the keeper included, and count every basket in the storehouse, out loud...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5497"
+  },
+  "c3o1": {
+   "text": "It works well enough for the feast. Nothing is wasted, (subject) can see exactly what is being used, and the cooks discover they needed far less than they thought. Everyone eats well, and there is still plenty in the storehouse in the morning.",
+   "src": "L5506"
+  },
+  "c3o2": {
+   "text": "The one-basket rule turns the feast into a slow, shuffling line of grumbling cooks, each waiting for the last one to finish. The fish is cold before the yams are hot. By the time dinner is served, the moon is high. The rule is dropped the next day, to loud cheers.",
+   "src": "L5508"
+  },
+  "c3": {
+   "text": "(leader) proposes that (subject) open the door, but let out only one basket at a time, and only when the cooks bring the last one back empty...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5504"
+  }
+ }
+}

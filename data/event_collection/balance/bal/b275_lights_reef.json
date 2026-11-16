@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lights on the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b275_lights_reef",
+  "source": "balance",
+  "lines": [
+   12806,
+   12848
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12806",
+  "ledger": [
+   {
+    "src": "L12807",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12808",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12816",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12825",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12813",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12814",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12817",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12826",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12819",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12822",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12834-12848",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say they are the lanterns of the drowned, looking for a way home, and that nobody must ever row out to them.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three nights now, small green lights have been bobbing out on the reef after dark, too steady for fireflies and too low for stars. The elders say they are the lanterns of the drowned, looking for a way home, and that nobody must ever row out to them. The children say the elders just want them in bed.\nTonight the lights are closer than ever. (subject) and (friend) are on the beach. (friend) is already pushing a canoe into the water. \"Come on,\" (subject.he/she) says. \"Don't you want to know?\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
+   "choices": [
+    {
+     "label": "Go With (friend)",
+     "next": "c1",
+     "src": "L12813"
+    },
+    {
+     "label": "Talk (subject.Him/Her) Out of It",
+     "next": "c2",
+     "src": "L12814"
+    }
+   ],
+   "src": "L12809-12811"
+  },
+  "c1o1": {
+   "text": "In the morning the canoe is found on the beach, dry inside, with both paddles laid neatly across it. There is no sign of (subject) or (friend) anywhere. That night there are two more green lights on the reef than there were before. Nobody rows out to them. Nobody ever will again.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    },
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L12820"
+  },
+  "c1o2": {
+   "text": "At the reef, (friend) leans over the side to touch one of the lights, and topples in. (subject) dives after (subject.him/her) again and again in the black water, and finally drags (subject.him/her) back to the canoe, but it is too late. (subject) paddles home alone with (friend) in the bottom of the canoe. The green lights never come back.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L12823"
+  },
+  "c1": {
+   "text": "The two of them paddle out across the black lagoon towards the reef. The green lights drift apart as they get closer, as if making room for them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12817"
+  },
+  "c2o1": {
+   "text": "(friend) goes home without a word. In the morning, (subject.his/her) sleeping mat is cold, and the canoe is gone from the beach. Nobody ever sees either of them again. (subject) sits on the beach every evening for weeks, watching the reef. There is one more green light out there than before.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L12829"
+  },
+  "c2o2": {
+   "text": "They sit on the beach together instead and watch the lights until they fade at dawn. On the fourth night the lights are gone. Later, a fisher from up the coast mentions that (subject.his/her) cousins had been night-fishing out on the reef with lanterns made of glowing fungus. (friend) is furious. (subject) is mostly relieved.",
+   "src": "L12832"
+  },
+  "c2": {
+   "text": "(subject) grabs the side of the canoe. \"The elders said never,\" (subject.he/she) says. \"Never means never.\" (friend) rolls (subject.his/her) eyes, but stops pushing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12826"
+  }
+ }
+}

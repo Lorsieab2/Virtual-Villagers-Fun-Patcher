@@ -1,0 +1,239 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Termite Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b148_termite_year",
+  "source": "balance",
+  "lines": [
+   6812,
+   6856
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6812",
+  "ledger": [
+   {
+    "src": "L6813",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6814",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6822",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6831",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6819",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6820",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6823",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6832",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6825",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6834",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6840-6856",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L6829",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Something has been eating the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Something has been eating the village. Quietly, for months. (subject) leans on a doorpost this morning and it crumbles under (subject.his/her) hand like dry bread, full of tiny pale termites, all of them very busy. (builder), the head builder, checks every hut by noon: half the posts in the village are hollow.\nThere are two ways to deal with termites, the elders say. One is to smoke them out with burning herbs, which works but leaves the huts smelling for a year, and sometimes catches fire. The other is to tear out every post and replace it, which takes weeks and all the village's strength.\nShould (subject) smoke them out, or replace the posts?",
+   "choices": [
+    {
+     "label": "Smoke Them Out",
+     "next": "c1",
+     "src": "L6819"
+    },
+    {
+     "label": "Replace the Posts",
+     "next": "c2",
+     "src": "L6820"
+    }
+   ],
+   "src": "L6815-6817"
+  },
+  "c1o1": {
+   "text": "The termites pour out of the posts in long pale rivers and march off into the jungle, deeply offended. The builders patch the worst posts while the smoke clears, and learn a great deal about how termites build, which they use to build better. The huts smell of bitter herbs for a year. Nobody gets bitten by mosquitoes for a year either, so it evens out.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L6826"
+  },
+  "c1o2": {
+   "text": "The smoke works everywhere except the research hut, where a bundle of herbs rolls under a pile of notes and sets them smouldering. By the time anyone notices, a season of notes has gone up in yellow smoke. The termites are gone, and the huts are fixed, but the researchers walk round with grim faces for a week.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L6829"
+  },
+  "c1": {
+   "text": "(subject) and (builder) light bundles of bitter herbs inside every hut, one by one, and stuff the doorways with wet leaves. Thick yellow smoke comes out of every crack. The village has to sleep on the beach...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6823"
+  },
+  "c2o1": {
+   "text": "It takes three weeks of mud, splinters and sore backs. By the end of it, everyone in the village knows how to set a post, even the children, who were meant to be fetching water. Every hut stands on new hardwood. (builder) says they'll last a hundred years. The termites come back the next season, look at the hardwood, and leave.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6835"
+  },
+  "c2o2": {
+   "text": "On the last day, a great hardwood tree falls the wrong way. (builder) pushes two young villagers out of the way, and doesn't get out of the way (subject.himself/herself). The village finishes the posts in silence. Every hut in the village stands on new posts now, and the last one, in the middle of the village, has (builder)'s name carved on it.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "kill",
+     "role": "builder",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L6838"
+  },
+  "c2": {
+   "text": "The whole village goes into the jungle with axes and ropes. They cut new posts of hardwood, the kind termites hate, and drag them back one by one through the mud...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6832"
+  }
+ }
+}

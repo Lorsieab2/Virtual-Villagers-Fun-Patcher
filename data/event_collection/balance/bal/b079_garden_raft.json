@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden Raft",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b079_garden_raft",
+  "source": "balance",
+  "lines": [
+   3567,
+   3608
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3567",
+  "ledger": [
+   {
+    "src": "L3568",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3569",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3577",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3586",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3574",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3575",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3578",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3587",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3580",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3583",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3589",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3592",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3595-3608",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They don't ask for anything.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A strange raft drifts into the lagoon: a great mat of woven reeds, with soil spread on top and a little garden growing on it, beans and taro and a single banana plant. Living on it, under a lean-to of leaves, is a family who say they have been drifting for a month, eating from their garden, ever since their island's shore washed away in a storm.\nThey don't ask for anything. They just want to know if they can tie up for a while and refill their water.\n(Name) is the first to talk to them. What should (he/she) say?",
+   "choices": [
+    {
+     "label": "\"Stay as Long as You Like.\"",
+     "next": "c1",
+     "src": "L3574"
+    },
+    {
+     "label": "\"Fill Your Gourds and Good Luck.\"",
+     "next": "c2",
+     "src": "L3575"
+    }
+   ],
+   "src": "L3570-3572"
+  },
+  "c1o1": {
+   "text": "The two adults and their baby sleep on solid ground for the first time in a month and wake up not wanting to leave it. Their raft garden is pulled up onto the beach and planted into the village's own soil, banana plant and all. They decide to stay. The banana plant fruits that year, and everyone agrees it's the best banana on the island.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L3581"
+  },
+  "c1o2": {
+   "text": "The family turns out to be a grandparent who built the raft, a teenager who steered it, and a child who was in charge of the beans. The farmers want to know everything about how they grew a garden on reeds. The teenager wants to know everything about everything. They decide to stay, and the village tries a raft garden of its own in the lagoon.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L3584"
+  },
+  "c1": {
+   "text": "The family tie their raft to the jetty, and come ashore slowly, as if they've forgotten how solid ground feels. The village crowds round the raft to look at the floating garden...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3578"
+  },
+  "c2o1": {
+   "text": "They push off with the evening breeze, their little garden bobbing on the water, and drift slowly out through the reef. The village gave them more food than they planned to, in the end. (Name) watches the raft until it's gone, and finds (himself/herself) wondering, for a long time, whether they ever found a shore.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L3590"
+  },
+  "c2o2": {
+   "text": "The raft has other ideas. Its reed bottom has caught on the coral, and when they try to push off, it tears. The garden slides gently into the lagoon. The family stand on the beach looking at it. \"Well,\" says one of them, after a while. \"I suppose that settles it.\" They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L3593"
+  },
+  "c2": {
+   "text": "The family fill their gourds at the stream, and thank (name) gravely, and the village gives them some fruit for the journey...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3587"
+  }
+ }
+}

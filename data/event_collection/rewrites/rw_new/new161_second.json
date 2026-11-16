@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Courtship",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new161_second",
+  "source": "rewrites",
+  "lines": [
+   7797,
+   7843
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7797",
+  "ledger": [
+   {
+    "src": "L7798",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7799",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7808",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7815",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7822",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7804",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7805",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7806",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7809",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7816",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7823",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7810",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7812",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7817",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7819",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7824",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7826",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7829-7843",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They walk the beach at sunset.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It has been a few years since (subject) lost (subject.his/her) partner. The grief has softened, slowly, the way grief does, into something (subject.he/she) can carry.\nLately, (subject) has been spending (subject.his/her) evenings with (friend), a kind, quiet fisher. They walk the beach at sunset. They talk about nothing in particular. And (subject) has been laughing, really laughing, more than (subject.he/she) has in a long, long time.\nThen, one evening, the guilt arrives. All at once, like a wave. Laughing on the same beach where (subject.he/she) used to walk with someone else...\n(subject) stops coming to the fire. (friend) waits on the beach at sunset, alone, three nights in a row. (subject) doesn't know if (subject.he/she) is allowed to be this happy again. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Talk It Through in Private",
+     "next": "c1",
+     "src": "L7804"
+    },
+    {
+     "label": "Let the Widow Set the Pace",
+     "next": "c2",
+     "src": "L7805"
+    },
+    {
+     "label": "Ask an Old Friend's Opinion",
+     "next": "c3",
+     "src": "L7806"
+    }
+   ],
+   "src": "L7800-7803"
+  },
+  "c1o1": {
+   "text": "(subject) tells (friend) everything: the guilt, the memories, how happy (subject.he/she) has been, and how that happiness frightens (subject.him/her). (subject.He/She) doesn't ask for anything in return. (friend) listens without interrupting, then says simply, \"I'll be here at sunset. Whenever you're ready. Or not.\" They watch the sun go down together, a little further apart than usual.",
+   "src": "L7811"
+  },
+  "c1o2": {
+   "text": "Before (subject) can finish, (friend) gently admits that (subject.he/she) only ever hoped for friendship. A good friend to walk with at sunset, nothing more. (subject) is surprised to find (subject.himself/herself) a little relieved, and accepts it gladly. Their sunset walks carry on, lighter than before.",
+   "src": "L7813"
+  },
+  "c1": {
+   "text": "On the fourth night, (subject) walks down to the beach. (friend) is there, as always. (subject) sits down on the sand a little way off, and takes a deep breath...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7809"
+  },
+  "c2o1": {
+   "text": "After a week, (subject) comes back to the beach at sunset. The two of them decide for themselves how and when to carry on, slowly, and nobody hurries them. Weeks later, (subject) brings (friend) to visit (subject.his/her) late partner's grave, and they leave flowers there together.",
+   "src": "L7818"
+  },
+  "c2o2": {
+   "text": "Nothing is decided. (subject) still comes to the fire sometimes, and nods to (friend), and sometimes they sit together, and sometimes they don't. Both seem content to let it wait. Some things can't be hurried, and they both know it.",
+   "src": "L7820"
+  },
+  "c2": {
+   "text": "Nobody in the village pushes. (friend) sends one message, through a friend: \"No hurry.\" And then waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7816"
+  },
+  "c3o1": {
+   "text": "(Name3) listens to the whole story, all evening, without telling (subject) what to do. At the end, (subject.he/she) only says one thing: \"They would have wanted you to laugh.\" (subject) cries for a long time. The next evening, (subject.he/she) goes back to the beach.",
+   "src": "L7825"
+  },
+  "c3o2": {
+   "text": "(Name3)'s advice turns out to be mostly about (name3)'s own very complicated love life, which takes two hours to explain and involves three people and a canoe. By the end, (subject) is laughing so hard (subject.he/she) forgets to feel guilty, and decides to trust (subject.his/her) own heart instead.",
+   "src": "L7827"
+  },
+  "c3": {
+   "text": "(subject) goes to (name3), (subject.his/her) oldest friend, who knew (subject.his/her) late partner well...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7823"
+  }
+ }
+}

@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepy Spell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b203_sleepy_spell",
+  "source": "balance",
+  "lines": [
+   9426,
+   9469
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9426",
+  "ledger": [
+   {
+    "src": "L9427",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9428",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9436",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9445",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9433",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9434",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9437",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9446",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9439",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9442",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9448",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9454-9469",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager works harder than anyone in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) works harder than anyone in the village. First up, last to bed, never takes a day off, and can't understand people who do. (subject.His/her) family worry. (subject.He/She) has stopped coming to the fire in the evenings, and (subject.his/her) hands shake when (subject.he/she) eats.\n(apprentice), the healers' youngest apprentice, has made something to help: a little cake of crushed sleeping-flowers and honey, which (subject.he/she) says will \"slow (subject.him/her) down a bit.\" (subject.He/She) hasn't tested it. (subject.He/She) is very hopeful. (subject)'s family have hidden it in (subject)'s supper.\n(subject) has noticed the supper tastes of honey. Should (subject.he/she) eat it anyway, or push it away?",
+   "choices": [
+    {
+     "label": "Eat It Anyway",
+     "next": "c1",
+     "src": "L9433"
+    },
+    {
+     "label": "Push It Away",
+     "next": "c2",
+     "src": "L9434"
+    }
+   ],
+   "src": "L9429-9431"
+  },
+  "c1o1": {
+   "text": "(subject) sleeps for a day and a half. When (subject.he/she) wakes, (subject.he/she) feels better than (subject.he/she) has in years, and the idea of working from dark to dark seems silly. (subject.He/She) still works. (subject.He/She) just stops when (subject.he/she) is tired now, and comes to the fire in the evenings, and laughs. (subject.His/her) family send (apprentice) a basket of fruit.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "work",
+     "role": "subject"
+    }
+   ],
+   "src": "L9440"
+  },
+  "c1o2": {
+   "text": "(subject) sleeps for three days. When (subject.he/she) wakes, (subject.he/she) is very calm about everything. Very, very calm. Jobs get done when they get done. Things that used to bother (subject.him/her) don't bother (subject.him/her) at all. (subject.His/her) family are relieved, then slightly alarmed. (apprentice) writes \"half the honey\" on (subject.his/her) recipe.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "work",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9443"
+  },
+  "c1": {
+   "text": "(subject) eats every bite, too tired to argue. Then (subject.he/she) sits back, and the fire seems very warm, and the voices round it very kind, and (subject.his/her) eyelids very heavy...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9437"
+  },
+  "c2o1": {
+   "text": "In the end (subject)'s family just tell (subject.him/her) why. That they're worried. That (subject.his/her) hands shake. That they miss (subject.him/her) at the fire. (subject) says nothing for a long time. Then (subject.he/she) eats the cake, just to be polite, and stays at the fire till the end, and it's the start of something.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9449"
+  },
+  "c2o2": {
+   "text": "(apprentice), offended that (subject.his/her) cake is being refused, eats it (subject.himself/herself) to prove it's safe. (subject.He/She) falls asleep sitting up, falls sideways into the woodpile, and wakes up two days later with a lump on (subject.his/her) head and a very sore arm. (subject) goes on working from dark to dark.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "apprentice",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L9452"
+  },
+  "c2": {
+   "text": "\"Someone's put something in this,\" says (subject), and pushes the bowl across the mat. Everyone round the fire looks innocent. (apprentice) looks so innocent (subject.he/she) goes red...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9446"
+  }
+ }
+}

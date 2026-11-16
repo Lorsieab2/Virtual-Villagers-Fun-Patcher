@@ -1,0 +1,297 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's First Roof",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b312_apprentice_roof",
+  "source": "balance",
+  "lines": [
+   14460,
+   14501
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14460",
+  "ledger": [
+   {
+    "src": "L14461",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14462",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14469",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14478",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14466",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14467",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14470",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14479",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14472",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14475",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14481",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14484",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14487-14501",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Not just any roof: the roof of the healers' hut, which has been leaking onto the sleeping mats for a month.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 20
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(apprentice) has been learning to build from (subject) for a year, and today (subject.he/she) asks to do a roof alone. Not just any roof: the roof of the healers' hut, which has been leaking onto the sleeping mats for a month. \"I can do it,\" (apprentice) says. \"I've watched you a hundred times.\"\n(subject) remembers (subject.his/her) own first roof, which fell in during the first storm. Should (subject.he/she) let (apprentice) do it alone, or work alongside and keep an eye on every knot?",
+   "choices": [
+    {
+     "label": "Let (subject.Him/Her) Do It Alone",
+     "next": "c1",
+     "src": "L14466"
+    },
+    {
+     "label": "Work Alongside",
+     "next": "c2",
+     "src": "L14467"
+    }
+   ],
+   "src": "L14463-14464"
+  },
+  "c1o1": {
+   "text": "(apprentice) works from dawn to dusk and doesn't ask for help once. The roof is tight, neat and even, and when the next rain comes, not a drop gets through. The healers are so pleased that they ask (apprentice) to fix every other leaking roof in the village, and (subject.he/she) does, one after another. (subject) admits, privately, that it's better than (subject.his/her) own first roof by a long way.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "min": 15,
+     "max": 15,
+     "best": true
+    }
+   ],
+   "src": "L14473"
+  },
+  "c1o2": {
+   "text": "Late in the afternoon, reaching for one last bundle, (apprentice) leans too far and slides off the edge of the roof. (subject.He/She) lands badly on (subject.his/her) shoulder. The healers, whose roof (subject.he/she) was fixing, take care of (subject.him/her) under their own half-finished thatch. The shoulder never works quite right again. (subject) finishes the roof the next day, and doesn't say much for a long time.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "apprentice",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L14476"
+  },
+  "c1": {
+   "text": "(subject) sits on a log across the path with (subject.his/her) arms folded, and watches without saying a word, which is the hardest thing (subject.he/she) has done in a year...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14470"
+  },
+  "c2o1": {
+   "text": "Working side by side, they finish the healers' roof by midday, and they have so much daylight left that they go round the village fixing every other leak they can find. By evening there isn't a damp mat in the village. (apprentice) is quietly proud; (subject) is loudly proud, at the cooking fire, at length.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "min": 5,
+     "max": 5,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "min": 5,
+     "max": 5,
+     "skills": [
+      "Building"
+     ]
+    }
+   ],
+   "src": "L14482"
+  },
+  "c2o2": {
+   "text": "(subject) can't stop correcting. Every knot, every bundle, every angle. \"Not like that. Like this.\" By the end of the day the roof is perfect and (apprentice) is miserable. (subject.He/She) never asks to build anything again. \"I liked it,\" (subject.he/she) tells a friend, \"until today.\"",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L14485"
+  },
+  "c2": {
+   "text": "\"We'll do it together,\" says (subject). (apprentice) looks disappointed, but climbs up beside (subject.him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14479"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "apprentice",
+     "remove": true,
+     "like": "wood"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Jar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b301_wrong_jar",
+  "source": "balance",
+  "lines": [
+   13969,
+   14010
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13969",
+  "ledger": [
+   {
+    "src": "L13970",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13971",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13978",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13987",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13975",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13976",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13979",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13988",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13981",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13984",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13990",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13993",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13996-14010",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There are two jars on the shelf that look exactly alike.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "sick": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(sick) has had a bad stomach for a week, and (subject), the healer on duty, goes to the shelf for the jar of dried bitterleaf, which always settles it. There are two jars on the shelf that look exactly alike. Somebody has forgotten to scratch the mark on the lid of one of them. One is bitterleaf. The other is nightshade, which the healers keep for setting bones, because a pinch of it puts a person to sleep, and more than a pinch can do much worse.\n(subject) sniffs both. They smell the same. Should (subject.he/she) guess, or go and find the head healer, who is at the far gardens and won't be back until dark?",
+   "choices": [
+    {
+     "label": "Guess",
+     "next": "c1",
+     "src": "L13975"
+    },
+    {
+     "label": "Wait for the Head Healer",
+     "next": "c2",
+     "src": "L13976"
+    }
+   ],
+   "src": "L13972-13973"
+  },
+  "c1o1": {
+   "text": "It's bitterleaf. Within the hour (sick)'s stomach has settled and (subject.he/she) is asking for food. (subject) goes straight back to the shelf and scratches a deep mark on both lids, then scratches the word NIGHTSHADE on the second one in letters as big as (subject.his/her) thumb, for good measure. (subject.His/her) hands shake for the rest of the afternoon.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L13982",
+   "text_only": [
+    {
+     "src": "L13982",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "It's nightshade. (sick) sleeps for two days, so deeply that the healers take turns sitting with (subject.him/her) and listening to (subject.his/her) breathing. When (subject.he/she) finally wakes, the stomach is fine. But (subject.his/her) hands are numb, and (subject.his/her) legs don't do what (subject.he/she) tells them, and they never fully come back. (subject) visits every day for a year, as a friend and never with (subject.his/her) healer's bag. (sick) never lets anyone treat (subject.him/her) again.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "role": "sick",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13985"
+  },
+  "c1": {
+   "text": "(subject) picks the jar on the left, the one that feels right, and brews a strong cup. (sick) drinks it, makes a face, and lies back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13979"
+  },
+  "c2o1": {
+   "text": "The head healer comes back at dusk, sniffs both jars once, and points. \"That one.\" It's bitterleaf. (sick) is better by morning. The next day, the head healer sits every healer in the village down and teaches them the difference: not the smell, but the tiny grey hairs on the nightshade leaf that only show in sunlight.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L13991"
+  },
+  "c2o2": {
+   "text": "By the time the head healer gets back, (sick) is much worse, and it takes all night and three different teas to settle the stomach. (subject.He/She) recovers, slowly. (subject) feels terrible, until the head healer tells (subject.him/her) that waiting was the right choice. \"A long night,\" (subject.he/she) says, \"is better than the wrong jar.\"",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "sick",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L13994"
+  },
+  "c2": {
+   "text": "(subject) makes (sick) as comfortable as (subject.he/she) can with cool water and a warm stone for (subject.his/her) belly, and waits. The afternoon drags...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13988"
+  }
+ }
+}

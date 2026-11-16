@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council's Empty Seat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new114_council_empty",
+  "source": "rewrites",
+  "lines": [
+   5337,
+   5383
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5337",
+  "ledger": [
+   {
+    "src": "L5338",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5339",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5348",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5355",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5362",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5344",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5345",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5346",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5349",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5356",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5363",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5350",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5352",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5359",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5364",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5366",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5369-5383",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The gathering has been arguing for an hour about moving the fish drying racks.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 20
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The gathering has been arguing for an hour about moving the fish drying racks. The new spot everyone likes best is a nice flat patch of ground... which happens to be (subject)'s garden.\n(subject) is not there. (subject.He/She) is out fishing, blissfully unaware that half the village is deciding what to do with (subject.his/her) taro.\nThe vote is about to happen when someone finally points at the empty mat where (subject) usually sits and says, \"Er. Shouldn't we wait?\"\nThere is a very long, very awkward silence. What should (leader) do?",
+   "choices": [
+    {
+     "label": "Fetch the Gardener from the Beach",
+     "next": "c1",
+     "src": "L5344"
+    },
+    {
+     "label": "Pace Out the Ground",
+     "next": "c2",
+     "src": "L5345"
+    },
+    {
+     "label": "Tell the Gardener First",
+     "next": "c3",
+     "src": "L5346"
+    }
+   ],
+   "src": "L5340-5343"
+  },
+  "c1o1": {
+   "text": "Once (subject.he/she) understands, (subject) explains that the plot doesn't just feed (subject.his/her) family: it feeds three households, including two elders who can't farm anymore. The gathering listens, and nobody looks at the flat patch of ground the same way again. The racks stay where they are. (subject) sits down on (subject.his/her) mat, still holding the fish, and refuses to leave until the meeting ends.",
+   "src": "L5351"
+  },
+  "c1o2": {
+   "text": "Before (subject) can finish catching (subject.his/her) breath, (friend) speaks at a gathering for the first time. (subject.His/Her) voice shakes. There's an unused clearing just behind the current racks, (subject.he/she) says, if somebody would only cut back the vines. The whole discussion turns. The racks move there instead, and (subject) gives (friend) the fish.",
+   "src": "L5353"
+  },
+  "c1": {
+   "text": "A runner sprints down to the beach. Some time later, (subject) is hauled into the gathering still dripping, still holding a fish, and extremely confused. \"What about my garden?!\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5349"
+  },
+  "c2o1": {
+   "text": "Pacing the ground, they notice that the flat patch is shaded by palms half the day, which is terrible for drying fish. The slope just above the garden, though, catches sun from dawn to dusk. That practical detail settles the matter: the racks go on the slope, the garden stays a garden, and the fish dry faster than they ever have. The drying team works out a better way to angle the racks to the sun as well.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5358"
+  },
+  "c2o2": {
+   "text": "Someone at the gathering claimed (subject) had let the plot go to weeds. Standing in it, everyone can see the taro is the healthiest on the island, tall and glossy and neatly weeded. The claim is dropped, very quickly, and the person who made it suddenly remembers urgent business elsewhere.",
+   "src": "L5360"
+  },
+  "c2": {
+   "text": "(leader) decides that before anyone votes on anything, they should actually go and look. The whole gathering troops out to the garden in the late afternoon sun...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5356"
+  },
+  "c3o1": {
+   "text": "(subject) does not love it. (subject.He/She) says so, at length, while gutting a fish with unnecessary force. But (subject.he/she) understands why the racks need a new home, and (subject.he/she) is grateful to hear it first, face to face, instead of from gossip. They agree to move only one corner of the garden, and (subject) chooses which.",
+   "src": "L5365"
+  },
+  "c3o2": {
+   "text": "Halfway through explaining, (leader) hears how it sounds and stops. \"No. We were wrong to decide this without you. I'm sorry.\" (subject.He/She) promises to bring the whole matter back to the gathering with (subject) present. (subject) blinks, surprised, and offers (leader) half of today's catch.",
+   "src": "L5367"
+  },
+  "c3": {
+   "text": "(leader) calls off the vote and walks down to the beach alone, sits on the sand beside (subject), and explains what was being decided, before anyone else does...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5363"
+  }
+ }
+}

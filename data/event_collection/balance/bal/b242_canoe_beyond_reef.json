@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe Beyond the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b242_canoe_beyond_reef",
+  "source": "balance",
+  "lines": [
+   11309,
+   11350
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11309",
+  "ledger": [
+   {
+    "src": "L11310",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11311",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11319",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11328",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11316",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11317",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11320",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11329",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11322",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11325",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11331",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11334",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11337-11350",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Its sail is torn to ribbons and it sits low in the water.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is mending a net on the beach when (he/she) notices a canoe drifting just outside the reef. Its sail is torn to ribbons and it sits low in the water. Someone in it is waving a paddle over their head, slowly, as if they have been waving for a long time. (Name) can see at least three people, maybe more.\nThe reef is sharp and the tide is turning. Swimming out is dangerous. The canoe might drift in on its own, or it might drift right past the island.\nShould (name) swim out to them, or run and light a signal fire so they can steer for the gap in the reef?",
+   "choices": [
+    {
+     "label": "Swim Out to Them",
+     "next": "c1",
+     "src": "L11316"
+    },
+    {
+     "label": "Light a Signal Fire",
+     "next": "c2",
+     "src": "L11317"
+    }
+   ],
+   "src": "L11312-11314"
+  },
+  "c1o1": {
+   "text": "(Name) reaches the canoe and finds a young couple, sunburnt and cracked-lipped, with a baby tucked in a dry basket between them. They have been at sea for nine days, since a storm blew them off course. (Name) takes the bow line in (his/her) teeth and guides them through the gap in the reef. On the beach the baby wakes up, looks around at all the strangers, and laughs. The couple decide on the spot to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L11323"
+  },
+  "c1o2": {
+   "text": "A wave throws (name) against the reef on the way out, and the coral opens a long cut along (his/her) leg. (He/She) keeps going anyway. In the canoe are a weary (man/woman), a teenager who has been bailing water for two days straight, and a small child asleep under a mat. (Name) brings them in, bleeding the whole way, and has to be helped up the beach. The teenager stays by (his/her) side until the healers come.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L11326"
+  },
+  "c1": {
+   "text": "(Name) drops the net, wades in and starts swimming. The water over the reef is choppy and full of churned sand, and (he/she) has to pick (his/her) way carefully between the coral heads...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11320"
+  },
+  "c2o1": {
+   "text": "The paddle stops waving. The canoe turns, slowly, and starts working its way towards the smoke. They come through the gap in the reef just as the tide drops, scraping bottom, and the whole village wades out to pull them in. A young couple climb out with a baby in a dry basket. \"We followed your smoke,\" they say, and they never leave.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L11332"
+  },
+  "c2o2": {
+   "text": "The smoke goes up straight and tall, but the current has the canoe. (Name) watches it drift past the point, the paddle still waving, until it is a speck and then nothing. (He/She) keeps the fire burning all night anyway. In the morning there is nothing on the horizon. (Name) tells (himself/herself) that the next island over has beaches too, and tries to believe it.",
+   "src": "L11335"
+  },
+  "c2": {
+   "text": "(Name) runs up the beach, piles driftwood on the old fire pit and blows on the embers until the flames catch. (He/She) throws green palm fronds on top, and a column of thick white smoke goes up...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11329"
+  }
+ }
+}

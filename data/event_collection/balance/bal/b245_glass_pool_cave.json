@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Glass Pool in the Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b245_glass_pool_cave",
+  "source": "balance",
+  "lines": [
+   11446,
+   11487
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11446",
+  "ledger": [
+   {
+    "src": "L11447",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11448",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11456",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11465",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11453",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11454",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11457",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11466",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11462",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11468",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11471",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11474-11487",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say the water in it fell from a falling star a long time ago, and that whatever it shows, it keeps.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Behind the waterfall there is a cave the children dare each other to go into, and (name) has finally gone in to fetch back a basket one of them left there. At the back of the cave (he/she) finds a pool so still and clear it looks like a sheet of glass. The elders say the water in it fell from a falling star a long time ago, and that whatever it shows, it keeps.\n(Name) leans over it. (His/her) reflection is there, perfectly sharp. Then a second one appears beside it, also (name), also leaning.\n(Name) is the only person in the cave. Touch the water, or back away slowly?",
+   "choices": [
+    {
+     "label": "Touch the Water",
+     "next": "c1",
+     "src": "L11453"
+    },
+    {
+     "label": "Back Away Slowly",
+     "next": "c2",
+     "src": "L11454"
+    }
+   ],
+   "src": "L11449-11451"
+  },
+  "c1o1": {
+   "text": "The water ripples, and {#made:a person steps|two people step} out of it, dry as bones. {#made:The newcomer is|Both of them are} exactly (name): the same face, the same laugh, the same dislike of mornings. {#made:The two of them|The three of them} help carry the basket home and argue all the way about who gets to carry it. The village names {#made:the newcomer (made1)|them (made1) and (made2)}, mostly so people can tell them apart when shouting.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L11460",
+   "text_only": [
+    {
+     "src": "L11460",
+     "what": "\"dislike\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Only one steps out. It has (name)'s face, (name)'s hair and (name)'s walk, but when (name) offers it a bit of coconut, it wrinkles its nose. It likes different food, different work, and different people. It follows (name) home, introduces itself as (made1), and moves into the empty hut by the river. Some evenings it goes back to the cave and sits by the pool for a while.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L11463",
+   "text_only": [
+    {
+     "src": "L11463",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "(Name) reaches out one finger and touches the surface. It isn't cold. It isn't wet, either. It feels like touching someone else's hand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11457"
+  },
+  "c2o1": {
+   "text": "(Name) gets out of the cave with the basket and doesn't look back once. The children are disappointed by how little (he/she) is willing to say about it. \"It's a pool,\" is all (name) tells them. \"Leave it alone.\" That night (he/she) puts a mat over the little mirror in (his/her) hut, and leaves it there for a month.",
+   "src": "L11469"
+  },
+  "c2o2": {
+   "text": "On the way out, (name) catches a drop of the water on (his/her) cheek from the cave roof. It tingles. By the time (he/she) gets home, the lines around (his/her) eyes have smoothed out and (his/her) face looks the way it did years ago. (His/her) age hasn't changed at all, just (his/her) face. The pool, it seems, kept the old one.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L11472"
+  },
+  "c2": {
+   "text": "(Name) doesn't move (his/her) eyes from the pool, and takes one careful step back, then another. The second reflection doesn't follow. It just keeps leaning, watching...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11466"
+  }
+ }
+}
