@@ -728,6 +728,12 @@ one may also be written `"preference": "random"`.
   nothing is changed and nothing is refused.
 - A random dislike is harmful (section 7), as a fixed one.
 
+**24a. Taking a like or dislike away (the owner, 2026-11-15).** `{"do": "preference", "list": "likes" | "dislikes",
+"preference": w | "random", "remove": true}` (or `"like"` / `"dislike"` with `"remove": true`): flags bit 16 set
+(bit 4 still says dislikes, bit 8 random), a = b = 0. With a word, that like or dislike is removed; with `random`,
+one the villager holds. Automatic lines (section 25): "unlike" `<R> no longer likes <W>.` and "undislike"
+`<R> no longer dislikes <W>.`. Removing a like is harmful (section 7); removing a dislike is not.
+
 ## 25. Automatic outcome lines (the owner, 2026-11-14)
 
 Some outcomes are written only as instructions ("change hair color", "random like", "skill loss"). The effect is

@@ -195,6 +195,9 @@ clone, body swap, lost name), each only where the outcome's own words say it. Th
 | `lvway22_child_asked` | b1 | skill: role child, skills ['Farming'], min 5, max 10 | The child learns about roots, water, and soil. |
 | `rm25_builder_example` | c2 | skill: role apprentice, skills ['Building'], min 5, max 10 | Progress is slow, but the apprentice learns without being rushed. |
 | `lvlife04_crooked_arm` | b1 | preference: role child, list dislikes, preference lifting | The child heals with a lasting bend but learns to use the arm well. |
+| `sss069_sadness_without` | a | preference: role gardener, list likes, preference flowers, remove True | A gardener has lost interest in flowers, meals, and familiar games for many days. |
+| `sss069_sadness_without` | b | preference: role gardener, list likes, preference flowers, remove True | A gardener has lost interest in flowers, meals, and familiar games for many days. |
+| `sss069_sadness_without` | c | preference: role gardener, list likes, preference flowers, remove True | A gardener has lost interest in flowers, meals, and familiar games for many days. |
 | `c5dn002_wrong` | e2 | preference: role teen, list likes, preference work | Try the family trade and unexpectedly enjoy it. |
 | `lbl056_retirement` | e2 | preference: role elder, list likes, preference resting | They enjoy leisure without guilt. |
 | `lvppl02_blue_cloth` | a1 | preference: role villager, list likes, preference blue | The villager wears the blue clothing with delight. |
@@ -210,4 +213,4 @@ clone, body swap, lost name), each only where the outcome's own words say it. Th
 | `lvppl12_tribe_someone` | a1 | new_villager: age adult | The newcomer joins the tribe while retaining treasured customs. |
 | `lvppl12_tribe_someone` | a2 | new_villager: age adult | Some villagers need time to adjust to the new neighbor. |
 
-Totals: appearance 3, new_villager 6, preference 6, skill 7. No outcome text called for a pregnancy, nursing baby, clone, body swap, lost or changed name, or age change, so none was added.
+Totals: appearance 3, new_villager 6, preference 9, skill 7. Preference rows with remove take a like away. No outcome text called for a pregnancy, nursing baby, clone, body swap, lost or changed name, or age change, so none was added.

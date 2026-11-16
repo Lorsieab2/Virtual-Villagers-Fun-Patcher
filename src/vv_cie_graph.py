@@ -412,6 +412,7 @@ LOOK_KEEP = -2                # ... not changed
 # Section 21: kinship relations (the relations table; the header is then 104 bytes).
 PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
+PREF_REMOVE_FLAG = 16         # ... "remove": true takes the like / dislike away (random: one the villager holds)
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
@@ -1013,6 +1014,13 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             elif word == PREF_RANDOM and not v6:
                 problems.append(f"{where}: a random preference needs format version {VERSION_V6}")
             out.update(list=lst, preference=word)
+            if v6 and "remove" in e:
+                # 24a: "remove": true takes the like / dislike away (flags bit 16; random: one the villager holds)
+                known.add("remove")
+                if e["remove"] not in (True, False):
+                    problems.append(f"{where}: preference remove is true or false")
+                if e["remove"] is True:
+                    out["remove"] = True
         elif do == "skill" and "set" not in out:
             known |= {"skills", "min", "max"}
             if v6 and "size" in e:
@@ -2226,7 +2234,7 @@ def _harmful(e: dict, games: Iterable[int]) -> bool:
     if do == "health_change":
         return e["min"] < 0
     if do == "preference":
-        return e["list"] == "dislikes"
+        return (e["list"] == "dislikes") != bool(e.get("remove"))   # a new dislike, or a like taken away
     if do == "skill":
         return "set" not in e and e["min"] < 0
     if do == "mood":
@@ -2684,6 +2692,8 @@ AUTO_LINES = {
     "health": "<R>'s health changes.",
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
+    "unlike": "<R> no longer likes <W>.",
+    "undislike": "<R> no longer dislikes <W>.",
     "skill+": "<R> learns more about <S>.",
     "skill-": "<R> feels less sure of <P> <S>.",
     "sick": "<R> falls sick.",
@@ -2751,7 +2761,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
     if do == "appearance":
         return [_auto_fill("hair" if e.get("body") is None else "look", r)]
     if do == "preference":
-        key = "dislike" if e["list"] == "dislikes" else "like"
+        key = ("un" if e.get("remove") else "") + ("dislike" if e["list"] == "dislikes" else "like")
         if e["preference"] != PREF_RANDOM:
             return [_auto_fill(key, r, word=e["preference"])]
         if fx is not None:
@@ -3738,7 +3748,7 @@ def _compile_v6(g: dict) -> bytes:
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
             elif do == "preference":
                 flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
-                                                                 else 0)
+                                                                 else 0) | (PREF_REMOVE_FLAG if e.get("remove") else 0)
                 st = NONE if e["preference"] == PREF_RANDOM else s(e["preference"])
             elif do == "skill" and "set" in e:
                 a, st = e["set"], s(",".join(e["skills"]))
@@ -3979,6 +3989,8 @@ def _decompile_v6(data: bytes) -> dict:
                 elif do == "preference":
                     e.update(list="dislikes" if flags & 4 else "likes",
                              preference=PREF_RANDOM if flags & PREF_RANDOM_FLAG else s(st))
+                    if flags & PREF_REMOVE_FLAG:
+                        e["remove"] = True
                 elif do == "skill":
                     e.update(skills=s(st).split(","), min=a, max=b)
                 elif do == "skill_set":

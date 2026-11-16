@@ -1092,7 +1092,7 @@ def harmful(e: dict) -> bool:
         return True
     if do == "health_change" and e.get("min", 0) < 0:
         return True
-    if do == "preference" and (e.get("list") == "dislikes" or "dislike" in e):   # 24: "dislike": w | "random"
+    if do == "preference" and (e.get("list") == "dislikes" or "dislike" in e) != bool(e.get("remove")):   # 24: "dislike": w | "random"
         return True
     if do == "skill" and "set" not in e and (e.get("min", 0) < 0 or e.get("max", 0) < 0):
         return True

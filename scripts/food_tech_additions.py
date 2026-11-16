@@ -185,6 +185,10 @@ EFFECT_ADDITIONS: list[tuple[str, str, dict, str]] = [
     # a permanent disability the text states (the owner: a fitting dislike from the game's list)
     ("lvlife04_crooked_arm", "b1", {"do": "preference", "role": "child", "list": "dislikes", "preference": "lifting"},
      "The child heals with a lasting bend but learns to use the arm well."),
+    # a like taken away (cie-v6-binary.md 24a): every outcome of "A gardener has lost interest in flowers..."
+    *[("sss069_sadness_without", k, {"do": "preference", "role": "gardener", "list": "likes",
+                                     "preference": "flowers", "remove": True},
+       "A gardener has lost interest in flowers, meals, and familiar games for many days.") for k in "abc"],
     # likes
     ("c5dn002_wrong", "e2", _like("teen", "work"), "Try the family trade and unexpectedly enjoy it."),
     ("lbl056_retirement", "e2", _like("elder", "resting"), "They enjoy leisure without guilt."),
@@ -356,8 +360,8 @@ def write_log(files: dict[str, Path], docs: dict[str, dict]) -> None:
         what = ", ".join(f"{k} {v}" for k, v in add.items() if k != "do")
         lines.append(f"| `{eid}` | {node} | {add['do']}: {what} | {why.replace('|', '/')} |")
     lines += ["", "Totals: " + ", ".join(f"{k} {v}" for k, v in sorted(kinds.items())) +
-              ". No outcome text called for a pregnancy, nursing baby, clone, body swap, lost or changed name, or age"
-              " change, so none was added.", ""]
+              ". Preference rows with remove take a like away. No outcome text called for a pregnancy, nursing baby,"
+              " clone, body swap, lost or changed name, or age change, so none was added.", ""]
     LOG.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
