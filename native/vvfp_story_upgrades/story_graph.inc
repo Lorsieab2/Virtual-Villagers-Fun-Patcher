@@ -178,7 +178,28 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
           the role's villager (sex, head and body copied; name, likes, dislikes and skills the game's own roll) --
           made by each game's own creator (the adapters' spawn: the Barrel's / stranger's path, its room check), a
           the age class (0 any, 1 child, 2 teen, 3 adult, 4 elder).  No room: nothing, no error. */
-       CGE_NEW_VILLAGER = 27 };
+       CGE_NEW_VILLAGER = 27,
+       /* 28 / 29: the role's villager becomes pregnant by the game's own conception (the Custom Island Event's
+          chosen-partner path, a->conceive), the partner role in the first value (255 none); 29 delivers at once
+          (a->deliver: nursing a newborn).  Flags bit 0: any birth sex (else the carrier was born female); always 18
+          or more, never already expecting; no room: nothing. */
+       CGE_PREGNANT = 28, CGE_NURSING = 29,
+       /* 30: a copy of the role's villager by the game's own twins' copy routine (room asked first), always with a
+          name of its own (the game's own name roll; the owner, 2026-11-15).  New Believers' Heathens are never
+          copied. */
+       CGE_CLONE = 30,
+       /* 31: a mind swap (The Lost Children's Crystal Ball): names, skills, likes and dislikes exchanged between the
+          role and the role in the first value; looks, sex and age stay.  32: the name becomes "?" (A Bump On The
+          Head, The Return of Biggles).  Both hand the renames to the companions that key villagers by name. */
+       CGE_BODY_SWAP = 31, CGE_LOSE_NAME = 32,
+       /* 33: a real rename -- a first name drawn from the game's own list (either sex), the villager's last name
+          kept -- handed to the companions that key villagers by name.  34: the age set or moved (cg_change_age). */
+       CGE_CHANGE_NAME = 33, CGE_CHANGE_AGE = 34 };
+/* 34: the mode (the effect's flags byte): set to a child, a teen 14-17, 18, an adult of 20-49, 50 or an elder, or
+   move by a number of years drawn in [a, b] (either may be below 0). */
+enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AGE_50 = 4, CG_AGE_ELDER = 5,
+       CG_AGE_ADD = 6 };
+#define CG_FX_ANY_BIRTH_SEX 1u          /* 28 / 29: flags bit 0 */
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
@@ -1036,10 +1057,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT;
+                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
+                       || (e[0] >= CGE_PREGNANT && e[0] <= CGE_CHANGE_AGE);
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
-                                         || e[0] == CGE_NEW_VILLAGER));
+                                         || (e[0] >= CGE_NEW_VILLAGER && e[0] <= CGE_CHANGE_AGE)));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1086,6 +1108,20 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_NEW_VILLAGER:
                 ok = a >= 0 && a <= 4 && b == 0 && str == CG_NONE
                      && (e[1] == CG_ROLE_ALIAS_ALL || e[1] < (unsigned int)g->n_role);
+                break;
+            case CGE_PREGNANT: case CGE_NURSING:
+                ok = (a == 0xFF || (a >= 0 && a < g->n_role)) && b == 0 && str == CG_NONE
+                     && (e[2] & ~CG_FX_ANY_BIRTH_SEX) == 0;
+                break;
+            case CGE_BODY_SWAP:
+                ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
+                break;
+            case CGE_CLONE: case CGE_LOSE_NAME: case CGE_CHANGE_NAME:
+                ok = a == 0 && b == 0 && str == CG_NONE;
+                break;
+            case CGE_CHANGE_AGE:
+                ok = str == CG_NONE && e[2] <= CG_AGE_ADD
+                     && (e[2] == CG_AGE_ADD ? (a >= -120 && b <= 120 && a <= b) : (a == 0 && b == 0));
                 break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
@@ -4673,6 +4709,272 @@ static void cg_new_villager(const ce_adapter *a, int game, const unsigned char *
     ce_tell_arrival(game, index, &s);
 }
 
+/* Was the villager in `record` born female?  "VVFP Gender Presentation.dll"'s answer when it is in the game (the
+   birth sex it keeps), else the sex the record holds now. */
+typedef int (__stdcall *cg_born_female_fn)(int game, const void *record);
+static int cg_born_female(const ce_adapter *a, int game, const unsigned char *record) {
+    HMODULE dll = GetModuleHandleA("VVFP Gender Presentation.dll");
+    cg_born_female_fn born = dll != NULL ? (cg_born_female_fn)(void *)GetProcAddress(dll, "VvfpBornFemale") : NULL;
+    return born != NULL ? born(game, record) == 1 : ce_sex(a, record) == STORY_SEX_FEMALE;
+}
+
+/* The companions that key a villager by an identity holding the name (native/shared/villager_rekey.h): each one
+   loaded is handed the renamed records and the names they had, as "VVFP Last Names.dll" hands its renames. */
+static const char *const CG_RENAME_OWNERS[] = {
+    "VVFP Head Look.dll", "VVFP Original Look.dll", "VVFP Origins Icons.dll", "VVFP VV1 Origins Icons.dll",
+    "VVFP VV2 Origins Icons.dll", "VVFP VV4 Origins Icons.dll", "VVFP Cause of Death.dll", "VVFP Faith Loss.dll",
+    "VVFP Last Names.dll", "VVFP VV1 Parentage.dll", "VVFP Parentage Export.dll", "VVFP Population Export.dll",
+    "VVFP Gender Presentation.dll",
+};
+
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                   const char *const *old_names);
+
+static void cg_tell_renamed(int game, int count, const void *const *records, const char *const *old_names) {
+    int slot = story_current_slot(game);
+    size_t k;
+    if (slot <= 0 || count <= 0) {
+        return;
+    }
+    (void)VvfpVillagersRenamed(game, slot, count, records, old_names);   /* this DLL's own custom titles */
+    for (k = 0; k < sizeof CG_RENAME_OWNERS / sizeof CG_RENAME_OWNERS[0]; ++k) {
+        HMODULE owner = GetModuleHandleA(CG_RENAME_OWNERS[k]);
+        vv_rekey_export_fn renamed = owner != NULL
+            ? (vv_rekey_export_fn)(void *)GetProcAddress(owner, "VvfpVillagersRenamed") : NULL;
+        if (renamed != NULL) {
+            (void)renamed(game, slot, count, records, old_names);
+        }
+    }
+}
+
+/* Each game's own copy routine (the twins' and triplets'): the new record index, -1 none.  The adapter's room
+   predicate is asked first (the routines' own record search has no bound of its own in A New Home and The Lost
+   Children). */
+static int cg_copy_villager(const ce_adapter *a, int game, int index) {
+    unsigned char *src = a->record(index);
+    int copy = -1;
+    if (src == NULL || a->room == NULL || !a->room()) {
+        return -1;
+    }
+    switch (game) {
+    case 1: copy = TC1(0x43C840u, VV1_ARRAY(), index); break;
+    case 2: copy = TC1(0x44CEC0u, VV2_POOL(), index); break;
+    case 3: copy = TC1(0x45F2D0u, C3_VILLAGE, (int)(uintptr_t)src); break;
+    case 4: copy = TC1(0x466310u, C4_MANAGER, (int)(uintptr_t)src); break;
+    case 5: copy = TC1(0x46FD70u, C5_MANAGER, (int)(uintptr_t)src); break;
+    default: break;
+    }
+    return copy >= 0 && copy < a->record_count ? copy : -1;
+}
+
+/* A first name from the game's own list (either sex, the game's random routine), never the one the record has; with
+   `keep_last`, the record's last name kept after it.  1 when the record holds the new name. */
+static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *record, int keep_last) {
+    char now[64], pick[64], full[96];
+    const char *last = NULL, *list;
+    int tries, n_last = 0;
+    lstrcpynA(now, (const char *)record + a->off_name, (int)sizeof now);
+    if (keep_last) {
+        n_last = cg_last_of(now, &last);
+    }
+    for (tries = 0; tries < 8; ++tries) {
+        int count = 0, k, want, len = 0;
+        const char *p;
+        list = cg_names_list(game, ce_random_below(a, 2));
+        for (p = list; *p != ' '; ++p) {
+            count += *p == ',';
+        }
+        if (count == 0) {
+            return 0;
+        }
+        want = ce_random_below(a, count);
+        for (p = list, k = 0; *p != ' ' && k < want; ++p) {
+            k += *p == ',';
+        }
+        while (p[len] != ' ' && p[len] != ',' && len + 1 < (int)sizeof pick) {
+            pick[len] = p[len];
+            ++len;
+        }
+        pick[len] = ' ';
+        if (n_last > 0 && len + 1 + n_last < (int)sizeof full) {
+            wsprintfA(full, "%s %.*s", pick, n_last, last);
+        } else {
+            lstrcpynA(full, pick, (int)sizeof full);
+        }
+        if (lstrlenA(full) > a->name_room) {
+            lstrcpynA(full, pick, (int)sizeof full);   /* the room the game holds: the first name alone */
+        }
+        if (lstrcmpiA(full, now) != 0) {
+            return ce_write_name(record + a->off_name, a->name_bytes, full);
+        }
+    }
+    return 0;
+}
+
+/* Effect 34: the age (the game's age units, 20 a year) set or moved, with the processed age (the catch-up's cursor,
+   ce_birth_layout's second field) moved with it, so the catch-up neither replays the years nor makes them up; a
+   carrier's conception mark moves with it too (the delivery stays as far off).  Never below 0; A New Home's Golden
+   Child stays five; a carrier is never made a child (nothing then). */
+static void cg_change_age(const ce_adapter *a, int game, const unsigned char *e, unsigned char *record) {
+    static const unsigned int PROCESSED[6] = { 0, 0x34Cu, 0x534u, 0xE74u, 0x1C3Cu, 0x1C3Cu };
+    static const int SET[6][2] = { { 1, 13 }, { 14, 17 }, { 18, 18 }, { 20, 49 }, { 50, 50 }, { 55, 75 } };
+    int age = ce_age(a, record), target, years, delta, carrying;
+    int *processed, *nursing;
+    if (game < 1 || game > 5 || (game == 1 && ce_role(a, record, NULL) == STORY_KIND_GOLDEN_CHILD)) {
+        return;
+    }
+    if (e[2] == CG_AGE_ADD) {
+        int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
+        years = lo + (hi > lo ? ce_random_below(a, hi - lo + 1) : 0);
+        target = age + 20 * years;
+    } else {
+        years = SET[e[2]][0] + (SET[e[2]][1] > SET[e[2]][0] ? ce_random_below(a, SET[e[2]][1] - SET[e[2]][0] + 1) : 0);
+        target = 20 * years;
+    }
+    if (target < 0) {
+        target = 0;
+    }
+    carrying = *(const int *)(record + a->off_pregnant) != 0;
+    if (carrying && target < 14 * 20) {
+        return;                        /* a carrier is never made a child */
+    }
+    delta = target - age;
+    processed = (int *)(record + PROCESSED[game]);
+    nursing = (int *)(record + a->off_pregnant);
+    *(int *)(record + a->off_age) = target;
+    *processed += delta;
+    if (*processed < 0) {
+        *processed = 0;
+    }
+    if (carrying) {
+        *nursing += delta;             /* the conception mark moves with the processed age */
+        if (*nursing <= 0) {
+            *nursing = 1;
+        }
+    }
+}
+
+/* Effects 28-34 (the life effects): pregnant, nursing, clone, mind swap, lost name, new name, age. */
+static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e, ce_result *r) {
+    int role = cg_resolve_role(e[1]), index, k;
+    unsigned char *record;
+    if (role < 0 || (record = cg_villager(a, role)) == NULL) {
+        return;                        /* gone since the event began: nothing */
+    }
+    index = cg.record[role];
+    switch (e[0]) {
+    case CGE_PREGNANT: case CGE_NURSING: {
+        int partner = -1, early = 0, other = (int)cg_u32(e + 4);
+        if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
+            || *(const int *)(record + a->off_pregnant) != 0
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(a, game, record))) {
+            return;                    /* not a carrier these events may have, or expecting already: nothing */
+        }
+        if (other != 0xFF) {
+            int prole = cg_resolve_role(other);
+            if (prole >= 0 && cg_villager(a, prole) != NULL) {
+                partner = cg.record[prole];
+            }
+        }
+        if (a->conceive(index, 1, partner, r) <= 0) {
+            return;                    /* no room (the game's own predicate): nothing */
+        }
+        if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
+            (void)a->deliver(index, &early);   /* born at once: nursing a newborn (the deliver_early path) */
+        }
+        return;
+    }
+    case CGE_CLONE: {
+        int copy;
+        if (game == 5 && cg_heathen(game, record)) {
+            return;                    /* New Believers' Heathens are never copied */
+        }
+        copy = cg_copy_villager(a, game, index);
+        if (copy < 0) {
+            return;                    /* no room: nothing */
+        }
+        /* The copy routine rolls the game's own new name (A New Home 0x43B950, The Lost Children 0x44B710, the later
+           games their name rolls); the owner: always a name of its own, so one that came out the same is drawn
+           again from the game's own list. */
+        if (lstrcmpiA((const char *)a->record(copy) + a->off_name, (const char *)record + a->off_name) == 0) {
+            cg_rename_from_list(a, game, a->record(copy), 0);
+        }
+        ce_tell_arrival(game, copy, NULL);
+        return;
+    }
+    case CGE_BODY_SWAP: {
+        int orole = cg_resolve_role((int)cg_u32(e + 4));
+        unsigned char *other = orole >= 0 ? cg_villager(a, orole) : NULL;
+        static char names[2][64];
+        const void *recs[2];
+        const char *olds[2];
+        unsigned char tmp[64];
+        if (other == NULL || other == record || a->name_bytes > (int)sizeof tmp) {
+            return;
+        }
+        lstrcpynA(names[0], (const char *)record + a->off_name, (int)sizeof names[0]);
+        lstrcpynA(names[1], (const char *)other + a->off_name, (int)sizeof names[1]);
+        memcpy(tmp, record + a->off_name, (size_t)a->name_bytes);
+        memcpy(record + a->off_name, other + a->off_name, (size_t)a->name_bytes);
+        memcpy(other + a->off_name, tmp, (size_t)a->name_bytes);
+        for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
+            unsigned int *x = (unsigned int *)(record + a->off_skills + 4u * (unsigned int)k);
+            unsigned int *y = (unsigned int *)(other + a->off_skills + 4u * (unsigned int)k);
+            unsigned int t = *x;
+            *x = *y;
+            *y = t;
+        }
+        for (k = 0; k < a->pref_slots; ++k) {
+            int *lx = (int *)(record + a->off_likes) + k, *ly = (int *)(other + a->off_likes) + k;
+            int *dx = (int *)(record + a->off_dislikes) + k, *dy = (int *)(other + a->off_dislikes) + k;
+            int t = *lx;
+            *lx = *ly;
+            *ly = t;
+            t = *dx;
+            *dx = *dy;
+            *dy = t;
+        }
+        recs[0] = record;
+        recs[1] = other;
+        olds[0] = names[0];
+        olds[1] = names[1];
+        cg_tell_renamed(game, 2, recs, olds);
+        return;
+    }
+    case CGE_CHANGE_NAME: {
+        static char was[64];
+        const void *recs[1];
+        const char *olds[1];
+        lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
+        if (!cg_rename_from_list(a, game, record, 1)) {
+            return;
+        }
+        recs[0] = record;
+        olds[0] = was;
+        cg_tell_renamed(game, 1, recs, olds);
+        return;
+    }
+    case CGE_CHANGE_AGE:
+        cg_change_age(a, game, e, record);
+        return;
+    case CGE_LOSE_NAME: {
+        static char was[64];
+        const void *recs[1];
+        const char *olds[1];
+        lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
+        if (!ce_write_name(record + a->off_name, a->name_bytes, "?")) {
+            return;
+        }
+        recs[0] = record;
+        olds[0] = was;
+        cg_tell_renamed(game, 1, recs, olds);
+        return;
+    }
+    default:
+        return;
+    }
+}
+
 static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
                       int *award, ce_result *r) {
     unsigned char *record;
@@ -4698,6 +5000,10 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         return;
     case CGE_NEW_VILLAGER:
         cg_new_villager(a, game, e, r);
+        return;
+    case CGE_PREGNANT: case CGE_NURSING: case CGE_CLONE: case CGE_BODY_SWAP: case CGE_LOSE_NAME:
+    case CGE_CHANGE_NAME: case CGE_CHANGE_AGE:
+        cg_life_effect(a, game, e, r);
         return;
     case CGE_TRAIT:
         /* 32: the villager keeps the story trait (story_traits.inc's file follows them), whatever is ticked. */
