@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Does a Coconut Think About?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il049_what_does",
+  "source": "da_il03",
+  "lines": [
+   104,
+   107
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager resting under a palm tree wonders what a coconut would think about, if it could think.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(name1) is resting under a palm tree, staring up at the coconuts, and an important question occurs to (him/her). If a coconut could think, what would it think about? Probably falling. Probably mostly falling. Would it be looking forward to it, or dreading it? Does it know which villager it's going to land near? Is it, at this very moment, looking down at (name1)? (name1) decides to move to a different tree. Just in case.",
+   "src": "L107"
+  }
+ }
+}

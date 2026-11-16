@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder in a Different Form",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel18_elder_form",
+  "source": "anthology",
+  "lines": [
+   27272,
+   27285
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27272",
+  "ledger": [
+   {
+    "src": "L27272",
+    "kind": "note",
+    "why": "presentation effect 23 pending (A1, A2: the elder's appearance follows their wishes, keeping their identity)"
+   },
+   {
+    "src": "L27273",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27275",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27276",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27278",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27279",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27281",
+    "kind": "sensitivity",
+    "before": "The companion",
+    "after": "(companion)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27282",
+    "kind": "sensitivity",
+    "before": "The companion",
+    "after": "(companion)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27284",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27285",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder wants to change their gender presentation after many years.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "companion"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "companion": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) wants to change their gender presentation after many years.",
+   "src": "L27273",
+   "choices": [
+    {
+     "label": "Help Choose a Preferred Sprite Where Supported",
+     "next": "a",
+     "src": "L27274"
+    },
+    {
+     "label": "Listen to Their Story If Offered",
+     "next": "b",
+     "src": "L27277"
+    },
+    {
+     "label": "Invite a Trusted Companion",
+     "next": "c",
+     "src": "L27280"
+    },
+    {
+     "label": "Make No Assumptions About Identity",
+     "next": "d",
+     "src": "L27283"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(elder) enjoys seeing their appearance reflect their wishes.",
+   "src": "L27275"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) tries a different look and chooses a more subtle change.",
+   "src": "L27276"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder) shares memories and feels understood.",
+   "src": "L27278"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) keeps their history private and feels respected.",
+   "src": "L27279"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(companion) responds with love and curiosity.",
+   "src": "L27281"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(companion) takes time to learn but remains affectionate.",
+   "src": "L27282"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) explains that clothing alone does not define gender.",
+   "src": "L27284"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder) decides their identity matters more than any visible change.",
+   "src": "L27285"
+  }
+ }
+}

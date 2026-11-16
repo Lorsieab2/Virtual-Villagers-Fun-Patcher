@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Full Storehouse",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif06_full_storehouse",
+  "source": "draft_lif",
+  "lines": [
+   68,
+   71
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older; a single popup, no choice)"
+   }
+  ],
+  "description": "After the harvest, a villager looks into the full storehouse and thinks a quiet life has not been bad at all.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "At the end of the harvest, (name1) stops in the doorway of the storehouse and looks in. Baskets of roots, dried fish hanging in rows, sealed jars of seeds for next year, bundles of thatch. A lot of it went through (his/her) hands. Not all of it. But a lot. (He/she) remembers being young and thinking that a good life would have to be something grand: an adventure, a famous deed, a song somebody made up about you. (He/she) stands there for a while, breathing in the smell of dried fish and dust and good, full baskets, and thinks that this is also not bad. Then (he/she) closes the door, because it's going to rain.",
+   "src": "L71"
+  }
+ }
+}

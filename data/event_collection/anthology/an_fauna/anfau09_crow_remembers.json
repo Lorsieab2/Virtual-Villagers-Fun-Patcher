@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crow That Remembers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau09_crow_remembers",
+  "source": "anthology",
+  "lines": [
+   32579,
+   32593
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32579",
+  "ledger": [
+   {
+    "src": "L32580",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32581",
+    "kind": "sensitivity",
+    "before": "a villager who once frightened it",
+    "after": "(villager), who once frightened it",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32586",
+    "kind": "sensitivity",
+    "before": "A naturalist",
+    "after": "(naturalist), a naturalist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32590",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32592",
+    "kind": "sensitivity",
+    "before": "The bird and villager avoid",
+    "after": "The bird and (villager) avoid",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32593",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A clever dark-feathered bird seems to recognize a villager who once frightened it.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "naturalist",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A clever dark-feathered bird seems to recognize (villager), who once frightened it.",
+   "src": "L32581",
+   "choices": [
+    {
+     "label": "Offer It Distance",
+     "next": "a",
+     "src": "L32582"
+    },
+    {
+     "label": "Observe Its Behavior",
+     "next": "b",
+     "src": "L32585"
+    },
+    {
+     "label": "Apologize Aloud",
+     "next": "c",
+     "src": "L32588"
+    },
+    {
+     "label": "Change the Route",
+     "next": "d",
+     "src": "L32591"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The bird eventually stops alarm-calling.",
+   "src": "L32583"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The bird keeps its distrust.",
+   "src": "L32584"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(naturalist), a naturalist, records remarkable memory.",
+   "src": "L32586"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villagers disagree about what the bird recognizes.",
+   "src": "L32587"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Nearby children laugh at the earnest speech.",
+   "src": "L32589"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) feels better despite no clear response.",
+   "src": "L32590"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The bird and (villager) avoid each other.",
+   "src": "L32592"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(friend) thinks the detour is excessive.",
+   "src": "L32593"
+  }
+ }
+}

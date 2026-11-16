@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Are You a Boy or a Girl?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf19_are_you_boy_girl",
+  "source": "draft_blf",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 4-8)"
+   }
+  ],
+  "description": "A small child asks a villager whose look does not fit expectations if they are a boy or a girl: answer simply, or ask one back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) dresses and wears (subject.his/her) hair in a way that doesn't fit what most villagers expect of a man or a woman. Today (friend), a very small and very direct child, looks up at (subject.him/her) and asks, \"Are you a boy or a girl?\" The child's parent, nearby, goes very red.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Answer Simply",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Answer, Then Ask One Back",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm (subject),\" says (subject), smiling. \"That's all you need to know about me. What's your name?\" (friend) tells (subject.him/her). Then (friend.he/she) asks if (subject) can do a cartwheel. (subject) can. (friend) is extremely impressed. The question is forgotten entirely. The parent mouths \"sorry.\" (subject) shakes (subject.his/her) head: no need.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) answers the question in a plain, simple way, and then asks one back: \"Are you a crab or a fish?\" (friend) giggles. \"I'm a PERSON.\" \"Me too,\" says (subject). \"Just like you.\" (friend) seems satisfied. The parent, still red, apologizes later. \"Children ask,\" says (subject). \"That's fine. It's grown-ups asking that tires me out.\"",
+   "src": "L233"
+  }
+ }
+}

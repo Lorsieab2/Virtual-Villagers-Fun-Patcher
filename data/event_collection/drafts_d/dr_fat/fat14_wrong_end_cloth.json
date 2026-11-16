@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong End of the Cloth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat14_wrong_end_cloth",
+  "source": "fathers30",
+  "lines": [
+   285,
+   303
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L285",
+  "ledger": [
+   {
+    "src": "L286",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L287",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L291",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L293",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L294",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L296",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L297",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L299",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L300",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L302",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L303",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L289",
+    "kind": "sensitivity",
+    "before": "A father",
+    "after": "(Name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A father volunteers to change a baby's cloth for the first time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a father, volunteers to change a baby's cloth for the first time. The child kicks with astonishing determination, and the clean cloth ends up somewhere entirely unexpected.",
+   "src": "L289",
+   "choices": [
+    {
+     "label": "Try Again Carefully",
+     "next": "a",
+     "src": "L292"
+    },
+    {
+     "label": "Ask an Experienced Parent to Demonstrate",
+     "next": "b",
+     "src": "L295"
+    },
+    {
+     "label": "Distract the Baby with a Toy",
+     "next": "c",
+     "src": "L298"
+    },
+    {
+     "label": "Accept the Mess and Keep Going",
+     "next": "d",
+     "src": "L301"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He finishes the change and proudly announces his victory.",
+   "src": "L293"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baby immediately soils the fresh cloth.",
+   "src": "L294"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He learns a useful trick and tries it successfully.",
+   "src": "L296"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The parent laughs at the situation, then helps without belittling him.",
+   "src": "L297"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The baby holds still just long enough for him to finish.",
+   "src": "L299"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The toy lands in the wash basin, followed by a delighted squeal.",
+   "src": "L300"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He cleans everything up and becomes more confident.",
+   "src": "L302"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "He needs three cloths and a bath before the task is done.",
+   "src": "L303"
+  }
+ }
+}

@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Joke That Was Not Funny",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus23_joke_funny",
+  "source": "anthology",
+  "lines": [
+   31071,
+   31085
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31071",
+  "ledger": [
+   {
+    "src": "L31072",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31073",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31078",
+    "kind": "sensitivity",
+    "before": "The speaker",
+    "after": "(speaker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31079",
+    "kind": "sensitivity",
+    "before": "The speaker",
+    "after": "(speaker)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31082",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31085",
+    "kind": "sensitivity",
+    "before": "The affected villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A joke about a villager's ancestry draws laughter from some and silence from others.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "speaker",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "speaker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A joke about (villager)'s ancestry draws laughter from some and silence from others.",
+   "src": "L31073",
+   "choices": [
+    {
+     "label": "Ask the Affected Person Privately",
+     "next": "a",
+     "src": "L31074"
+    },
+    {
+     "label": "Address the Speaker's Behavior",
+     "next": "b",
+     "src": "L31077"
+    },
+    {
+     "label": "Explore Why Assumptions Spread",
+     "next": "c",
+     "src": "L31080"
+    },
+    {
+     "label": "Keep Community Bonds Honest",
+     "next": "d",
+     "src": "L31083"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They say the remark hurt even if no harm was intended.",
+   "src": "L31075"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They prefer not to become the center of a public debate.",
+   "src": "L31076"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(speaker) apologizes and changes the joke.",
+   "src": "L31078"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(speaker) argues it was harmless, and friends explain the impact.",
+   "src": "L31079"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children compare what they actually know with what they guessed.",
+   "src": "L31081"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) admits repeating an old stereotype.",
+   "src": "L31082"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Friends make space for trust to rebuild.",
+   "src": "L31084"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) chooses distance without being blamed.",
+   "src": "L31085"
+  }
+ }
+}

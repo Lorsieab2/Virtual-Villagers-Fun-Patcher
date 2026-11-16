@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Wants to Learn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage29_elder_wants",
+  "source": "anthology",
+  "lines": [
+   30573,
+   30587
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30573",
+  "ledger": [
+   {
+    "src": "L30574",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30575",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30577",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30577",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30578",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30578",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30581",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30583",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30586",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder asks to become a beginner in a skill commonly taught to children and worries others will laugh.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "teen",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) asks to become a beginner in a skill commonly taught to children and worries others will laugh.",
+   "src": "L30575",
+   "choices": [
+    {
+     "label": "Pair Them with a Patient Teen",
+     "next": "a",
+     "src": "L30576"
+    },
+    {
+     "label": "Create a Mixed-Age Class",
+     "next": "b",
+     "src": "L30579"
+    },
+    {
+     "label": "Practice Privately at First",
+     "next": "c",
+     "src": "L30582"
+    },
+    {
+     "label": "Celebrate the Attempt Rather Than Mastery",
+     "next": "d",
+     "src": "L30585"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30575"
+    },
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30575"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(teen) teaches carefully, and (elder) becomes a proud beginner.",
+   "src": "L30577"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) struggles at first, and (teen) adapts the explanation.",
+   "src": "L30578"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Everyone discovers that different ages bring different strengths.",
+   "src": "L30580"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) teaches a shortcut that surprises the adult instructor.",
+   "src": "L30581"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) gains confidence before joining a group.",
+   "src": "L30583"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They decide private learning suits them and decline a public demonstration.",
+   "src": "L30584"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) enjoys learning without a competition.",
+   "src": "L30586"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They ask not to be praised for every tiny step and are treated like any other learner.",
+   "src": "L30587"
+  }
+ }
+}

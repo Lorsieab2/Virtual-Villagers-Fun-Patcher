@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon14_wrong_basket",
+  "source": "draft_hon",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager took the wrong basket home and used half a friend's herbs: take it back now, or try to replace the herbs first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a long afternoon of gathering, everyone set their baskets down together under the big tree. (subject) picked up the wrong one and took it home, and has already used half the herbs in it for tonight's stew before noticing that (subject.his/her) own basket didn't have any herbs in it at all. Across the village, (friend) is looking for (friend.his/her) herbs.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Take the Basket Back",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Try to Replace the Herbs First",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) carries the half-empty basket over, along with (subject.his/her) own full one and a bowl of the stew. \"I took yours by mistake and used half. This is where they went.\" (friend) tastes the stew. \"...That's a good use of them.\" (friend.He/she) takes (subject)'s basket and the stew, and calls it even.",
+   "src": "L170"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) rushes out to gather more of the same herbs before taking the basket back. It's getting dark, and (subject.he/she) gets some of them right. (friend) looks into the basket. \"These aren't all my herbs.\" \"No. I took yours by mistake and tried to put it right.\" (friend) picks out a handful of leaves. \"This one's a weed the pigs like.\" \"...Then the pigs will be pleased.\"",
+   "src": "L173"
+  }
+ }
+}

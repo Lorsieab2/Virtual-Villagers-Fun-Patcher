@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cracked Shield",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm07_cracked_shield",
+  "source": "openq97",
+  "lines": [
+   531,
+   533
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L532",
+  "ledger": [
+   {
+    "src": "L531",
+    "kind": "structural",
+    "text": "[M07]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L533",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L531",
+    "kind": "sensitivity",
+    "before": "A carpenter",
+    "after": "(Name1), a carpenter,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A carpenter repairs a cracked wooden shield.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a carpenter, repairs a cracked wooden shield. The new brace fits neatly against the wood. (Name1) runs a thumb along the join.",
+   "src": "L531,L533"
+  }
+ }
+}

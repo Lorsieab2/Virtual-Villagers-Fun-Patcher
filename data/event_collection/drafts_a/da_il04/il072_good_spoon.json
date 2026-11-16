@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Good Spoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il072_good_spoon",
+  "source": "da_il04",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's favorite carved spoon has gone missing at dinner, and no other spoon is right.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has eaten every meal for years with the same carved wooden spoon. It has a little chip on the handle and fits (subject.his/her) hand perfectly. Tonight it is gone. (subject) has looked everywhere. The bowl of stew is getting cold, and there are plenty of other spoons, and none of them are right.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Search One More Time",
+     "next": "a",
+     "src": "L145"
+    },
+    {
+     "label": "Use a Different Spoon Tonight",
+     "next": "b",
+     "src": "L148"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) turns the hut upside down. (friend) comes to help and, after a long search, finds the spoon in the water jar, where (subject) put it that morning after stirring something. (subject) holds it like a lost friend. The stew is cold by now. (subject) eats it anyway and says it's the best stew (subject.he/she) has ever had.",
+   "src": "L146"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) picks up an ordinary spoon and eats. It's fine. The stew is fine. Everything is fine. It's just a little bit wrong. The next morning the good spoon turns up in the water jar, and (subject) decides not to ask (subject.him/her)self how it got there.",
+   "src": "L149"
+  }
+ }
+}

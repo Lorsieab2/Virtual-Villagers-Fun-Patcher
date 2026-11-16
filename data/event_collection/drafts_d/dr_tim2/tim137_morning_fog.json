@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Morning Fog",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim137_morning_fog",
+  "source": "draft_tim2",
+  "lines": [
+   86,
+   91
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L86",
+  "ledger": [
+   {
+    "src": "L87",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L88",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L89",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L90",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L91",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A soft morning fog hides the far end of the village.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A soft morning fog hides the far end of the village. Voices drift through it, and (name1) tries to guess who is speaking.",
+   "src": "L87,L88"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A soft morning fog hides the far end of the village. (name1) walks into the fog and finds the village feels quieter inside it.",
+   "src": "L87,L89"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A soft morning fog hides the far end of the village. The fog lifts all at once, and the huts appear as if from nowhere.",
+   "src": "L87,L90"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A soft morning fog hides the far end of the village. Someone greets a tree, thinking it is a neighbor, and laughs at the mistake.",
+   "src": "L87,L91"
+  }
+ }
+}

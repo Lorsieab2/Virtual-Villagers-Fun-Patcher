@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Steps Every Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea11_same_steps_every",
+  "source": "draft_hea",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A villager who cannot sleep is given the same steps for every night: follow the steps, or make up their own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has not slept properly in weeks. (subject.He/she) lies awake listening to every frog on the island. (friend) suggests a plan: the same steps every night. Wash the feet. Bank the fire low. Drink something warm. Lie down at the same time, even if sleep doesn't come. \"The body likes to know what's coming,\" says (friend).",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Follow the Steps",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Make Up (subject.his/her) Own Steps",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) follows the steps every night for two weeks. Some nights (subject.he/she) sleeps beautifully. Some nights (subject.he/she) lies awake anyway, with very clean feet. By the end, the good nights are a little more common than the bad ones. Not a lot. A little. (subject) decides that a little is worth keeping.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tries (friend)'s steps for two nights, then changes them. Feet, yes. Warm drink, yes. But instead of lying down at the same time, (subject.he/she) gets up and walks to the door and says goodnight to the sea. (friend) raises an eyebrow. \"Is that working?\" \"Some nights,\" says (subject). \"That's about what I expected,\" says (friend), \"from any of them.\"",
+   "src": "L137"
+  }
+ }
+}

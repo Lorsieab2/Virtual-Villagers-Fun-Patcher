@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Everything Had a Reason",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif23_everything_had",
+  "source": "draft_lif",
+  "lines": [
+   266,
+   275
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L266",
+  "ledger": [
+   {
+    "src": "L267",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older and another adult)"
+   }
+  ],
+  "description": "A friend says a villager's hard years happened for a reason: say what they really think, or let it pass.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There was a stretch of years in (subject)'s life that was very hard: illness, losses, one bad season after another. Today (friend), trying to be kind, says, \"Well, I'm sure it all happened for a reason. It made you who you are.\" (subject) is quiet for a moment.",
+   "src": "L269",
+   "choices": [
+    {
+     "label": "Say What You Really Think",
+     "next": "o1",
+     "src": "L271"
+    },
+    {
+     "label": "Let It Pass",
+     "next": "o2",
+     "src": "L274"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't think it did,\" (subject) says, not unkindly. \"It just happened. It was hard. I got through it. Some good things came after, and some came in spite of it. But it wasn't a lesson. It was just a bad time.\" (friend) is taken aback. Then (friend.he/she) nods. \"I'm sorry I said that.\" \"It's alright,\" says (subject). \"People say it to be nice. I'd rather you just said it was hard.\" \"It was hard,\" says (friend). \"It was,\" says (subject).",
+   "src": "L272"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't argue. (subject.He/she) just says, \"Maybe,\" and changes the subject. But later, alone, (subject.he/she) thinks about it. (subject.He/she) doesn't think there was a reason. (subject.He/she) thinks some things are just hard, and you get through them or you don't, and that's all. It's not a sad thought, exactly. It's honest. (subject.He/she) finds (subject.he/she) prefers it.",
+   "src": "L275"
+  }
+ }
+}

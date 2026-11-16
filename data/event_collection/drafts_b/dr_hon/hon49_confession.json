@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Very Old Confession",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon49_confession",
+  "source": "draft_hon",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders)"
+   }
+  ],
+  "description": "An elder confesses to an old friend a prank from their youth: the friend laughs, or has a confession too.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Long ago, when they were both young, somebody let all the village pigs into the feast ground the night before a big celebration. It was chaos. Nobody ever found out who did it. Tonight, sitting by the fire, (subject) says to (friend), out of nowhere, \"It was me. The pigs. I left the gate open.\"",
+   "src": "L587",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L587"
+    }
+   ],
+   "choices": [
+    {
+     "label": "(friend) Laughs",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "(friend) Has a Confession Too",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stares at (subject.him/her). Then (friend.he/she) laughs until (friend.he/she) has to wipe (friend.his/her) eyes. \"I got blamed for that! For a whole season!\" \"I know,\" says (subject). \"That's why I never said anything.\" (friend) is still laughing. (friend.He/she) is also, a little bit, still annoyed. Both, it turns out, are possible at once.",
+   "src": "L590"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) is quiet for a moment. Then: \"Well. I was the one who let them out again the next morning, after you'd all rounded them up.\" They look at each other. Neither of them ever knew. They sit by the fire laughing about it until very late, and agree that it should stay between the two of them, which lasts until breakfast.",
+   "src": "L593"
+  }
+ }
+}

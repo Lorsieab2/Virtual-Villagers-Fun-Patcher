@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hundredth Telling",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim167_hundredth",
+  "source": "draft_tim2",
+  "lines": [
+   296,
+   301
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L298",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L299",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L300",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L301",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L297",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(Name1), a grandparent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A grandparent tells the same funny story for the hundredth time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The family laughs at the same spot they always do.",
+   "src": "L297,L298"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. A grandchild says the ending along with them, word for word.",
+   "src": "L297,L299"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. This time, the story has a new detail nobody has heard before.",
+   "src": "L297,L300"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The grandparent laughs so hard that they cannot finish it.",
+   "src": "L297,L301"
+  }
+ }
+}

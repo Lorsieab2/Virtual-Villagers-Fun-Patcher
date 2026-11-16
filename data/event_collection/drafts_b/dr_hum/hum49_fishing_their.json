@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Fishing in Their Sleep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum49_fishing_their",
+  "source": "draft_hum",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L590",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Two villagers fall asleep fishing and drift home in front of everyone: act as if they meant it, or admit everything.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) went out fishing early, anchored the canoe in the calm of the lagoon, and, in the warm sun, both fell fast asleep. The anchor rope slipped. Gently, slowly, the tide carried the canoe all the way back into the bay and nudged it up onto the sand right in front of the evening gathering.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Act as If They Meant It",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Admit Everything",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They wake up to a ring of faces. (subject) sits up, looks around, and says, \"Back already?\" as if this is how they always come home. Then somebody notices that the net trailing behind the canoe is full of fish. Nobody can explain it. For a week afterward, several fishers try sleeping in their canoes. It doesn't work for any of them.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L590"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"We fell asleep,\" says (friend). \"Both of us. The whole time.\" The village cheers anyway, because it's the most interesting way anyone has come home all year. (subject) suggests calling it a new method. The elders say they'll think about it. They are still thinking about it.",
+   "src": "L593"
+  }
+ }
+}

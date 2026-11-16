@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scratch That Became a Battle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt01_scratch_became",
+  "source": "draft_tt",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's tale of a tiny crab nip grows bigger with every telling: keep telling it, or let a friend tell it straight.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Yesterday a small crab nipped (subject)'s toe on the beach. It left a tiny red mark. By dinner, the crab was \"quite a big one.\" By breakfast it was \"the size of a basket.\" Now (subject) is telling a group of wide-eyed children about the great struggle at the water's edge, and the crab is the size of a canoe.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Keep Telling It",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Let (friend) Tell It Straight",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The crab grows claws like paddles. It chases (subject) up a palm tree. (subject) escapes by swinging away on a vine. At the end, a child asks to see the wound. (subject) shows them the tiny red mark with great seriousness. \"It's healed a lot,\" (subject.he/she) explains. The children agree that it must have.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend), who was there, says, \"It was about as big as your thumb.\" The children look at (subject). (subject) considers this. \"...A very strong thumb.\" The children decide they like (subject)'s version better, and go on telling the big one for years. (friend) gives up correcting it.",
+   "src": "L17"
+  }
+ }
+}

@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lavastone in the Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo32_lavastone_garden",
+  "source": "da_lo",
+  "lines": [
+   381,
+   390
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L381",
+  "ledger": [
+   {
+    "src": "L382",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L387",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L390",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "The plants around the lavastone in a villager's garden are growing twice as fast as anything else.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been keeping a small lavastone in a pot by (subject.his/her) garden, for no reason except that it's pretty. This season, the plants around it are growing twice as fast as anything else in the village. The beans are enormous. The melons are absurd. (friend) has come over to stare at them.",
+   "src": "L384",
+   "choices": [
+    {
+     "label": "Leave the Stone Where It Is",
+     "next": "a",
+     "src": "L386"
+    },
+    {
+     "label": "Move It to Test the Idea",
+     "next": "b",
+     "src": "L389"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) leaves it exactly where it is. The garden goes on growing wildly all season, and the whole village eats well. (subject) has no idea if it's the stone, the rain, or just a good year. (subject.He/She) doesn't want to risk finding out.",
+   "src": "L387",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L387"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) moves the stone to the other side of the garden. Within a week, the plants on that side shoot up, and the ones on the old side slow down to ordinary. (subject) and (friend) look at each other. \"Well,\" says (friend). \"That's either the stone or the strangest coincidence I've ever seen.\" (subject) moves the stone back.",
+   "src": "L390",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L390"
+    }
+   ]
+  }
+ }
+}

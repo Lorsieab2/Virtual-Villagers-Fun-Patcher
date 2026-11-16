@@ -1,0 +1,63 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sling for the Gardens",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm50_sling_gardens",
+  "source": "draft_arm2",
+  "lines": [
+   14,
+   14
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L14",
+  "ledger": [
+   {
+    "src": "L14",
+    "kind": "structural",
+    "text": "50. The Sling for the Gardens  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L14",
+    "kind": "sensitivity",
+    "before": "A teenager",
+    "after": "(Name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager learns to whirl a sling so that its snap scares birds away from the sprouting taro, aiming well clear of them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a teenager, learns to whirl a sling so that its snap scares birds away from the sprouting taro, aiming well clear of them. The gardeners argue over whether it is the noise or the aim that works.",
+   "src": "L14"
+  }
+ }
+}

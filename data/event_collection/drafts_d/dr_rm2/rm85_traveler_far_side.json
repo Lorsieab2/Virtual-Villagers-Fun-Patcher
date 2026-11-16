@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Traveler from the Far Side",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm85_traveler_far_side",
+  "source": "draft_rm2",
+  "lines": [
+   670,
+   683
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L670",
+  "ledger": [
+   {
+    "src": "L671",
+    "kind": "sensitivity",
+    "before": "A traveler from a village on the far side of the island arrives",
+    "after": "(Name1), a traveler from a village on the far side of the island, arrives",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A traveler from the far side of the island arrives for the first time, unsure about local customs at mealtime.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a traveler from a village on the far side of the island, arrives for the first time and seems unsure about local customs at mealtime.",
+   "src": "L671",
+   "choices": [
+    {
+     "label": "Explain the Customs Gently.",
+     "next": "a",
+     "src": "L672"
+    },
+    {
+     "label": "Invite Them to Eat Their Own Way.",
+     "next": "b",
+     "src": "L675"
+    },
+    {
+     "label": "Sit Beside Them and Chat.",
+     "next": "c",
+     "src": "L678"
+    },
+    {
+     "label": "Ask About Their Village.",
+     "next": "d",
+     "src": "L681"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The traveler learns quickly and shares their own customs too.",
+   "src": "L673"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The traveler finds some customs strange but follows them politely.",
+   "src": "L674"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The traveler relaxes, and the villagers learn something new.",
+   "src": "L676"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some villagers are puzzled, but no one objects.",
+   "src": "L677"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They discover shared interests in fishing.",
+   "src": "L679"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The conversation is slow, but friendly.",
+   "src": "L680"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The traveler tells stories that fascinate the children.",
+   "src": "L682"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The traveler prefers not to talk about home, and the villager changes the subject.",
+   "src": "L683"
+  }
+ }
+}

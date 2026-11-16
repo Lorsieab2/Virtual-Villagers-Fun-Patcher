@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Angry Thought",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp34_angry_thought",
+  "source": "anthology",
+  "lines": [
+   31776,
+   31790
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31776",
+  "ledger": [
+   {
+    "src": "L31777",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31778",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31780",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31784",
+    "kind": "sensitivity",
+    "before": "The insulted villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31787",
+    "kind": "sensitivity",
+    "before": "A trusted adult",
+    "after": "(adult), a trusted adult,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "After a painful insult, a villager admits imagining revenge but has not harmed anyone.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a painful insult, (villager) admits imagining revenge but has not harmed anyone.",
+   "src": "L31778",
+   "choices": [
+    {
+     "label": "Listen Without Approval",
+     "next": "a",
+     "src": "L31779"
+    },
+    {
+     "label": "Set Firm Boundaries",
+     "next": "b",
+     "src": "L31782"
+    },
+    {
+     "label": "Find Safer Outlets",
+     "next": "c",
+     "src": "L31785"
+    },
+    {
+     "label": "Address the Insult",
+     "next": "d",
+     "src": "L31788"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) feels heard without being excused.",
+   "src": "L31780"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They ask for time alone to cool down.",
+   "src": "L31781"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Everyone agrees threats and violence are unacceptable.",
+   "src": "L31783"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) requests distance from the offender.",
+   "src": "L31784"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Physical exercise helps release tension.",
+   "src": "L31786"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult), a trusted adult, suggests talking through the anger.",
+   "src": "L31787"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The offender acknowledges the hurt.",
+   "src": "L31789"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The parties remain apart while emotions settle.",
+   "src": "L31790"
+  }
+ }
+}

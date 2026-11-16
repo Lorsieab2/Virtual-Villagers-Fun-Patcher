@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Keeper's Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm39_keeper_choice",
+  "source": "armor45",
+  "lines": [
+   50,
+   50
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L50",
+    "kind": "structural",
+    "text": "39. The Keeper's Choice  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Two relatives both hope to inherit a ceremonial shield.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Two relatives both hope to inherit a ceremonial shield. Their family considers shared stewardship rather than choosing a single owner.",
+   "src": "L50"
+  }
+ }
+}

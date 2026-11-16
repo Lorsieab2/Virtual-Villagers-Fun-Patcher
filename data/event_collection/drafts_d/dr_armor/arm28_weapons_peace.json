@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weapons of Peace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm28_weapons_peace",
+  "source": "armor45",
+  "lines": [
+   36,
+   36
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L36",
+  "ledger": [
+   {
+    "src": "L36",
+    "kind": "structural",
+    "text": "28. The Weapons of Peace  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L36",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder displays ancestral weapons and explains that preserving knowledge of war need not mean wishing for it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), an elder, displays ancestral weapons and explains that preserving knowledge of war need not mean wishing for it.",
+   "src": "L36"
+  }
+ }
+}

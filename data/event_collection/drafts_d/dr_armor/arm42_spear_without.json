@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spear Without a Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm42_spear_without",
+  "source": "armor45",
+  "lines": [
+   53,
+   53
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L53",
+  "ledger": [
+   {
+    "src": "L53",
+    "kind": "structural",
+    "text": "42. The Spear Without a Story  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "An inherited spear has no surviving explanation of its markings.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "An inherited spear has no surviving explanation of its markings. The family preserves what is known rather than inventing a certainty.",
+   "src": "L53"
+  }
+ }
+}

@@ -255,11 +255,12 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 20 | birth_then_die | role index | 0, 0 | the cause (as kill's) |
 | 21 | old_look | role index | 0, 0 | NONE (section 27) |
 | 22 | sex_change | role index | 0, 0 | NONE (section 29) |
+| 23 | presentation | role index | a = 1 the other sex's look, 0 the villager's own again; b = 0 | NONE (section 31) |
 | 24 | deliver_early | role index | 0, 0, or a..b: the newborn's extra health loss (-99..-1) | NONE (section 30) |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
-code 22 section 29, code 24 section 30. **Numbering:** 23 is kept for a cross-sex body look (not built: section 29); the
-new name of section 28 is a role kind (a stranger's flag), not an effect code.
+code 22 section 29, code 23 section 31, code 24 section 30. **Numbering:** the new name of section 28 is a role kind
+(a stranger's flag), not an effect code.
 
 Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
 
@@ -878,9 +879,13 @@ stay as recorded.
 - **Parent words:** the role-sex word pairs of section 5 (`(parent.mother/father)`, `(parent.mom/dad)`, add `'s` for
   the possessive) give the word of the role's sex as cast, so an event about a carrying father says "father" with no
   other change. Text written with the plain word "mother" stays as written (an owner's sentence is never rewritten).
-- **A cross-sex body look** (code 23, keeping the sex field) is NOT built: the games choose each villager's head and
-  body sheets from the sex field at every draw (The Tree of Life alone reads +0x1B90 at about 100 places), so it
-  needs a draw-hook companion like Head Look's for every game. An owner question.
+- **Only villagers born female carry** (the owner, 2026-11-15): a nursing_parent role, and the role a baby_lost
+  effect names, cast only a villager born female (`cg_carrier_role`, `cg_born_female`: "VVFP Gender Presentation.dll"
+  keeps the birth sex at the first change, else the save's Sex Changes log's first line for them, else the sex now).
+  One born female who changed to male goes on carrying and may be cast; one born male is never cast as a carrier,
+  even if a Custom Island Event gave them a baby. In the game a villager born male never conceives on their own
+  (that companion's conception guard); the Custom Island Event's pregnancy with a chosen partner still can.
+- **A cross-sex body look** keeping the sex field is section 31 (code 23): the gender presentation.
 
 ## 30. An early birth, the parent lives (`deliver_early`, code 24)
 
@@ -992,3 +997,33 @@ only as far as the game's room allows, so the text says how many actually came:
   looks.
 - **Python (the compiler, the importer):** accept the token in text, measure it as its longest option, `simulate`
   with a count of 1 unless the facts give `count:babies:<n>` / `count:made:<n>`; `normalize` keeps it as written.
+
+## 34. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)
+
+JSON (v6): `{"do": "presentation", "role": r, "on": true}` (`on` defaults to true; a = 1 when on, 0 when off; b = 0,
+string `NONE`; no roll). The villager keeps the sex the game records for them and is drawn with the other sex's heads
+and bodies from then on (`on` true), or with their own again (`on` false) -- the per-villager choice Change
+Appearance's "Gender presentation: use the other sex's look" offers.
+
+- **How:** the engine asks "VVFP Gender Presentation.dll" (`native/shared/gender_presentation.h`:
+  `VvfpGenderPresentationInstalled`, then `VvfpGenderPresentationSet(game, record, on)`), exactly as Change
+  Appearance does. The choice is kept in that companion's own per-save file ("Gender Presentation - Save S.dat", the
+  Head Looks' file shape), never in a game record field: the sex field, head and body rows are not written. It
+  follows the villager (deaths, reloads, renames, a sex change) and is permanent until changed (Change Appearance's
+  checkbox, or another event). Start Over clears it.
+- **The draws:** the companion splices every read of the sex field inside each game's villager draw routines (A New
+  Home 15, The Lost Children 22, The Secret City 3, The Tree of Life 3, New Believers 3 reads; `tests/
+  test_gender_presentation.py`), handing the game the other value for a villager whose choice is on: each routine
+  draws them as it draws a villager of the other sex with the same rows. Nothing else that reads the sex changes.
+- **Harmless** (section 7): nothing in the save is written, only the companion's file.
+- **Never cast:** a role a `presentation` effect names never casts the Golden Child, The Secret City's Tribal Chief
+  or stand-in, or New Believers' story villagers (roles 12-17) -- `cg_presentation_role`, the refusal of
+  `native/shared/sex_change.h` `vv_sex_change_refusal`, even with protected `allow`; an alias's member drawn as one
+  of them is refused when the effect is made.
+- **When it cannot be made** -- the companion is not in the game (its row, "Change Sex and Gender Presentation", is
+  off), its draws could not be installed, or the file write fails -- it is a refusal ("N changes could not be made")
+  and nothing changes.
+- The Island Events log's entry says "<name> is now drawn with the other sex's look." (on) or "<name> is drawn with
+  their own look again." (off); the automatic line (section 25): `R's look changes.`
+- No game capability bit: whether it can be made is known only at run time, so the patcher's checks accept it in
+  every game.

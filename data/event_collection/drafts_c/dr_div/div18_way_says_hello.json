@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Way (name1) Says Hello",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div18_way_says_hello",
+  "source": "draft_div",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a young adult, 18-25)"
+   },
+   {
+    "src": "L221",
+    "kind": "sensitivity",
+    "before": "asks an old friend of (name1)'s, who laughs",
+    "after": "asks (old_friend), an old friend of (name1)'s, who laughs",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A new workmate thinks a villager who avoids their eyes and names the weather dislikes them: ask straight out, or ask a friend.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "old_friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "old_friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) doesn't look people in the eye. It feels too much, like staring into the sun. (subject.He/she) looks at their shoulder, or the ground, or a tree just behind them. (subject.He/she) also always says hello the same way: by telling them the exact weather. \"Good morning. Clouds from the east. Rain by midday.\" (friend) is new to working with (subject.him/her), and has decided (subject) must not like (friend.him/her).",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Ask (subject) Straight Out",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Ask Someone Who Knows (subject.him/her)",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Have I done something?\" asks (friend). (subject) looks at (friend.his/her) left ear, puzzled. \"No. Why?\" (friend) explains. (subject) thinks about it. \"I don't look at anyone's eyes. And I tell everyone the weather. It's how I say I'm glad to see them.\" (friend) laughs with relief. The next morning (friend.he/she) gets: \"Good morning. Clear. Hot later.\" (friend.He/she) decides it's the nicest greeting on Isola.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks (old_friend), an old friend of (subject)'s, who laughs. \"That's just how (subject.he/she) is. If (subject.he/she) tells you the weather, (subject.he/she) likes you. If (subject.he/she) tells you the weather AND the tide, (subject.he/she) REALLY likes you.\" For weeks, (friend) waits. Then one morning: \"Clouds from the north. Low tide at noon.\" (friend) is ridiculously pleased all day.",
+   "src": "L221"
+  }
+ }
+}

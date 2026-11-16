@@ -1,0 +1,52 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Nearly Fourteen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il179_nearly_fourteen",
+  "source": "da_il09",
+  "lines": [
+   224,
+   227
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child who is nearly fourteen goes to bed early, sure they will wake up feeling completely different.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 13,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(name1) is nearly fourteen, and (he/she) has decided that tomorrow, when (he/she) wakes up, (he/she) will feel completely different: older, cleverer, and probably taller. (He/She) goes to bed early, so it will happen faster. In the morning, (he/she) lies very still with (his/her) eyes closed, checking. (He/She) feels... the same. Exactly the same. (His/Her) feet still don't reach the end of the mat. (He/She) is a bit disappointed. Then (he/she) gets up, and it's a lovely morning, and someone has made fruit for breakfast, and (he/she) forgets to be disappointed. Maybe growing up happens slowly, (he/she) thinks, a little bit at a time, while you're busy doing other things.",
+   "src": "L227"
+  }
+ }
+}

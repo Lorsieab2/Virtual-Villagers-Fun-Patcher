@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Difficult Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp55_difficult",
+  "source": "anthology",
+  "lines": [
+   32112,
+   32126
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32112",
+  "ledger": [
+   {
+    "src": "L32113",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L32114",
+    "kind": "sensitivity",
+    "before": "A villager who mocked another person's handmade clothing wants",
+    "after": "(villager), who mocked (hurt)'s handmade clothing, wants",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32117",
+    "kind": "sensitivity",
+    "before": "The hurt villager",
+    "after": "(hurt)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32119",
+    "kind": "sensitivity",
+    "before": "The offender",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32120",
+    "kind": "sensitivity",
+    "before": "The recipient",
+    "after": "(hurt)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32122",
+    "kind": "sensitivity",
+    "before": "The critic",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who mocked another person's handmade clothing wants to apologize.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "hurt"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "hurt": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), who mocked (hurt)'s handmade clothing, wants to apologize.",
+   "src": "L32114",
+   "choices": [
+    {
+     "label": "Speak Directly",
+     "next": "a",
+     "src": "L32115"
+    },
+    {
+     "label": "Repair the Harm",
+     "next": "b",
+     "src": "L32118"
+    },
+    {
+     "label": "Learn the Skill",
+     "next": "c",
+     "src": "L32121"
+    },
+    {
+     "label": "Allow Time",
+     "next": "d",
+     "src": "L32124"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32114"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The apology is accepted without fanfare.",
+   "src": "L32116"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(hurt) asks for distance.",
+   "src": "L32117"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager) helps mend a damaged seam.",
+   "src": "L32119"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(hurt) refuses the offer and keeps their boundary.",
+   "src": "L32120"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers how much work weaving takes.",
+   "src": "L32122"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They gain respect without becoming friends.",
+   "src": "L32123"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The relationship slowly improves.",
+   "src": "L32125"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The two remain civil but distant.",
+   "src": "L32126"
+  }
+ }
+}

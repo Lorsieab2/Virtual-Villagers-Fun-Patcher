@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Playground of Sticks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp11_playground",
+  "source": "anthology",
+  "lines": [
+   31408,
+   31422
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31408",
+  "ledger": [
+   {
+    "src": "L31409",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31413",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31418",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31418",
+    "kind": "sensitivity",
+    "before": "a clever child",
+    "after": "(child), a clever child",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Children turn fallen branches into an imaginative obstacle course that adults consider untidy.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children turn fallen branches into an imaginative obstacle course that adults consider untidy.",
+   "src": "L31410",
+   "choices": [
+    {
+     "label": "Ask the Builders",
+     "next": "a",
+     "src": "L31411"
+    },
+    {
+     "label": "Set Clear Boundaries",
+     "next": "b",
+     "src": "L31414"
+    },
+    {
+     "label": "Play Together",
+     "next": "c",
+     "src": "L31417"
+    },
+    {
+     "label": "Let the Game Evolve",
+     "next": "d",
+     "src": "L31420"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children explain each obstacle with pride.",
+   "src": "L31412"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) admits a section feels unsafe.",
+   "src": "L31413"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The course is moved away from the cooking area.",
+   "src": "L31415"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The adults remove a sharp branch without destroying the game.",
+   "src": "L31416"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult) is defeated by (child), a clever child.",
+   "src": "L31418"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children discover adults can be playful too.",
+   "src": "L31419"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The course becomes a pretend village.",
+   "src": "L31421"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The builders dismantle it voluntarily for another idea.",
+   "src": "L31422"
+  }
+ }
+}

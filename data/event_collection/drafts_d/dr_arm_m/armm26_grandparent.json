@@ -1,0 +1,69 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandparent's Pattern",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm26_grandparent",
+  "source": "openq97",
+  "lines": [
+   607,
+   609
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L608",
+  "ledger": [
+   {
+    "src": "L607",
+    "kind": "structural",
+    "text": "[M26]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L609",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L607",
+    "kind": "sensitivity",
+    "before": "A young craftsperson",
+    "after": "(Name1), a young craftsperson,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A young craftsperson copies a grandparent's weaving pattern.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a young craftsperson, copies a grandparent's weaving pattern. The first attempt comes out uneven. (Name1) studies the older weaving and tries another row.",
+   "src": "L607,L609"
+  }
+ }
+}

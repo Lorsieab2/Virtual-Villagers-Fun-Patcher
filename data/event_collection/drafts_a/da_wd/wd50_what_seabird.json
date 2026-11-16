@@ -1,0 +1,81 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Seabird Doing at Dinner?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd50_what_seabird",
+  "source": "da_wd",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A large seabird walks up and sits down in the circle at dinner: share some fish, or ignore it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The village is sitting round the fire for dinner, and a large seabird has joined them. It has simply walked up and sat down in the circle, between two villagers, as if invited. It is looking around at everyone's food with great interest. Nobody has quite worked out what to do. (name1), sitting closest, is getting very pointed looks from it.",
+   "src": "L587",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L587"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Share (his/her) Fish",
+     "next": "a",
+     "src": "L589"
+    },
+    {
+     "label": "Ignore It",
+     "next": "b",
+     "src": "L592"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) gives the bird a small piece of fish. The bird swallows it, looks around, and stays exactly where it is. The next person gives it a piece too. By the end of the meal, the seabird has eaten more than most of the villagers, and waddles off into the dark looking enormously satisfied. It comes back the next night. And the next.",
+   "src": "L590"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) carefully doesn't look at the bird. Neither does anyone else. The bird waits. It edges closer. It waits some more. It makes one small, polite, inquiring noise. Then, when nobody gives it anything, it gets up, looks round the whole circle with an air of deep disappointment, and walks away. Somehow, everyone feels terrible. Someone leaves a fish out on a rock after dinner, just in case.",
+   "src": "L593"
+  }
+ }
+}

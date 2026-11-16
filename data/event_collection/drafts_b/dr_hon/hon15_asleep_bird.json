@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Asleep on Bird Watch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon15_asleep_bird",
+  "source": "draft_hon",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L182",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L185",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager dozed off guarding the drying fish, and the seabirds feasted: tell a friend, or count what is left.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fish are drying on the racks, and (subject) was asked to sit with them and shoo off the seabirds. It's warm. It's quiet. The sea is making a soft, steady sound. (subject) wakes an hour later to find a row of very satisfied seabirds sitting on the racks, and noticeably fewer fish.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Tell (friend) What Happened",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Count What's Left",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I fell asleep,\" (subject) tells (friend). \"The birds had a feast.\" (friend) looks at the racks, then at (subject), who looks very tired. \"You've been up before dawn three days running,\" (friend.he/she) says. \"I'll take the next watch. Go and sleep properly.\" (subject) means to argue, and is asleep before (subject.he/she) can.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L182"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) counts what's left and reports it honestly, birds and all. (friend) groans, then laughs. \"They've been waiting all week for somebody to nod off.\" From then on the watchers sit in pairs and keep each other awake with terrible jokes. The birds seem disappointed.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L185"
+    }
+   ]
+  }
+ }
+}

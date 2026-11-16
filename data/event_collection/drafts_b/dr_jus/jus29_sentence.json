@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sentence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus29_sentence",
+  "source": "draft_jus",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager who sings loudly through the elders' quiet hour is brought to the council: sing at the feast, or find a singing place.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) sings. Loudly. All the time: at work, at meals, and, despite several polite requests, during the quiet hour after midday when the elders rest. (friend) has brought it to the council, and half the village has come along to hear what happens.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Sing at the Feast",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Find (subject.him/her) a Singing Place",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council rules that (subject) must keep the quiet hour quiet, and, in return for all the quiet hours (subject.he/she) disturbed, must sing at the next feast for as long as the village wants. (subject) is delighted. At a feast, it turns out, loud singing is exactly what everyone wants. (subject.He/she) sings until the fire goes out. The quiet hour stays quiet.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council asks (subject) to keep the quiet hour, and suggests a spot by the waterfall where (subject.he/she) can sing as loudly as (subject.he/she) likes, whenever (subject.he/she) likes. (subject) goes there. The waterfall drowns most of it out. One day, walking past, (friend) hears a faint song mixed in with the roar of the water, and stops to listen for a while.",
+   "src": "L353"
+  }
+ }
+}

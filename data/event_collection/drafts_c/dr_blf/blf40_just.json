@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Just (name1)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf40_just",
+  "source": "draft_blf",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17; story only: the villager is never renamed)"
+   }
+  ],
+  "description": "A teen announces at the fire they would like to be called by a short name they chose: a friend uses it at once, or asks about it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a long, grand name that (subject.his/her) family chose. (subject.He/she) has never felt like it fits. Today, at the fire, (subject.he/she) announces that from now on (subject.he/she) would like to be called something short and simple: a name (subject.he/she) picked (subject.him/her)self. (friend), (subject.his/her) best friend, is the first to respond.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "(friend) Uses It Right Away",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "(friend) Asks About It First",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) uses the new name straight away, without even blinking. A few others follow. Some forget and use the old one, and (subject) corrects them, and they apologize. It takes a while for everyone to get used to it. (subject) has never felt so much like (subject.him/her)self. (subject.He/she) catches (friend)'s eye and grins.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Why that name?\" asks (friend), curious. (subject) shrugs. \"It just feels like mine.\" (friend) nods. \"Then that's your name.\" (friend.He/she) uses it from then on. Some of the family take longer. One of the elders never quite manages it, but tries, which (subject) decides counts for a lot.",
+   "src": "L485"
+  }
+ }
+}

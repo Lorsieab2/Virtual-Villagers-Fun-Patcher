@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Finders Keepers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus20_finders_keepers",
+  "source": "draft_jus",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L239",
+    "kind": "sensitivity",
+    "before": "They've gone to an elder.",
+    "after": "They've gone to (elder), an elder.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L242",
+    "kind": "sensitivity",
+    "before": "The elder asks (name2)",
+    "after": "(elder) asks (name2)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L242",
+    "kind": "sensitivity",
+    "before": "The elder gives it back",
+    "after": "(elder) gives it back",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L245",
+    "kind": "sensitivity",
+    "before": "The elder asks.",
+    "after": "(elder) asks.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L245",
+    "kind": "sensitivity",
+    "before": "The elder thinks",
+    "after": "(elder) thinks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager found a carved fishhook, and a neighbor says it is theirs: return it to the owner, or ask how hard it was looked for.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) found a beautiful carved bone fishhook lying on the path and has been using it all week. Today (friend) sees it and says it's (friend.his/her) own: (friend.he/she) lost it a week ago. (subject) says that whoever finds something keeps it. (friend) says that isn't a rule. They've gone to (elder), an elder.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Return It to the Owner",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Ask How Hard It Was Looked For",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(elder) asks (friend) to describe the hook before seeing it: the little notch, the fish carved on the shank. It matches. (elder) gives it back to (friend), and says that from now on, found things are hung on the post at the meeting place for seven days, so their owners can find them. (subject) is a little disappointed. (friend) gives (subject.him/her) a plain hook, as thanks for keeping it safe.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(elder) asks. (friend) admits (friend.he/she) never actually looked for it. (subject) has used it every day and taken great care of it. (elder) thinks for a long time, then says the hook goes back to (friend), because it's (friend.his/her) own, but that (subject) may borrow it whenever (subject.he/she) likes. They end up sharing it all season, and arguing about whose turn it is.",
+   "src": "L245"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L239",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  },
+  {
+   "src": "L245",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

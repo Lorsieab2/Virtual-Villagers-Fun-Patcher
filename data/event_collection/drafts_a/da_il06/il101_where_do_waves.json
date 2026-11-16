@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Do the Waves Come From?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il101_where_do_waves",
+  "source": "da_il06",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager watching the waves wonders where each one starts: ask a friend, or follow one wave all the way in.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is sitting on the beach watching the waves come in, one after another, and a question has got stuck in (subject.his/her) head. Where does each wave start? Somewhere out there, past where (subject.he/she) can see, every one of these waves must have begun. Is there a place where the sea is flat and calm and then, all of a sudden, decides to make a wave?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Ask (friend)",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Follow One Wave All the Way In",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) thinks it's the wind pushing the water. (subject) points out that there's hardly any wind today, and the waves are still coming. (friend) thinks some more. \"Wind from somewhere else, then.\" \"Where?\" \"...Somewhere windy.\" They agree to watch the horizon for a windy-looking place. They don't find one.",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) picks a wave far out and watches it all the way to the shore. It rises, curls, and breaks right at (subject.his/her) feet, soaking (subject.his/her) knees. (subject) decides that wherever it came from, it had been aiming for (subject.him/her) the whole time.",
+   "src": "L17"
+  }
+ }
+}

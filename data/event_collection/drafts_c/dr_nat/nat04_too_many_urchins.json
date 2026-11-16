@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Many Urchins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat04_too_many_urchins",
+  "source": "draft_nat",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a fisher or an adult and an elder)"
+   },
+   {
+    "src": "L50",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The north rocks' seaweed forest has given way to hundreds of urchins: gather the urchins to eat, or watch and wait.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been diving off the north rocks, where the seaweed used to wave like a forest. It's almost gone. In its place are sea urchins: hundreds of them, purple and spiny, packed together on bare rock, chewing on whatever is left. (subject) swims up and tells (friend), who has fished those rocks for fifty years.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Gather the Urchins to Eat",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Watch and Wait",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Then we eat urchins,\" says (friend). The village spends a week gathering them, carefully, with thick leaves wrapped around their hands. Urchin is delicious, if you like it, and alarming if you don't. Whether it helps the seaweed, nobody can say yet. (friend) thinks it will. Another elder thinks the seaweed was dying anyway and the urchins just moved in. They will argue about it for some time.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L50"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Something's out of balance,\" says (friend). \"But I don't know what. Fish that eat urchins? Warmer water? I don't want to guess wrong and make it worse.\" (subject) agrees to dive there every week and see what changes. Nothing changes for a long time. Then, one morning, (subject.he/she) sees a single small strand of new seaweed among the spines. It's not a forest. It's a start, maybe.",
+   "src": "L53"
+  }
+ }
+}

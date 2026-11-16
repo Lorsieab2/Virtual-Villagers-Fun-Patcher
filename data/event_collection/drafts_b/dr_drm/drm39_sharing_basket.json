@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sharing Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm39_sharing_basket",
+  "source": "draft_drm",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L470",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager puts out a sharing basket so nobody goes to bed hungry, and a friend reads it: put something in, or ask if it works.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a dream that sounds simple: that nobody in the village should ever go to bed hungry, not even for one night. Today (subject.he/she) has put a big basket by the path with a sign: \"Take what you need. Leave what you can.\" (friend) stops to read it.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Put Something In",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Ask Whether It Will Work",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) adds two coconuts. By evening there are fruit, fish and a pot of stew in the basket, and a few things have quietly gone. Nobody knows who took what. That's the point. (subject) checks the basket every evening for a long time afterwards, and it's never once empty.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L470"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What if someone takes everything?\" asks (friend). \"Then they needed everything,\" says (subject). (friend) isn't convinced. Some days the basket is full, some days nearly empty, and once it is entirely full of mangoes for no clear reason. It doesn't fix everything. (subject) never thought it would. It helps.",
+   "src": "L473"
+  }
+ }
+}

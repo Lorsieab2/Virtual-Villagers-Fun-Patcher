@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Other Kind of Winning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt42_other_winning",
+  "source": "draft_tt",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L506",
+    "kind": "sensitivity",
+    "before": "The actual winner gets one prize.",
+    "after": "(racer), the actual winner, gets one prize.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager comes last in the canoe race and claims other kinds of victory: agree with them, or offer to practice together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "racer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "racer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just come last in the canoe race. A long way last. As (subject.he/she) paddles in, (subject.he/she) is already explaining to anyone who will listen that (subject.he/she) had the most graceful paddling, the straightest line, and certainly the best-looking canoe.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Agree with (subject.him/her)",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Offer to Practice Together",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Most graceful by far,\" agrees (friend). Others agree too. By the end of the day there are prizes for Most Graceful, Straightest Line and Best Canoe, and (subject) wins all three. (racer), the actual winner, gets one prize. (subject) feels this is about right.",
+   "src": "L506"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Next year,\" says (friend), \"practice with me.\" They practice all season. The following year (subject) comes fourth. (subject.He/she) is more delighted than the winner, and explains to anyone who will listen that fourth is the most important place.",
+   "src": "L509"
+  }
+ }
+}

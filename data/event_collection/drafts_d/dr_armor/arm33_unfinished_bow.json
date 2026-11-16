@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfinished Bow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm33_unfinished_bow",
+  "source": "armor45",
+  "lines": [
+   44,
+   44
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L44",
+    "kind": "structural",
+    "text": "33. The Unfinished Bow  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L44",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(Name1), an apprentice,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An apprentice inherits an unfinished bow from a departed mentor and must decide whether to complete it or leave it as it was.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), an apprentice, inherits an unfinished bow from a departed mentor and must decide whether to complete it or leave it as it was.",
+   "src": "L44"
+  }
+ }
+}

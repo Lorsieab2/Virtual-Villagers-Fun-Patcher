@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Only Shade",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm44_only_shade",
+  "source": "draft_rm2",
+  "lines": [
+   54,
+   67
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L54",
+  "ledger": [
+   {
+    "src": "L55",
+    "kind": "sensitivity",
+    "before": "the first villager to reach it notices",
+    "after": "(name1), the first villager to reach it, notices",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "On a scorching afternoon, the first villager to reach the only shady tree sees an older worker still in the sun.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On a scorching afternoon, a crew repairing a fence has a single shady tree, and (name1), the first villager to reach it, notices an older worker with a cane still out in the sun.",
+   "src": "L55",
+   "choices": [
+    {
+     "label": "Offer the Shade.",
+     "next": "a",
+     "src": "L56"
+    },
+    {
+     "label": "Rig a Second Shade from a Spare Mat.",
+     "next": "b",
+     "src": "L59"
+    },
+    {
+     "label": "Suggest the Whole Crew Rest Together.",
+     "next": "c",
+     "src": "L62"
+    },
+    {
+     "label": "Bring Water to Everyone Still Working.",
+     "next": "d",
+     "src": "L65"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The older worker accepts with a grateful nod, and the two take turns for the rest of the afternoon.",
+   "src": "L57"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The older worker thanks them but says they are fine, and the offer is not pressed again.",
+   "src": "L58"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Two poles and a mat give the whole crew a place to rest.",
+   "src": "L60"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The wind keeps tipping the mat over, and the crew ends up laughing at it more than resting.",
+   "src": "L61"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Everyone squeezes under the branches, and the break turns into a lively talk.",
+   "src": "L63"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The tree is too small for everyone, so they agree to stop work during the hottest hour instead.",
+   "src": "L64"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The water is welcome, and the crew finishes without anyone becoming unwell.",
+   "src": "L66"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The water runs out quickly, and the crew leader decides to finish tomorrow morning.",
+   "src": "L67"
+  }
+ }
+}

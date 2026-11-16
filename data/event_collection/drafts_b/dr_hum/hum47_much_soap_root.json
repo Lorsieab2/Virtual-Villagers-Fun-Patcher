@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Much Soap Root",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum47_much_soap_root",
+  "source": "draft_hum",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L563",
+    "kind": "sensitivity",
+    "before": "A small child has disappeared",
+    "after": "(child), a small child, has disappeared",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager uses six soap roots instead of one and foam spreads everywhere: let the children play, or try to contain it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is doing the washing with soap root, the kind that foams when you rub it in water. One root didn't seem like enough, so (subject.he/she) used six. The washing basin is now a mountain of foam. It is spilling over. It is creeping across the ground. (child), a small child, has disappeared into it, giggling.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Let the Children Play",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Try to Contain It",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The children build foam towers, give themselves foam beards and throw handfuls at each other. A pig wanders in and comes out white. When the foam finally melts away, the washing is the cleanest it has ever been, and so are the children, and so is the pig.",
+   "src": "L566"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) scoops the foam back into the basin with both arms. It rises past (subject.his/her) elbows, then (subject.his/her) shoulders, then into (subject.his/her) hair. By the time (friend) comes to see what's happening, (subject) is entirely made of foam. \"Just one root,\" says (friend). \"I know that now,\" says the foam.",
+   "src": "L569"
+  }
+ }
+}

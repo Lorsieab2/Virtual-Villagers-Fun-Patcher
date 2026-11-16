@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hummer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il063_hummer",
+  "source": "da_il04",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager hums the same tune while working without knowing it, and the high bit is getting to a neighbor.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) hums while (subject.he/she) works. (subject.He/She) has no idea (subject.he/she) does it. It's always the same tune, a cheerful little thing with a bit in the middle that goes very high. Today (friend) has been working next to (subject.him/her) all morning, and the high bit is starting to get to (friend.him/her).",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Mention It",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Say Nothing and Move a Little Further Away",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"You know you've been humming all morning?\" says (friend). (subject) is astonished. \"I don't hum.\" (subject.He/She) goes back to work. Within a minute (subject.he/she) is humming again. (friend) gives up and starts humming along, and by lunchtime the two of them have worked out a harmony for the high bit.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) shifts to the other end of the field. From here the humming is soft and pleasant, like a bird a long way off. (friend) finds (friend.him/her)self working to the rhythm of it. That night (friend.he/she) catches (friend.him/her)self humming the tune at dinner and stops, quite horrified.",
+   "src": "L41"
+  }
+ }
+}

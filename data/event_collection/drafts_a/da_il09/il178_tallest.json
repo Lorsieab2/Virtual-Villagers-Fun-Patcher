@@ -1,0 +1,75 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tallest Sandcastle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il178_tallest",
+  "source": "da_il09",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The children are building the tallest sandcastle in the history of Isola, and the tide is coming in.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) and the other children are building the tallest sandcastle in the history of Isola. It has towers. It has a moat. It has a seaweed flag. It has taken all afternoon. The tide is coming in.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Build a Wall to Hold Back the Sea",
+     "next": "a",
+     "src": "L217"
+    },
+    {
+     "label": "Let the Sea Have It",
+     "next": "b",
+     "src": "L220"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The children dig frantically, piling up a wall of sand. The first wave stops at the wall. The children cheer. The second wave goes round the side. The third wave goes over the top. The castle slowly slumps into the sea, the seaweed flag last of all. The children watch it go, then immediately start building another one higher up the beach.",
+   "src": "L218"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"It's the sea's turn now,\" says (name1), sitting back. The children sit in a row and watch the waves come in, a little bit at a time, until the towers melt and the moat fills and the whole castle is a smooth little lump. It's sad, and beautiful, and somehow very funny. Somebody suggests they do it all again tomorrow.",
+   "src": "L221"
+  }
+ }
+}

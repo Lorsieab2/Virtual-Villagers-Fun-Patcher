@@ -70,8 +70,8 @@ def have_compiler() -> bool:
 
 
 # Every check the harness makes, by game (The Secret City's chief and stand-in; New Believers' roles 12 and 17,
-# a Heathen's and a believer's faith fields).
-BUTTON_CHECKS = {3: 15, 4: 13, 5: 19}
+# a Heathen's and a believer's faith fields; the Gender presentation checkbox and its row, a story villager told why).
+BUTTON_CHECKS = {3: 29, 4: 26, 5: 33}
 
 
 def run_button_harness(test: unittest.TestCase, game: int) -> None:

@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Shadow Animals",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim135_shadow_animals",
+  "source": "draft_tim2",
+  "lines": [
+   72,
+   77
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L72",
+  "ledger": [
+   {
+    "src": "L73",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L74",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L75",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L76",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L77",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L73",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "By firelight, a child makes shadow animals dance across the wall of the hut.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "By firelight, (name1), a child, makes shadow animals dance across the wall of the hut. The shadow bird flaps so well that a younger sibling tries to catch it.",
+   "src": "L73,L74"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "By firelight, (name1), a child, makes shadow animals dance across the wall of the hut. A parent joins in with a shadow fish that swallows the shadow bird.",
+   "src": "L73,L75"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "By firelight, (name1), a child, makes shadow animals dance across the wall of the hut. The child invents an animal nobody can name, and everyone guesses.",
+   "src": "L73,L76"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "By firelight, (name1), a child, makes shadow animals dance across the wall of the hut. The fire burns low, and the animals fade away one by one.",
+   "src": "L73,L77"
+  }
+ }
+}

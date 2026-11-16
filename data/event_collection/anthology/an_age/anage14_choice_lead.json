@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Choice Not to Lead",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage14_choice_lead",
+  "source": "anthology",
+  "lines": [
+   30333,
+   30347
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30333",
+  "ledger": [
+   {
+    "src": "L30334",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30335",
+    "kind": "sensitivity",
+    "before": "A capable adult",
+    "after": "(adult), a capable adult,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30337",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30346",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A capable adult is repeatedly urged to become a village organizer but prefers their existing work.",
+  "label_case": "title",
+  "cast_only": [
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(adult), a capable adult, is repeatedly urged to become a village organizer but prefers their existing work.",
+   "src": "L30335",
+   "choices": [
+    {
+     "label": "Respect the Refusal",
+     "next": "a",
+     "src": "L30336"
+    },
+    {
+     "label": "Ask Whether a Smaller Role Appeals",
+     "next": "b",
+     "src": "L30339"
+    },
+    {
+     "label": "Examine Why the Role Is Unpopular",
+     "next": "c",
+     "src": "L30342"
+    },
+    {
+     "label": "Offer Time to Decide",
+     "next": "d",
+     "src": "L30345"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult) feels relieved that competence does not obligate leadership.",
+   "src": "L30337"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The group discovers another volunteer who genuinely wants the role.",
+   "src": "L30338"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They agree to advise occasionally without managing everyone.",
+   "src": "L30340"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They decline every role and continue contributing in other ways.",
+   "src": "L30341"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village discovers the organizer has too many responsibilities.",
+   "src": "L30343"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Villagers disagree over expectations and begin distributing duties more fairly.",
+   "src": "L30344"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult) later accepts a short trial term.",
+   "src": "L30346"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They remain uninterested and are not pressured again.",
+   "src": "L30347"
+  }
+ }
+}

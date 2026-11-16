@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Guarding the Crutches",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div25_guarding",
+  "source": "draft_div",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 4-10; in the story (name1) walks with two wooden crutches)"
+   }
+  ],
+  "description": "A child guards the crutches of a villager who swims like a fish: thank the guard, or invite them swimming.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) walks with two crutches, and in the water (subject.he/she) doesn't need them at all: (subject.he/she) swims like a fish, far and fast and for hours. (subject.He/she) leaves the crutches propped on a rock by the shore. Today (friend) has appointed (friend.him/her)self official Guard of the Crutches and is standing beside them with a stick, glaring at anybody who walks past.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Thank the Guard",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Invite the Guard Swimming",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "When (subject) finally swims back in, (friend) reports that nobody touched the crutches, one crab tried, and the crab was sent away. (subject) thanks (friend.him/her) solemnly and asks if (friend.he/she) can be hired again tomorrow. (friend) says yes. The fee is one shell a day. (subject) pays it. The crab is never seen again.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) calls out to (friend) to come in. (friend) is torn: (friend.he/she) has a job to do. In the end (friend.he/she) drags the crutches higher up the beach, where the tide can't reach, puts a stone on them \"so they don't run away,\" and splashes in. (subject) teaches (friend.him/her) to float on (friend.his/her) back. (friend) checks on the crutches every few minutes anyway.",
+   "src": "L305"
+  }
+ }
+}

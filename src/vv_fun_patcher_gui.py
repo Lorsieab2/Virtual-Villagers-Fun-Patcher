@@ -340,6 +340,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
+    # Defaults and OFF everywhere else" -- off here and in Select All.
+    + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -412,6 +415,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
     # only, the filters off everywhere.
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
+    + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

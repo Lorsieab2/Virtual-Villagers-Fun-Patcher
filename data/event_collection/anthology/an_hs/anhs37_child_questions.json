@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Child Questions a Chief",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs37_child_questions",
+  "source": "anthology",
+  "lines": [
+   29980,
+   29993
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29980",
+  "ledger": [
+   {
+    "src": "L29981",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29986",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29989",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29992",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29993",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "During a gathering, a child asks whether a chief who makes mistakes should still be obeyed.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a gathering, (child) asks whether a {@chief} who makes mistakes should still be obeyed.",
+   "src": "L29981",
+   "choices": [
+    {
+     "label": "Invite the {@Chief} to Answer",
+     "next": "a",
+     "src": "L29982"
+    },
+    {
+     "label": "Discuss Rules and Safety",
+     "next": "b",
+     "src": "L29985"
+    },
+    {
+     "label": "Ask for Examples from Village History",
+     "next": "c",
+     "src": "L29988"
+    },
+    {
+     "label": "Let the Child Disagree Respectfully",
+     "next": "d",
+     "src": "L29991"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} admits that leaders can be wrong and should listen.",
+   "src": "L29983"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The {@chief} struggles with the question but later offers a more thoughtful response.",
+   "src": "L29984"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) learns why immediate safety instructions differ from ordinary preferences.",
+   "src": "L29986"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The adults realize they have not explained how decisions can be challenged.",
+   "src": "L29987"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) recalls a leader who corrected an unpopular decision.",
+   "src": "L29989"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Two elders remember the same dispute differently, to everyone's amusement.",
+   "src": "L29990"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) voices a concern without being punished for asking.",
+   "src": "L29992"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The discussion ends unresolved, but (child) feels taken seriously.",
+   "src": "L29993"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "A Child Questions a Leader"
+  }
+ ]
+}

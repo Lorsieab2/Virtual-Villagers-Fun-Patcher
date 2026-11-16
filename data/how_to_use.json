@@ -385,6 +385,15 @@
       ]
     },
     {
+      "ids": ["vv1_gender_presentation", "vv2_gender_presentation", "vv3_gender_presentation", "vv4_gender_presentation", "vv5_gender_presentation"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. Change Appearance gets \"Change sex...\" and \"Gender presentation: use the other sex's look\".",
+        "Change sex changes the sex the game keeps, at once after a warning; the head and body rows stay.",
+        "Gender presentation keeps the recorded sex and draws the villager with the other sex's heads and bodies. The preview shows it; OK keeps it, free.",
+        "Never offered for the Golden Child; story villagers keep the game's own look. The choice follows the villager; Start Over clears it."
+      ]
+    },
+    {
       "ids": ["vv1_children_play", "vv2_children_play", "vv3_children_play", "vv4_children_play", "vv5_children_play"],
       "guide": [
         "On by default. Children play tag and build sandcastles on the beach, each 1 pick in 15 when a child picks something to play; the usual choices keep their odds.",
@@ -1258,7 +1267,7 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "2-10x Tech Cost (all five games), Classic VV Difficulty and Isola Grand Event Collection are not ticked either.",
+        "2-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection and Change Sex and Gender Presentation are not ticked either.",
         "It does not change the population mode."
       ]
     },
@@ -1267,7 +1276,7 @@
       "guide": [
         "Ticks all but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
-        "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
+        "Change Sex and Gender Presentation, 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",

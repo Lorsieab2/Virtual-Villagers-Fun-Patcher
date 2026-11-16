@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memory That Wasn't Mine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il097_memory_wasnt",
+  "source": "da_il05",
+  "lines": [
+   194,
+   203
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L194",
+  "ledger": [
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager tells a favorite story about a lost pearl, and a friend goes quiet: it was their story.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 5
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For years (subject) has been telling a story about the time (subject.he/she) found a huge pearl in a clam and lost it in the sand on the way home. Today (subject.he/she) tells it again, and (friend) goes very quiet. \"That's my story,\" (friend.he/she) says. \"That happened to me. I told it to you when we were twelve.\"",
+   "src": "L197",
+   "choices": [
+    {
+     "label": "Apologize and Give It Back",
+     "next": "a",
+     "src": "L199"
+    },
+    {
+     "label": "Share It",
+     "next": "b",
+     "src": "L202"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) thinks hard, and realizes (friend) is right. \"I'm so sorry. I think I've been telling your story for years.\" (friend) laughs. \"Was I good in it?\" \"You were wonderful. You lost the pearl very bravely.\" From then on, (subject) always starts it with \"This happened to (friend)...\"",
+   "src": "L200"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Well,\" says (subject), slightly pink, \"it's a very good story.\" \"It is,\" says (friend). \"That's why I told it.\" They agree that (friend) can have the pearl, and (subject) can keep telling it as long as (subject.he/she) gets the ending right. (subject) admits (subject.he/she) may have added a seagull.",
+   "src": "L203"
+  }
+ }
+}

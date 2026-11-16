@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal That Is Not a Symbol",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau19_animal_symbol",
+  "source": "anthology",
+  "lines": [
+   32749,
+   32763
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32749",
+  "ledger": [
+   {
+    "src": "L32750",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32763",
+    "kind": "sensitivity",
+    "before": "An artist",
+    "after": "(artist), an artist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A rare animal appears, and villagers assign it competing spiritual meanings.",
+  "label_case": "title",
+  "cast_only": [
+   "artist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "artist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare animal appears, and villagers assign it competing spiritual meanings.",
+   "src": "L32751",
+   "choices": [
+    {
+     "label": "Listen to the Stories",
+     "next": "a",
+     "src": "L32752"
+    },
+    {
+     "label": "Observe the Animal",
+     "next": "b",
+     "src": "L32755"
+    },
+    {
+     "label": "Protect It from Crowds",
+     "next": "c",
+     "src": "L32758"
+    },
+    {
+     "label": "Make Art About the Encounter",
+     "next": "d",
+     "src": "L32761"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Several traditions are shared respectfully.",
+   "src": "L32753"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One villager dislikes having their beliefs challenged.",
+   "src": "L32754",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32754"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Its behavior suggests an ordinary search for food.",
+   "src": "L32756",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32756"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The observation does not settle anyone's beliefs.",
+   "src": "L32757"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The animal departs safely.",
+   "src": "L32759"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some visitors regret missing a closer look.",
+   "src": "L32760"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Artists produce very different interpretations.",
+   "src": "L32762"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(artist), an artist, declines to explain their work.",
+   "src": "L32763"
+  }
+ }
+}

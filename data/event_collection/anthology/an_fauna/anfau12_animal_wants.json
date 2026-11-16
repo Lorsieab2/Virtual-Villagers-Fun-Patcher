@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal That Wants No Petting",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau12_animal_wants",
+  "source": "anthology",
+  "lines": [
+   32630,
+   32644
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32630",
+  "ledger": [
+   {
+    "src": "L32631",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32635",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32638",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32640",
+    "kind": "sensitivity",
+    "before": "An artist",
+    "after": "(villager), an artist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A fluffy-looking wild creature draws eager hands despite its obvious discomfort.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fluffy-looking wild creature draws eager hands despite its obvious discomfort.",
+   "src": "L32632",
+   "choices": [
+    {
+     "label": "Respect Its Space",
+     "next": "a",
+     "src": "L32633"
+    },
+    {
+     "label": "Explain Warning Signs",
+     "next": "b",
+     "src": "L32636"
+    },
+    {
+     "label": "Sketch Instead of Touch",
+     "next": "c",
+     "src": "L32639"
+    },
+    {
+     "label": "Create a Viewing Rule",
+     "next": "d",
+     "src": "L32642"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The animal relaxes once left alone.",
+   "src": "L32634"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) feels disappointed but learns why.",
+   "src": "L32635"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The group notices tense posture and retreat.",
+   "src": "L32637"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) realizes they missed earlier warnings.",
+   "src": "L32638"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager), an artist, captures its striking coat.",
+   "src": "L32640"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The animal slips away mid-drawing.",
+   "src": "L32641"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Visitors learn to admire without handling.",
+   "src": "L32643"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some argue about how close is too close.",
+   "src": "L32644"
+  }
+ }
+}

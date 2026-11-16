@@ -374,14 +374,16 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "birth_then_die",                                              # cie-v6-binary.md 23
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
-              "deliver_early")                                               # ... 30
+              "deliver_early",                                               # ... 30
+              "presentation")                                                # ... 31
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
-                     "sex_change": 22,     # 29 (23 is kept for a cross-sex body look)
+                     "sex_change": 22,     # 29
+                     "presentation": 23,   # 34: the gender presentation (a cross-sex look, the sex field kept)
                      "deliver_early": 24,  # 30
                      # 25 is reserved (a rest period once; the owner took the rest periods out, 2026-11-15)
                      # 32: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
@@ -392,10 +394,11 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
+                    "presentation": 0,     # 34: "VVFP Gender Presentation.dll", known only at run time
                     "trait": 0})                    # 32: never a change to the villager
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
-                                          "deliver_early")
+                                          "deliver_early", "presentation")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -919,6 +922,14 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 out[part] = v
             if "head" not in e and "body" not in e:
                 problems.append(f"{where}: appearance changes the head, the body or both")
+        elif do == "presentation":
+            # Section 31: the other sex's look (on, the default) or the villager's own again (off).
+            known.add("on")
+            on = e.get("on", True)
+            if not isinstance(on, bool):
+                problems.append(f"{where}: presentation on is true (the other sex's look) or false (their own)")
+                on = True
+            out["on"] = on
         if do == "die_unrecovered":
             # The owner's rule: a death with no body is ALWAYS "Unknown causes"; an author cannot word it.
             known.add("cause")
@@ -2648,6 +2659,7 @@ AUTO_LINES = {
     "baby_lost": "<R>'s baby is lost.",
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
+    "presentation": "<R>'s look changes.",
 }
 
 
@@ -2682,7 +2694,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
     if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change"):
+              "sex_change", "presentation"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
@@ -3702,6 +3714,8 @@ def _compile_v6(g: dict) -> bytes:
                 a, b = e["min"], e["max"]
             elif do == "trait":
                 a = TRAIT_CODES[e["trait"]]
+            elif do == "presentation":
+                a = 1 if e["on"] else 0
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -3929,6 +3943,8 @@ def _decompile_v6(data: bytes) -> dict:
                     e["trait"] = {v: k for k, v in TRAIT_CODES.items()}[a]
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
+                elif do == "presentation":
+                    e["on"] = a == 1
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,

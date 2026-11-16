@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Goats on the Hillside",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat10_goats_hillside",
+  "source": "draft_nat",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Young trees never grow on the goats' hillside, and the hill keeps sliding: build a pen for the goats, or fence one patch.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The goats have always roamed free on the hillside above the village. But the young trees there never seem to grow taller than a goat's mouth, and after every big rain, a little more of the hillside slides down onto the path. (subject) thinks the goats are the problem. (friend), who looks after them, thinks the hill has always done that.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Build a Pen for the Goats",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Fence Off Just One Patch",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "It takes days to build, and the goats hate it. They complain loudly and constantly. One of them escapes twice, nobody knows how. But by the end of the season, a few saplings on the hill have reached knee height. (friend) admits that's new. (friend.He/she) also admits (friend.he/she) now spends half (friend.his/her) day cutting leaves to carry to goats who used to fetch their own.",
+   "src": "L122"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They fence a single small patch of hillside, to see. Inside the fence, small green things start growing. Outside it, nothing changes. The goats stand along the fence and stare in at the saplings with tremendous longing. Nobody decides anything about the rest of the hill yet. But (subject) and (friend) stand at the fence together most evenings, looking.",
+   "src": "L125"
+  }
+ }
+}

@@ -1,0 +1,173 @@
+# EVENT-HS-001..042: The Human Spectrum, Island Comforts, Authority, Injury and Belonging.  Injuries in a setup are
+# the event's premise (story text).  "The chief" stays the game word {@chief}.
+HS-001
+R child 3-13 @A2 : child
+R villager 14+ @C1,D1 : shy villager | exhausted healer
+
+HS-002
+R child 8-13 @B2 : older child
+R elder 55+ @D2 : elder
+
+HS-003
+R child 3-13 @B2,C1 : child
+R elder 55+ @D1,D2 : elder | competitive grandparent
+E C1: "A child overwhelmed by noise discovers" => "[child], overwhelmed by noise, discovers"
+
+HS-004
+R elder 55+ @C1 : grandparent
+R caregiver 18+ @C2 : younger caregiver
+
+HS-005
+R child 3-13 : child
+
+HS-006
+R elder 55+ : eccentric elder | elder
+R fisher 14+ @C1,C2 : fisher
+R young 14+ @D2 : younger villager
+
+HS-007
+R young 18-25 : young adult
+R grandparent 55+ : grandparent
+REL grandparent grandparent_of young
+E S: "their eccentric grandparent begins" => "their eccentric grandparent, [grandparent], begins"
+
+HS-008
+R elder 55+ : elder
+R apprentice 14+ @C1 : apprentice
+
+HS-009
+R villager 14+ : villager
+R visitor stranger @B1,B2 : visitor
+
+HS-010
+R craftsperson 18+ @B1 : craftsperson
+R elder 55+ @D2 : elder
+
+HS-011
+R worker 18+ @B1,B2 : respected worker | representative
+
+HS-012
+R child 3-13 : child
+R young 3-17 @C1 : young villager
+R parent 18+ @D2 : parent
+
+HS-013
+R child 3-13 : child
+R adult 18+ @C2 : adult
+
+HS-014
+R villager 14+ @B1,B2 : quiet worker | musician
+
+HS-015
+
+HS-016
+R young 3-17 : young villager | child
+
+HS-017
+R child 3-13 : child
+R elder 55+ @A2 : elder
+
+HS-018
+R child 3-13 @A2,C1,D1 : child | curious child
+R visitor stranger @B1 : visitor
+R adult 18+ @C2 : adult
+
+HS-019
+R visitor stranger : visitor
+R villager 14+ @D1 : villager
+
+HS-020
+R craftsperson 18+ : skilled craftsperson | craftsperson
+
+HS-021
+R friend1 14+ : forgetful friend
+R friend2 14+ : hurt friend
+E S: "Two friends are hurt" => "[friend1] and [friend2], two friends, are hurt"
+
+HS-022
+R villager 14+ : villager
+R sibling 14+ : sibling
+R friend 14+ @B1,B2 : friend
+R elder 55+ @D1 : elder
+REL sibling sibling_of villager
+E S: "their sibling receives" => "their sibling, [sibling], receives"
+
+HS-023
+R villager 14+ : apologizing villager | villager
+R other 14+ :
+R friend 14+ @D1,D2 : neutral friend | friend
+E S: "the person they hurt does not" => "[other], the person they hurt, does not"
+
+HS-024
+R worker 14+ : worker | injured villager
+R healer 18+ @B1,B2 : healer
+R apprentice 14+ @C2 : apprentice
+R friend 14+ @D1,D2 : friend
+
+HS-025
+R child 3-13 : child
+R friend 3-13 @B1,B2 : friend
+
+HS-026
+R villager 14+ : villager
+R healer 18+ @B1,B2 : healer
+
+HS-027
+R villager 14+ : villager
+
+HS-028
+R craftsperson 18+ : craftsperson
+
+HS-029
+R villager 14+ : surviving villager | villager
+R healer 18+ @A1 :
+R friend 14+ @C2 : trusted friend
+E A1: "The healer and community focus" => "[healer] and the community focus"
+
+HS-030
+R villager 14+ : villager
+E S: "A villager who lost a leg years ago is" => "[villager], a villager who lost a leg years ago, is"
+
+HS-031
+R child 3-13 : child
+R adult 18+ : adult
+
+HS-032
+
+HS-033
+R villager 14+ : villager
+R visitor stranger : visitor
+
+HS-034
+R child 3-13 : child
+R visitor stranger : visitor
+R adult 18+ @D2 : adult
+
+HS-035
+R child 3-13 @A2,D2 : child
+
+HS-036
+R villager 14+ @A1,D2 : villager
+R elder 55+ @C1 : elder
+R child 3-13 @C2 : child
+
+HS-037
+R child 3-13 : child
+R elder 55+ @C1 : elder
+
+HS-038
+R villager 18+ @B1,D2 : caregiver | quiet villager
+
+HS-039
+R elder 55+ : eccentric elder | elder
+
+HS-040
+R elder 55+ @C2 : elder
+
+HS-041
+R villager 14+ : normally sociable villager | villager
+R friend 14+ @A1,C2 : friend
+
+HS-042
+R newcomer 14+ : newcomer
+R villager 14+ @C1 : villager

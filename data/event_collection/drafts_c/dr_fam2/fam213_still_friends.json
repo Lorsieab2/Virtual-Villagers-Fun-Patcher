@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Still Friends",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam213_still_friends",
+  "source": "draft_fam2",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who were partners and have separated (where the game records it; otherwise any two adults); any sexes)"
+   }
+  ],
+  "description": "Two former partners arrive at their old fishing spot at the same moment: share the spot, or find a new one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) were together for years. Last season they decided, kindly, that they wanted different things, and separated. Today they both arrive at the same fishing spot at the same moment, the way they always did. They look at each other.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Share the Spot",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Find a New Spot",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Morning,\" says (subject). \"Morning,\" says (friend). They sit down on the same rock, a little further apart than they used to. They fish. They talk about the weather, and the new baby in the next hut, and whose turn it is to fix the drying rack. It's strange, and also not strange at all. They're still friends. It just took a while to know it.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'll go to the far rocks,\" says (friend). \"You keep this one.\" (subject) nods, grateful. \"Thank you.\" The far rocks are fine. Over time, (friend) comes to like them. They wave to each other across the water most mornings. They don't fish together any more, and that's alright. Not every ending has to be a friendship.",
+   "src": "L161"
+  }
+ }
+}

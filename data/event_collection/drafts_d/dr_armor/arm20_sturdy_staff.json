@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sturdy Staff",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm20_sturdy_staff",
+  "source": "armor45",
+  "lines": [
+   28,
+   28
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L28",
+  "ledger": [
+   {
+    "src": "L28",
+    "kind": "structural",
+    "text": "20. The Sturdy Staff  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L28",
+    "kind": "sensitivity",
+    "before": "A carpenter",
+    "after": "(Name1), a carpenter,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A carpenter makes wooden staffs used for walking, carrying supplies, performances, and defensive practice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a carpenter, makes wooden staffs used for walking, carrying supplies, performances, and defensive practice.",
+   "src": "L28"
+  }
+ }
+}

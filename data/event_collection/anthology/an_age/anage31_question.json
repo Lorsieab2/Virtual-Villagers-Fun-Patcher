@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Question Nobody Can Answer Alone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage31_question",
+  "source": "anthology",
+  "lines": [
+   30605,
+   30619
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30605",
+  "ledger": [
+   {
+    "src": "L30606",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30607",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30609",
+    "kind": "sensitivity",
+    "before": "A scholar",
+    "after": "(scholar), a scholar,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30610",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30610",
+    "kind": "sensitivity",
+    "before": "the scholar",
+    "after": "(scholar)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30616",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30619",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks why different peoples exist, and the adults offer several competing explanations.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "scholar",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "scholar": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks why different peoples exist, and the adults offer several competing explanations.",
+   "src": "L30607",
+   "choices": [
+    {
+     "label": "Explore Ancestry and Migration",
+     "next": "a",
+     "src": "L30608"
+    },
+    {
+     "label": "Share Cultural Origin Stories",
+     "next": "b",
+     "src": "L30611"
+    },
+    {
+     "label": "Discuss What Differences Mean",
+     "next": "c",
+     "src": "L30614"
+    },
+    {
+     "label": "Let the Child Keep Asking",
+     "next": "d",
+     "src": "L30617"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(scholar), a scholar, explains that human populations have shared ancestry and histories of movement and adaptation.",
+   "src": "L30609"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) asks about a family story, and (scholar) distinguishes evidence from unanswered details.",
+   "src": "L30610"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Elders recount different traditions without claiming all are literal historical records.",
+   "src": "L30612"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Two villagers discover similar themes in stories that otherwise disagree.",
+   "src": "L30613"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group affirms that appearance and ancestry do not determine worth or ability.",
+   "src": "L30615"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) recognizes an unfair assumption they had made about a neighbor.",
+   "src": "L30616"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The question leads to a lively intergenerational discussion.",
+   "src": "L30618"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "No final answer satisfies everyone, but (child) learns that uncertainty is not failure.",
+   "src": "L30619"
+  }
+ }
+}

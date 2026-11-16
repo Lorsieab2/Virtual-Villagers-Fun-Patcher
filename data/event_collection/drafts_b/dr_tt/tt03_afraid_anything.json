@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Afraid of Anything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt03_afraid_anything",
+  "source": "draft_tt",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager boasting of fearing nothing finds a large spider between their feet: stay very calm, or admit it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been explaining to (friend) that (subject.he/she) isn't afraid of anything: not storms, not the dark, not deep water, and certainly not spiders. At that exact moment, a large brown spider strolls out from under the woodpile and stops right between (subject)'s feet.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Stay Very Calm",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Admit It",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stays very calm. So calm that (subject.he/she) doesn't move, doesn't blink, and makes a small, high noise through (subject.his/her) nose. (friend) gently scoops the spider onto a leaf and carries it off into the bushes. \"I was letting it decide where to go,\" says (subject). \"Of course you were,\" says (friend).",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) is on top of the woodpile before anyone sees (subject.him/her) move. \"Except spiders,\" (subject.he/she) says from up there. \"I forgot about spiders.\" (friend) laughs and carries the spider away. (subject) climbs down. \"Storms, though. Not a bit afraid of storms.\" \"I believe you,\" says (friend), and very nearly does.",
+   "src": "L41"
+  }
+ }
+}

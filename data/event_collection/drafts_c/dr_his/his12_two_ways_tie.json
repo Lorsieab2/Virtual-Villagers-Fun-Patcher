@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Ways to Tie the Knot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his12_two_ways_tie",
+  "source": "draft_his",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L146",
+    "kind": "sensitivity",
+    "before": "They go to the oldest villager they can find. The old villager looks",
+    "after": "They go to (elder), the oldest villager they can find. (elder) looks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two villagers each insist their way of tying the wedding knot is the old way: ask an elder, or let the couple choose.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At weddings on Isola, the couple's wrists are tied together with a woven cord. Today, getting ready for a wedding, (subject) and (friend) have discovered they were taught to tie the knot completely differently, and each of them is certain theirs is the real, old, proper way.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Ask an Elder",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Let the Couple Choose",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They go to (elder), the oldest villager they can find. (elder) looks at both knots and laughs. \"When I was young, there were three ways. Somebody's grandmother did a fourth. I don't think there was ever just one.\" (subject) and (friend) look at each other. At the wedding, they tie it both ways, one over the other. It's a very secure wedding.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They ask the couple. The couple look at both knots and choose neither: they want a different one, one they invented themselves. (subject) and (friend) are both slightly scandalized. The wedding is lovely. Years from now, someone will probably insist that the couple's knot is the real, old, proper way.",
+   "src": "L149"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Yes, Yes, of Course",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon40_yes_yes_course",
+  "source": "draft_hon",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager agreed to something without listening, and a friend expects them before dawn: admit it, or just turn up.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) was telling (subject) something long and complicated while (subject) was busy re-tying a tricky knot, and (subject) kept saying, \"Yes, yes, of course.\" Now (friend) is beaming and saying, \"Wonderful! Before dawn, then.\" (subject) has absolutely no idea what (subject.he/she) has agreed to.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Admit You Weren't Listening",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Just Turn Up Before Dawn",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm sorry,\" says (subject). \"What exactly is happening before dawn?\" (friend)'s face falls a little. \"You weren't listening.\" \"I was knotting. I'm sorry. Tell me again; I'm listening now.\" (friend) tells (subject.him/her) again. It's about carrying a canoe down to the beach. (subject) says yes, properly this time.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) turns up before dawn, ready for anything. It turns out to be a canoe that needs carrying down to the beach. Halfway there, (friend) says, \"You weren't listening yesterday, were you?\" \"Not a word.\" \"I could tell.\" \"Then why did you let me agree?\" \"Because I needed someone for the canoe.\"",
+   "src": "L485"
+  }
+ }
+}

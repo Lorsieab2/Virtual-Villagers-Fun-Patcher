@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Potion That Made Everything Taste of Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum22_potion_made",
+  "source": "draft_hum",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult, ideally a scientist)"
+   },
+   {
+    "src": "L269",
+    "kind": "sensitivity",
+    "before": "except one old fisher, who says",
+    "after": "except (fisher), an old fisher, who says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager tests a new drink and now everything tastes of fish: make the best of it, or ask a friend to try it too.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been working on a drink to make bitter medicine taste sweet, and has tested it on (subject.him/her)self, as (subject.he/she) always does. (subject.He/she) feels perfectly well. The only thing is that everything now tastes of fish. Water: fish. Mango: fish. A plain piece of baked taro: very definitely fish.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Make the Best of It",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Ask (friend) to Try It Too",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) decides to make it useful. (subject.He/she) tastes all the foods (subject.he/she) has never liked. The bitter greens taste of fish. Not better, exactly, but different. (subject.He/she) spends the afternoon tasting the whole kitchen and taking careful notes. By evening it has worn off, and the first bite of a mango tastes like a mango again. (subject) nearly cries with joy.",
+   "src": "L266"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) refuses absolutely. So does everyone else, except (fisher), an old fisher, who says that everything already tastes of fish, drinks a sip, and reports no change at all. The scientists are still arguing about whether this counts as a result.",
+   "src": "L269"
+  }
+ }
+}

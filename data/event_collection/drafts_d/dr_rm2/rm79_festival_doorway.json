@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival from the Doorway",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm79_festival_doorway",
+  "source": "draft_rm2",
+  "lines": [
+   580,
+   593
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L580",
+  "ledger": [
+   {
+    "src": "L581",
+    "kind": "sensitivity",
+    "before": "and the teenager is torn",
+    "after": "and (name1), the teenager, is torn",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager's grandparent cannot walk to the festival this year, and the teenager is torn between going and staying.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A teenager's grandparent cannot walk to the festival this year, and (name1), the teenager, is torn between going and staying.",
+   "src": "L581",
+   "choices": [
+    {
+     "label": "Stay with the Grandparent.",
+     "next": "a",
+     "src": "L582"
+    },
+    {
+     "label": "Bring the Festival to the Grandparent.",
+     "next": "b",
+     "src": "L585"
+    },
+    {
+     "label": "Go and Report Back Every Hour.",
+     "next": "c",
+     "src": "L588"
+    },
+    {
+     "label": "Carry the Grandparent in a Litter with Friends.",
+     "next": "d",
+     "src": "L591"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They watch the lights from the doorway and talk late into the night.",
+   "src": "L583"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The grandparent insists the teenager go, and they agree to return early with a story.",
+   "src": "L584"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Friends come by with drums and food, and the hut becomes a small celebration.",
+   "src": "L586",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L586"
+    },
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L586"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Only a few come, but the grandparent is delighted anyway.",
+   "src": "L587"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The grandparent enjoys the regular updates.",
+   "src": "L589"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The teenager gets caught up in the festival and comes back late, apologizing.",
+   "src": "L590"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The grandparent attends and has a wonderful time.",
+   "src": "L592"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The grandparent declines, preferring to rest, and the teenager respects the choice.",
+   "src": "L593"
+  }
+ }
+}

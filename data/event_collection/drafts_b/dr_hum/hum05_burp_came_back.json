@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Burp That Came Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum05_burp_came_back",
+  "source": "draft_hum",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two villagers aged 10 or older)"
+   },
+   {
+    "src": "L62",
+    "kind": "sensitivity",
+    "before": "an elder who was gathering shellfish down in the cove asks",
+    "after": "(elder), an elder who was gathering shellfish down in the cove, asks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager burps on the echo cliffs and the rocks send it back three times: try for a better one, or apologize to the cliffs.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are up on the cliffs above the cove, where the echo is famous: shout a name and the rocks shout it back three times. (subject) has just drunk a whole coconut very fast, and before (subject.he/she) can stop it, out comes a burp. A big one. The rocks send it back. Three times. Each one is a little quieter, and somehow more dignified.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Try for a Better One",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Apologize to the Cliffs",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They spend the whole afternoon trying. (friend) tries too. Neither of them ever manages a burp as good as the first, and the rocks seem to agree. On the way home, (elder), an elder who was gathering shellfish down in the cove, asks, very politely, whether they heard \"that strange bird up on the cliffs.\" They say they did. They don't look at each other.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Sorry,\" calls (subject). \"Sorry. Sorry. Sorry,\" say the cliffs, fainter and fainter. (friend) laughs so hard (friend.he/she) has to sit down. It becomes their private joke: from then on, whenever one of them makes any small mistake, the other one says \"sorry\" three times, quieter each time.",
+   "src": "L65"
+  }
+ }
+}

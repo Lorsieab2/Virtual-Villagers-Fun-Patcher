@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Whose Fish Is It?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus01_whose_fish",
+  "source": "draft_jus",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L13",
+    "kind": "sensitivity",
+    "before": "Ask an Elder to Decide",
+    "after": "Ask (elder) to Decide",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L14",
+    "kind": "sensitivity",
+    "before": "The elder listens to both",
+    "after": "(elder), an elder, listens to both",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L17",
+    "kind": "sensitivity",
+    "before": "until an old fisher walking past remarks",
+    "after": "until (fisher), an old fisher walking past, remarks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two villagers hooked the same fish, and each is sure it bit their hook first: ask an elder to decide, or split it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) were fishing off the same rock, their lines got tangled, and together they have pulled in one fine fish with both hooks in its mouth. Each of them is quite sure it bit their hook first. A small crowd has gathered to watch them argue.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Ask (elder) to Decide",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Split It Between You",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, listens to both of them, examines the fish, examines both hooks, and says gravely, \"The fish bit both. The fish has decided you are partners.\" They cook it together and share it. It is the first of several fish they catch together that season, and they argue about every single one.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree to cut it in two: (subject) takes the head end, (friend) the tail end. Both are satisfied, until (fisher), an old fisher walking past, remarks that the cheeks are the best part of any fish. (friend) looks at (friend.his/her) half. (subject) looks at (subject.his/her) own, very pleased. The next tangled fish, they agree, gets cut lengthwise.",
+   "src": "L17"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L17",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

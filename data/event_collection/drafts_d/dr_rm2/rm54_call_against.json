@@ -1,0 +1,168 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Call Against a Sibling",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm54_call_against",
+  "source": "draft_rm2",
+  "lines": [
+   204,
+   217
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L204",
+  "ledger": [
+   {
+    "src": "L205",
+    "kind": "sensitivity",
+    "before": "A teenager",
+    "after": "(Name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager acting as judge in a children's game sees their own younger sibling step outside the line.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a teenager, acting as judge in a children's game sees their own younger sibling step outside the line.",
+   "src": "L205",
+   "choices": [
+    {
+     "label": "Make the Call Honestly.",
+     "next": "a",
+     "src": "L206"
+    },
+    {
+     "label": "Ask Another Player Whether They Saw It.",
+     "next": "b",
+     "src": "L209"
+    },
+    {
+     "label": "Step Aside as Judge for This Game.",
+     "next": "c",
+     "src": "L212"
+    },
+    {
+     "label": "Explain the Rule to Everyone Again.",
+     "next": "d",
+     "src": "L215"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The other children respect the judge more, and the sibling sulks only briefly.",
+   "src": "L207"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The sibling is upset for the rest of the afternoon, and the judge comforts them afterward without taking back the call.",
+   "src": "L208"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Another child confirms the step, and the call is made without anyone feeling singled out.",
+   "src": "L210"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Nobody else saw it clearly, so the point is played again.",
+   "src": "L211"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Another teenager takes over, and the game carries on fairly.",
+   "src": "L213"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "No one else wants to judge, and the children decide to finish without one.",
+   "src": "L214"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The sibling realizes the mistake on their own and accepts the point.",
+   "src": "L216"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The rule turns out to be unclear, and the children agree on a better line.",
+   "src": "L217"
+  }
+ }
+}

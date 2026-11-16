@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anmom07_empty_place",
+  "source": "anthology",
+  "lines": [
+   113,
+   120
+  ],
+  "section": "an_mom",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_mom",
+  "title_src": "L113",
+  "ledger": [
+   {
+    "src": "L114",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L116",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(kin)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L117",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L119",
+    "kind": "sensitivity",
+    "before": "A companion",
+    "after": "(kin)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L120",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "At a familiar gathering, a villager notices the space where a departed loved one used to sit.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "kin"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "kin": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a familiar gathering, (villager) notices the space where a departed loved one used to sit.",
+   "src": "L114",
+   "choices": [
+    {
+     "label": "Share a Memory.",
+     "next": "a",
+     "src": "L115"
+    },
+    {
+     "label": "Sit in Silence.",
+     "next": "b",
+     "src": "L118"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(kin) remembers a funny habit, and the group smiles through tears.",
+   "src": "L116"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) speaks quietly while the others listen.",
+   "src": "L117"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(kin) stays nearby without pressing for words.",
+   "src": "L119"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) leaves early, grateful to have been included.",
+   "src": "L120"
+  }
+ }
+}

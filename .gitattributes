@@ -135,7 +135,40 @@ tests/data/living_fixture/*.txt -text
 tests/data/living_fixture/*.pak binary
 /docs/more-island-events/Isola_Beyond_the_Horizon_Expanded_80_Events.txt -text
 /docs/more-island-events/Role_Models_and_Good_Examples_40_Events.txt -text
+# The owner-approved drafts of 2026-11-15, set A (Inner Life I-X, What's That Doing Here, Luck, Omens and Lavastones)
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Inner[[:space:]]Life*.txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]What's[[:space:]]That[[:space:]]Doing[[:space:]]Here[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Luck,[[:space:]]Omens[[:space:]]and[[:space:]]Lavastones[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /data/event_collection/** text eol=lf
 # The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
 assets/event_collection/** -text
 docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collection[[:space:]]-[[:space:]]Credits.md -text
+# The owner-approved draft event files, group B (frozen byte for byte; scripts/drafts_b/)
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Humor[[:space:]]and[[:space:]]Absurdity[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Tall[[:space:]]Tales[[:space:]]and[[:space:]]Self-Interest[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Honesty[[:space:]]and[[:space:]]Accountability[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Justice[[:space:]]and[[:space:]]Consequences[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Departures[[:space:]]and[[:space:]]Exile[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Dreams[[:space:]]and[[:space:]]Ambitions[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Fears[[:space:]]and[[:space:]]Doubts[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Good,[[:space:]]Bad[[:space:]]and[[:space:]]Ordinary[[:space:]]Days[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+# The owner-approved draft event files, group C (frozen byte for byte; scripts/drafts_c/)
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Healing,[[:space:]]Psychology[[:space:]]and[[:space:]]Medicine[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Advice[[:space:]]and[[:space:]]Decisions[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Relationships,[[:space:]]Singlehood[[:space:]]and[[:space:]]Family[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Belief[[:space:]]and[[:space:]]Identity[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Nature,[[:space:]]Ecology[[:space:]]and[[:space:]]Animals[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Disability[[:space:]]and[[:space:]]Diversity[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]History[[:space:]]and[[:space:]]Collective[[:space:]]Memory[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Pondering[[:space:]]How[[:space:]]Life[[:space:]]Has[[:space:]]Gone[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+# The owner-approved files, group D (frozen byte for byte; scripts/drafts_d/)
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Role[[:space:]]Models[[:space:]]RM-41[[:space:]]to[[:space:]]RM-90[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Beyond[[:space:]]the[[:space:]]Horizon[[:space:]]081[[:space:]]to[[:space:]]130[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/Isola_500_Tiny_Island_Moments.txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Tiny[[:space:]]Island[[:space:]]Moments[[:space:]]T126[[:space:]]to[[:space:]]T175[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/Completed[[:space:]]Open[[:space:]]Questions[[:space:]]-[[:space:]]Isola[[:space:]]Events[[:space:]]v1.35.97.txt -text
+/docs/more-island-events/Isola_Armor_Weapons_and_Inherited_Traditions.txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Armor[[:space:]]and[[:space:]]Heirlooms[[:space:]]ARM-46[[:space:]]to[[:space:]]ARM-95[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt -text
+# The owner's all-in-one Animals anthology (frozen byte for byte; its newest volumes: scripts/anthology_new/)
+/docs/more-island-events/Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt -text

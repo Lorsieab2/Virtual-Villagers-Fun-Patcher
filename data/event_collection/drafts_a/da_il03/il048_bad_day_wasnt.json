@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bad Day That Wasn't",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il048_bad_day_wasnt",
+  "source": "da_il03",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager sure that today would be terrible finds that nothing bad has happened by late afternoon.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) woke up absolutely certain that today was going to be terrible. (subject.He/She) slept badly, stubbed a toe on the doorway, and it looked like rain. (subject.He/She) has spent the whole morning braced for disaster. It is now late afternoon, and nothing bad has happened at all.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Keep Waiting for It",
+     "next": "a",
+     "src": "L97"
+    },
+    {
+     "label": "Admit It Was a Good Day",
+     "next": "b",
+     "src": "L100"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) eyes every coconut tree suspiciously. (subject.He/She) checks the sky. (subject.He/She) checks the sky again. The sun sets on a perfectly pleasant day. \"It's going to get me tomorrow,\" (subject) mutters. It doesn't. Tomorrow is fine too.",
+   "src": "L98"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "At dinner, (subject) announces, rather grudgingly, \"Today was... actually quite nice.\" (friend) looks up in surprise. \"You said it would be terrible.\" \"I know,\" says (subject). \"I was wrong. Don't get used to it.\"",
+   "src": "L101"
+  }
+ }
+}

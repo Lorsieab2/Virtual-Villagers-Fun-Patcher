@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Return to the Workshop",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage23_return",
+  "source": "anthology",
+  "lines": [
+   30477,
+   30491
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30477",
+  "ledger": [
+   {
+    "src": "L30478",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30477",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L30479",
+    "kind": "sensitivity",
+    "before": "A skilled nursing mother",
+    "after": "(mother), a skilled nursing mother,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30488",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30490",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(apprentice), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A skilled nursing mother wants to resume her workshop duties, but others assume she should remain home.",
+  "label_case": "title",
+  "cast_only": [
+   "mother",
+   "relative",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "special": "nursing_parent"
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(mother), a skilled nursing mother, wants to resume her workshop duties, but others assume she should remain home.",
+   "src": "L30479",
+   "choices": [
+    {
+     "label": "Ask Her to Define Her Own Schedule",
+     "next": "a",
+     "src": "L30480"
+    },
+    {
+     "label": "Discuss Safe Practical Accommodations",
+     "next": "b",
+     "src": "L30483"
+    },
+    {
+     "label": "Challenge the Assumption Respectfully",
+     "next": "c",
+     "src": "L30486"
+    },
+    {
+     "label": "Offer an Apprenticeship Partnership",
+     "next": "d",
+     "src": "L30489"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "She chooses shorter shifts that suit her family.",
+   "src": "L30481"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "She returns to full duties with breaks she has arranged herself.",
+   "src": "L30482"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The workshop creates a clean, comfortable place for breaks.",
+   "src": "L30484"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A hazardous task is reassigned temporarily while she chooses other meaningful work.",
+   "src": "L30485"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Coworkers realize they were making decisions for her.",
+   "src": "L30487"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(relative) remains worried, and they discuss the difference between concern and control.",
+   "src": "L30488"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(apprentice), an apprentice, handles lifting while she directs delicate work.",
+   "src": "L30490"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "She prefers independent work, and the group supports her choice.",
+   "src": "L30491"
+  }
+ }
+}

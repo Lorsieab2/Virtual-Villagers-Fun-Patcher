@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mat for the Whole Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm41_mat_whole",
+  "source": "draft_drm",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   }
+  ],
+  "description": "An elder is weaving a mat for the whole village to sit on, and a friend asks to help: show the pattern, or do it alone for now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has started weaving a mat. A big one. Big enough, when it's finished, for the whole village to sit on together at once. It's going to take years. (subject.He/she) may not finish it. People keep pointing this out, as if (subject.he/she) hadn't thought of it. Today (friend) sits down and asks what (friend.he/she) can do.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Show (friend) the Pattern",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Say (subject.he/she) Wants to Do It Alone for Now",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) shows (friend.him/her) the weave. (friend) gets the hang of it after a few tries. Now there are two of them. By the end of the season there are five. The mat is about the size of a hut. It still has a very long way to go, and it is the most popular place in the village to sit and talk.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Not yet,\" says (subject). \"I want to do the middle myself. Then anyone can help.\" (friend) understands. (friend.He/she) comes back often to sit with (subject) while (subject.he/she) weaves. They talk about everything. The middle of the mat gets slowly bigger. Neither of them is in any hurry.",
+   "src": "L497"
+  }
+ }
+}

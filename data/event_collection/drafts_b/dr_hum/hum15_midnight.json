@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Midnight Negotiation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum15_midnight",
+  "source": "draft_hum",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager talks in their sleep on turtle watch, haggling with a fish: join the negotiation, or tell them about it in the morning.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are sleeping out on the beach to watch for turtles coming ashore. (subject) talks in (subject.his/her) sleep. Tonight (subject.he/she) begins, very clearly, to negotiate with somebody. \"No. Two coconuts. Not three. Two.\" (friend) lies awake listening. It seems to be a fish. It seems to be a difficult negotiation.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Join the Negotiation",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Tell (subject.him/her) About It in the Morning",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Three coconuts,\" whispers (friend). \"Final offer.\" The sleeping (subject) considers this for a long time. \"...Two and a mango.\" \"Done,\" says (friend). (subject) sighs contentedly and starts to snore. In the morning (subject.he/she) remembers nothing at all, but wakes up looking extremely pleased with (subject.him/her)self.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) reports everything over breakfast. (subject) is embarrassed and fascinated. \"Did I win?\" \"Hard to say. It went on for a long time.\" (subject) thinks about it all day. That night, on the beach again, (friend) hears (subject.him/her) say, quite clearly and with great reluctance, \"Fine. Three.\"",
+   "src": "L185"
+  }
+ }
+}

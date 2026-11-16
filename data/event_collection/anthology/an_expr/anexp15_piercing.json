@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Piercing Decision",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp15_piercing",
+  "source": "anthology",
+  "lines": [
+   31472,
+   31486
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31472",
+  "ledger": [
+   {
+    "src": "L31473",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31474",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31476",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31477",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31479",
+    "kind": "sensitivity",
+    "before": "The practitioner",
+    "after": "(practitioner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31480",
+    "kind": "sensitivity",
+    "before": "The practitioner",
+    "after": "(practitioner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31483",
+    "kind": "sensitivity",
+    "before": "The wearer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31485",
+    "kind": "sensitivity",
+    "before": "the hesitant villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31486",
+    "kind": "sensitivity",
+    "before": "A family member",
+    "after": "(family), a family member,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager considers a decorative piercing after seeing a relative's jewelry.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "adult",
+   "teen",
+   "practitioner",
+   "family"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 5
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "practitioner": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "family": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) considers a decorative piercing after seeing a relative's jewelry.",
+   "src": "L31474",
+   "choices": [
+    {
+     "label": "Discuss Personal Choice",
+     "next": "a",
+     "src": "L31475"
+    },
+    {
+     "label": "Ask a Skilled Practitioner",
+     "next": "b",
+     "src": "L31478"
+    },
+    {
+     "label": "Try a Removable Ornament",
+     "next": "c",
+     "src": "L31481"
+    },
+    {
+     "label": "Respect Refusal",
+     "next": "d",
+     "src": "L31484"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult) chooses the adornment for themself.",
+   "src": "L31476"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(teen) decides to wait rather than follow friends.",
+   "src": "L31477"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(practitioner) explains hygiene and healing.",
+   "src": "L31479"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(practitioner) advises against proceeding with unsuitable tools.",
+   "src": "L31480"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A clip-on decoration satisfies the curiosity.",
+   "src": "L31482"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) discovers they prefer no ornament.",
+   "src": "L31483"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Friends stop pressuring (villager).",
+   "src": "L31485"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(family), a family member, learns that admiration does not imply consent.",
+   "src": "L31486"
+  }
+ }
+}

@@ -126,8 +126,9 @@ CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC"
 
 
 # Every check the harness makes, by game: A New Home adds the Golden Child's (the button hidden, its command doing
-# nothing, no box); both have the carrying villager's (asked with the carrying sentence, the pregnancy kept).
-DIALOG_CHECKS = {1: 60, 2: 53}
+# nothing, no box); both have the carrying villager's (asked with the carrying sentence, the pregnancy kept), and the
+# Gender presentation checkbox's and its row's (native/shared/gender_presentation_stand_in.h).
+DIALOG_CHECKS = {1: 87, 2: 80}
 
 
 def run_dialog_harness(test: unittest.TestCase, game: int) -> str:

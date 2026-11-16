@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mud Bakery",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il163_mud_bakery",
+  "source": "da_il09",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child and friends have opened a mud bakery on the beach, and a passing villager is called over to buy a cake.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (subject.his/her) friends have opened a bakery on the beach. Everything is made of mud. There are mud cakes, mud loaves and a mud pie with a shell on top that is apparently very special. (friend) is walking past and is immediately called over. \"Would you like to buy a cake?\"",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Buy a Cake",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Ask for Something That Isn't on the Menu",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) pays with three pebbles, which the children examine very carefully before accepting. (friend.He/She) is handed a mud cake on a leaf. All the children watch to see what (friend.he/she) will do. (friend) pretends to take a bite and says, \"This is the best cake I have ever eaten.\" The children are so pleased that (friend) is given the special pie for free.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Do you have any fish?\" asks (friend). The children look at each other in alarm. A whispered meeting is held. Then (subject) turns round with great dignity and says, \"We have a mud fish. It will take a moment.\" It takes quite a long moment. It is worth the wait.",
+   "src": "L41"
+  }
+ }
+}

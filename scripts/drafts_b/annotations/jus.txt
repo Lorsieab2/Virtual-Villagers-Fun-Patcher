@@ -1,0 +1,413 @@
+JUS-01
+DESC: Two villagers hooked the same fish, and each is sure it bit their hook first: ask an elder to decide, or split it.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+ f=fisher:55+
+EDIT L1: "Ask an Elder to Decide" => "Ask [e] to Decide"
+EDIT O1: "The elder listens to both" => "[e], an elder, listens to both"
+EDIT O2: "until an old fisher walking past remarks" => "until [f], an old fisher walking past, remarks"
+O2: 21
+REVIEW: ok
+
+JUS-02
+DESC: A mango tree drops its fruit over a garden boundary, and the council must rule: it belongs to the tree, or where it falls.
+ROLES: name1=18+ name2=18+
+S: 2
+O2: 11
+REVIEW: ok
+
+JUS-03
+DESC: A neighbor has gone to the elders about a villager's late night drumming: set quiet hours, or ask them to agree.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "Then an elder suggests" => "Then [e], an elder, suggests"
+O1: 1
+O2: 2
+REVIEW: ok
+
+JUS-04
+DESC: A child's ball smashed a potter's newly made pot: help make a new one, or talk it through first.
+ROLES: name1=6-12 name2=18+
+O1: 1
+REVIEW: ok
+
+JUS-05
+DESC: A villager chasing a pig flattened the healers' herb seedlings: tend the garden for a week, or replace what was lost.
+ROLES: name1=18+ name2=18+
+O1: 11
+REVIEW: ok
+
+JUS-06
+DESC: The longtime canoe-keeper has been missing things, and canoes have drifted off: give the role to someone else, or share it.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1111
+REVIEW: ok
+
+JUS-07
+DESC: A villager is accused over sandal prints by the knocked over fish racks: compare everyone's sandals, or look at the racks again.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "An elder asks the village" => "[e], an elder, asks the village"
+S: 11
+REVIEW: ok
+
+JUS-08
+DESC: After a shouting match, a villager agrees to spend the night alone to cool down: sit with them a while, or leave them in peace.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "An elder brings a blanket" => "[e], an elder, brings a blanket"
+EDIT O2: "with an elder close enough to call" => "with [e], an elder, close enough to call"
+L1: 1
+O1: 11
+L2: 1
+O2: 111
+REVIEW: ok
+
+JUS-09
+DESC: A villager kept the shared digging stick overnight, and a friend lost a morning's work: ask the council, or talk directly.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+JUS-10
+DESC: A villager is pretty sure a neighbor took the healers' honey: ask the accuser more questions, or wait for more evidence.
+ROLES: name1=18+ name2=18+
+FIG: h=healer:18+
+EDIT O2: "A week later the healer remembers" => "A week later [h], a healer, remembers"
+S: 112
+O1: 21
+REVIEW: ok
+
+JUS-11
+DESC: A villager knocked down a neighbor's fence and will mend it but not apologize in public: rule mending is enough, or talk first.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 2
+O2: 2
+REVIEW: ok
+
+JUS-12
+DESC: A villager's spooky night prank frightened a neighbor and the children: no more pranks this season, or ask how to make it right.
+ROLES: name1=18+ name2=18+
+S: 2
+O1: 11
+O2: 11122
+REVIEW: ok
+
+JUS-13
+DESC: A villager fished the reef at the spawning moon against the old rule: bring it to the council, or talk to them first.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1
+O2: 11
+REVIEW: ok
+
+JUS-14
+DESC: An elder catches a child up the guava tree after climbing the fence again: ask them to help pick, or walk them home.
+ROLES: name1=5-11 name2=55+
+S: 111
+L1: 1
+O1: 1
+L2: 1
+O2: 11
+REVIEW: ok
+
+JUS-15
+DESC: A villager stopped fishing with someone who told convenient stories, and that person says it is unfair: rule it, or ask more.
+ROLES: name1=18+ name2=18+
+S: 12
+O1: 12
+L2: 1
+O2: 11112
+REVIEW: ok
+
+JUS-16
+DESC: Two villagers both marked the same fallen hardwood log at dawn: ask the elders, or toss a shell for it.
+ROLES: name1=18+ name2=18+
+O2: 12
+REVIEW: ok
+
+JUS-17
+DESC: A villager has been washing pots upstream of the drinking water: show them the soapy jar, or take it to the elders.
+ROLES: name1=18+ name2=18+
+L1: 1
+O1: 11
+O2: 1111
+REVIEW: ok
+
+JUS-18
+DESC: The council wrongly blamed a villager for a broken fish trap: the council admits it, or the villager asks for one thing.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "Later an elder admits" => "Later [e], an elder, admits"
+O1: 1
+REVIEW: ok
+
+JUS-19
+DESC: A villager never repaid a basket of dried fish from the lean season: ask them why, or set a fair amount.
+ROLES: name1=18+ name2=18+
+O1: 12
+REVIEW: ok
+
+JUS-20
+DESC: A villager found a carved fishhook, and a neighbor says it is theirs: return it to the owner, or ask how hard it was looked for.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT S: "They've gone to an elder." => "They've gone to [e], an elder."
+EDIT O1: "The elder asks (name2)" => "[e] asks (name2)"
+EDIT O1: "The elder gives it back" => "[e] gives it back"
+EDIT O2: "The elder asks." => "[e] asks."
+EDIT O2: "The elder thinks" => "[e] thinks"
+S: 22
+O1: 1
+O2: 221
+REVIEW: ok
+
+JUS-21
+DESC: A villager has missed the last four shared work days, and people are grumbling: hear them out, or ask around first.
+ROLES: name1=18+ name2=18+
+FIG: n=fisher:18+
+EDIT O1: "that the night fisher is resting" => "that [n], the night fisher, is resting"
+O1: 12
+O2: 11
+REVIEW: ok
+
+JUS-22
+DESC: A villager walked straight to the front of the spring line and hurried off: call them back, or let it go this time.
+ROLES: name1=18+ name2=18+
+S: 11
+L1: 1
+O1: 11
+O2: 221
+REVIEW: ok
+
+JUS-23
+DESC: Two teens learning to fish argued until they tipped the canoe: put them in different canoes, or give them one job together.
+ROLES: name1=14-17 name2=14-17
+REVIEW: ok
+
+JUS-24
+DESC: A villager's trading basket turns out to hold less than everyone else's: ask them to explain, or ask the traders what they want.
+ROLES: name1=18+ name2=18+
+O1: 111
+REVIEW: ok
+
+JUS-25
+DESC: A villager finds old boundary stones that may change an earlier ruling: the elders look again, or let the neighbors decide.
+ROLES: name1=18+ name2=18+
+S: 11
+REVIEW: ok
+
+JUS-26
+DESC: Two children set up their own council to settle a squabble over a toy canoe: let the council rule, or ask an elder to sit in.
+ROLES: name1=7-13 name2=7-13
+FIG: e=elder:55+
+EDIT L2: "Ask an Elder to Sit In" => "Ask [e] to Sit In"
+EDIT O2: "(name1) invites an elder to join" => "(name1) invites [e], an elder, to join"
+EDIT O2: "The elder sits on a stone" => "[e] sits on a stone"
+EDIT O2: "The elder looks very pleased" => "[e] looks very pleased"
+REVIEW: ok
+
+JUS-27
+DESC: A villager's new rain channel sends the water into a neighbor's hut: ask an elder to look, or talk it over.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT L1: "Ask an Elder to Look" => "Ask [e] to Look"
+EDIT O1: "The elder walks up" => "[e], an elder, walks up"
+S: 12
+O2: 221
+REVIEW: ok
+
+JUS-28
+DESC: A villager who forgets to return things is upset that a friend stopped lending: back the friend, or suggest a borrowing cord.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O2: "An elder suggests that" => "[e], an elder, suggests that"
+S: 111
+O1: 212
+O2: 1
+REVIEW: ok
+
+JUS-29
+DESC: A villager who sings loudly through the elders' quiet hour is brought to the council: sing at the feast, or find a singing place.
+ROLES: name1=18+ name2=18+
+O1: 11
+L2: 1
+O2: 111
+REVIEW: ok
+
+JUS-30
+DESC: A teen asks an elder why nobody builds where an old hut once stood: ask what happened, or let it rest.
+ROLES: name1=55+ name2=14-17
+S: 11
+O1: 1
+O2: 11
+REVIEW: ok
+
+JUS-31
+DESC: A borrowed paddle snapped in a sudden squall, and its owner wants it replaced: ask the elders, or settle it between you.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 2
+O2: 22
+REVIEW: ok
+
+JUS-32
+DESC: A villager broke the rule against climbing the brittle cliff to free a seabird chick: take it to the council, or talk to them.
+ROLES: name1=18+ name2=18+
+O1: 11
+O2: 21
+REVIEW: ok
+
+JUS-33
+DESC: A villager wrongly told people a neighbor's stew made them sick: ask them to set it straight, or ask the cook what would help.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 111
+O2: 211
+REVIEW: ok
+
+JUS-34
+DESC: The council has argued all day over whose turn it is to clean the big drum: rule on the drum, or send for it as evidence.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "a child cleaned it this morning" => "[c], a child, cleaned it this morning"
+EDIT O2: "thanks the child" => "thanks [c]"
+S: 2
+REVIEW: ok
+
+JUS-35
+DESC: A villager's pig ate every ripe melon in a neighbor's garden: ask the elders, or make a deal.
+ROLES: name1=18+ name2=18+
+O2: 2
+REVIEW: ok
+
+JUS-36
+DESC: A child carved a little fish into the big carved post at the meeting place: sand it smooth together, or offer proper lessons.
+ROLES: name1=6-12 name2=18+
+S: 1
+O1: 1
+O2: 21
+REVIEW: ok
+
+JUS-37
+DESC: A villager seen near the storehouse the night fish went missing will not say why: accept that, or ask them privately.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O2: "An elder takes (name1) aside" => "[e], an elder, takes (name1) aside"
+EDIT O2: "The elder nods" => "[e] nods"
+S: 11
+L1: 1
+O1: 1
+L2: 1
+O2: 1
+REVIEW: ok
+
+JUS-38
+DESC: A villager keeps arriving late for the net hauling, and someone proposes no share of the catch: an elder objects, or they explain.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT L1: "An Elder Objects" => "[e] Objects"
+EDIT O1: "An elder stands up." => "[e], an elder, stands up."
+EDIT O1: "The elder says it might be" => "[e] says it might be"
+S: 1
+O2: 11
+REVIEW: ok
+
+JUS-39
+DESC: A villager pressed a neighbor into trading their good spear, and now the neighbor wants it back: ask the elders, or talk it over.
+ROLES: name1=18+ name2=18+
+S: 22
+O1: 212
+O2: 1
+REVIEW: ok
+
+JUS-40
+DESC: A villager has broken the dry season water rule to save their beans: bring it to the council, or talk to them quietly.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1111
+O2: 121
+REVIEW: ok
+
+JUS-41
+DESC: A hungry visitor from another village was found eating in the storehouse at night: hear the visitor out, or ask the night watcher.
+ROLES: name1=18+ name2=18+
+L2: 2
+REVIEW: ok
+
+JUS-42
+DESC: The village votes tonight on whether wandering pigs must be tied up: count the hands, or find a middle way.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "One elder hasn't voted." => "One elder, [e], hasn't voted."
+EDIT O1: "The elder thinks it over." => "[e] thinks it over."
+EDIT O1: "sniffs the elder's foot" => "sniffs [e]'s foot"
+EDIT O1: "says the elder" => "says [e]"
+REVIEW: ok
+
+JUS-43
+DESC: A villager who lost the night fire job asks the council for it back: give them a trial, or say not yet.
+ROLES: name1=18+ name2=18+
+S: 1
+L1: 1
+O1: 21
+O2: 221
+REVIEW: ok
+
+JUS-44
+DESC: A child is hopping fast past the drying racks to get round the no running rule: ask if hopping is running, or add it to the rule.
+ROLES: name1=6-12 name2=18+
+S: 2
+O1: 1
+O2: 1
+REVIEW: ok
+
+JUS-45
+DESC: Sandals have been vanishing, and a pile turns up under a villager's young dog: ask them to make it right, or return them together.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+ v=neighbor:18+
+EDIT O1: "brings it to an elder, who says" => "brings it to [e], an elder, who says"
+EDIT O2: "One villager is cross" => "One villager, [v], is cross"
+EDIT O2: "makes that villager a new strap" => "makes [v] a new strap"
+O2: 1
+REVIEW: ok
+
+JUS-46
+DESC: A villager mocked a neighbor's singing at the fire, and the neighbor asks the council for help: hear both, or suggest they talk.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "But one elder adds" => "But one elder, [e], adds"
+O1: 12
+O2: 122
+REVIEW: ok
+
+JUS-47
+DESC: The eldest council member seems to fall asleep during a long dispute: carry on talking, or wake them gently.
+ROLES: name1=55+ name2=18+
+FIG: n=neighbor:18+
+EDIT S: "(name2) and a neighbor have brought" => "(name2) and [n], a neighbor, have brought"
+EDIT S: "The neighbor has stopped talking" => "[n] has stopped talking"
+O1: 1
+L2: 1
+REVIEW: ok
+
+JUS-48
+DESC: After the feast a taro fight broke out, and two teens each blame the other: everyone who threw cleans up, or find who started it.
+ROLES: name1=14-17 name2=14-17
+FIG: e=elder:55+ c=child:3-8
+EDIT O1: "until an elder coughs" => "until [e], an elder, coughs"
+EDIT O2: "thrown by a small child, who" => "thrown by [c], a small child, who"
+REVIEW: ok
+
+JUS-49
+DESC: A villager's fish traps block the whole stream, and a fisher downstream catches nothing: ask the elders, or talk at the stream.
+ROLES: name1=18+ name2=18+
+S: 1
+O2: 112
+REVIEW: ok
+
+JUS-50
+DESC: The village's oldest bone fishhook has vanished from the meeting post: keep searching, or let it stay a mystery.
+ROLES: name1=18+ name2=18+
+O1: 1
+REVIEW: ok

@@ -1,0 +1,175 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Late Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam15_late_apology",
+  "source": "anthology",
+  "lines": [
+   28510,
+   28523
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28510",
+  "ledger": [
+   {
+    "src": "L28511",
+    "kind": "sensitivity",
+    "before": "Two siblings have",
+    "after": "(sibling1) and (sibling2), two siblings, have",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two siblings have avoided each other for days after a quarrel.",
+  "label_case": "title",
+  "cast_only": [
+   "sibling1",
+   "sibling2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "sibling1": {
+   "kind": "villager",
+   "min_age": 3
+  },
+  "sibling2": {
+   "kind": "villager",
+   "min_age": 3,
+   "relation": {
+    "sibling_of": "sibling1"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(sibling1) and (sibling2), two siblings, have avoided each other for days after a quarrel.",
+   "src": "L28511",
+   "choices": [
+    {
+     "label": "Invite a Conversation Without Pressure",
+     "next": "a",
+     "src": "L28512"
+    },
+    {
+     "label": "Write a Short Apology",
+     "next": "b",
+     "src": "L28515"
+    },
+    {
+     "label": "Share a Familiar Activity",
+     "next": "c",
+     "src": "L28518"
+    },
+    {
+     "label": "Allow More Time",
+     "next": "d",
+     "src": "L28521"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Both siblings admit they missed talking.",
+   "src": "L28513"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One sibling is ready to speak while the other is not.",
+   "src": "L28514"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The note opens a gentle conversation.",
+   "src": "L28516"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The sibling appreciates the note but does not respond immediately.",
+   "src": "L28517"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A shared game eases the tension.",
+   "src": "L28519"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The activity feels strained, and they stop without blame.",
+   "src": "L28520"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They reconnect naturally a few days later.",
+   "src": "L28522"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The delay reveals that the argument hurt more deeply than expected.",
+   "src": "L28523"
+  }
+ }
+}

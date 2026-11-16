@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Glowing Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il109_glowing_sea",
+  "source": "da_il06",
+  "lines": [
+   104,
+   107
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Walking on the shore late at night, a villager finds that the water lights up with soft blue sparks.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "Walking along the shore late at night, (name1) kicks at the edge of a wave, and the water lights up. Little blue sparks scatter around (his/her) foot, then fade. (He/She) kicks again. More sparks. (He/She) wades in to (his/her) knees and swishes (his/her) hands through the water, and every movement leaves a trail of soft blue light, like stars poured into the sea. (name1) doesn't know what it is. Tiny living things? Magic? Something else entirely? (He/She) stands there for a long time, drawing shapes of light in the water, and doesn't try to work it out.",
+   "src": "L107"
+  }
+ }
+}

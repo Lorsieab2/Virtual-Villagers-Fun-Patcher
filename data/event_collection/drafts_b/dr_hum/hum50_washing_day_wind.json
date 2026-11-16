@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Washing Day Wind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum50_washing_day_wind",
+  "source": "draft_hum",
+  "lines": [
+   596,
+   605
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L602",
+    "kind": "sensitivity",
+    "before": "The fisher paddles in",
+    "after": "(fisher), the fisher, paddles in",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L602",
+    "kind": "sensitivity",
+    "before": "It isn't the fisher's tunic",
+    "after": "It isn't (fisher)'s tunic",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L602",
+    "kind": "sensitivity",
+    "before": "The fisher keeps it on",
+    "after": "(fisher) keeps it on",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A sudden gust carries off the whole village's washing: lead the chase, or rescue your own and go home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The whole village has hung its washing out on lines between the trees when a sudden gust lifts every piece at once and carries it away: tunics, cloths, blankets, all tumbling down the path toward the beach, with half the village running after them, arms outstretched.",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "Lead the Chase",
+     "next": "o1",
+     "src": "L601"
+    },
+    {
+     "label": "Rescue Your Own and Go Home",
+     "next": "o2",
+     "src": "L604"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) leads the charge. Cloths are rescued from bushes, from the stream, from the back of a startled pig. The very last tunic sails out over the water and lands on a canoe coming home from fishing. (fisher), the fisher, paddles in wearing it, and steps ashore to great applause. It isn't (fisher)'s tunic. (fisher) keeps it on anyway.",
+   "src": "L602"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gathers up (subject.his/her) own things and goes home. At dinner, (subject.he/she) notices that everybody seems to be wearing slightly different clothes from this morning. Hardly anybody got their own things back. Nobody seems to mind very much. (subject)'s favorite blanket turns up a week later, three huts away, being used as a very nice tablecloth.",
+   "src": "L605"
+  }
+ }
+}

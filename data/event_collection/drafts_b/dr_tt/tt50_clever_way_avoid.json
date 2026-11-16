@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Very Clever Way to Avoid a Short Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt50_clever_way_avoid",
+  "source": "draft_tt",
+  "lines": [
+   596,
+   605
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager spends three days building a bamboo channel to skip a short walk: open the channel, or explain it to a friend.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It is a short walk from (subject)'s hut to the stream. (subject) has decided that it is a short walk too far. So (subject.he/she) has spent three whole days building a long channel of split bamboo, propped up on sticks, all the way from the stream to (subject.his/her) door, so that the water will come to (subject.him/her). It is a remarkable piece of work. It has taken, so far, a great deal longer than the walk.",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "Open the Channel",
+     "next": "o1",
+     "src": "L601"
+    },
+    {
+     "label": "Explain It to (friend)",
+     "next": "o2",
+     "src": "L604"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) unblocks the top end. Water rushes all the way down the bamboo, past the water jar, through the doorway and straight into (subject.his/her) hut. (subject) stands in a puddle, delighted that it works, and then, while the floor dries, picks up the jar and walks to the stream after all.",
+   "src": "L602"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) stops to admire it and asks how long it took. \"Three days.\" \"To save a short walk?\" (subject) does the sum, very slowly. \"...It'll have paid for itself by about... next year.\" The channel works perfectly. (subject) uses it every day, and refuses to do any more sums about it.",
+   "src": "L605"
+  }
+ }
+}

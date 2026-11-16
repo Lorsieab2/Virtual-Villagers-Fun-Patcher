@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everybody's Favorite Stew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm02_everybody",
+  "source": "draft_drm",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L29",
+    "kind": "sensitivity",
+    "before": "One child declares it",
+    "after": "(child), a child, declares it",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager dreams of a stew everyone loves and offers a friend a taste: ask for an honest opinion, or serve it at the fire.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s great ambition is to invent a stew that every single person in the village loves. Not likes. Loves. (subject.He/she) has been experimenting for weeks. Today's pot contains fish, three roots, a sour fruit, a sweet fruit, and a pinch of something (subject.he/she) found growing behind the storehouse. (subject.He/she) holds out a spoonful to (friend).",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Ask for an Honest Opinion",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Serve It at the Fire Tonight",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tastes it and thinks hard. \"The fish is lovely. The sour fruit is fighting the sweet fruit. And I'm not sure about the thing from behind the storehouse.\" (subject) nods seriously and makes notes. (subject.He/she) is nowhere near a stew everybody loves. (subject.He/she) is, (subject.he/she) decides, a little bit nearer.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) serves it to everyone. Some people love it. Some people politely eat around the sour fruit. (child), a child, declares it the worst thing (child.he/she) has ever tasted and asks for more. (subject) can't work out whether that counts. (subject.He/she) suspects that a stew everyone loves may not exist, and keeps trying anyway.",
+   "src": "L29"
+  }
+ }
+}

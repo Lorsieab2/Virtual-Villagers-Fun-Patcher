@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Moving Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam233_moving_out",
+  "source": "draft_fam2",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult and an adult parent (where the game records it)"
+   }
+  ],
+  "description": "A parent helping a young villager build their own hut keeps finding one more rope to tie: notice, or let them keep helping.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 35,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is building (subject.his/her) own hut. (subject.He/she) is excited and nervous. (friend), (friend.his/her) parent, is helping, and is very cheerful, and very helpful, and keeps finding reasons to tie one more rope or check one more pole, long after everything is done.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Notice",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Let (friend.him/her) Keep Helping",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"You're stalling,\" says (subject) gently. (friend) stops. (friend.His/her) hands are still on the rope. \"Maybe a little,\" (friend.he/she) admits. \"I'll miss you.\" \"I'll be right over there,\" says (subject). \"I can see your hut from mine.\" \"I know,\" says (friend). \"I'll still miss you.\" (subject) hugs (friend.him/her), hard. They tie one more rope, together, and then go and have dinner in the new hut.",
+   "src": "L398"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) tie the extra ropes. It's the strongest hut on Isola by the end. Then (friend) goes home, and (subject) spends the first night alone in (subject.his/her) new hut, listening to the strange new quiet. In the morning, (friend) brings breakfast \"just this once.\" It happens every morning for a month. Neither of them minds.",
+   "src": "L401"
+  }
+ }
+}

@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast of Small Portions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his11_feast_portions",
+  "source": "draft_his",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-13)"
+   }
+  ],
+  "description": "A child suffers through the plain boiled root eaten before the harvest feast: explain why, or let them grumble.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once a year, at the start of the big harvest feast, everyone eats one very small portion of plain, boiled root with no salt. Only after that does the real feast begin. (friend) thinks this is the worst tradition on Isola. (friend.He/she) is sitting with (friend.his/her) tiny bowl of plain root, looking at the mountains of food beyond it with real suffering.",
+   "src": "L131",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L131"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Explain Why",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Let (friend.him/her) Grumble",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"There was a year, long ago,\" says (subject), \"when the harvest failed and the storms came, and plain root was all anybody had. For a long time. So now, before we feast, we remember what it was like to have almost nothing, and the people who got through it.\" (friend) eats (friend.his/her) plain root slowly. Then the feast begins, and (friend.he/she) eats more than anybody, with great gratitude and great speed.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) complain all the way through the plain root. \"It's horrible.\" \"It is horrible.\" \"Why do we have to?\" \"Because the old people did.\" It isn't much of an answer. But when the drums start and the real food comes out, (friend) whoops with joy, and (subject) thinks maybe the plain root does its job without anyone needing to explain it.",
+   "src": "L137",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L137"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Bridge Over the Stream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm25_bridge_over",
+  "source": "draft_drm",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L302",
+    "kind": "instruction",
+    "text": "[effect: small Building skill, only where the game has one]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager sets out to bridge the stream and drags a very heavy log to the bank: help with the log, or let them do it alone.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every time anyone crosses the stream on the way to the gardens, they get wet feet. Everyone complains. Nobody has done anything about it. (subject) has decided that (subject.he/she) will be the one who builds a little bridge, and has started dragging a log down to the bank. It's a very heavy log. (friend) watches (subject.him/her) struggle.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Help with the Log",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Let (subject.him/her) Do It Alone",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) grabs the other end. Then someone else comes. By evening there are six villagers and a rough little bridge of two logs and some lashed planks. It wobbles. Everyone uses it anyway, and the next day someone adds a handrail, and someone else adds a flower. (subject) is quietly very proud.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L302"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) wants to do it (subject.him/her)self. It takes eight days. When it's finished, it's a single log, slightly rounded on top, and crossing it requires concentration. But nobody's feet get wet. People start calling it \"(subject)'s log,\" and (subject) pretends not to like that and likes it enormously.",
+   "src": "L305"
+  }
+ }
+}

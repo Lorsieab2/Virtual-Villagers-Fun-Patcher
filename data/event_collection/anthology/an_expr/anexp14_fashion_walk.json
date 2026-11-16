@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fashion Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp14_fashion_walk",
+  "source": "anthology",
+  "lines": [
+   31456,
+   31470
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31456",
+  "ledger": [
+   {
+    "src": "L31457",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31460",
+    "kind": "sensitivity",
+    "before": "A shy man",
+    "after": "(man), a shy man,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31461",
+    "kind": "sensitivity",
+    "before": "An older woman",
+    "after": "(woman), an older woman,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31469",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31470",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Villagers of different genders organize a playful procession of clothing, hairstyles, and handmade accessories.",
+  "label_case": "title",
+  "cast_only": [
+   "man",
+   "woman",
+   "child",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "man": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "male"
+  },
+  "woman": {
+   "kind": "villager",
+   "min_age": 30,
+   "sex": "female"
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Villagers of different genders organize a playful procession of clothing, hairstyles, and handmade accessories.",
+   "src": "L31458",
+   "choices": [
+    {
+     "label": "Invite Everyone",
+     "next": "a",
+     "src": "L31459"
+    },
+    {
+     "label": "Judge Craftsmanship",
+     "next": "b",
+     "src": "L31462"
+    },
+    {
+     "label": "Let Wearers Explain",
+     "next": "c",
+     "src": "L31465"
+    },
+    {
+     "label": "Keep It Informal",
+     "next": "d",
+     "src": "L31468"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(man), a shy man, models a bright woven sash.",
+   "src": "L31460"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(woman), an older woman, receives cheers for her practical sandals.",
+   "src": "L31461"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A patched outfit wins for ingenious repair.",
+   "src": "L31463"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A simple garment earns praise for its durable stitching.",
+   "src": "L31464"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "One outfit honors an ancestor.",
+   "src": "L31466"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another was made solely to make people laugh.",
+   "src": "L31467"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) parades in a leaf cape.",
+   "src": "L31469"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) declines to model but enjoys watching.",
+   "src": "L31470"
+  }
+ }
+}

@@ -74,6 +74,114 @@ SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
            LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES),
            HORIZON_ID: (HORIZON, HORIZON_HASH_FILE, HORIZON_LINES),
            ROLEMODELS_ID: (ROLEMODELS, ROLEMODELS_HASH_FILE, ROLEMODELS_LINES)}
+
+# The owner-approved drafts of 2026-11-15, set A: twelve files, each its own frozen source (byte for byte; SHA-256 in
+# data/event_collection/drafts_a/DA_<ID>.sha256): data/event_collection/drafts_a/<section>/<id>.json, "source" (and
+# section, and series) "da_<id>".  docs/event-collection/authoring-rules.md 15d.
+DRAFTS_A_DIR = COLLECTION_DIR / "drafts_a"
+DRAFTS_A = {   # source id -> (file name in docs/more-island-events, line count)
+    "da_il01": ("New Events - Inner Life (draft for owner).txt", 129),
+    "da_il02": ("New Events - Inner Life Part II (11-40).txt", 512),
+    "da_il03": ("New Events - Inner Life Part III (41-60, draft for owner).txt", 241),
+    "da_il04": ("New Events - Inner Life Part IV (61-80, draft for owner).txt", 248),
+    "da_il05": ("New Events - Inner Life Part V (81-100, draft for owner).txt", 244),
+    "da_il06": ("New Events - Inner Life Part VI (101-120, draft for owner).txt", 244),
+    "da_il07": ("New Events - Inner Life Part VII (121-140, draft for owner).txt", 255),
+    "da_il08": ("New Events - Inner Life Part VIII (141-160, draft for owner).txt", 244),
+    "da_il09": ("New Events - Inner Life Part IX (161-180, draft for owner).txt", 250),
+    "da_il10": ("New Events - Inner Life Part X (181-200, draft for owner).txt", 240),
+    "da_wd": ("New Events - What's That Doing Here (draft for owner).txt", 606),
+    "da_lo": ("New Events - Luck, Omens and Lavastones (draft for owner).txt", 632),
+}
+for _sid, (_name, _count) in DRAFTS_A.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name,
+                     DRAFTS_A_DIR / f"DA_{_sid[3:].upper()}.sha256", _count)
+
+# The owner-approved draft event files, group B (2026-11-15: "the drafts are ok as long as they stick to our rules"),
+# each its own frozen source (byte for byte, SHA-256 in data/event_collection/<ID>.sha256):
+# data/event_collection/drafts_b/<section>/<id>.json, built by scripts/drafts_b/gen_drafts_b.py.
+DRAFTS_B_DIR = COLLECTION_DIR / "drafts_b"
+DRAFTS_B = {   # source id: (topic, line count, section, event prefix)
+    "draft_hum": ("Humor and Absurdity", 619, "dr_hum", "HUM"),
+    "draft_tt": ("Tall Tales and Self-Interest", 618, "dr_tt", "TT"),
+    "draft_hon": ("Honesty and Accountability", 619, "dr_hon", "HON"),
+    "draft_jus": ("Justice and Consequences", 621, "dr_jus", "JUS"),
+    "draft_dep": ("Departures and Exile", 611, "dr_dep", "DEP"),
+    "draft_drm": ("Dreams and Ambitions", 611, "dr_drm", "DRM"),
+    "draft_fea": ("Fears and Doubts", 611, "dr_fea", "FEA"),
+    "draft_day": ("Good, Bad and Ordinary Days", 611, "dr_day", "DAY"),
+}
+for _sid, (_topic, _n, _sec, _pre) in DRAFTS_B.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
+                     COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+
+# The owner-approved draft event files, group C (2026-11-15), wired as group B:
+# data/event_collection/drafts_c/<section>/<id>.json, built by scripts/drafts_c/gen_drafts_c.py.
+DRAFTS_C_DIR = COLLECTION_DIR / "drafts_c"
+DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
+    "draft_hea": ("Healing, Psychology and Medicine", 614, "dr_hea", "HEA"),
+    "draft_adv": ("Advice and Decisions", 597, "dr_adv", "ADV"),
+    "draft_fam2": ("Relationships, Singlehood and Family", 606, "dr_fam2", "FAM2"),
+    "draft_blf": ("Belief and Identity", 605, "dr_blf", "BLF"),
+    "draft_nat": ("Nature, Ecology and Animals", 606, "dr_nat", "NAT"),
+    "draft_div": ("Disability and Diversity", 612, "dr_div", "DIV"),
+    "draft_his": ("History and Collective Memory", 614, "dr_his", "HIS"),
+    "draft_lif": ("Pondering How Life Has Gone", 596, "dr_lif", "LIF"),
+}
+for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
+                     COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+
+# The owner-approved files, group D (2026-11-15), each its own frozen source (byte for byte, SHA-256 in
+# data/event_collection/<ID>.sha256): data/event_collection/drafts_d/<section>/<id>.json, built by
+# scripts/drafts_d/gen_drafts_d.py.  Each file is one series (its section).  The Completed Open Questions file gives the
+# 35 armor moments M01-M35 (its Question 4); its owner titles T001-T125 for the 500 moments are rows of
+# docs/event-collection/owner-title-changes.md; its other lines are notes.
+DRAFTS_D_DIR = COLLECTION_DIR / "drafts_d"
+DRAFTS_D = {   # source id: (file name, line count, section, topic shown in the Game Mechanics list and Credits)
+    "draft_rm2": ("New Events - Role Models RM-41 to RM-90 (draft for owner).txt", 772, "dr_rm2",
+                  "Role Models and Good Examples, RM-41 to RM-90"),
+    "draft_hz2": ("New Events - Beyond the Horizon 081 to 130 (draft for owner).txt", 631, "dr_hz3",
+                  "Beyond the Horizon, Events 081 to 130"),
+    "moments500": ("Isola_500_Tiny_Island_Moments.txt", 2107, "dr_tim", "Tiny Island Moments, T001 to T125"),
+    "draft_tim2": ("New Events - Tiny Island Moments T126 to T175 (draft for owner).txt", 368, "dr_tim2",
+                   "Tiny Island Moments, T126 to T175"),
+    "openq97": ("Completed Open Questions - Isola Events v1.35.97.txt", 646, "dr_arm_m",
+                "Armor Flavor Moments, M01 to M35"),
+    "armor45": ("Isola_Armor_Weapons_and_Inherited_Traditions.txt", 96, "dr_armor",
+                "Armor, Weapons and Inherited Traditions"),
+    "draft_arm2": ("New Events - Armor and Heirlooms ARM-46 to ARM-95 (draft for owner).txt", 87, "dr_arm2",
+                   "Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
+    "fathers30": ("Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt", 645, "dr_fat",
+                  "Fathers, Pregnancy and Parenthood"),
+}
+for _sid, (_name, _n, _sec, _topic) in DRAFTS_D.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+
+# The owner's newest all-in-one file, "Animals of Fur, Feathers, Scales, Claws and Hooves" (2026-11-15), frozen byte for
+# byte: the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE (MOM-) in front and new volumes after it.  Only
+# its newest volumes are collection events (MOM, REL, CHILD, FAM, JOY, EVENT-HS/AGE/JUSTICE/EXPRESSION/FAUNA; the rest
+# is the Living file's, already built from LIVING): data/event_collection/anthology/<section>/<id>.json,
+# "source": "anthology", built by scripts/anthology_new/gen_anthology.py.
+ANTHOLOGY = ROOT / "docs" / "more-island-events" / \
+    "Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt"
+ANTHOLOGY_HASH_FILE = COLLECTION_DIR / "ANTHOLOGY.sha256"
+ANTHOLOGY_LINES = 32851
+ANTHOLOGY_ID = "anthology"
+ANTHOLOGY_DIR = COLLECTION_DIR / "anthology"
+ANTHOLOGY_SECTIONS = {   # section: the volume's name (one series each)
+    "an_mom": "Living Moments",
+    "an_rel": "Love by Choice, Coming Out, Names and Presentation",
+    "an_child": "Childhood Curiosity, Puppy Love and Questions",
+    "an_fam": "Family Friction, Everyday Boundaries, Separation and Reconciliation",
+    "an_joy": "Celebrations, Leisure, Remembrance and Body Art",
+    "an_hs": "The Human Spectrum, Island Comforts, Authority, Injury and Belonging",
+    "an_age": "Every Age in the Limelight",
+    "an_jus": "Justice, Bullying, Consequences, Trauma, Recovery and Defense",
+    "an_expr": "Self-Expression, Art, Sport, Ecology, Governance and Belief",
+    "an_fauna": "Animals of Fur, Feathers, Scales, Claws and Hooves",
+}
+SOURCES[ANTHOLOGY_ID] = (ANTHOLOGY, ANTHOLOGY_HASH_FILE, ANTHOLOGY_LINES)
 _ACTIVE = [SOURCE_ID]
 
 
@@ -265,11 +373,13 @@ def strip_structural(text: str) -> str:
 
 # ---- Title-case choice labels (the owner, 2026-11-15: titles and choice options are always title case) -------------
 #
-# A file whose collection.label_case is "title" shows each choice label in title case: every word's first letter a
-# capital (each part of a hyphenated word too), except these small words when neither first nor last; a word that
-# already has capitals keeps them.  Used by the 2026-11-15 sources (Beyond the Horizon, Role Models); the older
-# sources switch after the merge.  The fidelity check compares such a label with the source words case-blind and
-# then requires exactly this form of them.
+# Every new event's choice labels are shown in title case: every word's first letter a capital (each part of a
+# hyphenated word too), except these small words when neither first nor last; a word that already has capitals keeps
+# them.  A file whose collection.label_case is "title" (the 2026-11-15 sources: Beyond the Horizon, Role Models and
+# later) is written that way, and the fidelity check compares such a label with the source words case-blind and then
+# requires exactly this form of them.  Every other source keeps the owner's words as written in its file, and
+# title_case_graph_labels -- the one switch, applied as each event is compiled (collection_check.graph_for_engine,
+# the Living mixer's variants) -- shows them in title case.  Stock events are never touched.
 
 LABEL_SMALL_WORDS = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or",
                      "the", "to", "with"}
@@ -286,6 +396,80 @@ def title_case_label(text: str) -> str:
             continue
         out.append("-".join(p[:1].upper() + p[1:] for p in w.split("-")))
     return " ".join(out)
+
+
+def _title_case_inner(text: str, first: bool) -> str:
+    """Words that sit inside a label (a game word's text): first-word rules only when they open the label."""
+    return title_case_label(text) if first else title_case_label("x " + text)[2:]
+
+
+def title_case_graph_label(label: str, graph: dict) -> str:
+    """One choice label of an engine graph in title case (title_case_label), its tokens kept working: a label all in
+    capitals is lowered first; a pronoun placeholder takes its capital form ((x.he/she) -> (x.He/She)), a name in
+    capitals too ((NAME1) -> (Name1)); a game word {@w} whose words change takes a word of its own, w_tc (w_tc1 when
+    it opens the label), added to the graph's words; pools, picks and escapes are kept as they are."""
+    import vv_cie_graph as cie   # src/ (on the path wherever a graph is compiled)
+    parts: list[tuple[str, str]] = []
+    pos = 0
+    for m in cie._TOKEN_V6.finditer(label):
+        if m.start() > pos:
+            parts.append(("lit", label[pos:m.start()]))
+        parts.append(("tok", m.group(0)))
+        pos = m.end()
+    if pos < len(label):
+        parts.append(("lit", label[pos:]))
+    lits = "".join(t for k, t in parts if k == "lit")
+    capitals = sum(c.isalpha() for c in lits) >= 2 and not any(c.islower() for c in lits)
+    if capitals:
+        parts = [(k, t.lower() if k == "lit" else t) for k, t in parts]
+    toks = [t for k, t in parts if k == "tok"]
+    # A token stands in the words as a mark and a letter, so a label's first or last word may be a token.
+    masked = "".join(t if k == "lit" else chr(0xE000 + toks.index(t)) + "Q" for k, t in parts)
+    cased = title_case_label(masked)
+    roles = graph.get("roles") or {}
+    words = graph.get("words") or {}
+    out = []
+    i = 0
+    while i < len(cased):
+        ch = cased[i]
+        if not 0xE000 <= ord(ch) < 0xE000 + len(toks):
+            out.append(ch)
+            i += 1
+            continue
+        tok = toks[ord(ch) - 0xE000]
+        i += 2                                  # the mark and its letter
+        first = not re.search(r"[A-Za-z]", "".join(out))
+        if tok.startswith("(") and tok.endswith(")"):
+            p = cie.parse_placeholder_v6(tok[1:-1], roles)
+            role, dot, word = tok[1:-1].rpartition(".")
+            new = None
+            if p is not None and p.what == "name" and p.upper:
+                new = "(" + word.lower().capitalize() + ")"                       # (NAME1) -> (Name1)
+            elif p is not None and p.what not in ("name", "award", "award_unit") and (p.upper or not p.capital):
+                new = "(" + (p.role + dot if dot else "") + "/".join(a[:1].upper() + a[1:].lower()
+                                                                    for a in word.split("/")) + ")"
+            if new is not None:
+                q = cie.parse_placeholder_v6(new[1:-1], roles)
+                if q is not None and q.what == p.what and q.role == p.role and q.capital and not q.upper:
+                    tok = new
+        elif tok.startswith("{@") and tok[2:-1] in words:
+            key = tok[2:-1]
+            new = {g: _title_case_inner(v, first) if isinstance(v, str) else v for g, v in words[key].items()}
+            if new != words[key]:
+                key2 = key + ("_tc1" if first else "_tc")
+                graph.setdefault("words", words)[key2] = new
+                tok = "{@" + key2 + "}"
+        out.append(tok)
+    return "".join(out)
+
+
+def title_case_graph_labels(graph: dict) -> dict:
+    """Every choice label of an engine graph in title case (title_case_graph_label); the graph, changed in place."""
+    for node in (graph.get("nodes") or {}).values():
+        for ch in node.get("choices") or []:
+            if isinstance(ch, dict) and isinstance(ch.get("label"), str):
+                ch["label"] = title_case_graph_label(ch["label"], graph)
+    return graph
 
 
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'\-]*[A-Za-z]|[A-Za-z]")

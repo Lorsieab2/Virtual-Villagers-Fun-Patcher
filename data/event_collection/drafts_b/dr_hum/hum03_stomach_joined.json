@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stomach That Joined the Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum03_stomach_joined",
+  "source": "draft_hum",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L35",
+    "kind": "sensitivity",
+    "before": "An elder is telling a spooky story",
+    "after": "(elder), an elder, is telling a spooky story",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L35",
+    "kind": "sensitivity",
+    "before": "Just as the elder whispers",
+    "after": "Just as (elder) whispers",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L38",
+    "kind": "sensitivity",
+    "before": "The elder doesn't miss a beat",
+    "after": "(elder) doesn't miss a beat",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L41",
+    "kind": "sensitivity",
+    "before": "The elder gives up and says",
+    "after": "(elder) gives up and says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's stomach growls at the scariest moment of an elder's story: own it, or clutch it and hope.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), an elder, is telling a spooky story by the fire. Everyone is leaning in. Just as (elder) whispers, \"And then, out of the dark, there came a sound...\", (subject)'s stomach lets out a long, low, rumbling growl, timed to perfection. Every head turns toward (subject.him/her).",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Own It",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Clutch It and Hope",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That,\" says (subject) gravely, \"was the sound.\" (elder) doesn't miss a beat. \"Yes. Exactly like that.\" From then on, whenever the story pauses, the whole circle waits to see if (subject)'s stomach has anything to add. It does, twice. It's the best-received story of the season, and afterward somebody brings (subject) a bowl of food, \"for the performer.\"",
+   "src": "L38",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L38"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) presses both hands over (subject.his/her) stomach and stares hard into the fire. The stomach growls again, this time in two parts, like a question and an answer. The children lose all control. (elder) gives up and says, \"We'll finish tomorrow, after (subject) has eaten something.\" (subject) eats twice that evening, just to be safe.",
+   "src": "L41"
+  }
+ }
+}

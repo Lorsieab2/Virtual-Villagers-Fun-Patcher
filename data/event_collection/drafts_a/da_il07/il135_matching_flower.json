@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Matching Flower",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il135_matching_flower",
+  "source": "da_il07",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager with a red flower behind one ear meets a friend wearing exactly the same flower.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has picked a lovely red flower and tucked it behind (subject.his/her) ear. (subject.He/She) feels rather splendid. Then (friend) walks round the corner with exactly the same red flower behind exactly the same ear.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Pretend It Was Planned",
+     "next": "a",
+     "src": "L181"
+    },
+    {
+     "label": "Swap Ears",
+     "next": "b",
+     "src": "L184"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"We match!\" says (subject), before (friend) can say anything. \"We planned it, obviously.\" (friend) catches on immediately. \"Obviously.\" They walk around together all day like that, and by evening three other villagers have red flowers behind their ears too.",
+   "src": "L182"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) quickly moves (subject.his/her) flower to the other ear. (friend), at exactly the same moment, moves (friend.his/her) flower. They match again. They stare at each other. Then they both burst out laughing, and decide that some things are just meant to be.",
+   "src": "L185"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L185",
+   "before": "moves (his/hers)",
+   "after": "moves (his/her) flower"
+  }
+ ]
+}

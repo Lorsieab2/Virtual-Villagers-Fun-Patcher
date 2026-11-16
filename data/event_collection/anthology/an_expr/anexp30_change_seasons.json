@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Change in Seasons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp30_change_seasons",
+  "source": "anthology",
+  "lines": [
+   31712,
+   31726
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31712",
+  "ledger": [
+   {
+    "src": "L31713",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31725",
+    "kind": "sensitivity",
+    "before": "A science-minded villager",
+    "after": "(villager), a science-minded villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Several years of unusual heat and shifting rains raise questions about changing island conditions.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several years of unusual heat and shifting rains raise questions about changing island conditions.",
+   "src": "L31714",
+   "choices": [
+    {
+     "label": "Record Observations",
+     "next": "a",
+     "src": "L31715"
+    },
+    {
+     "label": "Adapt Daily Work",
+     "next": "b",
+     "src": "L31718"
+    },
+    {
+     "label": "Protect Ecosystems",
+     "next": "c",
+     "src": "L31721"
+    },
+    {
+     "label": "Discuss Causes Carefully",
+     "next": "d",
+     "src": "L31724"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Villagers begin a useful seasonal log.",
+   "src": "L31716"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The records reveal natural variation and unanswered questions.",
+   "src": "L31717"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Shade and rest periods protect workers.",
+   "src": "L31719"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A new planting schedule requires trial and error.",
+   "src": "L31720"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The tribe restores vegetation near eroding ground.",
+   "src": "L31722"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A proposed project is delayed to spare a fragile habitat.",
+   "src": "L31723"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager), a science-minded villager, distinguishes weather from long-term trends.",
+   "src": "L31725"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Others ask what evidence would change their minds.",
+   "src": "L31726"
+  }
+ }
+}

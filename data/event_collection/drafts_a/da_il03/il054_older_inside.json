@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Little Older Inside",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il054_older_inside",
+  "source": "da_il03",
+  "lines": [
+   158,
+   167
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L158",
+  "ledger": [
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child who has decided to feel about forty starts sitting with the elders and nodding wisely.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has decided that (subject.he/she) feels much older than (subject.his/her) age. Probably about forty. (subject.He/She) has taken to sitting on a log with the elders, nodding wisely, and saying things like \"In my day...\" (friend), an actual elder, is enjoying this enormously.",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Ask About (subject.his/her) Day",
+     "next": "a",
+     "src": "L163"
+    },
+    {
+     "label": "Let (subject.him/her) Be an Elder for the Afternoon",
+     "next": "b",
+     "src": "L166"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Tell me about your day, then,\" says (friend). (subject) thinks hard. \"In my day... we had to walk ALL the way to the beach. Both ways.\" (friend) laughs so hard (friend.he/she) has to wipe (friend.his/her) eyes. (subject) isn't sure what was funny, but stays on the log anyway.",
+   "src": "L164"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The elders make room. (subject) listens to them talk about weather and fish and their knees, and tries very hard to look interested. By dinnertime (subject.he/she) has decided that forty is quite boring, and ten is better. (subject.He/She) goes off to climb a tree.",
+   "src": "L167"
+  }
+ }
+}

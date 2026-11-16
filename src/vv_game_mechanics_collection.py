@@ -51,6 +51,50 @@ SECTIONS = (
     ("hz_world", "Beyond the Horizon: The World We Imagine"),
     ("hz_vol2", "Beyond the Horizon: The Constructs, the Cities, and the Common Fire"),
     ("rm", "Role Models and Good Examples"),
+    # The owner-approved drafts, set A (data/event_collection/drafts_a/<section>/)
+    ("da_il01", "Inner Life"), ("da_il02", "Inner Life, Part II"), ("da_il03", "Inner Life, Part III"),
+    ("da_il04", "Inner Life, Part IV"), ("da_il05", "Inner Life, Part V"), ("da_il06", "Inner Life, Part VI"),
+    ("da_il07", "Inner Life, Part VII"), ("da_il08", "Inner Life, Part VIII"), ("da_il09", "Inner Life, Part IX"),
+    ("da_il10", "Inner Life, Part X"), ("da_wd", "What's That Doing Here?"),
+    ("da_lo", "Luck, Omens and Lavastones"),
+    # The owner-approved draft event files, group B (data/event_collection/drafts_b/<section>/)
+    ("dr_hum", "New Events: Humor and Absurdity"),
+    ("dr_tt", "New Events: Tall Tales and Self-Interest"),
+    ("dr_hon", "New Events: Honesty and Accountability"),
+    ("dr_jus", "New Events: Justice and Consequences"),
+    ("dr_dep", "New Events: Departures and Exile"),
+    ("dr_drm", "New Events: Dreams and Ambitions"),
+    ("dr_fea", "New Events: Fears and Doubts"),
+    ("dr_day", "New Events: Good, Bad and Ordinary Days"),
+    # The owner-approved draft event files, group C (data/event_collection/drafts_c/<section>/)
+    ("dr_hea", "New Events: Healing, Psychology and Medicine"),
+    ("dr_adv", "New Events: Advice and Decisions"),
+    ("dr_fam2", "New Events: Relationships, Singlehood and Family"),
+    ("dr_blf", "New Events: Belief and Identity"),
+    ("dr_nat", "New Events: Nature, Ecology and Animals"),
+    ("dr_div", "New Events: Disability and Diversity"),
+    ("dr_his", "New Events: History and Collective Memory"),
+    ("dr_lif", "New Events: Pondering How Life Has Gone"),
+    # The owner-approved files, group D (data/event_collection/drafts_d/<section>/)
+    ("dr_rm2", "New Events: Role Models and Good Examples, RM-41 to RM-90"),
+    ("dr_hz3", "New Events: Beyond the Horizon, Events 081 to 130"),
+    ("dr_tim", "New Events: Tiny Island Moments, T001 to T125"),
+    ("dr_tim2", "New Events: Tiny Island Moments, T126 to T175"),
+    ("dr_arm_m", "New Events: Armor Flavor Moments, M01 to M35"),
+    ("dr_armor", "New Events: Armor, Weapons and Inherited Traditions"),
+    ("dr_arm2", "New Events: Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
+    ("dr_fat", "New Events: Fathers, Pregnancy and Parenthood"),
+    # The owner's all-in-one Animals anthology, its newest volumes (data/event_collection/anthology/<section>/)
+    ("an_mom", "Anthology: Living Moments"),
+    ("an_rel", "Anthology: Love by Choice, Coming Out, Names and Presentation"),
+    ("an_child", "Anthology: Childhood Curiosity, Puppy Love and Questions"),
+    ("an_fam", "Anthology: Family Friction, Everyday Boundaries, Separation and Reconciliation"),
+    ("an_joy", "Anthology: Celebrations, Leisure, Remembrance and Body Art"),
+    ("an_hs", "Anthology: The Human Spectrum, Island Comforts, Authority, Injury and Belonging"),
+    ("an_age", "Anthology: Every Age in the Limelight"),
+    ("an_jus", "Anthology: Justice, Bullying, Consequences, Trauma, Recovery and Defense"),
+    ("an_expr", "Anthology: Self-Expression, Art, Sport, Ecology, Governance and Belief"),
+    ("an_fauna", "Anthology: Animals of Fur, Feathers, Scales, Claws and Hooves"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -106,7 +150,12 @@ def build_index(living_seeds=()) -> dict:
     base = ROOT / "data" / "event_collection"
     for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
                          + list((base / "living").glob("*/*.json")) + list((base / "horizon").glob("*/*.json"))
-                         + list((base / "rolemodels").glob("*/*.json"))):
+                         + list((base / "rolemodels").glob("*/*.json"))
+                         + list((base / "drafts_a").glob("*/*.json"))
+                         + list((base / "drafts_b").glob("*/*.json"))
+                         + list((base / "drafts_c").glob("*/*.json"))
+                         + list((base / "drafts_d").glob("*/*.json"))
+                         + list((base / "anthology").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

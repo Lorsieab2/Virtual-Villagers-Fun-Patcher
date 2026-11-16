@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Seal Doing in the Stream?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd02_what_seal_doing",
+  "source": "da_wd",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A seal has come up the stream for a nap in the best water-filling spot: wait for it, or fill up elsewhere.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) goes down to the stream to fill (his/her) water jar and finds the stream already occupied. A large, sleek, grey animal is lying across the shallows like a log, fast asleep, whiskers twitching. It has come all the way up from the sea, apparently for a nap, and it is using the best water-filling spot in the village as a bed.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Wait for It to Wake Up",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Fill the Jar Somewhere Else",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) sits on the bank. The seal snores. A small crowd gathers. The seal snores on. Eventually it opens one eye, looks at all the villagers staring at it, sighs a long, deep, put-upon sigh, and flops its way back down the stream to the sea, as if to say that some people can't let anyone rest. Everyone fills their jars at once.",
+   "src": "L26"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) tiptoes upstream and fills (his/her) jar at a different spot. When (he/she) comes back an hour later, the seal has gone, leaving a large seal-shaped dent in the mud. (name1) shows it to the children. By the evening the story has grown, and the seal was apparently as big as a canoe and could talk.",
+   "src": "L29"
+  }
+ }
+}

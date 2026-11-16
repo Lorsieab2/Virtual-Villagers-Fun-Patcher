@@ -139,6 +139,8 @@ FILES = [
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
     "assets/children_play/VVFP Children Play.dll",
+    # Change Sex and Gender Presentation (all five games): the other sex's look, keeping the recorded sex.
+    "assets/gender_presentation/VVFP Gender Presentation.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -329,6 +331,11 @@ FILES = [
     "data/vv3_children_play_feature.json",
     "data/vv4_children_play_feature.json",
     "data/vv5_children_play_feature.json",
+    "data/vv1_gender_presentation_feature.json",
+    "data/vv2_gender_presentation_feature.json",
+    "data/vv3_gender_presentation_feature.json",
+    "data/vv4_gender_presentation_feature.json",
+    "data/vv5_gender_presentation_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Chose",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo37_stone_chose",
+  "source": "da_lo",
+  "lines": [
+   444,
+   453
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L444",
+  "ledger": [
+   {
+    "src": "L445",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two villagers find a lavastone together, and it glows warm in only one of their hands.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) found a lavastone together, at the same moment, and they both want it. They've agreed to settle it fairly. But when (subject) picks it up, it's cold as a river stone. When (friend) picks it up, it's warm, and glows softly in (friend.his/her) hand.",
+   "src": "L447",
+   "choices": [
+    {
+     "label": "Let (friend) Have It",
+     "next": "a",
+     "src": "L449"
+    },
+    {
+     "label": "Try Again",
+     "next": "b",
+     "src": "L452"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I think it chose you,\" says (subject), and means it, though (subject.he/she) is a little disappointed. (friend) holds the stone carefully. \"We can share it,\" (friend.he/she) says. \"It can live at my hut, and you can visit.\" (subject) does visit, often. The stone is never warm in (subject.his/her) hands. (subject.He/She) decides not to take it personally.",
+   "src": "L450"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Let me try again,\" says (subject). (subject.He/She) holds it. Cold. (friend) holds it. Warm. (subject) holds it with both hands and thinks warm thoughts. Cold. They both start laughing. \"Fine,\" says (subject). \"It doesn't like me. That's alright. I don't think I'd like being carried around by me either.\"",
+   "src": "L453"
+  }
+ }
+}

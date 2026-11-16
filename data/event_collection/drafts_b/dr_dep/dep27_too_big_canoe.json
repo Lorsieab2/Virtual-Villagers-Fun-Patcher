@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Big for the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep27_too_big_canoe",
+  "source": "draft_dep",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A departing traveler gives a villager a carved post almost as tall as a hut: put it outside the hut, or ask where it looks best.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A traveler who stayed a few weeks has made (name1) a parting gift. It is a carved post, very beautiful, covered with turtles and waves, and almost as tall as a hut. The traveler is beaming. (name1) is touched. (name1) is also wondering where in the world (he/she) is going to put it.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Put It Outside the Hut",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Ask Where It Would Look Best",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) and three helpers drag it home and stand it beside the door. It is magnificent. It also blocks half the path, and every visitor has to squeeze past it sideways. Within a week the whole village is used to it. Children start leaving flowers in the turtles' mouths.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) asks the village. After a lively debate, the post goes up by the beach, where everyone can see it. Nobody remembers anymore that it was a gift to (name1). (name1) doesn't mind. (He/she) walks past it most evenings and says, very quietly, \"Good morning, turtles,\" even when it's evening.",
+   "src": "L329"
+  }
+ }
+}

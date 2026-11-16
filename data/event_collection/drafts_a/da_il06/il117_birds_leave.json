@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Birds That Leave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il117_birds_leave",
+  "source": "da_il06",
+  "lines": [
+   194,
+   203
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L194",
+  "ledger": [
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The long-winged birds leave the cliffs again, and this year a villager wonders where they go.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every year, around the same time, a certain kind of long-winged bird gathers in great noisy flocks on the cliffs, and then, one morning, they're all gone. Months later they come back. (subject) has watched it happen for years without thinking about it. This year, watching the last of them fly off over the horizon, (subject.he/she) suddenly wonders: where do they go?",
+   "src": "L197",
+   "choices": [
+    {
+     "label": "Ask (friend) What (friend.he/she) Thinks",
+     "next": "a",
+     "src": "L199"
+    },
+    {
+     "label": "Wait for Them to Come Back",
+     "next": "b",
+     "src": "L202"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) thinks they go somewhere warmer. Or colder. Or somewhere with better fish. \"Somewhere beyond the sea,\" (friend.he/she) says. \"Somewhere we've never seen.\" They watch the empty sky for a while. (subject) finds it strange and wonderful to think that the same birds that sit on Isola's cliffs have seen places nobody here ever will.",
+   "src": "L200"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) marks the day they left with a notch on (subject.his/her) doorpost. When the birds come back, months later, (subject.he/she) marks that day too. (subject.He/She) has no idea where they went or what they saw. But when the first one lands on the cliff, tired and noisy and home again, (subject) waves at it as though it's an old friend.",
+   "src": "L203"
+  }
+ }
+}

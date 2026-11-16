@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Shrimp Doing in My Tea?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd34_what_shrimp_doing",
+  "source": "da_wd",
+  "lines": [
+   398,
+   407
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L398",
+  "ledger": [
+   {
+    "src": "L399",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager sits down with a cup of tea and finds a tiny shrimp swimming around in it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) has made (him/her)self a cup of tea and sat down to enjoy it. (He/She) takes a sip, looks down, and sees a tiny, almost see-through shrimp swimming around in the cup, apparently having the time of its life. The tea isn't even hot anymore. It must have been in the water jar.",
+   "src": "L401",
+   "choices": [
+    {
+     "label": "Rescue It",
+     "next": "a",
+     "src": "L403"
+    },
+    {
+     "label": "Pretend It Didn't Happen",
+     "next": "b",
+     "src": "L406"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) carries the cup carefully down to the stream and tips the shrimp out. It shoots away into the water. (name1) walks back, looks at the empty cup, and decides that's enough tea for one day. (He/She) does, however, check the water jar for more shrimp. There are three.",
+   "src": "L404"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) looks at the shrimp. The shrimp swims in a small circle. (name1) very carefully tips the shrimp, and only the shrimp, into a little bowl of water, sets the bowl outside, and goes back to (his/her) tea. (He/She) drinks the rest of it, slowly, with (his/her) eyes shut.",
+   "src": "L407"
+  }
+ }
+}

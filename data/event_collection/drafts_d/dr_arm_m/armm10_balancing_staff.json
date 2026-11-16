@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Balancing the Staff",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm10_balancing_staff",
+  "source": "openq97",
+  "lines": [
+   543,
+   545
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L544",
+  "ledger": [
+   {
+    "src": "L543",
+    "kind": "structural",
+    "text": "[M10]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L545",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L543",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager practices balancing a long wooden staff.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1) practices balancing a long wooden staff. The staff wobbles once, then settles. (Name1) tries the movement again more slowly.",
+   "src": "L543,L545"
+  }
+ }
+}

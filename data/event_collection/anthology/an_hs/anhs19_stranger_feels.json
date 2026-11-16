@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger Who Feels Familiar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs19_stranger_feels",
+  "source": "anthology",
+  "lines": [
+   29710,
+   29723
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29710",
+  "ledger": [
+   {
+    "src": "L29713",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29720",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29722",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29722",
+    "kind": "sensitivity",
+    "before": "the visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29723",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A visitor's clothing and accent are unfamiliar, but their favorite childhood game is identical to a local one.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor's clothing and accent are unfamiliar, but their favorite childhood game is identical to a local one.",
+   "src": "L29711",
+   "choices": [
+    {
+     "label": "Play the Game Together",
+     "next": "a",
+     "src": "L29712"
+    },
+    {
+     "label": "Ask About Shared Histories",
+     "next": "b",
+     "src": "L29715"
+    },
+    {
+     "label": "Invite the Visitor to Rest",
+     "next": "c",
+     "src": "L29718"
+    },
+    {
+     "label": "Notice the Assumptions Being Made",
+     "next": "d",
+     "src": "L29721"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(visitor) teaches a delightful variation.",
+   "src": "L29713"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Both sides insist their version came first and laugh at the impossibility of proving it.",
+   "src": "L29714"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villagers compare stories without claiming a definite common origin.",
+   "src": "L29716"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A few similarities emerge alongside equally interesting differences.",
+   "src": "L29717"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A quiet conversation becomes the beginning of a friendship.",
+   "src": "L29719"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(visitor) appreciates hospitality but prefers some time alone.",
+   "src": "L29720"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) admits they expected (visitor) to dislike local customs.",
+   "src": "L29722",
+   "text_only": [
+    {
+     "what": "\"dislike\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29722"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(visitor) reminds everyone that one person cannot speak for an entire people.",
+   "src": "L29723"
+  }
+ }
+}

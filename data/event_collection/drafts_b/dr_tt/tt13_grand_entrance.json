@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grand Entrance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt13_grand_entrance",
+  "source": "draft_tt",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L158",
+    "kind": "sensitivity",
+    "before": "Then a child shouts",
+    "after": "Then (child), a child, shouts",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager waits behind a tree to sweep into the festival in a new cape: make the entrance, or give up and walk in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a new feathered cape for the festival, and wants everyone to see it. So (subject.he/she) has decided not to arrive with everyone else. (subject.He/she) will wait until the dancing has started and then sweep in. (subject.He/she) is now standing behind a tree at the edge of the festival, waiting for the perfect moment. It has been a long time.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Make the Entrance",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Give Up and Walk In",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At last (subject) sweeps in, cape flowing behind (subject.him/her), at exactly the moment the drummers stop and everyone turns toward the food. Nobody looks. Then (child), a child, shouts, \"Ooh, a CAPE!\" and the whole festival turns round. (subject) gets a round of applause, which was all (subject.he/she) wanted, and twice what (subject.he/she) expected.",
+   "src": "L158",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L158"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gets bored of waiting and simply walks in. In the crowd, nobody notices the cape at all. Then, much later, sitting quietly by the fire, (subject.he/she) hears (friend) say, \"Where did you get that cape? It's beautiful.\" It's the only compliment (subject.he/she) gets all night. It turns out to be enough.",
+   "src": "L161"
+  }
+ }
+}

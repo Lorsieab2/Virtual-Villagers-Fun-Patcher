@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Gourds Where the Beans Should Be",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon18_gourds_where",
+  "source": "draft_hon",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager planted a friend's garden row as a favor, but with gourd seeds instead of beans: tell them, or let it grow.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "While (friend) was away, (subject) planted the new row in (friend.his/her) garden as a favor, using the seeds from the basket by the door. It is now clear, from what's coming up, that the basket by the door held gourd seeds. The bean seeds are still sitting in the other basket. The row is full of gourds.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Tell (friend) Before (friend.he/she) Sees",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Let Them Grow and See",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) meets (friend) at the edge of the garden. \"I planted your row. With gourds. By mistake.\" (friend) looks at the green shoots. \"...I do like gourds.\" They plant the beans in a new row beside them. By the end of the season (friend) has more gourds than (friend.he/she) knows what to do with, and gives them to everyone.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing and hopes the gourds won't be noticed. They are noticed. Gourds are very large. When (friend) asks, (subject) explains, and (friend) laughs. \"I did wonder why my beans had got so fat.\" The gourds are excellent. The beans go in late, and come up a little smaller than usual.",
+   "src": "L221"
+  }
+ }
+}

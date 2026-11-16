@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bottle That Crossed the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz099_bottle_crossed",
+  "source": "draft_hz2",
+  "lines": [
+   234,
+   244
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L234",
+  "ledger": [],
+  "description": "A clear bottle made of a light, bendable material washes ashore, and the village wonders where it began its journey.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A clear bottle made of a light, bendable material washes ashore, and the village wonders where it began its journey.",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Imagine Its Maker.",
+     "next": "a",
+     "src": "L236"
+    },
+    {
+     "label": "Imagine Its Journey.",
+     "next": "b",
+     "src": "L239"
+    },
+    {
+     "label": "Decide What to Do with It.",
+     "next": "c",
+     "src": "L242"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A scholar imagines someone far away drinking from it, perhaps on a hot day just like this one.",
+   "src": "L237"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A skeptic says it might have drifted for years and its maker may be long gone.",
+   "src": "L238"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children trace imaginary routes across a sand map.",
+   "src": "L240"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A fisher says the currents could have carried it from anywhere, and the map gets very large.",
+   "src": "L241"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village uses it as a float for a fishing net.",
+   "src": "L243"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder says it does not belong on the beach and sets it aside with the other strange things the tide brings, labeled \"origin unknown.\"",
+   "src": "L244"
+  }
+ }
+}

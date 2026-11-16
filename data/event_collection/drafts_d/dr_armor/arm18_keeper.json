@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Keeper of the Implements",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm18_keeper",
+  "source": "armor45",
+  "lines": [
+   26,
+   26
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L26",
+  "ledger": [
+   {
+    "src": "L26",
+    "kind": "structural",
+    "text": "18. The Keeper of the Implements  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L26",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder maintains bows, spears, shields, and traditional tools. Some see equipment; others see an archive of ingenuity.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), an elder, maintains bows, spears, shields, and traditional tools. Some see equipment; others see an archive of ingenuity.",
+   "src": "L26"
+  }
+ }
+}

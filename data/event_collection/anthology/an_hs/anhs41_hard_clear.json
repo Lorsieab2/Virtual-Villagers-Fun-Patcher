@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Hard Day for No Clear Reason",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs41_hard_clear",
+  "source": "anthology",
+  "lines": [
+   30040,
+   30053
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L30040",
+  "ledger": [
+   {
+    "src": "L30041",
+    "kind": "sensitivity",
+    "before": "A normally sociable villager",
+    "after": "(villager), a normally sociable villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30043",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30044",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30046",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30049",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30050",
+    "kind": "sensitivity",
+    "before": "the friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A normally sociable villager feels irritable and withdrawn without knowing why.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), a normally sociable villager, feels irritable and withdrawn without knowing why.",
+   "src": "L30041",
+   "choices": [
+    {
+     "label": "Offer Quiet Companionship",
+     "next": "a",
+     "src": "L30042"
+    },
+    {
+     "label": "Suggest a Lighter Workload",
+     "next": "b",
+     "src": "L30045"
+    },
+    {
+     "label": "Ask If Anything Practical Is Wrong",
+     "next": "c",
+     "src": "L30048"
+    },
+    {
+     "label": "Invite Them to Something Pleasant Without Pressure",
+     "next": "d",
+     "src": "L30051"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(friend) sits nearby and does not demand an explanation.",
+   "src": "L30043"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) asks to be alone and feels respected.",
+   "src": "L30044"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager) appreciates a brief rest.",
+   "src": "L30046"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They prefer the comfort of familiar tasks and decline the offer.",
+   "src": "L30047"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager) realizes they have slept poorly.",
+   "src": "L30049"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "No simple cause emerges, and (friend) accepts that uncertainty.",
+   "src": "L30050"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They join a small evening meal and enjoy it.",
+   "src": "L30052"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They decline the invitation and reconnect another day.",
+   "src": "L30053"
+  }
+ }
+}

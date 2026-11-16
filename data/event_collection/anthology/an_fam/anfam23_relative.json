@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Relative Who Interfered",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam23_relative",
+  "source": "anthology",
+  "lines": [
+   28630,
+   28643
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28630",
+  "ledger": [
+   {
+    "src": "L28631",
+    "kind": "sensitivity",
+    "before": "A well-meaning relative",
+    "after": "(relative), a well-meaning relative,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28633",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28634",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28636",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28637",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28639",
+    "kind": "sensitivity",
+    "before": "the relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28643",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A well-meaning relative repeatedly offers unwanted advice to new parents.",
+  "label_case": "title",
+  "cast_only": [
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(relative), a well-meaning relative, repeatedly offers unwanted advice to new parents.",
+   "src": "L28631",
+   "choices": [
+    {
+     "label": "Thank Them and Set a Boundary",
+     "next": "a",
+     "src": "L28632"
+    },
+    {
+     "label": "Ask for Practical Help Instead",
+     "next": "b",
+     "src": "L28635"
+    },
+    {
+     "label": "Explain the Parents' Chosen Approach",
+     "next": "c",
+     "src": "L28638"
+    },
+    {
+     "label": "Take a Break from Advice-Heavy Visits",
+     "next": "d",
+     "src": "L28641"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(relative) respects the boundary and visits more comfortably.",
+   "src": "L28633"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(relative) feels hurt at first but later understands.",
+   "src": "L28634"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(relative) happily helps with ordinary chores.",
+   "src": "L28636"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(relative) keeps offering advice until reminded again.",
+   "src": "L28637"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The discussion reveals that (relative) feared being left out.",
+   "src": "L28639"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The parents remain firm while acknowledging the concern.",
+   "src": "L28640"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The quieter visits ease tension.",
+   "src": "L28642"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(relative) misses the family and asks how to reconnect respectfully.",
+   "src": "L28643"
+  }
+ }
+}

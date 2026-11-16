@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do They Tell Stories About Islands?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz123_do_they_tell",
+  "source": "draft_hz2",
+  "lines": [
+   522,
+   532
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L522",
+  "ledger": [
+   {
+    "src": "L523",
+    "kind": "sensitivity",
+    "before": "A storyteller",
+    "after": "(Name1), a storyteller,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A storyteller wonders whether distant people tell stories about faraway islands, the way Isolans tell stories about faraway lands.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a storyteller, wonders whether distant people tell stories about faraway islands, the way Isolans tell stories about faraway lands.",
+   "src": "L523",
+   "choices": [
+    {
+     "label": "Imagine Stories About Isola.",
+     "next": "a",
+     "src": "L524"
+    },
+    {
+     "label": "Imagine Stories About Other Islands.",
+     "next": "b",
+     "src": "L527"
+    },
+    {
+     "label": "Tell a Story About Distant Lands.",
+     "next": "c",
+     "src": "L530"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children imagine distant children listening to tales of a magical island full of laughing fishers.",
+   "src": "L525"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder wonders whether those stories would be accurate, and decides they probably would not.",
+   "src": "L526"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether there might be many islands, each with its own people.",
+   "src": "L528"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child wonders whether any of them might be just like Isola.",
+   "src": "L529"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The storyteller tells a tale of a land of endless forests, and everyone listens happily.",
+   "src": "L531"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child interrupts with so many questions that the story never ends.",
+   "src": "L532"
+  }
+ }
+}

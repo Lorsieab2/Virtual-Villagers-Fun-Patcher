@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Lizard Doing on My Pillow?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd19_what_lizard_doing",
+  "source": "da_wd",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager wakes up nose to nose with a lizard sitting on the pillow: lie very still, or say good morning.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) wakes up in the morning, turns over, and finds (him/her)self nose to nose with a lizard. It's sitting on (his/her) pillow, right next to (his/her) face, apparently having spent the night there. It looks at (name1) with its little round eyes. It doesn't seem in the least bit embarrassed.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Lie Very Still",
+     "next": "a",
+     "src": "L229"
+    },
+    {
+     "label": "Say Good Morning",
+     "next": "b",
+     "src": "L232"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) lies completely still. So does the lizard. They stare at each other. Eventually the lizard licks its own eye, which (name1) has never seen anything do before, and walks off across the mat and out of the door. (name1) lies there a while longer, trying to decide if that was a dream.",
+   "src": "L230"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Good morning,\" says (name1). The lizard tilts its head. \"Did you sleep well?\" The lizard does a small push-up, which (name1) chooses to interpret as a yes. (He/She) gets up and the lizard stays, curled on the warm pillow. It's still there at lunch. (name1) sleeps on the other side of the mat that night.",
+   "src": "L233"
+  }
+ }
+}

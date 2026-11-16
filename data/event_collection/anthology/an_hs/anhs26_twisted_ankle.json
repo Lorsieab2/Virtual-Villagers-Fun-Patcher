@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twisted Ankle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs26_twisted_ankle",
+  "source": "anthology",
+  "lines": [
+   29815,
+   29828
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29815",
+  "ledger": [
+   {
+    "src": "L29816",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29818",
+    "kind": "sensitivity",
+    "before": "the villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29821",
+    "kind": "sensitivity",
+    "before": "The healer",
+    "after": "(healer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29822",
+    "kind": "sensitivity",
+    "before": "The healer",
+    "after": "(healer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29827",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29828",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager twists an ankle on an uneven inland trail and cannot comfortably bear weight.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) twists an ankle on an uneven inland trail and cannot comfortably bear weight.",
+   "src": "L29816",
+   "choices": [
+    {
+     "label": "Help Them Stop and Rest",
+     "next": "a",
+     "src": "L29817"
+    },
+    {
+     "label": "Seek a Healer's Assessment",
+     "next": "b",
+     "src": "L29820"
+    },
+    {
+     "label": "Inspect the Path",
+     "next": "c",
+     "src": "L29823"
+    },
+    {
+     "label": "Offer Alternate Work During Recovery",
+     "next": "d",
+     "src": "L29826"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Companions support (villager) back without forcing them to walk.",
+   "src": "L29818"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The group changes plans and discovers an unexpected quiet afternoon.",
+   "src": "L29819"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(healer) treats it cautiously and checks for signs of a more serious injury.",
+   "src": "L29821",
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29821"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(healer) recommends limiting activity until the injury can be reassessed.",
+   "src": "L29822",
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29822"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Loose stones are moved without turning the trail into a paved road.",
+   "src": "L29824"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group realizes the route is simply unsuitable for some travelers.",
+   "src": "L29825"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) enjoys teaching from a seated position.",
+   "src": "L29827"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) resents being sidelined and negotiates tasks that preserve independence.",
+   "src": "L29828"
+  }
+ }
+}

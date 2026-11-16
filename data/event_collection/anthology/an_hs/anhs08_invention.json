@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Strange Invention",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs08_invention",
+  "source": "anthology",
+  "lines": [
+   29545,
+   29558
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29545",
+  "ledger": [
+   {
+    "src": "L29546",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29554",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(apprentice), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29554",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29557",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29558",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder presents a contraption of shells and reeds that supposedly makes work easier.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) presents a contraption of shells and reeds that supposedly makes work easier.",
+   "src": "L29546",
+   "choices": [
+    {
+     "label": "Try It Under Supervision",
+     "next": "a",
+     "src": "L29547"
+    },
+    {
+     "label": "Ask the Elder to Explain",
+     "next": "b",
+     "src": "L29550"
+    },
+    {
+     "label": "Invite Apprentices to Improve It",
+     "next": "c",
+     "src": "L29553"
+    },
+    {
+     "label": "Respectfully Decline to Use It",
+     "next": "d",
+     "src": "L29556"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "It saves a little effort but requires frequent repairs.",
+   "src": "L29548"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "It fails spectacularly without hurting anyone and produces wonderful noises.",
+   "src": "L29549"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A hidden practical insight becomes clear.",
+   "src": "L29551"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The explanation is delightfully circular and remains a mystery.",
+   "src": "L29552"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(apprentice), an apprentice, finds a stable design (elder) had overlooked.",
+   "src": "L29554"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The apprentices discover the invention works better as a musical instrument.",
+   "src": "L29555"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) is disappointed but appreciates the honest answer.",
+   "src": "L29557"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder) cheerfully declares the village unready for greatness.",
+   "src": "L29558"
+  }
+ }
+}

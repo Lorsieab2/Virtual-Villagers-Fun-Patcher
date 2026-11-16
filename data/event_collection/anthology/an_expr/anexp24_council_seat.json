@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council Seat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp24_council_seat",
+  "source": "anthology",
+  "lines": [
+   31616,
+   31630
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31616",
+  "ledger": [
+   {
+    "src": "L31617",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31623",
+    "kind": "sensitivity",
+    "before": "A quiet craftsperson",
+    "after": "(crafts), a quiet craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31627",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31630",
+    "kind": "sensitivity",
+    "before": "A young observer",
+    "after": "(young), a young observer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A respected family has occupied a council seat for generations, though no rule requires it.",
+  "label_case": "title",
+  "cast_only": [
+   "crafts",
+   "elder",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A respected family has occupied a council seat for generations, though no rule requires it.",
+   "src": "L31618",
+   "choices": [
+    {
+     "label": "Defend Continuity",
+     "next": "a",
+     "src": "L31619"
+    },
+    {
+     "label": "Open Nominations",
+     "next": "b",
+     "src": "L31622"
+    },
+    {
+     "label": "Set Term Limits",
+     "next": "c",
+     "src": "L31625"
+    },
+    {
+     "label": "Invite Young Observers",
+     "next": "d",
+     "src": "L31628"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family offers valuable institutional memory.",
+   "src": "L31620"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Villagers question whether familiarity has become entitlement.",
+   "src": "L31621"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(crafts), a quiet craftsperson, volunteers.",
+   "src": "L31623"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An outsider to the old circle wins broad support.",
+   "src": "L31624"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council adopts regular reviews.",
+   "src": "L31626"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) worries that rapid turnover loses knowledge.",
+   "src": "L31627"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Teens ask questions the council avoided.",
+   "src": "L31629"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(young), a young observer, learns that listening is also governance.",
+   "src": "L31630"
+  }
+ }
+}

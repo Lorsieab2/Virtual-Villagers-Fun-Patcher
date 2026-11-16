@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The House That Moves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz111_house_moves",
+  "source": "draft_hz2",
+  "lines": [
+   378,
+   388
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L378",
+  "ledger": [
+   {
+    "src": "L379",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Watching a hermit crab change shells, a child wonders whether distant people might carry their homes with them as they travel.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching a hermit crab change shells, (name1), a child, wonders whether distant people might carry their homes with them as they travel.",
+   "src": "L379",
+   "choices": [
+    {
+     "label": "Imagine Moving Homes.",
+     "next": "a",
+     "src": "L380"
+    },
+    {
+     "label": "Imagine People Who Travel Without Homes.",
+     "next": "b",
+     "src": "L383"
+    },
+    {
+     "label": "Ask Whether Isolans Would Want It.",
+     "next": "c",
+     "src": "L386"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children imagine huts on wheels and roll around the beach pretending.",
+   "src": "L381"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder wonders how such a home would survive a storm.",
+   "src": "L382"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests that some people might live by moving, setting up camp wherever they stop.",
+   "src": "L384"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says that wanting to stay in one place is not the only way to belong somewhere.",
+   "src": "L385"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Most villagers prefer their huts right where they are.",
+   "src": "L387"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A restless teenager admits it sounds wonderful.",
+   "src": "L388"
+  }
+ }
+}

@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Night Before Birth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat04_long_night",
+  "source": "fathers30",
+  "lines": [
+   75,
+   93
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L75",
+  "ledger": [
+   {
+    "src": "L76",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L77",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L81",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L83",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L84",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L86",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L87",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L89",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L90",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L92",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L93",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L79",
+    "kind": "sensitivity",
+    "before": "The father grips",
+    "after": "The father, (name1), grips",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "Contractions begin during a rainy night.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Contractions begin during a rainy night. The father, (name1), grips the bedframe while the healer prepares supplies; he wants to be addressed as himself, even when everyone is hurried.",
+   "src": "L79",
+   "choices": [
+    {
+     "label": "Ask for a Familiar Support Person",
+     "next": "a",
+     "src": "L82"
+    },
+    {
+     "label": "Tell the Healer What He Needs",
+     "next": "b",
+     "src": "L85"
+    },
+    {
+     "label": "Focus on Each Contraction",
+     "next": "c",
+     "src": "L88"
+    },
+    {
+     "label": "Ask for Quiet",
+     "next": "d",
+     "src": "L91"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Their steady presence helps him through the difficult hours.",
+   "src": "L83"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They arrive late, but he manages with the healer until then.",
+   "src": "L84"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The healer respects his requests while monitoring the birth.",
+   "src": "L86"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The healer misunderstands at first and corrects course promptly.",
+   "src": "L87"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He finds a rhythm and eventually welcomes his newborn.",
+   "src": "L89"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Labor lasts longer than expected, and the healer stays close.",
+   "src": "L90"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The room settles, and he can concentrate.",
+   "src": "L92"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A sudden complication requires more helpers; they explain what is happening.",
+   "src": "L93"
+  }
+ }
+}

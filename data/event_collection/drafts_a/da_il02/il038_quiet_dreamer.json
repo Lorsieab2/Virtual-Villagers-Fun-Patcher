@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Dreamer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il038_quiet_dreamer",
+  "source": "da_il02",
+  "lines": [
+   449,
+   463
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L449",
+  "ledger": [
+   {
+    "src": "L451",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L463",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager content with an ordinary life puzzles a friend who has several ambitious plans.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has no particular desire to become famous, wealthy, powerful, or exceptionally accomplished. (subject.He/She) enjoys (subject.his/her) work, appreciates (subject.his/her) friends, and hopes to spend many more evenings watching the sunset. (friend), who has several ambitious plans, finds this difficult to understand.",
+   "src": "L453",
+   "choices": [
+    {
+     "label": "Explain the Appeal",
+     "next": "a",
+     "src": "L455"
+    },
+    {
+     "label": "Ask About (friend)'s Ambitions",
+     "next": "b",
+     "src": "L459"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I like my life,\" says (subject). \"Don't you want more?\" asks (friend). \"Sometimes. But not necessarily more of everything.\" (friend) thinks about this. They watch the sunset together.",
+   "src": "L457"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) enthusiastically describes plans to master three professions, explore the island, and write a scholarly monograph. (subject) listens with genuine interest. \"That sounds wonderful for you,\" (subject.he/she) says. Neither feels compelled to adopt the other's goals.",
+   "src": "L461"
+  }
+ }
+}

@@ -1,0 +1,155 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Counting of Birthdays",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz096_counting",
+  "source": "draft_hz2",
+  "lines": [
+   198,
+   208
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L198",
+  "ledger": [
+   {
+    "src": "L199",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks whether distant people count the exact day each person was born and celebrate it every year.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a child, asks whether distant people count the exact day each person was born and celebrate it every year.",
+   "src": "L199",
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L199"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Imagine Birthday Feasts.",
+     "next": "a",
+     "src": "L200"
+    },
+    {
+     "label": "Imagine Not Counting at All.",
+     "next": "b",
+     "src": "L203"
+    },
+    {
+     "label": "Try It on Isola.",
+     "next": "c",
+     "src": "L206"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children love the idea and want their own feast immediately.",
+   "src": "L201"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder wonders whether so many feasts would leave any time for work.",
+   "src": "L202"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar suggests that some distant people might not count years at all, and might live just as well.",
+   "src": "L204"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder admits they have lost count of their own age and are happy about it.",
+   "src": "L205"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village holds a small celebration for anyone who wants one, and several people do.",
+   "src": "L207",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L207"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Nobody can remember their exact birth day, and the idea is quietly abandoned.",
+   "src": "L208"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Will You Go Away Too?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep26_will_you_go_away",
+  "source": "draft_dep",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   }
+  ],
+  "description": "A child misses a visitor who left and asks a grown-up if they will go away too: promise to stay, or answer honestly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor (subject) liked very much has left the village this morning. (subject) has been quiet all day. At bedtime (subject.he/she) looks up at (friend) and asks, very seriously, \"Are you going to go away too?\"",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Promise You'll Stay",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Answer Honestly",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm not going anywhere,\" says (friend). \"I'm right here.\" (subject) looks at (friend.him/her) for a long moment, checking, then nods and lies down. A little while later a small hand reaches out in the dark and holds onto (friend)'s sleeve, just to be sure. It stays there until (subject) is asleep.",
+   "src": "L314"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'm not planning to go anywhere,\" says (friend). \"But if I ever did, I'd tell you first. And I'd say goodbye properly. And I'd wave the whole way up the hill.\" (subject) thinks about this. \"Both arms?\" \"Both arms.\" That seems to settle it. (subject) is asleep before (friend) has finished tucking the blanket in.",
+   "src": "L317"
+  }
+ }
+}

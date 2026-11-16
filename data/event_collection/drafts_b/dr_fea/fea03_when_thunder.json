@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "When the Thunder Comes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea03_when_thunder",
+  "source": "draft_fea",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 4-9)"
+   }
+  ],
+  "description": "An elder hides under a blanket from the thunder: let a fearless child sit close, or ask the child to count the thunder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A storm is rolling in, and with the first crack of thunder (subject) pulls a blanket over (subject.his/her) head. (subject.He/she) has been afraid of thunder all (subject.his/her) life. It has never got easier. (friend), who is not afraid of thunder at all, is watching from the doorway with great interest.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Let (friend) Sit with (subject.him/her)",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Ask (friend) to Count the Thunder",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) crawls under the blanket too. \"It's alright,\" (friend.he/she) says, in the gentle voice grown-ups use for frightened children. \"It's just noise.\" Every time the thunder comes, (friend) pats (subject)'s arm. (subject) is still frightened. It is also, somehow, the nicest storm (subject.he/she) can remember.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Will you count for me?\" asks (subject) from under the blanket. \"Between the flash and the boom. When the numbers get bigger, it's going away.\" (friend) takes the job extremely seriously. \"Four. Six. NINE.\" The storm moves off. (subject) comes out from the blanket. (subject.He/she) doesn't feel brave. (subject.He/she) feels grateful.",
+   "src": "L41"
+  }
+ }
+}

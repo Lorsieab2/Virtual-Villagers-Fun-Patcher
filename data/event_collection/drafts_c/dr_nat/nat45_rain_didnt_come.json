@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rain That Didn't Come",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat45_rain_didnt_come",
+  "source": "draft_nat",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two farmers or two adults)"
+   },
+   {
+    "src": "L530",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L533",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The rains are weeks late and there is water for only some plants: save the food plants first, or the young trees.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The rains should have come weeks ago. They haven't. The gardens are wilting, the stream is low, and every day the sky is a hard, empty blue. There's only enough water for some of the plants. (subject) and (friend) have to decide which ones.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Save the Food Plants First",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Save the Young Trees First",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They water the taro, the yams and the beans and let the flowers and the young fruit trees take their chances. It feels terrible, walking past the drooping fruit trees with full water jars. When the rains finally come, most of the food plants pull through. Two of the young fruit trees don't. (subject) plants new ones in their places, quietly, the day after the first rain.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L530"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) argues that the beans can be replanted next season, but a fruit tree takes years. They water the trees and let some of the bean rows go. It means a lean season. People are hungry and some are angry. But when the rains come, all the young trees are still alive, and in a few years they'll feed everyone. Neither (subject) nor (friend) is sure it was the right call.",
+   "src": "L533",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L533"
+    }
+   ]
+  }
+ }
+}

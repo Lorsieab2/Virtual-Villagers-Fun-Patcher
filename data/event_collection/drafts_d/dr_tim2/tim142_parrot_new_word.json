@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parrot's New Word",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim142_parrot_new_word",
+  "source": "draft_tim2",
+  "lines": [
+   121,
+   126
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L121",
+  "ledger": [
+   {
+    "src": "L122",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L123",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L124",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L125",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L126",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A bright parrot perched near the huts repeats a word it must have heard nearby.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A bright parrot perched near the huts repeats a word it must have heard nearby. Everyone tries to work out who taught it the word.",
+   "src": "L122,L123"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A bright parrot perched near the huts repeats a word it must have heard nearby. The word is (subject)'s name, said in a voice very much like (friend)'s.",
+   "src": "L122,L124"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A bright parrot perched near the huts repeats a word it must have heard nearby. It repeats the word all afternoon, to the children's delight.",
+   "src": "L122,L125"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A bright parrot perched near the huts repeats a word it must have heard nearby. A cook realizes it is the word they shout when the stew is ready.",
+   "src": "L122,L126"
+  }
+ }
+}

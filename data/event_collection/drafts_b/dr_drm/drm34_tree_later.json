@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Tree for Later",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm34_tree_later",
+  "source": "draft_drm",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 4-10)"
+   }
+  ],
+  "description": "An elder plants a mango seed that may not fruit for many years, and a child asks why: explain, or plant another one together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is planting a mango seed. A mango tree takes many years to bear fruit; (subject) knows perfectly well (subject.he/she) may never taste one. (subject.He/she) is planting it anyway, carefully, with a little ring of stones around it. (friend) is watching and wants to know why.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Plant Another One Together",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It's for whoever's here when it fruits,\" says (subject). \"Maybe you.\" (friend) looks at the bare earth with deep suspicion. \"That'll take ages.\" \"It will.\" (friend) thinks about it, then fetches water and pours it on, very solemnly. \"For me,\" (friend.he/she) says. \"In ages.\"",
+   "src": "L410"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives (friend) a seed of (friend.his/her) own. They plant it right next to the first one. (friend) puts a much bigger ring of stones around (friend.his/her) own, and a stick, and a flower. \"So it knows it's mine,\" (friend.he/she) explains. (subject) agrees that the tree will certainly know.",
+   "src": "L413"
+  }
+ }
+}

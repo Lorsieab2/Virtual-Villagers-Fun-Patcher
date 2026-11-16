@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Goat Ate Lunch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day09_goat_ate_lunch",
+  "source": "draft_day",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   }
+  ],
+  "description": "After a great morning's work, a villager finds a goat finishing their lunch: laugh, or be annoyed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has had a wonderful morning. (subject.He/she) finished every bit of work early, and well. (subject.He/she) is proud of (subject.him/her)self. Now (subject.he/she) walks over to the shade where (subject.he/she) left (subject.his/her) lunch, a lovely bundle of fish and fruit, and finds a goat standing on the empty leaf, chewing slowly, looking (subject.him/her) right in the eye.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Laugh",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Be Annoyed",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) looks at the goat. The goat looks at (subject). (subject) starts laughing. It's still been a good day. A bit of a hungry day now, but a good one. (friend), passing, shares half (friend.his/her) lunch, and (subject) eats it in the shade next to the goat, who seems to think they're friends now.",
+   "src": "L110"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) is very annoyed. It was a good lunch. (subject.He/she) was looking forward to it. (subject.He/she) tells the goat so, at length. The goat does not care. (subject) goes hungry until dinner and is grumpy all afternoon. The morning was still good. The afternoon was not. Days are allowed to be both.",
+   "src": "L113"
+  }
+ }
+}

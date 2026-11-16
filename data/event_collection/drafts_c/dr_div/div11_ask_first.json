@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Ask First",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div11_ask_first",
+  "source": "draft_div",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and another adult; in the story (name1) is blind)"
+   }
+  ],
+  "description": "A villager grabs a blind villager's arm to steer them, unasked: say so plainly, or make a joke of it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is blind and walking to the meeting hut, the way (subject.he/she) does every day, when (friend) rushes up, grabs (subject.his/her) arm and starts steering (subject.him/her) across the clearing, chattering kindly. (subject) didn't need help and doesn't like being grabbed. (subject.He/she) stops walking.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Say So Plainly",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Make a Joke of It",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Please let go,\" says (subject). (friend) lets go at once, startled. \"If you want to help, ask first. If I say yes, I'll take your arm. Not the other way round.\" (friend) is embarrassed, and a bit hurt, and then thinks about it. \"Do you want help?\" (friend.he/she) asks. \"Not today,\" says (subject). \"But thank you for asking.\" (subject.He/she) walks off, perfectly straight, to the meeting hut.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Where are we going?\" asks (subject). \"The meeting hut!\" says (friend). \"I know. I was already going there. Before I was kidnapped.\" (friend) lets go, mortified. (subject) laughs. \"Ask next time. I might even say yes.\" Next time, (friend) asks. (subject) says no, cheerfully, and they walk there side by side anyway.",
+   "src": "L137"
+  }
+ }
+}

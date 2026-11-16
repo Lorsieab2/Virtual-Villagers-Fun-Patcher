@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nothing-Much Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il056_nothing_much",
+  "source": "da_il03",
+  "lines": [
+   182,
+   185
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L182",
+  "ledger": [
+   {
+    "src": "L183",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager spends the afternoon by the shore turning over a question that will not quite fit into words.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(name1) spends the afternoon thinking about a question (he/she) can't quite put into words. It has something to do with the way the light looks on the water, and something to do with being happy and sad at the same time, and something to do with (his/her) grandmother. (He/She) sits by the shore and turns it over and over. By dinnertime, (he/she) still hasn't worked it out. (He/She) gets up, brushes off the sand, and goes home to eat. That's alright too.",
+   "src": "L185"
+  }
+ }
+}

@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "More Is Not Better",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea28_more_better",
+  "source": "draft_hea",
+  "lines": [
+   335,
+   344
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L335",
+  "ledger": [
+   {
+    "src": "L336",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   },
+   {
+    "src": "L341",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager took six spoons of throat syrup instead of one and has an unhappy stomach: go back to the healer, or wait it out.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) gave (subject) a honey-and-bark syrup for (subject.his/her) sore throat: one spoon at sunrise, one at sunset. The throat felt better after the first spoon. So (subject) reasoned that if one spoon was good, six spoons would be wonderful. That was this morning. Now (subject)'s stomach is very, very unhappy.",
+   "src": "L338",
+   "choices": [
+    {
+     "label": "Go Back to (friend)",
+     "next": "o1",
+     "src": "L340"
+    },
+    {
+     "label": "Lie Down and Wait It Out",
+     "next": "o2",
+     "src": "L343"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) creeps back to (friend), looking green. (friend) asks how much. (subject) holds up six fingers, sheepishly. (friend) doesn't scold. \"The bark that helps the throat upsets the stomach in bigger amounts. I should have said so. Sip water, eat plain rice, and it'll pass.\" It passes by evening. (subject) is very careful with spoons after that.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L341"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) is too embarrassed to go back. (subject.He/she) lies down with (subject.his/her) knees up and groans quietly for most of the afternoon. By evening it's passed. Later, (subject.he/she) tells (friend), who winces. \"Natural doesn't mean you can't have too much,\" (friend) says. \"Next time, come and tell me straight away. Nobody gets laughed at in my hut.\" (subject) believes (friend.him/her). Mostly.",
+   "src": "L344"
+  }
+ }
+}

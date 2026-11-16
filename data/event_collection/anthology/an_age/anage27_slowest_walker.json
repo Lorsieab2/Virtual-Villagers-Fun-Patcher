@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Slowest Walker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage27_slowest_walker",
+  "source": "anthology",
+  "lines": [
+   30541,
+   30555
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30541",
+  "ledger": [
+   {
+    "src": "L30542",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30543",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30545",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30546",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30551",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30551",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30552",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder avoids community outings because the group moves too quickly and makes them feel like a burden.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) avoids community outings because the group moves too quickly and makes them feel like a burden.",
+   "src": "L30543",
+   "choices": [
+    {
+     "label": "Ask What Pace Suits Them",
+     "next": "a",
+     "src": "L30544"
+    },
+    {
+     "label": "Improve the Route",
+     "next": "b",
+     "src": "L30547"
+    },
+    {
+     "label": "Offer Company Without Rushing",
+     "next": "c",
+     "src": "L30550"
+    },
+    {
+     "label": "Invite the Elder to Plan the Outing",
+     "next": "d",
+     "src": "L30553"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The group plans a shorter route and enjoys (elder)'s stories.",
+   "src": "L30545"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) prefers a quiet nearby gathering instead of the long walk.",
+   "src": "L30546"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Villagers clear uneven stones from a commonly used path.",
+   "src": "L30548"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A steep stretch remains unsuitable, so the group chooses another destination.",
+   "src": "L30549"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) walks beside (elder) and discovers a shared interest.",
+   "src": "L30551"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) asks for solitude and appreciates being trusted.",
+   "src": "L30552"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They choose a shaded garden with comfortable seating.",
+   "src": "L30554"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Their plan includes more rests than expected, and everyone discovers they enjoy the slower day.",
+   "src": "L30555"
+  }
+ }
+}
