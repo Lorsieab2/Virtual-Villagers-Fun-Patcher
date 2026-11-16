@@ -148,7 +148,8 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 - `{NAME}` or `{NAME.k}`, k = 1..8: pool `NAME`, instance k (`{NAME}` is instance 1). `NAME` is a pool name
   string (it may start with `@` or `_`). Braces never nest in the binary. A pool item's text may itself hold
   placeholders and pool tokens (not its own pool, depth at most 3, checked by the compiler).
-- Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39).
+- Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39);
+  with Scrolling Popups up to 4,095 (section 19).
 - **Pronoun hint (labels only, section 15):** a name placeholder may end in `|` and a pronoun pair, e.g.
   `(ACCUSED|HE/SHE)`, `(Name1|his/her)`: the form its fallback takes (`he/she`, `him/her`, `his/her`,
   `himself/herself`, any case). Without a hint the fallback is `him/her`. The hint is refused in body text.
@@ -500,9 +501,21 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   next trigger after its intro page and the village's opening event took it) cannot happen.
 - **Effects** are made when the text that tells them is shown (an answer's at its click, with its text); the Island
   Events log keeps ONE entry (a "Choice:" line for each answer). Island Events Seen counts the event once.
-- **Bytes.** A text may hold at most 1990 bytes at its widest (the later games' popup holds 2,000), 8000 in A New
-  Home and The Lost Children (their dialog holds 9,999; `CG_TEXT_MAX_12`, `ONE_POPUP_TEXT_MAX_12`). Lines do not
-  count: the popup scrolls.
+- **Bytes (practically unlimited, the owner 2026-11-16).** A text may hold up to `CE_LONG_TEXT_MAX` = 100,000
+  bytes at its widest (Python `LONG_TEXT_MAX`), a title or a choice's label up to 4,095 (`CE_LONG_LINE_BYTES` 4,096
+  with the NUL; Python `LONG_LINE_BYTES`) -- sanity caps sized to the file (`CG_MAX_FILE` 1 MiB). The dialog's own
+  field holds 2,000 bytes in the later games and 9,999 in A New Home and The Lost Children: a longer text is put
+  there as its start (`one_popup.h op_long_text_put`: a little short of the field, at a space) and Scrolling Popups
+  draws the WHOLE text (`VvfpPopupWholeText`); a label longer than `op_rows.labels` holds is handed over whole
+  (`op_rows.label_text`). Lines do not count: the popup scrolls. A choice is a row that wraps its label into as many
+  lines as it needs (never the screen-width rule of section 15, never pronouns for width); in the later games a
+  title wider than the text box wraps at the top of the scrolled box (A New Home and The Lost Children lead the
+  text with the title: its first line, the rest after the picture's gap, `cg_title_wrap`). The run file is version
+  5 (`CG_DISPLAY_BYTES` 1 MiB of displays' words; versions 2 to 4 kept 49,152 and are read widened,
+  `cg_file_widen`).
+- **Without Scrolling Popups** the old caps stay (1,990 bytes a text, 95 a label or a title as written, the pages);
+  `validate(scrolling=False)` says so in each problem, and the engine refuses to queue an event whose texts are
+  longer than them where the popups do not scroll (`cg_g.long_text`, `cg_refusal`).
 - **The popup's size**: the constructor's own, for its first text, with the rows and the room OK keeps below them
   (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
 - Without Scrolling Popups everything is as before (pages, button room, G1).

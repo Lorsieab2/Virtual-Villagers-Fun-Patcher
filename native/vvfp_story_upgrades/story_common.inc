@@ -370,5 +370,15 @@ static int story_log_conception(int game, const void *records, const void *mothe
 
 /* ---- Text into a game string table entry -------------------------------- */
 
-static char ce_title_text[CE_TITLE_BYTES];
+static char ce_title_text[CE_LONG_LINE_BYTES * 4];   /* a library event's title, names filled in, may be long */
 static char ce_body_text[2048];
+/* One popup (native/shared/one_popup.h): the whole text shown, of which the dialog's field holds the start when it
+   is longer than the field (Scrolling Popups asks VvfpPopupWholeText for it). */
+static char su_long_text[CE_LONG_BUF];
+static op_long_text su_whole;
+static const char *su_title_whole;   /* a library event's plain popup: its title whole (story_graph.inc), once */
+
+/* su_long_text into a dialog's text field of `bytes` (NUL included): whole when it fits, else its start. */
+static void su_put_long(char *field, int bytes) {
+    op_long_text_put(&su_whole, field, bytes, su_long_text);
+}

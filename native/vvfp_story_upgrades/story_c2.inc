@@ -1053,7 +1053,7 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
     void *villagers = *(void **)(d + 0x50B0u);   /* the ctor's villager pool (0x42240E) */
     int featured;
     (void)unused_edx;
-    if (!ce_choice_begin(2, (char *)d + C2_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_begin(2, su_long_text, (int)sizeof su_long_text)) {
         c2_choice_dialog = NULL;
         return (char)TC0(0x41F780u, dialog);
     }
@@ -1064,6 +1064,7 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
         cs12_op_setup(2, d, C2_DLG_QUESTION, C2_DLG_SUBJECT, C2_DLG_VARIANT, villagers, 0x44B2D0u);
         return 1;
     }
+    su_put_long((char *)d + C2_DLG_QUESTION, C1_DLG_TEXT_BYTES);   /* paged: it always fits */
     featured = ce_choice_featured(2);
     choice_fill_dialog(2, d, C2_DLG_QUESTION, C2_DLG_LABEL_FIRST, C2_DLG_LABEL_SECOND, c2_choice_title,
                        featured);
@@ -1153,21 +1154,29 @@ static int cs12_op_rows(void *dialog, op_rows *out) {
     out->rows = n;
     for (k = 0; k < n && k < OP_MAX_ROWS; ++k) {
         lstrcpynA(out->labels[k], cg_label(k), OP_LABEL_BYTES);
+        if (OP_ROWS_HAS_TEXT(out) && lstrlenA(cg_label(k)) >= OP_LABEL_BYTES) {
+            out->label_text[k] = cg_label(k);   /* a long label whole (one_popup.h) */
+        }
     }
     return 1;
 }
 
-/* The text just written to the question field: the picture's gap under its title. */
+/* The text just made (su_long_text) shown in the question field: the picture's gap under its title, then the field
+   (its start when the text is longer: Scrolling Popups draws the whole, one_popup.h). */
+static void cs12_op_put(unsigned char *d, unsigned int question, int featured) {
+    if (featured >= 0) {
+        choice_open_gap(su_long_text, (int)sizeof su_long_text);
+    }
+    su_put_long((char *)d + question, C1_DLG_TEXT_BYTES);
+}
+
 static void cs12_op_shown(void *dialog) {
     unsigned char *d = (unsigned char *)dialog;
-    if (*(int *)(d + cs12_subject_field()) >= 0) {
-        choice_open_gap((char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES);
-    }
+    cs12_op_put(d, cs12_question_field(), *(int *)(d + cs12_subject_field()));
 }
 
 static int cs12_op_pick(void *dialog, int k) {
-    unsigned char *d = (unsigned char *)dialog;
-    if (!ce_choice_resolve(cs12_game(), k, (char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_resolve(cs12_game(), k, su_long_text, (int)sizeof su_long_text)) {
         return 0;
     }
     cs12_op_shown(dialog);
@@ -1175,8 +1184,7 @@ static int cs12_op_pick(void *dialog, int k) {
 }
 
 static int cs12_op_ok(void *dialog) {
-    unsigned char *d = (unsigned char *)dialog;
-    if (!cg_op_ok(cs12_game(), (char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES)) {
+    if (!cg_op_ok(cs12_game(), su_long_text, (int)sizeof su_long_text)) {
         return 0;
     }
     cs12_op_shown(dialog);
@@ -1185,14 +1193,12 @@ static int cs12_op_ok(void *dialog) {
 
 static const mb_op_client CS12_OP_CLIENT = { cs12_op_rows, cs12_op_pick, cs12_op_ok };
 
-/* The setup of a one-popup event's dialog (the question field already holds its first text): the picture's gap,
-   the villager shown, the stock width, a variant out of range, and our virtual table. */
+/* The setup of a one-popup event's dialog (su_long_text holds its first text): the text with the picture's gap in
+   the question field, the villager shown, the stock width, a variant out of range, and our virtual table. */
 static void cs12_op_setup(int game, unsigned char *d, unsigned int question, unsigned int subject,
                           unsigned int variant, void *villagers, unsigned int select) {
     int featured = ce_choice_featured(game);
-    if (featured >= 0) {
-        choice_open_gap((char *)d + question, C1_DLG_TEXT_BYTES);
-    }
+    cs12_op_put(d, question, featured);
     *(int *)(d + variant) = CHOICE_VARIANT_NONE;
     *(int *)(d + subject) = featured;
     *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;

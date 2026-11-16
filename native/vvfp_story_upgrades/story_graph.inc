@@ -126,7 +126,8 @@
 #define CG_LABEL_V6 96                  /* a version 6 label, NUL included (95 bytes) */
 #define CG_V4_ANSWERS 4                 /* the answers a run file version 3 kept */
 #define CG_NONE 0xFFFFu
-#define CG_MAX_FILE 0x20000u
+#define CG_MAX_FILE 0x100000u               /* a .cieg (1 MiB): the sanity cap every text is sized to (story_custom.h
+                                              CE_LONG_TEXT_MAX) */
 #define CG_MAX_ROLES 16
 #define CG_MAX_NODES 1000
 #define CG_MAX_PATH 128
@@ -137,9 +138,10 @@
 #define CG_TEXT_MAX 1990                /* a popup's (and a page's) bytes: the later games build theirs in 2,000 */
 #define CG_TEXT_MAX_12 8000             /* ... A New Home's and The Lost Children's ONE popup (their dialogs hold 9,999;
                                            src/vv_cie_graph.py ONE_POPUP_TEXT_MAX_12) */
-#define CG_RAW_BYTES 8192
-#define CG_PAGE_BYTES 8200
-#define CG_DISPLAY_BYTES 49152
+#define CG_RAW_BYTES CE_LONG_BUF            /* a popup's raw text: with Scrolling Popups up to CE_LONG_TEXT_MAX */
+#define CG_PAGE_BYTES (CG_RAW_BYTES + 8)
+#define CG_DISPLAY_BYTES 0x100000           /* every display's words of a run (run file version 5; 4 kept 49,152) */
+#define CG_DISPLAY_BYTES_V4 49152
 #define CG_MAX_DISPLAYS 96
 #define CG_CAUSE_BYTES 64
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
@@ -312,6 +314,9 @@ typedef struct {
     /* Version 6 (cie-v6-binary.md 21): the kinship relations (a 104-byte header); 0 none. */
     int n_rel;
     unsigned int o_rel;
+    /* A text, a title or a label longer than the popups without Scrolling Popups hold (CG_TEXT_MAX bytes, a label
+       or a title CG_LABEL_V6): the event is queued only where the popups scroll (cg_refusal). */
+    int long_text;
 } cg_graph;
 
 static unsigned int cg_u16(const unsigned char *p) {
@@ -986,7 +991,8 @@ static int cg_pools_ok(const cg_graph *g) {
         unsigned int cond = cg_u16(it + 4);
         if (!cg_str_ok(g, cg_u16(it), 0) || cg_u16(it + 2) < 1u || cg_u16(it + 2) > 10000u
             || (cond != CG_NONE && (int)cond >= g->n_cond) || cg_u16(it + 6) != 0u
-            || !cg_text_ok(g, cg_s(g, cg_u16(it)), 1, 0) || lstrlenA(cg_s(g, cg_u16(it))) > CG_TEXT_MAX) {
+            || !cg_text_ok(g, cg_s(g, cg_u16(it)), 1, 0)
+            || !cg_len_ok(g, cg_s(g, cg_u16(it)), CG_TEXT_MAX, CE_LONG_TEXT_MAX)) {
             return cg_bad("a pool's text is not one the game can show");
         }
     }
@@ -1002,6 +1008,15 @@ static int cg_pools_ok(const cg_graph *g) {
 /* Read `data` (`size` bytes) as a .cieg into `g` (which points into `data`): 1, or 0 with the reason in cg_why. */
 /* A title the game can show (the event's, or -- version 6 -- a node's popup title, docs/event-collection/
    cie-v6-binary.md 14): ce_text_char_ok's characters (version 6: and quotes, G6), one line, under CE_TITLE_BYTES. */
+/* `text` is at most `max` bytes; longer than `paged` marks the graph as needing Scrolling Popups (long_text). */
+static int cg_len_ok(const cg_graph *g, const char *text, int paged, int max) {
+    int n = lstrlenA(text);
+    if (n > paged) {
+        ((cg_graph *)g)->long_text = 1;
+    }
+    return n <= max;
+}
+
 static int cg_title_ok(const cg_graph *g, const char *title) {
     const char *t;
     for (t = title; *t != '\0'; ++t) {
@@ -1022,7 +1037,8 @@ static int cg_title_ok(const cg_graph *g, const char *title) {
             return 0;
         }
     }
-    return title[0] != '\0' && lstrlenA(title) < (g->version >= 6 ? CG_LABEL_V6 : CE_TITLE_BYTES);
+    return title[0] != '\0' && (g->version >= 6 ? cg_len_ok(g, title, CG_LABEL_V6 - 1, CE_LONG_LINE_BYTES - 1)
+                                             : lstrlenA(title) < CE_TITLE_BYTES);
 }
 
 static int cg_fixed_name_ok(const char *name);   /* effect 33's fixed name (below) */
@@ -1298,7 +1314,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     for (i = 0; i < g->n_variant; ++i) {
         const unsigned char *v = cg_variant_at(g, i);
         if ((int)cg_u16(v) >= g->n_cond || !cg_str_ok(g, cg_u16(v + 2), 0)
-            || !cg_text_ok(g, cg_s(g, cg_u16(v + 2)), 1, 0) || lstrlenA(cg_s(g, cg_u16(v + 2))) > CG_TEXT_MAX) {
+            || !cg_text_ok(g, cg_s(g, cg_u16(v + 2)), 1, 0)
+            || !cg_len_ok(g, cg_s(g, cg_u16(v + 2)), CG_TEXT_MAX, CE_LONG_TEXT_MAX)) {
             return cg_bad("a variant text is not one the game can show");
         }
     }
@@ -1478,7 +1495,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                                                             "changes");
         }
         if (n[0] != CG_BRANCH && (cg_s(g, text)[0] == '\0' || !cg_text_ok(g, cg_s(g, text), 1, 0)
-                                  || lstrlenA(cg_s(g, text)) > CG_TEXT_MAX)) {
+                                  || !cg_len_ok(g, cg_s(g, text), CG_TEXT_MAX, CE_LONG_TEXT_MAX))) {
             return cg_bad("a text is not one the game can show");
         }
         for (k = 0; k < (int)ccount; ++k) {
@@ -1490,7 +1507,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             if (n[0] == CG_QUESTION) {
                 const char *label = cg_s(g, cg_u16(c + 8));
                 if (!cg_str_ok(g, cg_u16(c + 8), 0) || label[0] == '\0'
-                    || lstrlenA(label) >= (g->version >= 6 ? CG_LABEL_V6 : CG_LABEL_BYTES)
+                    || (g->version >= 6 ? !cg_len_ok(g, label, CG_LABEL_V6 - 1, CE_LONG_LINE_BYTES - 1)
+                                        : lstrlenA(label) >= CG_LABEL_BYTES)
                     || !cg_text_ok(g, label, 0, 1)) {
                     return cg_bad("a button label is not one the game can show");
                 }
@@ -1621,7 +1639,8 @@ typedef struct {
 
 static cg_state cg;
 static cg_graph cg_g;
-static char cg_labels[CG_MAX_ANSWERS][CG_LABEL_V6];   /* the asked question's button labels, names filled in */
+static char cg_labels[CG_MAX_ANSWERS][CE_LONG_LINE_BYTES];   /* the asked question's button labels, names filled
+                                                                  in (with Scrolling Popups: practically any length) */
 
 /* The asked question's label for `button` (ce_choice_label, for a graph's question). */
 static const char *cg_label(int button) {
@@ -1702,7 +1721,7 @@ static int cg_op_begun_take(int game) {
     return r;
 }
 
-static char cg_shown_title[CE_TITLE_BYTES];   /* (defined below) */
+static char cg_shown_title[CE_LONG_LINE_BYTES * 4];   /* (defined below) */
 
 /* One popup: the title in force on the text shown last. */
 static const char *cg_op_title(void) {
@@ -4390,20 +4409,22 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
     return n;
 }
 
-/* A button label as the player reads it into `out` (CG_LABEL_V6 bytes): the real names, or -- when that is wider
-   than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15). */
+/* A button label as the player reads it into `out` (CE_LONG_LINE_BYTES bytes): the real names, or -- when that is
+   wider than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15).  With
+   Scrolling Popups a choice is a row that grows to as many lines as its label needs (native/shared/one_popup.h):
+   only the sanity cap counts, never the screen's width. */
 static void cg_label_text(const ce_adapter *a, const char *raw, char *out) {
-    static char real[CG_LABEL_V6 * 4];
-    int n;
+    static char real[CE_LONG_LINE_BYTES * 4];
+    int n, op = cg_one_popup(), limit = op ? CE_LONG_LINE_BYTES : CG_LABEL_V6;
     cg_case_label = 1;                  /* 20: a label is cased as a whole */
     n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-    if (cg_g.version >= 6 && (n >= CG_LABEL_V6 || ce_label_px(a, real) > ce_label_max_px(a))) {
+    if (cg_g.version >= 6 && (n >= limit || (!op && ce_label_px(a, real) > ce_label_max_px(a)))) {
         cg_pronoun_names = 1;
         cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
         cg_pronoun_names = 0;
     }
     cg_case_label = 0;
-    lstrcpynA(out, real, CG_LABEL_V6);
+    lstrcpynA(out, real, limit);
 }
 
 typedef struct {
@@ -4457,10 +4478,12 @@ static int cg_one_popup(void) {
 
 static int ce_game_of(const ce_adapter *a);
 
-/* The bytes one popup's text may hold: A New Home's and The Lost Children's encounter dialog holds 9,999, the later
-   games' popups 2,000. */
+/* The bytes one popup's text may hold: with Scrolling Popups practically any (CE_LONG_TEXT_MAX: the dialog's field
+   holds its start and Scrolling Popups draws the whole, native/shared/one_popup.h); without it the later games'
+   popups hold 2,000. */
 static int cg_text_max(const ce_adapter *a) {
-    return cg_one_popup() && ce_game_of(a) >= 1 && ce_game_of(a) <= 2 ? CG_TEXT_MAX_12 : CG_TEXT_MAX;
+    (void)a;
+    return cg_one_popup() ? CE_LONG_TEXT_MAX : CG_TEXT_MAX;
 }
 
 /* `text` (raw: names not filled) fits page `pages->count` at its widest: its bytes, and -- unless the popup
@@ -4594,7 +4617,7 @@ static int cg_compose_once(const ce_layout *l, const char *title, const char *te
     w.out = out;
     w.size = size;
     w.width = l->width;
-    w.max_lines = cg_scrolls() ? 1000 : l->lines - 1;     /* a scrolling popup has room for every line */
+    w.max_lines = cg_scrolls() ? 0x7FFFFFFF : l->lines - 1;   /* a scrolling popup has room for every line */
     out[0] = '\0';
     if (l->with_title) {
         ce_wrap(&w, title);
@@ -4763,11 +4786,21 @@ static const char *cg_renames_fill(const char *text, int k) {
 }
 
 static void cg_display_title(int k, char *out, int cap);
-static char cg_title_rest[CG_LABEL_V6 * 4];
+
+/* `out` (`cap` bytes) = a + b + c, cut at cap (wsprintfA stops at 1,024 characters: a long title or label is not). */
+static void cg_join(char *out, int cap, const char *a, const char *b, const char *c) {
+    int n;
+    lstrcpynA(out, a, cap);
+    n = lstrlenA(out);
+    lstrcpynA(out + n, b, cap - n);
+    n = lstrlenA(out);
+    lstrcpynA(out + n, c, cap - n);
+}
+static char cg_title_rest[CE_LONG_LINE_BYTES * 4];
 
 static const char *cg_display(int k) {
-    static char wrapped[CG_PAGE_BYTES + CG_LABEL_V6 * 4 + 2];
-    char title[CG_LABEL_V6 * 4];
+    static char wrapped[CG_PAGE_BYTES + CE_LONG_LINE_BYTES * 4 + 2];
+    char title[CE_LONG_LINE_BYTES * 4];
     const char *text;
     if (k < 0 || k >= cg.display_count) {
         return "";
@@ -4778,8 +4811,7 @@ static const char *cg_display(int k) {
         return text;
     }
     /* the title's second line (a choice's label wider than the title area), then the page */
-    wsprintfA(wrapped, "%s\n", cg_title_rest);
-    lstrcpynA(wrapped + lstrlenA(wrapped), text, (int)sizeof wrapped - lstrlenA(wrapped));
+    cg_join(wrapped, (int)sizeof wrapped, cg_title_rest, "\n", text);
     return wrapped;
 }
 
@@ -4801,9 +4833,12 @@ static unsigned short cg_node_title(int node) {
    (story_title_widths.h), the first two games' title_width (src/vv_cie_graph.py GAMES). */
 static int cg_title_fits(const char *text) {
     static const int TITLE_WIDTH_V12[3] = { 0, 51, 46 };
-    int n = lstrlenA(text);
-    if (n >= CE_TITLE_BYTES) {
+    int n = lstrlenA(text), op = cg_one_popup();
+    if (n >= (op ? CE_LONG_LINE_BYTES : CE_TITLE_BYTES)) {
         return 0;
+    }
+    if (op && cg.game >= 3 && cg.game <= 5) {
+        return 1;                       /* Scrolling Popups wraps a title wider than its box (one_popup.h) */
     }
     if (cg.game >= 3 && cg.game <= 5) {
         int px = 0, i;
@@ -4820,11 +4855,11 @@ static int cg_title_fits(const char *text) {
 /* Title `t` (0: the event's own) expanded with `mode` (CG_EXPAND_REAL / CG_EXPAND_WORST) into `out`: its names,
    or -- when that does not fit -- its names as pronouns (cie-v6-binary.md 17). */
 static void cg_title_expand(unsigned short t, int mode, char *out, int cap) {
-    static char buf[CG_LABEL_V6 * 4];
+    static char buf[CE_LONG_LINE_BYTES * 4];
     const ce_adapter *a = ce_adapter_for(cg.game);
     const char *raw = cg_s(&cg_g, t == 0 ? (unsigned int)cg_g.title : (unsigned int)t - 1u);
     int room = a != NULL ? a->name_room : 0;
-    static char cased[CG_LABEL_V6 * 4];
+    static char cased[CE_LONG_LINE_BYTES * 4];
     if (cg_g.version < 6) {
         lstrcpynA(out, t == 0 ? cg.title : raw, cap);
         return;
@@ -4852,7 +4887,7 @@ static void cg_title_text(unsigned short t, char *out, int cap) {
    it is shown. */
 static const char *cg_readable(const cg_graph *g) {
     static char buf[CE_TITLE_BYTES];
-    static char cased[CG_LABEL_V6 * 4];
+    static char cased[CE_LONG_LINE_BYTES * 4];
     lstrcpynA(cased, cg_s(g, (unsigned int)g->title), sizeof cased);
     cg_title_case(cased);                               /* 20: a title in capitals in title case */
     lstrcpynA(buf, cased, sizeof buf);
@@ -4862,8 +4897,8 @@ static const char *cg_readable(const cg_graph *g) {
 /* 17: the running event's title with the cast villagers' real names (never pronouns: the log has no title box),
    for the Island Events log's "Event:" line and "Disappeared in ...". */
 static void cg_title_logged(char *out, int cap) {
-    static char buf[CG_LABEL_V6 * 4];
-    static char cased[CG_LABEL_V6 * 4];
+    static char buf[CE_LONG_LINE_BYTES * 4];
+    static char cased[CE_LONG_LINE_BYTES * 4];
     const ce_adapter *a = ce_adapter_for(cg.game);
     if (cg_g.version < 6) {
         lstrcpynA(out, cg.title, cap);
@@ -4876,11 +4911,11 @@ static void cg_title_logged(char *out, int cap) {
 }
 
 /* The title of display `k`'s popup, into `out`. */
-static char cg_title_rest[CG_LABEL_V6 * 4];   /* the part of the last title shown that did not fit its area */
+static char cg_title_rest[CE_LONG_LINE_BYTES * 4];   /* the part of the last title shown that did not fit its area */
 
 /* Title `title` (as shown) cut to what fits the title area, at a space; what is left into cg_title_rest. */
 static void cg_title_wrap(char *title) {
-    static char head[CG_LABEL_V6 * 4];
+    static char head[CE_LONG_LINE_BYTES * 4];
     int n = lstrlenA(title), cut = -1, i;
     cg_title_rest[0] = '\0';
     if (n == 0 || cg_title_fits(title)) {
@@ -4912,7 +4947,7 @@ static void cg_title_wrap(char *title) {
 }
 
 static void cg_display_title(int k, char *out, int cap) {
-    static char full[CG_LABEL_V6 * 4];
+    static char full[CE_LONG_LINE_BYTES * 4];
     cg_title_text(k >= 0 && k < cg.display_count ? cg.display_title[k] : 0, full, (int)sizeof full);
     cg_title_wrap(full);                /* a choice's label wider than the title area: its rest on the page */
     lstrcpynA(out, full, cap);
@@ -6812,7 +6847,7 @@ static unsigned short cg_page_title(const cg_popup *p, const cg_pages *pages, in
    the event's title instead: one wider than the title area wraps, its rest the page's first line (cg_display_title,
    cg_display: "should not be a problem with the scrollbars"). */
 static unsigned short cg_choice_title(const cg_history *h, int from) {
-    static char worst[CG_LABEL_V6 * 4];
+    static char worst[CE_LONG_LINE_BYTES * 4];
     const unsigned char *q;
     int k, count, first;
     if (cg_g.version < 6 || from <= 0 || from >= h->nodes) {
@@ -6978,7 +7013,8 @@ typedef int (__stdcall *cg_log_begin_fn)(int game);
 typedef int (__stdcall *cg_log_end_fn)(int game, char *out, int cap);
 typedef int (__stdcall *cg_log_write_fn)(int game, int key, const char *text, int disk, int final);
 static int cg_logged;                  /* the game whose last popup was this run's (asked once by the log) */
-static char cg_shown_title[CE_TITLE_BYTES];   /* the title of the run's popup shown last (14: a node's may differ) */
+static char cg_shown_title[CE_LONG_LINE_BYTES * 4];   /* the title of the run's popup shown last (14: a node's may
+                                                         differ) */
 
 #ifdef VVFP_TEST
 static int test_graph_log;             /* stands in for the companion: each page's lines "  page <k>" */
@@ -7004,14 +7040,14 @@ static void cg_entry_put(const char *text) {
 
 /* The entry's header: the title, and the button clicked (`label`, or NULL with no question). */
 static void cg_entry_start(const char *label) {
-    char line[CG_LABEL_V6 * 4 + CE_BUTTON_BYTES + 32], title[CG_LABEL_V6 * 4];
+    static char line[CE_LONG_LINE_BYTES * 8 + 32], title[CE_LONG_LINE_BYTES * 4];
     cg.entry_len = 0;
     cg.entry[0] = '\0';
     cg_title_logged(title, sizeof title);
-    wsprintfA(line, "  Event: %s\n", title);
+    cg_join(line, (int)sizeof line, "  Event: ", title, "\n");
     cg_entry_put(line);
     if (label != NULL) {
-        wsprintfA(line, "  Choice: %s\n", label);
+        cg_join(line, (int)sizeof line, "  Choice: ", label, "\n");
         cg_entry_put(line);
     }
     cg.entry_head = cg.entry_len;
@@ -7155,6 +7191,7 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
     cg_logged = game;                  /* the game's own bracket around this popup is not a record of its own */
     cg_display_title(k, cg_shown_title, sizeof cg_shown_title);   /* 14: the title in force on this page */
     lstrcpynA(ce_armed_event.title, cg_shown_title, sizeof ce_armed_event.title);   /* the later games draw it */
+    su_title_whole = cg_shown_title;   /* ... whole (story_objects.inc ce_deliver_object) */
     cg_compose(&l, cg_shown_title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
     cg.display_next = k + 1;
 }
@@ -7460,7 +7497,7 @@ static void cg_begin_question(int game, char *text, int size) {
                 const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + map[b]);
                 cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), real);
             }
-            lstrcpynA(cg_labels[b], real, CG_LABEL_V6);
+            lstrcpynA(cg_labels[b], real, CE_LONG_LINE_BYTES);
             if (b < 2) {
                 lstrcpynA(ce_choice_store[ce_asked_store].labels[b], real, CE_BUTTON_BYTES);
             }
@@ -7495,7 +7532,7 @@ static int cg_take_answer(const ce_adapter *a, int game, int choice) {
    header's "Choice:" line for the start's question, another "Choice:" line for each later one. */
 static int cg_resolve(int game, int button, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
-    static char label[CG_LABEL_V6];
+    static char label[CE_LONG_LINE_BYTES];
     unsigned char map[CG_MAX_ANSWERS];
     int qi = cg.answers, node, first, choice;
     if (a == NULL || button < 0 || button >= CG_MAX_ANSWERS || qi >= CG_MAX_QUESTIONS || cg.asking < 0) {
@@ -7515,14 +7552,14 @@ static int cg_resolve(int game, int button, char *text, int size) {
     cg.choice = button;
     {
         const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + choice);
-        char line[CG_LABEL_V6 + 16];
+        static char line[CE_LONG_LINE_BYTES + 16];
         cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), label);
         cg.q_entry[qi] = cg.entry_len;
         if (cg.entry_head == 0) {
             cg_entry_start(label);     /* the title and the start question's answer */
             cg.q_entry[qi] = 0;
         } else {
-            wsprintfA(line, "  Choice: %s\n", label);
+            cg_join(line, (int)sizeof line, "  Choice: ", label, "\n");
             cg_entry_put(line);
         }
     }
@@ -8185,6 +8222,13 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         wsprintfA(reason, "\"%s\" is not made for %s.", cg_readable(&cg_g), a->game_name);
         return reason;
     }
+    if (cg_g.long_text && !cg_one_popup()) {
+        /* A text longer than the popups hold without scrollbars (the owner, 2026-11-16: practically unlimited text
+           needs Scrolling Popups). */
+        wsprintfA(reason, "\"%s\" has text longer than this game's popups hold without the Scrolling Popups patch. "
+                  "Nothing has been queued.", cg_readable(&cg_g));
+        return reason;
+    }
     question = cg_node_at(&cg_g, cg_g.start)[0] == CG_QUESTION;
     if (question && !ce_choice_available(a)) {
         return "This game can not ask a question with two choices yet.";
@@ -8394,12 +8438,17 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 4u                 /* 2: the run keeps its path and every question's answers; 3: and a
+#define CG_FILE_VERSION 5u                 /* 2: the run keeps its path and every question's answers; 3: and a
                                               question's third and fourth answers (cg_state.seg_more); 4 (format
                                               version 6): answers five to seven, the pool picks, the aliases, each
-                                              question's buttons, the origin and the cast */
-#define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more))   /* a version 2 file's state bytes */
-#define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6))     /* a version 3 file's */
+                                              question's buttons, the origin and the cast; 5: the displays' words
+                                              in CG_DISPLAY_BYTES (practically unlimited text), not 49,152 */
+/* Versions 2 to 4 kept CG_DISPLAY_BYTES_V4 bytes of displays: every field after them sits that much nearer. */
+#define CG_FILE_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
+#define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more) - CG_FILE_GROWTH)   /* a version 2 file's state
+                                                                                           bytes */
+#define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6) - CG_FILE_GROWTH)     /* a version 3 file's */
+#define CG_FILE_V4_STATE ((unsigned int)sizeof(cg_state) - CG_FILE_GROWTH)               /* a version 4 file's */
 
 typedef struct {
     unsigned int magic;
@@ -8420,15 +8469,30 @@ static cg_state cg_read_state;
    empty: cg_file_upgrade); 0 for any other. */
 static unsigned int cg_file_state_bytes(void) {
     return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 4u ? CG_FILE_V4_STATE
          : cg_head.version == 3u ? CG_FILE_V3_STATE
          : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
 }
 
+/* A state read from a file before version 5: its fields after the displays' words moved to their places now (the
+   words' room grew by CG_FILE_GROWTH), the room between them empty. */
+static void cg_file_widen(cg_state *st) {
+    unsigned char *b = (unsigned char *)st;
+    unsigned int at = (unsigned int)offsetof(cg_state, displays) + CG_DISPLAY_BYTES_V4;
+    unsigned int to = (unsigned int)offsetof(cg_state, display_kind);
+    unsigned int bytes = cg_file_state_bytes();
+    if (cg_head.version >= CG_FILE_VERSION || bytes <= at || to != at + CG_FILE_GROWTH) {
+        return;
+    }
+    memmove(b + to, b + at, bytes - at);
+    memset(b + at, 0, CG_FILE_GROWTH);
+}
+
 /* A run read from an older file: what it lacks as a run of its own version had it (no alias drawn, every choice
-   shown as its version shows them, the cast strict). */
+   shown as its version shows them, the cast strict).  Version 4 holds them all (5 only widened the words). */
 static void cg_file_upgrade(cg_state *st) {
     int r;
-    if (cg_head.version >= CG_FILE_VERSION) {
+    if (cg_head.version >= 4u) {
         return;
     }
     for (r = 0; r < CG_MAX_ROLES; ++r) {
@@ -8462,6 +8526,7 @@ static int cg_file_read(int game, int slot) {
     }
     memcpy(&cg_read_state, cg_test_file + sizeof cg_head, state);
     memcpy(cg_read_buf, cg_test_file + sizeof cg_head + state, cg_head.graph_bytes);
+    cg_file_widen(&cg_read_state);
     return 1;
 }
 
@@ -8499,6 +8564,9 @@ static int cg_file_read(int game, int slot) {
         && cg_head.graph_bytes <= CG_MAX_FILE
         && ReadFile(h, cg_read_buf, cg_head.graph_bytes, &graph, NULL) && graph == cg_head.graph_bytes;
     CloseHandle(h);
+    if (ok) {
+        cg_file_widen(&cg_read_state);
+    }
     return ok ? 1 : 0;
 }
 
@@ -9087,11 +9155,18 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphVv1Parent(int record, in
     p->body = body;
 }
 
-/* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's. */
+/* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's, [3] where
+   the displays' words start in it, [4] their bytes, [5] the bytes versions 2 to 4 kept for them, [6] where version
+   3's state ends now (the third and fourth answers' segments end), [7] a version 4 file's state bytes. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
     out[0] = (int)CG_FILE_V3_STATE;
     out[1] = (int)sizeof(cg_file_head);
     out[2] = (int)sizeof(cg_state);
+    out[3] = (int)offsetof(cg_state, displays);
+    out[4] = (int)CG_DISPLAY_BYTES;
+    out[5] = (int)CG_DISPLAY_BYTES_V4;
+    out[6] = (int)offsetof(cg_state, seg_v6);
+    out[7] = (int)CG_FILE_V4_STATE;
 }
 
 /* cg_queue_origin as story_collection.inc calls it: 1 queued, else 0 with the reason copied to `why` (200 bytes). */
@@ -9298,7 +9373,7 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphDisplay(int k) {
 
 /* Display `k`'s popup title (cie-v6-binary.md 14), or NULL. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphTitle(int k) {
-    static char title[CE_TITLE_BYTES + 64];
+    static char title[CE_LONG_LINE_BYTES * 4];
     if (k < 0 || k >= cg.display_count) {
         return NULL;
     }

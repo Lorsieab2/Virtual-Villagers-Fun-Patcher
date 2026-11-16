@@ -446,7 +446,7 @@ class ResumeAndFile(unittest.TestCase):
         self.assertEqual(again.v6state()["picks"], before, "the same picks")
         self.assertEqual(again.displays()[:len(words)], words, "the same words")
 
-    def test_a_version_3_run_file_still_loads(self):
+    def test_a_version_3_or_4_run_file_still_loads(self):
         if not have_stock("vv3"):
             self.skipTest("no stock The Secret City")
         from test_story_cie_graph_runtime import CIEG
@@ -465,23 +465,30 @@ class ResumeAndFile(unittest.TestCase):
         r.tick()
         file = bytearray(r.graph_file())
         r.p.export("VvfpStoryProbeGraphFileLayout", LAYOUT_BUF)
-        v3, head, whole = struct.unpack("<3i", r.p.read(LAYOUT_BUF, 12))
-        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 4, "written as version 4")
-        old = bytes(file[:head]) + bytes(file[head:head + v3]) + bytes(file[head + whole:])
-        old = bytearray(old)
-        struct.pack_into("<I", old, 4, 3)
-        struct.pack_into("<I", old, 16, v3)
-        again = V6("vv3")
-        again.rolls([0] * 40)
-        again.p.export("VvfpStoryProbeQueueSession", 0, 0, 0x7FFFFFF0, 0)
-        buf = again.p.alloc(len(old) + 16)
-        again.p.write(buf, bytes(old))
-        again.p.export("VvfpStoryProbeGraphSession", buf, len(old))
-        again.tick()
-        self.assertEqual(again.state()["phase"], ASKED, "a version 3 file is put back")
-        again.p.write(TEXT_BUF, b"\0")
-        assert again.p.export("VvfpStoryProbeChoiceBegin", again.n, TEXT_BUF, 4096) == 1
-        self.assertEqual(again.labels(2), labels)
+        v3, head, whole, words_at, words, words_v4, v3_end, v4 = struct.unpack("<8i", r.p.read(LAYOUT_BUF, 32))
+        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 5, "written as version 5")
+        self.assertEqual(v3, v3_end - (words - words_v4))
+        self.assertEqual(v4, whole - (words - words_v4))
+        state = bytes(file[head:head + whole])
+        # Versions 2 to 4 kept 49,152 bytes of displays' words: the state as such a file holds it.
+        self.assertTrue(all(b == 0 for b in state[words_at + words_v4:words_at + words]), "the words fit the old room")
+        narrow = state[:words_at + words_v4] + state[words_at + words:]
+        for version, size in ((3, v3), (4, v4)):
+            with self.subTest(version=version):
+                old = bytearray(bytes(file[:head]) + narrow[:size] + bytes(file[head + whole:]))
+                struct.pack_into("<I", old, 4, version)
+                struct.pack_into("<I", old, 16, size)
+                again = V6("vv3")
+                again.rolls([0] * 40)
+                again.p.export("VvfpStoryProbeQueueSession", 0, 0, 0x7FFFFFF0, 0)
+                buf = again.p.alloc(len(old) + 16)
+                again.p.write(buf, bytes(old))
+                again.p.export("VvfpStoryProbeGraphSession", buf, len(old))
+                again.tick()
+                self.assertEqual(again.state()["phase"], ASKED, f"a version {version} file is put back")
+                again.p.write(TEXT_BUF, b"\0")
+                assert again.p.export("VvfpStoryProbeChoiceBegin", again.n, TEXT_BUF, 4096) == 1
+                self.assertEqual(again.labels(2), labels)
 
 
 def cast_graph(**role) -> dict:

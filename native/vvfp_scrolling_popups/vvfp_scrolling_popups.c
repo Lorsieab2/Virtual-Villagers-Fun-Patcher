@@ -6,7 +6,10 @@
    the knob and clicking the track scroll it.  A popup whose text fits is drawn exactly as the game draws it (the
    same single call, nothing else).  Stage 1: the island-event dialog of The Secret City, The Tree of Life and New
    Believers (native/shared/scroll_popup.h has the rows; more popups and games are rows to add).  The dialog's text
-   field keeps the game's 2000-byte size.
+   field keeps the game's 2000-byte size: a longer text (the owner, 2026-11-16: "practically unlimited") is kept whole
+   by the companion that shows it, the field holding its start, and is measured and drawn whole here
+   (native/shared/one_popup.h VvfpPopupWholeText); a title wider than the box wraps; a choice's row grows to its
+   label's lines.
 
    A WORD WIDER THAN THE BOX (a long unbroken word).  The game's justified paragraph never places such a word: it
    backs off to an empty line and tries it again, for ever, so the stock game hangs on it.  The constructor's

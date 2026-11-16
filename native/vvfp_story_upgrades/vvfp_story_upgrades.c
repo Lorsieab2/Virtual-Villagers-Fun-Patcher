@@ -1908,6 +1908,14 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChoiceResolve(int game, int bu
     return ce_choice_resolve(game, button, text, size);
 }
 
+/* One popup (native/shared/one_popup.h): 	ext as the whole text shown, put into ield (ytes, NUL included) as
+   su_put_long puts it; returns the bytes the field holds (VvfpPopupWholeText then answers for them). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeLongPut(const char *text, char *field, int bytes) {
+    lstrcpynA(su_long_text, text, (int)sizeof su_long_text);
+    su_put_long(field, bytes);
+    return lstrlenA(field);
+}
+
 /* ce_choice_pending, ce_choice_asked, and the last resolved button and
    outcome, into out[0..3]. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceState(int game, int *out) {
