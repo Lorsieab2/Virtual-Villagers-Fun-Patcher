@@ -925,3 +925,14 @@ in `data/event_collection/content_tags/<source>.json`.
   children, siblings) resting `n` in-game days (86,400 game-clock seconds each) when Rest Periods for Island Events is
   installed (`story_rest.inc`, its own per-save file following each villager). While a villager rests, every role a
   rest effect names (an alias: its members) refuses them (`cg_eligible`). Never a change, never a line, never logged.
+
+## 32. Story traits (`trait`, code 26) and speaking roles (the owner, 2026-11-15)
+
+- **`{"do": "trait", "role": r, "trait": "mute"}`** (a = the trait's bit, 1 "mute"; b 0; no string): made at its
+  place, it keeps the trait for the villager in the same per-villager file as the rest periods (`story_rest.inc`),
+  whatever is ticked; it follows them as every patcher sidecar does. "The Quiet Hands" (Inner Life 3, `il003_*`)
+  gives it to the villager it casts (`src/vv_event_content.py` TRAIT_EVENTS writes the effect on its start, or on
+  each answer's first node when the start is a question). Never a change, never a line, never logged.
+- **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
+  words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
+  `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).

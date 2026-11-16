@@ -199,7 +199,8 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
             # The content controls written in (src/vv_event_content.py): the source's tag table's node tags.
-            "cieg": cie.compile_graph(content.inject(g, content.node_tags_for(meta.get("source", "v28"), ident, g))[0]),
+            "cieg": cie.compile_graph(content.inject(g, content.node_tags_for(meta.get("source", "v28"), ident, g),
+                                                         content.extras_for(meta.get("source", "v28"), ident, g))[0]),
         })
     return sorted(out, key=lambda e: e["id"])
 

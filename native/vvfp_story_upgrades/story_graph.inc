@@ -172,7 +172,11 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 30 */
        CGE_DELIVER_EARLY = 24,
        /* cie-v6-binary.md 31: a rest period (src/vv_event_content.py), never a change to anyone */
-       CGE_REST = 25 };
+       CGE_REST = 25,
+       /* cie-v6-binary.md 32: a story trait kept for the villager (The Quiet Hands: mute), never a change */
+       CGE_TRAIT = 26 };
+#define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
+#define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -905,7 +909,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
             if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > 3u || !cg_str_ok(g, cg_u16(r + 10), 1)
-                || r[13] > 1u || r[12] > 100u) {
+                || (r[13] & ~CG_ROLE_SPEAKS) > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
             if (r[0] == CG_ROLE_OTHER) {
@@ -1028,9 +1032,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST;
+                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST || e[0] == CGE_TRAIT;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
-                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST));
+                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST
+                                         || e[0] == CGE_TRAIT));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1074,6 +1079,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
                 break;
             case CGE_REST: ok = a >= 1 && a <= 3650 && b == 0 && str == CG_NONE; break;   /* 31: days */
+            case CGE_TRAIT: ok = a == (int)CG_TRAIT_MUTE && b == 0 && str == CG_NONE; break;  /* 32: a trait */
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -1532,6 +1538,8 @@ static int cg_sex_change_role(int role) {
 /* story_rest.inc: the rest periods of the island events' content controls. */
 static int rs_resting(int game, const unsigned char *record);
 static void rs_rest_role(const ce_adapter *a, int game, int index, int days);
+static void rs_set_trait(int game, int index, unsigned int trait);
+static int rs_has_trait(int game, const unsigned char *record, unsigned int trait);
 
 /* The roles a rest effect names (31): the roles a serious outcome can reach.  An alias names its members. */
 static unsigned int cg_serious_roles(void) {
@@ -1596,6 +1604,9 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if ((cg_serious_roles() >> role) & 1u && rs_resting(game, r)) {
         return 0;                      /* resting after a serious new-event outcome (Rest Periods for Island Events) */
+    }
+    if (cg_g.version >= 6 && (spec[13] & CG_ROLE_SPEAKS) && rs_has_trait(game, r, CG_TRAIT_MUTE)) {
+        return 0;                      /* a story-mute villager never takes a role whose words have them speak */
     }
     /* The requirements (version 6: dropped for a role nobody meets when the cast prefers them). */
     if (cg_relax_mask & (1u << role)) {
@@ -2531,7 +2542,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && spec[13] == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_SPEAKS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -4599,6 +4610,13 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         role = cg_resolve_role(e[1]);
         if (role >= 0 && cg_villager(a, role) != NULL) {
             rs_rest_role(a, game, cg.record[role], (int)cg_u32(e + 4));
+        }
+        return;
+    case CGE_TRAIT:
+        /* 32: the villager keeps the story trait (story_rest.inc's file follows them), whatever is ticked. */
+        role = cg_resolve_role(e[1]);
+        if (role >= 0 && cg_villager(a, role) != NULL) {
+            rs_set_trait(game, cg.record[role], cg_u32(e + 4));
         }
         return;
     case CGE_CELEBRATE:

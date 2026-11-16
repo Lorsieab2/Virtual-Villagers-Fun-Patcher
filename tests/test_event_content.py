@@ -122,6 +122,28 @@ class Injection(unittest.TestCase):
         self.assertEqual(cg.compile_graph(content.inject(g, content.tag_graph(g))[0]), cg.compile_graph(g))
 
 
+class SpeakingAndTraits(unittest.TestCase):
+    TALK = {"s": {"text": "(Name) looks up. \"Good morning,\" says (friend.name).", "children": []}}
+    ROLES = {"subject": {"kind": "villager"}, "friend": {"kind": "villager"}}
+
+    def test_a_role_given_words_speaks(self):
+        g = graph(self.TALK, roles=self.ROLES)
+        self.assertEqual(content.speaking_roles(g), ["friend"])
+        out, _plan = content.inject(g, {}, {"speaks": ["friend"]})
+        back = cg.decompile_graph(cg.compile_graph(out))
+        self.assertTrue(back["roles"]["friend"].get("speaks"))
+        self.assertFalse(back["roles"]["subject"].get("speaks"))
+
+    def test_the_quiet_hands_gives_its_subject_the_mute_trait(self):
+        g = graph(TWO_ENDINGS)
+        self.assertEqual(content.event_traits("il003_quiet_hands", g), [{"role": "subject", "trait": "mute"}])
+        self.assertEqual(content.event_traits("il004_other", g), [])
+        out, _plan = content.inject(g, {}, {"traits": content.event_traits("il003_quiet_hands", g)})
+        self.assertEqual(out["nodes"]["s"]["effects"][0], {"do": "trait", "role": "subject", "trait": "mute"})
+        back = cg.decompile_graph(cg.compile_graph(out))
+        self.assertEqual(back["nodes"]["s"]["effects"][0]["do"], "trait")
+
+
 class Rows(unittest.TestCase):
     def test_defaults(self):
         import vv_fun_patcher_gui as gui
@@ -266,6 +288,32 @@ if rt is not None:
                     self.assertIsNone(run.queue(cg.compile_graph(walk)))
                     self.assertNotEqual(run.state()["records"][0], 1, "Bea rests: never the subject of the walk")
                     run.p.export("VvfpStoryProbeRest", -1, run.n, 0, 0)
+
+
+if rt is not None:
+    @emulated
+    class NativeTraits(unittest.TestCase):
+        def test_a_story_mute_villager_never_takes_a_speaking_role(self):
+            quiet = graph({"s": {"text": "(Name) folds (his/her) hands and says nothing.", "children": []}})
+            quiet, _plan = content.inject(quiet, {}, {"traits": [{"role": "subject", "trait": "mute"}]})
+            talk = graph(SpeakingAndTraits.TALK, roles={"friend": {"kind": "villager"},
+                                                       "subject": {"kind": "villager", "optional": True}},
+                         start="s")
+            talk, _plan = content.inject(talk, {}, {"speaks": ["friend"]})
+            for game in GAMES:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    run = rt.Run(game)
+                    run.rolls([1] + [0] * 40)
+                    run.force([], graph=quiet)
+                    self.assertIsNone(run.queue(cg.compile_graph(quiet)))
+                    run.play()
+                    self.assertEqual(run.state()["records"][0], 1, "Bea was cast")
+                    run.rolls([1] + [0] * 40)
+                    run.force([], graph=talk)
+                    self.assertIsNone(run.queue(cg.compile_graph(talk)))
+                    self.assertNotEqual(run.state()["records"][0], 1, "Bea is story-mute: never the one who speaks")
 
 
 if __name__ == "__main__":

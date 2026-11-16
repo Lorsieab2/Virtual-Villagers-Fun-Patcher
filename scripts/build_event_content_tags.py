@@ -42,7 +42,7 @@ def build() -> dict[str, dict]:
         tags = {n: set(t) for n, t in content.tag_graph(g).items()}
         for node, extra in WRITER_TAGS.get(source, {}).get(ident, {}).items():
             tags.setdefault(node, set()).update(extra)
-        tables.setdefault(source, {})[ident] = content.table_entry(g, {n: sorted(t) for n, t in tags.items() if t})
+        tables.setdefault(source, {})[ident] = content.table_entry(g, {n: sorted(t) for n, t in tags.items() if t}, ident)
     return tables
 
 

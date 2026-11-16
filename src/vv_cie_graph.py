@@ -376,6 +376,9 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "sex_change",                                                  # ... 29
               "deliver_early")                                               # ... 30
 REST_EFFECT_CODE = 25         # cie-v6-binary.md 31
+TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
+TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
+ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
@@ -383,14 +386,17 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
                      "deliver_early": 24,  # 30
                      # 31: a rest period (src/vv_event_content.py writes it beside a new event's serious outcome; the
                      # companion keeps the villager and their immediate family out of serious outcomes for `days`)
-                     "rest": REST_EFFECT_CODE})
+                     "rest": REST_EFFECT_CODE,
+                     # 32: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
+                     "trait": TRAIT_EFFECT_CODE})
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
-                    "rest": 0})                     # 31: never a change to the villager
+                    "rest": 0,                      # 31: never a change to the villager
+                    "trait": 0})                    # 32: likewise
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early")
@@ -3644,7 +3650,7 @@ def _compile_v6(g: dict) -> bytes:
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
                                  v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
-                                 PICK_CODES[sk["pick"]] if sk else 0, 0)
+                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0), 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -3663,7 +3669,7 @@ def _compile_v6(g: dict) -> bytes:
         for e in n["effects"]:
             do = e["do"]
             code = EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
-            r = e["role"] if do == "rest" else effect_role(e)
+            r = e["role"] if do in ("rest", "trait") else effect_role(e)
             role = ridx[r] if r is not None else 0xFF
             flags, a, b, st = 0, 0, 0, NONE
             if do in ("food", "tech"):
@@ -3700,6 +3706,8 @@ def _compile_v6(g: dict) -> bytes:
                 a, b = e["min"], e["max"]
             elif do == "rest":
                 a = e["days"]
+            elif do == "trait":
+                a = TRAIT_CODES[e["trait"]]
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -3834,6 +3842,7 @@ def _decompile_v6(data: bytes) -> dict:
     roles: dict[str, dict] = {}
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
+        speaks, pick = bool(pick & ROLE_SPEAKS), pick & ~ROLE_SPEAKS
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -3856,6 +3865,8 @@ def _decompile_v6(data: bytes) -> dict:
                           "believers_only": bool(flags & 8)}
             if gap_role:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
+            if speaks:
+                roles[rid]["speaks"] = True
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}
@@ -3922,6 +3933,8 @@ def _decompile_v6(data: bytes) -> dict:
                     e["cause"] = s(st)
                 elif do == "rest":
                     e["days"] = a
+                elif do == "trait":
+                    e["trait"] = {v: k for k, v in TRAIT_CODES.items()}[a]
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
             effects.append(e)

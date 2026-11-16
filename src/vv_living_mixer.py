@@ -1200,7 +1200,7 @@ def compile_all(variants: list[Variant], bank: Bank | None = None) -> None:
     import vv_event_content as content
     for v in variants:
         g = validate_variant(v)
-        g, _plan = content.inject(g, variant_tags(v, g, bank))
+        g, _plan = content.inject(g, variant_tags(v, g, bank), {"speaks": content.speaking_roles(g)})
         v.cieg = cg.compile_graph(g)
         order = list(g["nodes"])
         v.outcomes = [(name, grp, arc) for name, grp, arc in v.outcomes]

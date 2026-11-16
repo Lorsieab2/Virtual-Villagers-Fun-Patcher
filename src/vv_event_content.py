@@ -24,7 +24,10 @@ WHAT THE BUILD WRITES INTO EACH COMPILED EVENT (inject), so the game needs nothi
   * a "rest" effect (code 25) beside every serious outcome: a death, a pregnancy loss or a child's death in childbirth
     (60 days for the surviving immediate family), a disappearance, a serious injury or a bereavement (30 days for the
     villager and their immediate family).  With Rest Periods for Island Events on, the companion keeps those villagers
-    out of every role of a new event that can take a serious outcome until then (story_rest.inc).
+    out of every role of a new event that can take a serious outcome until then (story_rest.inc);
+  * STORY TRAITS (the owner, 2026-11-15): "The Quiet Hands" (Inner Life 3, il003_*) gives the villager it casts the
+    story trait "mute" (a "trait" effect, code 26, kept in the same per-villager file); every role whose words have
+    them speak (a "speaks" role: speaking_roles) never takes a story-mute villager.
 """
 from __future__ import annotations
 
@@ -225,6 +228,53 @@ def tag_graph(g: dict) -> dict[str, list[str]]:
     return out
 
 
+# ---- Who speaks -----------------------------------------------------------------------------------------------------
+
+SPEECH_VERBS = (r"says|said|asks|asked|replies|replied|whispers|whispered|shouts|shouted|tells|told|answers|answered|"
+                r"explains|explained|announces|announced|declares|declared|admits|admitted|insists|insisted|"
+                r"suggests|suggested|exclaims|exclaimed|mutters|muttered|murmurs|murmured|calls out|called out|"
+                r"sings|sang|speaks|spoke|says aloud|cries out|cried out|jokes|joked|promises|promised|"
+                r"protests|protested|argues|argued|begs|begged|laughs and says|adds|added")
+_ROLE_TOKEN = r"\((?P<tok>[A-Za-z0-9_]+)(?:\.[A-Za-z]+)?\)"
+_SPEAKS_AFTER = re.compile(_ROLE_TOKEN + r"[^.!?\n\"]{0,40}?\b(?:" + SPEECH_VERBS + r")\b", re.IGNORECASE)
+_SPEAKS_BEFORE = re.compile(r"\b(?:" + SPEECH_VERBS + r")\s+" + _ROLE_TOKEN, re.IGNORECASE)
+_SPEAKS_COLON = re.compile(_ROLE_TOKEN + r"\s*:\s*\"")
+_PRONOUN_TOKENS = {"name", "he/she", "his/her", "him/her", "man/woman", "himself/herself", "boy/girl", "son/daughter"}
+
+
+def speaking_roles(g: dict) -> list[str]:
+    """The villager roles whose words the event's text gives them to say (a quoted line attributed to them, "(Name)
+    says", "asks (friend.name)", "(Healer1): \"..."): such a role never takes a story-mute villager."""
+    roles = g.get("roles", {})
+    lower = {r.lower(): r for r in roles}
+    default = "subject" if "subject" in roles else next(iter(roles), None)
+    found: list[str] = []
+    for node in g["nodes"].values():
+        texts = [node.get("text") or ""] + [v.get("text") or "" for v in node.get("variants", [])]
+        for text in texts:
+            for rx in (_SPEAKS_AFTER, _SPEAKS_BEFORE, _SPEAKS_COLON):
+                for m in rx.finditer(text):
+                    tok = m.group("tok").lower()
+                    rid = lower.get(tok, default if tok in _PRONOUN_TOKENS else None)
+                    if rid is not None and roles[rid].get("kind") == "villager" and rid not in found:
+                        found.append(rid)
+    return found
+
+
+# The story traits the owner named (2026-11-15): the event (its id's start) and the trait its cast villager keeps.
+TRAIT_EVENTS = {"il003": "mute"}
+
+
+def event_traits(event_id: str, g: dict) -> list[dict]:
+    """The traits an event gives: [{"role", "trait"}] (The Quiet Hands: its subject keeps "mute")."""
+    for prefix, trait in TRAIT_EVENTS.items():
+        if event_id.startswith(prefix):
+            roles = g.get("roles", {})
+            rid = "subject" if "subject" in roles else next(iter(roles), None)
+            return [{"role": rid, "trait": trait}] if rid else []
+    return []
+
+
 # ---- The tag tables ------------------------------------------------------------------------------------------------
 
 _tables: dict[str, dict] = {}
@@ -250,11 +300,28 @@ def node_tags_for(source: str, event_id: str, g: dict) -> dict[str, list[str]]:
     return tag_graph(g)
 
 
-def table_entry(g: dict, node_tags: dict[str, list[str]]) -> dict:
-    """A tag table's entry for one event: its nodes' filters, every filter, the content notes it may show."""
+def table_entry(g: dict, node_tags: dict[str, list[str]], event_id: str = "") -> dict:
+    """A tag table's entry for one event: its nodes' filters, every filter, the content notes it may show, the roles
+    whose words have them speak and the story traits it gives."""
     every = sorted({f for t in node_tags.values() for f in t})
-    return {"filters": every, "notes": [lab for lab, fs in NOTE_LABELS.items() if set(fs) & set(every)],
-            "nodes": {n: list(t) for n, t in sorted(node_tags.items())}}
+    entry = {"filters": every, "notes": [lab for lab, fs in NOTE_LABELS.items() if set(fs) & set(every)],
+             "nodes": {n: list(t) for n, t in sorted(node_tags.items())}}
+    speaks = speaking_roles(g)
+    if speaks:
+        entry["speaks"] = speaks
+    traits = event_traits(event_id, g)
+    if traits:
+        entry["traits"] = traits
+    return entry
+
+
+def extras_for(source: str, event_id: str, g: dict) -> dict:
+    """The event's speaking roles and traits: its table's, or (not in the table yet) found now."""
+    entry = load_table(source).get(event_id)
+    if entry is not None:
+        return {"speaks": [r for r in entry.get("speaks", []) if r in g["roles"]],
+                "traits": [t for t in entry.get("traits", []) if t.get("role") in g["roles"]]}
+    return {"speaks": speaking_roles(g), "traits": event_traits(event_id, g)}
 
 
 # ---- The graph's structure -----------------------------------------------------------------------------------------
@@ -443,8 +510,29 @@ def _rest_roles(g: dict, node: dict) -> list[str]:
     return out
 
 
-def inject(g: dict, tags: dict[str, list[str]]) -> tuple[dict, dict]:
+def _with_extras(g: dict, extras: dict | None) -> dict:
+    """`g` (a copy when anything changes) with its speaking roles marked and its traits' effects written: on the
+    start, or (a question, whose own effects are never made) on each of its answers' first nodes."""
+    if not extras or not (extras.get("speaks") or extras.get("traits")):
+        return g
+    g = copy.deepcopy(g)
+    for rid in extras.get("speaks", []):
+        if g["roles"].get(rid, {}).get("kind") == "villager":
+            g["roles"][rid]["speaks"] = True
+    for t in extras.get("traits", []):
+        start = g["nodes"][g["start"]]
+        targets = [g["start"]] if start.get("type") != "question" else [c["next"] for c in start.get("choices", [])]
+        for nid in dict.fromkeys(targets):
+            node = g["nodes"][nid]
+            effect = {"do": "trait", "role": t["role"], "trait": t["trait"]}
+            if effect not in node.get("effects", []):
+                node["effects"] = [effect] + list(node.get("effects", []))
+    return g
+
+
+def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> tuple[dict, dict]:
     """The normalized graph `g` with the content controls written in (a copy) and the plan (for the reports)."""
+    g = _with_extras(g, extras)
     if not tags:
         return g, {"edges": {}, "groups": [], "labels": [], "present": []}
     p = plan(g, tags)

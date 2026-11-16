@@ -20,7 +20,7 @@
        u32 id[count]       the identity each entry was kept for (0 = none)
        u8  handle[count]   0 none, else the entry's row in the table below (1..255)
        u32 until[255]      row k-1: the game-clock second the rest ends (0 = none)
-       u32 traits[255]     row k-1: the story traits (bits; reserved, 0)
+       u32 traits[255]     row k-1: the story traits (bit 0 "mute": The Quiet Hands; cie-v6-binary.md 32)
    exactly 12 + count * 9 + 255 * 8 bytes.  The handles follow the villagers (vv_mask_follow), the rows stay where
    they are.  The test build keeps the table in memory only. */
 
@@ -435,6 +435,40 @@ static void rs_rest_role(const ce_adapter *a, int game, int index, int days) {
         }
     }
     if (changed) {
+        (void)rs_publish();
+    }
+}
+
+/* The record's row in the table when it holds the villager in `record`, else 0. */
+static int rs_row_of_record(int game, const unsigned char *record) {
+    int i, slots;
+    if (record == NULL || !rs_sync(game)) {
+        return 0;
+    }
+    slots = rs_slots();
+    for (i = 0; i < slots && rs_record(i) != record; ++i) {
+    }
+    if (i >= slots || rs_handle[i] == 0 || rs_roster[i] != rs_identity(record)) {
+        return 0;
+    }
+    return rs_handle[i];
+}
+
+/* Whether the villager in `record` has story trait `trait` (cie-v6-binary.md 32), whatever is ticked. */
+static int rs_has_trait(int game, const unsigned char *record, unsigned int trait) {
+    int row = rs_row_of_record(game, record);
+    return row != 0 && (rs_traits[row - 1] & trait) != 0;
+}
+
+/* A trait effect made for the villager in record `index`: they keep `trait` from now on (the file follows them). */
+static void rs_set_trait(int game, int index, unsigned int trait) {
+    int row;
+    if (trait == 0 || !rs_sync(game) || index < 0 || index >= rs_slots() || rs_roster[index] == 0) {
+        return;
+    }
+    row = rs_row_of(index);
+    if (row != 0 && (rs_traits[row - 1] & trait) != trait) {
+        rs_traits[row - 1] |= trait;
         (void)rs_publish();
     }
 }
