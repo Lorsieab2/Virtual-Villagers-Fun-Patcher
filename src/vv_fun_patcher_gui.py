@@ -947,6 +947,11 @@ def _regrab(window) -> None:
         window.grab_set()
 
 
+class WaitCancelled(BaseException):
+    """The player cancelled a read-only "Please wait".  A BaseException, so no handler's `except
+    Exception` takes it for a failure; App.report_callback_exception ends it quietly."""
+
+
 class WaitWindow:
     """A small "Please wait..." window shown over blocking work.
 
@@ -956,22 +961,27 @@ class WaitWindow:
     crash.  This gives the wait a face that says so.
     """
 
-    def __init__(self, parent, title: str, message: str, modal: bool = True) -> None:
+    def __init__(self, parent, title: str, message: str, modal: bool = True, on_cancel=None) -> None:
         self._parent = parent
         self._modal = modal
         window = tk.Toplevel(parent)
         self._window = window
         window.title(title)
         window.resizable(False, False)
-        # The work cannot be cancelled partway without leaving a half-copied
-        # game folder behind, so the close button does nothing.
-        window.protocol("WM_DELETE_WINDOW", lambda: None)
+        # With no on_cancel (the startup splash) the close button does nothing.  With one, the close
+        # button and a Cancel button both call it: _run_with_wait decides whether the work may stop.
+        window.protocol("WM_DELETE_WINDOW", on_cancel or (lambda: None))
         frame = ttk.Frame(window, padding=28)
         frame.pack(fill="both", expand=True)
-        ttk.Label(frame, text=message, justify="center").pack()
+        self._label = ttk.Label(frame, text=message, justify="center")
+        self._label.pack()
         self._bar = ttk.Progressbar(frame, mode="indeterminate", length=300)
         self._bar.pack(pady=(18, 0))
         self._bar.start(12)
+        self._cancel = None
+        if on_cancel is not None:
+            self._cancel = ttk.Button(frame, text="Cancel", command=on_cancel)
+            self._cancel.pack(pady=(16, 0))
         if modal:
             window.transient(parent)
         self._center()
@@ -1052,6 +1062,15 @@ class WaitWindow:
                 except tk.TclError:
                     pass
                 time.sleep(GRAB_POLL_SECONDS)
+
+    def cannot_stop(self, message: str) -> None:
+        """Cancel pressed on work that writes files: say why it carries on, and stop offering Cancel."""
+        try:
+            self._label.configure(text=message)
+            if self._cancel is not None:
+                self._cancel.configure(state="disabled")
+        except tk.TclError:
+            pass
 
     def close(self) -> None:
         try:
@@ -1395,7 +1414,7 @@ class App(tk.Tk):
         # the window is up (the owner, v1.35.66).
         self.after(1500, self._ask_startup_questions)
 
-    def _run_with_wait(self, message: str, work):
+    def _run_with_wait(self, message: str, work, cancellable: bool | None = None):
         """Run ``work`` off the main thread while a wait window stays alive.
 
         ``work`` must not touch Tk.  Every caller therefore reads its Tk
@@ -1406,7 +1425,28 @@ class App(tk.Tk):
         progress bar moving, which is the whole point: the same call made
         directly would leave the patcher looking hung for its whole duration.
         """
-        wait = WaitWindow(self, "Please wait", message)
+        # Cancel and the close button (the owner, v1.35.97: a "Checking the logs" wait on a large village
+        # on a busy computer could not be closed).  Work that only reads -- its message says "Nothing is
+        # changed." or the caller passes cancellable=True -- stops at once: its result is thrown away (the
+        # worker finishes on its own, reading only) and WaitCancelled goes up to report_callback_exception,
+        # which says nothing was changed.  Work that writes files carries on, so no game folder or save is
+        # ever left half-written, and the window says so.
+        if cancellable is None:
+            cancellable = "Nothing is changed" in message
+        state = {"cancelled": False}
+
+        def cancel() -> None:
+            if cancellable:
+                state["cancelled"] = True
+            else:
+                wait.cannot_stop(message + "\n\nThis changes files, so it cannot stop partway\nwithout leaving "
+                                 "them half done. This window\ncloses by itself when it finishes.")
+
+        try:
+            held = self.grab_current()
+        except (KeyError, tk.TclError):
+            held = None
+        wait = WaitWindow(self, "Please wait", message, on_cancel=cancel)
         # The wait window's own close is disabled, but that does nothing for the
         # ROOT window: while this pumps the event loop, closing the app from its
         # title bar or the taskbar would run App._close, destroy every widget,
@@ -1425,16 +1465,38 @@ class App(tk.Tk):
         worker = threading.Thread(target=run, daemon=True)
         worker.start()
         try:
-            while worker.is_alive():
+            while worker.is_alive() and not state["cancelled"]:
                 self.update()
                 time.sleep(WAIT_POLL_SECONDS)
-            worker.join()
+            if not state["cancelled"]:
+                worker.join()
         finally:
             wait.close()
             self.protocol("WM_DELETE_WINDOW", self._close)
+        if state["cancelled"]:
+            if held is not None and held is not self:
+                _regrab(held)               # the dialog that started the work is modal again
+            raise WaitCancelled()
         if "error" in outcome:
             raise outcome["error"]
         return outcome["value"]
+
+    def report_callback_exception(self, exc, val, tb) -> None:
+        """An error no handler caught, from a button or a "Please wait" worker: shown, never silent (the
+        patcher has no console).  A cancelled read-only wait is not an error."""
+        if isinstance(val, WaitCancelled):
+            try:
+                self.status_var.set("Cancelled. Nothing was changed.")
+            except (AttributeError, tk.TclError):
+                pass
+            return
+        super().report_callback_exception(exc, val, tb)
+        try:
+            messagebox.showerror("Virtual Villagers Fun Patcher",
+                                 f"Something went wrong, and that step stopped.\n\n{val.__class__.__name__}: {val}",
+                                 parent=self)
+        except tk.TclError:
+            pass
 
     def _build_ui(self) -> None:
         viewport = ttk.Frame(self)
@@ -2901,6 +2963,7 @@ class App(tk.Tk):
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
+                cancellable=True,               # reads only
             )
             self.status_var.set(
                 "All five exact stock builds validated. "
@@ -2935,6 +2998,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             self.status_var.set(
                 "Dry run passed. No files were written. Planned copied game folder:\n"
@@ -2971,6 +3035,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             self.status_var.set(
                 "All-five dry run passed. No files were written. "
@@ -3039,6 +3104,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             output_folder = Path(preview["output_folder"])
             overwrite = False
@@ -3100,6 +3166,7 @@ class App(tk.Tk):
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
+                cancellable=True,               # reads only
             )
             previews = self._run_with_wait(
                 "Please wait\u2026\n\nPreparing the patches for all five games.",
@@ -3110,6 +3177,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             existing = []
             for (build, source), preview in zip(validated, previews, strict=True):
@@ -4818,8 +4886,12 @@ class App(tk.Tk):
                         vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                     totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
                         f"{vv_vv2_totem_store.FILE_NAME} was not checked: a file could not be read ({exc}).")
-            return (checked, sum(len(f.fixes) for f in old),
-                    vv_log_additions.plan(folder, number, info.slot, self._game_folders_for(folder)),
+            # The check above made the plan already (with its one reconciliation); made again only when it
+            # could not be.
+            kinds = checked.kinds
+            if kinds is None:
+                kinds = vv_log_additions.plan(folder, number, info.slot, self._game_folders_for(folder))
+            return (checked, sum(len(f.fixes) for f in old), kinds,
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
         try:
