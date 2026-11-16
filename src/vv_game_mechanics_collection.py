@@ -74,6 +74,15 @@ SECTIONS = (
     ("dr_div", "New Events: Disability and Diversity"),
     ("dr_his", "New Events: History and Collective Memory"),
     ("dr_lif", "New Events: Pondering How Life Has Gone"),
+    # The owner-approved files, group D (data/event_collection/drafts_d/<section>/)
+    ("dr_rm2", "New Events: Role Models and Good Examples, RM-41 to RM-90"),
+    ("dr_hz3", "New Events: Beyond the Horizon, Events 081 to 130"),
+    ("dr_tim", "New Events: Tiny Island Moments, T001 to T125"),
+    ("dr_tim2", "New Events: Tiny Island Moments, T126 to T175"),
+    ("dr_arm_m", "New Events: Armor Flavor Moments, M01 to M35"),
+    ("dr_armor", "New Events: Armor, Weapons and Inherited Traditions"),
+    ("dr_arm2", "New Events: Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
+    ("dr_fat", "New Events: Fathers, Pregnancy and Parenthood"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -132,7 +141,8 @@ def build_index(living_seeds=()) -> dict:
                          + list((base / "rolemodels").glob("*/*.json"))
                          + list((base / "drafts_a").glob("*/*.json"))
                          + list((base / "drafts_b").glob("*/*.json"))
-                         + list((base / "drafts_c").glob("*/*.json"))):
+                         + list((base / "drafts_c").glob("*/*.json"))
+                         + list((base / "drafts_d").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

@@ -372,3 +372,12 @@ The rest is small and good: food gains (ADV-33 both outcomes, BLF-25, DIV-09, NA
 small tech gains (BLF-20, BLF-39, DIV-17, NAT-31, HIS-37), small skill gains (HEA-23 and ADV-40 Healing, HEA-39
 Healing for the child, ADV-20 Building, DIV-27 Research), health gains (HEA-24, HEA-49, DIV-26 both outcomes) and
 celebrations (ADV-29, FAM2-34, BLF-36 both outcomes for both partners in both the men's and the women's version, DIV-30). LIF has no effect at all.
+
+## The approved files, group D (DRAFTS-D)
+
+Range: the owner's eight files of 2026-11-15 (`drafts_d/dr_<x>`: Role Models RM-41..90, Beyond the Horizon 081-130,
+Fathers, Pregnancy and Parenthood 01-30, Tiny Island Moments T001-T175, the armor moments M01-M35, Armor, Weapons and
+Inherited Traditions 01-45 and ARM-46..95), 435 events. Generator: `scripts/drafts_d/gen_drafts_d.py`. No effect at
+all: no harm, no reward, no `protected: "allow"`. Fathers 01-04 and 08 cast a male nursing parent, 05-07 a man who
+is a recorded parent of a young child (no effect on the pregnancy or the child); 19's pregnancy loss has already
+happened (story only).

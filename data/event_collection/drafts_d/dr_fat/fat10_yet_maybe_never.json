@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Yet, Maybe Never",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat10_yet_maybe_never",
+  "source": "fathers30",
+  "lines": [
+   201,
+   219
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L201",
+  "ledger": [
+   {
+    "src": "L202",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L203",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L207",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L209",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L210",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L212",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L213",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L215",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L216",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L218",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L219",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L205",
+    "kind": "sensitivity",
+    "before": "A man is asked",
+    "after": "(Name1) is asked",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A man is asked when he will become a father.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1) is asked when he will become a father. He likes children, but he is unsure he wants to raise one, and the question follows him through the village.",
+   "src": "L205",
+   "choices": [
+    {
+     "label": "Say He Is Undecided",
+     "next": "a",
+     "src": "L208"
+    },
+    {
+     "label": "Speak Honestly with His Partner",
+     "next": "b",
+     "src": "L211"
+    },
+    {
+     "label": "Spend a Day Helping at the Nursery",
+     "next": "c",
+     "src": "L214"
+    },
+    {
+     "label": "Set Aside Others' Expectations",
+     "next": "d",
+     "src": "L217"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "His friends accept that he has not made up his mind.",
+   "src": "L209"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One friend keeps pushing; he changes the subject.",
+   "src": "L210"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They discuss their different hopes without making promises.",
+   "src": "L212"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They discover a difficult incompatibility and need time.",
+   "src": "L213"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He enjoys the children and remains unsure about parenthood.",
+   "src": "L215"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The exhausting day strengthens his preference for a childfree life.",
+   "src": "L216"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He feels freer to imagine a future of his own choosing.",
+   "src": "L218"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "He still worries about disappointing someone he loves.",
+   "src": "L219"
+  }
+ }
+}

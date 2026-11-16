@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smell of Breadfruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim163_smell",
+  "source": "draft_tim2",
+  "lines": [
+   268,
+   273
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L268",
+  "ledger": [
+   {
+    "src": "L269",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L270",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L271",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L272",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L273",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "The smell of roasting breadfruit drifts across the village.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "The smell of roasting breadfruit drifts across the village. Several villagers find reasons to walk past the cooking fire.",
+   "src": "L269,L270"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "The smell of roasting breadfruit drifts across the village. A child follows the smell all the way to the source.",
+   "src": "L269,L271"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "The smell of roasting breadfruit drifts across the village. The cook pretends not to notice how many people are suddenly hungry.",
+   "src": "L269,L272"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "The smell of roasting breadfruit drifts across the village. Everyone gets a slice, and nobody complains about the burnt edges.",
+   "src": "L269,L273"
+  }
+ }
+}

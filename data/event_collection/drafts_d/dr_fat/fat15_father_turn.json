@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Father's Turn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat15_father_turn",
+  "source": "fathers30",
+  "lines": [
+   306,
+   324
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L306",
+  "ledger": [
+   {
+    "src": "L307",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L308",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L312",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L314",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L315",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L317",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L318",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L320",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L321",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L323",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L324",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L310",
+    "kind": "sensitivity",
+    "before": "The father takes charge",
+    "after": "The father, (name1), takes charge",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After a baby's arrival, one parent is worn out and needs uninterrupted sleep.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a baby's arrival, one parent is worn out and needs uninterrupted sleep. The father, (name1), takes charge of the household and discovers that a newborn's schedule is no schedule at all.",
+   "src": "L310",
+   "choices": [
+    {
+     "label": "Handle the Next Round of Care",
+     "next": "a",
+     "src": "L313"
+    },
+    {
+     "label": "Prepare Food Ahead of Time",
+     "next": "b",
+     "src": "L316"
+    },
+    {
+     "label": "Ask Friends to Share Chores",
+     "next": "c",
+     "src": "L319"
+    },
+    {
+     "label": "Make a Simple Care Plan",
+     "next": "d",
+     "src": "L322"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "His partner wakes rested and grateful.",
+   "src": "L314"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baby wakes repeatedly, and he asks for help with one task.",
+   "src": "L315"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He keeps the household fed through a hectic day.",
+   "src": "L317"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He burns the first pot while soothing the baby.",
+   "src": "L318"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family receives help without losing privacy.",
+   "src": "L320"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A visitor overstays, and he gently sends them home.",
+   "src": "L321"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The plan reduces confusion and gives everyone a break.",
+   "src": "L323"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The baby ignores the plan entirely, so they improvise.",
+   "src": "L324"
+  }
+ }
+}

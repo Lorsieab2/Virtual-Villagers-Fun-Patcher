@@ -1,0 +1,104 @@
+# Tiny Island Moments T126-T175 (the draft's own titles; the owner's Question 1 shape).  The 15-point review: light,
+# funny or peaceful moments; T166 a parent sings to a baby, no child holds a baby; T142 the parrot's joke is kind.
+T126
+REVIEW: ok
+T127
+REVIEW: ok
+T128
+REVIEW: ok
+T129
+REVIEW: ok
+T130
+REVIEW: ok
+T131
+REVIEW: ok
+T132
+REVIEW: ok
+T133
+REVIEW: ok
+T134
+REVIEW: ok
+T135
+REVIEW: ok
+T136
+REVIEW: ok
+T137
+REVIEW: ok
+T138
+REVIEW: ok
+T139
+REVIEW: ok
+T140
+REVIEW: ok
+T141
+REVIEW: ok
+T142
+REVIEW: ok
+T143
+REVIEW: ok
+T144
+REVIEW: ok
+T145
+REVIEW: ok
+T146
+REVIEW: ok
+T147
+REVIEW: ok
+T148
+REVIEW: ok
+T149
+REVIEW: ok
+T150
+REVIEW: ok
+T151
+REVIEW: ok
+T152
+REVIEW: ok
+T153
+REVIEW: ok
+T154
+REVIEW: ok
+T155
+REVIEW: ok
+T156
+REVIEW: ok
+T157
+REVIEW: ok
+T158
+REVIEW: ok
+T159
+REVIEW: ok
+T160
+REVIEW: ok
+T161
+REVIEW: ok
+T162
+REVIEW: ok
+T163
+REVIEW: ok
+T164
+REVIEW: ok
+T165
+REVIEW: ok
+T166
+NAME: "A parent" => "(Name2), a parent,"
+ROLES: name1=3+ name2=18+
+REVIEW: ok (the singing parent is the second villager: the listener on the path is (name1))
+T167
+REVIEW: ok
+T168
+REVIEW: ok
+T169
+REVIEW: ok
+T170
+REVIEW: ok
+T171
+REVIEW: ok
+T172
+REVIEW: ok
+T173
+REVIEW: ok
+T174
+REVIEW: ok
+T175
+REVIEW: ok

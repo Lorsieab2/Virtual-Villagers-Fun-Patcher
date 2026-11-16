@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Student Who Surpassed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm57_student_surpassed",
+  "source": "draft_rm2",
+  "lines": [
+   249,
+   262
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L249",
+  "ledger": [
+   {
+    "src": "L250",
+    "kind": "sensitivity",
+    "before": "A carver's apprentice produces",
+    "after": "(Name1), a carver's apprentice, produces",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A carver's apprentice produces a figure finer than anything the carver has ever made, and the village gathers to admire it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a carver's apprentice, produces a figure finer than anything the carver has ever made, and the village gathers to admire it.",
+   "src": "L250",
+   "choices": [
+    {
+     "label": "Praise the Apprentice Openly.",
+     "next": "a",
+     "src": "L251"
+    },
+    {
+     "label": "Ask the Apprentice to Teach the New Technique.",
+     "next": "b",
+     "src": "L254"
+    },
+    {
+     "label": "Admit the Feeling of Envy to a Friend.",
+     "next": "c",
+     "src": "L257"
+    },
+    {
+     "label": "Carve Something Together.",
+     "next": "d",
+     "src": "L260"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The apprentice glows, and the carver feels proud of their teaching.",
+   "src": "L252"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The carver feels a pang of envy but still speaks warmly of the work.",
+   "src": "L253"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The carver learns something new, and their own work improves.",
+   "src": "L255"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apprentice is shy about teaching, and they learn from each other slowly.",
+   "src": "L256"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The friend listens, and the carver feels lighter afterward.",
+   "src": "L258"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friend points out that the apprentice learned from the carver, which helps a little.",
+   "src": "L259"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The shared carving becomes a favorite in the village.",
+   "src": "L261"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Their styles clash, and they agree to work separately but share ideas.",
+   "src": "L262"
+  }
+ }
+}

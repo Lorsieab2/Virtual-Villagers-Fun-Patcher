@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Room at the Meal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim087_room_meal",
+  "source": "moments500",
+  "lines": [
+   1457,
+   1471
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1458",
+  "ledger": [
+   {
+    "src": "L1457",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1461",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1462",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1465",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1466",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1469",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1470",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1459",
+    "kind": "sensitivity",
+    "before": "a quiet villager",
+    "after": "(name1), a quiet villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1463",
+    "kind": "sensitivity",
+    "before": "a quiet villager",
+    "after": "(name1), a quiet villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1467",
+    "kind": "sensitivity",
+    "before": "a quiet villager",
+    "after": "(name1), a quiet villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1471",
+    "kind": "sensitivity",
+    "before": "a quiet villager",
+    "after": "(name1), a quiet villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Two neighbors invite a quiet villager to share their meal.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1459"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. A small invitation changes the mood of the whole afternoon.",
+   "src": "L1463"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. (Name1) enjoys the company and also looks forward to time alone.",
+   "src": "L1467"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1471"
+  }
+ }
+}

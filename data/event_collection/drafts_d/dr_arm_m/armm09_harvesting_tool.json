@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Harvesting Tool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm09_harvesting_tool",
+  "source": "openq97",
+  "lines": [
+   539,
+   541
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L540",
+  "ledger": [
+   {
+    "src": "L539",
+    "kind": "structural",
+    "text": "[M09]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L541",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L539",
+    "kind": "sensitivity",
+    "before": "A farmer",
+    "after": "(Name1), a farmer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A farmer tends to a well-used harvesting implement.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a farmer, tends to a well-used harvesting implement. The handle is smooth from years of use. (Name1) brushes away soil caught near the binding.",
+   "src": "L539,L541"
+  }
+ }
+}

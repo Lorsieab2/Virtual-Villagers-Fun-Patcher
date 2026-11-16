@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Would They Be Afraid of Us?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz108_would_they",
+  "source": "draft_hz2",
+  "lines": [
+   342,
+   352
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L342",
+  "ledger": [
+   {
+    "src": "L343",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child wonders whether distant people, if they ever met Isolans, would be frightened of them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a child, wonders whether distant people, if they ever met Isolans, would be frightened of them.",
+   "src": "L343",
+   "choices": [
+    {
+     "label": "Imagine Fear.",
+     "next": "a",
+     "src": "L344"
+    },
+    {
+     "label": "Imagine Curiosity.",
+     "next": "b",
+     "src": "L347"
+    },
+    {
+     "label": "Ask How to Ease Fear.",
+     "next": "c",
+     "src": "L350"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child is surprised that anyone could be afraid of Isolans, and an elder explains that unfamiliar things can frighten anyone.",
+   "src": "L345"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar points out that Isolans might be frightened too.",
+   "src": "L346"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child imagines distant children asking a thousand questions, just as Isolan children would.",
+   "src": "L348"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A teenager imagines trading songs and stories.",
+   "src": "L349"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village decides that smiles and shared food might help anywhere.",
+   "src": "L351",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L351"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder says that patience matters more than any gift.",
+   "src": "L352"
+  }
+ }
+}

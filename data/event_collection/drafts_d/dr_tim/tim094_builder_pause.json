@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Builder's Pause",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim094_builder_pause",
+  "source": "moments500",
+  "lines": [
+   1573,
+   1587
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1574",
+  "ledger": [
+   {
+    "src": "L1573",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1577",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1578",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1581",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1582",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1585",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1586",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1575",
+    "kind": "sensitivity",
+    "before": "A builder",
+    "after": "(Name1), a builder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1579",
+    "kind": "sensitivity",
+    "before": "A builder",
+    "after": "(Name1), a builder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1583",
+    "kind": "sensitivity",
+    "before": "A builder",
+    "after": "(Name1), a builder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1587",
+    "kind": "sensitivity",
+    "before": "A builder",
+    "after": "(Name1), a builder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A builder pauses to admire work completed over several days.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a builder, pauses to admire work completed over several days. The afternoon feels unusually long, despite the simple work.",
+   "src": "L1575"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a builder, pauses to admire work completed over several days. (Name1) decides not every day has to be remarkable.",
+   "src": "L1579"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a builder, pauses to admire work completed over several days. The worry remains, but it seems smaller after a quiet break.",
+   "src": "L1583"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a builder, pauses to admire work completed over several days. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1587"
+  }
+ }
+}

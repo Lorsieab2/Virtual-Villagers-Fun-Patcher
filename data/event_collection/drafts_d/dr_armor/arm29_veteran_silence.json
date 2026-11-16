@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Veteran's Silence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm29_veteran_silence",
+  "source": "armor45",
+  "lines": [
+   37,
+   37
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L37",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "structural",
+    "text": "29. The Veteran's Silence  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L37",
+    "kind": "sensitivity",
+    "before": "an older veteran",
+    "after": "(name1), an older veteran,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "During a ceremonial display, an older veteran steps away. The others respect their choice not to discuss the past.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "During a ceremonial display, (name1), an older veteran, steps away. The others respect their choice not to discuss the past.",
+   "src": "L37"
+  }
+ }
+}

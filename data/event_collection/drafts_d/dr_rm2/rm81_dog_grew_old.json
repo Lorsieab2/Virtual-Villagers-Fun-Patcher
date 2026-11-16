@@ -1,0 +1,173 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dog Who Grew Old",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm81_dog_grew_old",
+  "source": "draft_rm2",
+  "lines": [
+   610,
+   623
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L610",
+  "ledger": [],
+  "description": "A family's old dog can no longer keep up on fishing trips and spends most days lying by the door.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family's old dog can no longer keep up on fishing trips and spends most days lying by the door.",
+   "src": "L611",
+   "choices": [
+    {
+     "label": "Let It Rest at Home.",
+     "next": "a",
+     "src": "L612"
+    },
+    {
+     "label": "Carry It Along in a Basket.",
+     "next": "b",
+     "src": "L615"
+    },
+    {
+     "label": "Ask a Healer for Advice.",
+     "next": "c",
+     "src": "L618"
+    },
+    {
+     "label": "Give It Small, Easy Tasks.",
+     "next": "d",
+     "src": "L621"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The dog seems content in its sunny spot.",
+   "src": "L613"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The dog whines when the family leaves, so a child stays behind with it some days.",
+   "src": "L614"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The dog enjoys the sea air and watches the fishing happily.",
+   "src": "L616"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The dog dislikes the basket and prefers home after all.",
+   "src": "L617",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- story only: the file marks no effect (no new mechanics)",
+     "src": "L617"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healer suggests gentle walks and soft food, which help.",
+   "src": "L619",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L619"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healer says the dog is simply old, and the family focuses on its comfort.",
+   "src": "L620"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The dog proudly guards the drying racks from seabirds.",
+   "src": "L622"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The dog falls asleep on duty, and nobody minds at all.",
+   "src": "L623"
+  }
+ }
+}

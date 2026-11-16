@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rhythm of the Bark Beater",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim133_rhythm_bark",
+  "source": "draft_tim2",
+  "lines": [
+   58,
+   63
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L58",
+  "ledger": [
+   {
+    "src": "L59",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L60",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L61",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L62",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L63",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two villagers take turns beating soaked bark into soft cloth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two villagers take turns beating soaked bark into soft cloth. Their thumping falls into a steady rhythm that sounds almost like music.",
+   "src": "L59,L60"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two villagers take turns beating soaked bark into soft cloth. A passing drummer joins in on a log, and the work goes faster.",
+   "src": "L59,L61"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two villagers take turns beating soaked bark into soft cloth. The finished cloth is so thin that light shines through it.",
+   "src": "L59,L62"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two villagers take turns beating soaked bark into soft cloth. They stop for a drink and realize they have been beating in time all morning.",
+   "src": "L59,L63"
+  }
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bow Put Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm17_bow_put_away",
+  "source": "openq97",
+  "lines": [
+   571,
+   573
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L571",
+    "kind": "structural",
+    "text": "[M17]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L573",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L571",
+    "kind": "sensitivity",
+    "before": "A hunter",
+    "after": "(Name1), a hunter,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A hunter stores a bow safely inside a hut.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a hunter, stores a bow safely inside a hut. The string is loosened before storage. (Name1) checks that the bow rests clear of damp ground.",
+   "src": "L571,L573"
+  }
+ }
+}

@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cold Box",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz104_cold_box",
+  "source": "draft_hz2",
+  "lines": [
+   294,
+   304
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L294",
+  "ledger": [
+   {
+    "src": "L295",
+    "kind": "sensitivity",
+    "before": "a cook",
+    "after": "(name1), a cook,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "As fish spoil in the heat, a cook wonders whether distant people have a box that keeps food cold as a deep cave.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "As fish spoil in the heat, (name1), a cook, wonders whether distant people might have a box made of metal that keeps food as cold as a deep cave.",
+   "src": "L295",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L295"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Imagine Such a Box.",
+     "next": "a",
+     "src": "L296"
+    },
+    {
+     "label": "Imagine the Cost.",
+     "next": "b",
+     "src": "L299"
+    },
+    {
+     "label": "Improve Isola's Own Methods.",
+     "next": "c",
+     "src": "L302"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The cook imagines never losing fish to the heat again.",
+   "src": "L297"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder wonders how anything could stay cold without ice, and decides it must be very clever.",
+   "src": "L298"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders what such a box would need to keep working.",
+   "src": "L300"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A farmer worries that people who rely on it might forget how to dry and salt food.",
+   "src": "L301",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L301"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village digs a cool pit in the shade, and fish last a little longer.",
+   "src": "L303"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The pit floods in the next rain, and the cook goes back to the drying racks.",
+   "src": "L304"
+  }
+ }
+}

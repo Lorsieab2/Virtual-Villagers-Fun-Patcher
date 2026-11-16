@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dry Corner",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm80_dry_corner",
+  "source": "draft_rm2",
+  "lines": [
+   595,
+   608
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L595",
+  "ledger": [
+   {
+    "src": "L596",
+    "kind": "sensitivity",
+    "before": "their neighbor has a small",
+    "after": "their neighbor, (name1), has a small",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "During a heavy storm, a family's roof starts leaking badly, and their neighbor has a small but dry hut.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a heavy storm, a family's roof starts leaking badly, and their neighbor, (name1), has a small but dry hut.",
+   "src": "L596",
+   "choices": [
+    {
+     "label": "Invite Them In.",
+     "next": "a",
+     "src": "L597"
+    },
+    {
+     "label": "Help Patch the Leak in the Rain.",
+     "next": "b",
+     "src": "L600"
+    },
+    {
+     "label": "Lend Extra Mats and Coverings.",
+     "next": "c",
+     "src": "L603"
+    },
+    {
+     "label": "Offer Space Just for the Children.",
+     "next": "d",
+     "src": "L606"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Everyone squeezes together, and the night becomes cozy.",
+   "src": "L598"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The hut is very crowded, but no one complains.",
+   "src": "L599"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patch holds, and the family stays dry.",
+   "src": "L601"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patch fails, and the family comes over after all.",
+   "src": "L602"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family keeps their things dry until morning.",
+   "src": "L604"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The mats are not enough, but they help a little.",
+   "src": "L605"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children sleep soundly while the adults bail water.",
+   "src": "L607"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The children refuse to leave their parents, so everyone stays together.",
+   "src": "L608"
+  }
+ }
+}

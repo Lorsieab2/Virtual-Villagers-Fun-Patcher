@@ -131,6 +131,32 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
                      COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+
+# The owner-approved files, group D (2026-11-15), each its own frozen source (byte for byte, SHA-256 in
+# data/event_collection/<ID>.sha256): data/event_collection/drafts_d/<section>/<id>.json, built by
+# scripts/drafts_d/gen_drafts_d.py.  Each file is one series (its section).  The Completed Open Questions file gives the
+# 35 armor moments M01-M35 (its Question 4); its owner titles T001-T125 for the 500 moments are rows of
+# docs/event-collection/owner-title-changes.md; its other lines are notes.
+DRAFTS_D_DIR = COLLECTION_DIR / "drafts_d"
+DRAFTS_D = {   # source id: (file name, line count, section, topic shown in the Game Mechanics list and Credits)
+    "draft_rm2": ("New Events - Role Models RM-41 to RM-90 (draft for owner).txt", 772, "dr_rm2",
+                  "Role Models and Good Examples, RM-41 to RM-90"),
+    "draft_hz2": ("New Events - Beyond the Horizon 081 to 130 (draft for owner).txt", 631, "dr_hz3",
+                  "Beyond the Horizon, Events 081 to 130"),
+    "moments500": ("Isola_500_Tiny_Island_Moments.txt", 2107, "dr_tim", "Tiny Island Moments, T001 to T125"),
+    "draft_tim2": ("New Events - Tiny Island Moments T126 to T175 (draft for owner).txt", 368, "dr_tim2",
+                   "Tiny Island Moments, T126 to T175"),
+    "openq97": ("Completed Open Questions - Isola Events v1.35.97.txt", 646, "dr_arm_m",
+                "Armor Flavor Moments, M01 to M35"),
+    "armor45": ("Isola_Armor_Weapons_and_Inherited_Traditions.txt", 96, "dr_armor",
+                "Armor, Weapons and Inherited Traditions"),
+    "draft_arm2": ("New Events - Armor and Heirlooms ARM-46 to ARM-95 (draft for owner).txt", 87, "dr_arm2",
+                   "Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
+    "fathers30": ("Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt", 645, "dr_fat",
+                  "Fathers, Pregnancy and Parenthood"),
+}
+for _sid, (_name, _n, _sec, _topic) in DRAFTS_D.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
 _ACTIVE = [SOURCE_ID]
 
 

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day They Rest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz127_day_they_rest",
+  "source": "draft_hz2",
+  "lines": [
+   570,
+   580
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L570",
+  "ledger": [
+   {
+    "src": "L571",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Taking a day off after a busy week, a villager wonders whether distant people have days set aside for rest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Taking a day off after a busy week, (name1) wonders whether distant people have days set aside for rest.",
+   "src": "L571",
+   "choices": [
+    {
+     "label": "Imagine Regular Rest Days.",
+     "next": "a",
+     "src": "L572"
+    },
+    {
+     "label": "Imagine Never Resting.",
+     "next": "b",
+     "src": "L575"
+    },
+    {
+     "label": "Rest Here and Now.",
+     "next": "c",
+     "src": "L578"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager imagines everyone resting on the same day, the whole place quiet.",
+   "src": "L573"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A busy farmer wonders who would feed the animals.",
+   "src": "L574"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether some people might work without stopping.",
+   "src": "L576"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder says rest is not laziness, anywhere.",
+   "src": "L577"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager spends the day in a hammock, without guilt.",
+   "src": "L579"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villager cannot stay still and ends up tidying, which is restful in its own way.",
+   "src": "L580"
+  }
+ }
+}

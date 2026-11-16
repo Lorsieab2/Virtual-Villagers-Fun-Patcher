@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Word We Don't Have",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz085_word_we_dont",
+  "source": "draft_hz2",
+  "lines": [
+   65,
+   75
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L65",
+  "ledger": [
+   {
+    "src": "L66",
+    "kind": "sensitivity",
+    "before": "a poet wonders",
+    "after": "(name1), a poet, wonders",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Struggling to describe a feeling, a poet wonders whether distant languages might have words that Isolans have never needed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Struggling to describe a feeling, (name1), a poet, wonders whether distant languages might have words that Isolans have never needed.",
+   "src": "L66",
+   "choices": [
+    {
+     "label": "Imagine Words for New Things.",
+     "next": "a",
+     "src": "L67"
+    },
+    {
+     "label": "Imagine Words for the Same Feelings.",
+     "next": "b",
+     "src": "L70"
+    },
+    {
+     "label": "Invent a New Word Together.",
+     "next": "c",
+     "src": "L73"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The poet invents a word for \"the smell of rain on hot stone\"; it catches on.",
+   "src": "L68"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar points out that distant people might lack words Isolans use every day, like the many names for ripe fruit.",
+   "src": "L69"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A grandparent suggests that love, worry and boredom might have names everywhere.",
+   "src": "L71"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A healer wonders whether some feelings go unnamed everywhere, and whether that matters.",
+   "src": "L72"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village creates a word for \"the moment before laughter\"; children use it constantly.",
+   "src": "L74"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Nobody can agree on a word, and the poet decides some feelings are better left unnamed.",
+   "src": "L75"
+  }
+ }
+}

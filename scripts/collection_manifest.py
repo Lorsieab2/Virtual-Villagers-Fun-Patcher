@@ -1038,6 +1038,140 @@ def _drafts_c_rows() -> None:
 
 _drafts_c_rows()
 
+# ---- The owner-approved files, group D (collection_lib.DRAFTS_D; each file its own source and its own series) --------
+#
+# Five shapes (built by scripts/drafts_d/gen_drafts_d.py):
+#   draft_rm2   "EVENT RM-41 — TITLE", SETUP:, choices A-D each with two outcomes A1/A2 (Role Models' shape, a line each)
+#   draft_hz2   "EVENT 081 — TITLE", SETUP:, choices A-C each with two outcomes (Beyond the Horizon's shape)
+#   fathers30   "EVENT 01: Title", THEME / CAST lines (notes), the setup, choices A-D each with "Outcome 1/2:"
+#   moments500  125 moments: four "[M001] / Title: / text" entries share an opening (the owner's Question 1: one moment,
+#               its four endings equally likely); the title is the owner's T001-T125 (owner-title-changes.md)
+#   draft_tim2  "[T126] Title", "Opening:", "Ending 1:" .. "Ending 4:" (the same moment shape)
+#   openq97     the armor moments "[M01] opening" / "Title:" / "Follow-up:" (one popup); the rest of the file is notes
+#   armor45, draft_arm2   "NN. Title — one or two sentences" (one popup; one line each, so consecutive lines)
+# Lines between events (headers, flavor blocks, the owner's notes) are notes rows.
+
+NEVER = r"^(?!)"           # a one-popup event's choice_re: no line is a choice
+for _sid, (_name, _n, _sec, _topic) in lib.DRAFTS_D.items():
+    CREDITS[_sec] = ("mixed", [(1, 2)], _sid)
+DRAFTS_D_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_D.items()}      # source id -> its one series (the section)
+
+
+def _d_end(h: int, stop: int) -> int:
+    e = stop - 1
+    while lib.is_blank_or_separator(e):
+        e -= 1
+    return e
+
+
+def _d_notes(sid: str, sec: str, topic: str, spans: list[tuple[int, int, str]]) -> None:
+    for i, (a, b, what) in enumerate(spans):
+        N(f"{sec}_notes{i + 1}", f"{topic}: {what}", a, b, sec, sec, source=sid)
+
+
+def moment_titles() -> dict[int, str]:
+    """The owner's titles T001-T125 for the 500 moments (Completed Open Questions, Question 2): {1: "The Leaf Lantern"}.
+    They are owner-title-changes.md rows; here they only name the ids."""
+    out = {}
+    with lib.use_source("openq97"):
+        for n in range(1, lib.n_lines()):
+            m = re.match(r"^\[T(\d{3})\] ", lib.line(n))
+            if m and lib.line(n + 1).startswith("Title: "):
+                out[int(m.group(1))] = lib.normalize_source_text(lib.line(n + 1))[len("Title: "):].strip()
+    assert sorted(out) == list(range(1, 126)), sorted(set(range(1, 126)) - set(out))
+    return out
+
+
+def _drafts_d_rows() -> None:
+    def heads_of(rx: str) -> list[int]:
+        return [n for n in range(1, lib.n_lines() + 1) if re.match(rx, lib.line(n))]
+
+    def event(sid, sec, eid, title, h, e, nc, one_line=False, slug_from=None):
+        R(f"{eid}_{companion_slug(slug_from or title, VV1_ID_MAX - len(eid) - 1)}", title, ALL, h, e, "event", sec, sec, nc,
+          series=sec, source=sid, choice_re=(r"^\s*[A-D]\.\s" if nc else NEVER), **({"one_line": True} if one_line
+                                                                                   else {}))
+
+    D = lib.DRAFTS_D
+    # Role Models RM-41..RM-90 and Beyond the Horizon 081-130
+    for sid, rx, prefix, notes_from in (("draft_rm2", r"^EVENT RM-(\d\d) — (.+)$", "rm", 760),
+                                        ("draft_hz2", r"^EVENT (\d{3}) — (.+)$", "hz", 618)):
+        _name, _n, sec, topic = D[sid]
+        with lib.use_source(sid):
+            heads = heads_of(rx)
+            _d_notes(sid, sec, topic, [(1, _d_end(1, heads[0]), "title, premise and rules"),
+                                       (notes_from, lib.n_lines(), "notes for the owner")])
+            for i, h in enumerate(heads):
+                e = _d_end(h, heads[i + 1] if i + 1 < len(heads) else notes_from)
+                num, t = re.match(rx, lib.line(h)).groups()
+                t = lib.normalize_source_text(t)
+                nc = sum(1 for n in range(h, e + 1) if re.match(r"^\s*[A-D]\.\s", lib.line(n)))
+                # the owner (2026-11-15): titles in title case, the last word capitalized ("The Last Canoe In")
+                event(sid, sec, f"{prefix}{num}", lib.title_case_label(title_case(t.strip())), h, e, nc)
+    # Fathers, Pregnancy and Parenthood
+    sid = "fathers30"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^EVENT \d\d: ")
+        _d_notes(sid, sec, topic, [(1, 9, "title, format, scope and casting"), (432, 432, "the additional events"),
+                                   (644, 645, "end of the collection")])
+        for i, h in enumerate(heads):
+            e = _d_end(h, heads[i + 1] - 1 if i + 1 < len(heads) else 643)
+            if e >= 432 > h:
+                e = _d_end(h, 431)
+            num, t = re.match(r"^EVENT (\d\d): (.+)$", lib.normalize_source_text(lib.line(h))).groups()
+            event(sid, sec, f"fat{num}", lib.title_case_label(t.strip()), h, e, 4)
+    # The 500 Tiny Island Moments (T001-T125)
+    sid = "moments500"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        ms = heads_of(r"^\[M\d{3}\]$")
+        assert len(ms) == 500
+        new = moment_titles()
+        _d_notes(sid, sec, topic, [(1, 7, "title and introduction")]
+                 + [(n, n, "a section heading") for n in heads_of(r"^SECTION \d\d — ")])
+        for g in range(125):
+            h = ms[4 * g]
+            title = lib.normalize_source_text(lib.line(h + 1))[len("Title: "):].strip()
+            event(sid, sec, f"tim{g + 1:03d}", title, h, ms[4 * g + 3] + 2, 0, slug_from=new[g + 1])
+    # Tiny Island Moments T126-T175
+    sid = "draft_tim2"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^\[T\d{3}\] ")
+        _d_notes(sid, sec, topic, [(1, 5, "title, premise and shape"), (359, lib.n_lines(), "notes for the owner")])
+        for h in heads:
+            num, t = re.match(r"^\[T(\d{3})\] (.+)$", lib.normalize_source_text(lib.line(h))).groups()
+            event(sid, sec, f"tim{num}", t.strip(), h, h + 5, 0)
+    # The armor moments M01-M35 (Completed Open Questions, Question 4)
+    sid = "openq97"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^\[M\d\d\] ")
+        assert len(heads) == 35
+        _d_notes(sid, sec, topic, [(1, heads[0] - 2, "the owner's answers to the open questions (Questions 1-4; "
+                                                     "Question 2's titles are owner-title-changes.md rows)")])
+        for h in heads:
+            num = re.match(r"^\[M(\d\d)\] ", lib.line(h)).group(1)
+            title = lib.normalize_source_text(lib.line(h + 1))[len("Title: "):].strip()
+            event(sid, sec, f"armm{num}", title, h, h + 2, 0)
+    # Armor, Weapons and Inherited Traditions 01-45, and ARM-46..ARM-95
+    for sid, notes in (("armor45", [(1, 7, "title, style rules and heading"),
+                                    (40, 40, "the Passing Things Down heading"),
+                                    (58, 96, "the Living Event Engine flavor text (mixer seeds: pending) and end")]),
+                       ("draft_arm2", [(1, 8, "title, premise, style rules and heading"),
+                                       (61, lib.SOURCES["draft_arm2"][2], "the Living Event Engine flavor text "
+                                                                          "(mixer seeds: pending) and notes for the "
+                                                                          "owner")])):
+        _name, _n, sec, topic = D[sid]
+        with lib.use_source(sid):
+            _d_notes(sid, sec, topic, notes)
+            for h in heads_of(r"^\d\d\. .+ — "):
+                num, t = re.match(r"^(\d\d)\. (.+?) — ", lib.line(h)).groups()
+                event(sid, sec, f"arm{num}", lib.normalize_source_text(t).strip(), h, h, 0, one_line=True)
+
+
+_drafts_d_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1072,6 +1206,8 @@ def boundary_problems(row: dict) -> list[str]:
         out.append(f"line {a} (first) is blank")
     if not lib.line(b).strip():
         out.append(f"line {b} (last) is blank")
+    if row.get("one_line"):
+        return out          # a source whose events are one line each, one after another (collection_lib.DRAFTS_D)
     if a > 1 and not lib.is_blank_or_separator(a - 1) and not lib.is_separator(lib.line(a)):
         out.append(f"line {a - 1} before the row is not blank")
     if b < lib.n_lines() and not lib.is_blank_or_separator(b + 1):
@@ -1320,6 +1456,7 @@ def build() -> dict:
             row = {"id": row["id"], "title": owner["new"], "source_title": row["title"], **rest}
         row.pop("choice_re", None)
         row.pop("extra_labels", None)
+        row.pop("one_line", None)
         row["credit"] = credit_text(r["credit"])
         row["source_check"] = checks
         rows.append(row)
@@ -1385,6 +1522,8 @@ def build() -> dict:
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_B_SERIES[sid],)) for sid in lib.DRAFTS_B},
         # The approved drafts, group C (collection_lib.DRAFTS_C): rows with "source" "draft_hea", ...
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_C_SERIES[sid],)) for sid in lib.DRAFTS_C},
+        # The approved files, group D (collection_lib.DRAFTS_D): rows with "source" "draft_rm2", ...
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_D_SERIES[sid],)) for sid in lib.DRAFTS_D},
         "rows": rows,
     }
 
@@ -1412,7 +1551,7 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

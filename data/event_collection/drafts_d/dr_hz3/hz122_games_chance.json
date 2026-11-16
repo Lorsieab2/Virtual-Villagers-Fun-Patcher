@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Games of Chance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz122_games_chance",
+  "source": "draft_hz2",
+  "lines": [
+   510,
+   520
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L510",
+  "ledger": [
+   {
+    "src": "L511",
+    "kind": "sensitivity",
+    "before": "a teenager",
+    "after": "(name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Tossing pebbles in a game, a teenager wonders whether distant people might play games of luck for great prizes.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Tossing pebbles in a game, (name1), a teenager, wonders whether distant people might play games of luck for great prizes.",
+   "src": "L511",
+   "choices": [
+    {
+     "label": "Imagine Exciting Games.",
+     "next": "a",
+     "src": "L512"
+    },
+    {
+     "label": "Imagine Games Just for Fun.",
+     "next": "b",
+     "src": "L515"
+    },
+    {
+     "label": "Play a Game Now.",
+     "next": "c",
+     "src": "L518"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The teenager imagines crowds cheering over a toss of dice.",
+   "src": "L513"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder worries that some might lose more than they can afford.",
+   "src": "L514"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child suggests distant people might play just for the fun of it, like Isolans.",
+   "src": "L516"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says both could be true.",
+   "src": "L517"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers play a pebble game for nothing but laughter.",
+   "src": "L519"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager wins five times in a row, and everyone suspects magic.",
+   "src": "L520"
+  }
+ }
+}

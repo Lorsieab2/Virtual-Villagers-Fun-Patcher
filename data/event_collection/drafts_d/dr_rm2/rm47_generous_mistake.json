@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Generous Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm47_generous_mistake",
+  "source": "draft_rm2",
+  "lines": [
+   99,
+   112
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L99",
+  "ledger": [
+   {
+    "src": "L100",
+    "kind": "sensitivity",
+    "before": "a fisher",
+    "after": "(name1), a fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After trading dried fish for fruit, a fisher counts the basket at home and finds that the farmer gave far more than they agreed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After trading dried fish for fruit, (name1), a fisher, counts the basket at home and finds that the farmer gave far more than they agreed.",
+   "src": "L100",
+   "choices": [
+    {
+     "label": "Return the Extra Fruit.",
+     "next": "a",
+     "src": "L101"
+    },
+    {
+     "label": "Bring More Fish Instead.",
+     "next": "b",
+     "src": "L104"
+    },
+    {
+     "label": "Ask the Farmer What Was Intended.",
+     "next": "c",
+     "src": "L107"
+    },
+    {
+     "label": "Share the Extra with Neighbors and Tell the Farmer.",
+     "next": "d",
+     "src": "L110"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The farmer laughs, explaining they counted twice and lost track, and thanks the fisher.",
+   "src": "L102"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The farmer insists the extra was a gift, and the fisher accepts it graciously.",
+   "src": "L103"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The farmer is pleased with the extra fish, and the trade feels fair to both.",
+   "src": "L105"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The farmer has more fish than the household can eat, and they share it with the neighbors.",
+   "src": "L106"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The farmer had simply grabbed the wrong basket, and they swap baskets with a smile.",
+   "src": "L108"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The farmer cannot remember either, so they split the difference.",
+   "src": "L109"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The farmer is happy the fruit went to good use.",
+   "src": "L111"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The farmer had planned to use some for a feast but appreciates being told honestly.",
+   "src": "L112"
+  }
+ }
+}

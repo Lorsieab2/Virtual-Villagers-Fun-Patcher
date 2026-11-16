@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Polished Breastplate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm01_polished",
+  "source": "openq97",
+  "lines": [
+   507,
+   509
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L508",
+  "ledger": [
+   {
+    "src": "L507",
+    "kind": "structural",
+    "text": "[M01]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L509",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L507",
+    "kind": "sensitivity",
+    "before": "An armorer",
+    "after": "(Name1), an armorer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An armorer polishes a ceremonial breastplate.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), an armorer, polishes a ceremonial breastplate. The metal catches the late light. A faint scratch remains visible beneath the shine.",
+   "src": "L507,L509"
+  }
+ }
+}
