@@ -71,12 +71,14 @@ def notes_row(game: int) -> dict:
 
 def rest_row(game: int) -> dict:
     return row(game, content.REST_PATCH, "Rest Periods for Island Events",
-               "After a new island event seriously injures a villager, makes one disappear or leaves one bereaved, "
-               "that villager and their recorded immediate family (spouse, parents, children, brothers and sisters) "
-               "are kept out of further serious outcomes of new events for 30 real days; after a death or a "
-               "pregnancy loss, the surviving immediate family for 60 real days. They still take part in every "
-               "other event. Only the rare roll waits: an event chosen with Pick Island Event or a Custom Island "
-               "Event always comes, and a Custom Island Event never starts a rest. The dates are kept in the "
+               "After a new island event brings a death, a pregnancy loss, a disappearance, a serious injury or a "
+               "bereavement, that villager and their recorded immediate family (spouse, parents, children, brothers "
+               "and sisters) rest for a random 30 to 60 real days: no serious outcome of a new event comes to them "
+               "in that time. After the rest, a serious outcome for them goes ahead only 30 to 50 percent of the "
+               "time (rolled each time); otherwise it is left out like a filtered one (the event's other outcomes "
+               "keep their shares, or the event goes to someone else or is skipped). They still take part in every "
+               "other event. Only the random rare roll waits: an event chosen with Pick Island Event or a Custom "
+               "Island Event always comes, and a Custom Island Event never starts a rest. The dates are kept in the "
                "patcher's own file beside the save (never in the save itself) and follow each villager. New events "
                "only. "
                f"Off by default; Owner's Defaults ticks it. {UNVERIFIED}",

@@ -80,8 +80,8 @@ class Injection(unittest.TestCase):
         out, plan = content.inject(g, content.tag_graph(g))
         dies = next(c for c in out["nodes"]["b"]["children"] if c["next"] == "dies")
         safe = next(c for c in out["nodes"]["b"]["children"] if c["next"] == "safe")
-        self.assertEqual(dies["if"], {"not": {"any": [{"patch": "island_event_filter_f03"},
-                                                      {"patch": "island_event_filter_f05"}]}})
+        self.assertEqual(dies["if"]["all"][0], {"not": {"any": [{"patch": "island_event_filter_f03"},
+                                                                {"patch": "island_event_filter_f05"}]}})
         self.assertIsNone(safe["if"])
         self.assertNotIn("if", out["requirement"], "never skipped: the safe ending is left")
         self.assertIn("island_event_filter_f03", out["patches"])
@@ -102,13 +102,19 @@ class Injection(unittest.TestCase):
         self.assertEqual(v[0]["if"]["all"][0], {"patch": "island_event_content_notes"})
         self.assertEqual(out["nodes"]["s"]["text"], "(Name) walks along the shore at dawn.", "no note when off")
 
-    def test_rest_effects_stand_before_every_serious_outcome(self):
+    def test_rest_effects_and_guards_stand_before_every_serious_outcome(self):
         g = graph(TWO_ENDINGS)
         out, _plan = content.inject(g, content.tag_graph(g))
         self.assertEqual(out["nodes"]["dies"]["effects"][0], {"do": "rest", "role": "subject", "days": 60})
         g = graph({"s": {"text": "(Name) is badly injured in the fall.", "children": []}})
         out, _plan = content.inject(g, content.tag_graph(g))
-        self.assertEqual(out["nodes"]["s"]["effects"][0], {"do": "rest", "role": "subject", "days": 30})
+        self.assertEqual(out["nodes"]["s"]["effects"][0], {"do": "rest", "role": "subject", "days": 60})
+        self.assertTrue(out["roles"]["subject"].get("serious_fixed"), "the injury cannot be dropped")
+        g = graph(TWO_ENDINGS)
+        out, _plan = content.inject(g, content.tag_graph(g))
+        dies = next(c for c in out["nodes"]["b"]["children"] if c["next"] == "dies")
+        self.assertIn({"harmable": "subject"}, dies["if"]["all"])
+        self.assertFalse(out["roles"]["subject"].get("serious_fixed"), "the death can be dropped")
 
     def test_the_compiled_event_holds_the_rest_effect(self):
         g = graph(TWO_ENDINGS)
@@ -264,7 +270,8 @@ if rt is not None:
                     # Bea died; nobody of hers is recorded in this village, so only her own record was kept.
                     run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf)
                     until, now = struct.unpack("<2I", run.p.read(buf, 8))
-                    self.assertEqual(until - now, 60 * 86400, "60 real days after a death")
+                    self.assertIn((until - now) // 86400, range(30, 61), "30 to 60 real days")
+                    self.assertEqual((until - now) % 86400, 0)
                     run.p.export("VvfpStoryProbeRest", -1, run.n, 0, 0)
 
         def test_a_resting_villager_waits_only_for_the_rare_roll(self):
@@ -292,13 +299,15 @@ if rt is not None:
                     run.play()
                     self.assertEqual(run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf), 1)
                     until, now = struct.unpack("<2I", run.p.read(buf, 8))
-                    self.assertEqual(until - now, 30 * 86400)
-                    # The rare roll never casts her in a serious role while she rests...
+                    self.assertIn((until - now) // 86400, range(30, 61))
+                    # The rare roll gives her no serious outcome while she rests: the death is dropped...
+                    told = len(run.told())
                     run.rolls([1] + [0] * 40)
-                    run.force([], graph=walk)
+                    run.force(["dies"], graph=walk)
                     self.assertTrue(_natural(run, cg.compile_graph(walk), 2))
-                    self.assertNotEqual(run.state()["records"][0], 1, "Bea rests: never the subject of the walk")
+                    self.assertEqual(run.state()["records"][0], 1, "the walk may still be about her")
                     run.play()
+                    self.assertEqual(len(run.told()), told, "her death is dropped while she rests")
                     # ...Pick Island Event and a Custom Island Event still may.
                     run.rolls([1] + [0] * 40)
                     self.assertTrue(_natural(run, cg.compile_graph(walk), 1))

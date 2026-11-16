@@ -4,13 +4,18 @@
    Rest Periods for Island Events (island_event_rest_periods, in "VVFP Installed Patches.txt"): after a serious
    outcome of a NEW island event (the Isola Grand Event Collection's and the Living Event Engine's), the villager and
    their recorded immediate family -- spouse, parents, children, siblings (story_graph.inc cg_kin) -- are kept out of
-   further serious new-event outcomes for a while: 30 real days after a serious injury, a disappearance or a
-   bereavement, 60 real days after a death or a pregnancy loss (for the surviving family).  The build writes a "rest"
-   effect (code 25, its days in the effect's first value) beside each such outcome (src/vv_event_content.py); when it
-   is made, rs_rest_role keeps "rested until <now + days>" for those villagers, as a real date (the UTC second; the
-   games' clock is real time, running on while the game is closed).  While a villager rests the rare roll never
-   casts them in a role of a new event that a rest effect names -- a role that can take a serious outcome
-   (cg_eligible).  THE OWNER'S OVERRIDES (2026-11-15): Pick Island Event and a Custom Island Event always come, rest
+   further serious new-event outcomes for a while (the owner's final rule, 2026-11-15):
+     1. after a serious outcome -- a death, a pregnancy loss, a disappearance, a serious injury or a bereavement, the
+        outcomes the build writes a "rest" effect beside (code 25, src/vv_event_content.py; its value the longest
+        rest, 60) -- they rest a random 30 to 60 real days (inclusive; rolled once for each rest), kept as a real date
+        (the UTC second it ends; the games' clock is real time, running on while the game is closed);
+     2. while they rest the rare roll gives them no serious outcome;
+     3. after the rest, a serious outcome for them goes ahead with a chance rolled in 30..50 percent (inclusive) each
+        time; otherwise it is dropped like a filtered one -- the guard harmable(role) the build writes on each weighted
+        child leading to it (cg_harmable): the other outcomes keep their shares -- or, when it cannot be dropped (the
+        role's "serious_fixed" bit), they are not cast in that role (cg_eligible), so the event goes to someone else
+        or is skipped.  The rolls are the same for the whole of one run (a hash of the villager, their rest and the
+        run's purchase time: a quit and a resume see the same), a new one for each cast;  THE OWNER'S OVERRIDES (2026-11-15): Pick Island Event and a Custom Island Event always come, rest
    or not (their casts ignore it); a serious outcome Pick Island Event brings starts a rest, a Custom Island Event's
    (bought through the library) never does (its rest effects are not made).
 
@@ -36,6 +41,9 @@
 #define RS_SYNC_MS 250u
 #define RS_KIND "Island Events"
 #define RS_DAY 86400u                   /* a real day, in seconds */
+#define RS_DAYS_MIN 30                  /* a rest: 30 to 60 real days (60: the rest effect's value) */
+#define RS_CHANCE_MIN 30                /* after a rest: a serious outcome goes ahead 30 to 50 percent of the time */
+#define RS_CHANCE_SPAN 21
 #define RS_PATCH "island_event_rest_periods"
 
 /* The record fields the entries are kept by: the head looks' identity (name, sex, the parents' names; A New Home
@@ -402,6 +410,55 @@ static int rs_on(int game) {
     return cg_installed_state == 1 && cg_installed_has(game, RS_PATCH);
 }
 
+static unsigned int rs_mix32(unsigned int h) {
+    h ^= h >> 16;
+    h *= 0x7FEB352Du;
+    h ^= h >> 15;
+    h *= 0x846CA68Bu;
+    h ^= h >> 16;
+    return h;
+}
+
+static unsigned int rs_rng;
+
+/* A number in 0..n-1 of the companion's own (the game's random routine is never drawn from for this). */
+static unsigned int rs_random_below(unsigned int n) {
+    if (rs_rng == 0) {
+        rs_rng = rs_mix32(GetTickCount() ^ rs_now(0)) | 1u;
+    }
+    rs_rng ^= rs_rng << 13;
+    rs_rng ^= rs_rng >> 17;
+    rs_rng ^= rs_rng << 5;
+    return n > 1 ? rs_rng % n : 0u;
+}
+
+/* Whether the villager in `record` may have a serious new-event outcome from the rare roll now (Rest Periods on):
+   never while resting; after a rest, with a chance rolled in 30..50 percent from `nonce` (0: no roll, they may);
+   never rested, always. */
+static int rs_allowed(int game, const unsigned char *record, unsigned int nonce) {
+    int i, slots;
+    unsigned int now, until, h;
+    if (record == NULL || !rs_on(game) || !rs_sync(game)) {
+        return 1;
+    }
+    slots = rs_slots();
+    for (i = 0; i < slots && rs_record(i) != record; ++i) {
+    }
+    if (i >= slots || rs_handle[i] == 0 || rs_roster[i] != rs_identity(record)
+        || (until = rs_until[rs_handle[i] - 1]) == 0) {
+        return 1;
+    }
+    now = rs_now(game);
+    if (now < until && until - now <= 3650u * RS_DAY) {
+        return 0;                                   /* resting */
+    }
+    if (nonce == 0) {
+        return 1;
+    }
+    h = rs_mix32(rs_roster[i] ^ rs_mix32(until ^ rs_mix32(nonce)));
+    return (int)(rs_mix32(h ^ 0x9E3779B9u) % 100u) < RS_CHANCE_MIN + (int)(h % RS_CHANCE_SPAN);
+}
+
 /* Whether the villager in `record` rests now (Rest Periods for Island Events on). */
 static int rs_resting(int game, const unsigned char *record) {
     int i, slots;
@@ -428,6 +485,9 @@ static void rs_rest_role(const ce_adapter *a, int game, int index, int days) {
     int k, changed = 0, slots;
     if (!rs_on(game) || days <= 0 || days > 3650 || !rs_sync(game) || (now = rs_now(game)) == 0) {
         return;
+    }
+    if (days > RS_DAYS_MIN) {
+        days = RS_DAYS_MIN + (int)rs_random_below((unsigned int)(days - RS_DAYS_MIN + 1));   /* 30..60, once */
     }
     until = now + (unsigned int)days * RS_DAY;
     cg_kin_read(a, game);

@@ -177,6 +177,7 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_TRAIT = 26 };
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
+#define CG_ROLE_SERIOUS_FIXED 0x40u   /* 31: ... bit 6: a serious outcome of the role no guard can keep away */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -909,7 +910,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
             if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > 3u || !cg_str_ok(g, cg_u16(r + 10), 1)
-                || (r[13] & ~CG_ROLE_SPEAKS) > 1u || r[12] > 100u) {
+                || (r[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_SERIOUS_FIXED)) > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
             if (r[0] == CG_ROLE_OTHER) {
@@ -1542,7 +1543,8 @@ static int cg_casting_origin(void) {
 }
 
 /* story_rest.inc: the rest periods of the island events' content controls. */
-static int rs_resting(int game, const unsigned char *record);
+static int rs_allowed(int game, const unsigned char *record, unsigned int nonce);
+static unsigned int cg_cast_nonce;    /* a new roll for each cast (cg_refusal): story_rest.inc's chance */
 static void rs_rest_role(const ce_adapter *a, int game, int index, int days);
 static void rs_set_trait(int game, int index, unsigned int trait);
 static int rs_has_trait(int game, const unsigned char *record, unsigned int trait);
@@ -1608,9 +1610,11 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
         return 0;                      /* never harmed, even with protected "allow" */
     }
-    if ((cg_serious_roles() >> role) & 1u && cg_casting_origin() == CG_ORIGIN_NATURAL && rs_resting(game, r)) {
-        /* Resting after a serious new-event outcome (Rest Periods for Island Events): only the rare roll waits;
-           Pick Island Event and a Custom Island Event always come (the owner, 2026-11-15). */
+    if ((cg_serious_roles() >> role) & 1u && cg_casting_origin() == CG_ORIGIN_NATURAL
+        && !rs_allowed(game, r, (spec[13] & CG_ROLE_SERIOUS_FIXED) ? cg_cast_nonce : 0u)) {
+        /* Rest Periods for Island Events: resting after a serious new-event outcome -- or, after the rest, the
+           chance failed for a role whose serious outcome cannot be dropped.  Only the rare roll waits; Pick Island
+           Event and a Custom Island Event always come (the owner, 2026-11-15). */
         return 0;
     }
     if (cg_g.version >= 6 && (spec[13] & CG_ROLE_SPEAKS) && rs_has_trait(game, r, CG_TRAIT_MUTE)) {
@@ -2550,7 +2554,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_SPEAKS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_SERIOUS_FIXED)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -2669,6 +2673,10 @@ static int cg_harmable(int r, int game) {
         return 0;
     }
     record = cg_villager(a, r);
+    if (record != NULL && cg.origin == CG_ORIGIN_NATURAL && ((cg_serious_roles() >> r) & 1u)
+        && !rs_allowed(game, record, 1u | (unsigned int)cg.when ^ (unsigned int)(cg.when >> 32))) {
+        return 0;                      /* Rest Periods: the serious outcome is dropped for them (story_rest.inc) */
+    }
     return record != NULL && !cg_protected(a, game, record) && !cg_never_harmed(game, record);
 }
 
@@ -6553,6 +6561,8 @@ static const char *cg_too_few_roles(unsigned int needed) {
 
 /* Why the loaded event cannot be queued in `game` now, or NULL; `planned` the roles it will bind. */
 static const char *cg_refusal(int game, unsigned int *planned) {
+    ++cg_cast_nonce;
+    cg_cast_nonce = 1u | ((GetTickCount() * 2654435761u) ^ cg_cast_nonce);   /* this cast's roll (story_rest.inc) */
     static char reason[400];
     const ce_adapter *a = ce_adapter_for(game);
     unsigned char used[CE_MAX_RECORDS];

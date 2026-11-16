@@ -379,6 +379,7 @@ REST_EFFECT_CODE = 25         # cie-v6-binary.md 31
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
+ROLE_SERIOUS_FIXED = 0x40     # 31: ... bit 6: a serious outcome of the role no guard can keep away
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
@@ -3650,7 +3651,8 @@ def _compile_v6(g: dict) -> bytes:
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
                                  v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
-                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0), 0)
+                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
+                                 | (ROLE_SERIOUS_FIXED if v.get("serious_fixed") else 0), 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -3842,7 +3844,8 @@ def _decompile_v6(data: bytes) -> dict:
     roles: dict[str, dict] = {}
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
-        speaks, pick = bool(pick & ROLE_SPEAKS), pick & ~ROLE_SPEAKS
+        speaks, fixed, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_SERIOUS_FIXED), \
+            pick & ~(ROLE_SPEAKS | ROLE_SERIOUS_FIXED)
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -3867,6 +3870,8 @@ def _decompile_v6(data: bytes) -> dict:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
             if speaks:
                 roles[rid]["speaks"] = True
+            if fixed:
+                roles[rid]["serious_fixed"] = True
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}

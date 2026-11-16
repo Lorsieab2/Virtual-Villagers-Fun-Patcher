@@ -21,11 +21,14 @@ WHAT THE BUILD WRITES INTO EACH COMPILED EVENT (inject), so the game needs nothi
   * the content note (Content Notes for Island Events, island_event_content_notes): the first text the event shows
     gets a variant that starts with "Content note: <labels>" -- the labels of what the event may contain, never
     which outcome comes -- each label left out while the ticked filters drop all of its content;
-  * a "rest" effect (code 25) beside every serious outcome: a death, a pregnancy loss or a child's death in childbirth
-    (60 real days for the surviving immediate family), a disappearance, a serious injury or a bereavement (30 real days
-    for the villager and their immediate family).  With Rest Periods for Island Events on, the rare roll keeps those
-    villagers out of every role of a new event that can take a serious outcome until then (story_rest.inc); Pick
-    Island Event and Custom Island Events always come, and a Custom Island Event never starts a rest;
+  * a "rest" effect (code 25) beside every serious outcome -- a death, a pregnancy loss, a disappearance, a serious
+    injury or a bereavement -- and, on each weighted child leading to one, the guard "harmable(role)": with Rest
+    Periods for Island Events on (the owner, 2026-11-15), the villager and their recorded immediate family rest a
+    random 30 to 60 real days (rolled once per rest), when the rare roll gives them no serious outcome; after it, a
+    serious outcome for them goes ahead with a chance rolled in 30..50 percent each time, else it is dropped like a
+    filtered one (the guard), or -- a role whose serious outcome cannot be dropped ("serious_fixed") -- they are not
+    cast.  Pick Island Event and Custom Island Events always come, and a Custom Island Event never starts a rest
+    (story_rest.inc);
   * STORY TRAITS (the owner, 2026-11-15): "The Quiet Hands" (Inner Life 3, il003_*) gives the villager it casts the
     story trait "mute" (a "trait" effect, code 26, kept in the same per-villager file); every role whose words have
     them speak (a "speaks" role: speaking_roles) never takes a story-mute villager.
@@ -98,8 +101,8 @@ MAX_REMOVABLE_LABELS = 4            # past this many, every label is always show
 
 # The rest periods: (filter, days, the villager themselves too).  A death or a pregnancy loss rests the surviving
 # immediate family 60 days; a disappearance, a serious injury or a bereavement the villager and their family 30.
-REST_DAYS_LONG = 60
-REST_DAYS_SHORT = 30
+REST_DAYS_LONG = 60                 # a rest is 30..60 real days, rolled in the game (story_rest.inc): its top
+REST_DAYS_SHORT = 60                # one rule for every serious kind (the owner, 2026-11-15)
 REST_EFFECT_CODE = 25
 
 # Effects and the filters they always carry.  A sex change and a change of faith are never filtered (a kind of person
@@ -581,4 +584,36 @@ def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> t
         if rests:
             node["effects"] = rests + list(node.get("effects", []))
     g["patches"] = patches
+    _rest_guards(g)
     return g, p
+
+
+def _rest_guards(g: dict) -> None:
+    """Each weighted child (of a node with two or more, no else of its own) whose own part of the graph holds a rest
+    effect for role r gets "harmable(r)": the companion drops it for a villager the rare roll may not give a serious
+    outcome now.  A role with a rest effect that no guard can keep away is marked "serious_fixed": the rare roll
+    casts nobody in it who may not have one.  Run again on the finished graph (idempotent)."""
+    roles_of = {nid: {e["role"] for e in n.get("effects", []) if e.get("do") == "rest"} for nid, n in g["nodes"].items()}
+    every = _reach(g)
+    guarded: dict[str, set] = {}
+    for nid in every:
+        node = g["nodes"][nid]
+        kids = node.get("children", [])
+        if len(kids) < 2:
+            continue
+        for i, c in enumerate(kids):
+            if c.get("else"):
+                continue
+            alone = every - _reach(g, frozenset({(nid, i)}))
+            rs = sorted({r for n in alone for r in roles_of.get(n, ())})
+            for r in rs:
+                cond = {"harmable": r}
+                if cond == c.get("if") or (c.get("if") and cond in c["if"].get("all", [])):
+                    continue
+                c["if"] = _all(c.get("if"), cond)
+            for r in rs:
+                guarded.setdefault(r, set()).add((nid, i))
+    for r in {r for rs in roles_of.values() for r in rs}:
+        reach = _reach(g, frozenset(guarded.get(r, set())))
+        if any(r in roles_of.get(n, ()) for n in reach) and g["roles"].get(r, {}).get("kind") == "villager":
+            g["roles"][r]["serious_fixed"] = True
