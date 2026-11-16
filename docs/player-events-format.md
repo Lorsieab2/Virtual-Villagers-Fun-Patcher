@@ -87,9 +87,12 @@ Choice 2: Leave (Him/Her) to It
 - Optional top lines: `Description:` (the Pick Island Event list's sentence), `Credit:`, `Series:` (events of one
   series count as one event in the draw), `Weight:` (draw weight 1..10000, default 1), `Themes:`, `Id:` (pl_...),
   `Title (Guardians of Isola):` (New Believers' title with the Guardians of Isola Rewrite; without it a title or text
-  that says Heathen gets "Isolan" automatically, and "believer(s)" reads "the tribe" / "a tribe member" / "the
-  newcomers": "the believers" -> "the tribe", "a believer" -> "a tribe member", "the new believers" -> "the
-  newcomers", "believers" -> "tribe members"; the game's name "New Believers" is never changed).
+  that says Heathen gets "Isolan" automatically, and "believer(s)" is reworded sentence by sentence as
+  docs/event-collection/guardians-wording.md "Believers" says: set against the Isolans or Heathens, the tribe ("the
+  believers" -> "the tribe", its verb made to agree; "a believer" -> "a tribe member"); otherwise a person of faith
+  ("the believers" -> "the faithful", "a believer" -> "a villager of faith", "some believers" -> "some of the
+  faithful"); "the new believers" -> "the newcomers"; "a Heathen" -> "an Isolan"; the game's name "New Believers" is
+  never changed).
 
 ## 3. Names, roles, requirements, words and lists
 

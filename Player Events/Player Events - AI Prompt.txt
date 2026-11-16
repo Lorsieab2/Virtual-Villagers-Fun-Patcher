@@ -72,7 +72,7 @@ Isola is a tribal society with its own traditions, science, history, and mysteri
 * Different villagers may hold different beliefs, all of which deserve respect.
 * Outsiders and the origins of mysterious objects may remain unknown.
 * Follow the appropriate game-specific lore and terminology.
-* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers". In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
+* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers" where the tribe is set against the Isolans, or "a villager of faith", "a person of faith" or "the faithful" where a believer is set against a skeptic or a doubter. In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
 
 7. Make the Outcomes Matter
 Depending on the story, outcomes may include:

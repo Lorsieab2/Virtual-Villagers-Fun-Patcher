@@ -986,17 +986,42 @@ def _guardians(text: str) -> str:
         w = m.group(0)
         base = "Isolan" + w[len("Heathen"):]
         return base.upper() if w.isupper() else base if w[0].isupper() else base.lower()
-    text = re.sub(r"(?i)heathen(s|-born)?", rep, text)
     keep = "\x00NB\x00"
     text = text.replace("New Believers", keep)           # the game's name
-    for pattern, new in BELIEVER_WORDS:
-        if new in SINGULAR_SUBJECTS:
-            # A plural subject made singular: its verb agrees (the owner: "fix any grammar mistakes automatically").
-            text = re.sub(pattern + r"(\s+)([A-Za-z']+)\b",
-                          lambda m, new=new: _keep_case(m.group(0).split()[0], new) + m.group(1)
-                          + _singular_verb(m.group(2)), text, flags=re.I)
-        text = re.sub(pattern, lambda m, new=new: _keep_case(m.group(0), new), text, flags=re.I)
+    # Each sentence on its own (the data agent's rule, guardians-wording.md "Believers"): where it sets the believers
+    # against the Isolans / Heathens (or converts), "believer" is the tribe; anywhere else it is a person of faith.
+    out = []
+    for sentence in re.split(r"(?<=[.!?])(\s+)", text):
+        tribe_sense = re.search(r"(?i)heathen|isolan|convert", sentence) is not None
+        table = BELIEVER_WORDS if tribe_sense else FAITH_WORDS
+        for pattern, new in table:
+            if new in SINGULAR_SUBJECTS:
+                # A plural subject made singular: its verb agrees (the owner: "fix any grammar mistakes automatically").
+                sentence = re.sub(pattern + r"(\s+)([A-Za-z']+)\b",
+                                  lambda m, new=new: _keep_case(m.group(0).split()[0], new) + m.group(1)
+                                  + _singular_verb(m.group(2)), sentence, flags=re.I)
+            sentence = re.sub(pattern, lambda m, new=new: _keep_case(m.group(0), m.expand(new)), sentence, flags=re.I)
+        out.append(sentence)
+    text = re.sub(r"(?i)heathen(s|-born)?", rep, "".join(out))
+    text = re.sub(r"\b([Aa]) (Isolan)", r"\1n \2", text)        # "a Heathen" -> "an Isolan" (grammar)
     return text.replace(keep, "New Believers")
+
+
+# "believer" as a person of faith (against a skeptic or a doubter), the data agent's words (guardians-wording.md
+# "Believers"): plural stays plural, so no verb changes.
+FAITH_WORDS = (
+    (r"\bthe new(?:ly converted)? believers\b", "the newcomers"),
+    (r"\bnew(?:ly converted)? believers\b", "newcomers"),
+    (r"\ba new believer\b", "a newcomer"),
+    (r"\bsome believers\b", "some of the faithful"),
+    (r"\ball (?:the )?believers\b", "all the faithful"),
+    (r"\b(two|three|four|five|many|several|few) believers\b", r"\1 villagers of faith"),
+    (r"\bthe believers\b", "the faithful"),
+    (r"\bbelievers\b", "the faithful"),
+    (r"\ba believer\b", "a villager of faith"),
+    (r"\bthe believer\b", "the villager of faith"),
+    (r"\bbeliever\b", "villager of faith"),
+)
 
 
 # The words that made a plural subject singular ("the believers gather" -> "the tribe gathers").
@@ -3156,7 +3181,7 @@ Isola is a tribal society with its own traditions, science, history, and mysteri
 * Different villagers may hold different beliefs, all of which deserve respect.
 * Outsiders and the origins of mysterious objects may remain unknown.
 * Follow the appropriate game-specific lore and terminology.
-* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers". In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
+* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers" where the tribe is set against the Isolans, or "a villager of faith", "a person of faith" or "the faithful" where a believer is set against a skeptic or a doubter. In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
 
 7. Make the Outcomes Matter
 Depending on the story, outcomes may include:

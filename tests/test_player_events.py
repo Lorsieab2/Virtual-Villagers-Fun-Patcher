@@ -143,26 +143,32 @@ class SimpleEvents(unittest.TestCase):
 
     def test_guardians_of_isola_believer_words(self):
         cases = {
-            "The believers gather.": "The tribe gathers.",     # the verb agrees (the owner: fix grammar)
-            "The believers are worried, and they talk.": "The tribe is worried, and they talk.",
-            "All the believers have gone home.": "The whole tribe has gone home.",
-            "The believers carry torches.": "The tribe carries torches.",
-            "The believers quickly hurry.": "The tribe quickly hurry.",     # an adverb: left alone, never over-fixed
-            "The believers watched.": "The tribe watched.",
-            "Our believers don't agree.": "The tribe doesn't agree.",
-            "The believers fish.": "The tribe fishes.",
-            "A believer smiles.": "A tribe member smiles.",
+            # The tribe as against the Isolans (the sentence names them): the tribe, its verb agreeing.
+            "The believers gather while the Isolans watch.": "The tribe gathers while the Isolans watch.",
+            "The believers are worried about the Heathens, and they talk.":
+                "The tribe is worried about the Isolans, and they talk.",
+            "All the believers have gone home; the Isolans stay.": "The whole tribe has gone home; the Isolans stay.",
+            "The believers carry torches past the Isolan camp.": "The tribe carries torches past the Isolan camp.",
+            "The believers quickly hurry from the Isolans.": "The tribe quickly hurry from the Isolans.",   # an adverb
+            "The believers watched the Heathens.": "The tribe watched the Isolans.",
+            "Our believers don't agree with the Isolans.": "The tribe doesn't agree with the Isolans.",
+            "A believer smiles at an Isolan.": "A tribe member smiles at an Isolan.",
+            "Two believers argue with a Heathen.": "Two tribe members argue with an Isolan.",
+            # A person of faith (against a skeptic): the faithful, a villager of faith.
+            "The believers gather.": "The faithful gather.",
+            "Believers maintain it was a sign.": "The faithful maintain it was a sign.",
+            "Some believers question it.": "Some of the faithful question it.",
+            "A believer smiles.": "A villager of faith smiles.",
+            "Two believers argue.": "Two villagers of faith argue.",
             "the new believers arrive": "the newcomers arrive",
-            "Two believers argue.": "Two tribe members argue.",
             "New Believers is the game.": "New Believers is the game.",
-            "THE BELIEVERS": "THE TRIBE",
         }
         for before, after in cases.items():
-            self.assertEqual(pe._guardians(before), after)
+            self.assertEqual(pe._guardians(before), after, before)
         text = SIMPLE.replace("Applies to: VV1, VV3", "Applies to: VV5").replace(
             "since sunrise.", "since sunrise, watched by a believer.")
         v = compiled(text).graph["nodes"]["ask"]["variants"]
-        self.assertTrue(any("a tribe member" in x["text"] for x in v))
+        self.assertTrue(any("a villager of faith" in x["text"] for x in v))
         self.assertIn("rather than \"believers\"", pe.ai_prompt())
 
 
