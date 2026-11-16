@@ -160,7 +160,27 @@ class EveryEffectWord(unittest.TestCase):
         "MOOD GOOD fisher": "mood", "CELEBRATE": "celebrate", "DAMAGE (small)": "damage",
         "BECOMES HEATHEN fisher": "status", "STORY MUTE fisher": "trait",
         "ACTION fisher \"Dance\"": "action",
+        "CURE fisher": "cure", "REPAIR": "repair", "YOUNG LOOK fisher": "young_look",
+        "SKILL + BEST some": "skill", "EVERYONE: MOOD GOOD": "mood", "EVERY HEALER: SKILL + Healing some": "skill",
+        "3 RANDOM VILLAGERS: ILLNESS": "sick", "NEW VILLAGER (adult woman)": "new_villager",
+        "NEW BABY OF THE NEWCOMERS": "new_villager", "PREGNANT mother WITH father (TWINS)": "pregnant",
+        "CHANGE AGE fisher OLDER 20 YEARS (NEVER PAST ELDER)": "change_age", "CLONE OF newcomer": "clone",
     }
+
+    def test_the_new_kinds_carry_their_fields(self):
+        def first(words):
+            return pe.plain_effect(words).effects[0]
+        self.assertEqual(first("EVERYONE: MOOD GOOD")["target"], {"all": True})
+        self.assertNotIn("role", first("EVERYONE: MOOD GOOD"))
+        self.assertEqual(first("EVERY HEALER: SKILL + Healing some")["target"], {"skill": "Healing"})
+        self.assertEqual(first("3 RANDOM VILLAGERS: ILLNESS")["target"], {"random": 3})
+        self.assertTrue(first("SKILL + BEST some")["best"])
+        self.assertEqual(first("NEW VILLAGER (adult woman)")["sex"], "female")
+        self.assertTrue(first("NEW BABY OF THE NEWCOMERS")["child_of_newest"])
+        self.assertEqual(first("PREGNANT mother WITH father (TWINS OR TRIPLETS)")["babies"], "roll")
+        self.assertEqual(first("CHANGE AGE fisher OLDER 20 YEARS (NEVER PAST ELDER)")["max_age"], 75)
+        self.assertEqual(first("CLONE OF newcomer")["role"], "$newest")
+        self.assertIsInstance(pe.plain_effect("EVERYONE: DEATH"), str)
 
     def test_every_plain_word_effect(self):
         for words, do in self.CASES.items():
@@ -331,7 +351,7 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
         text = pe.ai_prompt()
         self.assertIn(f'follow my style guide, "{pe.STYLE_NAME}"', text)
         self.assertIn("does not apply to my own handwritten events", text)
-        self.assertIn(f'THE KEY: my handwritten events ("{pe.TONE_NAME}") and my 19 example events '
+        self.assertIn(f'THE KEY: my handwritten events ("{pe.TONE_NAME}") and my 20 example events '
                       f'("{pe.EXAMPLE_NAME}") are the key to my style guide', text)
         self.assertIn("Study both before you write", text)
 

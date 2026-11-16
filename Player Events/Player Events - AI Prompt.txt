@@ -6,9 +6,9 @@ Read the handwritten events and my event-writing rules in the reference file I p
 Pay particular attention to my events such as The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Climb, and The Troubling Signs.
 Use these as your primary stylistic references. Do not imitate generic AI-generated events.
 My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
-Also follow my style guide, "Isola Island Event Style Guide.txt" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source).
-My example events, "Example Events - Lorsieab2 (S001-S019).txt" (I provide them too), are rewritten in my own hand: they are the format and style example, showing how an event is built (the opening, the choices, a first popup for a choice, the endings with their chances and effects) and how much story each popup and ending carries. Write yours with the same parts, laid out in the format of section 9 (my patcher reads that layout; my example's headings are for my notes). They are examples only: do not copy them.
-THE KEY: my handwritten events ("Island Event Tone Reference - Lorsieab2's Handwritten Events.txt") and my 19 example events ("Example Events - Lorsieab2 (S001-S019).txt") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
+Also follow my style guide, "Isola Island Event Style Guide.txt" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source). Its appendices list the possible outcomes of every vanilla island event in all five games, and every like and dislike each game has and what it does: use them to keep your outcomes and likes true to the games.
+My example events, "Example Events - Lorsieab2 (S001-S020).txt" (I provide them too), are rewritten in my own hand: they are the format and style example, showing how an event is built (the opening, the choices, a first popup for a choice, the endings with their chances and effects) and how much story each popup and ending carries. Write yours with the same parts, laid out in the format of section 9 (my patcher reads that layout; my example's headings are for my notes). They are examples only: do not copy them.
+THE KEY: my handwritten events ("Island Event Tone Reference - Lorsieab2's Handwritten Events.txt") and my 20 example events ("Example Events - Lorsieab2 (S001-S020).txt") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
 2. Create an Interesting Story
 Write ONE completely original Island Event.
 Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
@@ -46,6 +46,9 @@ Do not make every outcome predictable.
 * Allow genuine surprises, irony, humor, and unexpected twists.
 * Avoid repetitive sentence structures and artificial moral lessons.
 * Do not end every outcome with the villagers learning a lesson or becoming wiser.
+* Narrate in the third person, always. First and second person ("I", "me", "my", "we", "you", "your") only inside quoted speech or a villager's quoted thought.
+* Likes and dislikes are not jobs: never "hates (a job), so a dislike". Name the thing the villager actually comes to like or dislike.
+* No contradictions: every line must agree with the rest of the event (no "won't explain" followed by the explanation; nothing that "never" happens then happens).
 
 Most importantly, write actual events, not vague descriptions of events.
 For example, don't say, "The villagers investigate and discover something interesting." Describe exactly what they discover and what happens afterward.
@@ -147,7 +150,13 @@ Names and pronouns (use these exactly, with the round brackets):
 - (award): the food or tech amount actually given by a FOOD AWARD or TECH AWARD effect.
 - {@chief} / {@Chief}: "the Chief" in The Secret City, "the village leader" in the other games.
 - {this|that|the other}: one of these words, picked at random each time.
+- {#babies:a baby|twins|triplets} and {#made:one|two|three or more}: in the story text only (never a title or a
+  choice), the words for what the page's effects actually made: the first for one (or none), the second for two,
+  the third for three or more; 1 to 3 choices of up to 40 letters, digits, spaces and , : - ' " ; / & % (no
+  names, no braces, no . ! ?).
 - Plain round brackets in the story are fine; they are shown as written.
+- Tell the story in the third person. "I", "me", "my", "we", "you" and "your" belong only inside quoted speech or a
+  villager's quoted thought.
 
 Gameplay effects (one per Effect line, written exactly like this; <who> is a role name, or leave it out for the
 main villager):
@@ -157,23 +166,33 @@ main villager):
 - SKILL + <skill> a little|some|a lot|hugely, SKILL - <skill> ..., MASTER <skill> (sets it to 100), SKILL SET <skill>
   <0-100>. Skills: Farming, Building, Research, Healing, Parenting, and Devotion (VV5 only). Add "FOR <who>" for
   another villager.
+  SKILL + BEST a little|some|a lot|hugely raises the villager's own best skill.
 - LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
   LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
+  Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the
+  villager actually comes to like or dislike (the water, the dark, bees).
 - INJURY <who> (a health loss; add (minor), (serious) or (grave)), ILLNESS <who> (falls sick), HEALTH <who> +10 TO +20,
-  HEAL <who> (full health).
+  HEAL <who> (full health), CURE <who> (an illness cured), REPAIR (the damaged huts are repaired).
+- Groups: put "EVERYONE:", "EVERY HEALER:" (also builder, farmer, researcher, parent: every villager good at that
+  skill) or "3 RANDOM VILLAGERS:" before a health, illness, cure, skill, like, mood or look effect, for example
+  "EVERYONE: MOOD GOOD", "EVERY HEALER: SKILL + Healing some" or "3 RANDOM VILLAGERS: ILLNESS".
 - DEATH <who> (a grave is left), DISAPPEARS <who> (never seen again), LOST FOREVER <who> (dies, the body is never
   found), PREGNANCY LOSS <who>, BIRTH THEN DEATH <who>, EARLY BIRTH <who>. These are rare and serious.
-- NEW VILLAGER (child|teen|adult|elder|any), DUPLICATE OF <who> (a newcomer who looks just like them), CLONE OF <who>
-  (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who> makes two, never more).
+- NEW VILLAGER (child|teen|adult|elder|any), NEW VILLAGER (adult woman) (or man, boy, girl), DUPLICATE OF <who> (a
+  newcomer who looks just like them), CLONE OF <who> (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who>
+  makes two, never more). A family: NEW VILLAGER (adult man), NEW VILLAGER (adult woman), then
+  NEW BABY OF THE NEWCOMERS. "newcomer" as <who> is the villager the event just made (and "previous newcomer" the one before).
 - PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
   older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
-  potion), or for NURSING when a father is caring for a baby.
+  potion), or for NURSING when a father is caring for a baby. Add (TWINS), (TRIPLETS) or (TWINS OR TRIPLETS) for
+  more than one baby.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
   LOSE NAME <who> (the name becomes "?"; it only comes from a bump on the head or something like it: a fall, a fever,
   magic or anything that takes the villager's memory, never a villager choosing or being given "?" as a name),
   CHANGE NAME <who> (a new name from the game's own list),
   CHANGE NAME <who> TO <name> (that name: letters, spaces, ' - . only, up to 31),
-  CHANGE AGE <who> YOUNGER|OLDER <n> YEARS, CHANGE AGE <who> TO child|teen|18|adult|50|elder.
+  CHANGE AGE <who> YOUNGER|OLDER <n> YEARS (add "(NEVER PAST ELDER)" to stop at old age),
+  CHANGE AGE <who> TO child|teen|18|adult|50|elder, YOUNG LOOK <who> (looks younger).
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
   DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events).
 - VV5 only: BECOMES HEATHEN <who>.

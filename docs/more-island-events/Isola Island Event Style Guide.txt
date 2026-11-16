@@ -3,7 +3,7 @@ ISOLA ISLAND EVENT STYLE GUIDE
 
 THE KEY TO THIS GUIDE
 Lorsieab2's handwritten island events ("Island Event Tone Reference - Lorsieab2's Handwritten Events.txt") and
-Lorsieab2's 19 rewritten example events ("Example Events - Lorsieab2 (S001-S019).txt") are the key behind every
+Lorsieab2's 20 rewritten example events ("Example Events - Lorsieab2 (S001-S020).txt") are the key behind every
 rule below. When in doubt, read them and write like them.
 
 1. POSE THE DILEMMA PLAINLY
@@ -18,6 +18,12 @@ rule below. When in doubt, read them and write like them.
    Magic and odd happenings get a cause or a source inside the story (for example, one of the elder's
    grandchildren was trying out a new spell). Mysteries may stay open to interpretation, but the event gives a
    reason to wonder about.
+
+2a. NO CONTRADICTIONS
+   Every line must agree with the rest of the event. If someone "won't explain", they don't then explain; give
+   the cause through someone else ("the elders won't say any more. But the children whisper that..."). If
+   something "never" happens, it doesn't happen later in the same event. An added cause, detail or line must fit
+   what the setup already says. Read the whole event again after every change.
 
 3. NAME THE PEOPLE IN THE SCENE
    Use name slots for side characters instead of vague roles: "(cook name), the head cook", "another (name)",
@@ -51,7 +57,871 @@ rule below. When in doubt, read them and write like them.
      never from a villager choosing "?" or the village calling them "?".
    - Every ending within a choice is equally likely.
 
-9. ALWAYS
+8a. LIKES AND DISLIKES ARE NOT JOBS
+   Never write "(name) hates (a job), so (name) gets a dislike", or "(name) loves (a job), so a like". Say what
+   (name) actually comes to like or dislike, using the game's own like/dislike (the thing itself), even when that
+   is what makes them do or stop doing a job in the game: "(name) can't stand the feel of soil anymore"
+   (dislike: farming), not "(name) hates being a farmer now"; "(name) can't stop admiring how things are put
+   together" (like: building), not "(name) loves being a builder".
+
+9. THIRD PERSON
+   Narration is always in the third person. First or second person ("I", "you", "we") only inside what someone
+   says out loud (quotes) or thinks in their own words. The game's own reward line ("Your villagers gain (award)
+   food.") stays as the games write it.
+
+10. ALWAYS
    Titles and choices in Title Case. PG-13 presentation: bad things happen, described just enough, never
    sanitized. Villagers are peaceful, imperfect people. Supernatural beings stay open to interpretation.
    In VV5, Isolans (Guardians of Isola wording).
+
+##############################################################################
+# APPENDIX B
+##############################################################################
+OUTCOMES = ANY CHANGE TO THE VILLAGE, A VILLAGER OR BEHAVIOUR, OR TO TECH LEVELS, FOOD, TECH POINTS ETC.
+Every kind of change the vanilla island events make in the five games (details per event below):
+
+THE VILLAGE
+- Stored food gained or lost; the berry bush, crop field, fruit trees or mushrooms filled or emptied
+- Tech points gained or lost; a technology level raised (e.g. Exploration, Culture, Spirituality, Medicine)
+- Huts and buildings damaged or repaired; puzzles affected
+- Everyone happier, celebrating, dancing, relaxing or swimming for a while (mood and behaviour)
+- Weather and seasons: rain, wind, heat, cold snaps, fog, storms (with their food or health effects)
+
+VILLAGERS
+- New villagers arrive or join (adults, children, babies, barrels of babies, visitors who stay)
+- Conceptions and pregnancies, twins and triplets (where the game has them)
+- Deaths with a grave, and disappearances without one
+- Falling sick (one villager or many), health lost or restored
+- Skills gained or lost; likes and dislikes gained or lost
+- Age changes (e.g. made younger or older)
+- New heads, bodies or clothes; special titles or robes (e.g. the Chief)
+- Names changed or lost ("?")
+- New Believers: faith gained or lost, believers turning Heathen and Heathens converting
+
+BEHAVIOUR
+- A villager or the whole village drops what they are doing for a while (celebrating, swimming, relaxing,
+  mourning, dancing)
+- Likes and dislikes that change which jobs and actions villagers choose (see Appendix A)
+
+APPENDIX: POSSIBLE OUTCOMES OF THE VANILLA ISLAND EVENTS IN ALL 5 GAMES
+From the patcher's Game Mechanics records of each game's own code. Use these as the menu of outcomes the
+games themselves already do (new events may also use the patcher's added outcome kinds).
+
+==============================================================================
+VV1 A New Home (44 events)
+==============================================================================
+- The Bad Little Monkey  (an island event, always possible)
+    * The tribe loses 900 x n tech points, down to 0 at least.
+- The Plague of Parrots  (an island event, always possible)
+    * The berry bush loses 200 x n, down to 0 at least.
+- A Plague of Locusts  (an island event; needs Farming technology level 2 or more)
+    * The crop field is emptied to 0.
+- The Measles Epidemic  (an island event; needs a living child under 14 villager years)
+    * Every living villager under 280 age units (14 villager years) falls sick; no health is lost by the event itself.
+- The South Wind  (an island event, always possible)
+    * The berry bush, the crop field and the stored food each lose 80 x n, each down to 0 at least.
+- The Heat Wave  (an island event, always possible)
+    * Each villager, 50% each: goes swimming or relaxes; nothing else changes.
+- Isola Day Celebration  (an island event, always possible)
+    * The stored food loses 10 for every villager (babies being carried counted), down to 0 at least, and the village celebrates.
+- Blessings Day Celebration  (an island event, always possible)
+    * As Isola Day, the stored food loses 10 for every villager, down to 0 at least, and the village celebrates.
+- The Big Wave  (an island event; needs the beach cleaned up)
+    * The beach is covered with debris again: it counts as not cleaned, and its clean-up progress goes back to 0.
+- The Good Little Monkey  (an island event, always possible)
+    * The tribe gains 900 x n tech points.
+- The Greedy Little Monkey  (an island event, always possible)
+    * The stored food gains 200 x n.
+- The Barrel O` Babies  (an island event; needs room for new villagers when it is picked)
+    * 1 toddler for n of 1 to 4, 2 for 5 to 7, 3 for 8 to 10; room is checked only when the event is picked, and every toddler is then made.
+    * Each toddler is 70 to 89 age units old (3.5 to 4.45 villager years, each 1 in 20), a boy or a girl 50% each, 90 health, family number 1, every skill 0 -- with The School solved Research, Building, Healing and Farming each gain 0 to 6 (each 1 in 7) -- a head and a body each one of 0 to 18 for a boy, 0 to 19 for a girl, and likes and dislikes as at a birth (none 70%, one 21%, two 9%).
+- The North Wind  (an island event, always possible)
+    * The berry bush and the crop field each gain 100 x n.
+- The Helpful Honeybees  (an island event, always possible)
+    * The berry bush gains 300 x n.
+- A Mighty Storm  (an island event added by the patch, while there is stored food)
+    * All the stored food is washed away: food 0.
+- The Trapped Whale  (an encounter; needs Spirituality technology below level 3)
+    * "Help free the whale.": Spirituality technology goes up 1 level.
+    * "Harvest the whale for food.": +1,000 stored food.
+- The Strange Berries  (an encounter, always possible)
+    * Line(text='"Taste the strange berries.": 51% the villager feels young again -- age set to 250 age units (12.5 villager years; a pregnancy is kept) -- and 49% the villager dies (health set to 0). Golden Child: can be this villager, and dies by this result.', verified='running', sub=False, only_with=None)
+    * "Ignore the seductive plant.": nothing changes.
+- The Old Drum  (an encounter, always possible)
+    * "Cut open the drum.": the villager's Healing skill becomes 100.
+    * "Keep the drum to make music.": the berry bush gains 500.
+- The Mysterious Face  (an encounter, always possible)
+    * Line(text='"Get a closer look.": 51% the villager is never seen again (taken from the village: no body, no grave); 49% a stranger joins -- 281 age units (14.05 villager years), a man or a woman 50% each, 90 health, Farming 100 and the other skills 0, family number 1, made as the Barrel O` Babies\' toddlers are (with The School solved, Farming can reach 106) -- if there is room for a villager, and without room the villager is never seen again instead. Golden Child: can be this villager, and is lost by this result.', verified='running', sub=False, only_with=None)
+    * "Cautiously back away.": nothing changes.
+- The Visitor  (an encounter; needs Medicine technology below level 3)
+    * "Allow him to gather samples.": Medicine technology goes up 1 level.
+    * "Tell the stranger to leave.": the villager falls sick, and every living villager falls sick at 75% each; no health is lost by the event itself.
+- A Mysterious Vial (red liquid)  (an encounter, always possible. Item: a vial of an oily, red liquid)
+    * "Drink the liquid.": 50% a red vapour makes every other villager sick (the drinker is not); 50% the drinker's Healing becomes 100.
+    * "Pour it out.": nothing changes.
+- The Troubled Child  (an encounter; needs a living child under 14 villager years, who is the one)
+    * "Let him (her) try farming.": the child falls sick and gains 50 Farming, up to 100.
+    * "Let him (her) try research.": the child's Research becomes 100 and the tribe gains 3,000 tech points.
+- A Mysterious Vial (blue liquid)  (an encounter, always possible. Item: a vial of an oily, blue liquid)
+    * "Drink the liquid.": 50% the drinker turns back into a toddler -- age set to 80 age units (4 villager years) and any pregnancy ended -- and 50% the drinker dances, with no lasting change. The Golden Child is set back to 100 age units at the game's next update.
+    * "Pour it out.": nothing changes.
+- The Suspicious Monkey  (an encounter; needs a living child under 14 villager years (the villager itself can be anyone))
+    * Line(text='"Try to scare the monkey away.": the villager loses 50 health, down to 0 at least; at 0 the villager dies. Golden Child: can be this villager, and the losses add up.', verified='running', sub=False, only_with=None)
+    * "Wait and see what it does.": the villager gains 60 Healing, up to 100.
+- The Wild Mushroom  (an encounter, always possible)
+    * Line(text='"Taste the mushroom.": 50% delicious -- Farming +65 up to 100, and +300 to 499 stored food (each amount 1 in 200) -- and 50% poisoned -- sick, and 25 to 49 health lost (each 1 in 25), down to 0 at least; at 0 the villager dies. Golden Child: can be this villager, and the losses add up.', verified='running', sub=False, only_with=None)
+    * "Discard the mushroom.": nothing changes.
+- The Black Pearl  (an encounter, always possible)
+    * "Share the treasure with the tribe.": every villager gains 5 to 9 health (each rolled 1 in 5 for each villager), up to 100, and the village celebrates. The game adds it to every unburied body too: a body at 0 health (old age, sickness, hunger, The Strange Berries, the floored losses) is a living villager again with 5 to 9 health; a body below 0 health (research injuries, the rotting crate's opener and the old fruit crate have no floor) comes back only when the 5 to 9 lifts it above 0.
+    * "Keep the pearl hidden.": the villager's first two dislikes become crowds and work (the two it had there are replaced).
+- The Dream  (an encounter, always possible)
+    * "Enter the right cave.": the villager's first two dislikes become fish and the ocean.
+    * "Enter the left cave.": nothing changes.
+- The Moth  (an encounter, always possible)
+    * "Help the moth.": nothing changes.
+    * "Leave the moth alone.": the villager's Healing becomes 100.
+- The Book  (an encounter, always possible)
+    * Line(text='"Read the book.": the villager is never seen again (taken from the village: no body, no grave). Golden Child: can be this villager, and is lost by this result.', verified='running', sub=False, only_with=None)
+    * "Bring it to the researchers.": nothing changes.
+- The Brass Compass  (an encounter, always possible)
+    * "Use it to mash berries.": every villager gains 10 to 19 Farming (each rolled 1 in 10 for each villager), up to 100.
+    * "Let the researchers have it.": the tribe gains 2,000 to 4,999 tech points (each 1 in 3,000).
+- The Furry Food  (an encounter added by the patch, while there is stored food)
+    * "Remove the moldy pieces.": every living villager falls sick at 50% each.
+    * "Throw out all the food.": the stored food becomes 0.
+- A Mysterious Crate (wooden)  (a crate, 1 in 9 of crates and vials. Item: a wooden crate)
+    * "Open it.": +500, +1,000 or +1,500 stored food at strength 1, 2, 3 (coconuts, golden ripe bananas, juicy steaks).
+- A Mysterious Crate (carefully sealed)  (a crate. Item: a carefully sealed crate)
+    * "Open it.": +1,000, +2,000 or +3,000 tech points at strength 1, 2, 3.
+- A Mysterious Crate (badly weathered)  (a crate. Item: a badly weathered crate)
+    * "Open it.": +500, +1,000 or +1,500 tech points, and every living villager falls sick at 15%, 20% or 25% each, at strength 1, 2, 3; no health is lost.
+- A Mysterious Crate (rotting)  (a crate. Item: a rotting, wooden crate)
+    * Line(text='"Open it.": every living villager is bitten at 20%, 30% or 45% each -- sick, and 10, 15 or 20 health lost, down to 0 at least -- at strength 1, 2, 3; then the opener falls sick and loses 15 more health with no floor. At 0 health a villager dies. Golden Child: can be the opener or bitten, and the losses add up.', verified='running', sub=False, only_with=None)
+- A Mysterious Crate (watertight)  (a crate. Item: a painstakingly well prepared, watertight crate)
+    * "Open it.": with room for villagers when it is opened, 1, 2 or 3 infants at strength 1, 2, 3, each 70 to 89 age units old (3.5 to 4.45 villager years), made as the Barrel O` Babies makes them; without room nothing.
+- A Mysterious Crate (old fruit)  (a crate. Item: a rotten and half-eaten, old fruit crate)
+    * Line(text='"Open it.": giant spiders bite the opener, who loses 40, 70 or 110 health at strength 1, 2, 3, with no floor; at 0 or less the opener dies, so strength 3 always kills. Golden Child: can be the opener; strength 3 kills him, and the other losses add up.', verified='running', sub=False, only_with=None)
+- A Mysterious Vial (red, from the sea)  (a vial. Item: a watery or oily red vial (the word changes nothing))
+    * "Drink the liquid.": the drinker's head is re-rolled: a man gets one of heads 0 to 18, a woman one of 0 to 19, each equally likely (the old head can come again); the strength changes only the words.
+- A Mysterious Vial (blue, from the sea)  (a vial. Item: a watery or oily blue vial)
+    * "Drink the liquid.": one skill, each 20% -- Farming, Breeding, Building, Research or Healing -- gains 50, 75 or 100 at strength 1, 2, 3, up to 100.
+- A Mysterious Vial (fizzy, from the sea)  (a vial. Item: a watery or oily fizzy vial)
+    * "Drink the liquid.": all five skills lose 30, 50 or 70 at strength 1, 2, 3, down to 0 at least.
+- The Aspiring Adventurer  (needs at least two villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not the Golden Child; one of the villager encounters (the two-choice island events) when it comes; never the village's first island event (always a visitor); it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 30% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the adventurer is drawn from the villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not the Golden Child, each equally likely; the friend of ending A8 is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in play the friend always exists and A8 is always possible.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, the Golden Child, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * "Go investigate!" (one popup with the opening and the find, then one with the ending): the find is a pile of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a surviving ending and 50% a deadly one, each equally likely within its half.
+    * After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or the chest: A1 (gets away), A5 (escapes the trap), A8 (a friend comes to help) 16.67% each (1 in 6), each with the reward; A2, A3, A4, A6 12.5% each, no reward.
+    * Out of every investigation: A1 8.33%, A5 8.33%, A8 8.33% (each half with food, half with tech points); A7 12.5%; A9 12.5%; A2 (the beast, dies, a grave) 12.5%; A3 (the beast, disappears, no grave) 12.5%; A4 (the knife, dies, a grave) 12.5%; A6 (the knife, disappears, no grave) 12.5%. In all: home safe 50% (12.5% with the food, 12.5% with the tech points, 25% with nothing), dies 25%, disappears 25%. The stranger of A4 and A6 is a man or a woman, 50% each.
+    * "Stay on the safe path" (one popup with the walk home; when lost, a second with the ending; after the healers, a third): home safe 90%; lost 10%, then each of the six lost endings 1 in 6.
+    * Lost ending 1, brought to the healers, then 1 in 3 each: dies, a grave (0.56%); a full recovery (0.56%); disabled -- health set to 10 to 50 (each equally likely) and now dislikes running (0.56%).
+    * Lost ending 2 (1.67%): joins another tribe: gone for good, no grave. Lost ending 3 (1.67%): the survivalist gains 20 to 30 points (each equally likely) in Farming, Building, Research or Healing (1 in 4 each), up to 100. Lost endings 4 (a fallen tree) and 5 (a stony cliff), 1.67% each: dies, a grave. Lost ending 6 (1.67%): disappears, no grave.
+    * In all, staying on the path: home alive 92.78%, dies 3.89%, disappears 1.67%, joins another tribe 1.67%.
+    * The reward is a random amount, each equally likely: 200 to 1,500 food for the meat, 500 to 4,999 tech points for the chest -- from the smallest to the largest food or tech-point gain of the game's own island events -- given only in A1, A5 and A8 through the game's own food or tech writer, as drawn (scaled only with Island Events Scale ticked: below).
+    * A death is the game's own ("Unknown causes", as the game's own island events give; the body is buried and gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it as a disappearance. The effects wait for their own page: they come when the page that ends the ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.
+    * Line(text='With the patcher\'s "Island Events Scale With Population (like The Lost Children)" (in this game): the reward is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).', verified='running', sub=False, only_with='vv1_island_events_scale_with_population')
+    * Line(text='With the patcher\'s "Island Events Scale With Stored Food and Tech Points" (in this game): the reward gains a tenth of what is stored (see the rules above).', verified='running', sub=False, only_with='vv1_island_events_scale_with_stored_amounts')
+- The Cave Explorers  (needs The Cave puzzle done (the Golden Child has opened the cave) and two villagers who are alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Golden Child, at most 5 villager years apart; one of the villager encounters (the two-choice island events) when it comes; never the village's first island event (always a visitor); it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 30% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: two villagers who are alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Golden Child, at most 5 villager years apart (name1 and name2: every such pair equally likely, either way round).
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, the Golden Child, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * Three questions in a row in the encounter's own popup, each after its pages: "Explore the Cave" or "Don't explore"; then "Proceed Further" or "Stay Here"; then, depending on the way, "Run towards the left path" or "Run towards the right path" (the same odds either way), or "You're right, I'll return them." or "Curses schmurses. I'm keeping them."
+    * After "Don't explore" nothing happens.
+    * After "Proceed Further", 50% a scream in the dark (A), 50% a find (B). In A the one who screams is name1 or name2 (1 in 2) and what they felt one of four (1 in 4 each); then they run: they argue 10% (nothing happens), they make up 80% (nothing happens), or the chasm 10%: both disappear, gone for good, no grave and no food from the berries.
+    * In B the finder is name1 or name2 (1 in 2) and the find is a map 10% (both leave for a strange place: they disappear, no grave), gold coins 30% (500 to 4,999 tech points), a treasure map 30% (a huge award, three times: 1,500 to 14,997 tech points) or preserved food 30% (a large award, twice: 400 to 3,000 food). Out of every "Proceed Further": the map 5%, the coins 15%, the treasure map 15%, the food 15%, and in A the chasm 5%.
+    * "Stay Here", then "You're right, I'll return them.": food 50% (200 to 1,500 food) or tech points 50% (500 to 4,999 tech points).
+    * After "Curses schmurses. I'm keeping them.", the researchers 50% (500 to 4,999 tech points); both die 25% (name2, then name1: two graves); only name2 dies 25% (one grave).
+    * Each amount is drawn, each equally likely, from the smallest to the largest food or tech-point gain of the game's own island events (a large award twice that, a huge one three times), given through the game's own food or tech writer; with Island Events Scale ticked it is then scaled as that patch scales the game's own encounters (below).
+    * A death is the game's own ("Unknown causes", as the game's own island events give; the body is buried and gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it as a disappearance. The effects wait for their own page: they come when the page that ends the ending's text is shown; the Island Events log keeps one entry for the event, with each answer clicked and every change.
+    * Line(text='With the patcher\'s "Island Events Scale With Population (like The Lost Children)" (in this game): each award is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).', verified='running', sub=False, only_with='vv1_island_events_scale_with_population')
+    * Line(text='With the patcher\'s "Island Events Scale With Stored Food and Tech Points" (in this game): each award gains a tenth of what is stored (see the rules above).', verified='running', sub=False, only_with='vv1_island_events_scale_with_stored_amounts')
+- The Remembrance Ceremony  (needs at least one grave (the game's own count of its graves); an island event of the no-choice kind when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 30% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who takes part: everyone -- every living villager who is in the village, children and babies that are villagers too, nursing mothers and fathers, and the villagers other events never pick (the owner: "everyone joins in"). Babies still being carried are not villagers yet, so they stay with their mothers.
+    * Each one stops what it is doing and goes to the cemetery and goes "Honoring the Dead", started one by one exactly as the game's own Day of Honor starts each villager, so nobody is left out by the game's usual group rules.
+    * The feast quietly uses 10 food for every villager the game counts, never below 0 (the same as Blessings Day in this game); the popup does not mention it.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event. It can happen again, as likely as one stock event each time.
+- The Rumblings  (needs every puzzle solved (16, the Puzzles screen's) and at least one finished structure it can damage; an island event of the no-choice kind when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 30% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * The structures it can damage: the second population hut and the third population hut. Never the first population hut ("The Hut" puzzle) (puzzles stay solved).
+    * Each finished one is damaged 25% of the time; at least one always is (when none is, one of them, each equally likely), and every one can be.
+    * A damaged one loses 10 to 100% of its building work (each whole percent equally likely), and the builders must build it again. At 100% it is unbuilt, exactly as in a new village. A heavily damaged one may need a villager dropped on it before the builders start, as in the stock game.
+    * When it is finished again the game shows its own celebration, tip and completion message again.
+    * Solved puzzles stay solved. No one is hurt and nobody leaves: a village left over its population limit keeps everyone, babies already on the way are still born, and no new babies come until the hut is rebuilt -- the same as when the stock game runs out of room.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event, naming each damaged structure. It can happen again, as likely as one stock event each time.
+
+==============================================================================
+VV2 The Lost Children (60 events)
+==============================================================================
+- The Obnoxious Parrot  (single-result, always possible)
+    * The tribe loses a quarter of its tech points, rounded down.
+- The Flash Flood  (single-result, always possible)
+    * Stored food above 750 is cut to 750.
+- The Dense Fog (food lost)  (single-result, always possible)
+    * The stored food loses 200 x k, down to 0 at least.
+- The Dense Fog (tech lost)  (single-result, always possible)
+    * The tribe loses 1,000 x k tech points, with no floor.
+- The Dense Fog (tech gained)  (single-result, always possible)
+    * The tribe gains 800 x k tech points.
+- The Dense Fog (food gained)  (single-result, always possible)
+    * The stored food gains 150 x k.
+- The East Wind  (single-result, always possible)
+    * The coconuts, the crops and the stored food each lose 80 x n, each down to 0 at least, and every villager's ongoing work is cleared.
+- The West Wind  (single-result, always possible)
+    * The coconuts and the crops each gain 100 x n, with no cap in the event itself.
+- The Friendly Parrot  (single-result, always possible)
+    * The stored food gains 400 x k.
+- The Heat Wave  (single-result, always possible)
+    * Every living villager not already busy stops: an adult (over 280 age units) goes "Enjoying the pond" (one of two ways, 50% each), a child goes "Cooling feet in stream"; nothing else changes.
+- Isola Day Celebration  (single-result, always possible)
+    * The villagers celebrate as in the Heat Wave, every villager's ongoing work is cleared, and the stored food loses 10 for every villager (babies being carried counted), down to 0 at least.
+- Blessings Day Celebration (first version)  (single-result, always possible; also the fallback when 10 draws find no event)
+    * A gathering, every free living villager goes "Relaxing at the beach", and the stored food loses 10 for every villager, down to 0 at least.
+- Blessings Day Celebration (second version)  (single-result, always possible)
+    * "Greeting the guiding hand", and the stored food loses 10 for every villager, down to 0 at least.
+- Day of Elders  (single-result, always possible)
+    * The gathering Blessings Day (first version) also starts, when the first villager record is a living, free villager; no amount changes.
+- Day of Honor  (single-result; needs a grave in the memorial (someone buried))
+    * Every free living villager goes "Honoring the Dead"; no amount changes.
+- The Spring Allergies  (single-result, always possible)
+    * Every living villager stops what it is doing and plays a short animation, and every villager's ongoing work is cleared; no health or amount changes.
+- The Mother Parrot  (single-result, always possible)
+    * Each living child under 280 age units (14 villager years), 35% each: +7 to 17 Parenting (each 1 in 11), up to 100.
+- The Barrel O` Babies  (single-result; needs room for new villagers when it is picked)
+    * 1 toddler for n of 1 to 4, 2 for 5 to 7, 3 for 8 to 10; room is checked only when the event is picked.
+    * Each toddler is 70 to 89 age units old (3.5 to 4.45 villager years, each 1 in 20), a boy or a girl 50% each, 90 health, every skill 0, a head and a body each one of 0 to 29, likes and dislikes as at a birth.
+- Old Friends  (single-result; needs room for new villagers when it is picked)
+    * A man and a woman join, each 400 to 599 age units (20 to 29.95 villager years, each 1 in 200) with one skill -- Farming, Parenting, Healing, Research or Building, 20% each -- at 30 to 49 (each 1 in 20), 90 health, the other skills 0; then the village celebrates.
+- The Epidemic  (single-result; needs all 16 puzzles solved)
+    * Every living villager falls sick at 80% each; no health is lost by the event itself.
+- Rats!  (single-result; needs all 16 puzzles solved)
+    * Every living villager is bitten at 40% each -- sick, and 60 health lost, down to 0 at least (at 0 the villager dies) -- and then the stored food is halved, rounded down.
+- The Foul Passing  (single-result; needs all 16 puzzles solved)
+    * All the stored food is lost: food 0; the crops and coconuts are not touched.
+- Where Are The Infants?  (single-result; needs all 16 puzzles solved and a living pregnant or nursing villager of 18 villager years or more)
+    * Every living pregnant or nursing villager loses her babies (her pregnancy is ended), and every villager's ongoing work is cleared.
+- A Dangerous Mission  (single-result; needs a population of 61 or more)
+    * The first 8 living villagers in record order aged 281 to 499 age units (14.05 to 24.95 villager years) leave the village for good: no body, no grave.
+- The Mosquito Swarm  (single-result added by the patch, always possible)
+    * Every living villager falls sick at 20% each; every living adult who is not pregnant or nursing goes to the pond, and every villager's ongoing work is cleared.
+- The Dragonfly Migration  (single-result added by the patch, always possible)
+    * Every living villager is cured and set to 100 health.
+- Science Awareness Day  (single-result added by the patch, always possible)
+    * Every living child under 280 age units gains 3 to 7 Research (each 1 in 5), up to 100.
+- The Ancient Gold Coin  (two-choice; needs Culture technology below level 2)
+    * "Use it to adorn clothing": Culture technology goes up 1 level.
+    * "Give it to the scientists": +2,000 x k tech points.
+- The Cursed Idol  (two-choice; needs 250 stored food or more)
+    * "Destroy the idol": the villager's first two dislikes become crowds and work.
+    * "Make an offering of food": the stored food loses 250 x k, down to 0 at least.
+- The Prettiest Tribe Girl  (two-choice; needs a living woman of 14 villager years or more (the girl named can be any living female))
+    * "All agree she is the prettiest": her first two dislikes become work and learning, and she goes off to enjoy the pond.
+    * "Looks aren't everything": she gains 20 to 39 Parenting (each 1 in 20), up to 100.
+- The Strange Request  (two-choice, always possible; the game makes a man named Biggles, 580 age units (29 villager years), for it)
+    * "Allow the request": the tribe loses 3,000 x k tech points, with no floor, and Biggles leaves.
+    * "Refuse the request": Biggles leaves; nothing else changes.
+- The Savage Child  (two-choice; needs room for new villagers)
+    * "Lure him away with food": the stored food loses 500 x k, down to 0 at least, and a boy of 260 age units (13 villager years) joins, 90 health, every skill 0, a random head and body.
+    * "Chase him away": the tribe loses 1,000 x k tech points; if fewer than 1,000 are left they become 0.
+- The Voices In The Brush  (two-choice, always possible; also the fallback when 10 draws find no event)
+    * "Investigate the voices": 50% harmless, +700 x k stored food; 50% the villager is never seen again (no body, no grave).
+    * "Head back to the village": nothing changes.
+- For The Birds  (two-choice; needs a living child under 14 villager years, who is the one)
+    * "Taste the fish": +100 x k stored food.
+    * "Leave the fish alone": the child gains 30 Farming, with no cap.
+- The Fastest Runner  (two-choice, always possible)
+    * "Let him (her) race everyone": the villager now dislikes running (in the first empty of two dislike slots, else the second) and no longer likes it.
+    * "Agree he (she) is the fastest": the villager now likes running and no longer dislikes it.
+- The Nightmare  (two-choice, always possible)
+    * "Wake him (her) up": nothing changes.
+    * "Let him (her) sleep": the villager loses 20 health, down to 0 at least; at 0 the villager dies.
+- A Bump On The Head  (two-choice, always possible)
+    * "Bonk him (her) on the head": 50% every skill +30, up to 100; 50% every skill -30, down to 0; either way 10 health lost, down to 0 at least.
+    * "Let him (her) rest": nothing changes.
+- The Child Prodigy  (two-choice; needs a living child under 14 villager years, who is the one)
+    * "Let him (her) play": the child gains 50 Building, up to 100.
+    * "Let him (her) apprentice": the child gains 10 Research, up to 100, and the tribe +1,000 x k tech points.
+- The Swarm Of Dragonflies  (two-choice, always possible)
+    * "Chase them away": every living villager falls sick at 20% each.
+    * "Ignore them": nothing changes.
+- The Black Seeds  (two-choice, always possible)
+    * "Eat them": nothing changes.
+    * "Plant them": the crop field is emptied to 0.
+- The Crystal Ball  (two-choice; needs a living villager of 14 villager years or more (the keeper can be anyone))
+    * "Keep it": the keeper trades places with another living villager, each equally likely: their names, all five skills and their first two likes and dislikes are swapped.
+    * "Give it to the children": nothing changes.
+- The Silver Mirror  (two-choice; needs a population of 2 or more)
+    * "Speak the word Geminus": nothing changes.
+    * "Speak the word Sunimeg": with room for a villager, a copy of the villager joins -- the same name, sex, head, body, age and skills, 90 health; without room nothing.
+- The Huge Coconut  (two-choice, always possible)
+    * "Soften it in the pond": nothing changes.
+    * "Hurl it from the diving rock": +250 x k stored food, and every living villager is cured and set to 100 health.
+- The Falling Star  (two-choice, always possible)
+    * "Wish for himself (herself)": one skill, 20% each -- Parenting, Building, Farming, Research or Healing -- gains 10 to 20 (each 1 in 11), up to 100.
+    * "Wish for the village": 50% +(100 to 299) x k stored food, 50% +(1,000 to 2,999) x k tech points.
+- The Hole In The Sand  (two-choice, always possible)
+    * "Investigate the hole": 1 in 6 each: brass tools, +1,000 x k tech points; a cache of nuts, +300 x k stored food; baby snakes, the villager falls sick and every living villager at 40%; putrid slime, the villager falls sick; a golden pocket watch, +1,000 x k tech points; ants raid the food bin, -150 x k stored food, down to 0 at least.
+    * "Fill in the hole": nothing changes.
+- The Spyglass  (two-choice; needs Exploration technology below level 2)
+    * "Keep it": Exploration technology becomes level 2.
+    * "Give it to the scientists": +3,000 tech points (not x k).
+- The Love Note  (two-choice; needs a living man and a living woman, each 18 villager years or more (the man is the one))
+    * "Write his own poem": he gains 30 Parenting, up to 100.
+    * "Hide to catch the poet": a living woman of 18 villager years or more, each equally likely, conceives his child, if there is room; at Medicine level 3 the conception's twin and triplet rolls are made (7%, then 25% of those triplets).
+- The White Pearl  (two-choice, always possible)
+    * "Keep it for himself (herself)": all five skills each gain 10 to 29 (each 1 in 20), up to 100.
+    * "Show it to the tribe": the tribe loses 200 x k tech points, with no floor.
+- A Mysterious Sack (thick, plastic)  (a sack, 1 in 8 of sacks and vials. Item: a thick, plastic sack)
+    * "Open it": +500, +1,000 or +1,500 stored food at strength 1, 2, 3 (coconuts, golden ripe bananas, preserved meat).
+- A Mysterious Sack (carefully sealed)  (a sack. Item: a carefully sealed sack)
+    * "Open it": +1,000, +2,000 or +3,000 tech points at strength 1, 2, 3.
+- A Mysterious Sack (somewhat compromised)  (a sack. Item: a somewhat compromised sack)
+    * "Open it": +500, +1,000 or +1,500 tech points, and every living villager falls sick at 15%, 20% or 25% each, at strength 1, 2, 3.
+- A Mysterious Sack (thick, canvas)  (a sack. Item: a thick, canvas sack)
+    * "Open it": starving mice bite every living villager at 20%, 30% or 45% each -- sick, and 10, 15 or 20 health lost, down to 0 at least -- at strength 1, 2, 3; then the opener falls sick and loses 15 more health with no floor. At 0 health a villager dies.
+- A Mysterious Sack (stained, heavy burlap)  (a sack. Item: a stained, heavy burlap sack)
+    * "Open it": fire ants sting the opener, who loses 40, 70 or 110 health at strength 1, 2, 3, with no floor; at 0 or less the opener dies, so strength 3 always kills.
+- A Mysterious Vial (green)  (a vial. Item: a thin or viscous green vial (the word changes nothing))
+    * "Drink the liquid": the drinker's head is re-rolled: a man gets one of heads 0 to 28, a woman one of 0 to 29, each equally likely; the strength changes only the words.
+- A Mysterious Vial (orange)  (a vial. Item: a thin or viscous orange vial)
+    * "Drink the liquid": one skill, 20% each -- Farming, Building, Parenting, Healing or Research -- gains 50, 75 or 100 at strength 1, 2, 3, up to 100.
+- A Mysterious Vial (fragrant)  (a vial. Item: a thin or viscous fragrant vial)
+    * "Drink the liquid": all five skills lose 30, 50 or 70 at strength 1, 2, 3, down to 0 at least.
+- The Aspiring Adventurer  (needs at least two villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not an Esteemed Elder's totem statue; a two-choice island event (family A) when it comes; never the village's first island event; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 25% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the adventurer is drawn from the villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not an Esteemed Elder's totem statue, each equally likely; the friend of ending A8 is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in play the friend always exists and A8 is always possible.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, an Esteemed Elder's totem statue, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * "Go investigate!" (one popup with the opening and the find, then one with the ending): the find is a pile of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a surviving ending and 50% a deadly one, each equally likely within its half.
+    * After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or the chest: A1 (gets away), A5 (escapes the trap), A8 (a friend comes to help) 16.67% each (1 in 6), each with the reward; A2, A3, A4, A6 12.5% each, no reward.
+    * Out of every investigation: A1 8.33%, A5 8.33%, A8 8.33% (each half with food, half with tech points); A7 12.5%; A9 12.5%; A2 (the beast, dies, a grave) 12.5%; A3 (the beast, disappears, no grave) 12.5%; A4 (the knife, dies, a grave) 12.5%; A6 (the knife, disappears, no grave) 12.5%. In all: home safe 50% (12.5% with the food, 12.5% with the tech points, 25% with nothing), dies 25%, disappears 25%. The stranger of A4 and A6 is a man or a woman, 50% each.
+    * "Stay on the safe path" (one popup with the walk home; when lost, a second with the ending; after the healers, a third): home safe 90%; lost 10%, then each of the six lost endings 1 in 6.
+    * Lost ending 1, brought to the healers, then 1 in 3 each: dies, a grave (0.56%); a full recovery (0.56%); disabled -- health set to 10 to 50 (each equally likely) and now dislikes running (0.56%).
+    * Lost ending 2 (1.67%): joins another tribe: gone for good, no grave. Lost ending 3 (1.67%): the survivalist gains 20 to 30 points (each equally likely) in Farming, Building, Research or Healing (1 in 4 each), up to 100. Lost endings 4 (a fallen tree) and 5 (a stony cliff), 1.67% each: dies, a grave. Lost ending 6 (1.67%): disappears, no grave.
+    * In all, staying on the path: home alive 92.78%, dies 3.89%, disappears 1.67%, joins another tribe 1.67%.
+    * The reward is a random amount, each equally likely: 100 to 1,500 food for the meat, 500 to 3,000 tech points for the chest -- from the smallest to the largest food or tech-point gain of the game's own island events -- given only in A1, A5 and A8 through the game's own food or tech writer, times the game's own two-choice factor: x1 up to 25 villagers, x2 up to 50, x3 above.
+    * A death is the game's own ("Unknown causes", as the game's own island events give; the body is buried and gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it as a disappearance. The effects wait for their own page: they come when the page that ends the ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.
+- The Climb  (needs one villager who is alive and present, 18 villager years or more, with a Research of 20 or more (the game's own "Trainee" level: below 20 the Details screen says "Untrained"), not nursing a baby (mother or father), not an Esteemed Elder's totem statue; a two-choice island event (family A) when it comes; never the village's first island event; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 25% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: a villager who is alive and present, 18 villager years or more, with a Research of 20 or more (the game's own "Trainee" level: below 20 the Details screen says "Untrained"), not nursing a baby (mother or father), not an Esteemed Elder's totem statue; one such villager is enough, and the villager is drawn among them, each equally likely; anyone younger or below Trainee in Research never climbs.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, an Esteemed Elder's totem statue, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * One question in the game's own two-choice popup: "Go with the plan" or "Follow the scientists' advice".
+    * "Go with the plan" (its page, then the climb): the fall 50% or the summit 50%.
+    * The fall: the villager dies, the game's own death ("Unknown causes", as the game's own island events give; the body is buried and gets a grave).
+    * The summit: the villager's Research becomes 100 (the game's maximum); the village gains a large tech award -- twice a normal one (a normal one is drawn, each amount equally likely, from 500 to 3,000 tech points): 1,000 to 6,000 tech points -- times the game's own two-choice factor (x1 up to 25 villagers, x2 up to 50, x3 above), through the game's own tech writer; and the village celebrates as in the game's own Old Friends event (every living villager of 14 or more who is not sick and does not dislike crowds goes "Celebrating"). "Distinguished Scientist" is the story's words only: no title is given.
+    * "Follow the scientists' advice" gives +10 to 20 Research (each equally likely), at most 100; nothing else happens.
+    * The effects wait for their own page: the fall's, the summit's and the advice's come when the page that ends that text is shown (never on the plan's page); the Island Events log keeps one entry for the event, with the answer and every change.
+- The Remembrance Ceremony  (needs at least one grave (the game's own Day of Honor test); a single-result island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 25% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who takes part: everyone -- every living villager who is in the village, children and babies that are villagers too, nursing mothers and fathers, and the villagers other events never pick (the owner: "everyone joins in"). Babies still being carried are not villagers yet, so they stay with their mothers.
+    * Each one stops what it is doing and goes to the memorial and goes "Honoring the Dead" or "Reflecting" (50% each), started one by one exactly as the game's own Day of Honor starts each villager, so nobody is left out by the game's usual group rules.
+    * The feast quietly uses 10 food for every villager the game counts, never below 0 (the same as Blessings Day in this game); the popup does not mention it.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event. It can happen again, as likely as one stock event each time.
+- The Rumblings  (needs every puzzle solved (16, the Puzzles screen's) and at least one finished structure it can damage; a single-result island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 25% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * The structures it can damage: the first population hut, the second population hut and the third population hut. Never the Lovely Hut, the Hospital, the Sewing Hut (all three are puzzles) (puzzles stay solved).
+    * Each finished one is damaged 25% of the time; at least one always is (when none is, one of them, each equally likely), and every one can be.
+    * A damaged one loses 10 to 100% of its building work (each whole percent equally likely), counted on the work above where a new village starts it (the first hut starts part built), and the builders must build it again. At 100% it is unbuilt, exactly as in a new village. A heavily damaged one may need a villager dropped on it before the builders start, as in the stock game.
+    * When it is finished again the game shows its own celebration, tip and completion message again.
+    * Solved puzzles stay solved. No one is hurt and nobody leaves: a village left over its population limit keeps everyone, babies already on the way are still born, and no new babies come until the hut is rebuilt -- the same as when the stock game runs out of room.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event, naming each damaged structure. It can happen again, as likely as one stock event each time.
+
+==============================================================================
+VV3 The Secret City (62 events)
+==============================================================================
+- The Tsunami  (needs 15 of the 16 puzzles solved, 2 living women and 2 living men who are not the chief)
+    * Every living villager is swept away at 15% each -- gone for good, no body, no grave.
+- The Plague Of Ants  (always possible)
+    * The stored food loses m x 100.
+- The Science Fair  (needs 3 living children under 14 villager years)
+    * Each living child, 50% each: +10 to 19 Research (each 1 in 10), up to 100.
+- The Allergy Season  (always possible)
+    * Every villager plays an allergy animation; nothing else changes.
+- Isola Day Celebration  (always possible)
+    * The stored food loses 10 for every counted villager, and the children and adults celebrate.
+- Blessings Day Celebration  (always possible)
+    * The stored food loses 10 for every counted villager, and everyone celebrates.
+- Day of Honor  (needs 2 graves or more)
+    * Every villager goes to honour the dead; nothing else changes.
+- The Canoe from the Other Side  (needs room for a new villager (or the rescue rule))
+    * A man of 600 age units (30 villager years) joins with Building 40 to 69 (each 1 in 30), a head 0 to 29 and a body 0 to 28.
+- The Mysterious Fog (food gained)  (always possible)
+    * Honeycombs: the stored food gains m x 300, and fog weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count).
+- The Mysterious Fog (food lost)  (always possible)
+    * The stored food loses m x 300, and fog weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count).
+- The Mysterious Fog (tech gained)  (always possible)
+    * The tribe gains m x 2,000 tech points.
+- The Mysterious Fog (tech lost)  (always possible)
+    * The tribe loses m x 2,000 tech points.
+- The Miraculous Bloom  (needs The Bee Hive solved)
+    * The bee hive's honey is set to 500, whatever it held.
+- The Reflection in the Water  (always possible)
+    * A message only: nothing changes.
+- The Chief's Address  (needs a living Tribal Chief, who gives it)
+    * The villagers gather to listen; no amount changes.
+- The Rainy Season  (always possible)
+    * Rain weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count).
+- The Cold Snap  (needs the fire burning)
+    * A cold spell weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count), and the villagers huddle by the fire.
+- The Salty Air  (always possible)
+    * Every villager goes into hiding until it settles; nothing else changes.
+- The Oppressive Humidity  (always possible)
+    * Every villager slows down, and every living villager's ongoing work is cleared.
+- "Thick as Pea Soup"  (always possible)
+    * Thick fog weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count), and every living villager's ongoing work is cleared.
+- The Stinging Jellyfish  (always possible)
+    * Every living villager is stung at 50% each and loses 10 to 19 health (each 1 in 10); at 0 health a villager dies.
+- The Mushroom Celebration  (needs 500 non-collection items brought home)
+    * Everyone celebrates; nothing else changes.
+- The Yellow Geckos  (always possible)
+    * Every living villager is cured of sickness.
+- Another One of Those Barrels  (needs room for a new villager (or the rescue rule))
+    * 1 to 3 children of 200 age units (10 villager years) join: the first always, the second and the third each only if there is room then. Each: a boy or a girl 50% each, one skill (Farming, Parenting, Healing, Research or Building, 20% each) at 5 to 9, a head 0 to 29 and a body 0 to 28, a name from the game's list.
+- The Daredevil  (needs a living man of 18 villager years or more (the chief can be him) and 2 living women of 18 or more)
+    * "He swims with sharks": 75% the women swoon -- he gains 30 Parenting, up to 100; 25% a crab bites -- he loses 5 to 10 health and 5 to 14 Parenting, and now dislikes swimming.
+    * "He rethinks his "plan"": nothing changes.
+- The Ghostly Dream (nature or healing)  (needs Nature technology level 1 or more and a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Study the ways of nature": +20 to 39 Farming (each 1 in 20), up to 100.
+    * "Study the healing arts": +20 to 39 Healing, up to 100.
+- The Ghostly Dream (research or architecture)  (needs Magic technology level 1 or more and a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Become preoccupied with research": +20 Research, up to 100.
+    * "Become inspired by architecture": +20 Building, up to 100.
+- The Crystal of Reflections  (needs room for a new villager and a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more) (or the rescue rule))
+    * "Keep the crystal": a copy of the villager joins in the first free record -- the same skills, age, sex and looks, a new name.
+    * "Dispose of the crystal": nothing changes.
+- The Bitter Brown Beans (taste or dye)  (needs Science technology below level 2 and a living villager of 18 to 49 villager years not pregnant or nursing)
+    * "Taste some beans": every living villager falls sick at 30% each, and the tribe gains m x 200 food and m x 1,000 tech points.
+    * "Use beans for dye": the villager's body becomes, 50% each, outfit 5 or 18 for a man, 14 or 16 for a woman.
+- The Bitter Brown Beans (brew or fertilizer)  (needs Science technology level 2 or more and a living villager of 18 to 49 not pregnant or nursing)
+    * "Try to brew the beans": the tribe gains m x 600 food and m x 2,000 tech points.
+    * "Use the beans as fertilizer": every fruit tree that is grown is set to 1,000 fruit (grown: ready to pick, 8 real-life hours of play after planting on Normal speed, 4 on Fast, 13 real-life hours 20 minutes on Slow).
+- The Ancient Tablet (laundry or decoration)  (needs Science technology below level 2 and a living villager of 18 to 49 not pregnant or nursing)
+    * "Use it for doing laundry": the villager now likes laundry.
+    * "Use it for decoration": the villager now likes learning.
+- The Ancient Tablet (research or display)  (needs Science level 2 or more, Alchemy below level 3 and a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more))
+    * "Focus research on tablet": Alchemy technology goes up 1 level, and the tribe loses m x 1,000 tech points.
+    * "Put it on display": every living villager, 20% each: +10 to 34 Research (each 1 in 25), up to 100.
+- The Low Tide  (needs 8 living villagers who are not the chief; the event's 50% coin is rolled when it is picked)
+    * "Grab the fish": 50% they get away with the fish -- m x 500 food; 50% a wave -- every living villager is swept away at 20% each (gone, no body), then every one left comes to dislike the ocean at 20% each.
+    * "Move to high ground": nothing changes.
+- The Ants and the Granary  (needs a living child under 14 who is not the chief)
+    * "Sweep the ants away": the stored food loses a third (food x 0.33, rounded), and the child now dislikes ants.
+    * "Let them be": the stored food loses m x 50 (at least 1), the child now likes ants and gains 5 to 9 Farming, up to 100.
+- The Green Pearl  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Grind it into powder": the villager's health becomes 100, and the villager now likes running.
+    * "Mount it on a bracelet": +15 to 29 Parenting (each 1 in 15), up to 100.
+- The Blue Pearl  (needs The Alchemy Lab solved and a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more))
+    * "Grind it into powder": +20 to 34 Research (each 1 in 15), up to 100.
+    * "Examine it more closely": nothing changes.
+- The Lazy Apprentice  (needs a living child under 14 who is not the chief and a living villager of 18 or more with Research 30 or more (the teacher))
+    * "Stay with the current teacher": the child now likes learning.
+    * "Find a new teacher": the child gains 20 to 39 Farming and 10 to 19 Building, up to 100, and now dislikes learning.
+- The Omen in the Clouds  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief; the omen (1 to 4, 25% each) is rolled when it is picked)
+    * "Warn the villagers": by the omen, 25% each: a storm the village is ready for (weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count), no harm) and the villager now likes crowds; a storm nobody believed -- the same weather, m x 500 food lost, and the villager now likes crowds; a false alarm -- m x 800 tech points lost and the villager now dislikes crowds; a false alarm the villager studies -- +15 to 24 Research, up to 100, and the villager now likes clouds.
+    * "Perform the dance": rain weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not count), the villager falls sick and now likes crowds.
+- The Playful Otters  (needs a living child under 14 who is not the chief)
+    * "Throw them some food": the stored food loses m x 500.
+    * "Just keep watching them": the child gains 15 to 29 Farming, up to 100.
+- The Ant Hill  (needs a living child under 14 who is not the chief)
+    * "Poke the ant hill with a stick": the child loses 5 to 14 health and now dislikes ants.
+    * "Drop some bits of food": the stored food loses m x 200, and the child now likes learning and ants.
+- The Red Starfish  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Pick it up": one skill -- Parenting, Farming, Healing, Building or Research, 20% each -- loses 5 to 19 (each 1 in 15), down to 0.
+    * "Leave it alone": nothing changes.
+- The Blue Starfish  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Pick it up": one skill, 20% each as above, gains 10 to 24, up to 100.
+    * "Leave it alone": nothing changes.
+- Bed Bugs  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Swat it": the villager falls sick and loses 5 to 9 health.
+    * "Have a closer look": the villager now likes ants.
+- The Lovers (her gift)  (needs a living woman of 18 to 49 villager years who is not pregnant or nursing and not the chief, and a living man of 18 to 49 who is not the chief)
+    * Line(text='How the pair is picked: the woman, then the man, each drawn equally likely from the adults the game allows (360 to 999 age units, a woman not pregnant or nursing, not the chief).', verified='running', sub=False, only_with=None)
+    * Line(text="In the game's code both picks come only from adults of 360 to 999 age units (18 to 49 villager years), the woman not pregnant or nursing, so the game's draw never chooses a teenager; Pick Island Event offers only villagers the game could draw, and only the patcher's Custom Island Event, which may pick any villager by design, can choose one.", verified='running', sub=False, only_with=None)
+    * Line(text='The owner has seen The Lovers choose a teenager (14 to 17 villager years) while playing.', verified='owner', sub=False, only_with=None)
+    * "Carve a knife for him": both gain 25 Parenting, up to 100, and she conceives his child, if there is room; at Medicine level 3 the conception's twin and triplet rolls are made.
+    * "Give him a shark-tooth necklace": nothing changes.
+- The Lovers (his gift)  (needs a living man of 18 to 49 who is not the chief and a living woman of 18 to 49 who is not pregnant or nursing and not the chief)
+    * Line(text='How the pair is picked: the man, then the woman, as for her gift.', verified='running', sub=False, only_with=None)
+    * Line(text="A teenager, in the game's code: as for her gift, the game's own draw never chooses one; only the patcher's Custom Island Event can.", verified='running', sub=False, only_with=None)
+    * Line(text='A teenager, seen by the owner: as for her gift.', verified='owner', sub=False, only_with=None)
+    * "Give her a shell necklace": nothing changes.
+    * "Give her flowers": both gain 25 Parenting, up to 100, and she conceives his child, if there is room.
+- The Medical Emergency  (needs Medicine technology level 2 or more, a living villager who is not the chief (the patient) and a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more) (the healer); the outcome is rolled first)
+    * "Attempt the procedure": 50% full recovery -- the patient gains 40 Healing, up to 100, and now likes medicine; 50% the patient dies (health 0).
+    * "Let the illness take its course": the patient now dislikes running and work.
+- The Mysterious Vial (quartz)  (needs any living villager (the chief can be the one))
+    * "Taste it": a villager of 280 age units or less (14 villager years or younger) becomes an elder -- age 1,000 (50 villager years; the hidden age the game counts by too), health 100, +30 to 59 Healing and +30 to 59 Research, up to 100 -- and anyone older becomes a child of 200 age units (10 villager years).
+    * "Bring it back to the village": nothing changes.
+- The Mysterious Vial (obsidian)  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more) (the chief can be the one))
+    * "Taste it": 33% a new head (0 to 29); 33% clumsy -- two skill losses, each a skill drawn 20% each and 15 to 44 lost, down to 0; 34% insight -- two skill gains of 15 to 44, up to 100.
+    * "Bring it back to the village": nothing changes.
+- The Mysterious Vial (amber)  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more) (the chief can be the one))
+    * "Taste it": 33% scientific insight -- +15 to 44 Research, up to 100; 33% feels years younger -- health 100 and cured at once, and the age shown drops 100 age units (5 villager years), not below 100, but the hidden age the game counts by stays, so for the next 100 age units (10 real-life hours of play on Normal speed, 5 real-life hours on Fast, 16 real-life hours 40 minutes on Slow) the villager's age units do nothing: no eating, no health gained or lost, no sickness roll, no old-age roll and no progress of a pregnancy; then they run on as before, the old-age rolls by the hidden age, which was never made younger; 34% two copies of the villager join, each if there is a free record.
+    * "Bring it back to the village": nothing changes.
+- The Mango and the Papaya  (needs a living villager of 18 to 49 not pregnant or nursing; the swim's 50% coin is rolled when it is picked)
+    * "Swim out after the papaya": 50% both fruits home -- m x 400 food; 50% the papaya is full of bugs and the mango is lost -- nothing.
+    * "Be satisfied with the mango": m x 200 food.
+- The Mysterious Crate  (needs 3 living villagers of 18 to 49 not pregnant or nursing (the chief can be the one); the outcome is rolled first)
+    * "Open the crate": 50% a crate of fruit -- m x 500 food; 50% a tarantula -- the opener falls sick and loses 10 to 29 health, and m x 400 food.
+    * "Shove it back out to sea": nothing changes.
+- Vanity and the Bee  (needs a living woman of 18 to 49 who is not pregnant or nursing and not the chief)
+    * "Run to the water": she now likes running.
+    * "Swat at the bee": she falls sick, loses 15 to 24 health and now dislikes bees.
+- The Noisy Bird  (needs a living woman of 18 to 49 who is not pregnant or nursing and not the chief)
+    * "Scare the bird away": she walks off; nothing changes.
+    * "Leave the bird alone": the same.
+- The Hole in the Hut  (needs The Bee Hive solved and a living villager of 18 to 49 not pregnant or nursing, not the chief)
+    * "Use beeswax": the bee hive loses a third of its honey (honey x 2 / 3).
+    * "Use tree sap": the first fruit tree loses half its fruit.
+- The Royal Jelly  (needs a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more), not the chief)
+    * "Use a clear vial": the villager is cured and gains 15 to 29 Healing, up to 100.
+    * "Use a dark vial": nothing changes.
+- The Shooting Star  (needs a living child under 14 who is not the chief)
+    * "Tell the others": m x 200 food.
+    * "Stay and watch": the child gains 25 to 49 Research, up to 100.
+- The Return of Biggles  (needs a living villager who is not the chief)
+    * "Confront him": +20 to 44 Research, up to 100, and the villager's name becomes "?".
+    * "Watch him work": m x 1,000 tech points.
+- The Aspiring Adventurer  (needs at least two villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not the Tribal Chief; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the adventurer is drawn from the villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not the Tribal Chief, each equally likely; the friend of ending A8 is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in play the friend always exists and A8 is always possible.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, the Tribal Chief, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * "Go investigate!" (one popup with the opening and the find, then one with the ending): the find is a pile of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a surviving ending and 50% a deadly one, each equally likely within its half.
+    * After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or the chest: A1 (gets away), A5 (escapes the trap), A8 (a friend comes to help) 16.67% each (1 in 6), each with the reward; A2, A3, A4, A6 12.5% each, no reward.
+    * Out of every investigation: A1 8.33%, A5 8.33%, A8 8.33% (each half with food, half with tech points); A7 12.5%; A9 12.5%; A2 (the beast, dies, a grave) 12.5%; A3 (the beast, disappears, no grave) 12.5%; A4 (the knife, dies, a grave) 12.5%; A6 (the knife, disappears, no grave) 12.5%. In all: home safe 50% (12.5% with the food, 12.5% with the tech points, 25% with nothing), dies 25%, disappears 25%. The stranger of A4 and A6 is a man or a woman, 50% each.
+    * "Stay on the safe path" (one popup with the walk home; when lost, a second with the ending; after the healers, a third): home safe 90%; lost 10%, then each of the six lost endings 1 in 6.
+    * Lost ending 1, brought to the healers, then 1 in 3 each: dies, a grave (0.56%); a full recovery (0.56%); disabled -- health set to 10 to 50 (each equally likely) and now dislikes running (0.56%).
+    * Lost ending 2 (1.67%): joins another tribe: gone for good, no grave. Lost ending 3 (1.67%): the survivalist gains 20 to 30 points (each equally likely) in Farming, Building, Research or Healing (1 in 4 each), up to 100. Lost endings 4 (a fallen tree) and 5 (a stony cliff), 1.67% each: dies, a grave. Lost ending 6 (1.67%): disappears, no grave.
+    * In all, staying on the path: home alive 92.78%, dies 3.89%, disappears 1.67%, joins another tribe 1.67%.
+    * The reward is a random amount, each equally likely: 200 to 600 food for the meat, 1,000 to 2,000 tech points for the chest -- from the smallest to the largest food or tech-point gain of the game's own island events -- given only in A1, A5 and A8 through the game's own food or tech writer, times m, the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1).
+    * A death is the game's own ("Unknown causes", as the game's own island events give; the body is buried and gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it as a disappearance. The effects wait for their own page: they come when the page that ends the ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.
+- The Troubling Signs  (needs the Tribal Chief in the robe, 9 other villagers who are alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Tribal Chief, and a population of 61 or more counted as The Lost Children's "A Dangerous Mission" counts it (the living villagers plus the babies being carried); an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the Tribal Chief wearing the chief's robe (a chief the clothing has dressed otherwise does not count) is the speaker. Then 9 other villagers, all different, each alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Tribal Chief: 4 advisors, one for each group the chief may ask (each named on that group's page; they stay), and 5 travellers (they leave). Any 9 such villagers are equally likely; family members may be picked together.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, and anyone the game's own island events never pick; the Tribal Chief is only ever the speaker. Everyone else may be picked (titles, Esteemed Elders and founders included).
+    * One question with four answers, in the game's own island-event popup with two more buttons in the game's own look: "Consult the spiritual leaders", "Ask the magicians for advice", "Call the naturalists to a discussion" or "Talk with the scientists and healers" (the mouse, or the keys 1 to 4; Enter or Esc for OK).
+    * Every answer shows that group's advice, then the chief's call to the tribe ("Hear me, O ...!", the tribe's own name), then the decree; the 5 travellers then leave for good: no body, no grave, and the Deaths log records each as a disappearance.
+    * The spiritual leaders: the village loses food (200 to 600 food). The magicians: the village gains tech points (1,000 to 2,000 tech points). The naturalists: the village gains food (200 to 600 food). The scientists and healers: the village loses tech points (1,000 to 2,000 tech points).
+    * Each amount is drawn when the popup opens, each equally likely, from the smallest to the largest food or tech-point gain of the game's own island events, times m, the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1), through the game's own food or tech writer. The decree says the full amount drawn, a loss too; a loss never takes more than is stored, so the store stops at 0.
+    * The effects wait for their own page: the travellers leave and the award comes when the decree's last page is shown, never on an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. Quitting before that page leaves the village as it was, and the event does not come back.
+- Diving for Treasure  (needs two villagers who are alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Tribal Chief (the diver and someone to name on the rescue page); an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the diver is a villager who is alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Tribal Chief, drawn among them, each equally likely; no spouse or children are needed. The "head Doctor" named on the rescue page is only a name in the story: any other such villager, drawn at random, never the diver; nothing happens to them.
+    * Never picked (the owner's protected villagers): a nursing mother or father, the Tribal Chief, and anyone the game's own island events never pick; nor anyone under 18. Everyone else may be picked (titles, Esteemed Elders and founders included).
+    * One question in the game's own two-choice popup: "Swim deeper" or "Better not".
+    * "Swim deeper": a crate of golden doubloons 25%, a chewed-up buoy 25%, a shipping container of exotic ingredients 25%, or an air tank pops 25% (1 in 4 each).
+    * The doubloons: the village gains tech points (1,000 to 2,000 tech points). The buoy: nothing happens. The container: the village gains food (200 to 600 food). Each amount is drawn when the popup opens, each equally likely, times m, the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1), through the game's own food or tech writer.
+    * The air tank: 75% the diver makes it ashore (overall 18.75%) and now dislikes swimming (the game's own dislike: taken from the likes if it was one, added to the dislikes); 25% the diver sinks (overall 6.25%).
+    * Sinking: 17% the body washes ashore -- the diver dies, the game's own death ("Unknown causes", a grave; overall 1.06%); 17% the body is never found -- gone for good, no body, no grave, the Deaths log records a disappearance (overall 1.06%); 66% rescued -- +10 to 20 Healing (each equally likely), at most 100, the game's maximum (overall 4.13%).
+    * "Better not": always +10 to 20 Parenting (each equally likely), at most 100; nothing else happens.
+    * The effects wait for their own page: they come when the page that ends that ending's text is shown, never on an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. Quitting before that page leaves the village as it was, and the event does not come back.
+- The Remembrance Ceremony  (needs at least one grave (the game's own count; its Day of Honor asks for two, this event for one); an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who takes part: everyone -- every living villager who is in the village, children and babies that are villagers too, nursing mothers and fathers, and the villagers other events never pick (the owner: "everyone joins in"). Babies still being carried are not villagers yet, so they stay with their mothers.
+    * Each one stops what it is doing and goes to the graveyard and goes "Honoring the Dead" or "Reflecting" (50% each), started one by one exactly as the game's own Day of Honor starts each villager, so nobody is left out by the game's usual group rules.
+    * The feast quietly uses 10 food for every villager the game counts, never below 0 (the same as Blessings Day in this game); the popup does not mention it.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event. It can happen again, as likely as one stock event each time.
+- The Rumblings  (needs every puzzle solved (16, the Puzzles screen's) and at least one finished structure it can damage; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * The structures it can damage: the first population hut, the second population hut, the third population hut and the clothing hut.
+    * Each finished one is damaged 25% of the time; at least one always is (when none is, one of them, each equally likely), and every one can be.
+    * A damaged one loses 10 to 100% of its building work (each whole percent equally likely), counted on the work above where a new village starts it (the first two huts start part built), and the builders must build it again. At 100% it is unbuilt, exactly as in a new village. A heavily damaged one may need a villager dropped on it before the builders start, as in the stock game.
+    * When it is finished again the game shows its own celebration, tip and completion message again.
+    * Solved puzzles stay solved. No one is hurt and nobody leaves: a village left over its population limit keeps everyone, babies already on the way are still born, and no new babies come until the hut is rebuilt -- the same as when the stock game runs out of room.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event, naming each damaged structure. It can happen again, as likely as one stock event each time.
+
+==============================================================================
+VV4 The Tree of Life (50 events)
+==============================================================================
+- The Creeping Mold  (always possible)
+    * The stored food loses 100.
+- The Allergy Season  (always possible)
+    * Everyone sneezes; nothing else changes.
+- Isola Day Celebration  (always possible)
+    * The village celebrates; nothing else changes.
+- Blessings Day Celebration  (always possible)
+    * The village celebrates; nothing else changes.
+- Day of Honor  (needs 2 or more graves)
+    * The villagers pay their respects to the dead; nothing else changes.
+- The Mysterious Footprints (food gained)  (always possible)
+    * The stored food gains 300 (before Food Mastery, which raises a food gain by half at level 2 and doubles it at level 3), and fog comes.
+- The Mysterious Footprints (food lost)  (always possible)
+    * The stored food loses 300, and fog comes.
+- The Mysterious Footprints (tech gained)  (always possible)
+    * +2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow.
+- The Mysterious Footprints (tech lost)  (always possible)
+    * -2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow.
+- A Closer Look (Blackberries)  (needs a living villager of any age)
+    * The blackberry bushes gain 350 berries.
+- A Closer Look (Yellow Breadfruit)  (needs the Cooking Pit restored and a living villager of any age; added by "Yellow Fruit Trees are No Longer Unlimited" (without it the event does not exist))
+    * The Cooking Pit's yellow fruit tree gains 350 fruit, up to its 1,000, and the villager walks to the tree (as the blackberry event's farmer goes to the bushes).
+- The Rainy Season  (always possible)
+    * Rain comes.
+- The Cold Snap  (needs the Fire Pit burning)
+    * Fog comes and the fire goes out.
+- "A Monsoon!"  (always possible)
+    * Rain comes, and every villager drops what they were doing.
+- The Stinging Wasps  (always possible)
+    * Every villager is stung 50% of the time, losing 10 to 19 health (each equally likely).
+- The Festival of the Banyan  (needs 500 mushrooms brought home and 3 of the 5 tree puzzles solved)
+    * The children are celebrated; nothing else changes.
+- The Pure Sea Air  (always possible)
+    * Every sick villager is cured.
+- Daredevil Barrel...of Babies!  (needs room, The Stream solved and the stream flowing (or the rescue rule))
+    * Up to 3 children of 10 villager years (200 age units) arrive, one at a time while there is room (the first always comes); each is a boy or a girl, 50% each, with one of the five skills (each 1 in 5) at 5 to 9.
+- The State of the Tree (glum)  (needs fewer than 3 of the 5 tree puzzles solved)
+    * Every villager loses 5 to 14 health 10% of the time, and falls sick 20% of the time.
+- The State of the Tree (rejuvenated)  (needs 3 or more of the 5 tree puzzles solved)
+    * Every sick villager is cured and everyone is healed to 100 health.
+- The Abandoned Infants  (needs room and 6 living women of 14 or more who are not pregnant or sick)
+    * Up to 6 women of 18 or more who are not pregnant or nursing and not sick become pregnant (the father is the game's default villager Joey, head 2, body 2), each pregnancy with the usual chance of twins or triplets at Medicine 3; the only way the game gives a baby Joey as its father.
+- The Arc of Brilliant Colors  (needs a living villager of any age who is not pregnant or nursing)
+    * "Run to the left side": the villager walks to the mausoleum; nothing else changes.
+    * "Run to the right side": 50% a fall: -25 to -44 health, and now dislikes heights; 50% rare mushrooms: the stored food gains 300 (before Food Mastery, which raises a food gain by half at level 2 and doubles it at level 3), and now likes heights (rolled when the result shows).
+- The Robber Crab  (needs a living villager of any age)
+    * "Cut off its tail": every villager gains 5 to 9 Healing 80% of the time.
+    * "Let it go": Food Mastery goes up a level (up to 3).
+- The Phosphorescent Fungi  (needs a living child under 14 villager years)
+    * "Throw it into the ocean": the child gains 40 to 49 Research, falls sick and loses 15 to 19 health (left at 3 if that would kill them).
+    * "Admire it from afar": every villager falls sick 30% of the time, and the child gains 20 Building.
+- The Pink Shell  (needs a living villager of any age)
+    * "Pick it up and listen inside": -5 to -10 health, and now dislikes crab meat.
+    * "Admire it without touching it": now likes learning.
+- The Calabash Instrument  (needs a living villager of any age)
+    * "Fill it up to the first notch": +3,000 tech points.
+    * "Fill it to the top": -2,000 tech points.
+- The Climber  (needs a living child under 14 villager years)
+    * "Try to find a way down": -50 health; a child who survives raises Dendrology a level.
+    * "Start yelling for help": -500 tech points.
+- The Mosquito Larvae  (needs a living villager of 14 or more, Soap and The Stream solved, and the stream flowing)
+    * "Put soap in the pond": 1 of the village's soap is used up (the soap Soap Invented counts), and every villager falls sick 25% of the time.
+    * "Pour oil in the pond": +500 tech points.
+- Faces in the Night  (needs a living villager of 14 or more)
+    * "Inform the tribe": +1,000 tech points.
+    * "Ignore the faces": now dislikes work and the dark.
+- The Screaming Baby  (needs a living woman of 14 or more who is pregnant or nursing and not sick)
+    * "Leave baby alone": now dislikes work and likes sleeping.
+    * "Take baby to the beach": now likes dancing, and +10 health.
+- The Sealed Box  (needs a living villager of 14 or more who is not pregnant or nursing)
+    * "Swim back with the box": 50.05% +5,000 tech points; 49.95% swept away: health 0, gone from the village (the coin is tossed when the game checks whether the event can happen, before you choose).
+    * "Let it go": nothing changes.
+- The Wet Book  (needs a living villager of any age)
+    * "Read each page": each of the villager's five skills below 50 is raised to 50.
+    * "Bring it to the lab": every villager gains 5 to 10 Parenting.
+- The Lie  (needs a living child under 14 villager years)
+    * "Lie": -25 to -50 health, and a dislike with no word is added (number 79, past the end of the game's 79-word list).
+    * "Tell the truth": every villager gains 5 to 10 Parenting and the child 10 to 20 Farming.
+- The Aspiring Doctor (algae)  (needs a living villager of any age (the text calls them a healer; skills are not checked))
+    * "Eat algae": cured, Healing +20, and a like with no word is added (number 80, past the end of the word list).
+    * "Better not": falls sick.
+- The Aspiring Doctor (sea water)  (needs a living villager of any age (the text calls them a healer; skills are not checked))
+    * "Drink sea water": falls sick and -15 health.
+    * "Better not": falls sick, and Healing +20.
+- The Aspiring Doctor (mushrooms)  (needs a living villager of any age (the text calls them a healer; skills are not checked))
+    * "Eat a bit": cured, -15 to -34 health, Healing +25.
+    * "Better not": falls sick.
+- The Aspiring Doctor (bark)  (needs a living villager of any age (the text calls them a healer; skills are not checked))
+    * "Eat a bit": cured, +25 health, Healing +25.
+    * "Better not": falls sick.
+- The Aspiring Doctor (fasting)  (needs a living villager of any age (the text calls them a healer; skills are not checked))
+    * "Fast": falls sick, -20 to -30 health, Healing +20.
+    * "Eat": falls sick.
+- The Aspiring Doctor (cut leg)  (needs a living villager of any age (the text calls them a healer; skills are not checked))
+    * "Use bark": cured, -10 to -15 health, Healing +20.
+    * "Use mushrooms": falls sick, -10 to -15 health, Healing +10.
+- The Aspiring Scientist  (needs a living villager of any age)
+    * "Try the salts": -35 to -75 health, Research +20 and +2,000 tech points.
+    * "Use algae": -1,000 tech points.
+- Innovation in Construction  (needs a living villager of 14 or more who is not pregnant, nursing or sick)
+    * "Try the technique": 60.06% Building +65; 39.94% a fall: -75 to -149 health (the coin is tossed when the game checks whether the event can happen, before you choose).
+    * "It is too dangerous": nothing changes.
+- Innovation in Farming  (needs a living villager of 14 or more who is not pregnant, nursing or sick, and the Cooking Pit restored)
+    * "Try standing on fruit": 60.06% Farming +65; 39.94% onto the hot coals: -75 to -149 health (the coin is tossed when the game checks whether the event can happen, before you choose).
+    * "That is too dangerous": nothing changes.
+- Tough Lessons  (needs a living child under 14 villager years and a living villager of 14 or more)
+    * "Climb the Tree": the adult -75 health and Parenting +60.
+    * "Leave the Child": the adult's Parenting -10.
+- The Pretty Shell  (needs 2 living villagers of 14 or more)
+    * "Teach kids sharing": Parenting +30.
+    * "Teach kids negotiation": Farming, Research, Building and Healing +15 each.
+- The Legendary Stranger  (needs a living villager of any age)
+    * "How should we care for our people?": Medicine goes up a level.
+    * "How should we care for the tree?": Dendrology goes up a level.
+- The Aspiring Adventurer  (needs at least two villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not a body or a ghost; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the adventurer is drawn from the villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not a body or a ghost, each equally likely; the friend of ending A8 is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in play the friend always exists and A8 is always possible.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, a body or a ghost, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * "Go investigate!" (one popup with the opening and the find, then one with the ending): the find is a pile of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a surviving ending and 50% a deadly one, each equally likely within its half.
+    * After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or the chest: A1 (gets away), A5 (escapes the trap), A8 (a friend comes to help) 16.67% each (1 in 6), each with the reward; A2, A3, A4, A6 12.5% each, no reward.
+    * Out of every investigation: A1 8.33%, A5 8.33%, A8 8.33% (each half with food, half with tech points); A7 12.5%; A9 12.5%; A2 (the beast, dies, a grave) 12.5%; A3 (the beast, disappears, no grave) 12.5%; A4 (the knife, dies, a grave) 12.5%; A6 (the knife, disappears, no grave) 12.5%. In all: home safe 50% (12.5% with the food, 12.5% with the tech points, 25% with nothing), dies 25%, disappears 25%. The stranger of A4 and A6 is a man or a woman, 50% each.
+    * "Stay on the safe path" (one popup with the walk home; when lost, a second with the ending; after the healers, a third): home safe 90%; lost 10%, then each of the six lost endings 1 in 6.
+    * Lost ending 1, brought to the healers, then 1 in 3 each: dies, a grave (0.56%); a full recovery (0.56%); disabled -- health set to 10 to 50 (each equally likely) and now dislikes running (0.56%).
+    * Lost ending 2 (1.67%): joins another tribe: gone for good, no grave. Lost ending 3 (1.67%): the survivalist gains 20 to 30 points (each equally likely) in Farming, Building, Research or Healing (1 in 4 each), up to 100. Lost endings 4 (a fallen tree) and 5 (a stony cliff), 1.67% each: dies, a grave. Lost ending 6 (1.67%): disappears, no grave.
+    * In all, staying on the path: home alive 92.78%, dies 3.89%, disappears 1.67%, joins another tribe 1.67%.
+    * The reward is a random amount, each equally likely: 300 food for the meat, 500 to 5,000 tech points for the chest -- from the smallest to the largest food or tech-point gain of the game's own island events -- given only in A1, A5 and A8 through the game's own food or tech writer (the game's own food writer then raises food by half at Food Mastery level 2 and doubles it at level 3, as for its own events), as drawn (scaled only with Island Events Scale ticked: below).
+    * A death is the game's own ("Unknown causes", as the game's own island events give; the body is buried and gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it as a disappearance. The effects wait for their own page: they come when the page that ends the ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.
+    * Line(text='With the patcher\'s "Island Events Scale With Population (like The Lost Children)" (in this game): the reward is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).', verified='running', sub=False, only_with='vv4_island_events_scale_with_population')
+    * Line(text='With the patcher\'s "Island Events Scale With Stored Food and Tech Points" (in this game): the reward gains a tenth of what is stored (see the rules above).', verified='running', sub=False, only_with='vv4_island_events_scale_with_stored_amounts')
+- The Playful Dolphins  (needs two villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), not a body or a ghost, and no puzzle; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the swimmer is a villager who is alive and present, 14 villager years or more, not nursing a baby (mother or father), not a body or a ghost, drawn among them, each equally likely.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, a body or a ghost, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included). Nor anyone under 14.
+    * Needs no fishing nets or other puzzle.
+    * One question in the game's own two-choice popup: "Swim towards the dolphins" or "Hang back".
+    * "Swim towards the dolphins": the hunt 50% or the tail slap 50%.
+    * The hunt: the swimmer's Farming becomes 100 (fully mastered, the game's maximum), and the village gains a large food award, twice a normal one: 600 food (the game's own food writer then raises food by half at Food Mastery level 2 and doubles it at level 3, as for its own events).
+    * The tail slap: the swimmer loses 30 to 50 health (out of 100; each equally likely), never below 1 -- the slap never kills. Nothing else happens.
+    * "Hang back": always a small food award, half a normal one: 150 food (the game's own food writer then raises food by half at Food Mastery level 2 and doubles it at level 3, as for its own events).
+    * Each award is drawn when the popup opens and goes through the game's own food writer, as drawn (scaled only with Island Events Scale ticked: below).
+    * Line(text='With the patcher\'s "Island Events Scale With Population (like The Lost Children)" (in this game): each award is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).', verified='running', sub=False, only_with='vv4_island_events_scale_with_population')
+    * Line(text='With the patcher\'s "Island Events Scale With Stored Food and Tech Points" (in this game): each award gains a tenth of the food stored (see the rules above).', verified='running', sub=False, only_with='vv4_island_events_scale_with_stored_amounts')
+    * The effects wait for their own page: they come when the page that ends that ending's text is shown, never on an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. Quitting before that page leaves the village as it was, and the event does not come back.
+- The Mysterious Mask  (needs a population of 61 or more (the living villagers plus the babies being carried, The Lost Children's "A Dangerous Mission" rule), 2 children under 14 and 5 villagers of 18 villager years or more, all not nursing a baby (mother or father), not a body or a ghost; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the group is 2 to 4 children under 14 villager years -- 4 when there are more, else all of them; any age under 14, however young (babies still being carried are not villagers, so never in it) -- each drawn among those left, each equally likely; one of them finds the mask, and another is named in the story. The expedition is 5 villagers of 18 villager years or more, drawn the same way. Everyone picked is alive and present, not nursing a baby (mother or father), not a body or a ghost; family ties do not matter (a volunteer may be a child's parent).
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, a body or a ghost, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * One question in the game's own island-event popup with four answers, one above the other (click one, or press the keys 1 to 4): "Wait for their parents to come", "Cry for help", "Walk towards the clearing" or "Walk towards the forest". Its pages are laid out shorter (3 lines less for each answer past two), so the popup is no taller than a two-answer one.
+    * "Wait for their parents to come" and "Cry for help": the children are safe.
+    * "Walk towards the clearing" and "Walk towards the forest" (the same odds): home safe 50%; lost 50%, then rescued 75% or captured 25%. Out of every walk: home safe 50%, rescued 37.5%, captured 12.5%. Captured: every child of the group is gone for good (no body, no graves); the Deaths log records each as a disappearance.
+    * Every ending: the elders tell the village what happened (one of five speeches) and the 5 villagers of the expedition -- the five volunteers -- leave for good (no body, no graves); the Deaths log records each as a disappearance.
+    * The effects wait for their own page: they come when the elders' last page is shown, never on an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. Quitting before that page leaves the village as it was, and the event does not come back.
+- The Remembrance Ceremony  (needs at least one grave (the game's own count; its Day of Honor asks for two, this event for one); an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who takes part: everyone -- every living villager who is in the village, children and babies that are villagers too, nursing mothers and fathers, and the villagers other events never pick (the owner: "everyone joins in"). Babies still being carried are not villagers yet, so they stay with their mothers.
+    * Each one stops what it is doing and goes to the graveyard and goes "Honoring the Dead", started one by one exactly as the game's own Day of Honor starts each villager, so nobody is left out by the game's usual group rules.
+    * The feast quietly uses 10 food for every villager the game counts, never below 0 (the same as Blessings Day in A New Home, The Lost Children and The Secret City); the popup does not mention it.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event. It can happen again, as likely as one stock event each time.
+- The Rumblings  (needs every puzzle solved (16, the Puzzles screen's) and at least one finished structure it can damage; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * The structures it can damage: the first population hut, the second population hut, the third population hut, the clothing hut, the love shack, the nursery school and the hospital.
+    * Each finished one is damaged 25% of the time; at least one always is (when none is, one of them, each equally likely), and every one can be.
+    * A damaged one loses 10 to 100% of its building work (each whole percent equally likely), and the builders must build it again. At 100% it is unbuilt, exactly as in a new village; an unbuilt one can be moved. A heavily damaged one may need a villager dropped on it before the builders start, as in the stock game.
+    * When it is finished again the game shows its own celebration, tip and completion message again.
+    * Solved puzzles stay solved. No one is hurt and nobody leaves: a village left over its population limit keeps everyone, babies already on the way are still born, and no new babies come until the hut is rebuilt -- the same as when the stock game runs out of room.
+    * A damaged nursery school's teacher stops teaching until it is rebuilt.
+    * The "3 huts" trophy: while it is still locked, a damaged population hut no longer counts toward it until it is rebuilt, so the trophy still needs three different huts.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event, naming each damaged structure. It can happen again, as likely as one stock event each time.
+
+==============================================================================
+VV5 New Believers (48 events)
+==============================================================================
+- The Creeping Mold  (always possible)
+    * The stored food loses 100.
+- The Allergy Season  (always possible)
+    * Every villager sneezes several times; nothing else changes.
+- Isola Day Celebration  (always possible)
+    * The village celebrates; nothing else changes.
+- Blessings Day Celebration  (always possible)
+    * Divine Energy is filled to its cap, and the village celebrates.
+- Day of Honor  (needs 2 or more graves)
+    * The villagers pay their respects to the dead; nothing else changes.
+- The Vision  (needs a living believer (the one who sees it))
+    * That believer's Faith +20 to +39, each equally likely.
+- The Mysterious Footprints (food gained)  (always possible)
+    * The stored food gains 300 (before Food Mastery, which raises a food gain by half at level 2 and doubles it at level 3), and fog comes.
+- The Mysterious Footprints (food lost)  (always possible)
+    * The stored food loses 300, and fog comes.
+- The Mysterious Footprints (tech gained)  (always possible)
+    * +2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow.
+- The Mysterious Footprints (tech lost)  (always possible)
+    * -2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow.
+- The Cold Snap  (needs the fire burning)
+    * Fog comes and the fire goes out.
+- Army Ants!  (needs the Hydroponic Farm)
+    * Every crop is eaten, so the crops drop to 0.
+- Aphid Infestation!  (needs the Hydroponic Farm)
+    * The crops are halved, rounded down.
+- The River Breaks Its Banks  (needs the Hydroponic Farm)
+    * Noni +200 and crops +200; both can pass their caps (1,000 and 800) until the next growth or refill puts them back.
+- The Strange Crystals  (always possible)
+    * +2,000 to +2,999 tech points, each equally likely.
+- The Especially Offensive Cloud  (always possible)
+    * Everyone hides; nothing else changes.
+- The Bottle of Spicy Juice  (always possible)
+    * The villagers react to the hot sauce; nothing else changes.
+- The Clumsy Heathen  (always possible)
+    * Noni +200; it can pass 1,000 until the next growth puts it back.
+- The Pesky Critter  (needs The Knowing Totem solved)
+    * -500 to -2,999 tech points, each equally likely.
+- Mushroom Day!  (needs a living believer child under 14 villager years)
+    * The stored food gains 50 to 99, each equally likely (before Food Mastery, which raises a food gain by half at level 2 and doubles it at level 3), and -500 to -1,499 tech points, each equally likely.
+- The Salty Air  (always possible)
+    * Everyone hides until it settles; nothing else changes.
+- Barrel O' Babies! (believers)  (needs room for new villagers)
+    * up to 3 children of 10 villager years (200 age units), one at a time while the room check passes, each a boy or a girl 50% each, with one of the six skills (each 1 in 6) at 5 to 9 (each 1 in 5); they join the tribe with Faith 30 to 59.
+- Barrel O' Babies! (heathens)  (needs room for new villagers (believers counted))
+    * up to 3 children of 10 villager years (200 age units), one at a time while the room check passes, each a boy or a girl 50% each, with one of the six skills (each 1 in 6) at 5 to 9 (each 1 in 5); they are Heathens with Faith -55.
+- Chutes Without Ladders  (needs room for new villagers, or the rescue rule)
+    * up to 3 children of 10 villager years (200 age units), one at a time while the room check passes, each a boy or a girl 50% each, with one of the six skills (each 1 in 6) at 5 to 9 (each 1 in 5); they join the tribe with Faith 30 to 59.
+- News From Another Tribe (a newcomer)  (needs room for new villagers)
+    * A villager of 18 villager years joins, a man or a woman 50% each: 50.05% of the time a master of Research, otherwise a master of one of the six skills (each 1 in 6, Research among them), at 80 to 84 (each 1 in 5).
+- News From Another Tribe (a message)  (always possible)
+    * +2,000 tech points.
+- The Bed Bugs  (needs a living believer who is not pregnant or nursing)
+    * "Search for the bugs all night": -5 health (only above 6 health), and a dislike numbered 82 is added, past the end of the game's 79-word list, so it shows no word.
+    * "Let it go": -15 health, and the villagers scratch.
+- The Mask  (needs a living believer)
+    * "Put it on": Faith set to -10, so the believer becomes a Heathen.
+    * "Bury it": Faith +10 and Divine Energy +10.
+- The Heathen Toy  (needs a living believer child under 14 villager years and a Heathen child under 14 who is not sick)
+    * "Keep it": Research +20 to +29, each equally likely.
+    * "Return it to its owner": Devotion +20 to +29, and the Heathen child's Faith +15.
+- The Daredevil Jump  (needs a living believer (and a second one, who may be the same))
+    * "Jump": now likes running and jumping and dislikes work.
+    * "Don't jump": now dislikes jumping and dancing.
+- The Spa  (needs a living believer and a Heathen child under 14 who is not sick)
+    * "Bathe quickly before anyone notices": +10 health.
+    * "Enjoy the pools": caught -- Faith set to -10, a Heathen.
+- Doubt  (needs a living believer)
+    * "Give a sign": Faith -5 and Divine Energy -20.
+    * "Don't give a sign": Faith +5 and Devotion +15.
+- Spying on the Heathens  (needs a living believer child under 14 villager years and a Heathen child under 14 who is not sick)
+    * "Run away": Devotion +15.
+    * "Talk to the heathen": Devotion +25, the Heathen child's Faith +5, and the stored food loses 40.
+- You're Doing It Wrong!  (needs a living believer of 14 or more, a Heathen child under 14 who is not sick, and Science below level 2)
+    * "Teach them to reduce explosions.": 50.05% an explosion -- -10 to -29 health and a dislike numbered 81, past the end of the word list; 49.95% Science goes up a level.
+    * "There are a lot of them; better not!": +500 tech points.
+- The Missing Kids  (needs a living believer child under 14 villager years and a Heathen child under 14 who is not sick)
+    * "Yell for help": the child loses 5 health and falls sick; the Heathen child loses 5 health.
+    * Line(text='In the game\'s code "Yell for help" marks the Heathen child sick too, but Heathens are skipped by the villagers\' age-unit update, so the mark costs that child no health; from then on it is no longer picked by the events that need a Heathen child who is not sick.', verified='running', sub=False, only_with=None)
+    * Line(text='The owner: Heathens never fall sick in play.', verified='owner', sub=False, only_with=None)
+    * "Try to help the heathen": Devotion +10 for the child, the Heathen child's Faith +10.
+- Outreach?  (needs a living believer of 14 or more and a Heathen of 14 or more who is not sick (the envoy))
+    * "Offer a tour": the envoy's Faith +20, the believer's Devotion +20, the stored food loses 25 and -800 tech points.
+    * "Refuse the tour": nothing changes.
+- The Advanced Artifacts  (needs Science exactly at level 2 and a living believer)
+    * "Collaborate with the other researchers": +2,000 tech points, and the believer now likes learning.
+    * "Prepare an independent report.": 49.95% well received -- Research +40 and Science up a level; 50.05% not believed -- now dislikes learning, and -100 tech points.
+- Trick Or Trade  (needs 100 food or more and a living believer)
+    * "Employ a clever ruse": +1,500 tech points, and the believer's Devotion drops to 0.
+    * "Trade some food for the scrolls": the stored food loses 100, Devotion +35 and +3,000 tech points.
+- The Migrating Fruit Bats  (needs a living believer child under 14 villager years and Food Mastery below level 2)
+    * "Observe them": Food Mastery goes up a level, and the noni bushes are emptied (0 noni).
+    * "Scare them": Farming +25, and the tribe drives the bats off.
+- The Aphids in the Noni Bush  (needs a living believer)
+    * "Research bugs that eat aphids": noni -90, Farming +40 and +1,500 tech points.
+    * "Research potions that kill aphids": noni cut to 50 if above.
+- The Defector  (needs a living Heathen who is not sick)
+    * "Accept the heathen": 50.05% a genuine defector -- Faith set to 20, so they join the tribe and keep the 20 (a convert is raised to 55 only when given less than 5); 49.95% a spy -- -2,000 tech points.
+    * "Better not": nothing changes.
+- The Straw Hat  (needs a living believer)
+    * "Wear it": Devotion +35.
+    * "Use it as a cooking strainer": the stored food gains 200 (before Food Mastery, which raises a food gain by half at level 2 and doubles it at level 3).
+- The Strange Nectar  (needs a living believer of 18 or more)
+    * "Drink it": the believer's age is set to 330 age units (16.5 villager years), older or younger.
+    * "Bring it to the lab": +2,000 tech points.
+- The Cracked Mask  (needs a living believer and a Heathen child under 14 who is not sick)
+    * "Attempt to fix the mask": -20 to -30 health, Devotion +25, and the Heathen child's Faith +35.
+    * "Try to trick the heathen": Faith set to -10, so the believer becomes a Heathen.
+- Innovation in Farming (the mysterious storyteller)  (needs The Heathen Scientist solved and a living believer child under 14 villager years)
+    * The storyteller appears and the children gather; nothing else changes.
+- The Aspiring Adventurer  (needs at least two villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), a believer (never a Heathen), not the chief, the Retired Chief or another of the special roles the game's own picker skips, and not a Reanimated spirit; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who: the adventurer is drawn from the villagers who are alive and present, 14 villager years or more, not nursing a baby (mother or father), a believer (never a Heathen), not the chief, the Retired Chief or another of the special roles the game's own picker skips, and not a Reanimated spirit, each equally likely; the friend of ending A8 is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in play the friend always exists and A8 is always possible.
+    * Never picked, in any role (the owner's protected villagers): a nursing mother or father, a Reanimated spirit, and the chief, the Retired Chief and the other roles the game's own island events never pick, and anyone the game's own island events never pick. Everyone else may be picked (titles, Esteemed Elders who are not statues, founders and the like included).
+    * "Go investigate!" (one popup with the opening and the find, then one with the ending): the find is a pile of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a surviving ending and 50% a deadly one, each equally likely within its half.
+    * After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or the chest: A1 (gets away), A5 (escapes the trap), A8 (a friend comes to help) 16.67% each (1 in 6), each with the reward; A2, A3, A4, A6 12.5% each, no reward.
+    * Out of every investigation: A1 8.33%, A5 8.33%, A8 8.33% (each half with food, half with tech points); A7 12.5%; A9 12.5%; A2 (the beast, dies, a grave) 12.5%; A3 (the beast, disappears, no grave) 12.5%; A4 (the knife, dies, a grave) 12.5%; A6 (the knife, disappears, no grave) 12.5%. In all: home safe 50% (12.5% with the food, 12.5% with the tech points, 25% with nothing), dies 25%, disappears 25%. The stranger of A4 and A6 is a man or a woman, 50% each.
+    * "Stay on the safe path" (one popup with the walk home; when lost, a second with the ending; after the healers, a third): home safe 90%; lost 10%, then each of the six lost endings 1 in 6.
+    * Lost ending 1, brought to the healers, then 1 in 3 each: dies, a grave (0.56%); a full recovery (0.56%); disabled -- health set to 10 to 50 (each equally likely) and now dislikes running (0.56%).
+    * Lost ending 2 (1.67%): becomes a Heathen through the game's own conversion ("...joined the Isolans' tribe" with Guardians of Isola, "...the heathens' tribe" without). Lost ending 3 (1.67%): the survivalist gains 20 to 30 points (each equally likely) in Farming, Building, Research or Healing (1 in 4 each), up to 100. Lost endings 4 (a fallen tree) and 5 (a stony cliff), 1.67% each: dies, a grave. Lost ending 6 (1.67%): disappears, no grave.
+    * In all, staying on the path: home alive 92.78%, dies 3.89%, disappears 1.67%, becomes a Heathen 1.67%.
+    * The reward is a random amount, each equally likely: 50 to 300 food for the meat, 500 to 3,000 tech points for the chest -- from the smallest to the largest food or tech-point gain of the game's own island events -- given only in A1, A5 and A8 through the game's own food or tech writer (the game's own food writer then raises food by half at Food Mastery level 2 and doubles it at level 3, as for its own events), as drawn (scaled only with Island Events Scale ticked: below).
+    * A death is the game's own ("Unknown causes", as the game's own island events give; the body is buried and gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it as a disappearance. The effects wait for their own page: they come when the page that ends the ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.
+    * Line(text='With the patcher\'s "Island Events Scale With Population (like The Lost Children)" (in this game): the reward is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).', verified='running', sub=False, only_with='vv5_island_events_scale_with_population')
+    * Line(text='With the patcher\'s "Island Events Scale With Stored Food and Tech Points" (in this game): the reward gains a tenth of what is stored (see the rules above).', verified='running', sub=False, only_with='vv5_island_events_scale_with_stored_amounts')
+- The Remembrance Ceremony  (needs at least one grave (the game's own count; its Day of Honor asks for two, this event for one) and The Last Heathen done -- every Heathen converted and the old hovel fixed up, which the game saves and keeps for good; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * Who takes part: the believers -- every living villager who is in the village, children and babies that are villagers too, nursing mothers and fathers, and the villagers other events never pick (the owner: "everyone joins in"); Heathens never. Babies still being carried are not villagers yet, so they stay with their mothers.
+    * Each one stops what it is doing and goes "Honoring the Dead" at the mausoleum, started one by one exactly as the game's own Day of Honor starts each villager, so nobody is left out by the game's usual group rules.
+    * With the patcher's "Memorial Actions Can Also Occur at the Heathen Hovel": each believer goes to the old Heathen hovel instead 50% of the time, and there goes "Honoring the Dead" or "Reflecting" (50% each), the way that patch sends them; the rest go "Honoring the Dead" at the mausoleum. Without it, "Reflecting" is never used.
+    * The feast quietly uses 10 food for every villager the game counts, never below 0 (the same as Blessings Day in A New Home, The Lost Children and The Secret City); the popup does not mention it.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event. It can happen again, as likely as one stock event each time.
+- The Rumblings  (needs every puzzle solved (11, the Puzzles screen's) and at least one finished structure it can damage; an island event when it comes; it never takes a share of the game's own draw, so the game's own island events keep their chances: after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare roll comes up 20% of the time, and then one of the patcher's rare events comes later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island events), unless the village is in trouble by then (the game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 or more) or the natural event comes first; every event that can happen then is equally likely (with the Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as likely as any other); Pick Island Event can also pick it; added by "More Island Events" (without it the event does not exist))
+    * The structures it can damage: the first population hut, the second population hut, the third population hut, the clothing hut and the love shack. Never the nursery school.
+    * Each finished one is damaged 25% of the time; at least one always is (when none is, one of them, each equally likely), and every one can be.
+    * A damaged one loses 10 to 100% of its building work (each whole percent equally likely), and the builders must build it again. At 100% it is unbuilt, exactly as in a new village; an unbuilt one can be moved. A heavily damaged one may need a villager dropped on it before the builders start, as in the stock game.
+    * When it is finished again the game shows its own celebration, tip and completion message again.
+    * Solved puzzles stay solved. No one is hurt and nobody leaves: a village left over its population limit keeps everyone, babies already on the way are still born, and no new babies come until the hut is rebuilt -- the same as when the stock game runs out of room.
+    * The "3 huts" trophy: while it is still locked, a damaged population hut no longer counts toward it until it is rebuilt, so the trophy still needs three different huts.
+    * One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log keeps one entry for the event, naming each damaged structure. It can happen again, as likely as one stock event each time.

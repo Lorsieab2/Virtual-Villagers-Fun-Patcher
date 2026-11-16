@@ -768,7 +768,7 @@ FILES = [
     "Player Events/Isola Island Event Style Guide.txt",
     "Player Events/Island Event Themes - All Added Events.txt",
     "Player Events/Island Event Outcomes - Every Kind.txt",
-    "Player Events/Example Events - Lorsieab2 (S001-S019).txt",
+    "Player Events/Example Events - Lorsieab2 (S001-S020).txt",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",

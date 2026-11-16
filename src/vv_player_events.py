@@ -55,9 +55,9 @@ STYLE_SOURCE = OWNER_DOCS / STYLE_NAME
 # for byte: every theme of the added events (the "favour these themes" picker offers them) and every kind of outcome.
 THEMES_NAME = "Island Event Themes - All Added Events.txt"
 OUTCOMES_NAME = "Island Event Outcomes - Every Kind.txt"
-# The owner's 19 rewritten events (S001-S019): the format and style example the AI prompt names.  Reference only:
+# The owner's 20 rewritten events (S001-S020): the format and style example the AI prompt names.  Reference only:
 # never compiled or installed as playable events.
-EXAMPLE_NAME = "Example Events - Lorsieab2 (S001-S019).txt"
+EXAMPLE_NAME = "Example Events - Lorsieab2 (S001-S020).txt"
 OWNER_FILES = (TONE_NAME, STYLE_NAME, THEMES_NAME, OUTCOMES_NAME, EXAMPLE_NAME)   # byte for byte (docs/more-island-events)
 
 
@@ -430,6 +430,38 @@ def lose_name_warnings(it: Item) -> None:
                           f"fever, forgetting, memory, magic, a spell or a charm: {LOSE_NAME_RULE}")
 
 
+# The owner's rule (style guide 9): narration is always third person; first and second person only in quoted speech
+# or a character's quoted thought.  A soft warning, never an error; the reward line "Your villagers gain ..." is the
+# games' own wording and is left alone.
+_QUOTED = re.compile(r'"[^"\n]*"|“[^”\n]*”')
+_FIRST_SECOND = re.compile(r"\b(I|I'm|I've|I'll|I'd|[Mm]e|[Mm]y|[Ww]e|[Yy]ou|[Yy]our|[Yy]ou're|[Yy]ourself)\b")
+_REWARD_LINE = re.compile(r"(?i)\byour villagers gain\b")
+
+
+def person_problem(text: str) -> str | None:
+    """The first "I / me / my / we / you / your" outside quotes, or None."""
+    for line in text.split("\n"):
+        if _REWARD_LINE.search(line):
+            continue
+        bare = _QUOTED.sub(" ", re.sub(r"\([^)]*\)|\{[^}]*\}", " ", line))
+        m = _FIRST_SECOND.search(bare)
+        if m:
+            return m.group(1)
+    return None
+
+
+def person_warnings(it: Item) -> None:
+    """A soft warning for each page told in the first or second person outside quoted speech (style guide 9)."""
+    for nid, n in ((it.graph or {}).get("nodes") or {}).items():
+        for t in [n.get("text") or ""] + [v.get("text") or "" for v in n.get("variants") or []]:
+            word = person_problem(t)
+            if word:
+                line = it.meta.get("node_lines", {}).get(nid, it.line)
+                it.warn(line, f"page {nid} says {word!r} outside quoted speech: the story is told in the third "
+                              "person; I / me / my / we / you / your only inside quotes")
+                break
+
+
 # ---- Games ---------------------------------------------------------------------------------------------------------
 
 _GAME_WORDS = {"vv1": 1, "a new home": 1, "vv2": 2, "the lost children": 2, "vv3": 3, "the secret city": 3,
@@ -529,6 +561,10 @@ def _target(word: str | None) -> str | None:
     w = re.sub(r"^the\s+", "", w)
     if w in DEFAULT_TARGETS:
         return None
+    if w in ("newcomer", "new villager", "newest"):
+        return "$newest"                  # the villager this event made last (role byte 253)
+    if w in ("previous newcomer", "first newcomer", "other newcomer"):
+        return "$previous"                # the one it made before (252)
     w = re.sub(r"\s+", "_", w)
     return w if cie.ID_RE.match(w) else "!" + word
 
@@ -549,19 +585,49 @@ EFFECT_VOCABULARY = (
     "LOSE NAME <who>", "CHANGE NAME <who>", "CHANGE NAME <who> TO <name>", "CHANGE AGE <who> YOUNGER|OLDER <n> YEARS",
     "CHANGE AGE <who> TO child|teen|18|adult|50|elder", "MOOD GOOD|BAD <who>", "CELEBRATE [<who>|everyone]",
     "ACTION <who> \"<the game's action words>\"", "DAMAGE (small|normal|large|huge) [ON <structures>]",
-    "BECOMES HEATHEN <who>", "STORY MUTE <who>")
+    "BECOMES HEATHEN <who>", "STORY MUTE <who>", "CURE <who>", "REPAIR", "YOUNG LOOK <who>",
+    "SKILL + BEST a little|some|a lot|hugely", "EVERYONE: MOOD GOOD", "EVERY HEALER: SKILL + Healing some",
+    "3 RANDOM VILLAGERS: ILLNESS", "NEW VILLAGER (adult woman)", "NEW BABY OF THE NEWCOMERS",
+    "PREGNANT <who> WITH <who> (TWINS OR TRIPLETS)", "CHANGE AGE <who> OLDER <n> YEARS (NEVER PAST ELDER)")
+
+
+GROUP_SKILLS = {"healer": "Healing", "builder": "Building", "farmer": "Farming", "researcher": "Research",
+                "scholar": "Research", "scientist": "Research", "parent": "Parenting", "nanny": "Parenting",
+                "priest": "Devotion", "devout": "Devotion"}
+_GROUP = re.compile(r"^(everyone|every villager|all villagers|every (healer|builder|farmer|researcher|scholar|scientist|"
+                    r"parent|nanny|priest|devout)|(\d+|one|two|three|four|five) random villagers?)\s*:\s*", re.I)
+_NUM_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
 
 
 def plain_effect(line: str) -> PlainEffect | str:
     """One plain-word effect line (docs/player-events-format.md 4): the effects and the roles they need, or the
-    problem in words."""
+    problem in words.  "EVERYONE: ...", "EVERY HEALER: ..." (every villager with 50 or more of that skill) and
+    "3 RANDOM VILLAGERS: ..." put the effect on a group (engine 3a3651283)."""
     s = line.strip().strip("-*").strip()
     s = re.sub(r"^effect\s*:\s*", "", s, flags=re.I).strip().rstrip(".")
+    m = _GROUP.match(s)
+    if m:
+        word = m.group(1).lower()
+        target = {"all": True} if word in ("everyone", "every villager", "all villagers") else \
+            {"skill": GROUP_SKILLS[m.group(2).lower()]} if m.group(2) else \
+            {"random": int(m.group(3)) if m.group(3).isdigit() else _NUM_WORDS[m.group(3).lower()]}
+        inner = plain_effect(s[m.end():])
+        if isinstance(inner, str):
+            return inner
+        for e in inner.effects:
+            if e["do"] not in cie.TARGET_EFFECTS:
+                return f"{e['do']} cannot be given to a group (only {', '.join(cie.TARGET_EFFECTS)})"
+            e.pop("role", None)
+            e.pop("who", None)
+            e["target"] = dict(target)
+        return PlainEffect(inner.effects, {k: v for k, v in inner.roles.items() if k}, inner.note)
     roles: dict[str, dict] = {}
 
     def need(rid: str | None, **facts) -> str | None:
         if rid is not None and rid.startswith("!"):
             raise _Bad(f"{rid[1:]!r} is not a role name (letters, digits and _)")
+        if rid is not None and rid.startswith("$"):
+            return rid                    # a villager this event made: no role to cast
         key = rid or ""
         roles.setdefault(key, {}).update(facts)
         return rid
@@ -602,11 +668,20 @@ def plain_effect(line: str) -> PlainEffect | str:
         m = re.fullmatch(r"skill ([+-]) ([A-Za-z]+)(?: (a little|a bit|some|a lot|hugely|a great deal|small|normal|"
                          r"large|huge))?", s, re.I)
         if m:
-            e = {"do": "skill", "role": need(tail_target), "skills": [m.group(2).title()],
-                 "size": SKILL_WORDS[(m.group(3) or "a little").lower()]}
+            best = m.group(2).lower() == "best"          # SKILL + BEST: the villager's own best skill
+            e = {"do": "skill", "role": need(tail_target), "skills": None if best else [m.group(2).title()],
+                 "best": True if best else None, "size": SKILL_WORDS[(m.group(3) or "a little").lower()]}
             if m.group(1) == "-":
                 e["loss"] = True
             return PlainEffect([fx(**e)], roles)
+        m = re.fullmatch(r"cure(?:d)?(?: " + _T + r")?", s, re.I)
+        if m:
+            return PlainEffect([fx(do="cure", role=need(_target(m.group(1))))], roles)
+        if re.fullmatch(r"repair(?: the damaged (?:huts|buildings))?", s, re.I):
+            return PlainEffect([{"do": "repair", "structures": cie.DAMAGE_ANY}], roles)
+        m = re.fullmatch(r"young look(?: " + _T + r")?", s, re.I)
+        if m:
+            return PlainEffect([fx(do="young_look", role=need(_target(m.group(1))))], roles)
         m = re.fullmatch(r"master(?:s)? ([A-Za-z]+)", s, re.I)
         if m:
             return PlainEffect([fx(do="skill", role=need(tail_target), skills=[m.group(1).title()], set=100)], roles)
@@ -626,7 +701,7 @@ def plain_effect(line: str) -> PlainEffect | str:
         if m and not s.lower().startswith("illness"):
             lo, hi = INJURY_SIZES[(m.group(2) or "").lower()]
             return PlainEffect([fx(do="health_change", role=need(_target(m.group(1))), min=lo, max=hi)], roles)
-        m = re.fullmatch(r"(?:illness|sickness|sick|illness ?/ ?injury) " + _T, s, re.I)
+        m = re.fullmatch(r"(?:illness|sickness|sick|illness ?/ ?injury)(?: " + _T + ")?", s, re.I)
         if m:
             return PlainEffect([fx(do="sick", role=need(_target(m.group(1))))], roles)
         m = re.fullmatch(r"health " + _T + r" ([+-]\d+)(?: to ([+-]?\d+))?", s, re.I)
@@ -660,10 +735,16 @@ def plain_effect(line: str) -> PlainEffect | str:
         if m:
             return PlainEffect([fx(do="deliver_early", role=need(_target(m.group(1)), special="nursing_parent",
                                                                    min_age=18))], roles)
-        m = re.fullmatch(r"new villager(?: \((child|teen|adult|elder|any)\))?", s, re.I)
+        m = re.fullmatch(r"new villager(?: \((child|teen|adult|elder|any)(?: (male|female|man|woman|boy|girl))?\))?"
+                         r"( child of the newcomers)?", s, re.I)
         if m:
             age = (m.group(1) or "any").lower()
-            return PlainEffect([fx(do="new_villager", age=None if age == "any" else age)], roles)
+            sex = {"man": "male", "boy": "male", "woman": "female", "girl": "female"}.get(
+                (m.group(2) or "").lower(), (m.group(2) or "").lower() or None)
+            return PlainEffect([fx(do="new_villager", age=None if age == "any" else age, sex=sex,
+                                   child_of_newest=True if m.group(3) else None)], roles)
+        if re.fullmatch(r"new baby of the newcomers|their baby joins the village", s, re.I):
+            return PlainEffect([{"do": "new_villager", "age": "child", "child_of_newest": True}], roles)
         m = re.fullmatch(r"(?:duplicate|lookalike|double) of " + _T + r"(?: \((child|teen|adult|elder|any)\))?", s,
                          re.I)
         if m:
@@ -680,12 +761,16 @@ def plain_effect(line: str) -> PlainEffect | str:
                 return f"an event makes 1 or 2 clones of a villager, not {count}"
             return PlainEffect([fx(do="clone", role=need(_target(m.group(2))),
                                    count=2 if count == 2 else None)], roles)
-        m = re.fullmatch(r"(pregnant|nursing) " + _T + r"(?: with " + _T + r")?( \(any birth sex\))?", s, re.I)
+        m = re.fullmatch(r"(pregnant|nursing) " + _T + r"(?: with " + _T + r")?((?: \((?:any birth sex|twins|triplets|"
+                         r"twins or triplets)\))*)", s, re.I)
         if m:
             carrier = need(_target(m.group(2)), min_age=18, carrier=True)
             partner = need(_target(m.group(3)), min_age=18) if m.group(3) else None
+            mods = (m.group(4) or "").lower()
+            babies = "roll" if "twins or triplets" in mods else 3 if "triplets" in mods else 2 if "twins" in mods \
+                else None
             return PlainEffect([fx(do=m.group(1).lower(), role=carrier, partner=partner or None,
-                                   any_birth_sex=True if m.group(4) else None)], roles)
+                                   any_birth_sex=True if "any birth sex" in mods else None, babies=babies)], roles)
         m = re.fullmatch(r"new look(?: \((head|body|clothes|both)\))?(?: " + _T + r")?", s, re.I)
         if m:
             part = (m.group(1) or "head").lower()
@@ -726,12 +811,15 @@ def plain_effect(line: str) -> PlainEffect | str:
             a = need(_target(m.group(1)))
             b = need(_target(m.group(2)))
             return PlainEffect([fx(do="body_swap", role=a, **{"with": b or "@default"})], roles)
-        m = re.fullmatch(r"change age " + _T + r" (younger|older) (\d+)(?: ?(?:to|-) ?(\d+))? years?", s, re.I)
+        m = re.fullmatch(r"change age " + _T + r" (younger|older) (\d+)(?: ?(?:to|-) ?(\d+))? years?"
+                         r"(?: \(never past (elder|\d+)\))?", s, re.I)
         if m:
             lo, hi = int(m.group(3)), int(m.group(4) or m.group(3))
             lo, hi = min(lo, hi), max(lo, hi)
             years = [-hi, -lo] if m.group(2).lower() == "younger" else [lo, hi]
-            return PlainEffect([fx(do="change_age", role=need(_target(m.group(1))), years=years)], roles)
+            cap = None if not m.group(5) else 75 if m.group(5).lower() == "elder" else int(m.group(5))
+            return PlainEffect([fx(do="change_age", role=need(_target(m.group(1))), years=years, max_age=cap)],
+                               roles)
         m = re.fullmatch(r"change age " + _T + r" to (child|teen|18|adult|50|elder)", s, re.I)
         if m:
             return PlainEffect([fx(do="change_age", role=need(_target(m.group(1))), to=m.group(2).lower())], roles)
@@ -887,6 +975,7 @@ def parse_text(text: str, file: str = "events.txt") -> list[Item]:
             _finish_simple(it)
         if it.kind == "event":
             lose_name_warnings(it)
+            person_warnings(it)
         elif it.kind == "piece" and any(e.get("do") == "lose_name" for _ln, e in it.piece["effects"]) \
                 and not LOSE_NAME_WORDS.search(it.piece["text"]):
             it.warn(it.line, f"piece {it.piece['id']} has LOSE NAME but its text says nothing of a head, a bump, a "
@@ -1981,6 +2070,9 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
     do = e["do"]
     if do not in cie.EFFECT_CODES:
         return 0, 0, 0, 0, "", f"{do} is not an effect"
+    if e.get("target") or any(str(e.get(k, "")).startswith("$") for k in ("role", "partner", "with", "copy_of")):
+        # The piece record (procedural-pieces.md 2.5) has no group target or "the newcomer" yet.
+        return 0, 0, 0, 0, "", f"{do}: a group or the newcomer is not in mixer pieces yet (write it in an event)"
     code = cie.EFFECT_CODES[do]
     flags = a = b = 0
     st = ""
@@ -2487,7 +2579,13 @@ Names and pronouns (use these exactly, with the round brackets):
 - (award): the food or tech amount actually given by a FOOD AWARD or TECH AWARD effect.
 - {@chief} / {@Chief}: "the Chief" in The Secret City, "the village leader" in the other games.
 - {this|that|the other}: one of these words, picked at random each time.
+- {#babies:a baby|twins|triplets} and {#made:one|two|three or more}: in the story text only (never a title or a
+  choice), the words for what the page's effects actually made: the first for one (or none), the second for two,
+  the third for three or more; 1 to 3 choices of up to 40 letters, digits, spaces and , : - ' " ; / & % (no
+  names, no braces, no . ! ?).
 - Plain round brackets in the story are fine; they are shown as written.
+- Tell the story in the third person. "I", "me", "my", "we", "you" and "your" belong only inside quoted speech or a
+  villager's quoted thought.
 
 Gameplay effects (one per Effect line, written exactly like this; <who> is a role name, or leave it out for the
 main villager):
@@ -2497,23 +2595,33 @@ main villager):
 - SKILL + <skill> a little|some|a lot|hugely, SKILL - <skill> ..., MASTER <skill> (sets it to 100), SKILL SET <skill>
   <0-100>. Skills: Farming, Building, Research, Healing, Parenting, and Devotion (VV5 only). Add "FOR <who>" for
   another villager.
+  SKILL + BEST a little|some|a lot|hugely raises the villager's own best skill.
 - LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
   LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
+  Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the
+  villager actually comes to like or dislike (the water, the dark, bees).
 - INJURY <who> (a health loss; add (minor), (serious) or (grave)), ILLNESS <who> (falls sick), HEALTH <who> +10 TO +20,
-  HEAL <who> (full health).
+  HEAL <who> (full health), CURE <who> (an illness cured), REPAIR (the damaged huts are repaired).
+- Groups: put "EVERYONE:", "EVERY HEALER:" (also builder, farmer, researcher, parent: every villager good at that
+  skill) or "3 RANDOM VILLAGERS:" before a health, illness, cure, skill, like, mood or look effect, for example
+  "EVERYONE: MOOD GOOD", "EVERY HEALER: SKILL + Healing some" or "3 RANDOM VILLAGERS: ILLNESS".
 - DEATH <who> (a grave is left), DISAPPEARS <who> (never seen again), LOST FOREVER <who> (dies, the body is never
   found), PREGNANCY LOSS <who>, BIRTH THEN DEATH <who>, EARLY BIRTH <who>. These are rare and serious.
-- NEW VILLAGER (child|teen|adult|elder|any), DUPLICATE OF <who> (a newcomer who looks just like them), CLONE OF <who>
-  (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who> makes two, never more).
+- NEW VILLAGER (child|teen|adult|elder|any), NEW VILLAGER (adult woman) (or man, boy, girl), DUPLICATE OF <who> (a
+  newcomer who looks just like them), CLONE OF <who> (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who>
+  makes two, never more). A family: NEW VILLAGER (adult man), NEW VILLAGER (adult woman), then
+  NEW BABY OF THE NEWCOMERS. "newcomer" as <who> is the villager the event just made (and "previous newcomer" the one before).
 - PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
   older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
-  potion), or for NURSING when a father is caring for a baby.
+  potion), or for NURSING when a father is caring for a baby. Add (TWINS), (TRIPLETS) or (TWINS OR TRIPLETS) for
+  more than one baby.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
   LOSE NAME <who> (the name becomes "?"; it only comes from a bump on the head or something like it: a fall, a fever,
   magic or anything that takes the villager's memory, never a villager choosing or being given "?" as a name),
   CHANGE NAME <who> (a new name from the game's own list),
   CHANGE NAME <who> TO <name> (that name: letters, spaces, ' - . only, up to 31),
-  CHANGE AGE <who> YOUNGER|OLDER <n> YEARS, CHANGE AGE <who> TO child|teen|18|adult|50|elder.
+  CHANGE AGE <who> YOUNGER|OLDER <n> YEARS (add "(NEVER PAST ELDER)" to stop at old age),
+  CHANGE AGE <who> TO child|teen|18|adult|50|elder, YOUNG LOOK <who> (looks younger).
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
   DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events).
 - VV5 only: BECOMES HEATHEN <who>.
@@ -2534,9 +2642,9 @@ Read the handwritten events and my event-writing rules in the reference file I p
 Pay particular attention to my events such as The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Climb, and The Troubling Signs.
 Use these as your primary stylistic references. Do not imitate generic AI-generated events.
 My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
-Also follow my style guide, "{style}" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source).
+Also follow my style guide, "{style}" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source). Its appendices list the possible outcomes of every vanilla island event in all five games, and every like and dislike each game has and what it does: use them to keep your outcomes and likes true to the games.
 My example events, "{example}" (I provide them too), are rewritten in my own hand: they are the format and style example, showing how an event is built (the opening, the choices, a first popup for a choice, the endings with their chances and effects) and how much story each popup and ending carries. Write yours with the same parts, laid out in the format of section 9 (my patcher reads that layout; my example's headings are for my notes). They are examples only: do not copy them.
-THE KEY: my handwritten events ("{reference}") and my 19 example events ("{example}") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
+THE KEY: my handwritten events ("{reference}") and my 20 example events ("{example}") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
 2. Create an Interesting Story
 Write {count_words} completely original Island Event{plural}.{distinct}
 Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
@@ -2574,6 +2682,9 @@ Do not make every outcome predictable.
 * Allow genuine surprises, irony, humor, and unexpected twists.
 * Avoid repetitive sentence structures and artificial moral lessons.
 * Do not end every outcome with the villagers learning a lesson or becoming wiser.
+* Narrate in the third person, always. First and second person ("I", "me", "my", "we", "you", "your") only inside quoted speech or a villager's quoted thought.
+* Likes and dislikes are not jobs: never "hates (a job), so a dislike". Name the thing the villager actually comes to like or dislike.
+* No contradictions: every line must agree with the rest of the event (no "won't explain" followed by the explanation; nothing that "never" happens then happens).
 
 Most importantly, write actual events, not vague descriptions of events.
 For example, don't say, "The villagers investigate and discover something interesting." Describe exactly what they discover and what happens afterward.

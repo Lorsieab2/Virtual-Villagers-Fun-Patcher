@@ -141,7 +141,7 @@ class PlayerEventsSection:
                 side="left", padx=(0, 4))
             ttk.Button(row4, text=f"Show {words}", command=lambda n=name: self.show_owner(n)).pack(
                 side="left", padx=(0, 4))
-        ttk.Label(self.frame, text="The key: Lorsieab2's handwritten events (Copy Reference Events) + 19 example "
+        ttk.Label(self.frame, text="The key: Lorsieab2's handwritten events (Copy Reference Events) + 20 example "
                                    "events (Copy Example Events); the style guide is drawn from them. With the themes "
                                    "and outcomes lists they are the defaults the AI prompt names: give them to the AI "
                                    "with it. The example events are reference only, never installed as events.",

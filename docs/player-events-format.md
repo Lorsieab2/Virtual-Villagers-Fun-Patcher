@@ -22,7 +22,7 @@ of the built-in events.
   it), and the owner's default lists: `Island Event Themes - All Added Events.txt` (every theme of the added events;
   the "favour these themes" picker offers them after your own) and `Island Event Outcomes - Every Kind.txt` (every
   kind of outcome; the prompt tells the AI to use those themes and outcome kinds, balancing the outcomes), and
-  `Example Events - Lorsieab2 (S001-S019).txt` (the owner's 19 rewritten events: the format and style example the
+  `Example Events - Lorsieab2 (S001-S020).txt` (the owner's 20 rewritten events: the format and style example the
   prompt names; reference only, never compiled or installed as playable events); each with Copy / Show buttons. The
   owner's five files ship byte for byte (also in docs/more-island-events); all six (the prompt with your rules) are
   also installed in each patched game's `Virtual Villagers Fun Patcher Files\Player Events`.

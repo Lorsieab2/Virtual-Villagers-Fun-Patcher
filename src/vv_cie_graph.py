@@ -376,7 +376,8 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
               "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 31 (codes 27-32)
-              "lose_name", "change_name", "change_age")                            # ... 31 (33, 34)
+              "lose_name", "change_name", "change_age",                      # ... 31 (33, 34)
+              "cure", "repair", "young_look")                                # ... 32 (35-37)
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
@@ -388,6 +389,7 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
                      # 31 (the owner, 2026-11-15): known only at run time (the engine side)
                      "new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31,
                      "lose_name": 32, "change_name": 33, "change_age": 34,
+                     "cure": 35, "repair": 36, "young_look": 37,
                      # 25 is reserved (a rest period once; the owner took the rest periods out, 2026-11-15)
                      # 26: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
                      "trait": TRAIT_EFFECT_CODE})
@@ -400,6 +402,21 @@ CHANGE_AGE_YEARS_MAX = 120
 CHANGE_NAME_MAX = 31          # code 33: a fixed name (the engine's rule; any other refuses the whole file)
 CHANGE_NAME_RE = re.compile(r"^[A-Za-z](?:[A-Za-z '.\-]{0,29}[A-Za-z'.\-])?$")
 CLONE_COUNTS = (1, 2)         # code 30: how many doubles (value a; 0 or 1 = one, 2 = two)
+# Group targets (engine 3a3651283): role byte 254, the selector in byte 3, its value in the last H.
+TARGET_ROLE = 254
+TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
+                  "old_look", "celebrate")          # skill covers skill_set
+TARGET_ALL, TARGET_SKILL, TARGET_RANDOM = 1, 2, 3   # every villager / every one with the skill >= 50 / N at random
+# The villagers this event made (new_villager, clone): role bytes 253 (the newest) and 252 (the one before).
+NEW_ROLES = {"$newest": 253, "$previous": 252}
+NEW_ROLE_NAMES = {v: k for k, v in NEW_ROLES.items()}
+NEW_VILLAGER_SEX = {"random": 0, "male": 1, "female": 2}   # code 27: value b
+CHILD_OF_NEWEST_FLAG = 1      # code 27: flags bit 0, a child of the two newest villagers
+# codes 28 / 29 (engine 8ebafe54f): the babies, flags bits 1-2: "roll" the game's own multiple-birth roll (bit 1), twins
+# (bit 2), triplets (both); left out, one baby
+BABIES_FLAGS = {"roll": 2, 2: 4, 3: 6}
+BABIES_NAMES = {v: k for k, v in BABIES_FLAGS.items()}
+SKILL_BEST_FLAG = 32          # codes 9 / 15: flags bit 32, the villager's best skill (string "best")
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
@@ -407,12 +424,14 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
                     "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
-                    "lose_name": 0, "change_name": 0, "change_age": 0,
-                    "trait": 0})              # 31: known only at run time
+                    "lose_name": 0, "change_name": 0, "change_age": 0,              # 32: known only at run time
+                    "cure": 0, "repair": 0, "young_look": 0,
+                    "trait": 0})
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
-                                          "deliver_early", "pregnant", "nursing", "clone", "body_swap",
-                                          "lose_name", "change_name", "change_age")
+                                          "deliver_early", "pregnant", "nursing", "clone",
+                                          "body_swap", "lose_name", "change_name", "change_age", "cure",
+                                          "young_look")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -884,9 +903,28 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         if not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
             problems.append(f"{where}: damage is 1..100 percent, min <= max")
         out.update(structures=st if st == DAMAGE_ANY else list(st), min=lo, max=hi)
+    elif do == "repair":
+        # Code 36: the damaged structures repaired, "any" or a list (as damage's).
+        known.add("structures")
+        st = e.get("structures", DAMAGE_ANY)
+        if st != DAMAGE_ANY and (not isinstance(st, list) or not st or any(
+                not isinstance(x, str) or not x or not x.isascii() or "," in x for x in st)
+                or len(set(st)) != len(st)):
+            problems.append(f"{where}: repair structures is \"any\" or a list of the game's structure names")
+            st = DAMAGE_ANY
+        out["structures"] = st if st == DAMAGE_ANY else list(st)
     elif do == "new_villager":
         # Section 31, code 27: a random new villager, or (copy_of) one with that role's villager's looks.
-        known |= {"copy_of", "age"}
+        known |= {"copy_of", "age", "sex", "child_of_newest"}
+        sex = e.get("sex", "random")
+        if sex not in NEW_VILLAGER_SEX:
+            problems.append(f"{where}: new_villager sex is random, male or female")
+        elif sex != "random":
+            out["sex"] = sex
+        if e.get("child_of_newest", False) not in (True, False):
+            problems.append(f"{where}: child_of_newest is true or false")
+        elif e.get("child_of_newest"):
+            out["child_of_newest"] = True
         if "copy_of" in e:
             if not isinstance(e["copy_of"], str):
                 problems.append(f"{where}: new_villager copy_of names a villager role")
@@ -902,7 +940,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         out["role"] = e.get("role", default_role)
         if do in ("pregnant", "nursing"):
             # Section 31, codes 28 / 29: the carrier (born female, 18+, unless any_birth_sex) and its partner.
-            known |= {"partner", "any_birth_sex"}
+            known |= {"partner", "any_birth_sex", "babies"}
+            if "babies" in e:
+                if e["babies"] not in BABIES_FLAGS or isinstance(e["babies"], bool):
+                    problems.append(f"{where}: {do} babies is \"roll\", 2 or 3 (left out: one)")
+                else:
+                    out["babies"] = e["babies"]
             if "partner" in e:
                 if not isinstance(e["partner"], str) or e["partner"] == out["role"]:
                     problems.append(f"{where}: {do} partner names another villager role")
@@ -928,6 +971,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 if not (_int_in(lo, -m, m) and _int_in(hi, -m, m) and lo <= hi and (lo, hi) != (0, 0)):
                     problems.append(f"{where}: change_age years is N or [a, b] in -{m}..{m}, a <= b, not 0")
                 out["years"] = [lo, hi]
+            if "max_age" in e:
+                # The age cap (the last H): never past it ("never past elder": 75).
+                known.add("max_age")
+                if not _int_in(e["max_age"], 1, CHANGE_AGE_YEARS_MAX):
+                    problems.append(f"{where}: change_age max_age is 1..{CHANGE_AGE_YEARS_MAX} years")
+                out["max_age"] = e["max_age"]
         elif do == "body_swap":
             known.add("with")
             if not isinstance(e.get("with"), str) or e.get("with") == out["role"]:
@@ -974,7 +1023,10 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                     problems.append(f"{where}: deliver_early min and max are -99..-1, min <= max (or both left out)")
                 out.update(min=lo, max=hi)
         elif do == "skill" and v6 and "set" in e:
-            known |= {"skills", "set"}
+            known |= {"skills", "set", "best"}
+            if e.get("best") is True:
+                e = dict(e, skills=["best"])
+                out["best"] = True
             skills = e.get("skills")
             if not isinstance(skills, list) or not skills or not all(isinstance(s, str) for s in skills) \
                     or len(set(skills)) != len(skills):
@@ -1047,7 +1099,10 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 if e["remove"] is True:
                     out["remove"] = True
         elif do == "skill" and "set" not in out:
-            known |= {"skills", "min", "max"}
+            known |= {"skills", "min", "max"} | ({"best"} if v6 else set())
+            if v6 and e.get("best") is True:
+                e = dict(e, skills=["best"])
+                out["best"] = True
             if v6 and "size" in e:
                 # A size word: small 5-10, normal 10-20, large 20-40, huge 30-60 ("loss": the same, taken away).
                 known |= {"size", "loss"}
@@ -1069,6 +1124,25 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: skill adds 1..{SKILL_ADD_MAX}"
                                 + (f" (or takes -{SKILL_ADD_MAX}..-1)" if v6 else "") + ", min <= max")
             out.update(skills=list(skills), min=lo, max=hi)
+    if v6 and "target" in e:
+        # A group target (role byte 254): {"all": true}, {"skill": "<name>"} (50 or more) or {"random": n}.
+        known.add("target")
+        tg = e["target"]
+        ok = isinstance(tg, dict) and len(tg) == 1 and (
+            tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
+            or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
+                and 1 <= tg["random"] <= 255))
+        if do not in TARGET_EFFECTS:
+            problems.append(f"{where}: {do} takes no group target")
+        elif not ok:
+            problems.append(f"{where}: target is {{\"all\": true}}, {{\"skill\": name}} or {{\"random\": 1..255}}")
+        elif do == "preference" and out.get("preference") == PREF_RANDOM:
+            problems.append(f"{where}: a group target's preference names a word (not random)")
+        if "role" in e or (do == "celebrate" and "who" in e):
+            problems.append(f"{where}: a group target names no role")
+        out.pop("role", None)
+        out.pop("who", None)
+        out["target"] = dict(tg) if isinstance(tg, dict) else tg
     if v6 and "src" in e:
         out["src"] = e["src"]
     extra = set(e) - known
@@ -1561,9 +1635,32 @@ SKILL_SIZES = {"small": (5, 10), "normal": (10, 20), "large": (20, 40), "huge": 
 _POOL_TOKEN = re.compile(r"^([A-Za-z0-9_@][A-Za-z0-9_]{0,32})(?:\.([1-9]))?$")
 
 
+# Count tokens (engine 0853e8327, cie-v6-binary.md 33): {#babies:A|B|C} / {#made:A|B|C} in body text only; A for a
+# count of 1 (or 0 / unknown), B for 2, C for 3 or more; 1-3 options of 1-40 bytes of plain text.
+COUNT_KINDS = ("babies", "made")
+COUNT_OPTION_RE = re.compile(r"[A-Za-z0-9 ,:\-'\";/&%]{1,40}")
+
+
+def parse_count(inner: str) -> tuple:
+    """'#babies:a baby|twins|triplets' -> ("count", "babies", [options]); ("bad", why) when malformed."""
+    kind, _, rest = inner[1:].partition(":")
+    opts = rest.split("|") if rest else []
+    if kind not in COUNT_KINDS or not 1 <= len(opts) <= 3 or not all(COUNT_OPTION_RE.fullmatch(o) for o in opts):
+        return ("bad", "a count is {#babies:A|B|C} or {#made:A|B|C}: 1-3 options of 1-40 letters, digits, spaces "
+                       "and , : - ' \" ; / & % (no placeholders, braces, line breaks or . ! ?)")
+    return ("count", kind, opts)
+
+
+def count_option(opts: list[str], n: int) -> str:
+    """The option a count of n shows: A for 1 (or 0 / unknown), B for 2, C for 3 or more (the last one there is)."""
+    i = 0 if n <= 1 else 1 if n == 2 else 2
+    return opts[min(i, len(opts) - 1)]
+
+
 def parse_inline(inner: str) -> list[tuple[int, str]] | None:
     """'3:red|1:blue' -> [(3, 'red'), (1, 'blue')]; None when it is not an inline pick of two or more."""
-    if "|" not in inner:
+    if "|" not in inner or inner.startswith("#"):       # a count token is never a pick
+        return None
         return None
     out = []
     for alt in inner.split("|"):
@@ -1594,7 +1691,7 @@ def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
         alts = parse_inline(inner)
         if alts is not None:
             return inline_text(alts)
-        if names is None or inner.startswith("@"):
+        if names is None or inner.startswith(("@", "#")):
             return raw
         tok = _POOL_TOKEN.match(inner)
         return raw if tok else inner          # identifier-shaped: a list (checked), never text (G4)
@@ -1818,6 +1915,8 @@ def parse_brace(inner: str) -> tuple:
     [(w, text), ...]) for a|b; ("bad", why) otherwise."""
     if inner.startswith("@"):
         return ("word", inner[1:]) if ID_RE.match(inner[1:]) else ("bad", "a game word is {@word}")
+    if inner.startswith("#"):
+        return parse_count(inner)
     alts = parse_inline(inner)
     if alts is not None:
         return ("inline", alts)
@@ -2101,7 +2200,7 @@ ITEM_END_MARKS = ("!", "?")
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
               aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
-              pronoun_names: bool = False, label: bool = False) -> str:
+              pronoun_names: bool = False, label: bool = False, counts: dict[str, int] | None = None) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
     the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
     ({@tribe}; None: "the village").  The glyph fallback is applied last."""
@@ -2137,6 +2236,9 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             out.append(word.upper() if p.upper else word[0].upper() + word[1:] if p.capital and word else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "count":
+                out.append(count_option(tok[2], (counts or {}).get(tok[1], 1)))
+                continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 # G5: the save's tribe name, filled at run time.
                 name = tribe if tribe else NO_TRIBE[tok[1]]
@@ -2147,7 +2249,7 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
             item = expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                             aliases, _depth + 1, tribe, label=label)
+                             aliases, _depth + 1, tribe, label=label, counts=counts)
             out.append(item)
             drop_dot = item.endswith(ITEM_END_MARKS)
     text = "".join(out)
@@ -2195,6 +2297,9 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "count":
+                out.append(max(tok[2], key=len))                     # 33: measured by its longest option
+                continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
                 continue
@@ -2274,8 +2379,12 @@ def _harmful(e: dict, games: Iterable[int]) -> bool:
 
 def effect_role(e: dict) -> str | None:
     """The role an effect acts on, or None (food, tech, an award, damage, a celebration of everyone)."""
+    if e.get("target"):
+        return None                           # a group target (role byte 254)
     if e["do"] == "celebrate":
         return None if e["who"] == "all" else e["who"]
+    if e.get("target"):
+        return None                           # a group target (role byte 254)
     if e["do"] == "new_villager":
         return e.get("copy_of")               # 31: the role byte names the villager copied (none: 0xFF)
     return e.get("role") if e["do"] in VILLAGER_EFFECTS_V6 else None
@@ -2718,6 +2827,9 @@ AUTO_LINES = {
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
     "unlike": "<R> no longer likes <W>.",
+    "cure": "<R> is cured.",
+    "repair": "The damaged buildings are being repaired.",
+    "skill_best": "<R> gets better at what <P> does best.",
     "undislike": "<R> no longer dislikes <W>.",
     "skill+": "<R> learns more about <S>.",
     "skill-": "<R> feels less sure of <P> <S>.",
@@ -2771,11 +2883,17 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         amount = award[1]
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
+    if e.get("target") or r in NEW_ROLES:
+        return []                                       # a group or a new villager: the engine's own lines
     if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change"):
+              "sex_change", "cure"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
+    if do == "repair":
+        return [_auto_fill("repair", None)]
+    if do == "skill" and e.get("best"):
+        return [_auto_fill("skill_best", r)]
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
@@ -2879,7 +2997,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 if "set" in e and not game.caps & CAP_SKILLS:
                     say(f"node {nid}: skill is not offered in {game.name}'s Custom Island Event")
                 r = effect_role(e)
-                if r is not None:
+                if r is not None and r not in NEW_ROLES:
                     kind = g["roles"].get(r, {}).get("kind")
                     member = dict(ctx.aliases).get(r, r)
                     if kind not in ("villager", "alias", "other"):
@@ -3178,6 +3296,10 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
             elif tok[0] == "word":
                 if tok[1] not in g.get("words", {}) and tok[1] not in TRIBE_WORDS:
                     problems.append(f"{where}: {raw} names no game word")
+            elif tok[0] == "count" and (label or where.startswith("title")):
+                problems.append(f"{where}: a count token ({raw}) stands only in body text, not a label or title")
+            elif tok[0] == "count":
+                pass                                  # 33: kept as written; the engine shows the count's option
             elif label:
                 problems.append(f"{where}: a label shows game words only, not {raw}")
             elif tok[0] == "pool":
@@ -3223,6 +3345,12 @@ def _pool_depth(g: dict, name: str, stack: tuple = ()) -> int:
 def _validate_v6(g: dict, problems: list[str]) -> None:
     """Version 6's own checks: pools, game words, roles' requirements and safety, the new effects' words."""
     uses: dict[str, int] = {}
+    titles = [("the title", g.get("title") or "")] + \
+        [("a title variant", v.get("title") or "") for v in g.get("title_variants") or [] if isinstance(v, dict)] + \
+        [(f"node {nid} title", n.get("title") or "") for nid, n in g["nodes"].items()]
+    for where, text in titles:
+        if "{#" in text:
+            problems.append(f"{where}: a count token stands only in body text, not a title")
     for nid, n in g["nodes"].items():
         if n["type"] != "branch":
             _check_text_v6(f"node {nid}", n["text"], [], g, uses=uses)
@@ -3281,13 +3409,15 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
     for nid, n in g["nodes"].items():
         for i, e in enumerate(n["effects"]):
             where = f"node {nid} effect {i + 1}"
-            if e["do"] == "celebrate" and e["who"] != "all" and \
+            if e["do"] == "celebrate" and e.get("who", "all") not in ("all",) + tuple(NEW_ROLES) and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: celebrate's who is all or a villager role")
+            if (e.get("target") or {}).get("skill") is not None and e["target"]["skill"] not in all_skills:
+                problems.append(f"{where}: target skill {e['target']['skill']!r} is not a skill in any game")
             if e["do"] == "action" and isinstance(e["action"], str) and \
                     not any(e["action"] in actions(gn) for gn in g["games"]):
                 problems.append(f"{where}: {e['action']!r} is not an action of the event's games")
-            if e["do"] == "skill":
+            if e["do"] == "skill" and not e.get("best"):
                 for s in e["skills"]:
                     if s not in all_skills:
                         problems.append(f"{where}: {s!r} is not a skill in any game")
@@ -3756,8 +3886,19 @@ def _compile_v6(g: dict) -> bytes:
             do = e["do"]
             code = EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
             r = e["role"] if do == "trait" else effect_role(e)
-            role = ridx[r] if r is not None else 0xFF
+            rx = lambda name: NEW_ROLES[name] if name in NEW_ROLES else ridx[name]  # noqa: E731
+            role = rx(r) if r is not None else 0xFF
             flags, a, b, st = 0, 0, 0, NONE
+            sel, last = 0, 0                     # byte 3, the last H (group targets, change_age's cap)
+            tg = e.get("target")
+            if tg:
+                role = TARGET_ROLE
+                if tg.get("all"):
+                    sel = TARGET_ALL
+                elif "skill" in tg:
+                    sel, last = TARGET_SKILL, s(tg["skill"])
+                else:
+                    sel, last = TARGET_RANDOM, tg["random"]
             if do in ("food", "tech"):
                 flags, a = (1 if e["scaled"] else 0) | (2 if e["defer"] else 0), e["amount"]
                 b = e.get("max") or 0
@@ -3777,12 +3918,16 @@ def _compile_v6(g: dict) -> bytes:
                 st = NONE if e["preference"] == PREF_RANDOM else s(e["preference"])
             elif do == "skill" and "set" in e:
                 a, st = e["set"], s(",".join(e["skills"]))
+                flags |= SKILL_BEST_FLAG if e.get("best") else 0
             elif do == "skill":
                 a, b, st = e["min"], e["max"], s(",".join(e["skills"]))
+                flags |= SKILL_BEST_FLAG if e.get("best") else 0
             elif do == "action":
                 st = s(e["action"])
             elif do == "mood":
                 a = 1 if e["mood"] == "good" else -1
+            elif do == "repair":
+                st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
             elif do == "appearance":
                 a, b = (LOOK_KEEP if e.get(p) is None else LOOK_RANDOM if e[p] == "random" else e[p]
                         for p in ("head", "body"))
@@ -3794,11 +3939,13 @@ def _compile_v6(g: dict) -> bytes:
                 a = TRAIT_CODES[e["trait"]]
             elif do == "new_villager":
                 a = NEW_VILLAGER_AGES[e.get("age", "any")]
+                b = NEW_VILLAGER_SEX[e.get("sex", "random")]
+                flags = CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
             elif do in ("pregnant", "nursing"):
-                flags = ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0
-                a = ridx[e["partner"]] if e.get("partner") else 0xFF
+                flags = (ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | BABIES_FLAGS.get(e.get("babies"), 0)
+                a = rx(e["partner"]) if e.get("partner") else 0xFF
             elif do == "body_swap":
-                a = ridx[e["with"]]
+                a = rx(e["with"])
             elif do == "change_name" and e.get("name"):
                 st = s(e["name"])
             elif do == "clone" and e.get("count") == 2:
@@ -3808,7 +3955,8 @@ def _compile_v6(g: dict) -> bytes:
                     flags = CHANGE_AGE_TO[e["to"]]
                 else:
                     flags, (a, b) = CHANGE_AGE_ADD, e["years"]
-            effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
+                last = e.get("max_age", 0)
+            effects += _EFFECT.pack(code, role, flags, sel, a, b, st, last)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
                             1 if n["join"] == "paragraph" else 0, NODE_AUTO_TEXT if n.get("auto_text") else 0,
@@ -3992,9 +4140,14 @@ def _decompile_v6(data: bytes) -> dict:
                              "else": node_ids[ce] if ce != NONE else None})
         effects = []
         for k in range(e_count):
-            code, role, flags, _q, a, b, st, _ = _EFFECT.unpack_from(data, o_effect + (e_first + k) * _EFFECT.size)
+            code, role, flags, sel, a, b, st, last = _EFFECT.unpack_from(data, o_effect + (e_first + k) * _EFFECT.size)
             do = code_effect[code]
             e: dict[str, Any] = {"do": "skill" if do == "skill_set" else do}
+            rn = lambda i: NEW_ROLE_NAMES[i] if i in NEW_ROLE_NAMES else role_ids[i]  # noqa: E731
+            target = None
+            if role == TARGET_ROLE:
+                target = {"all": True} if sel == TARGET_ALL else {"skill": s(last)} if sel == TARGET_SKILL \
+                    else {"random": last}
             if do in ("food", "tech"):
                 e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
                 if b:
@@ -4002,18 +4155,28 @@ def _decompile_v6(data: bytes) -> dict:
                 if st != NONE:
                     e["per_game"] = per_game_parse(s(st))
             elif do == "celebrate":
-                e["who"] = "all" if role == 0xFF else role_ids[role]
+                if target is None:
+                    e["who"] = "all" if role == 0xFF else rn(role)
             elif do == "damage":
                 words = s(st)
                 e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
+            elif do == "repair":
+                words = s(st)
+                e["structures"] = DAMAGE_ANY if words == DAMAGE_ANY else words.split(",")
             elif do == "new_villager":
                 if role != 0xFF:
-                    e["copy_of"] = role_ids[role]
+                    e["copy_of"] = rn(role)
                 age = {v: k for k, v in NEW_VILLAGER_AGES.items()}[a]
                 if age != "any":
                     e["age"] = age
+                sex = {v: k for k, v in NEW_VILLAGER_SEX.items()}[b]
+                if sex != "random":
+                    e["sex"] = sex
+                if flags & CHILD_OF_NEWEST_FLAG:
+                    e["child_of_newest"] = True
             elif do != "pay_award":
-                e["role"] = role_ids[role]
+                if target is None:
+                    e["role"] = rn(role)
                 if do == "kill":
                     e["cause"] = s(st)
                 elif do == "status":
@@ -4027,8 +4190,12 @@ def _decompile_v6(data: bytes) -> dict:
                         e["remove"] = True
                 elif do == "skill":
                     e.update(skills=s(st).split(","), min=a, max=b)
+                    if flags & SKILL_BEST_FLAG:
+                        e["best"] = True
                 elif do == "skill_set":
                     e.update(skills=s(st).split(","), set=a)
+                    if flags & SKILL_BEST_FLAG:
+                        e["best"] = True
                 elif do == "action":
                     e["action"] = s(st)
                 elif do == "mood":
@@ -4045,11 +4212,13 @@ def _decompile_v6(data: bytes) -> dict:
                     e.update(min=a, max=b)
                 elif do in ("pregnant", "nursing"):
                     if a != 0xFF:
-                        e["partner"] = role_ids[a]
+                        e["partner"] = rn(a)
                     if flags & ANY_BIRTH_SEX_FLAG:
                         e["any_birth_sex"] = True
+                    if flags & 6:
+                        e["babies"] = BABIES_NAMES[flags & 6]
                 elif do == "body_swap":
-                    e["with"] = role_ids[a]
+                    e["with"] = rn(a)
                 elif do == "change_name" and st != NONE and s(st):
                     e["name"] = s(st)
                 elif do == "clone" and a == 2:
@@ -4059,6 +4228,10 @@ def _decompile_v6(data: bytes) -> dict:
                         e["years"] = [a, b]
                     else:
                         e["to"] = {v: k for k, v in CHANGE_AGE_TO.items()}[flags]
+                    if last:
+                        e["max_age"] = last
+            if target is not None:
+                e["target"] = target
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
@@ -4618,7 +4791,11 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
-    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
+    # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
+    counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
+              if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts)
+              for t in texts]
     titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()

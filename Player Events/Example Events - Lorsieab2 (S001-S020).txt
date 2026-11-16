@@ -921,3 +921,32 @@ Flavour lines:
 
 
 ==========================================================
+
+====================
+S020. The Grumpy Morning   [VV1, VV2, VV3, VV4, VV5]
+WHO: one elder (not protected)
+EVENT TEXT
+(Name) has woken up on the wrong side of the mat. Everyone can tell from across the village. Even the fat little lizard that lives in (his/her) roof thatch is keeping well out of the way today.
+The fire smoked. The water was warm. The birds are too loud. Somebody has been whistling, and it was the same three notes, over and over. And now (name) is standing in the middle of the path with (his/her) arms folded, informing everyone who passes exactly what (he/she) thinks of birds, water, fires, whistling, and the general state of young people today. "You whippersnappers nowadays..."
+People are starting to take the long way round to the well. Should the village leave (name) to grumble it out, or try to sweeten (his/her) mood?
+
+Choice A: Leave (Him/Her) Alone
+Choice B: Bring (Him/Her) Breakfast
+
+CHOICE A: LEAVE (HIM/HER) ALONE
+First popup: The village decides that some storms are best waited out. Everyone keeps their heads down, their whistling to themselves, and a good distance between them and (name), and goes about their day...
+
+Ending A1 -- GRUMBLED OUT. Chance 50%. EFFECT: none
+By midday (name) has run out of people to grumble at. By mid-afternoon (he/she) has run out of things to grumble about, and is sitting on a log, rather tired, looking at (his/her) feet. By evening (he/she) has grumbled (himself/herself) right out, and is back in (his/her) usual seat by the fire, telling the children the story about the turtle who wanted to fly. Nobody mentions the morning. The lizard comes back out onto the roof and goes to sleep.
+
+Ending A2 -- THE GRUMPINESS SETTLES IN. Chance 50%. EFFECT: now dislikes parenting or similar if available
+The grumpiness doesn't wear off. It settles in, like damp in a wall. By the end of the day (name) has decided that (he/she) has never liked noise, and the noisiest thing in the village is the children, with their games and their shrieking and their endless questions. From that day on (name) wants nothing to do with minding the little ones, and if a child wanders too close (he/she) waves them off like a fly. The children, who used to love (his/her) stories, are puzzled and a little hurt.
+
+CHOICE B: BRING (HIM/HER) BREAKFAST
+First popup: One brave young villager fills a bowl with warm mash, adds a spoonful of honey on top, and walks straight up to (name) with it, holding it out at arm's length like someone offering fruit to a crocodile...
+
+Ending B1 -- THE BEST BREAKFAST. Chance 50%. EFFECT: now likes eating; loses one dislike (at random)
+(Name) glares at the bowl. Then (he/she) takes it. Then (he/she) takes a spoonful, and stops glaring. A warm bowl of mash with honey on top does wonders. (Name) finishes it, scrapes the bowl, and declares it the best breakfast of (his/her) entire life. (He/She) is so cheered up that one of (his/her) oldest grudges, against something (he/she) has complained about for years, seems to melt away too. From then on (name) is a changed elder in the mornings, always first at the cooking pot, and the lizard on the roof grows fatter on the crumbs.
+
+Ending B2 -- TOO WARM. Chance 50%. EFFECT: food loss (small amount)
+(Name) takes one spoonful and announces that it's too warm. And too sweet. And too lumpy. And not as good as mash used to be. (He/She) complains about it all the way through the bowl, and then holds it out and says "More." (He/She) complains all the way through the second bowl too, and the third. By the time (he/she) is finished, a good part of the morning's food is gone, and (name) is, grudgingly, almost in a good mood. Your village loses (award) food.
