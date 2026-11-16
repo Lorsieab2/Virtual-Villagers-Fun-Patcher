@@ -1,0 +1,158 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Families' Reunion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy17_two_families",
+  "source": "anthology",
+  "lines": [
+   28923,
+   28936
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28923",
+  "ledger": [],
+  "description": "Relatives from different communities meet after years apart.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Relatives from different communities meet after years apart.",
+   "src": "L28924",
+   "choices": [
+    {
+     "label": "Gather Everyone",
+     "next": "a",
+     "src": "L28925"
+    },
+    {
+     "label": "Arrange a Quiet Meeting",
+     "next": "b",
+     "src": "L28928"
+    },
+    {
+     "label": "Cook Familiar Foods",
+     "next": "c",
+     "src": "L28931"
+    },
+    {
+     "label": "Make a New Tradition",
+     "next": "d",
+     "src": "L28934"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The reunion is lively and affectionate.",
+   "src": "L28926"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some relatives need time to become comfortable together.",
+   "src": "L28927"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The families share a meaningful conversation.",
+   "src": "L28929"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The children quickly ask for a larger celebration.",
+   "src": "L28930",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28930"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The meal revives treasured memories.",
+   "src": "L28932"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A beloved recipe tastes different than anyone remembers.",
+   "src": "L28933"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The families plan future visits together.",
+   "src": "L28935"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They agree that occasional visits suit them better.",
+   "src": "L28936"
+  }
+ }
+}

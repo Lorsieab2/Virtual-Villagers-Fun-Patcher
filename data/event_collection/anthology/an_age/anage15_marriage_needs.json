@@ -1,0 +1,177 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Marriage Needs Quiet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage15_marriage_needs",
+  "source": "anthology",
+  "lines": [
+   30349,
+   30363
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30349",
+  "ledger": [
+   {
+    "src": "L30350",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30351",
+    "kind": "sensitivity",
+    "before": "Two adults who love each other have",
+    "after": "(partner1) and (partner2), two adults who love each other, have",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two adults who love each other have become irritated by constant responsibilities and lack of time together.",
+  "label_case": "title",
+  "cast_only": [
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(partner1) and (partner2), two adults who love each other, have become irritated by constant responsibilities and lack of time together.",
+   "src": "L30351",
+   "choices": [
+    {
+     "label": "Arrange a Private Afternoon",
+     "next": "a",
+     "src": "L30352"
+    },
+    {
+     "label": "Share Household Tasks with Willing Friends",
+     "next": "b",
+     "src": "L30355"
+    },
+    {
+     "label": "Speak Honestly About Expectations",
+     "next": "c",
+     "src": "L30358"
+    },
+    {
+     "label": "Accept That Rest May Be Separate",
+     "next": "d",
+     "src": "L30361"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A simple walk restores some warmth between them.",
+   "src": "L30353"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They spend the afternoon discussing an unresolved disagreement rather than relaxing.",
+   "src": "L30354"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The couple enjoys an evening free of chores.",
+   "src": "L30356"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The friends cannot help this week, so the couple makes a smaller plan.",
+   "src": "L30357"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Each learns the other has been quietly overwhelmed.",
+   "src": "L30359"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They disagree about priorities but stop assuming the other should already know.",
+   "src": "L30360"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Each enjoys a different hobby and returns less irritable.",
+   "src": "L30362"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One partner feels lonely, leading to a conversation about balancing solitude and closeness.",
+   "src": "L30363"
+  }
+ }
+}

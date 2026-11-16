@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Claw Marks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau16_claw_marks",
+  "source": "anthology",
+  "lines": [
+   32698,
+   32712
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32698",
+  "ledger": [
+   {
+    "src": "L32699",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32705",
+    "kind": "sensitivity",
+    "before": "A worried villager",
+    "after": "(villager), a worried villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32708",
+    "kind": "sensitivity",
+    "before": "A naturalist",
+    "after": "(villager), a naturalist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32712",
+    "kind": "sensitivity",
+    "before": "A builder",
+    "after": "(villager), a builder,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Deep claw marks appear on a fallen tree and inspire alarming guesses.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Deep claw marks appear on a fallen tree and inspire alarming guesses.",
+   "src": "L32700",
+   "choices": [
+    {
+     "label": "Inspect the Bark",
+     "next": "a",
+     "src": "L32701"
+    },
+    {
+     "label": "Listen to the Frightened",
+     "next": "b",
+     "src": "L32704"
+    },
+    {
+     "label": "Compare Old Marks",
+     "next": "c",
+     "src": "L32707"
+    },
+    {
+     "label": "Leave the Tree Undisturbed",
+     "next": "d",
+     "src": "L32710"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The marks reveal ordinary climbing behavior.",
+   "src": "L32702"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The animal responsible stays unknown.",
+   "src": "L32703"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager), a worried villager, feels heard.",
+   "src": "L32705"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The group avoids making promises it cannot keep.",
+   "src": "L32706"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager), a naturalist, finds similar traces nearby.",
+   "src": "L32708"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The pattern raises more questions.",
+   "src": "L32709"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Wildlife continues using the fallen trunk.",
+   "src": "L32711"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager), a builder, must find other timber.",
+   "src": "L32712"
+  }
+ }
+}

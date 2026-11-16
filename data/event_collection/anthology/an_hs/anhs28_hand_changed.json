@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hand That Changed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs28_hand_changed",
+  "source": "anthology",
+  "lines": [
+   29845,
+   29858
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29845",
+  "ledger": [
+   {
+    "src": "L29846",
+    "kind": "sensitivity",
+    "before": "a craftsperson",
+    "after": "(craftsperson), a craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29854",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(craftsperson)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29857",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(craftsperson)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A serious accident leaves a craftsperson with lasting impairment in one hand.",
+  "label_case": "title",
+  "cast_only": [
+   "craftsperson"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A serious accident leaves (craftsperson), a craftsperson, with lasting impairment in one hand.",
+   "src": "L29846",
+   "choices": [
+    {
+     "label": "Ask the Craftsperson About Their Goals",
+     "next": "a",
+     "src": "L29847"
+    },
+    {
+     "label": "Invite Practical Adaptations",
+     "next": "b",
+     "src": "L29850"
+    },
+    {
+     "label": "Support Grief Without Demanding Optimism",
+     "next": "c",
+     "src": "L29853"
+    },
+    {
+     "label": "Respect Their Right to Refuse Help",
+     "next": "d",
+     "src": "L29856"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They develop a slower technique that suits their priorities.",
+   "src": "L29848"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They decide to pursue a different craft rather than reclaim their old role.",
+   "src": "L29849"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A modified grip makes some familiar tasks possible.",
+   "src": "L29851"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Several adaptations fail before a useful one is found.",
+   "src": "L29852"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(craftsperson) speaks openly about what they miss.",
+   "src": "L29854"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They prefer ordinary conversation to constant reassurance.",
+   "src": "L29855"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(craftsperson) completes a task independently with satisfaction.",
+   "src": "L29857"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They later request help on their own terms, without shame.",
+   "src": "L29858"
+  }
+ }
+}

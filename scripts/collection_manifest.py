@@ -1172,6 +1172,73 @@ def _drafts_d_rows() -> None:
 
 _drafts_d_rows()
 
+
+# ---- The owner's all-in-one Animals anthology, its newest volumes (collection_lib.ANTHOLOGY; its own line numbers) ----
+#
+# The owner's newest all-in-one file (2026-11-15) is the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE
+# (MOM-01..08) in front and new volumes after it.  Only those newest volumes are rows (the rest is the Living file's,
+# built from collection_lib.LIVING): a heading ("[REL-01] The First Shared Walk", "CHILD-01 — The Shell ...",
+# "EVENT-AGE-001 — The Tiny Gap"), an optional "ELIGIBILITY:" line (the casting), the setup ("SETUP:"), and choices
+# A-B (MOM) or A-D, each with two outcomes (A1, A2 ...).  Each volume is one series (the lead, 2026-11-15) and its
+# contract block is a notes row.  Files: data/event_collection/anthology/<section>/<id>.json, built by
+# scripts/anthology_new/gen_anthology.py; "uncovered" is checked inside the volumes.
+
+ANT = lib.ANTHOLOGY_ID
+# (section, heading regex (number, title), id prefix, choices, notes row title)
+ANTHOLOGY_VOLUMES = [
+    ("an_mom", r"^\[MOM-(\d+)\] (.+)$", "anmom", 2, "Global Editorial Override: the full emotional spectrum"),
+    ("an_rel", r"^\[REL-(\d+)\] (.+)$", "anrel", 4, "Love by Choice, Coming Out, Names and Presentation: contract"),
+    ("an_child", r"^CHILD-(\d+) — (.+)$", "anchd", 4, "Childhood Curiosity, Puppy Love and Questions: contract"),
+    ("an_fam", r"^\[FAM-(\d+)\] (.+)$", "anfam", 4, "Family Friction and Reconciliation: social-conflict override"),
+    ("an_joy", r"^JOY-(\d+) — (.+)$", "anjoy", 4, "Celebrations, Leisure, Remembrance and Body Art: global rules"),
+    ("an_hs", r"^EVENT-HS-(\d+) — (.+)$", "anhs", 4, "The Human Spectrum: controlling additions"),
+    ("an_age", r"^EVENT-AGE-(\d+) — (.+)$", "anage", 4, "Every Age in the Limelight: implementation notes"),
+    ("an_jus", r"^EVENT-JUSTICE-(\d+) — (.+)$", "anjus", 4, "Justice, Trauma, Recovery and Defense: contract"),
+    ("an_expr", r"^EVENT-EXPRESSION-(\d+) — (.+)$", "anexp", 4, "Self-Expression and Island Society: contract"),
+    ("an_fauna", r"^EVENT-FAUNA-(\d+) — (.+)$", "anfau", 4, "Animals of Fur, Feathers, Scales, Claws and Hooves: contract"),
+]
+for _sec, *_ in ANTHOLOGY_VOLUMES:
+    CREDITS[_sec] = ("mixed", [(1, 2)], ANT)
+ANTHOLOGY_SPANS: list[tuple[int, int]] = []
+
+
+def anthology_event_end(h: int, choices: int) -> int:
+    """An event's last line: heading, [ELIGIBILITY], setup, then three lines a choice."""
+    elig = lib.line(h + 1).startswith("ELIGIBILITY:")
+    return h + 1 + elig + 3 * choices
+
+
+def _anthology_rows() -> None:
+    with lib.use_source(ANT):
+        n_all = lib.n_lines()
+        for sec, rx_s, prefix, nc, notes_title in ANTHOLOGY_VOLUMES:
+            rx = re.compile(rx_s)
+            heads = [n for n in range(1, n_all + 1) if rx.match(lib.line(n))]
+            assert heads, sec
+            # the contract block: back from the first heading to the gap of two blank lines before it
+            b = heads[0] - 1
+            while not lib.line(b).strip():
+                b -= 1
+            a = b
+            while lib.line(a - 1).strip() or lib.line(a - 2).strip():
+                a -= 1
+            N(f"{sec}_notes", notes_title, a, b, sec, sec, source=ANT)
+            last = b
+            for h in heads:
+                e = anthology_event_end(h, nc)
+                assert not lib.line(e + 1).strip() or rx.match(lib.line(e + 1)), (sec, h)
+                m = rx.match(lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                eid = f"{prefix}{int(num):02d}"
+                R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  lib.title_case_label(src_title), ALL, h, e, "event", sec, sec, nc, series=sec, source=ANT,
+                  choice_re=r"^[A-D]\.\s")
+                last = e
+            ANTHOLOGY_SPANS.append((a, last))
+
+
+_anthology_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1492,6 +1559,19 @@ def build() -> dict:
             "overlaps": overlaps(liv),
         }
 
+    ant = [r for r in rows if r["source"] == lib.ANTHOLOGY_ID]
+    with lib.use_source(lib.ANTHOLOGY_ID):
+        inside = {n for a, b in ANTHOLOGY_SPANS for n in range(a, b + 1)}
+        anthology = {
+            "source": str(lib.ANTHOLOGY.relative_to(lib.ROOT)).replace("\\", "/"),
+            "source_sha256": lib.source_sha256(lib.ANTHOLOGY_ID),
+            "volumes": [lib.fmt_src(a, b) for a, b in ANTHOLOGY_SPANS],
+            "counts": counts(ant, tuple(lib.ANTHOLOGY_SECTIONS)),
+            # only lines inside the volumes above: the rest of the file is the Living Event Engine file's
+            "uncovered_lines": [u for u in uncovered(ant) if lib.src_lines(u)[0] in inside],
+            "overlaps": overlaps(ant),
+        }
+
     def whole_file(source: str, path, series: tuple) -> dict:
         """A source whose every line belongs to a row (Beyond the Horizon, Role Models and Good Examples)."""
         mine = [r for r in rows if r["source"] == source]
@@ -1524,6 +1604,8 @@ def build() -> dict:
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_C_SERIES[sid],)) for sid in lib.DRAFTS_C},
         # The approved files, group D (collection_lib.DRAFTS_D): rows with "source" "draft_rm2", ...
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_D_SERIES[sid],)) for sid in lib.DRAFTS_D},
+        # The Animals anthology's newest volumes (collection_lib.ANTHOLOGY): rows with "source" "anthology"
+        "anthology": anthology,
         "rows": rows,
     }
 
@@ -1551,7 +1633,7 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology"):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

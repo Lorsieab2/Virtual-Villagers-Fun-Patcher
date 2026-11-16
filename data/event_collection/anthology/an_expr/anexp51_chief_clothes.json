@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Clothes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp51_chief_clothes",
+  "source": "anthology",
+  "lines": [
+   32048,
+   32062
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32048",
+  "ledger": [
+   {
+    "src": "L32049",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32059",
+    "kind": "sensitivity",
+    "before": "A critic",
+    "after": "(critic), a critic,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A chief wears unusually elaborate clothing to a modest gathering, and villagers whisper about it.",
+  "label_case": "title",
+  "cast_only": [
+   "critic"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "critic": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A {@chief} wears unusually elaborate clothing to a modest gathering, and villagers whisper about it.",
+   "src": "L32050",
+   "choices": [
+    {
+     "label": "Ask About the Occasion",
+     "next": "a",
+     "src": "L32051"
+    },
+    {
+     "label": "Raise Practical Concerns",
+     "next": "b",
+     "src": "L32054"
+    },
+    {
+     "label": "Challenge the Gossip",
+     "next": "c",
+     "src": "L32057"
+    },
+    {
+     "label": "Make It a Festival",
+     "next": "d",
+     "src": "L32060"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The outfit honors a family milestone.",
+   "src": "L32052"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The {@chief} admits they simply enjoy dressing up.",
+   "src": "L32053"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The {@chief} changes before physical work.",
+   "src": "L32055"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The garments are safely stored during rain.",
+   "src": "L32056"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers reconsider their assumptions about status.",
+   "src": "L32058"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(critic), a critic, expresses concern about public resources.",
+   "src": "L32059"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Others arrive in their favorite clothes.",
+   "src": "L32061"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} discovers they are no longer the best dressed.",
+   "src": "L32062"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader's Clothes"
+  }
+ ]
+}

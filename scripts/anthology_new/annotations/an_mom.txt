@@ -1,0 +1,34 @@
+# MOM-01..08: the GLOBAL EDITORIAL OVERRIDE's micro-event examples (two choices each).
+MOM-01
+R villager 14+ : villager
+R friend 14+ : friend
+
+MOM-02
+R cook1 14+ :
+R cook2 14+ :
+E S: "Two cooks insist" => "[cook1] and [cook2], two cooks, insist"
+
+MOM-03
+R villager 14+ : villager
+R companion 14+ @B2 : companion
+
+MOM-04
+R child 3-13 : child
+R adult 18+ : adult
+
+MOM-05
+R elder 55+ : elder
+
+MOM-06
+R villager 14+ : villager
+R friend 14+ @B2 : friend
+FX A1: look villager
+FX A2: look villager
+
+MOM-07
+R villager 14+ : villager
+R kin 14+ : relative | companion
+
+MOM-08
+R apprentice 14+ : shy apprentice | apprentice
+R teacher 18+ : patient teacher | teacher

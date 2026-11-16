@@ -1,0 +1,149 @@
+# EVENT-JUSTICE-001..032: Justice, Bullying, Consequences, Trauma, Recovery and Defense.  The ELIGIBILITY tag is the
+# casting.  A wrongdoer the volume calls only "a repeat offender" stays unnamed (the act is named, never a cast
+# villager labelled); injuries in a setup are the premise (story text).
+JUS-001
+R child 3-13 : child | excluded child
+
+JUS-002
+R bully 14-17 : well-liked teenager | instigator | teen
+R target 14-17 : quieter peer | targeted teen | harmed teen
+R elder 55+ @B2 : elder
+R friend 14-17 @C1 : friend
+
+JUS-003
+R suspect 3-13 :
+R owner 3-13 @B2 : owner
+R caregiver 18+ @C2 : caregiver
+E S: "on a child whose family" => "on [suspect], a child whose family"
+
+JUS-004
+R child 3-13 @A1,B1,B2,D1 : bruised child | younger witness | older child | reckless player
+
+JUS-005
+R villager 18+ @B1,D2 : quiet worker
+E D2: "A villager who objected respectfully is" => "[villager], who objected respectfully, is"
+
+JUS-006
+R child 3-13 : child
+R adult 18+ : adult
+
+JUS-007
+R teen1 14-17 : apologizing teen
+R teen2 14-17 : hurt teen
+E S: "Two teenagers quarrel" => "[teen1] and [teen2], two teenagers, quarrel"
+
+JUS-008
+R crafts 18+ : experienced craftsperson | craftsperson
+R apprentice 14+ : young apprentice | apprentice
+R elder 55+ @D1 : elder
+
+JUS-009
+R elder 55+ : elder
+R companion 14+ @A1 : trusted companion
+R young 14+ @D2 : younger villager
+E S: "An elder who survived violence long ago becomes" => "[elder], an elder who survived violence long ago, becomes"
+
+JUS-010
+R newcomer 18+ : newcomer
+R child 3-13 @A2 : curious child
+R friend 14+ @C1 : friend
+
+JUS-011
+R villager 14+ : injured villager | villager
+R healer 18+ @A2,D1 : healer
+R companion 14+ @C1 : companion
+
+JUS-012
+R villager 18+ : villager
+R friend 14+ @B1 : trusted friend
+
+JUS-013
+R villager 18+ : villager
+R friend 14+ @B1 : friend
+E S: "A villager who lost a hand in an old accident wants" => "[villager], a villager who lost a hand in an old accident, wants"
+
+JUS-014
+R healer 18+ @A2 : healer
+R child 3-13 @B2 : frightened child
+R elder 55+ @C2 : elder
+
+JUS-015
+R villager 14+ @C2,D1 : villager | skeptic
+
+JUS-016
+R traveler 18+ : traveler
+R teen 14-17 @C2 : teen
+
+JUS-017
+R teen 14-17 : teenager | teen
+R child 3-13 @C2 : younger child
+E S: "A teenager who arrived from another community is" => "[teen], a teenager who arrived from another community, is"
+
+JUS-018
+R parent 18+ : parent
+R friend 14+ @A1 : friend
+R elder 55+ @C2 : elder
+
+JUS-019
+R adult 18+ @B1 : adult
+R child 3-13 @B2 : child
+
+JUS-020
+R scout 18+ : scout
+R villager 14+ @B2 : anxious villager
+R healer 18+ @C2 : healer
+
+JUS-021
+R elder1 55+ @S,B1 : veteran
+R elder2 55+ :
+R teen 14-17 @C1 : teen
+R child 3-13 @C2 : child
+E S: "Two elders remember" => "[elder1] and [elder2], two elders, remember"
+
+JUS-022
+
+JUS-023
+R villager 14+ : affected villager | affected person | villager
+R speaker 14+ @B1,B2 : speaker
+R elder 55+ @C2 : elder
+
+JUS-024
+R villager 18+ : villager
+R visitor stranger : respected visitor | visitor
+R elder 55+ @C2 : elder
+E S: "A survivor of past mistreatment becomes" => "[villager], a survivor of past mistreatment, becomes"
+
+JUS-025
+R apprentice 14-17 : apprentice | teen
+R mentor 18+ @A2,B1 : familiar mentor | mentor
+E S: "An apprentice who survived a frightening event has" => "[apprentice], an apprentice who survived a frightening event, has"
+
+JUS-026
+R villager 14+ : villager | person
+R friend 14+ : friend | companion
+R caregiver 18+ @B2 : caregiver
+
+JUS-027
+R child 3-13 : child
+R adult 18+ @A2,C2,D2 : adult | caregiver
+
+JUS-028
+R villager 18+ @A1 : caregiver
+R elder 55+ @A2 : elder
+R teen 14-17 @B2 : teen
+
+JUS-029
+R villager 18+ : requester | villager
+R injured 18+ : injured person | injured villager
+E S: "A villager who caused lasting harm years ago asks" => "[villager], who caused lasting harm years ago, asks"
+
+JUS-030
+
+JUS-031
+R teen 14-17 @A1 : teen
+R adult 18+ @A2 : adult
+
+JUS-032
+DESC: After a difficult season, villagers debate whether remembrance should focus on suffering, survival or ordinary life.
+R child 3-13 @A2 : child
+R elder 55+ @D1 : elder

@@ -503,6 +503,43 @@ on `scripts/drafts_d/annotations/<source id>.txt` (`--sheet <source id>` prints 
   (feat/97-presentation)".
 - No effects: none of these files marks one; every effect-table word gets a text_only reason.
 
+## 15h. The Animals anthology's newest volumes
+
+The owner's all-in-one file of 2026-11-15, "Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE
+.txt", frozen byte for byte (`collection_lib.ANTHOLOGY`, source id `anthology`, SHA-256 in `ANTHOLOGY.sha256`), is the
+Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE in front and new volumes after it. Only its newest volumes
+are rows (`collection_manifest.ANTHOLOGY_VOLUMES`, `_anthology_rows`; "uncovered" is checked inside them): MOM-01..08,
+REL-01..36, CHILD-01..47, FAM-01..24, JOY-01..38, EVENT-HS-001..042, EVENT-AGE-001..036, EVENT-JUSTICE-001..032,
+EVENT-EXPRESSION-001..074, EVENT-FAUNA-001..024, 361 events, each volume one series (section `an_<x>`) with its
+contract block a notes row. Files: `data/event_collection/anthology/an_<x>/<id>.json`; generator
+`scripts/anthology_new/gen_anthology.py` on `scripts/anthology_new/annotations/an_<x>.txt` (`--sheet an_<x>` prints the
+review sheet). The shape is 15b's (the setup asks; each label leads to its own two equally likely outcomes) with two
+(MOM) or four choices, no CALLBACKS line, and an optional `ELIGIBILITY:` line: the casting, a ledger note.
+
+- Text verbatim (minimal editing; no swaps or rule-driven rewording). Names instead of vague roles: a person the text
+  names by a role word is a cast villager shown by name -- "the villager", "a friend" become the name, and a job or a
+  description met with "a"/"an" keeps its words after the name ("Kai, a researcher, explains"); "Two elders ..." become
+  "Ana and Kai, two elders, ..."; a relative clause the name leaves dangling gets its commas. Each change is a ledger
+  "sensitivity" entry. Choice labels and titles keep their words. A person the text keeps anonymous (an unsigned
+  artist, a critic who will not be named, "a repeat offender") stays unnamed; group scenes cast nobody.
+- Chosen names (REL-09, 10, 15, 16, 17, 19, 28, 31, 34; CHILD-21) are the new-name role (cie-v6-binary.md 28), shown
+  where the text first gives the name; nobody is renamed. REL-15's gender change is `sex_change` (code 22); a change of
+  look that keeps the villager's identity (REL-13, 16, 18, 20, 36) needs the cross-sex look (code 23, not built): story
+  text and a ledger TODO.
+- Romance: teens only with teens at most two years apart (`max_age_gap`), children's crushes the same; adult couples at
+  most 15 years apart; never a minor with an adult. REL-04 and REL-26's same-sex pair (the text gives no sex) follows
+  the owner's rule as BLF-36 (annotation `SAMESEX`): two men or two women, two equally likely versions of the pages,
+  the women's taken only where both can be cast.
+- Nursing mothers (AGE-019..024, EXPRESSION-040, JOY-01) are the game's nursing parent, female, 18+, with a ledger TODO:
+  the engine reads the sex field, not a birth sex.
+- Family words between cast people are recorded relations (a parent with their child, siblings, cousins, HS-007's
+  grandparent).
+- Effects only where an outcome's own words make one: hair dye the villager keeps is the random head look (MOM-06's
+  "[hair color change]", cut as an instruction; REL-30 A1, B1, C1); REL-05 and JOY-18's couple celebrate. Injuries in a
+  setup are the premise; everything else is story text (text_only with a reason).
+- "The chief" stays the game word `{@chief}` / `{@Chief}` (a label in title case: collection_check compares a game word
+  as the word it stands for); a title with "Chief" has a "Leader" title variant outside VV3. Nobody is cast as the chief.
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp71_hidden_garden",
+  "source": "anthology",
+  "lines": [
+   32368,
+   32382
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32368",
+  "ledger": [
+   {
+    "src": "L32369",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32382",
+    "kind": "sensitivity",
+    "before": "A gardener",
+    "after": "(gardener), a gardener,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A neglected patch of land has become a spontaneous garden of wildflowers and insects.",
+  "label_case": "title",
+  "cast_only": [
+   "gardener"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "gardener": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A neglected patch of land has become a spontaneous garden of wildflowers and insects.",
+   "src": "L32370",
+   "choices": [
+    {
+     "label": "Leave It Wild",
+     "next": "a",
+     "src": "L32371"
+    },
+    {
+     "label": "Add a Footpath",
+     "next": "b",
+     "src": "L32374"
+    },
+    {
+     "label": "Paint Signs",
+     "next": "c",
+     "src": "L32377"
+    },
+    {
+     "label": "Share Stewardship",
+     "next": "d",
+     "src": "L32380"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Pollinators flourish.",
+   "src": "L32372"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Villagers learn to appreciate untidy beauty.",
+   "src": "L32373"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Visitors can admire it without trampling plants.",
+   "src": "L32375"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The proposed path is moved to protect a nest.",
+   "src": "L32376"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children create cheerful markers.",
+   "src": "L32378"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The signs are simplified after confusing travelers.",
+   "src": "L32379"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Different tribes exchange ecological observations.",
+   "src": "L32381"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(gardener), a gardener, learns not every flower needs tending.",
+   "src": "L32382"
+  }
+ }
+}

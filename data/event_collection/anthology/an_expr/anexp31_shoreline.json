@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shoreline Ledger",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp31_shoreline",
+  "source": "anthology",
+  "lines": [
+   31728,
+   31742
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31728",
+  "ledger": [
+   {
+    "src": "L31729",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31730",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31735",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31742",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teen maps places where the shore has changed since their grandparents were young.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen) maps places where the shore has changed since their grandparents were young.",
+   "src": "L31730",
+   "choices": [
+    {
+     "label": "Compare Old Markers",
+     "next": "a",
+     "src": "L31731"
+    },
+    {
+     "label": "Interview Elders",
+     "next": "b",
+     "src": "L31734"
+    },
+    {
+     "label": "Plan Cautiously",
+     "next": "c",
+     "src": "L31737"
+    },
+    {
+     "label": "Share the Findings",
+     "next": "d",
+     "src": "L31740"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The maps show gradual erosion.",
+   "src": "L31732"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some old markers prove unreliable.",
+   "src": "L31733"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder) recalls a vanished footpath.",
+   "src": "L31735",
+   "text_only": [
+    {
+     "what": "\"vanished\"",
+     "reason": "the word's everyday sense (an animal, a sound, a thing or a mark out of sight); nobody leaves the village -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31735"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another remembers a storm that altered the coast suddenly.",
+   "src": "L31736"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Storage is moved away from a vulnerable bank.",
+   "src": "L31738"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village decides to monitor before rebuilding.",
+   "src": "L31739"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Other tribes contribute observations.",
+   "src": "L31741"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen) learns that one shoreline cannot explain every climate trend.",
+   "src": "L31742"
+  }
+ }
+}

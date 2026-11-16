@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friendship Anniversary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy14_friendship",
+  "source": "anthology",
+  "lines": [
+   28878,
+   28891
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28878",
+  "ledger": [
+   {
+    "src": "L28879",
+    "kind": "sensitivity",
+    "before": "Two friends remember",
+    "after": "(friend1) and (friend2), two friends, remember",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two friends remember the day they first met.",
+  "label_case": "title",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend1) and (friend2), two friends, remember the day they first met.",
+   "src": "L28879",
+   "choices": [
+    {
+     "label": "Revisit Their Favorite Place",
+     "next": "a",
+     "src": "L28880"
+    },
+    {
+     "label": "Exchange Small Gifts",
+     "next": "b",
+     "src": "L28883"
+    },
+    {
+     "label": "Invite Mutual Friends",
+     "next": "c",
+     "src": "L28886"
+    },
+    {
+     "label": "Keep It Ordinary",
+     "next": "d",
+     "src": "L28889"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friends enjoy a quiet reunion.",
+   "src": "L28881"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The familiar path looks different after many years.",
+   "src": "L28882"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each makes something the other genuinely likes.",
+   "src": "L28884"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They accidentally choose identical gifts.",
+   "src": "L28885"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gathering becomes a cheerful reunion.",
+   "src": "L28887"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friends miss private conversation and slip away briefly.",
+   "src": "L28888"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They share lunch as they always do.",
+   "src": "L28890"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One friend secretly appreciates the lack of ceremony.",
+   "src": "L28891"
+  }
+ }
+}

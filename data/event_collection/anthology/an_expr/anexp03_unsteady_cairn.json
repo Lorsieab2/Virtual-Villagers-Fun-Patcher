@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unsteady Cairn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp03_unsteady_cairn",
+  "source": "anthology",
+  "lines": [
+   31280,
+   31294
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31280",
+  "ledger": [
+   {
+    "src": "L31281",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31284",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(builder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31285",
+    "kind": "sensitivity",
+    "before": "embarrasses a builder who wanted anonymity",
+    "after": "embarrasses (builder), a builder who wanted anonymity",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31291",
+    "kind": "sensitivity",
+    "before": "The builder",
+    "after": "(builder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A beautiful cairn has been built where stones once sheltered tiny creatures.",
+  "label_case": "title",
+  "cast_only": [
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A beautiful cairn has been built where stones once sheltered tiny creatures.",
+   "src": "L31282",
+   "choices": [
+    {
+     "label": "Celebrate the Builder",
+     "next": "a",
+     "src": "L31283"
+    },
+    {
+     "label": "Inspect the Site",
+     "next": "b",
+     "src": "L31286"
+    },
+    {
+     "label": "Relocate the Stones",
+     "next": "c",
+     "src": "L31289"
+    },
+    {
+     "label": "Leave a Note",
+     "next": "d",
+     "src": "L31292"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31282"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(builder) explains its meaning and listens to concerns.",
+   "src": "L31284"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The praise embarrasses (builder), a builder who wanted anonymity.",
+   "src": "L31285"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Small animals are found seeking their old shelter.",
+   "src": "L31287"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The cairn proves stable but blocks a familiar footpath.",
+   "src": "L31288"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group rebuilds it on bare ground.",
+   "src": "L31290"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(builder) objects until someone explains the ecological cost.",
+   "src": "L31291"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Visitors learn the difference between markers and decoration.",
+   "src": "L31293"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The note sparks debate over who may alter shared land.",
+   "src": "L31294"
+  }
+ }
+}

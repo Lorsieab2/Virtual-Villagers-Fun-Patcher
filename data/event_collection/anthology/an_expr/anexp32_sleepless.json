@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepless Craftsperson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp32_sleepless",
+  "source": "anthology",
+  "lines": [
+   31744,
+   31758
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31744",
+  "ledger": [
+   {
+    "src": "L31745",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31746",
+    "kind": "sensitivity",
+    "before": "A skilled craftsperson",
+    "after": "(crafts), a skilled craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31748",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31751",
+    "kind": "sensitivity",
+    "before": "A partner",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31752",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31755",
+    "kind": "sensitivity",
+    "before": "A neighbor",
+    "after": "(helper), a neighbor,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31757",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31758",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A skilled craftsperson has slept poorly and struggles to concentrate, prompting gossip.",
+  "label_case": "title",
+  "cast_only": [
+   "crafts",
+   "helper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(crafts), a skilled craftsperson, has slept poorly and struggles to concentrate, prompting gossip.",
+   "src": "L31746",
+   "choices": [
+    {
+     "label": "Ask Privately",
+     "next": "a",
+     "src": "L31747"
+    },
+    {
+     "label": "Adjust the Work",
+     "next": "b",
+     "src": "L31750"
+    },
+    {
+     "label": "Discourage Rumors",
+     "next": "c",
+     "src": "L31753"
+    },
+    {
+     "label": "Offer Companionship",
+     "next": "d",
+     "src": "L31756"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(crafts) welcomes practical help.",
+   "src": "L31748"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They prefer not to discuss personal health.",
+   "src": "L31749",
+   "text_only": [
+    {
+     "what": "\"health\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31749"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(helper) takes over hazardous cutting tasks.",
+   "src": "L31751"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(crafts) chooses lighter duties temporarily.",
+   "src": "L31752"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gossip ends when boundaries are made clear.",
+   "src": "L31754"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(helper), a neighbor, apologizes for speculating.",
+   "src": "L31755"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(helper) sits quietly without demanding answers.",
+   "src": "L31757"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(crafts) accepts help seeking appropriate care.",
+   "src": "L31758"
+  }
+ }
+}

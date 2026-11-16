@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Painted Protest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp41_painted",
+  "source": "anthology",
+  "lines": [
+   31888,
+   31902
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31888",
+  "ledger": [
+   {
+    "src": "L31889",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31896",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31898",
+    "kind": "sensitivity",
+    "before": "The critic",
+    "after": "(critic)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Someone paints a critical message about the chief on a removable wooden board.",
+  "label_case": "title",
+  "cast_only": [
+   "critic",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "critic": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Someone paints a critical message about the {@chief} on a removable wooden board.",
+   "src": "L31890",
+   "choices": [
+    {
+     "label": "Hear the Complaint",
+     "next": "a",
+     "src": "L31891"
+    },
+    {
+     "label": "Protect Expression",
+     "next": "b",
+     "src": "L31894"
+    },
+    {
+     "label": "Invite Dialogue",
+     "next": "c",
+     "src": "L31897"
+    },
+    {
+     "label": "Set Fair Rules",
+     "next": "d",
+     "src": "L31900"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} agrees to review an unpopular decision.",
+   "src": "L31892"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The criticism proves based on a misunderstanding.",
+   "src": "L31893"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The board remains as long as it does not threaten anyone.",
+   "src": "L31895"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) requests that personal insults be removed.",
+   "src": "L31896"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(critic) speaks at the next meeting.",
+   "src": "L31898"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The critic declines to identify themself.",
+   "src": "L31899"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Public notice boards gain clear guidelines.",
+   "src": "L31901"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The council agrees criticism is not disloyalty.",
+   "src": "L31902"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

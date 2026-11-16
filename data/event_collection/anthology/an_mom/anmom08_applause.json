@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Applause",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anmom08_applause",
+  "source": "anthology",
+  "lines": [
+   122,
+   129
+  ],
+  "section": "an_mom",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_mom",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "sensitivity",
+    "before": "A shy apprentice",
+    "after": "(apprentice), a shy apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L125",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L126",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L128",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L128",
+    "kind": "sensitivity",
+    "before": "the patient teacher",
+    "after": "(teacher)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L129",
+    "kind": "sensitivity",
+    "before": "The teacher",
+    "after": "(teacher)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L129",
+    "kind": "sensitivity",
+    "before": "the apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A shy apprentice finishes a small craft project and is surprised when others notice.",
+  "label_case": "title",
+  "cast_only": [
+   "apprentice",
+   "teacher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "teacher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(apprentice), a shy apprentice, finishes a small craft project and is surprised when others notice.",
+   "src": "L123",
+   "choices": [
+    {
+     "label": "Accept the Praise.",
+     "next": "a",
+     "src": "L124"
+    },
+    {
+     "label": "Share Credit.",
+     "next": "b",
+     "src": "L127"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(apprentice) beams and returns eagerly to work.",
+   "src": "L125"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(apprentice) thanks everyone, then asks for a quieter celebration.",
+   "src": "L126",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L126"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(apprentice) thanks (teacher) who helped.",
+   "src": "L128"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teacher) points out how much (apprentice) accomplished alone.",
+   "src": "L129"
+  }
+ }
+}

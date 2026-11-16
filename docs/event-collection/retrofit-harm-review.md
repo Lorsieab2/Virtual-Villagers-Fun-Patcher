@@ -381,3 +381,13 @@ Inherited Traditions 01-45 and ARM-46..95), 435 events. Generator: `scripts/draf
 all: no harm, no reward, no `protected: "allow"`. Fathers 01-04 and 08 cast a male nursing parent, 05-07 a man who
 is a recorded parent of a young child (no effect on the pregnancy or the child); 19's pregnancy loss has already
 happened (story only).
+
+## The Animals anthology's newest volumes (ANTHOLOGY)
+
+Range: MOM, REL, CHILD, FAM, JOY, EVENT-HS/AGE/JUSTICE/EXPRESSION/FAUNA of the owner's all-in-one Animals file
+(`anthology/an_<x>`), 361 events. Generator: `scripts/anthology_new/gen_anthology.py`. No harmful effect anywhere: no
+death, disappearance, health loss, sickness or food loss; no `protected: "allow"`. Injuries, illnesses and deaths the
+volumes tell (HS-024..030, JUSTICE-011..013, 019, the animals) are the premise or story text. The effects are hair dye
+(the random head look: MOM-06 A1/A2, REL-30 A1/B1/C1), REL-15 B1's sex change (code 22; refused for a carrying or
+nursing villager, a special villager, or with a sex-keeping companion in the game) and REL-05 A1 / JOY-18 A1's couple
+celebrating.

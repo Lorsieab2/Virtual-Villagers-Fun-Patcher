@@ -215,6 +215,17 @@ DRAFTS_D_FILES = (
 SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, _f, topic, _ in DRAFTS_D_FILES})
 
 
+# The owner's all-in-one Animals anthology (data/event_collection/anthology/, scripts/anthology_new/): its title and
+# credit lines verbatim, as the Living Event Engine file's (its newest volumes name no author of their own).
+ANTHOLOGY = ROOT / "docs" / "more-island-events" / \
+    "Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt"
+ANTHOLOGY_SHA256 = "95172B7948BC94AFE35013D3CEB28092FC78790B8BA3BF67E5AC228AACBE4DE2"
+ANTHOLOGY_CREDIT_BLOCKS = (
+    (1, 3, "the all-in-one Animals anthology (its title and credit)"),
+)
+SOURCE_LINE_WORDS["anthology"] = "Animals anthology source lines"
+
+
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
     """A frozen source's lines, each with its own line ending, after checking its SHA-256."""
     raw = path.read_bytes()
@@ -368,7 +379,8 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
                 for _sid, fname, topic, digest in DRAFTS_D_FILES)
     for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
                                        ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
-                                        ROLEMODELS_CREDIT_BLOCKS), *drafts_a_credit_sources(), *drafts_b):
+                                        ROLEMODELS_CREDIT_BLOCKS), *drafts_a_credit_sources(), *drafts_b,
+            ("THE ANIMALS ANTHOLOGY'S NEWEST VOLUMES", ANTHOLOGY, ANTHOLOGY_SHA256, ANTHOLOGY_CREDIT_BLOCKS)):
         src = [s.replace("\r\n", "\n") for s in source_lines(path, digest)]
         out += [f"{name}\n", "\n",
                 f"Source: {path.name} (SHA-256 {digest}). The texts below are copied from it verbatim.\n", "\n"]

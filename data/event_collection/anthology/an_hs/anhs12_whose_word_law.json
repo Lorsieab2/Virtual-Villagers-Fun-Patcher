@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Whose Word Is Law?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs12_whose_word_law",
+  "source": "anthology",
+  "lines": [
+   29605,
+   29618
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29605",
+  "ledger": [
+   {
+    "src": "L29606",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29608",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29614",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(young), a young villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29617",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29618",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks why adults can make rules that children are expected to follow.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "young",
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks why adults can make rules that children are expected to follow.",
+   "src": "L29606",
+   "choices": [
+    {
+     "label": "Explain Safety and Responsibility",
+     "next": "a",
+     "src": "L29607"
+    },
+    {
+     "label": "Invite Children to Propose Rules",
+     "next": "b",
+     "src": "L29610"
+    },
+    {
+     "label": "Discuss Rights and Obligations",
+     "next": "c",
+     "src": "L29613"
+    },
+    {
+     "label": "Answer with \"because I Said So\"",
+     "next": "d",
+     "src": "L29616"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) accepts the rule about sharp tools but questions an arbitrary bedtime.",
+   "src": "L29608"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The discussion leads adults to admit that some rules are habits, not necessities.",
+   "src": "L29609"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children draft a surprisingly fair sharing agreement.",
+   "src": "L29611"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their first proposal gives children unlimited treats, and negotiation begins.",
+   "src": "L29612"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(young), a young villager, asks whether leaders must obey the same rules.",
+   "src": "L29614"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group agrees that authority should come with accountability.",
+   "src": "L29615"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) obeys but remains unconvinced.",
+   "src": "L29617"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(parent) hears their own harsh tone and returns later to apologize.",
+   "src": "L29618"
+  }
+ }
+}

@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Fracture on the Hillside",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus12_fracture",
+  "source": "anthology",
+  "lines": [
+   30895,
+   30909
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30895",
+  "ledger": [
+   {
+    "src": "L30896",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30897",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30902",
+    "kind": "sensitivity",
+    "before": "a trusted friend",
+    "after": "(friend), a trusted friend,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30906",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A fall on a hillside leaves a villager unable to bear weight on one leg.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fall on a hillside leaves (villager) unable to bear weight on one leg.",
+   "src": "L30897",
+   "choices": [
+    {
+     "label": "Avoid Unnecessary Movement",
+     "next": "a",
+     "src": "L30898"
+    },
+    {
+     "label": "Let the Injured Person Decide What They Can",
+     "next": "b",
+     "src": "L30901"
+    },
+    {
+     "label": "Reorganize Responsibilities",
+     "next": "c",
+     "src": "L30904"
+    },
+    {
+     "label": "Discuss the Return to Activity",
+     "next": "d",
+     "src": "L30907"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30897"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Companions stabilize the situation and summon help.",
+   "src": "L30899"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The group makes shelter while waiting for assistance.",
+   "src": "L30900"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They ask (friend), a trusted friend, to stay.",
+   "src": "L30902"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They explain what makes moving more painful.",
+   "src": "L30903"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Others cover urgent work during recovery.",
+   "src": "L30905"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) contributes planning without being pressured to stand.",
+   "src": "L30906"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Recovery proceeds gradually under healer guidance.",
+   "src": "L30908"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Lingering limitations require adapting familiar tasks.",
+   "src": "L30909"
+  }
+ }
+}

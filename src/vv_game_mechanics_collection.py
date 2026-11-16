@@ -83,6 +83,17 @@ SECTIONS = (
     ("dr_armor", "New Events: Armor, Weapons and Inherited Traditions"),
     ("dr_arm2", "New Events: Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
     ("dr_fat", "New Events: Fathers, Pregnancy and Parenthood"),
+    # The owner's all-in-one Animals anthology, its newest volumes (data/event_collection/anthology/<section>/)
+    ("an_mom", "Anthology: Living Moments"),
+    ("an_rel", "Anthology: Love by Choice, Coming Out, Names and Presentation"),
+    ("an_child", "Anthology: Childhood Curiosity, Puppy Love and Questions"),
+    ("an_fam", "Anthology: Family Friction, Everyday Boundaries, Separation and Reconciliation"),
+    ("an_joy", "Anthology: Celebrations, Leisure, Remembrance and Body Art"),
+    ("an_hs", "Anthology: The Human Spectrum, Island Comforts, Authority, Injury and Belonging"),
+    ("an_age", "Anthology: Every Age in the Limelight"),
+    ("an_jus", "Anthology: Justice, Bullying, Consequences, Trauma, Recovery and Defense"),
+    ("an_expr", "Anthology: Self-Expression, Art, Sport, Ecology, Governance and Belief"),
+    ("an_fauna", "Anthology: Animals of Fur, Feathers, Scales, Claws and Hooves"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -142,7 +153,8 @@ def build_index(living_seeds=()) -> dict:
                          + list((base / "drafts_a").glob("*/*.json"))
                          + list((base / "drafts_b").glob("*/*.json"))
                          + list((base / "drafts_c").glob("*/*.json"))
-                         + list((base / "drafts_d").glob("*/*.json"))):
+                         + list((base / "drafts_d").glob("*/*.json"))
+                         + list((base / "anthology").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

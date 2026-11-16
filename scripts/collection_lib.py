@@ -157,6 +157,31 @@ DRAFTS_D = {   # source id: (file name, line count, section, topic shown in the 
 }
 for _sid, (_name, _n, _sec, _topic) in DRAFTS_D.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+
+# The owner's newest all-in-one file, "Animals of Fur, Feathers, Scales, Claws and Hooves" (2026-11-15), frozen byte for
+# byte: the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE (MOM-) in front and new volumes after it.  Only
+# its newest volumes are collection events (MOM, REL, CHILD, FAM, JOY, EVENT-HS/AGE/JUSTICE/EXPRESSION/FAUNA; the rest
+# is the Living file's, already built from LIVING): data/event_collection/anthology/<section>/<id>.json,
+# "source": "anthology", built by scripts/anthology_new/gen_anthology.py.
+ANTHOLOGY = ROOT / "docs" / "more-island-events" / \
+    "Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt"
+ANTHOLOGY_HASH_FILE = COLLECTION_DIR / "ANTHOLOGY.sha256"
+ANTHOLOGY_LINES = 32851
+ANTHOLOGY_ID = "anthology"
+ANTHOLOGY_DIR = COLLECTION_DIR / "anthology"
+ANTHOLOGY_SECTIONS = {   # section: the volume's name (one series each)
+    "an_mom": "Living Moments",
+    "an_rel": "Love by Choice, Coming Out, Names and Presentation",
+    "an_child": "Childhood Curiosity, Puppy Love and Questions",
+    "an_fam": "Family Friction, Everyday Boundaries, Separation and Reconciliation",
+    "an_joy": "Celebrations, Leisure, Remembrance and Body Art",
+    "an_hs": "The Human Spectrum, Island Comforts, Authority, Injury and Belonging",
+    "an_age": "Every Age in the Limelight",
+    "an_jus": "Justice, Bullying, Consequences, Trauma, Recovery and Defense",
+    "an_expr": "Self-Expression, Art, Sport, Ecology, Governance and Belief",
+    "an_fauna": "Animals of Fur, Feathers, Scales, Claws and Hooves",
+}
+SOURCES[ANTHOLOGY_ID] = (ANTHOLOGY, ANTHOLOGY_HASH_FILE, ANTHOLOGY_LINES)
 _ACTIVE = [SOURCE_ID]
 
 

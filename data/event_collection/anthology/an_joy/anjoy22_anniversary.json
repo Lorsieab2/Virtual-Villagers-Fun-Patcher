@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Anniversary Apart",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy22_anniversary",
+  "source": "anthology",
+  "lines": [
+   28998,
+   29011
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28998",
+  "ledger": [
+   {
+    "src": "L28999",
+    "kind": "sensitivity",
+    "before": "Two former partners encounter",
+    "after": "(partner1) and (partner2), two former partners, encounter",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29005",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(partner1)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29007",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(partner1)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29010",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(partner1)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29011",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(partner1)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two former partners encounter an old anniversary.",
+  "label_case": "title",
+  "cast_only": [
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(partner1) and (partner2), two former partners, encounter an old anniversary.",
+   "src": "L28999",
+   "choices": [
+    {
+     "label": "Share a Kind Message",
+     "next": "a",
+     "src": "L29000"
+    },
+    {
+     "label": "Spend Time with Friends",
+     "next": "b",
+     "src": "L29003"
+    },
+    {
+     "label": "Reflect Privately",
+     "next": "c",
+     "src": "L29006"
+    },
+    {
+     "label": "Mark a New Beginning",
+     "next": "d",
+     "src": "L29009"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Both appreciate the thoughtful acknowledgment.",
+   "src": "L29001"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One prefers not to reopen old memories.",
+   "src": "L29002"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A pleasant outing softens the difficult day.",
+   "src": "L29004"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(partner1) quietly asks for time alone.",
+   "src": "L29005"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(partner1) recognizes how life has changed.",
+   "src": "L29007"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The memory feels bittersweet but manageable.",
+   "src": "L29008"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(partner1) chooses a new personal tradition.",
+   "src": "L29010"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(partner1) decides the day need not be marked at all.",
+   "src": "L29011"
+  }
+ }
+}

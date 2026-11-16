@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rope Swing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp09_rope_swing",
+  "source": "anthology",
+  "lines": [
+   31376,
+   31390
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31376",
+  "ledger": [
+   {
+    "src": "L31377",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L31380",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31384",
+    "kind": "sensitivity",
+    "before": "An impatient teen",
+    "after": "(teen), an impatient teen,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31390",
+    "kind": "sensitivity",
+    "before": "A disappointed child",
+    "after": "(child), a disappointed child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A new rope swing near the clearing is popular, but its anchor has not been checked.",
+  "label_case": "title",
+  "cast_only": [
+   "adult",
+   "teen",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A new rope swing near the clearing is popular, but its anchor has not been checked.",
+   "src": "L31378",
+   "choices": [
+    {
+     "label": "Inspect the Rope",
+     "next": "a",
+     "src": "L31379"
+    },
+    {
+     "label": "Set Turns",
+     "next": "b",
+     "src": "L31382"
+    },
+    {
+     "label": "Try a Safer Design",
+     "next": "c",
+     "src": "L31385"
+    },
+    {
+     "label": "Choose Another Game",
+     "next": "d",
+     "src": "L31388"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult) finds a worn knot and repairs it.",
+   "src": "L31380"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The branch proves unsuitable and the swing is moved.",
+   "src": "L31381"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Younger children finally get a chance.",
+   "src": "L31383"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen), an impatient teen, apologizes for cutting the line.",
+   "src": "L31384"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A low swing delights the smallest children.",
+   "src": "L31386"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Older children help test a supervised alternative.",
+   "src": "L31387"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The group invents a hopping contest.",
+   "src": "L31389"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child), a disappointed child, learns that caution is not punishment.",
+   "src": "L31390"
+  }
+ }
+}

@@ -1,0 +1,268 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Does Someone Have a Different Name?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd21_why_does",
+  "source": "anthology",
+  "lines": [
+   27872,
+   27885
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27872",
+  "ledger": [
+   {
+    "src": "L27873",
+    "kind": "sensitivity",
+    "before": "now uses a new name",
+    "after": "now uses a new name, (chosen)",
+    "why": "the lead (2026-11-15): a chosen name is the engine's new-name role (cie-v6-binary.md 28), shown in the story; nobody is renamed"
+   },
+   {
+    "src": "L27873",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27873",
+    "kind": "sensitivity",
+    "before": "a neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27875",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27876",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27876",
+    "kind": "sensitivity",
+    "before": "the neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27878",
+    "kind": "sensitivity",
+    "before": "The neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27879",
+    "kind": "sensitivity",
+    "before": "The neighbor",
+    "after": "(neighbor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27879",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27881",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27882",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27884",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27885",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child notices that a neighbor now uses a new name.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "neighbor",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "chosen": {
+   "kind": "stranger",
+   "new_name_for": "neighbor",
+   "sex": "same",
+   "last_name": "same"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) notices that (neighbor) now uses a new name, (chosen).",
+   "src": "L27873",
+   "choices": [
+    {
+     "label": "Explain Respectful Names.",
+     "next": "a",
+     "src": "L27874"
+    },
+    {
+     "label": "Ask the Neighbor Politely.",
+     "next": "b",
+     "src": "L27877"
+    },
+    {
+     "label": "Discuss Family Traditions.",
+     "next": "c",
+     "src": "L27880"
+    },
+    {
+     "label": "Correct a Mistake Kindly.",
+     "next": "d",
+     "src": "L27883"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult) explains that people may choose names that suit them.",
+   "src": "L27875"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) practices using (neighbor)'s chosen name.",
+   "src": "L27876"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(neighbor) shares only what they want to share.",
+   "src": "L27878"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(neighbor) says the reason is private, and (child) respects it.",
+   "src": "L27879"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) learns names can mark family, culture, or personal choice.",
+   "src": "L27881"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) invents a playful nickname for a toy.",
+   "src": "L27882"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) corrects themself after using the old name.",
+   "src": "L27884"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(adult) models a brief apology without making a spectacle.",
+   "src": "L27885"
+  }
+ }
+}

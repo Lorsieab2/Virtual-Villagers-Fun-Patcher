@@ -721,6 +721,1450 @@
    "harm": [],
    "section": "v10"
   },
+  "anage01_tiny_gap": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage02_secret_doll": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage03_swing_squeaks": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage04_nursery": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage05_painted_pebble": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage06_crabs_know": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage07_apprentice": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage08_hammock_debate": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage09_friend_left": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage10_public": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage11_unpopular": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage12_festival": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage13_unseen_work": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage14_choice_lead": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage15_marriage_needs": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage16_missing_trade": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage17_adult_needs": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage18_disagreement": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage19_feeding_corner": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage20_interrupted": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage21_unwanted": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage22_festival": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage23_return": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage24_parent_more": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage25_elder_sees": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage26_forgotten": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage27_slowest_walker": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage28_embarrassing": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage29_elder_wants": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage30_word_always": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage31_question": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage32_gets_decide": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage33_island_many": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage34_hammock_many": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage35_nursery": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anage36_youngest": {
+   "harm": [],
+   "section": "an_age"
+  },
+  "anchd01_shell_someone": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd02_two_children": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd03_playground": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd04_unreturned": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd05_where_do": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd06_why_do_people": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd07_why_sky_blue": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd08_why_does_toy": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd09_why_do_stuffed": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd10_question_wrong": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd11_child_feared": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd12_apprentice": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd13_why_does_rain": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd14_where_does": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd15_why_do_shadows": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd16_why_do_stars": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd17_why_does_bread": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd18_why_do_fish": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd19_why_do_leaves": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd20_why_does_hair": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd21_why_does": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd22_why_do_some": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd23_why_do_people": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd24_why_does_moon": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd25_why_does_sea": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd26_why_do_we": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd27_why_do_people": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd28_why_do_we_get": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd29_why_does": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd30_why_do_animals": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd31_why_tide_today": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd32_why_do_some": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd33_why_does_metal": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd34_why_do_we_have": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd35_why_do_people": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd36_why_does_fire": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd37_why_do_we": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd38_why_do_we_have": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd39_why_does": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd40_why_do_some": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd41_question_about": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd42_why_did_friend": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd43_why_person": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd44_why_do_people": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd45_why_do_people": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd46_why_ocean_so": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anchd47_child_asked": {
+   "harm": [],
+   "section": "an_child"
+  },
+  "anexp01_fingerprints": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp02_painted_stones": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp03_unsteady_cairn": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp04_flowers": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp05_stick_figure": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp06_palm_leaf": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp07_village_games": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp08_long_paddle": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp09_rope_swing": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp10_hammock": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp11_playground": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp12_nursery_song": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp13_dress_many": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp14_fashion_walk": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp15_piercing": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp16_mark_meaning": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp17_face_paint": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp18_basket_work": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp19_driftwood": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp20_unfinished": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp21_festival_mask": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp22_creature_reeds": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp23_chief_cousin": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp24_council_seat": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp25_disputed": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp26_loudest_voice": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp27_rule_nobody": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp28_visitor_accent": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp29_ancestral": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp30_change_seasons": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp31_shoreline": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp32_sleepless": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp33_overwhelmed": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp34_angry_thought": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp35_war_song": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp36_boundary_feast": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp37_question": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp38_man_weaves": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp39_elder_refuses": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp40_baby_meeting": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp41_painted": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp42_noble_family": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp43_stone_two": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp44_solo": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp45_unwelcome_gift": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp46_doll_two_faces": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp47_sculptor": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp48_forest_race": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp49_council_secret": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp50_river_things": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp51_chief_clothes": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp52_legend_every": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp53_quiet_parade": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp54_unclaimed": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp55_difficult": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp56_strange_dream": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp57_unfair_match": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp58_scars_we_do": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp59_difficult": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp60_traveling": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp61_market_repairs": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp62_question_mercy": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp63_sky_smoke": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp64_costume_hero": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp65_unfashionable": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp66_flower_map": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp67_argument_over": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp68_moonlit_tale": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp69_village_vote": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp70_unspoken_rule": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp71_hidden_garden": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp72_costume_crown": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp73_silent": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anexp74_grandparent": {
+   "harm": [],
+   "section": "an_expr"
+  },
+  "anfam01_unfinished": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam02_unwanted": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam03_sibling_broken": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam04_words_table": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam05_parent_sharp": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam06_forgotten": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam07_best_friend": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam08_couple_grew": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam09_elder": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam10_cousins": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam11_rumor_about": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam12_apprentice": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam13_unwelcome_joke": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam14_child_said": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam15_late_apology": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam16_disputed": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam17_neighbor_loud": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam18_missed": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam19_parent_changed": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam20_reconciliation": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam21_child_took": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam22_sibling_wanted": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam23_relative": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfam24_apology_needed": {
+   "harm": [],
+   "section": "an_fam"
+  },
+  "anfau01_lizard_warm": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau02_shed_skin": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau03_turtle_wrong": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau04_gecko_nursery": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau05_snake_rumor": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau06_feather": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau07_injured": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau08_nest_above": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau09_crow_remembers": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau10_night_chorus": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau11_furry_thief": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau12_animal_wants": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau13_burrow_beneath": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau14_hoofprints": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau15_stubborn": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau16_claw_marks": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau17_crab_temper": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau18_scale_feather": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau19_animal_symbol": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau20_broken_wing": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau21_old_companion": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau22_vanishing": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau23_stranger_beast": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anfau24_child_protects": {
+   "harm": [],
+   "section": "an_fauna"
+  },
+  "anhs01_hammock": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs02_swing_above": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs03_play_clearing": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs04_nursery_full": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs05_woven_doll": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs06_elder_counts": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs07_embarrassing": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs08_invention": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs09_which_totem": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs10_totem_everyone": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs11_chief_nobody": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs12_whose_word_law": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs13_child_said": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs14_what_order": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs15_rule_reason": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs16_ways_knowing": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs17_what_makes": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs18_why_do_people": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs19_stranger_feels": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs20_pride_after": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs21_friendship": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs22_jealous": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs23_apology": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs24_small_cut_work": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs25_bruised_knees": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs26_twisted_ankle": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs27_broken_arm_long": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs28_hand_changed": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs29_life_after": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs30_missing_leg": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs31_scar_invites": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs32_bodies_shared": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs33_wrong_guess": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs34_name_another": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs35_story_many": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs36_without_lesson": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs37_child_questions": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs38_argument_over": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs39_elder_might": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs40_gets_tell_story": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs41_hard_clear": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anhs42_unfair": {
+   "harm": [],
+   "section": "an_hs"
+  },
+  "anjoy01_newborn": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy02_first_word": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy03_child_big_day": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy04_two_tribe": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy05_unplanned": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy06_elder_birthday": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy07_waterfall": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy08_hilltop": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy09_cave_echo": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy10_forest_story": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy11_friendly_games": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy12_shared_garden": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy13_dance_nobody": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy14_friendship": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy15_skill_mastery": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy16_return_hills": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy17_two_families": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy18_remarriage": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy19_blended_family": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy20_friendly": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy21_child_second": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy22_anniversary": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy23_memorial": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy24_ancestor_loved": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy25_empty_seat": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy26_lost_village": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy27_ancestor_chair": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy28_ancient_game": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy29_ancestor_bad": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy30_tattoo_artist": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy31_memorial_mark": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy32_visiting": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy33_elder_without": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy34_festival_many": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy35_moonlit_story": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy36_garden_reunion": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy37_hillside_music": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjoy38_peaceful_day": {
+   "harm": [],
+   "section": "an_joy"
+  },
+  "anjus01_teasing_circle": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus02_popular_bully": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus03_stolen_woven": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus04_broken_swing": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus05_when_chief": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus06_punishment": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus07_angry_apology": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus08_wounded_pride": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus09_elder_cannot": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus10_scar_nobody": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus11_cut_shore": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus12_fracture": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus13_lost_hand": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus14_after_shaking": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus15_smoke_beyond": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus16_story": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus17_child_worked": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus18_unspoken_loss": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus19_empty_place": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus20_missing_scout": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus21_memory_war": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus22_boundary_night": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus23_joke_funny": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus24_quiet_warning": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus25_sleepless": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus26_dangerous_edge": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus27_child_asked": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus28_rule_hurt": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus29_refused": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus30_when_someone": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus31_courage_defend": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anjus32_what_we_carry": {
+   "harm": [],
+   "section": "an_jus"
+  },
+  "anmom01_wrong_wave": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom02_same_soup": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom03_afternoon": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom04_child_question": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom05_unfinished": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom06_changed_hair": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom07_empty_place": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anmom08_applause": {
+   "harm": [],
+   "section": "an_mom"
+  },
+  "anrel01_shared_walk": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel02_crush": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel03_elderly": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel04_same_sex_crush": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel05_couple_chose": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel06_proposal_could": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel07_widow_loved": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel08_friendly": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel09_name_fits": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel10_name_ancestor": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel11_private_truth": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel12_unspoken": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel13_clothes_across": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel14_weaver_loved": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel15_person_they": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel16_beginning": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel17_elder_changed": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel18_elder_form": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel19_couple_name": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel20_partners": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel21_friend_needed": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel22_parent_wanted": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel23_shy_couple": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel24_courtship": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel25_matchmaker": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel26_two_elders": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel27_festival": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel28_apprentice": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel29_villager": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel30_changing_hair": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel31_newcomer": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel32_young_friends": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel33_ceremony_many": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel34_grandparent": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel35_friendship": {
+   "harm": [],
+   "section": "an_rel"
+  },
+  "anrel36_clothing_felt": {
+   "harm": [],
+   "section": "an_rel"
+  },
   "arm01_first_armorer": {
    "harm": [],
    "section": "dr_armor"
