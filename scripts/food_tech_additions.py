@@ -321,6 +321,29 @@ EFFECT_REMOVALS: list[tuple[str, str, str, dict | None, str]] = [
 GUARDIANS_IF = {"patch": "guardians_of_isola"}
 BELIEVER = re.compile(r"(?<!new )\bbelievers?\b", re.I)
 
+# VV5 Heathen events as vanilla casts them (the owner, 2026-11-16): an Isolan who lives on the island is a real Heathen
+# villager ("heathen_ok": true; one per event, never sick, never a Heathen role character such as their Chief or
+# Master), not a made-up stranger; travellers from elsewhere stay strangers.  (event id, role, age, why)
+HEATHEN_ROLES: list[tuple[str, str, int, str]] = [
+    ("blf26_isolan_feast", "friend", 14, "\"one of the Isolans who live outside the village\""),
+    ("blf27_songs_across", "friend", 14, "\"an Isolan, (friend), sitting by a stream\""),
+    ("vv5_v17_cooking", "isolan", 14, "\"A formidable Isolan cook joins the panel\" (a neighbour at the festival)"),
+    ("vv5_great_laundry_mishap", "isolan", 14, "\"An Isolan visitor insists that the item belongs to (their) "
+                                               "community\" (the two communities share the island)"),
+    ("vv5_great_woodworking", "isoleader", 14, "the Isolan team's leader, a neighbour (not the Heathens' Chief or a "
+                                               "Master)"),
+    ("vv5_potluck_dispute", "isolan", 14, "\"The Isolan organizer\" of the neighbours invited to the feast"),
+    ("vv5_gift_or_insult", "visitor", 14, "\"An Isolan neighbor arrives with a gift for the village\""),
+    ("vv5_multicultural_festival", "visitor", 14, "\"an Isolan visitor\" of the village's Isolan neighbors"),
+]
+
+
+def apply_heathen_roles(doc: dict) -> None:
+    eid = (doc.get("collection") or {}).get("id")
+    for e_id, rid, age, _ in HEATHEN_ROLES:
+        if e_id == eid and rid in doc.get("roles", {}):
+            doc["roles"][rid] = {"kind": "villager", "min_age": age, "heathen_ok": True}
+
 
 def apply_guardians(doc: dict) -> None:
     """New Believers with Guardians of Isola Rewrite (docs/event-collection/guardians-wording.md, its "Believers"
@@ -363,6 +386,7 @@ def apply_likes_fix(doc: dict) -> None:
     eid = (doc.get("collection") or {}).get("id")
     nodes = doc.get("nodes", {})
     apply_guardians(doc)
+    apply_heathen_roles(doc)
     for e_id, src, before, after, _ in LABEL_EDITS:
         if e_id != eid:
             continue
@@ -540,6 +564,7 @@ def main(argv=None) -> int:
     import collection_lib as lib
     believer_rows = {eid for eid, rows_ in lib.guardians_pairs().items() if any(BELIEVER.search(b) for _w, b, _a in rows_)}
     for eid in sorted({r[0] for r in TEXT_EDITS} | {r[0] for r in EFFECT_REMOVALS} | {r[0] for r in LABEL_EDITS}
+                      | {r[0] for r in HEATHEN_ROLES}
                       | believer_rows):
         if eid not in files:
             print(f"{eid}: no collection file")

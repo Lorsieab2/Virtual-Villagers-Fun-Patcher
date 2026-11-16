@@ -33,8 +33,9 @@
    "named": true
   },
   "isolan": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "villager",
+   "min_age": 14,
+   "heathen_ok": true
   },
   "judge1": {
    "kind": "villager",

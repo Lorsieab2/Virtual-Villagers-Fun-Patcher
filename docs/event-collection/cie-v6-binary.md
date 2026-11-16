@@ -1048,3 +1048,14 @@ by the token's widest option, its placeholders at their widest. `simulate` shows
   name (before any rename, the current name of the first change_name's villager). Body text and count options only,
   never a label or a title; measured as a full name. `expand_v6` shows the binding `"$renamed"` when given, else the
   graph's fixed change_name name, else "Renamed".
+
+**A cast Heathen (`"heathen_ok": true`, VV5; the owner, 2026-11-16).** As vanilla does, a New Believers event about an
+Isolan who lives on the island casts a real Heathen villager for that one role (never a Heathen role character such
+as their Chief or a Master, never sick); a traveller from elsewhere stays a stranger. Such a role takes only faith,
+join, actions and minor harm (health -5..-30, sick); collection_check refuses anything more. Until the engine's own
+role flag is in `src/vv_cie_graph.py`, `collection_check.graph_for_engine` gives the engine the role as
+`believers_only: false`. The roles (`scripts/food_tech_additions.py` HEATHEN_ROLES, applied on disk and by the
+generators): blf26_isolan_feast friend, blf27_songs_across friend, vv5_v17_cooking isolan, vv5_great_laundry_mishap
+isolan, vv5_great_woodworking isoleader, vv5_potluck_dispute isolan, vv5_gift_or_insult visitor,
+vv5_multicultural_festival visitor (each a villager of 14 or more; none takes an effect).
+

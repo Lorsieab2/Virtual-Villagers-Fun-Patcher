@@ -904,7 +904,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_draft_bl.pak",
       "destination": "Island Event Collection/living-st_draft_bl.pak",
-      "sha256": "FC197F3D0D1BB37FF309B296D7AA7908F0638F3C62A9580F37A13996EAC056AB"
+      "sha256": "7EFB99C251E21B03EA03B3A83FC4E508FFA7DDA08E10CDABCE693C2A00653832"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_da.pak",
@@ -1024,7 +1024,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_v28.pak",
       "destination": "Island Event Collection/living-st_v28.pak",
-      "sha256": "5C50A1E8D3359F6CD22BA621D969E1E91FB4064EA9DD9E968B98341306743E76"
+      "sha256": "10C0E7A0E5111935E1FD6631D8FB95FED4BB94784C562EE8859D3EAB108D2539"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -4459,12 +4459,12 @@
     {
       "source": "assets/event_collection/blf26_isolan_feast.cieg",
       "destination": "Island Event Collection/blf26_isolan_feast.cieg",
-      "sha256": "ED0BE9E992F67098CBE9C9D02720956135E6893903253FF0583171135D2280B0"
+      "sha256": "241E369F5F8148F11B51865F305B17284140094C8A31A4B086A3A0E96967866F"
     },
     {
       "source": "assets/event_collection/blf27_songs_across.cieg",
       "destination": "Island Event Collection/blf27_songs_across.cieg",
-      "sha256": "E9A60E8CE7DE9F675EC829475DF48D067809579F08E4ADDB35E169CA9EA21464"
+      "sha256": "888AA41FCB8D9B7FC87E494C1F25978957D260D4449F9B2F38567FE7669E5ECC"
     },
     {
       "source": "assets/event_collection/blf28_old_charm_lost.cieg",
@@ -16479,17 +16479,17 @@
     {
       "source": "assets/event_collection/vv5_gift_or_insult.cieg",
       "destination": "Island Event Collection/vv5_gift_or_insult.cieg",
-      "sha256": "751B4572C47E037E5EDF4C693874CA4C812DD5B7814D41CABE5B24974D0F20A8"
+      "sha256": "6DED26C748BBDBA6F16A31A0A6F7B3792015B1EA24D8358B11F41C468795940F"
     },
     {
       "source": "assets/event_collection/vv5_great_laundry_mishap.cieg",
       "destination": "Island Event Collection/vv5_great_laundry_mishap.cieg",
-      "sha256": "F12D9646FE3DD64130D47F25D3F0D76A05AD0E62FFFA050C1347260852D07FD9"
+      "sha256": "4F407E86870CEC6DF35E266E660EE575ADA654206E31C24D9B8CC34E8131EDFC"
     },
     {
       "source": "assets/event_collection/vv5_great_woodworking.cieg",
       "destination": "Island Event Collection/vv5_great_woodworking.cieg",
-      "sha256": "225E05D4A2010637CE5A1D77AF125576D4A593686FE754DFBB7584052EFFDD7A"
+      "sha256": "625B30DBFF3641845B06274B515CE593D94E2D78A51ED215671E2B378AC507E3"
     },
     {
       "source": "assets/event_collection/vv5_keeper_of_little_things.cieg",
@@ -16509,7 +16509,7 @@
     {
       "source": "assets/event_collection/vv5_multicultural_festival.cieg",
       "destination": "Island Event Collection/vv5_multicultural_festival.cieg",
-      "sha256": "CBDB28ECBAEB11D22BD0D574AE5015900E458D629305B004D65637F4B8453E66"
+      "sha256": "DC727445A8E4B52B1973CC95023B7A419E559FBEA09F5B5A1059922ED8CEDAB6"
     },
     {
       "source": "assets/event_collection/vv5_old_belief_and_new.cieg",
@@ -16519,7 +16519,7 @@
     {
       "source": "assets/event_collection/vv5_potluck_dispute.cieg",
       "destination": "Island Event Collection/vv5_potluck_dispute.cieg",
-      "sha256": "87BD990391EC224D64D51E1F2175BEB9399C0760707C37443FD7474C0A27B431"
+      "sha256": "81A3AEF6E08CAF8125DD99821599E67CA7923BF9D521F539E599ADAECB1CF1A2"
     },
     {
       "source": "assets/event_collection/vv5_slug_race.cieg",
@@ -16549,7 +16549,7 @@
     {
       "source": "assets/event_collection/vv5_v17_cooking.cieg",
       "destination": "Island Event Collection/vv5_v17_cooking.cieg",
-      "sha256": "08C67DA30ECD7B4E1DF720135E9AFC4EECF34B5614A6D37B76A194D7450388ED"
+      "sha256": "A74BCF130FAE7EF48615E1D87DEE61245A6BBA177CDE1D6B703DC0E8B35BE985"
     },
     {
       "source": "assets/event_collection/vv5_v17_farming.cieg",

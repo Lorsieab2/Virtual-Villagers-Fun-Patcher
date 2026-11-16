@@ -240,6 +240,11 @@ def graph_for_engine(doc: dict) -> dict:
     g = copy.deepcopy(doc)
     open_death_roles(g)
     open_leader_roles(g)
+    # "heathen_ok": true (VV5, the owner 2026-11-16: a real Isolan villager cast as vanilla does): until the engine's
+    # own role flag is in vv_cie_graph, the engine graph says it as believers_only false.
+    for r in (g.get("roles") or {}).values():
+        if isinstance(r, dict) and r.pop("heathen_ok", None) is True:
+            r["believers_only"] = False
 
     def scrub(x):
         if isinstance(x, dict):
@@ -1041,6 +1046,11 @@ def check_effects(doc: dict, rep: Report) -> None:
         for i, e in enumerate(effs):
             where = f"node {nid} effect {i + 1}"
             do = e.get("do")
+            if (doc.get("roles") or {}).get(e.get("role"), {}).get("heathen_ok") and not (
+                    do in ("action", "sick", "faith", "join") or
+                    (do == "health_change" and -30 <= e.get("min", 0) and e.get("max", 0) <= -5)):
+                rep.add("e EFFECTS", f"{where}: a heathen_ok role takes only faith, join, actions and minor harm "
+                                     "(health -5..-30, sick)")
             tg = e.get("target")
             if tg is not None:
                 ok = isinstance(tg, dict) and len(tg) == 1 and (
