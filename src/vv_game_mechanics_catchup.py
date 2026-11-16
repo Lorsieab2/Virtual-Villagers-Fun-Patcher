@@ -698,7 +698,7 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
                "turn chooses what it does (14 times in 100 for one whose job is not Healing)."),
         _patch(village, VV2_EASIER, "Normally healers study plants only when the game's own choice sends them.",
                "healers and villagers who prefer Healing study plants when no sick villager needs treatment, in "
-               "job turns too."),
+               "job turns too (75% of those times for one checked on Healing, 14% for anyone else)."),
     ):
         if fact:
             out.append(fact)

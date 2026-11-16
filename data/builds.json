@@ -1366,7 +1366,7 @@
       "id": "vv2_easier_healing_mastery",
       "game_id": "vv2",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.",
+      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up: a villager checked on Healing about three times in four (75%) of those times, so healers still do other things as in the normal game; a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1377,9 +1377,9 @@
         },
         {
           "offset": "0x73CA0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E73356A098F87E00700005589F1E8C4C8FEFFEB26",
-          "purpose": "for a villager checked on Healing (job preference +0x7F8 = 3), set plant-study state 9 and reuse the stock live and catch-up work dispatcher; for any other villager only when the game's rand(100) is below 14, else the stock no-patient exit"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E7D336A098F87E00700005589F1E8C2C8FEFFEB24",
+          "purpose": "draw the game's rand(100) once; a villager checked on Healing (job preference +0x7F8 = 3) studies when it is below 75, any other villager when it is below 14 (the checked villager's roll less 61, compared signed with 14); a study sets plant-study state 9 and reuses the stock live and catch-up work dispatcher, else the stock no-patient exit"
         },
         {
           "offset": "0x73CF1",

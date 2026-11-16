@@ -955,7 +955,7 @@ Every technology level on the Tech screen costs 2 to 10 times its normal price i
 
 **Easier Healing Mastery**
 
-Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.
+Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up: a villager checked on Healing about three times in four (75%) of those times, so healers still do other things as in the normal game; a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else.
 
 - Patch ID: `vv2_easier_healing_mastery`
 

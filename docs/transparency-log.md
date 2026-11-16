@@ -928,11 +928,11 @@ When you drop an adult (18 or older) on a child (under 18), the adult now always
 
 #### Easier Healing Mastery (`vv2_easier_healing_mastery`)
 
-Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.
+Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up: a villager checked on Healing about three times in four (75%) of those times, so healers still do other things as in the normal game; a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.
+- Behavior changes: Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up: a villager checked on Healing about three times in four (75%) of those times, so healers still do other things as in the normal game; a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending

@@ -3123,14 +3123,15 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x604AD:0x604B6]),
             bytes.fromhex("E9EE37010090909090"),
         )
-        # A villager checked on Healing (+0x7F8 = 3) studies as before; any
-        # other only when rand(100) < 14 (the owner, 2026-10-20), else the
-        # stock no-patient exit (al = 0) in the second cave.
+        # One rand(100): a villager checked on Healing (+0x7F8 = 3) studies
+        # when it is below 75 (the owner, 2026-11-15: healers still do other
+        # things), any other only below 14 (2026-10-20); else the stock
+        # no-patient exit (al = 0) in the second cave.
         self.assertEqual(
-            bytes(rendered[0x73CA0:0x73CCE]),
+            bytes(rendered[0x73CA0:0x73CD0]),
             bytes.fromhex(
-                "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E7335"
-                "6A098F87E00700005589F1E8C4C8FEFFEB26"
+                "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E"
+                "7D336A098F87E00700005589F1E8C2C8FEFFEB24"
             ),
         )
         self.assertEqual(bytes(rendered[0x73CF1:0x73CFB]), bytes.fromhex("5930C05F5D5B5EC20800"))
@@ -3255,9 +3256,9 @@ class StockIntegrationTests(unittest.TestCase):
             + 2
             + feature_patch_count,
         )
-        self.assertEqual(bytes(rendered[0x73CA0:0x73CCE]), bytes.fromhex(
-            "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E7335"
-            "6A098F87E00700005589F1E8C4C8FEFFEB26"
+        self.assertEqual(bytes(rendered[0x73CA0:0x73CD0]), bytes.fromhex(
+            "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E"
+            "7D336A098F87E00700005589F1E8C2C8FEFFEB24"
         ))
         self.assertEqual(bytes(rendered[0x73CF1:0x73CFB]), bytes.fromhex("5930C05F5D5B5EC20800"))
         self.assertEqual(bytes(rendered[0x73CD0:0x73CF1]), bytes.fromhex(
