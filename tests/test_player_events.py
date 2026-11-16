@@ -589,6 +589,20 @@ class OwnerLayout(unittest.TestCase):
         with self.assertRaises(owner.Unmapped):
             owner.owner_effects("each now likes the other's favourite job", [1])
 
+    def test_the_engine_forms_of_5ee2b3dc0(self):
+        import vv_owner_layout as owner
+        self.assertEqual(owner.normalize_text("(new name) and (New Name 2) smile; (name2.he/she) waves"),
+                         "(made1) and (Made2) smile; (friend.he/she) waves")
+        effects, _r, _n = owner.owner_effects("NEW LOOK for three random villagers (star-stone jewellery)", [1])
+        self.assertEqual(effects[0], {"do": "appearance", "body": "random", "target": {"random": 3}})
+        c = compiled(SIMPLE.replace("(Name) invents a splitting wedge.",
+                                    "A double of (name) appears; (made1) says the wedge is (his/hers) now.").replace(
+            "Effect: SKILL + Building a little", "Effect: DUPLICATE OF villager"))
+        self.assertIn(b"(made1)", c.cieg)
+        bad = one(SIMPLE.replace("Choice 1: Lend a Hand", "Choice 1: Lend (Made1) a Hand"))
+        _c, probs = pe.compile_item(bad, "pl_t_001")
+        self.assertTrue(probs)
+
     def test_an_unmapped_phrase_is_a_line_numbered_problem(self):
         text = (pe.PLAYER_FOLDER / pe.EXAMPLE_NAME).read_text(encoding="utf-8")
         start = text.index("S001.")

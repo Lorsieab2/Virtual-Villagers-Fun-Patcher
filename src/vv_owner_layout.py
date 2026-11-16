@@ -212,9 +212,13 @@ def _one(raw: str, ctx: _Ctx) -> list[dict]:
         lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
         sk = list(SKILLS) if " " in m.group(3) else [_skill(m.group(3))]
         return [{"do": "skill", "skills": sk, "min": lo, "max": hi, "target": {"all": True}}]
-    m = re.fullmatch(r"new look for (three|two|one|\d+) random villagers.*", low)
+    m = re.fullmatch(r"new look for (one|two|three|four|five|\d+) random villagers?(?: \((.*)\))?", low)
     if m:
-        raise Unmapped(raw + " (a group cannot get a new look: the engine has no group looks)")
+        # Engine 5ee2b3dc0: a group appearance, each member drawing their own look.
+        n = NUMBERS.get(m.group(1)) or int(m.group(1))
+        what = (m.group(2) or "head").lower()
+        part = "head" if ("head" in what or "face" in what or "hair" in what) else "body"
+        return [{"do": "appearance", part: "random", "target": {"random": n}}]
     subjects, rest, each = _subjects(low)
     out: list[dict] = []
     for who in subjects:
@@ -497,7 +501,8 @@ def role_dict(facts: dict) -> dict:
 
 def normalize_text(text: str) -> str:
     """The owner's placeholders as the engine's: "(young name)" -> "(young)", "(Young Name)" -> "(Young)",
-    "(new name)" -> "(newname)" (a named stranger: a name of its own), typography made plain."""
+    "(new name)" -> "(made1)" and "(new name 2)" -> "(made2)" (engine 5ee2b3dc0: the villagers the event made, also
+    inside count tokens), "(name2.he/she)" -> "(friend.he/she)" (name2 is the role "friend")."""
     def ph(m: re.Match) -> str:
         inner = m.group(1)
         md = re.fullmatch(r"(?i)(name[12])\.(.+)", inner)
@@ -506,7 +511,8 @@ def normalize_text(text: str) -> str:
         mm = re.fullmatch(r"([A-Za-z]+) (name|Name)( \d)?", inner)
         if mm:
             if mm.group(1).lower() == "new":
-                return "(newname" + (mm.group(3) or "").strip() + ")"
+                made = "(made2)" if (mm.group(3) or "").strip() == "2" else "(made1)"
+                return made if mm.group(2) == "name" else made.replace("made", "Made")
             word = mm.group(1)
             return "(" + (word.lower() if mm.group(2) == "name" else word[0].upper() + word[1:].lower()) + ")"
         return m.group(0)

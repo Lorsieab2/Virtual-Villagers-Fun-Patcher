@@ -945,7 +945,7 @@ def placeholder_roles(text: str) -> list[str]:
             out.append("")
         elif not dot and word.lower() == "name2":
             out.append("friend")
-        elif not dot and word.lower() in ("award", "award_unit"):
+        elif not dot and word.lower() in ("award", "award_unit") + tuple(cie.MADE_PLACEHOLDERS):
             continue
         elif dot or "/" not in low:
             out.append(low)
@@ -1685,8 +1685,6 @@ def _parse_owner(block: list[tuple[int, str]], file: str) -> list[Item]:
         role = owner.role_dict(f)
         for name in ([("subject"), "villager"] if rid == "" else [rid]):
             meta["role_facts"][name] = role
-    meta["role_facts"]["newname"] = {"kind": "stranger", "named": True}
-    meta["role_facts"]["newname2"] = {"kind": "stranger", "named": True}
     items = [it]
     if seed is not None:
         items += _seed_pieces(seed, it, games, choices, order, seed_line)
@@ -2924,8 +2922,11 @@ Names and pronouns (use these exactly, with the round brackets):
 - {this|that|the other}: one of these words, picked at random each time.
 - {#babies:a baby|twins|triplets} and {#made:one|two|three or more}: in the story text only (never a title or a
   choice), the words for what the page's effects actually made: the first for one (or none), the second for two,
-  the third for three or more; 1 to 3 choices of up to 40 letters, digits, spaces and , : - ' " ; / & % (no
-  names, no braces, no . ! ?).
+  the third for three or more; 1 to 3 choices of up to 160 letters, digits, spaces, , : - ' " ; / & % and names
+  or pronouns like (name) or (made1) (no braces, no . ! ?).
+- (made1): the name of the newest villager the event made (NEW VILLAGER, DUPLICATE, CLONE); (made2) the one made
+  before it. Story text only, never a title or a choice.
+- (his/hers): the possessive that stands alone ("the choice was (his/hers)"), also (friend.his/hers).
 - Plain round brackets in the story are fine; they are shown as written.
 - Tell the story in the third person. "I", "me", "my", "we", "you" and "your" belong only inside quoted speech or a
   villager's quoted thought.

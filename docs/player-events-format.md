@@ -309,8 +309,9 @@ Flavour lines:
 - The event: the opening question, each choice's "First popup" as its own popup, then its endings at their chances
   (each a new popup). Lines starting `^` are the owner's notes and are skipped. WHO gives the main villager's ages
   (and a second villager's, a chief, an Isolan, born female). `(young name)` is the role `young`, `(name2.he/she)`
-  the second villager's pronoun, `(new name)` a name of its own (a named stranger: the engine names the new villager
-  separately). `(award)` in an ending names its food or tech gain (an award, paid there); with a loss the owner's
+  the second villager's pronoun (`(friend.he/she)`), `(new name)` / `(new name 2)` the villagers the event made
+  (`(made1)` / `(made2)`, engine 5ee2b3dc0, also inside count tokens), `(his/hers)` the standalone possessive; "NEW
+  LOOK for three random villagers" a group appearance (each draws its own look). `(award)` in an ending names its food or tech gain (an award, paid there); with a loss the owner's
   "Your village loses (award) food." becomes the game's own automatic line.
 - **EFFECT phrases** (free English, `;` between them) go through a phrase table built from the owner's own files:
   food and tech sizes; "gains 20 to 30 Farming", "skill + research (a little, +5) for (young name)", "becomes
@@ -327,10 +328,13 @@ Flavour lines:
 - **MIXER SEED** blocks become mixer pieces (section 6): the premise a setup (its title the event's), each approach
   an approach (its text the matching choice's first popup), each pool line an outcome (its answers, mood and effects),
   each flavour line a flavour line; the role lines are the slots, and `(name)` in a seed is its first slot.
-- Coverage on the owner's files (2026-11-16): "315 Rewritten Events - Quick Draft" 237 of 239 EFFECT phrases (99.2%),
-  "Rewritten Events S020 to MY-115" 4,067 of 4,071 (99.9%). The phrases left are not engine effects (a favourite
-  job, a group's new look) or name a like that no game has.
+- Coverage on the owner's files (2026-11-16, with the engine forms of 5ee2b3dc0): "315 Rewritten Events - Quick
+  Draft" 237 of 239 EFFECT phrases (99.2%), 18 of 20 events compile; "Rewritten Events S020 to MY-115" 4,069 of
+  4,071 (99.95%), 291 of 296 events compile. The phrases left are not engine effects (a favourite job) or name a like
+  that no game has (jewelry).
 
-Count tokens `{#babies:a baby|twins|triplets}` / `{#made:one|two|three or more}` (engine 0853e8327): body text only,
-1-3 options of up to 40 plain characters (no . ! ?), filled with what the page's effects made; Check File checks
-them, the fit takes the longest option and Preview shows the first.
+Count tokens `{#babies:a baby|twins|triplets}` / `{#made:one|two|three or more}` (engines 0853e8327, 5ee2b3dc0):
+body text only, 1-3 options of up to 160 bytes of plain characters and placeholders (`(name)`, `(made1)`; no braces,
+line breaks or . ! ?), filled with what the page's effects made; Check File checks them, the fit takes the widest
+option and Preview shows the first. `(made1)` / `(made2)` name the villagers the event made (body text only);
+`(his/hers)` is the standalone possessive.

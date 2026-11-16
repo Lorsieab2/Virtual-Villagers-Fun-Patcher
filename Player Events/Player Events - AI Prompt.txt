@@ -152,8 +152,11 @@ Names and pronouns (use these exactly, with the round brackets):
 - {this|that|the other}: one of these words, picked at random each time.
 - {#babies:a baby|twins|triplets} and {#made:one|two|three or more}: in the story text only (never a title or a
   choice), the words for what the page's effects actually made: the first for one (or none), the second for two,
-  the third for three or more; 1 to 3 choices of up to 40 letters, digits, spaces and , : - ' " ; / & % (no
-  names, no braces, no . ! ?).
+  the third for three or more; 1 to 3 choices of up to 160 letters, digits, spaces, , : - ' " ; / & % and names
+  or pronouns like (name) or (made1) (no braces, no . ! ?).
+- (made1): the name of the newest villager the event made (NEW VILLAGER, DUPLICATE, CLONE); (made2) the one made
+  before it. Story text only, never a title or a choice.
+- (his/hers): the possessive that stands alone ("the choice was (his/hers)"), also (friend.his/hers).
 - Plain round brackets in the story are fine; they are shown as written.
 - Tell the story in the third person. "I", "me", "my", "we", "you" and "your" belong only inside quoted speech or a
   villager's quoted thought.
