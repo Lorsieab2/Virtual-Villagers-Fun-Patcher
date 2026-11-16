@@ -1193,10 +1193,17 @@ def compile_all(variants: list[Variant]) -> None:
         v.plan["node_index"] = {name: order.index(name) for name, _g, _a in v.outcomes}
 
 
-# ---- The pack (VLEP v1) ---------------------------------------------------------------------------------------------
+# ---- The pack (VLEP v1, v2) -----------------------------------------------------------------------------------------
 
 _HEADER = struct.Struct("<4sHHIIBBHHHIIIIIIIIHHHH")
-_SEED = struct.Struct("<HHHHBBHI")
+# v2 (2026-11-15): byte 13 / 14 of a seed record are the high bytes of its id / series string offsets (24 bits), so
+# the string table may pass 64 KB.  Written only when it does; a v1 pack has them 0, so a v2 reader reads both.
+_SEED = struct.Struct("<HHHHBBHBBBB")
+PACK_VERSION = 2                 # v2: the seed count at +18 / +22 and the string offsets' high bytes (living-pack.md)
+PACK_MAX = 32 * 1024 * 1024      # the engine's LV_PACK_MAX (asked of the engine agent, 2026-11-15)
+PACK_MAX_SEEDS = 8192
+PACK_MAX_VARIANTS = 32768
+STRINGS_MAX = 1 << 24
 _VARIANT = struct.Struct("<IIHBBHHBBHHH")
 _OUTCOME = struct.Struct("<HBB")
 assert _HEADER.size == 64 and _SEED.size == 16 and _VARIANT.size == 24 and _OUTCOME.size == 4
@@ -1220,8 +1227,8 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
         if text not in sidx:
             sidx[text] = len(strings)
             strings.extend(text.encode("ascii") + b"\0")
-        if sidx[text] > 0xFFFE:
-            raise ValueError("the pack's strings outgrow 64 KB")
+        if sidx[text] >= STRINGS_MAX:
+            raise ValueError("the pack's strings outgrow 16 MB")
         return sidx[text]
 
     seed_recs = bytearray()
@@ -1232,8 +1239,9 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     for si, sid in enumerate(seeds):
         vs = by_seed[sid]
         first = vs[0]
-        seed_recs += _SEED.pack(s(sid), s(first.series), vi, len(vs), first.bank, first.cat_index, first.seed_index,
-                                first.mood)
+        o_id, o_ser = s(sid), s(first.series)
+        seed_recs += _SEED.pack(o_id & 0xFFFF, o_ser & 0xFFFF, vi, len(vs), first.bank, first.cat_index,
+                                first.seed_index, first.mood, o_id >> 16, o_ser >> 16, 0)
         for v in vs:
             if not v.cieg:
                 raise ValueError(f"{sid} k={v.k} is not compiled")
@@ -1248,7 +1256,7 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
                 oi += 1
             blobs += v.cieg
             vi += 1
-    if len(seeds) > 2048 or vi > 0xFFFF or oi > 0xFFFF:
+    if len(seeds) > PACK_MAX_SEEDS or vi > PACK_MAX_VARIANTS or oi > 0xFFFF:
         raise ValueError("the pack outgrows its counts")
     off_seeds = _HEADER.size
     off_vars = off_seeds + len(seed_recs)
@@ -1260,7 +1268,9 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     body = bytes(seed_recs + var_recs + out_recs + strings) + bytes(off_blobs - off_str - len(strings)) + bytes(blobs)
 
     def header(crc: int) -> bytes:
-        return _HEADER.pack(b"VLEP", 1, _HEADER.size, total, crc, game, 0, len(seeds), vi, 0, off_seeds, off_vars,
+        # v2: the seed count is 32 bits, its low half at +18 and its high half at +22 (0 in v1)
+        return _HEADER.pack(b"VLEP", PACK_VERSION, _HEADER.size, total, crc, game, 0, len(seeds) & 0xFFFF, vi,
+                            len(seeds) >> 16, off_seeds, off_vars,
                             off_outs, oi, off_str, len(strings), off_blobs, len(blobs), len(bank.roles),
                             len(bank.archetypes), len(bank.lenses), 0)
     crc = zlib.crc32(header(0) + body) & 0xFFFFFFFF
@@ -1274,8 +1284,9 @@ def read_pack(data: bytes) -> dict:
     h = _HEADER.unpack_from(data, 0)
     (magic, version, hbytes, total, crc, game, _z, n_seeds, n_vars, _z2, off_seeds, off_vars, off_outs, n_outs, off_str,
      n_str, off_blobs, n_blobs, n_roles, n_arcs, n_lenses, _z3) = h
-    if magic != b"VLEP" or version != 1 or hbytes != 64 or total != len(data):
-        raise ValueError("not a VLEP v1 pack")
+    if magic != b"VLEP" or version not in (1, 2) or hbytes != 64 or total != len(data):
+        raise ValueError("not a VLEP v1 / v2 pack")
+    n_seeds |= _z2 << 16 if version >= 2 else 0
     if zlib.crc32(data[:12] + b"\0\0\0\0" + data[16:]) & 0xFFFFFFFF != crc:
         raise ValueError("crc")
 
@@ -1284,9 +1295,9 @@ def read_pack(data: bytes) -> dict:
         return data[off_str + off:end].decode("ascii")
     seeds = []
     for i in range(n_seeds):
-        sid, ser, first, count, bank, cat, index, _ = _SEED.unpack_from(data, off_seeds + 16 * i)
-        seeds.append({"id": string(sid), "series": string(ser), "first": first, "count": count, "bank": bank,
-                      "category": cat, "index": index, "mood": _ & 0xFF})
+        sid, ser, first, count, bank, cat, index, mood, sid_hi, ser_hi, _ = _SEED.unpack_from(data, off_seeds + 16 * i)
+        seeds.append({"id": string(sid | sid_hi << 16), "series": string(ser | ser_hi << 16), "first": first,
+                      "count": count, "bank": bank, "category": cat, "index": index, "mood": mood})
     variants = []
     for i in range(n_vars):
         boff, bsize, si, k, flags, ra, rb, lens, fam, mask, of, oc = _VARIANT.unpack_from(data, off_vars + 24 * i)
