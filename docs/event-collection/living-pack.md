@@ -26,8 +26,10 @@ ASCII.
   and on one of the three, where two cast villagers can disagree, the personality frame after its first page --
   in the series `living_st_<source>` (one series per source: each counts as one event in the draw). Their rows
   are the static event's own title, description, credit and games, with the seed's id (`living_st_<6 hex>`) and
-  series. They have no outcome records (2.4). An event with nothing to mix (no choices to reorder and no frame
-  that fits) stays static only.
+  series. They have no outcome records (2.4). An event with no choices to reorder and no page the strict frame fits
+  (the owner, 2026-11-16) gets up to three versions that recast its villagers and leave out a different one of its
+  random outcomes each (where a random page has three or more), the frame on one where it casts two villagers
+  outside a catalogue, nature, grief, loss, illness or death scene, or else one version that only recasts.
 - **One manifest row per seed** in its series' `manifest-<group>.txt` (the collection's own line format,
   `story_collection.inc sc_scan`), only for the seeds the game's packs hold:
 

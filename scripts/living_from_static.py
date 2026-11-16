@@ -15,8 +15,10 @@ static event itself never changes.  A version is the event's own compiled graph 
 The frame fits only where two cast villagers can disagree: at least two villager roles (not a special one), and
 never a catalogue or study entry, a nature report, or a grief, loss, illness or death scene.  Casting is the
 engine's at run time (every version recasts), so the event's roles, ages, games, patches, Guardians wording and
-gates are the static event's own.  A version identical to the static event (no choices to reorder and no frame) is
-never made: such an event stays static only (STATIC_ONLY, with the reason).
+gates are the static event's own.  An event with no choices to reorder and no page the strict frame fits gets its
+versions from quiet_versions (the owner, 2026-11-16): one of its random outcomes left out (a different one each
+version, where a random page has three or more), the frame where it casts two villagers, else one version that only
+recasts; only a version that fails validation is ever dropped (static_only, with the reason).
 
 Each source is one series, `living_st_<source>`: the draw counts a series as one event, so the mixer versions never
 swamp the static events.  Mixer versions have no outcome records (living-pack.md 2.4: count 0).
@@ -153,8 +155,8 @@ def _orders(g: dict, qs: list[str], rng: random.Random, want: int) -> list[dict[
     return found
 
 
-def _with_frame(g: dict, pers: list[str]) -> dict:
-    a, b = frame_roles(g)
+def _with_frame(g: dict, pers: list[str], roles: list[str] | None = None) -> dict:
+    a, b = roles or frame_roles(g)
     nid = _first_page(g)
     n = g["nodes"][nid]
     cap = lambda r: r[:1].upper() + r[1:]  # noqa: E731
@@ -199,8 +201,69 @@ def versions(e: dict, bank: mx.Bank, pers: list[str]) -> tuple[list[dict], str]:
             _with_frame(g, pers)
         out.append({"k": len(out), "graph": g, "frame": frame, "order": order})
     if not out:
+        out = quiet_versions(e, g0, rng, pers)        # the owner, 2026-11-16: these events get versions too
+    if not out:
         return [], ("no choices to reorder and " + (why_not or "no frame"))
     return out, ""
+
+
+def _reach(g: dict) -> set[str]:
+    seen, todo = set(), [g["start"]]
+    while todo:
+        nid = todo.pop()
+        if nid in seen or nid not in g["nodes"]:
+            continue
+        seen.add(nid)
+        n = g["nodes"][nid]
+        for c in (n.get("children") or []) + (n.get("choices") or []):
+            todo += [x for x in (c.get("next"), c.get("else")) if x]
+        if n.get("else"):
+            todo.append(n["else"])
+    return seen
+
+
+def _without_child(g: dict, nid: str, i: int) -> dict:
+    """g with child i of random node nid left out, and the nodes no path reaches any more."""
+    g = copy.deepcopy(g)
+    kids = g["nodes"][nid]["children"]
+    g["nodes"][nid]["children"] = kids[:i] + kids[i + 1:]
+    keep = _reach(g)
+    g["nodes"] = {k: v for k, v in g["nodes"].items() if k in keep}
+    return g
+
+
+def quiet_versions(e: dict, g0: dict, rng: random.Random, pers: list[str]) -> list[dict]:
+    """An event with no choices to reorder and no page the strict frame fits (the owner, 2026-11-16): up to three
+    versions that recast its villagers and vary which of its random outcomes can come (one left out of a random page
+    of three or more, a different one each version), with the personality frame on about one in three where the
+    event casts two villagers (not a catalogue, nature, grief, loss, illness or death scene); else one version that
+    only recasts.  The owner's words are never changed."""
+    branches = [nid for nid, n in g0["nodes"].items() if n.get("type") == "branch"
+                and len(n.get("children") or []) >= 3 and not any(c.get("if") or c.get("else") for c in n["children"])]
+    two = [rid for rid, r in g0["roles"].items() if r.get("kind") == "villager" and not r.get("special")][:2]
+    loose_fit = len(two) == 2 and e.get("section") not in NO_FRAME_SECTIONS and not SERIOUS.search(_texts(g0)) \
+        and _first_page(g0) is not None and not any(nm in (g0.get("pools") or {}) for nm in (POOL_A, POOL_B))
+    plans: list[tuple[int | None, bool]] = []
+    if branches:
+        n = len(g0["nodes"][branches[0]]["children"])
+        drops = list(range(n))
+        rng.shuffle(drops)
+        plans = [(d, False) for d in drops[:VERSIONS]]
+    if loose_fit:
+        if plans:
+            k = rng.randrange(len(plans))
+            plans[k] = (plans[k][0], True)
+        else:
+            plans = [(None, True)]
+    if not plans:
+        plans = [(None, False)]                       # recast only
+    out = []
+    for drop, frame in plans:
+        g = _without_child(g0, branches[0], drop) if drop is not None else copy.deepcopy(g0)
+        if frame:
+            _with_frame(g, pers, two)
+        out.append({"k": len(out), "graph": g, "frame": frame, "order": None, "drop": drop})
+    return out
 
 
 def build(events: list[dict], bank: mx.Bank | None = None) -> tuple[list[mx.Variant], dict[str, str]]:
@@ -227,8 +290,9 @@ def build(events: list[dict], bank: mx.Bank | None = None) -> tuple[list[mx.Vari
         for v in vs:
             g, problems = cg.validate(v["graph"], scrolling=True)
             if problems:
-                if v["frame"]:
-                    continue          # the frame does not fit this page (room, glyphs): this version is left out
+                if v["frame"] or v.get("drop") is not None:
+                    continue          # the frame does not fit this page, or the outcome left out is one a later
+                    #                   page asks about ("visited"): this version is left out
                 raise SystemExit(f"living_from_static: {e['id']} k={v['k']}: " + "; ".join(problems[:4]))
             var = mx.Variant(seed=e["id"], manifest_id=sid, series=series, bank=BANK_STATIC, cat_index=0,
                              seed_index=si, k=v["k"], games=list(e["games"]), flags=0, graph=g, outcomes=[],
@@ -265,8 +329,8 @@ def write_static_only_doc(events: list[dict], variants: list[mx.Variant], static
     for s in sorted(seeds):
         lines.append(f"| `{s}` | {len(seeds[s])} | {vers[s]} | {frames[s]} |")
     lines += ["", "## Static only (nothing to mix)", "",
-              "An event with no choices to reorder and no page the frame fits would give a version identical to the "
-              "static event, so it stays static only.", "", "| Event | Source | Title | Why |", "|---|---|---|---|"]
+              "An event is static only when none of its versions validates.", "",
+              "| Event | Source | Title | Why |", "|---|---|---|---|"]
     for eid in sorted(static_only):
         lines.append(f"| `{eid}` | {src.get(eid, '')} | {title.get(eid, '').replace('|', '/')} | {static_only[eid]} |")
     STATIC_ONLY_DOC.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")

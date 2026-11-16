@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Isola Grand Event Collection",
-  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 3159 events in this game in this build. The Living Event Engine adds 2763 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 3159 events in this game in this build. The Living Event Engine adds 3374 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
   "output_tag": "Isola Grand Event Collection",
   "dependencies": [
     "vv5_story_cheat_upgrades",
@@ -437,14 +437,19 @@
       "sha256": "60FBF911BE7912940CE02E43FF8DEE9319298C706E21E424D0EF1D3B89421447"
     },
     {
+      "source": "assets/event_collection/vv5/manifest-st_armor45.txt",
+      "destination": "Island Event Collection/manifest-st_armor45.txt",
+      "sha256": "E38F559D01F92C8C227B0720993C23FD943AEA294B30EA9E0F39439CCE8D8162"
+    },
+    {
       "source": "assets/event_collection/vv5/manifest-st_companio.txt",
       "destination": "Island Event Collection/manifest-st_companio.txt",
-      "sha256": "5DEF2E384BDD774DC5D040586BEF486C8B8A92648AEFC27CFE6DE522429D84A9"
+      "sha256": "DEAFBC820242789B054D284476B0889EB0367140215D936D2A653B78024F59C0"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il01.txt",
       "destination": "Island Event Collection/manifest-st_da_il01.txt",
-      "sha256": "91BBF9D3A2D6EA1E76E8EDAA7F7C738C1968B34FE6F1272CD1819BC0BA34410C"
+      "sha256": "729B2D9B497DFACDDAA4C459E304BE7A161EA0362092815DB196A55DA6B984B0"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il02.txt",
@@ -454,22 +459,22 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il03.txt",
       "destination": "Island Event Collection/manifest-st_da_il03.txt",
-      "sha256": "45F16C26821ED633959EF078830C6EF5A62A4310F77246B6EABA5A54B54F1724"
+      "sha256": "498D72AB4B238EFB2DF2FBFD43A7614BC197E4BB956751361896952FA0C95BD2"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il04.txt",
       "destination": "Island Event Collection/manifest-st_da_il04.txt",
-      "sha256": "EA71CFF5D44E2274F632189AC16D7492F2D52E864CC6C5FDBABF1C27920554AE"
+      "sha256": "AC8C03D43B5B22FF772C1143EF6B9DCB0BE1D012008ED1948CFC612212C3D4E9"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il05.txt",
       "destination": "Island Event Collection/manifest-st_da_il05.txt",
-      "sha256": "F1368AFE40AD89011CF6E8EE6B1A20C06D4A04FB725C4B2A45573E3F8E1E04C8"
+      "sha256": "E26C6A7D826ECC94C56A15A1087D3017D0FF37201D49F16AE4E7F91770866DA5"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il06.txt",
       "destination": "Island Event Collection/manifest-st_da_il06.txt",
-      "sha256": "9D98F08D5C3AA159FD818A1FB28BFD085B19D78AE922D197EBF81ED92DE0D9A7"
+      "sha256": "78B24DBB5D4804772AEF4616F80F051D5ABE8F4BAEB21382D33107F9CDBAA622"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il07.txt",
@@ -479,17 +484,17 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il08.txt",
       "destination": "Island Event Collection/manifest-st_da_il08.txt",
-      "sha256": "87245ADCF89B66260A0ABE5C122CB3D42A7D6B72886976885893337B0645B044"
+      "sha256": "2B1DD723A20B7A3BD8C202E455FFBAE3DB3A7E8331D780E0CF04EA101B8B351A"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il09.txt",
       "destination": "Island Event Collection/manifest-st_da_il09.txt",
-      "sha256": "2636512F73183BF85443A4D71A653090636EFEAEFF2F4F2411342247FB7571E9"
+      "sha256": "D8B1C25E522448C272468DAC64E2F9A62D9F2D48CE43173A9E9996982716E668"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_il10.txt",
       "destination": "Island Event Collection/manifest-st_da_il10.txt",
-      "sha256": "BB4CAA1FE97C1FA032968CD75F068FAA997938972F7E706313CAC1DF25091687"
+      "sha256": "864828225AE571FEBE05BB30188B7E263B913CD618058CCBD593B2BC22796E8B"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_da_lo.txt",
@@ -499,17 +504,22 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_da_wd.txt",
       "destination": "Island Event Collection/manifest-st_da_wd.txt",
-      "sha256": "B6E50A067133ECCE5BC4FB26EDE95F9BCC5E195768B43E4F6220F8A682A71D0E"
+      "sha256": "916D99670562CA0A4FB9D70E46F12963FB2FCD3A87CB343DF9B5222756AD5892"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_ad.txt",
       "destination": "Island Event Collection/manifest-st_draft_ad.txt",
-      "sha256": "9957CD7763F552BEF8F6C5B6EC7CFB78569A1BEFA7E59D55E53465BA23189FEB"
+      "sha256": "3AA1EE0EB2662504CA586F70C98449F36F5CA1EB6FEF21538990AA4A2DFBF2BA"
+    },
+    {
+      "source": "assets/event_collection/vv5/manifest-st_draft_ar.txt",
+      "destination": "Island Event Collection/manifest-st_draft_ar.txt",
+      "sha256": "697320EA8322D468AC9F2D7C29D7E5F755FB236847C94A9D72D1CCCCE5A08235"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_bl.txt",
       "destination": "Island Event Collection/manifest-st_draft_bl.txt",
-      "sha256": "86D15F3372A67923BC16C8A6FA6C87FBB388ACCF67A4F5E6902CB23F4BA604D1"
+      "sha256": "70F6200BDA9B644815DB682D8AB2B38B240D9EDDB791C331802D93A70FE3897B"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_da.txt",
@@ -524,22 +534,22 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_di.txt",
       "destination": "Island Event Collection/manifest-st_draft_di.txt",
-      "sha256": "CD5C4B467FEF44F56B804B81B4296428DC81AE5F13EDDFEB9F0F3B25B311C84D"
+      "sha256": "B71FA5544736ADD78AF4F6286AC92C0C12B33B69FA60508ED66B9146F5E94512"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_dr.txt",
       "destination": "Island Event Collection/manifest-st_draft_dr.txt",
-      "sha256": "02011B7CD53C3BB57C50B90A060F25A6D82EE7CCC952B1237AEF5E1A239F4058"
+      "sha256": "7088CB4A14023CF0F7BC0A2CD878149AF8C8F825D5BE519A0ACC3B5597F6887E"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_fa.txt",
       "destination": "Island Event Collection/manifest-st_draft_fa.txt",
-      "sha256": "89D76069AD664E1D2B10320463F2973D83AF3BE516F0F42981B75C50E27E2DCB"
+      "sha256": "ADADACF111627EEBCEE2611E1531108350EE70759AF90B3402EECCC7870AAF9B"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_fe.txt",
       "destination": "Island Event Collection/manifest-st_draft_fe.txt",
-      "sha256": "73B294A58B69409B6548AB05807F11C56CADC8013B42CD56ABE1BC3245629C40"
+      "sha256": "4A25C29DA38D34D250C89E7A9BF5A7703FAB5849BC2D01E71802DF4ED9F916F9"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_he.txt",
@@ -549,7 +559,7 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_hi.txt",
       "destination": "Island Event Collection/manifest-st_draft_hi.txt",
-      "sha256": "C055AF43780DF6EB151C2505951C4E460561ABC1CEBF6F562E1E133928B76283"
+      "sha256": "1EC81AF39296BBB003C069B3906ED875D7111922C212DE114674C54A0F10C02C"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_ho.txt",
@@ -574,17 +584,22 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_li.txt",
       "destination": "Island Event Collection/manifest-st_draft_li.txt",
-      "sha256": "AF76321119C99FF6CA9F742F818831E8A96B4D309BE625FE3FECCA2EFA929A6A"
+      "sha256": "DFB0C9EE909581F7F99E91DE34EC56B9BEDAAC8C6AA10ABF67142706E4D99D7F"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_na.txt",
       "destination": "Island Event Collection/manifest-st_draft_na.txt",
-      "sha256": "12B48BC0E02434764052F3322A3BB02FA23A5139E4770B65A195214065437BA8"
+      "sha256": "5D09C6F097614A2ECF25B7A939C5C640B790756EFBE4022962F520F21073C18A"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_rm.txt",
       "destination": "Island Event Collection/manifest-st_draft_rm.txt",
       "sha256": "C4BC3C83121D63530D5ACF9A792118F977F62277DD57AB711E7655BC9AEBF01C"
+    },
+    {
+      "source": "assets/event_collection/vv5/manifest-st_draft_ti.txt",
+      "destination": "Island Event Collection/manifest-st_draft_ti.txt",
+      "sha256": "05E5E81F467DB398BC868C753B71DAB7ACB73F78CE9743A67FB2E2DCBAE3910E"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_draft_tt.txt",
@@ -607,6 +622,16 @@
       "sha256": "DD3C6196EBFFBB0EC3F109266F9812EF69566269C316AA24EE906A01043F701B"
     },
     {
+      "source": "assets/event_collection/vv5/manifest-st_moments5.txt",
+      "destination": "Island Event Collection/manifest-st_moments5.txt",
+      "sha256": "64BB99BA8F92820C0AE4D69F0A3DB42C3E49E58148891CF416432A381A1202D3"
+    },
+    {
+      "source": "assets/event_collection/vv5/manifest-st_openq97.txt",
+      "destination": "Island Event Collection/manifest-st_openq97.txt",
+      "sha256": "9B730344E857E8D996CFEB4ED80EFA0FADCA88E28F80842D71429CC5FEB98E83"
+    },
+    {
       "source": "assets/event_collection/vv5/manifest-st_rolemode.txt",
       "destination": "Island Event Collection/manifest-st_rolemode.txt",
       "sha256": "701D34D9A2D895E6F1937AE2CC2DCB7B6085810C5888630B3D03EB56A22006B3"
@@ -614,7 +639,7 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_v28.txt",
       "destination": "Island Event Collection/manifest-st_v28.txt",
-      "sha256": "1FAD6E475CCCEBB3B5515B6AB240D3AFDE79934A1FB91C4DC3C8004FC86F6372"
+      "sha256": "844153E7EDECE6F3323F8673484227F41FC32CBFEDA4864838FF0AEC014A7457"
     },
     {
       "source": "assets/event_collection/vv5/manifest-universal.txt",
@@ -797,14 +822,19 @@
       "sha256": "E78090080CD5DFA0D773D5FEA69618D09907ED40755C0E5BF2A7206689A7DB52"
     },
     {
+      "source": "assets/event_collection/vv5/living-st_armor45.pak",
+      "destination": "Island Event Collection/living-st_armor45.pak",
+      "sha256": "AA40E0EFB74A60EEF94DC27FA882A1287CAFB5792902C0E3338ADC9B0B718956"
+    },
+    {
       "source": "assets/event_collection/vv5/living-st_companio.pak",
       "destination": "Island Event Collection/living-st_companio.pak",
-      "sha256": "D4DA1EF24D18DE6258EAA65784A66AF17B913FF16C92C5BFFA46B4CA2A50C400"
+      "sha256": "2687070586B42CD12B329712CB9BA4514396107620F137CF12A98107BE02E0B6"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il01.pak",
       "destination": "Island Event Collection/living-st_da_il01.pak",
-      "sha256": "77A7DC66AD43F5F5387DEEA734212159BC93A6C0D3E66E1CFCE5A41C34E5A323"
+      "sha256": "9193F5AAEBC730824378CBEAFBAEFF47264256623242463AA4D31DBB21A54896"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il02.pak",
@@ -814,22 +844,22 @@
     {
       "source": "assets/event_collection/vv5/living-st_da_il03.pak",
       "destination": "Island Event Collection/living-st_da_il03.pak",
-      "sha256": "7C8C4F4C5D793648EF8A9FF9BAAA733C479C49D6255F77F0FAFD84BC8A91C4FE"
+      "sha256": "574F461D48811B793878C5EAF7CC92BEB021D1CFC09E11E2D2669A9E33BEBA71"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il04.pak",
       "destination": "Island Event Collection/living-st_da_il04.pak",
-      "sha256": "D9B3436F4E249ABF1D0209866CE2A0EA2573E8B82BD56CBC30F94E052FA1212E"
+      "sha256": "6D7BC3B663ACCE838AB567E7E042632895BC15CC1587FD70E8AD06FA9660F22E"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il05.pak",
       "destination": "Island Event Collection/living-st_da_il05.pak",
-      "sha256": "3B608717B9058CDD405890C2325F15A5D72CFE00BCAD3B72E53B85087D0913CD"
+      "sha256": "BEF36E382E2C1EBF94656D0C59C466F125D9E8103493DF95011FD275AB0E1917"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il06.pak",
       "destination": "Island Event Collection/living-st_da_il06.pak",
-      "sha256": "9050DAFB879B55FDC6BEB7AAB1A9B4B5BD574B55DCBD84776501C956C5587795"
+      "sha256": "2D456F0AF5537801CAE446252EC1D5D927082F5EF8746A1F85160A14E6249111"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il07.pak",
@@ -839,17 +869,17 @@
     {
       "source": "assets/event_collection/vv5/living-st_da_il08.pak",
       "destination": "Island Event Collection/living-st_da_il08.pak",
-      "sha256": "64BAA67A07B8514352A4C47F0061B927C3667BC0677A27CF9CE10DD9B666D84F"
+      "sha256": "EAF4B16415728EA3B72D9E742DE269CD036D6B727893AF5B5908447956FF5A6A"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il09.pak",
       "destination": "Island Event Collection/living-st_da_il09.pak",
-      "sha256": "F1041A049CE8E6892659B2B4D4EBD66F670CB1691EB536837094F01154BFB613"
+      "sha256": "7F0C698EEE2EAE7B0A3AB9DA639115EF8D13C3D87F429B939C2E11658FB7FCE3"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_il10.pak",
       "destination": "Island Event Collection/living-st_da_il10.pak",
-      "sha256": "CD99D7F0A5E5B840231312362B2E4A722489AA7388F34EECBAC6D0889F244621"
+      "sha256": "445B74B0AEEB1A7BD15331828F4EC077E89D0F4A3619849F97C1C30AAD048C0C"
     },
     {
       "source": "assets/event_collection/vv5/living-st_da_lo.pak",
@@ -859,17 +889,22 @@
     {
       "source": "assets/event_collection/vv5/living-st_da_wd.pak",
       "destination": "Island Event Collection/living-st_da_wd.pak",
-      "sha256": "ECB8FD8E81FD260A021946DF227A29A45B0B662EF730E48411F3E4E688637FC4"
+      "sha256": "C4AC97EDA71BABE432326A9B82685DB0410FA6D412B0FE9FE86C87D5CB6D20AF"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_ad.pak",
       "destination": "Island Event Collection/living-st_draft_ad.pak",
-      "sha256": "D3B7C64DE6F51718E7F5734FE2940739DFC5385EE016C90C2E3E8E041F1C43BD"
+      "sha256": "0B559EB9CA914ACC788D610E8F4BD978D5CAFEA06ABB92584B27D24AB6022C51"
+    },
+    {
+      "source": "assets/event_collection/vv5/living-st_draft_ar.pak",
+      "destination": "Island Event Collection/living-st_draft_ar.pak",
+      "sha256": "B1054FD1855328C9858BE2003D2F04DBB3D78C4B04D51BAC2B1AA90B3976A91D"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_bl.pak",
       "destination": "Island Event Collection/living-st_draft_bl.pak",
-      "sha256": "B387F9644AA5ACF30F309C21BAE306604531A52E20F7F29882961281D59C5E9E"
+      "sha256": "FC197F3D0D1BB37FF309B296D7AA7908F0638F3C62A9580F37A13996EAC056AB"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_da.pak",
@@ -884,22 +919,22 @@
     {
       "source": "assets/event_collection/vv5/living-st_draft_di.pak",
       "destination": "Island Event Collection/living-st_draft_di.pak",
-      "sha256": "B474FF785687085088A32CA430B3DCB716055B064E39E6C0E12EBF490AD04357"
+      "sha256": "880714E4570A46E3D3334CE4C4AED481286FED73E0E6B9039B53515012C4E10F"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_dr.pak",
       "destination": "Island Event Collection/living-st_draft_dr.pak",
-      "sha256": "CDA3C4470BD17C7E0DFEFCCED8608886A7D99353F1FE7A20382D50E574B945D4"
+      "sha256": "5114B0C49A79094F3346C2CF2D5AF06D7FA8B41EF926BF1C81FEC79FD86AC91A"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_fa.pak",
       "destination": "Island Event Collection/living-st_draft_fa.pak",
-      "sha256": "BBF3EB767AE4D5DF7237E4D46EA04341CA68E5529CAE32D128FBFB9F21CFD5E6"
+      "sha256": "A0660F5C660D46C4E3EC80D8810A66C48A804A9C86E38B72AAB619764162DEEF"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_fe.pak",
       "destination": "Island Event Collection/living-st_draft_fe.pak",
-      "sha256": "5ECF8A8D8D27F7A2E9A7C0BF3EFA1E8CC1A5469899C3948E40D06538FE90B31F"
+      "sha256": "EE7AD18566DD910E022E3F212EF2BCCB12800C011E434F6ACE188952190F49EB"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_he.pak",
@@ -909,7 +944,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_draft_hi.pak",
       "destination": "Island Event Collection/living-st_draft_hi.pak",
-      "sha256": "08A9E8E75876B8ADF3E1DD1CE043B2E66EE1180E325AE8B64C519F00F99C1C10"
+      "sha256": "EB97ADB80B2BD74501D442FE41826FF0E8B739C38FF7ACDA2D7DCED5BF17A1C4"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_ho.pak",
@@ -934,17 +969,22 @@
     {
       "source": "assets/event_collection/vv5/living-st_draft_li.pak",
       "destination": "Island Event Collection/living-st_draft_li.pak",
-      "sha256": "93B13874373D71CC146FDCBD7823D956E940E29D7DF3831528A9CEA1835F3DED"
+      "sha256": "92FEC018550F2EDC6370A9156670F32D9D7818D47E8FC9EDC2145F37BCBC3A91"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_na.pak",
       "destination": "Island Event Collection/living-st_draft_na.pak",
-      "sha256": "DCE65731F6DD0D2857203F9ECACE84D2BE6EC314A904216EF8D83B8D7ADF3F75"
+      "sha256": "51897186AB00F8BEBFF863A65F466FDA24B95A1384DA595E1F85CF53AB1F1C07"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_rm.pak",
       "destination": "Island Event Collection/living-st_draft_rm.pak",
       "sha256": "72D1CA9EB028482FDF49D9CEAECA37AA12FDFA35BCFA928DC2D844F894CC3DF4"
+    },
+    {
+      "source": "assets/event_collection/vv5/living-st_draft_ti.pak",
+      "destination": "Island Event Collection/living-st_draft_ti.pak",
+      "sha256": "6DDDC6775E5A34234DDC4703255F196B74D2882123539C47074FAA3CFBBCC801"
     },
     {
       "source": "assets/event_collection/vv5/living-st_draft_tt.pak",
@@ -967,6 +1007,16 @@
       "sha256": "18AD7231D9A11050F5D13D8A050FF5A6A416FC75093AABFDDA40221B96B4B14E"
     },
     {
+      "source": "assets/event_collection/vv5/living-st_moments5.pak",
+      "destination": "Island Event Collection/living-st_moments5.pak",
+      "sha256": "50FCDF8BF1DDBF2136ACE6D78CCF39E2E88D6938674AA00125ADCCA864ED27DE"
+    },
+    {
+      "source": "assets/event_collection/vv5/living-st_openq97.pak",
+      "destination": "Island Event Collection/living-st_openq97.pak",
+      "sha256": "6F417C99836BAA7C4E3A372A5B96C6F23E39FCF4F8D6CD393BCB0F17457D751F"
+    },
+    {
       "source": "assets/event_collection/vv5/living-st_rolemode.pak",
       "destination": "Island Event Collection/living-st_rolemode.pak",
       "sha256": "4207E3C22738BC714B2721C8D11B8DB74E61A3596B7E0010FDB739EBA1999F22"
@@ -974,7 +1024,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_v28.pak",
       "destination": "Island Event Collection/living-st_v28.pak",
-      "sha256": "EB3F601831B1419A40EA6628810D48D9E9CEEF64BBE49E45ED2EC70627DA5B06"
+      "sha256": "5C50A1E8D3359F6CD22BA621D969E1E91FB4064EA9DD9E968B98341306743E76"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
