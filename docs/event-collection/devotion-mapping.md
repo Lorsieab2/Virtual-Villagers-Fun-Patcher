@@ -16,7 +16,9 @@ jewelry, craftmaking, weaponsmithing and bow-making Building; archery as a pract
 only sport); potions, stews, remedies, poultices, salves, tonics, brews, elixirs and anything similar are Research or
 Healing, whether or not the text calls them medicine (the owner, 2026-11-16: "Potions, stews and similar things can
 be research or healing!!!"; list both, ["Research", "Healing"], and the game draws one it has); cooking a meal is
-still Farming, and herbalism and bonesetting still Healing; writing scrolls or books Research;
+still Farming, and herbalism and bonesetting still Healing; magic, spells, charms, blessings and the like are Healing or
+Devotion (["Healing", "Devotion"]: VV1-VV4 draw Healing), only where the reward is clearly earned by doing magic;
+writing scrolls or books Research;
 any other craft an event names goes to the obvious main skill, and doubt is flavor. A craft that fits two professions
 (archery: Farming by hunting, Building by bow-making; a medicine potion: Research and Healing) gives each when the text
 shows both, else one of them at random (a skill effect's list draws one). Each Devotion reward below was
