@@ -568,6 +568,7 @@ FILES = [
     "src/vv_the_rumblings.py",
     "src/vv_game_mechanics_ceremony.py",
     "src/vv_game_mechanics_children_play.py",
+    "src/vv_game_mechanics_no_safeguards.py",
     # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
     "src/vv_game_mechanics_collection.py",
     "data/event_collection_index.json",

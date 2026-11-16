@@ -213,8 +213,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         module = importlib.import_module(f"vv_game_mechanics_events_vv{village.game}")
     except ImportError:
         return []
-    return (event_facts(village, getattr(module, "RULES", ()), getattr(module, "EVENTS", ()),
-                        getattr(module, "EXTRA", ()))
+    import vv_game_mechanics_no_safeguards as no_safeguards   # the game's own events without their safeguards
+    return (no_safeguards.facts(village)
+            + event_facts(village, getattr(module, "RULES", ()), getattr(module, "EVENTS", ()),
+                          getattr(module, "EXTRA", ()))
             + collection_facts(village))
 
 
