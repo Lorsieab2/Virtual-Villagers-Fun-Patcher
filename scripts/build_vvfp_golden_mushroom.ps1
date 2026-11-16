@@ -1,14 +1,16 @@
 $ErrorActionPreference = "Stop"
 
-# Builds "VVFP Golden Mushroom.dll" (the image companion of the four
-# Super-Secret Golden Mushroom rows: A New Home, The Secret City, The Tree of
-# Life, New Believers) from native\vvfp_golden_mushroom.  32-bit, static CRT,
-# like every other companion.  The rows in data\builds.json pin the DLL by
-# SHA-256: update the four "VVFP Golden Mushroom.dll" companion hashes after
-# a rebuild.
+# Builds "VVFP Golden Mushroom.dll" (the companion of the five
+# Super-Secret Golden Mushroom rows: the image in A New Home, The Secret City,
+# The Tree of Life and New Believers, and the finds record in all five) from
+# native\vvfp_golden_mushroom, with native\shared\save_folder.c.  32-bit,
+# static CRT, like every other companion.  The rows in data\builds.json pin
+# the DLL by SHA-256: update the five "VVFP Golden Mushroom.dll" companion
+# hashes after a rebuild.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vvfp_golden_mushroom"
+$sharedRoot = Join-Path $projectRoot "native\shared"
 $outputRoot = Join-Path $projectRoot "assets\golden_mushroom"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
@@ -27,6 +29,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_golden_mushroom.c") `
+    (Join-Path $sharedRoot "save_folder.c") `
     /link `
     /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_golden_mushroom.def")) `
@@ -35,7 +38,8 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP Golden Mushroom.dll")) `
     /RELEASE `
-    kernel32.lib
+    kernel32.lib `
+    shell32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native golden-mushroom DLL compilation failed."
 }
@@ -61,6 +65,7 @@ New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_golden_mushroom.c") `
+    (Join-Path $sharedRoot "save_folder.c") `
     /link `
     /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_golden_mushroom_test.def")) `
@@ -69,13 +74,15 @@ New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $testRoot "VVFP Golden Mushroom.test.dll")) `
     /RELEASE `
-    kernel32.lib
+    kernel32.lib `
+    shell32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native golden-mushroom DLL compilation failed (test build)."
 }
 
 @(
     (Join-Path $projectRoot "vvfp_golden_mushroom.obj"),
+    (Join-Path $projectRoot "save_folder.obj"),
     (Join-Path $projectRoot "vvfp_golden_mushroom.exp"),
     (Join-Path $projectRoot "vvfp_golden_mushroom.lib")
 ) | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {
