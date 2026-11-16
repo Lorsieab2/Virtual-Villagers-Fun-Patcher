@@ -174,6 +174,14 @@ HIDDEN_LINES = (
     # New Believers (0x46A3CC) do, and a villager who likes work goes on to choose.
     ("Work: 15% of idle picks take no job, whatever the villager likes; with Fix Vanilla Bugs, as in the later "
      "games, a villager who likes work is never one of those 15%.", gm.CODE),
+    # The work-spot routine 0x447CD0 (the job a player assigned by a drop, +0x3B8) reads no like or dislike; with
+    # Fix Vanilla Bugs (0x447CFF -> 0x456E00) it follows The Lost Children's 0x461580: likes work -> the spot;
+    # else rand(100) < 20 -> nothing that turn; else rand(100) < 40 and (food +0xA2EC >= 4,000 or dislikes work)
+    # -> nothing that turn.
+    ("A job you assigned by dropping a villager: in the normal game liking or disliking work makes no difference "
+     "to whether the villager goes back to it. With Fix Vanilla Bugs, as in The Lost Children: a villager who likes work always keeps it; anyone "
+     "else skips it 20% of the times it comes up, and of the rest 40% more while the village has 4,000 food or "
+     "more or the villager dislikes work (52% in all then). A skipped job is not forgotten.", gm.CODE),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
