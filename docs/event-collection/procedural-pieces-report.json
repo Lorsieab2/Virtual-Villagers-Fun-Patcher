@@ -1,0 +1,322 @@
+{
+ "round": 2,
+ "per_game": 2000,
+ "graph_examples": {},
+ "stats": {
+  "vv1 drawn": 2000,
+  "vv1 composed": 2000,
+  "vv2 drawn": 2000,
+  "vv2 composed": 2000,
+  "vv3 drawn": 2000,
+  "vv3 composed": 2000,
+  "vv4 drawn": 2000,
+  "vv4 composed": 2000,
+  "vv5 drawn": 2000,
+  "vv5 composed": 2000
+ },
+ "rejections": {
+  "fewer than 2 approaches with a plain outcome": 3
+ },
+ "new_pairs": [],
+ "summary": {
+  "kinds": {
+   "setup": 1169,
+   "approach": 3992,
+   "outcome": 5708,
+   "frame": 1112
+  },
+  "files": {
+   "companion_c5": {
+    "bytes": 88485,
+    "setup": 103,
+    "approach": 279,
+    "outcome": 254,
+    "pair bits": 0
+   },
+   "companion_cat": {
+    "bytes": 178568,
+    "setup": 154,
+    "approach": 616,
+    "outcome": 618,
+    "pair bits": 0
+   },
+   "companion_fwk": {
+    "bytes": 63178,
+    "setup": 59,
+    "approach": 236,
+    "outcome": 139,
+    "pair bits": 0
+   },
+   "companion_lbl": {
+    "bytes": 110669,
+    "setup": 115,
+    "approach": 345,
+    "outcome": 345,
+    "pair bits": 0
+   },
+   "companion_sss": {
+    "bytes": 104873,
+    "setup": 96,
+    "approach": 288,
+    "outcome": 290,
+    "pair bits": 0
+   },
+   "exclusive": {
+    "bytes": 8138,
+    "setup": 4,
+    "approach": 8,
+    "outcome": 27,
+    "pair bits": 0
+   },
+   "horizon_hz_vol2": {
+    "bytes": 64526,
+    "setup": 40,
+    "approach": 120,
+    "outcome": 240,
+    "pair bits": 0
+   },
+   "horizon_hz_world": {
+    "bytes": 69529,
+    "setup": 40,
+    "approach": 120,
+    "outcome": 240,
+    "pair bits": 0
+   },
+   "living_lv_auth": {
+    "bytes": 80837,
+    "setup": 46,
+    "approach": 184,
+    "outcome": 368,
+    "pair bits": 0
+   },
+   "living_lv_circle": {
+    "bytes": 48448,
+    "setup": 31,
+    "approach": 93,
+    "outcome": 186,
+    "pair bits": 0
+   },
+   "living_lv_life": {
+    "bytes": 70675,
+    "setup": 45,
+    "approach": 135,
+    "outcome": 270,
+    "pair bits": 0
+   },
+   "living_lv_med": {
+    "bytes": 54890,
+    "setup": 31,
+    "approach": 93,
+    "outcome": 186,
+    "pair bits": 0
+   },
+   "living_lv_peoples": {
+    "bytes": 53131,
+    "setup": 36,
+    "approach": 108,
+    "outcome": 216,
+    "pair bits": 0
+   },
+   "living_lv_unseen": {
+    "bytes": 59276,
+    "setup": 39,
+    "approach": 117,
+    "outcome": 234,
+    "pair bits": 0
+   },
+   "living_lv_ways": {
+    "bytes": 84007,
+    "setup": 50,
+    "approach": 188,
+    "outcome": 376,
+    "pair bits": 0
+   },
+   "rolemodels_rm": {
+    "bytes": 85925,
+    "setup": 40,
+    "approach": 160,
+    "outcome": 320,
+    "pair bits": 0
+   },
+   "v13": {
+    "bytes": 15347,
+    "setup": 4,
+    "approach": 14,
+    "outcome": 51,
+    "pair bits": 0
+   },
+   "v20": {
+    "bytes": 19011,
+    "setup": 12,
+    "approach": 28,
+    "outcome": 89,
+    "pair bits": 0
+   },
+   "v23": {
+    "bytes": 9707,
+    "setup": 4,
+    "approach": 12,
+    "outcome": 43,
+    "pair bits": 0
+   },
+   "mc_isl": {
+    "bytes": 35559,
+    "setup": 20,
+    "approach": 80,
+    "outcome": 160,
+    "pair bits": 0
+   },
+   "mc_dis": {
+    "bytes": 26494,
+    "setup": 15,
+    "approach": 60,
+    "outcome": 120,
+    "pair bits": 0
+   },
+   "mc_aft": {
+    "bytes": 26843,
+    "setup": 15,
+    "approach": 60,
+    "outcome": 120,
+    "pair bits": 0
+   },
+   "mc_los": {
+    "bytes": 26690,
+    "setup": 15,
+    "approach": 60,
+    "outcome": 120,
+    "pair bits": 0
+   },
+   "mc_tra": {
+    "bytes": 27162,
+    "setup": 15,
+    "approach": 60,
+    "outcome": 120,
+    "pair bits": 0
+   },
+   "mc_bel": {
+    "bytes": 27311,
+    "setup": 15,
+    "approach": 60,
+    "outcome": 120,
+    "pair bits": 0
+   },
+   "le_per": {
+    "bytes": 47037,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 93,
+    "pair bits": 9
+   },
+   "le_fam": {
+    "bytes": 47041,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 93,
+    "pair bits": 11
+   },
+   "le_cel": {
+    "bytes": 47260,
+    "setup": 11,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 94,
+    "pair bits": 11
+   },
+   "le_art": {
+    "bytes": 46834,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 92,
+    "pair bits": 11
+   },
+   "le_ani": {
+    "bytes": 47174,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 94,
+    "pair bits": 8
+   },
+   "le_bel": {
+    "bytes": 47001,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 93,
+    "pair bits": 12
+   },
+   "le_gov": {
+    "bytes": 47124,
+    "setup": 12,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 92,
+    "pair bits": 18
+   },
+   "le_oth": {
+    "bytes": 47296,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 94,
+    "pair bits": 10
+   },
+   "le_foo": {
+    "bytes": 46474,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 91,
+    "pair bits": 10
+   },
+   "le_emo": {
+    "bytes": 47156,
+    "setup": 11,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 93,
+    "pair bits": 10
+   },
+   "le_res": {
+    "bytes": 47043,
+    "setup": 10,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 93,
+    "pair bits": 11
+   },
+   "le_odd": {
+    "bytes": 46232,
+    "setup": 11,
+    "approach": 39,
+    "outcome": 38,
+    "frame": 90,
+    "pair bits": 11
+   }
+  },
+  "stats": {
+   "collection events": 1353,
+   "skill requirement dropped": 251,
+   "age gap dropped": 6,
+   "collection events split": 914,
+   "approach left out of a game: its title-case label is too wide": 6
+  },
+  "skipped": {
+   "no question (random outcomes only)": 280,
+   "a pool or an inline pick": 38,
+   "an outcome that branches again": 29,
+   "no needed villager and no stranger (the composer rejects it)": 26,
+   "an alias role": 24,
+   "a nursing-parent role (no slot special for it)": 19,
+   "effects before the outcome": 16,
+   "a role condition": 3,
+   "a requirement condition": 2,
+   "an else": 1,
+   "a patch condition": 1
+  }
+ }
+}
