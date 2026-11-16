@@ -72,9 +72,12 @@ from vv_fun_patcher import (
     SICKNESS_MULTIPLIER_RANGE,
     LOUDER_FLUTES_MULTIPLIER_DEFAULT,
     LOUDER_FLUTES_MULTIPLIER_RANGE,
+    ISLAND_FREQUENCY_MULTIPLIER_DEFAULT,
+    ISLAND_FREQUENCY_MULTIPLIER_RANGE,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_louder_flutes_multiplier,
+    set_island_frequency_multiplier,
     set_unicode_font_face,
     set_unicode_font_file,
     unicode_font_file,
@@ -250,6 +253,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # More Frequent Island Events (all five games; the owner, 2026-11-15: new v1.35.97 patches are on in Owner's
+    # Defaults, off everywhere else) -- off here and in Select All.
+    + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -318,6 +324,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
+    + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -421,6 +429,15 @@ def saved_louder_flutes_multiplier(settings: dict) -> int:
              if isinstance(settings, dict) else None)
     if isinstance(value, bool) or not isinstance(value, int) or value not in LOUDER_FLUTES_MULTIPLIER_RANGE:
         return LOUDER_FLUTES_MULTIPLIER_DEFAULT
+    return value
+
+
+def saved_island_frequency_multiplier(settings: dict) -> int:
+    """More Frequent Island Events' multiplier a settings file holds: a whole number 2 to 100, else the default 2."""
+    value = (settings.get("island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+             if isinstance(settings, dict) else None)
+    if isinstance(value, bool) or not isinstance(value, int) or value not in ISLAND_FREQUENCY_MULTIPLIER_RANGE:
+        return ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
     return value
 
 
@@ -1405,6 +1422,9 @@ class App(tk.Tk):
             # Louder Wind Flutes' multiplier (The Tree of Life; the owner, 2026-11-15: "control how loud the wind
             # flutes are too! (same slider)"): 2 to 100, 5 unless moved; written beside its companion.
             self.louder_flutes_var = tk.IntVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 to 100, 2 unless
+            # moved; written beside its companion.
+            self.island_frequency_var = tk.IntVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -1748,7 +1768,7 @@ class App(tk.Tk):
         # Louder Wind Flutes (The Tree of Life): how many times louder, whole numbers 2 to 100 (only used with that
         # row ticked).
         louder_flutes_group = ttk.Frame(fun_settings)
-        louder_flutes_group.pack(side="left")
+        louder_flutes_group.pack(side="left", padx=(0, 16))
         ttk.Label(louder_flutes_group, text="Louder Wind Flutes:").pack(side="left", padx=(0, 4))
         self.louder_flutes_scale = tk.Scale(
             louder_flutes_group, variable=self.louder_flutes_var, orient="horizontal",
@@ -1761,6 +1781,21 @@ class App(tk.Tk):
         # What patches use follows the slider, whichever way it is moved (slider, box, settings, Owner's Defaults).
         self.louder_flutes_var.trace_add("write", lambda *_args: self._louder_flutes_changed())
         self._louder_flutes_changed()       # the saved number, loaded before the window was built
+        # More Frequent Island Events (all five games): how many times as often, whole numbers 2 to 100 (only used
+        # with that row ticked).
+        island_frequency_group = ttk.Frame(fun_settings)
+        island_frequency_group.pack(side="left")
+        ttk.Label(island_frequency_group, text="More Frequent Island Events:").pack(side="left", padx=(0, 4))
+        self.island_frequency_scale = tk.Scale(
+            island_frequency_group, variable=self.island_frequency_var, orient="horizontal",
+            from_=ISLAND_FREQUENCY_MULTIPLIER_RANGE[0], to=ISLAND_FREQUENCY_MULTIPLIER_RANGE[-1], resolution=1,
+            length=120, showvalue=True, command=lambda _value: self._save_settings())
+        self.island_frequency_scale.pack(side="left")
+        self.island_frequency_box = self._multiplier_box(island_frequency_group, self.island_frequency_var,
+                                                         ISLAND_FREQUENCY_MULTIPLIER_RANGE)
+        self._help_button(island_frequency_group, "island_frequency_multiplier").pack(side="left", padx=(2, 0))
+        self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())
+        self._island_frequency_changed()    # the saved number, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -2621,6 +2656,9 @@ class App(tk.Tk):
         # Louder Wind Flutes' slider as its row is (on, at its default 5; the owner, 2026-11-15).
         if hasattr(self, "louder_flutes_var"):
             self.louder_flutes_var.set(LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+        # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
+        if hasattr(self, "island_frequency_var"):
+            self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -2787,6 +2825,8 @@ class App(tk.Tk):
             self.sickness_var.set(saved_sickness_multiplier(data))
         if hasattr(self, "louder_flutes_var"):
             self.louder_flutes_var.set(saved_louder_flutes_multiplier(data))
+        if hasattr(self, "island_frequency_var"):
+            self.island_frequency_var.set(saved_island_frequency_multiplier(data))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -2836,6 +2876,9 @@ class App(tk.Tk):
                                     else SICKNESS_MULTIPLIER_DEFAULT),
             "louder_flutes_multiplier": (App._louder_flutes_multiplier(self) if hasattr(self, "louder_flutes_var")
                                          else LOUDER_FLUTES_MULTIPLIER_DEFAULT),
+            "island_frequency_multiplier": (App._island_frequency_multiplier(self)
+                                            if hasattr(self, "island_frequency_var")
+                                            else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -2880,6 +2923,18 @@ class App(tk.Tk):
         except (tk.TclError, ValueError, AttributeError):
             value = LOUDER_FLUTES_MULTIPLIER_DEFAULT
         return value if value in LOUDER_FLUTES_MULTIPLIER_RANGE else LOUDER_FLUTES_MULTIPLIER_DEFAULT
+
+    def _island_frequency_multiplier(self) -> int:
+        """The More Frequent Island Events slider's whole number, kept within 2 to 100."""
+        try:
+            value = int(self.island_frequency_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
+        return value if value in ISLAND_FREQUENCY_MULTIPLIER_RANGE else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
+
+    def _island_frequency_changed(self) -> None:
+        """The More Frequent Island Events slider moved: the next patch writes its number beside the companion."""
+        set_island_frequency_multiplier(App._island_frequency_multiplier(self))
 
     def _louder_flutes_changed(self) -> None:
         """The Louder Wind Flutes slider moved: the next patch writes its number beside the companion."""

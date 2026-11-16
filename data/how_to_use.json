@@ -367,6 +367,14 @@
       ]
     },
     {
+      "ids": ["vv1_more_frequent_island_events", "vv2_more_frequent_island_events", "vv3_more_frequent_island_events", "vv4_more_frequent_island_events", "vv5_more_frequent_island_events"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. The game's own island events come more often: 2 to 100 times as often, set with the More Frequent Island Events slider (2 unless you move it).",
+        "At 2, A New Home's 12 to 23 hours between events become 6 to 11.5, The Lost Children's 10 to 19 become 5 to 9.5, and the other games' 8 to 15 become 4 to 7.5.",
+        "The first events of a new village, which event comes and its rules are the game's own. A bought or picked island event still leaves the next natural one where it was. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_children_play", "vv2_children_play", "vv3_children_play", "vv4_children_play", "vv5_children_play"],
       "guide": [
         "On by default. Children play tag and build sandcastles on the beach, each 1 pick in 15 when a child picks something to play; the usual choices keep their odds.",
@@ -1284,6 +1292,14 @@
         "How many times its normal food every villager meal takes with the Hungrier Villagers patch: a whole number from 2 to 100, 2 unless you move it; above 64 it is 64, the most the game's meal can take. Drag the slider or type the number in the box beside it (then press Enter).",
         "It is written into each game the next time you patch with Hungrier Villagers ticked; patch again after changing it.",
         "Owner's Defaults sets it to 2. It does nothing while Hungrier Villagers is not ticked."
+      ]
+    },
+    "island_frequency_multiplier": {
+      "title": "More Frequent Island Events",
+      "guide": [
+        "How many times as often the game's own island events come with the More Frequent Island Events patch: a whole number from 2 to 100, 2 unless you move it. Drag the slider or type the number in the box beside it (then press Enter).",
+        "The wait between events is divided by it: at 10, The Secret City's 8 to 15 hours become 48 to 90 minutes.",
+        "It is written into each game the next time you patch with More Frequent Island Events ticked; patch again after changing it. Owner's Defaults sets it to 2. It does nothing while the patch is not ticked."
       ]
     },
     "louder_flutes_multiplier": {

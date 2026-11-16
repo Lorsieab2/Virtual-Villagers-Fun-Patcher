@@ -141,6 +141,8 @@ FILES = [
     "assets/children_play/VVFP Children Play.dll",
     # Change Sex and Gender Presentation (all five games): the other sex's look, keeping the recorded sex.
     "assets/gender_presentation/VVFP Gender Presentation.dll",
+    # More Frequent Island Events (all five games): the game's own island events N times as often.
+    "assets/island_frequency/VVFP Island Frequency.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -336,6 +338,11 @@ FILES = [
     "data/vv3_gender_presentation_feature.json",
     "data/vv4_gender_presentation_feature.json",
     "data/vv5_gender_presentation_feature.json",
+    "data/vv1_more_frequent_island_events_feature.json",
+    "data/vv2_more_frequent_island_events_feature.json",
+    "data/vv3_more_frequent_island_events_feature.json",
+    "data/vv4_more_frequent_island_events_feature.json",
+    "data/vv5_more_frequent_island_events_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",

@@ -1,0 +1,5 @@
+LIBRARY "VVFP Island Frequency"
+EXPORTS
+    VvfpStartup
+    VvfpIslandFrequencyInstalled
+    VvfpIslandFrequencyDivisor
