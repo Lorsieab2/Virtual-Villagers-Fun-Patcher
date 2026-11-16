@@ -1020,3 +1020,18 @@ B flags, B byte 3, i a, i b, H string, H last`):**
 - **The babies of pregnant / nursing:** `"babies": "roll" | 2 | 3` (left out: one): flags bit 1 the game's own
   multiple-birth roll (7% more than one, a quarter of those triplets) without its technology gate; bit 2 twins; bits 1
   and 2 triplets; any other bit is refused.
+
+## 33. Count tokens (engine 0853e8327)
+
+(Numbering: on the engine's branch section 32 is the story traits and this is 33; on this branch section 32 is the new
+villagers, pregnancy and the other new effects. The two are lined up when the branches merge.)
+
+`{#babies:A|B|C}` and `{#made:A|B|C}` stand in BODY text only (a page, a variant, a pool item), never in a button label
+or a title. They show A for a count of 1 (or 0, or unknown), B for 2, C for 3 or more (a missing option: the last one
+given): `#babies` counts the babies the event's pregnancy or nursing effect brought, `#made` the villagers its
+new_villager and clone effects made. One to three options, each 1-40 bytes of plain text: letters, digits, space and
+`, : - ' " ; / & %` -- no placeholders, braces, line breaks or `. ! ?`.
+
+The compiler keeps the token as written (it is never an inline pick; the engine shows the option). A page is measured
+by the token's longest option. `simulate` shows the count of 1 unless its facts give `count:babies:<n>` or
+`count:made:<n>`. `collection_check` reads a count token's options as the source's "(A/B/C)".

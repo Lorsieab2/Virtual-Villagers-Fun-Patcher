@@ -1639,9 +1639,31 @@ SKILL_SIZES = {"small": (5, 10), "normal": (10, 20), "large": (20, 40), "huge": 
 _POOL_TOKEN = re.compile(r"^([A-Za-z0-9_@][A-Za-z0-9_]{0,32})(?:\.([1-9]))?$")
 
 
+# Count tokens (engine 0853e8327, cie-v6-binary.md 33): {#babies:A|B|C} / {#made:A|B|C} in body text only; A for a
+# count of 1 (or 0 / unknown), B for 2, C for 3 or more; 1-3 options of 1-40 bytes of plain text.
+COUNT_KINDS = ("babies", "made")
+COUNT_OPTION_RE = re.compile(r"[A-Za-z0-9 ,:\-'\";/&%]{1,40}")
+
+
+def parse_count(inner: str) -> tuple:
+    """'#babies:a baby|twins|triplets' -> ("count", "babies", [options]); ("bad", why) when malformed."""
+    kind, _, rest = inner[1:].partition(":")
+    opts = rest.split("|") if rest else []
+    if kind not in COUNT_KINDS or not 1 <= len(opts) <= 3 or not all(COUNT_OPTION_RE.fullmatch(o) for o in opts):
+        return ("bad", "a count is {#babies:A|B|C} or {#made:A|B|C}: 1-3 options of 1-40 letters, digits, spaces "
+                       "and , : - ' \" ; / & % (no placeholders, braces, line breaks or . ! ?)")
+    return ("count", kind, opts)
+
+
+def count_option(opts: list[str], n: int) -> str:
+    """The option a count of n shows: A for 1 (or 0 / unknown), B for 2, C for 3 or more (the last one there is)."""
+    i = 0 if n <= 1 else 1 if n == 2 else 2
+    return opts[min(i, len(opts) - 1)]
+
+
 def parse_inline(inner: str) -> list[tuple[int, str]] | None:
     """'3:red|1:blue' -> [(3, 'red'), (1, 'blue')]; None when it is not an inline pick of two or more."""
-    if "|" not in inner:
+    if "|" not in inner or inner.startswith("#"):       # a count token is never a pick
         return None
     out = []
     for alt in inner.split("|"):
@@ -1672,7 +1694,7 @@ def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
         alts = parse_inline(inner)
         if alts is not None:
             return inline_text(alts)
-        if names is None or inner.startswith("@"):
+        if names is None or inner.startswith(("@", "#")):
             return raw
         tok = _POOL_TOKEN.match(inner)
         return raw if tok else inner          # identifier-shaped: a list (checked), never text (G4)
@@ -1896,6 +1918,8 @@ def parse_brace(inner: str) -> tuple:
     [(w, text), ...]) for a|b; ("bad", why) otherwise."""
     if inner.startswith("@"):
         return ("word", inner[1:]) if ID_RE.match(inner[1:]) else ("bad", "a game word is {@word}")
+    if inner.startswith("#"):
+        return parse_count(inner)
     alts = parse_inline(inner)
     if alts is not None:
         return ("inline", alts)
@@ -2179,7 +2203,7 @@ ITEM_END_MARKS = ("!", "?")
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
               aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
-              pronoun_names: bool = False, label: bool = False) -> str:
+              pronoun_names: bool = False, label: bool = False, counts: dict[str, int] | None = None) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
     the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
     ({@tribe}; None: "the village").  The glyph fallback is applied last."""
@@ -2215,6 +2239,9 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             out.append(word.upper() if p.upper else word[0].upper() + word[1:] if p.capital and word else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "count":
+                out.append(count_option(tok[2], (counts or {}).get(tok[1], 1)))
+                continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 # G5: the save's tribe name, filled at run time.
                 name = tribe if tribe else NO_TRIBE[tok[1]]
@@ -2225,7 +2252,7 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
             item = expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                             aliases, _depth + 1, tribe, label=label)
+                             aliases, _depth + 1, tribe, label=label, counts=counts)
             out.append(item)
             drop_dot = item.endswith(ITEM_END_MARKS)
     text = "".join(out)
@@ -2273,6 +2300,9 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "count":
+                out.append(max(tok[2], key=len))                     # 33: measured by its longest option
+                continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
                 continue
@@ -3270,6 +3300,10 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
             elif tok[0] == "word":
                 if tok[1] not in g.get("words", {}) and tok[1] not in TRIBE_WORDS:
                     problems.append(f"{where}: {raw} names no game word")
+            elif tok[0] == "count" and (label or where.startswith("title")):
+                problems.append(f"{where}: a count token ({raw}) stands only in body text, not a label or title")
+            elif tok[0] == "count":
+                pass                                  # 33: kept as written; the engine shows the count's option
             elif label:
                 problems.append(f"{where}: a label shows game words only, not {raw}")
             elif tok[0] == "pool":
@@ -3315,6 +3349,12 @@ def _pool_depth(g: dict, name: str, stack: tuple = ()) -> int:
 def _validate_v6(g: dict, problems: list[str]) -> None:
     """Version 6's own checks: pools, game words, roles' requirements and safety, the new effects' words."""
     uses: dict[str, int] = {}
+    titles = [("the title", g.get("title") or "")] + \
+        [("a title variant", v.get("title") or "") for v in g.get("title_variants") or [] if isinstance(v, dict)] + \
+        [(f"node {nid} title", n.get("title") or "") for nid, n in g["nodes"].items()]
+    for where, text in titles:
+        if "{#" in text:
+            problems.append(f"{where}: a count token stands only in body text, not a title")
     for nid, n in g["nodes"].items():
         if n["type"] != "branch":
             _check_text_v6(f"node {nid}", n["text"], [], g, uses=uses)
@@ -4752,7 +4792,11 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
-    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
+    # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
+    counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
+              if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts)
+              for t in texts]
     titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()

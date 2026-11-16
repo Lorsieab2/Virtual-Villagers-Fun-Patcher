@@ -414,6 +414,9 @@ def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = No
                 bare = r"\s*/\s*".join(re.escape(i) for i in items)
                 parts.append(f"(?:{PH_RE}|{bare})" if len(items) > 1 else PH_RE)
             else:
+                if s.startswith("#"):
+                    # a count token {#babies:A|B|C} (cie-v6-binary.md 33): its options are the source's "(A/B/C)"
+                    s = s.partition(":")[2]
                 alts = [text_regex(a, words, False, pools) for a in split_alts(s)]
                 parts.append(r"\(?" + r"\s*/\s*".join(alts) + r"\)?")
     rx = "".join(parts)
