@@ -1671,6 +1671,15 @@ class NodeTitles(unittest.TestCase):
         bad["nodes"]["b"]["popup"] = "append"
         with self.assertRaises(cg.GraphError):
             cg.load(bad)
+        # Codex (#772): a new_page node with a successor keeps its flag through the walk -- three pages, each
+        # measured on its own.
+        three = copy.deepcopy(g)
+        three["nodes"]["b"]["children"] = [{"next": "c"}]
+        three["nodes"]["c"] = {"text": "(Name) ends. " + "A word. " * 150, "new_page": True}
+        lt = cg.load(three)
+        pops = [pp for h in cg.walk(lt, cg.contexts(lt, [4])[0]) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 3, "three scroll pages")
+        self.assertEqual([p.nodes for p in pops], [["a"], ["b"], ["c"]])
 
     def test_simulate_titles_follow_the_choice_picked(self):
         """Codex P2 (PR #771): two choices leading to the same node -- the title is the label of the one picked."""
