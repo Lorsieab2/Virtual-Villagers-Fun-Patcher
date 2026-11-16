@@ -395,6 +395,7 @@ CHANGE_AGE_ADD = 6
 CHANGE_AGE_YEARS_MAX = 120
 CHANGE_NAME_MAX = 31          # code 33: a fixed name (the engine's rule; any other refuses the whole file)
 CHANGE_NAME_RE = re.compile(r"^[A-Za-z](?:[A-Za-z '.\-]{0,29}[A-Za-z'.\-])?$")
+CLONE_COUNTS = (1, 2)         # code 30: how many doubles (value a; 0 or 1 = one, 2 = two)
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
@@ -936,6 +937,13 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: change_name name is 1..{CHANGE_NAME_MAX} letters, spaces, apostrophes, "
                                 "hyphens or full stops, starting with a letter, no space at the end")
             out["name"] = name
+        elif do == "clone" and "count" in e:
+            # Code 30: one double (the default) or two (value a).
+            known.add("count")
+            if e["count"] not in CLONE_COUNTS or isinstance(e["count"], bool):
+                problems.append(f"{where}: clone count is 1 or 2")
+            if e["count"] == 2:
+                out["count"] = 2      # one is the default (left out, as decompile gives it)
         if do == "action":
             known.add("action")
             act = e.get("action")
@@ -3798,6 +3806,8 @@ def _compile_v6(g: dict) -> bytes:
                 a = ridx[e["with"]]
             elif do == "change_name" and e.get("name"):
                 st = s(e["name"])
+            elif do == "clone" and e.get("count") == 2:
+                a = 2
             elif do == "change_age":
                 if "to" in e:
                     flags = CHANGE_AGE_TO[e["to"]]
@@ -4044,6 +4054,8 @@ def _decompile_v6(data: bytes) -> dict:
                     e["with"] = role_ids[a]
                 elif do == "change_name" and st != NONE and s(st):
                     e["name"] = s(st)
+                elif do == "clone" and a == 2:
+                    e["count"] = 2
                 elif do == "change_age":
                     if flags == CHANGE_AGE_ADD:
                         e["years"] = [a, b]

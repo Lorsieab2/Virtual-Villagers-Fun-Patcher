@@ -957,7 +957,7 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 | 27 | new_villager | `copy_of` role index, or 0xFF (a random new villager) | 0 | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | 0 | NONE |
 | 28 | pregnant | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
 | 29 | nursing | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
-| 30 | clone | role index | 0 | 0 | 0 | NONE |
+| 30 | clone | role index | 0 | how many: 0 or 1 = one double, 2 = two | 0 | NONE |
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
 | 33 | change_name | role index | 0 | 0 | 0 | the fixed name (offset 12), or NONE / empty: a random default name |
@@ -978,7 +978,7 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
   infant, an adopted or refugee child, someone who cannot care for their child) or a villager who transitioned from
   female to male. Otherwise born-male villagers never conceive from these events (Custom Island Events can, with Male
   Pregnancy).
-- **`{"do": "clone", "role": r}`**: an exact double of the role's villager joins the tribe (looks, likes, dislikes and
+- **`{"do": "clone", "role": r}`**, optionally `"count": 1 | 2` (default 1; value a, 0 or 1 = one, 2 = two): an exact double of the role's villager joins the tribe (looks, likes, dislikes and
   skills copied). A clone and a `copy_of` duplicate ALWAYS get a name different from the original's.
 - **`{"do": "change_name", "role": r}`**, optionally `"name": "Lani"`: a real rename, to that name or (left out) to a
   random default name from the game's own name lists (either sex's), for "a villager wants to change their name".
