@@ -43,6 +43,7 @@ GAMES = (1, 2, 3, 4, 5)
 ALL_SKILLS = ("Parenting", "Building", "Farming", "Healing", "Research")
 # per choice (living-events.md Q7); the owner, 2026-11-15 ("ignore weights"): the rare outcome is as likely as the others
 W_GOOD, W_ADVERSE, W_RARE = 20, 20, 20
+LEADER_ROLES = ("le_role_council_member",)      # cast from any villager (the Chief role stays the Tribal Chief)
 FAMILIES = ("consult", "act", "relate", "withdraw", "play")
 FAM_BIT = {f: 1 << i for i, f in enumerate(FAMILIES)}
 FAM_CHOICE_SET = 1 << 5
@@ -595,6 +596,12 @@ def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> d
     if cast["kind"] == "stranger":
         return {"kind": "stranger", "sex": cast.get("sex", "random"), "named": True}
     spec = {k: (dict(v) if isinstance(v, dict) else v) for k, v in cast.items()}
+    if rid in LEADER_ROLES:
+        # The owner, 2026-11-15: "LEADERS ARE NOT THE SAME AS THE CHIEF. THE LEADER CAN BE ANYONE."
+        for k in ("max_age", "sex", "special"):
+            spec.pop(k, None)
+        spec["min_age"] = 0
+        allow = True
     if adults_only and not spec.get("special"):
         # S7: a romantic, secret-keeping or coercive frame casts adults only.
         if spec.get("max_age") and spec["max_age"] < ADULT_AGE:

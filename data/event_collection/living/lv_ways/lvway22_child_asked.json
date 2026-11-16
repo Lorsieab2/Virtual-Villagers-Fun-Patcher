@@ -110,7 +110,19 @@
   "b1": {
    "name": "Outcome B1",
    "text": "The child learns about roots, water, and soil.",
-   "src": "L23046"
+   "src": "L23046",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23046"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

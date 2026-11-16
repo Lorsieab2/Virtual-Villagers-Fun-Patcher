@@ -127,7 +127,16 @@
   "b1": {
    "name": "Outcome B1",
    "text": "The child heals with a lasting bend but learns to use the arm well.",
-   "src": "L20687"
+   "src": "L20687",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "child",
+     "list": "dislikes",
+     "preference": "lifting",
+     "src": "L20687"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

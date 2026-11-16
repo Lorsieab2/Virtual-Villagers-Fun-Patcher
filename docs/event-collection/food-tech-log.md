@@ -177,3 +177,37 @@ Totals: food gain 19, food loss 2, tech gain 115, tech loss 7 (143 effects).
 |---|---|---|---|
 | `rm07_fisher_restraint` | a1 | food gain small (scaled) | The fisher returns with a modest catch and leaves the remaining fish undisturbed. |
 | `rm18_tree_fruit` | d1 | food gain small (scaled) | Several families enjoy a small portion of fresh fruit. |
+
+# Likes, skills, looks and new villagers where the text fits (second pass)
+
+The owner's second request (2026-11-15): a like or dislike from each game's own list, skill points,
+a new head or clothes, and the new effects of cie-v6-binary.md 31 (new villager, pregnancy, nursing,
+clone, body swap, lost name), each only where the outcome's own words say it. The table is
+`scripts/food_tech_additions.py` EFFECT_ADDITIONS.
+
+| Event | Node | Effect | Why (the outcome's text) |
+|---|---|---|---|
+| `c5a029_first_patient` | o2 | skill: role apprentice, skills ['Healing'], min 5, max 10 | The apprentice asks for help and learns the value of caution. |
+| `c5a029_first_patient` | o3 | skill: role apprentice, skills ['Healing'], min 5, max 10 | The patient teaches the apprentice an unexpected lesson in listening. |
+| `c5ev034_confident` | e2 | skill: role apprentice, skills ['Building'], min 5, max 10 | The apprentice learns that caution can be a strength. |
+| `lvauth01_chief_did` | c2 | skill: role apprentice, skills ['Healing'], min 5, max 10 | The apprentice guesses incorrectly, and the {@chief} teaches careful checking. |
+| `lvlife21_story_tablet` | a2 | skill: role scribe, skills ['Research'], min 5, max 10 | The elder corrects the record and teaches the scribe to listen more carefully. |
+| `lvway22_child_asked` | b1 | skill: role child, skills ['Farming'], min 5, max 10 | The child learns about roots, water, and soil. |
+| `rm25_builder_example` | c2 | skill: role apprentice, skills ['Building'], min 5, max 10 | Progress is slow, but the apprentice learns without being rushed. |
+| `lvlife04_crooked_arm` | b1 | preference: role child, list dislikes, preference lifting | The child heals with a lasting bend but learns to use the arm well. |
+| `c5dn002_wrong` | e2 | preference: role teen, list likes, preference work | Try the family trade and unexpectedly enjoy it. |
+| `lbl056_retirement` | e2 | preference: role elder, list likes, preference resting | They enjoy leisure without guilt. |
+| `lvppl02_blue_cloth` | a1 | preference: role villager, list likes, preference blue | The villager wears the blue clothing with delight. |
+| `lvppl02_blue_cloth` | c1 | preference: role villager, list likes, preference blue | The softened blue becomes the villager's favorite color. |
+| `all_v27_32_fish` | a | preference: role swimmer, list likes, preference fish | The villager names it and enjoys the encounters without capturing it. |
+| `lvppl02_blue_cloth` | a1 | appearance: role villager, body random | The villager wears the blue clothing with delight. |
+| `lvppl02_blue_cloth` | c1 | appearance: role villager, body random | The softened blue becomes the villager's favorite color. |
+| `lvppl02_blue_cloth` | c2 | appearance: role villager, body random | The mixture turns green, surprising both dyer and customer. |
+| `c5ev050_visitor_stayed` | e1 | new_villager: age adult | An outsider asks to join the village permanently. / Arrange a welcoming mentorship. |
+| `c5ev050_visitor_stayed` | e2 | new_villager: age adult | An outsider asks to join the village permanently. / Discuss rights, duties and belonging together. |
+| `sss036_outsider_wants` | a | new_villager: age adult | A castaway asks to become part of the village ... The newcomer helps repair nets and slowly builds trust. |
+| `sss036_outsider_wants` | b | new_villager: age adult | A castaway asks to become part of the village ... The visitor agrees to shared rules but keeps personal history private. |
+| `lvppl12_tribe_someone` | a1 | new_villager: age adult | The newcomer joins the tribe while retaining treasured customs. |
+| `lvppl12_tribe_someone` | a2 | new_villager: age adult | Some villagers need time to adjust to the new neighbor. |
+
+Totals: appearance 3, new_villager 6, preference 6, skill 7. No outcome text called for a pregnancy, nursing baby, clone, body swap, lost or changed name, or age change, so none was added.

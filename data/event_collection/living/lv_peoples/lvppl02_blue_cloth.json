@@ -94,6 +94,21 @@
      "reason": "rule 8: the games have no chosen-colour action (clothing); hair dye is the random new head look (the owner)",
      "src": "L21681"
     }
+   ],
+   "effects": [
+    {
+     "do": "preference",
+     "role": "villager",
+     "list": "likes",
+     "preference": "blue",
+     "src": "L21681"
+    },
+    {
+     "do": "appearance",
+     "role": "villager",
+     "body": "random",
+     "src": "L21681"
+    }
    ]
   },
   "a2": {
@@ -138,12 +153,35 @@
   "c1": {
    "name": "Outcome C1",
    "text": "The softened blue becomes the villager's favorite color.",
-   "src": "L21687"
+   "src": "L21687",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "villager",
+     "list": "likes",
+     "preference": "blue",
+     "src": "L21687"
+    },
+    {
+     "do": "appearance",
+     "role": "villager",
+     "body": "random",
+     "src": "L21687"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The mixture turns green, surprising both dyer and customer.",
-   "src": "L21688"
+   "src": "L21688",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "body": "random",
+     "src": "L21688"
+    }
+   ]
   }
  }
 }

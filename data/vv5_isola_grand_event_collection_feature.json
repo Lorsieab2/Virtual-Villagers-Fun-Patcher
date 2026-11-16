@@ -34,7 +34,7 @@
     {
       "source": "assets/event_collection/vv5/living.pak",
       "destination": "Island Event Collection/living.pak",
-      "sha256": "C318A47486EA593D0F2A2CBD02380C728B4B26ACF0AF4B77A4BEC2B1278DA848"
+      "sha256": "2A312ED0D42FD1D05037B96497E38305ED4F8221B67136D85026AA66EBBBEA9E"
     },
     {
       "source": "assets/event_collection/all_beautification.cieg",
@@ -444,7 +444,7 @@
     {
       "source": "assets/event_collection/all_v27_21_councilor.cieg",
       "destination": "Island Event Collection/all_v27_21_councilor.cieg",
-      "sha256": "AAB76C942A5D443BD7B71A259F1E2B53AA5503935ABC477C91BD13A9B9DDD302"
+      "sha256": "6F1E81B38756C945C48EBA9A483F2B123C74633160EE2FFFFD3BEA35212E81D4"
     },
     {
       "source": "assets/event_collection/all_v27_22_doubt.cieg",
@@ -499,7 +499,7 @@
     {
       "source": "assets/event_collection/all_v27_32_fish.cieg",
       "destination": "Island Event Collection/all_v27_32_fish.cieg",
-      "sha256": "34EBB4FF6BE4C16986261ACB9EF59FF46BA564C5BE52E98A0332B074B6528F00"
+      "sha256": "8BDE0C91A1680CBFF92C18532824AB3915B87A6B3B20337ADDDEE62E555D1121"
     },
     {
       "source": "assets/event_collection/all_v27_33_insect.cieg",
@@ -779,7 +779,7 @@
     {
       "source": "assets/event_collection/c5a029_first_patient.cieg",
       "destination": "Island Event Collection/c5a029_first_patient.cieg",
-      "sha256": "D5E70DA133FFC92EEEE11F1D1075F78ED7E72CAAE5793E64D033E6E18E391AD3"
+      "sha256": "2F6A02A357C18CCCDC127C749FBABB250468FA8B4BC6449EF28172B0406D9EF8"
     },
     {
       "source": "assets/event_collection/c5a030_village_health.cieg",
@@ -1634,7 +1634,7 @@
     {
       "source": "assets/event_collection/c5dn002_wrong.cieg",
       "destination": "Island Event Collection/c5dn002_wrong.cieg",
-      "sha256": "F735EEACC879E4FD6659F858207CE9A8A2B52DF70047AAC0F9645F0F004C9118"
+      "sha256": "5B0A360B58B7E4AB5DE1F7B769D36EC9B9866C4D7EC6AC0C15692E4670715BE8"
     },
     {
       "source": "assets/event_collection/c5dn003_five_scholar.cieg",
@@ -2139,7 +2139,7 @@
     {
       "source": "assets/event_collection/c5ev034_confident.cieg",
       "destination": "Island Event Collection/c5ev034_confident.cieg",
-      "sha256": "1B4116D6B4D7EA033D2AC530F57AC2979EC2AEA9784B45F6C1047B12FE606AD7"
+      "sha256": "DB302426074ED86F18FDB1010B32815ECBD2090E5E58B69F35B4109A19308640"
     },
     {
       "source": "assets/event_collection/c5ev035_doubting.cieg",
@@ -2164,7 +2164,7 @@
     {
       "source": "assets/event_collection/c5ev039_unpopular.cieg",
       "destination": "Island Event Collection/c5ev039_unpopular.cieg",
-      "sha256": "E46D1961C051248ACB485D8816C5DF27F9E380F017A75F14B534C38B91ECDB91"
+      "sha256": "BB01A43A03D280B0BD325A3B634E9378A891405F832F321BF8962CB45DA0884D"
     },
     {
       "source": "assets/event_collection/c5ev040_dance.cieg",
@@ -2219,7 +2219,7 @@
     {
       "source": "assets/event_collection/c5ev050_visitor_stayed.cieg",
       "destination": "Island Event Collection/c5ev050_visitor_stayed.cieg",
-      "sha256": "151A99B14BC68B26B50F99ED9CCC0E901D706D9670BD73BA10270530969A4AB8"
+      "sha256": "C87F66BB3113A756C0527BB012784FA0B8245D1365150E31B590E0442227A216"
     },
     {
       "source": "assets/event_collection/c5ev060_how_did_we_get.cieg",
@@ -3094,7 +3094,7 @@
     {
       "source": "assets/event_collection/fwk020_fire_not_catch.cieg",
       "destination": "Island Event Collection/fwk020_fire_not_catch.cieg",
-      "sha256": "A2BE2916FDAD0F5809D0C9F3C4C6E63D845B093A1377A727D286ACBF33F26474"
+      "sha256": "C6A42C8519EEF943C46976FFEE1D6B7AEC9D5F0A4661CA29BA75E85958CEC740"
     },
     {
       "source": "assets/event_collection/fwk021_answer_rain.cieg",
@@ -3974,7 +3974,7 @@
     {
       "source": "assets/event_collection/lbl056_retirement.cieg",
       "destination": "Island Event Collection/lbl056_retirement.cieg",
-      "sha256": "4ADA2764E008AECB5FB8670E2A6CCE398BBDF46B13BAD0065D1C0A550A69E284"
+      "sha256": "E2FD04700C532825B17349F78480ADD7FD3AAEA67236C1AEA4E3F047234EF6E7"
     },
     {
       "source": "assets/event_collection/lbl057_ancestor_tool.cieg",
@@ -4124,7 +4124,7 @@
     {
       "source": "assets/event_collection/lbl086_unpopular_chief.cieg",
       "destination": "Island Event Collection/lbl086_unpopular_chief.cieg",
-      "sha256": "85A8FE809A5359BF87671A601236BBE3639EBAF7537EECD39495E37DBD32CDD7"
+      "sha256": "61A89F5DD769CFBED405EEF31CE9000F219FC6EE0859DC389083B499556BA860"
     },
     {
       "source": "assets/event_collection/lbl087_prankster.cieg",
@@ -4134,7 +4134,7 @@
     {
       "source": "assets/event_collection/lbl088_quiet_expert.cieg",
       "destination": "Island Event Collection/lbl088_quiet_expert.cieg",
-      "sha256": "3AF8FE371512AAD78FB46E955D9BDCF6103F4B5B60EDDCC99472E186DF15E891"
+      "sha256": "0900CFD6278E261957A267CE05451515D65980B578C282C4B71BDBEBED433EC5"
     },
     {
       "source": "assets/event_collection/lbl089_failed.cieg",
@@ -4164,7 +4164,7 @@
     {
       "source": "assets/event_collection/lbl094_worker_strike.cieg",
       "destination": "Island Event Collection/lbl094_worker_strike.cieg",
-      "sha256": "9DC85B1C03B8231762A3CCB8EB4761002B524339FFDB8889CF5DAA3AC9B2B8E7"
+      "sha256": "0297D43E3710D79AA111510BBE3092067BFCB64197B8A2271579546C024CFA6F"
     },
     {
       "source": "assets/event_collection/lbl095_reputation.cieg",
@@ -4239,7 +4239,7 @@
     {
       "source": "assets/event_collection/lbl109_last_canoe.cieg",
       "destination": "Island Event Collection/lbl109_last_canoe.cieg",
-      "sha256": "20F3143A2E726DEC28372F53790CBEC615087789CBD091484B73288CBC8ABFCE"
+      "sha256": "BCDE8DE6632489A987A21F83310C63D4B837F1E4FE46BA1763DDA92152627096"
     },
     {
       "source": "assets/event_collection/lbl110_shared_river.cieg",
@@ -4299,7 +4299,7 @@
     {
       "source": "assets/event_collection/lvauth01_chief_did.cieg",
       "destination": "Island Event Collection/lvauth01_chief_did.cieg",
-      "sha256": "57544754860FCA06EDB5F57C51E5A25C63E6BCF9D4365D5A5EE0CC5A5A8F81E6"
+      "sha256": "52846768F3E29AA070171C67C3B48BB08A8486DA3F36E4AB0B2ADDCABC37E1A2"
     },
     {
       "source": "assets/event_collection/lvauth02_rookie.cieg",
@@ -4569,7 +4569,7 @@
     {
       "source": "assets/event_collection/lvcir25_rights_reef.cieg",
       "destination": "Island Event Collection/lvcir25_rights_reef.cieg",
-      "sha256": "45B5C007E3C8F9E9FAC197D3F7A5EFCA9A459BB8154DC9CCDFA381A4BA764C9D"
+      "sha256": "DC858548C39FA31623E45B19A6B2500DAB900AAEE813E212BEF5AEA21AAD4CC7"
     },
     {
       "source": "assets/event_collection/lvcir26_dog_morning.cieg",
@@ -4619,7 +4619,7 @@
     {
       "source": "assets/event_collection/lvlife04_crooked_arm.cieg",
       "destination": "Island Event Collection/lvlife04_crooked_arm.cieg",
-      "sha256": "2F2177ED1E369F216E98A5B85F332EEA6B85DF4F021B0814C25412813E0D07D0"
+      "sha256": "42B0BDF87F6E4F6262E2EF2D8B2BD2F55843C8960742A9EB787A7080BF2371F7"
     },
     {
       "source": "assets/event_collection/lvlife05_splint_bamboo.cieg",
@@ -4704,7 +4704,7 @@
     {
       "source": "assets/event_collection/lvlife21_story_tablet.cieg",
       "destination": "Island Event Collection/lvlife21_story_tablet.cieg",
-      "sha256": "23BD1D7085DB52BB33FF4F37204096DCDA284108AE1268E501ABF9A0EBD5FE08"
+      "sha256": "969312900BBFC5AD3A5879E3FBBFCD8F12841B3F63142E5AF367767A352AFD82"
     },
     {
       "source": "assets/event_collection/lvlife22_map_old_path.cieg",
@@ -4989,7 +4989,7 @@
     {
       "source": "assets/event_collection/lvppl02_blue_cloth.cieg",
       "destination": "Island Event Collection/lvppl02_blue_cloth.cieg",
-      "sha256": "2EB62AE68561064BCDDBDA01BBD979FE94C9A839F08513BB9BF04780775A1716"
+      "sha256": "4C68B91878FFD5445A0521C5F21E5E2C0891390D14B182E9D3E0FFB8F84BFAEC"
     },
     {
       "source": "assets/event_collection/lvppl03_cloth_changed.cieg",
@@ -5039,7 +5039,7 @@
     {
       "source": "assets/event_collection/lvppl12_tribe_someone.cieg",
       "destination": "Island Event Collection/lvppl12_tribe_someone.cieg",
-      "sha256": "57180828874E8E231061757BB7097E1B5DAED86235635B73501F4AED65629B2E"
+      "sha256": "22245285ADBE467DE48B24941C0DC6FFC8C1CD3971DC2035B4B0FB2C21C080EE"
     },
     {
       "source": "assets/event_collection/lvppl13_villager.cieg",
@@ -5469,7 +5469,7 @@
     {
       "source": "assets/event_collection/lvway22_child_asked.cieg",
       "destination": "Island Event Collection/lvway22_child_asked.cieg",
-      "sha256": "0DEDA7D5A0DF47C780821A835AB976C0440BC2222F7975533697676DBB2E7760"
+      "sha256": "A96FA42D6B23D591AF53C598561FDC7736ACEA07345B81B83083EC63E463A7AC"
     },
     {
       "source": "assets/event_collection/lvway23_river.cieg",
@@ -5674,7 +5674,7 @@
     {
       "source": "assets/event_collection/rm25_builder_example.cieg",
       "destination": "Island Event Collection/rm25_builder_example.cieg",
-      "sha256": "0CEFB29510B9C86C8AB2862B3BA911065CC308ABD6F9681DF7A2FC8E042693EB"
+      "sha256": "4924D66FAB6DCD29C8FFBCF2A8F8EC786CF63EEAFC8940AA4C583A7FAFDA7169"
     },
     {
       "source": "assets/event_collection/rm26_child_butterfly.cieg",
@@ -5929,7 +5929,7 @@
     {
       "source": "assets/event_collection/sss036_outsider_wants.cieg",
       "destination": "Island Event Collection/sss036_outsider_wants.cieg",
-      "sha256": "7CAE2CE8F21CCE22462BEE0FE1AED443E755808A6DA2BE2089934DA838E5A41B"
+      "sha256": "6676EF1567AFE2B8B1FED4A262A3EF5E0B982D3691CD21AD14433D05B8A3CBE0"
     },
     {
       "source": "assets/event_collection/sss037_horizon_moved.cieg",
@@ -5969,7 +5969,7 @@
     {
       "source": "assets/event_collection/sss044_limit_power.cieg",
       "destination": "Island Event Collection/sss044_limit_power.cieg",
-      "sha256": "131BD262193CEE3D9E07790B7D59818924B6CAB599C0C8D8174A02993495CE06"
+      "sha256": "8A624E033F20A528F2993ADACC39D3CBAF7563546B8743E0C53D3D9BBD17F70F"
     },
     {
       "source": "assets/event_collection/sss045_stone_hums.cieg",

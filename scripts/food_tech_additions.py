@@ -150,6 +150,67 @@ ADDITIONS += [(e, "c", TG, "small", "The record gains anatomical detail ... whet
 ADDITIONS += [(e, "d", TG, "small", "A detailed herbarium specimen results") for e in _CAT_PLANTS]
 
 
+# ---- The second pass (owner, 2026-11-15): likes, skills, looks and new villagers where the text fits -------------
+# (event id, node, effect without its src, why).  Preference words are each game's own (in every game of the event);
+# skills are the collection's small size (5..10); appearance "random" is any other head / body row (body = clothes);
+# new_villager / pregnant / nursing / clone / body_swap / lose_name are cie-v6-binary.md 31 (codes 27-32).
+def _skill(role: str, skill: str) -> dict:
+    return {"do": "skill", "role": role, "skills": [skill], "min": 5, "max": 10}
+
+
+def _like(role: str, word: str) -> dict:
+    return {"do": "preference", "role": role, "list": "likes", "preference": word}
+
+
+def _clothes(role: str) -> dict:
+    return {"do": "appearance", "role": role, "body": "random"}
+
+
+NEWCOMER = {"do": "new_villager", "age": "adult"}
+
+EFFECT_ADDITIONS: list[tuple[str, str, dict, str]] = [
+    # skills
+    ("c5a029_first_patient", "o2", _skill("apprentice", "Healing"),
+     "The apprentice asks for help and learns the value of caution."),
+    ("c5a029_first_patient", "o3", _skill("apprentice", "Healing"),
+     "The patient teaches the apprentice an unexpected lesson in listening."),
+    ("c5ev034_confident", "e2", _skill("apprentice", "Building"), "The apprentice learns that caution can be a strength."),
+    ("lvauth01_chief_did", "c2", _skill("apprentice", "Healing"),
+     "The apprentice guesses incorrectly, and the {@chief} teaches careful checking."),
+    ("lvlife21_story_tablet", "a2", _skill("scribe", "Research"),
+     "The elder corrects the record and teaches the scribe to listen more carefully."),
+    ("lvway22_child_asked", "b1", _skill("child", "Farming"), "The child learns about roots, water, and soil."),
+    ("rm25_builder_example", "c2", _skill("apprentice", "Building"),
+     "Progress is slow, but the apprentice learns without being rushed."),
+    # a permanent disability the text states (the owner: a fitting dislike from the game's list)
+    ("lvlife04_crooked_arm", "b1", {"do": "preference", "role": "child", "list": "dislikes", "preference": "lifting"},
+     "The child heals with a lasting bend but learns to use the arm well."),
+    # likes
+    ("c5dn002_wrong", "e2", _like("teen", "work"), "Try the family trade and unexpectedly enjoy it."),
+    ("lbl056_retirement", "e2", _like("elder", "resting"), "They enjoy leisure without guilt."),
+    ("lvppl02_blue_cloth", "a1", _like("villager", "blue"), "The villager wears the blue clothing with delight."),
+    ("lvppl02_blue_cloth", "c1", _like("villager", "blue"), "The softened blue becomes the villager's favorite color."),
+    ("all_v27_32_fish", "a", _like("swimmer", "fish"),
+     "The villager names it and enjoys the encounters without capturing it."),
+    # looks (clothes)
+    ("lvppl02_blue_cloth", "a1", _clothes("villager"), "The villager wears the blue clothing with delight."),
+    ("lvppl02_blue_cloth", "c1", _clothes("villager"), "The softened blue becomes the villager's favorite color."),
+    ("lvppl02_blue_cloth", "c2", _clothes("villager"), "The mixture turns green, surprising both dyer and customer."),
+    # new villagers (a newcomer who stays)
+    ("c5ev050_visitor_stayed", "e1", NEWCOMER, "An outsider asks to join the village permanently. / Arrange a welcoming mentorship."),
+    ("c5ev050_visitor_stayed", "e2", NEWCOMER, "An outsider asks to join the village permanently. / Discuss rights, duties and belonging together."),
+    ("sss036_outsider_wants", "a", NEWCOMER, "A castaway asks to become part of the village ... The newcomer helps repair nets and slowly builds trust."),
+    ("sss036_outsider_wants", "b", NEWCOMER, "A castaway asks to become part of the village ... The visitor agrees to shared rules but keeps personal history private."),
+    ("lvppl12_tribe_someone", "a1", NEWCOMER, "The newcomer joins the tribe while retaining treasured customs."),
+    ("lvppl12_tribe_someone", "a2", NEWCOMER, "Some villagers need time to adjust to the new neighbor."),
+]
+
+
+def _same(e: dict, add: dict) -> bool:
+    """Whether existing effect e already gives what `add` gives (the same kind on the same role)."""
+    return e.get("do") == add["do"] and e.get("role") == add.get("role")
+
+
 def effect(node: dict, kind: tuple[str, bool], size: str) -> dict:
     do, loss = kind
     e = {"do": do, "size": size, "scaled": True}
@@ -217,10 +278,20 @@ def problems_for(doc: dict, rows) -> list[str]:
 def apply(doc: dict) -> dict:
     """Add this event's rows to doc (in place; idempotent) and return it.  Raises on a row that cannot be applied."""
     col = doc.get("collection") or {}
+    nodes = doc.get("nodes", {})
+    for eid, node, add, _ in EFFECT_ADDITIONS:
+        if eid != col.get("id"):
+            continue
+        n = nodes.get(node)
+        if n is None:
+            raise SystemExit(f"food_tech_additions: {eid}: node {node} is missing")
+        effs = n.setdefault("effects", [])
+        if any({k: v for k, v in e.items() if k != "src"} == add for e in effs):
+            continue              # already applied
+        effs.append(dict(add, src=n["src"]))
     rows = _by_event().get(col.get("id"))
     if not rows:
         return doc
-    nodes = doc["nodes"]
     for node, kind, size, _ in rows:
         n = nodes.get(node)
         if n is None:
@@ -273,6 +344,20 @@ def write_log(files: dict[str, Path], docs: dict[str, dict]) -> None:
     lines.insert(9, f"Totals: food gain {total[FG]}, food loss {total[FL]}, tech gain {total[TG]}, "
                     f"tech loss {total[TL]} ({len(ADDITIONS)} effects).")
     lines.insert(10, "")
+    lines += ["# Likes, skills, looks and new villagers where the text fits (second pass)", "",
+              "The owner's second request (2026-11-15): a like or dislike from each game's own list, skill points,",
+              "a new head or clothes, and the new effects of cie-v6-binary.md 31 (new villager, pregnancy, nursing,",
+              "clone, body swap, lost name), each only where the outcome's own words say it. The table is",
+              "`scripts/food_tech_additions.py` EFFECT_ADDITIONS.", "",
+              "| Event | Node | Effect | Why (the outcome's text) |", "|---|---|---|---|"]
+    kinds: dict[str, int] = {}
+    for eid, node, add, why in EFFECT_ADDITIONS:
+        kinds[add["do"]] = kinds.get(add["do"], 0) + 1
+        what = ", ".join(f"{k} {v}" for k, v in add.items() if k != "do")
+        lines.append(f"| `{eid}` | {node} | {add['do']}: {what} | {why.replace('|', '/')} |")
+    lines += ["", "Totals: " + ", ".join(f"{k} {v}" for k, v in sorted(kinds.items())) +
+              ". No outcome text called for a pregnancy, nursing baby, clone, body swap, lost or changed name, or age"
+              " change, so none was added.", ""]
     LOG.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
@@ -308,6 +393,21 @@ def main(argv=None) -> int:
         for p in problems_for(clean, rows):
             print(f"{eid}: {p}")
             bad += 1
+    for eid, node, add, _ in EFFECT_ADDITIONS:
+        if eid not in files:
+            print(f"{eid}: no collection file")
+            bad += 1
+            continue
+        doc = docs.setdefault(eid, json.loads(files[eid].read_text(encoding="utf-8")))
+        n = doc["nodes"].get(node)
+        if n is None or not n.get("src"):
+            print(f"{eid}: node {node} is missing or has no src")
+            bad += 1
+            continue
+        for e in n.get("effects", []) or []:
+            if _same(e, add) and {k: v for k, v in e.items() if k != "src"} != add:
+                print(f"{eid}: node {node} already has a {add['do']} effect on that role")
+                bad += 1
     if bad:
         return 1
     if args.check:

@@ -173,6 +173,22 @@ DEATH_ROLE_KEEPS_AGE = {
 }
 
 
+# The owner, 2026-11-15: "LEADERS ARE NOT THE SAME AS THE CHIEF. THE LEADER CAN BE ANYONE."  A leader / council role
+# is cast from any villager: no age, sex or protection limit, never the Tribal Chief requirement (only a role that is
+# explicitly VV3's Chief keeps "special": "tribal_chief").
+LEADER_ROLE = re.compile(r"^(?:leader|leaders|village_leader|councilor|councillor|council\w*)$")
+
+
+def open_leader_roles(g: dict) -> None:
+    for rid, r in (g.get("roles") or {}).items():
+        if isinstance(r, dict) and r.get("kind") == "villager" and LEADER_ROLE.match(rid) \
+                and r.get("special") != "tribal_chief":
+            for k in ("max_age", "sex", "exclude_nursing", "exclude_special"):
+                r.pop(k, None)
+            r["min_age"] = 0
+            r["protected"] = "allow"
+
+
 def open_death_roles(g: dict) -> None:
     """The owner's rule above, on an engine graph (in place)."""
     eid = (g.get("collection") or {}).get("id")
@@ -194,10 +210,26 @@ def open_death_roles(g: dict) -> None:
             r["min_age"] = 0
 
 
+# cie-v6-binary.md 31 (the owner, 2026-11-15): a new villager (code 27), a pregnancy (28), a nursing baby (29).
+PENDING_EFFECTS = {"new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31, "lose_name": 32,
+                   "change_name": 33, "change_age": 34}
+NEW_VILLAGER_AGES = ("child", "teen", "adult", "elder")
+CARRIER_MIN_AGE = 18          # the carrier of a pregnancy or a nursing baby: born female, 18 or older
+
+
+def _engine_knows(do: str) -> bool:
+    try:
+        import vv_cie_graph as cg
+    except ImportError:
+        return False
+    return do in getattr(cg, "EFFECT_CODES", {})
+
+
 def graph_for_engine(doc: dict) -> dict:
     """The collection file without its authoring-only keys: what vv_cie_graph (v6) reads."""
     g = copy.deepcopy(doc)
     open_death_roles(g)
+    open_leader_roles(g)
 
     def scrub(x):
         if isinstance(x, dict):
@@ -214,6 +246,11 @@ def graph_for_engine(doc: dict) -> dict:
         for c in n.get("children") or []:
             if isinstance(c, dict):
                 c.pop("weight", None)
+        # Effects the engine does not know yet (new_villager 27, pregnant 28, nursing 29: cie-v6-binary.md 31) are
+        # checked here (check_effects) and reach the engine once src/vv_cie_graph.py has their codes.
+        if n.get("effects"):
+            n["effects"] = [e for e in n["effects"]
+                            if not (isinstance(e, dict) and e.get("do") in PENDING_EFFECTS and not _engine_knows(e["do"]))]
         n.pop("text_only", None)
         n.pop("set", None)
         n.pop("src_pick", None)
@@ -1002,6 +1039,41 @@ def check_effects(doc: dict, rep: Report) -> None:
                             (sign and not e.get("max", 0) < 0):
                         rep.add("e EFFECTS", f"{where}: skill +-{pair} is not a size of the skill table "
                                              f"{SKILL_SIZES}")
+            elif do == "new_villager":
+                roles = doc.get("roles", {})
+                if set(e) - {"do", "copy_of", "age", "src"}:
+                    rep.add("e EFFECTS", f"{where}: new_villager takes copy_of and age only")
+                if "copy_of" in e and (roles.get(e["copy_of"], {}).get("kind") != "villager"):
+                    rep.add("e EFFECTS", f"{where}: new_villager copy_of names a villager role")
+                if "age" in e and e["age"] not in NEW_VILLAGER_AGES:
+                    rep.add("e EFFECTS", f"{where}: new_villager age is one of {', '.join(NEW_VILLAGER_AGES)}")
+            elif do in ("pregnant", "nursing"):
+                roles = doc.get("roles", {})
+                r = roles.get(e.get("role"), {})
+                if set(e) - {"do", "role", "partner", "any_birth_sex", "src"}:
+                    rep.add("e EFFECTS", f"{where}: {do} takes role, partner and any_birth_sex only")
+                if "any_birth_sex" in e and e["any_birth_sex"] is not True:
+                    rep.add("e EFFECTS", f"{where}: any_birth_sex is true or left out")
+                if r.get("kind") != "villager":
+                    rep.add("e EFFECTS", f"{where}: {do} acts on a villager role")
+                elif r.get("max_age") is not None and r["max_age"] < CARRIER_MIN_AGE:
+                    rep.add("e EFFECTS", f"{where}: {do}'s carrier is {CARRIER_MIN_AGE} or older (born female)")
+                if "partner" in e and (e["partner"] == e.get("role")
+                                       or roles.get(e["partner"], {}).get("kind") != "villager"):
+                    rep.add("e EFFECTS", f"{where}: {do} partner names another villager role")
+            elif do in ("clone", "lose_name", "body_swap", "change_name", "change_age"):
+                roles = doc.get("roles", {})
+                keys = {"do", "role", "src"} | ({"with"} if do == "body_swap" else set()) | \
+                    ({"to", "years"} if do == "change_age" else set())
+                if do == "change_age" and ("to" in e) == ("years" in e):
+                    rep.add("e EFFECTS", f"{where}: change_age gives to or years, one of them")
+                if set(e) - keys:
+                    rep.add("e EFFECTS", f"{where}: {do} takes {', '.join(sorted(keys - {'do', 'src'}))} only")
+                if roles.get(e.get("role"), {}).get("kind") != "villager":
+                    rep.add("e EFFECTS", f"{where}: {do} acts on a villager role")
+                if do == "body_swap" and (e.get("with") == e.get("role")
+                                          or roles.get(e.get("with"), {}).get("kind") != "villager"):
+                    rep.add("e EFFECTS", f"{where}: body_swap with names another villager role")
             elif do == "kill" and not e.get("cause"):
                 rep.add("e EFFECTS", f"{where}: a kill names its cause")
             elif do == "die_unrecovered" and e.get("cause", "unknown") != "unknown":

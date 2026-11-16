@@ -99,7 +99,16 @@
   "e2": {
    "name": "Outcome 2",
    "text": "They enjoy leisure without guilt.",
-   "src": "L4535"
+   "src": "L4535",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "elder",
+     "list": "likes",
+     "preference": "resting",
+     "src": "L4535"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",

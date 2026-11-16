@@ -106,12 +106,26 @@
   "a1": {
    "name": "Outcome A1",
    "text": "The newcomer joins the tribe while retaining treasured customs.",
-   "src": "L21817"
+   "src": "L21817",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L21817"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
    "text": "Some villagers need time to adjust to the new neighbor.",
-   "src": "L21818"
+   "src": "L21818",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L21818"
+    }
+   ]
   },
   "b": {
    "type": "branch",

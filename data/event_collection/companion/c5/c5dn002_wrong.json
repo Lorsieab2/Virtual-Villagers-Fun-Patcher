@@ -83,7 +83,16 @@
    "popup": "append",
    "join": "paragraph",
    "text": "Try the family trade and unexpectedly enjoy it.",
-   "src": "L2678"
+   "src": "L2678",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "teen",
+     "list": "likes",
+     "preference": "work",
+     "src": "L2678"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",

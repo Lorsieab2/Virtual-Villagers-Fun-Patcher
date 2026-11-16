@@ -133,12 +133,36 @@
   "o2": {
    "name": "Outcome 2",
    "text": "The apprentice asks for help and learns the value of caution.",
-   "src": "L710"
+   "src": "L710",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L710"
+    }
+   ]
   },
   "o3": {
    "name": "Outcome 3",
    "text": "The patient teaches the apprentice an unexpected lesson in listening.",
-   "src": "L712"
+   "src": "L712",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L712"
+    }
+   ]
   }
  }
 }
