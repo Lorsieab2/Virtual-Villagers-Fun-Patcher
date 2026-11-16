@@ -170,7 +170,9 @@ main villager):
 - LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
   LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
   Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the
-  villager actually comes to like or dislike (the water, the dark, bees).
+  villager actually comes to like or dislike (the water, the dark, bees). Pick the words from the style guide's
+  Appendix A for each game the event applies to: a word missing from a game cannot be given there, and one that
+  does nothing in a game is only cosmetic.
 - INJURY <who> (a health loss; add (minor), (serious) or (grave)), ILLNESS <who> (falls sick), HEALTH <who> +10 TO +20,
   HEAL <who> (full health), CURE <who> (an illness cured), REPAIR (the damaged huts are repaired).
 - Groups: put "EVERYONE:", "EVERY HEALER:" (also builder, farmer, researcher, parent: every villager good at that

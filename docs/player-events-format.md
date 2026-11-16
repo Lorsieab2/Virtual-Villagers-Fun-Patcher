@@ -273,3 +273,64 @@ Effect: TECH GAIN (small)
 A file that cannot be read, an event or piece with a problem, or a line that is not part of the format is left out
 and listed (Check File, Add Event Files..., the patch's own dialog, `Player Events Report.txt`); every other event of
 the file still installs, and nothing stops the patch.
+
+Soft warnings ("Warning (not an error)": the item still installs): a LOSE NAME page with no bump, fall, fever or
+magic in its text; a page told in the first or second person outside quotes (I / me / my / we / you / your; the
+games' own "Your villagers gain ..." line is left alone); a like or dislike that is missing from, or does nothing in,
+a game the event applies to (`data/player_events_likes_dislikes.json`, the style guide's Appendix A).
+
+## 10. The owner's own layout (S001 / NEW-101 / MY-001 ...)
+
+`src/vv_owner_layout.py` reads the owner's layout directly (the rewritten events, the balance events and the
+example file, which itself stays reference only and is never installed):
+
+```
+S001. The Spring That Talks Back   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+(Name) has been walking in the hills all morning ...
+Choice A: Ask What to Be Good At
+Choice B: Ask Nothing and Just Drink
+CHOICE A: ASK WHAT TO BE GOOD AT
+First popup: (Name) clears (his/her) own throat ...
+Ending A1 -- THE GREEN THUMB. Chance 50%. EFFECT: gains 20 to 30 Farming; now likes farming
+"Plants," says the spring ...
+MIXER SEED S001
+Premise: Thirsty after a long walk, (name) kneels at a fern-hung spring ...
+Roles:
+  seeker: one villager aged 14 or older (not protected)
+Approaches: Ask What to Be Good At | Just Drink | Argue with the Spring
+Outcome pool:
+  - "Plants," says the spring. [answers: Ask What to Be Good At] [mood: warm] [EFFECT: gains 20 to 30 Farming]
+Flavour lines:
+  - A single blue dragonfly keeps guard on a reed.
+```
+
+- The event: the opening question, each choice's "First popup" as its own popup, then its endings at their chances
+  (each a new popup). Lines starting `^` are the owner's notes and are skipped. WHO gives the main villager's ages
+  (and a second villager's, a chief, an Isolan, born female). `(young name)` is the role `young`, `(name2.he/she)`
+  the second villager's pronoun, `(new name)` a name of its own (a named stranger: the engine names the new villager
+  separately). `(award)` in an ending names its food or tech gain (an award, paid there); with a loss the owner's
+  "Your village loses (award) food." becomes the game's own automatic line.
+- **EFFECT phrases** (free English, `;` between them) go through a phrase table built from the owner's own files:
+  food and tech sizes; "gains 20 to 30 Farming", "skill + research (a little, +5) for (young name)", "becomes
+  MASTER", "in (his/her) best skill", "every healer gains ..."; likes and dislikes, "or similar if available" (a game
+  word close to it that every game of the event has, with a note); injured, permanent disability, ill, illness cured,
+  "all sick villagers are cured", "three random villagers have an illness"; dies (a grave), disappears; new villagers
+  (a baby, a child, an adult woman, two adults with their baby, one adult, one teen and one child ...); duplicate of,
+  clone of (1 or 2); body swap (and "swapped back": nothing); loses name, changes name (random or "first name becomes
+  Lani"); changes age (N years older / younger, never past elder; to child, teen, 18, adult, 50, elder or an age);
+  the old and young head looks, new looks (head or clothes); every villager is happier; the damaged huts are
+  repaired; pregnant (with a partner, twins or triplets, ANY BIRTH SEX with magic); nursing a foundling. "none",
+  "joins the village" and the like add nothing. A phrase not in the table is a line-numbered problem (that event or
+  piece is left out).
+- **MIXER SEED** blocks become mixer pieces (section 6): the premise a setup (its title the event's), each approach
+  an approach (its text the matching choice's first popup), each pool line an outcome (its answers, mood and effects),
+  each flavour line a flavour line; the role lines are the slots, and `(name)` in a seed is its first slot.
+- Coverage on the owner's files (2026-11-16): "315 Rewritten Events - Quick Draft" 237 of 239 EFFECT phrases (99.2%),
+  "Rewritten Events S020 to MY-115" 4,067 of 4,071 (99.9%). The phrases left are not engine effects (a favourite
+  job, a group's new look) or name a like that no game has.
+
+Count tokens `{#babies:a baby|twins|triplets}` / `{#made:one|two|three or more}` (engine 0853e8327): body text only,
+1-3 options of up to 40 plain characters (no . ! ?), filled with what the page's effects made; Check File checks
+them, the fit takes the longest option and Preview shows the first.

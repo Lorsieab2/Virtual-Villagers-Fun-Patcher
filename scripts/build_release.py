@@ -760,6 +760,8 @@ FILES = [
     # it shares with the collection, the shared lists, the format, the AI prompt and the owner's tone reference.
     "src/vv_player_events.py",
     "src/vv_player_events_ui.py",
+    "src/vv_owner_layout.py",
+    "data/player_events_likes_dislikes.json",
     "src/vv_event_content.py",
     "data/event_collection/shared_pools.json",
     "docs/player-events-format.md",

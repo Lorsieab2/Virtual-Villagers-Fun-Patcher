@@ -505,6 +505,125 @@ class InstallAndRules(unittest.TestCase):
             self.assertEqual(pe.rules_themes(pe.read_rules(2, root)), ["sea", "storms"])
 
 
+class OwnerLayout(unittest.TestCase):
+    """The owner's own layout (S001. Title [VV..] / WHO / EVENT TEXT / CHOICE / First popup / Ending / MIXER SEED),
+    read from the shipped example file (reference only: it is never installed)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.items, cls.file_problems = pe.parse_file(pe.PLAYER_FOLDER / pe.EXAMPLE_NAME)
+
+    def test_the_example_file_reads_as_events_and_pieces(self):
+        events = [i for i in self.items if i.kind == "event"]
+        pieces = [i for i in self.items if i.kind == "piece"]
+        self.assertEqual(len(events), 20)
+        self.assertEqual(events[0].title, "The Spring That Talks Back")
+        self.assertGreater(len(pieces), 200)
+        done, total = pe.owner_coverage(self.items)
+        self.assertGreaterEqual(done / total, 0.99, (done, total))
+
+    def test_s001_compiles_with_its_popups_chances_and_effects(self):
+        it = next(i for i in self.items if i.code == "S001")
+        self.assertEqual(it.problems, [])
+        c, probs = pe.compile_item(it, "pl_s001_001")
+        self.assertIsNotNone(c, probs)
+        g = c.graph
+        lead = g["nodes"]["c1"]
+        self.assertTrue(lead["text"].startswith("(Name) clears"))
+        self.assertEqual([ch["weight"] for ch in lead["children"]], [50, 50])
+        end = g["nodes"]["c1o1"]
+        self.assertEqual(end["popup"], "new")                         # an ending is its own popup
+        kinds = [(e["do"], e.get("skills"), e.get("like")) for e in end["effects"]]
+        self.assertIn(("skill", ["Farming"], None), kinds)
+        self.assertEqual(end["effects"][0]["min"], 20)
+        b2 = [e for e in g["nodes"]["c2o2"]["effects"] if e["do"] == "preference"][0]
+        self.assertTrue(b2.get("remove"))
+
+    def test_the_seed_becomes_pieces(self):
+        s1 = [i for i in self.items if i.kind == "piece" and i.piece["id"].startswith("s001_")]
+        kinds = [i.piece["kind"] for i in s1]
+        self.assertEqual(kinds.count(1), 1)
+        self.assertEqual(kinds.count(2), 4)
+        self.assertGreaterEqual(kinds.count(3), 7)
+        self.assertGreaterEqual(kinds.count(4), 4)
+        outcome = next(i for i in s1 if i.piece["kind"] == 3)
+        self.assertTrue(outcome.piece["links"])
+        self.assertIn("(Seeker)", outcome.piece["text"])
+        data, probs = pe.compile_pieces([i for i in s1 if not i.problems], 1)
+        self.assertTrue(data.startswith(b"VPCB"), probs)
+
+    def test_the_phrase_table(self):
+        import vv_owner_layout as owner
+        cases = {
+            "tech gain (small amount)": "tech", "food loss (normal)": "food",
+            "gains 20 to 30 Farming; now likes farming": "skill",
+            "skill + research (some, +10) for (young name)": "skill", "(name2) Building becomes MASTER (100)": "skill",
+            "(name) gains 10 to 20 in (his/her) best skill": "skill", "every healer gains 10 healing": "skill",
+            "injured (loses health)": "health_change", "permanent disability (health loss 30%)": "health_change",
+            "(name)'s illness is cured": "cure", "all sick villagers are cured (stock island-event effect)": "cure",
+            "three random villagers have an illness (need the healers)": "sick", "(name1) DIES (a grave)": "kill",
+            "disappears (no grave)": "vanish", "NEW VILLAGER (an elder) arrives and stays": "new_villager",
+            "NEW VILLAGERS (two adults) arrive and stay, with their baby": "new_villager",
+            "DUPLICATE of (name), named (new name)": "new_villager", "CLONE of (name) (2), named (new name)": "clone",
+            "body swap between (name) and (name2) (permanent)": "body_swap",
+            "loses name (name becomes \"?\")": "lose_name", "changes name: (name)'s first name becomes Lani":
+                "change_name", "changes age (20 years older; never past elder)": "change_age",
+            "changes age (to 16, teen)": "change_age", "\"old\" head look": "old_look",
+            "new look (the young head look)": "young_look", "new look for (name) (new clothes)": "appearance",
+            "every villager is happier (stock island-event effect)": "mood",
+            "the damaged huts are repaired (stock island-event effect)": "repair",
+            "(any birth sex) (name) is pregnant with one baby, with (name2) as the other parent (magic)": "pregnant",
+            "pregnant, with (name2) as the other parent (twins or triplets, if the game allows twins)": "pregnant",
+            "(any birth sex) (name) becomes nursing the abandoned baby (single parent)": "nursing",
+        }
+        for phrase, do in cases.items():
+            with self.subTest(phrase=phrase):
+                effects, _roles, _notes = owner.owner_effects(phrase, [1, 2, 3, 4, 5])
+                self.assertIn(do, [e["do"] for e in effects])
+        effects, _r, _n = owner.owner_effects("changes age (20 years older; never past elder)", [1])
+        self.assertEqual(effects[0]["max_age"], 75)
+        effects, _r, _n = owner.owner_effects("CLONE of (name) (2), named (new name)", [1])
+        self.assertEqual(effects[0]["count"], 2)
+        for nothing in ("none", "joins the village", "body swap, then swapped back (no lasting change)"):
+            self.assertEqual(owner.owner_effects(nothing, [1])[0], [])
+        with self.assertRaises(owner.Unmapped):
+            owner.owner_effects("each now likes the other's favourite job", [1])
+
+    def test_an_unmapped_phrase_is_a_line_numbered_problem(self):
+        text = (pe.PLAYER_FOLDER / pe.EXAMPLE_NAME).read_text(encoding="utf-8")
+        start = text.index("S001.")
+        end = text.index("MIXER SEED S001")
+        block = text[start:end].replace("EFFECT: now dislikes swimming", "EFFECT: turns into a parrot", 1)
+        it = one(block)
+        self.assertTrue(any("phrase table" in p.text and "parrot" in p.text and p.line > 1 for p in it.problems))
+
+
+class StyleWarnings(unittest.TestCase):
+    def test_first_and_second_person_outside_quotes_warn(self):
+        it = one(SIMPLE.replace("(Name) invents a splitting wedge.", "You invent a splitting wedge."))
+        self.assertTrue(any("outside quoted speech" in w.text for w in it.warnings))
+        quoted = one(SIMPLE.replace("(Name) invents a splitting wedge.", "\"You did it!\" says (name). Your villagers gain food."))
+        self.assertFalse([w for w in quoted.warnings if "outside quoted speech" in w.text])
+        self.assertIsNone(pe.person_problem("I said \"we\" in quotes. Your villagers gain 5 food."[2:]))
+
+    def test_likes_that_do_nothing_warn(self):
+        it = one(SIMPLE.replace("Effect: SKILL + Building a little", "Effect: LIKE + ants"))
+        self.assertTrue(any("does nothing in VV1" in w.text for w in it.warnings))
+        self.assertFalse(it.problems)
+
+    def test_count_tokens_are_checked_and_shown(self):
+        c = compiled(SIMPLE.replace("(Name) invents a splitting wedge.",
+                                    "(Name) is expecting {#babies:a baby|twins|triplets}.").replace(
+            "Effect: SKILL + Building a little", "Effect: PREGNANT (TWINS OR TRIPLETS)"))
+        self.assertIn("{#babies:a baby|twins|triplets}", c.graph["nodes"]["c2o1"]["text"])
+        self.assertIn(b"{#babies:", c.cieg)
+        bad = one(SIMPLE.replace("Lend a Hand", "Lend a Hand"), )
+        it = one(SIMPLE.replace("(Name) invents a splitting wedge.", "{#babies:a. baby}"))
+        _c, probs = pe.compile_item(it, "pl_t_001")
+        self.assertTrue(any("count" in p for p in probs))
+        self.assertIsNotNone(bad)
+
+
 class Preview(unittest.TestCase):
     def test_preview_shows_the_popups(self):
         text = pe.preview(one(SIMPLE), 1, seed=1)

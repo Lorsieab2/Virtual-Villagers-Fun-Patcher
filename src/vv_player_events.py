@@ -37,6 +37,7 @@ from typing import Any, Iterable
 
 import vv_cie_graph as cie
 import vv_event_content as content
+import vv_owner_layout as owner
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAYER_FOLDER = ROOT / "Player Events"                     # the patcher's own folder for them
@@ -438,6 +439,58 @@ _FIRST_SECOND = re.compile(r"\b(I|I'm|I've|I'll|I'd|[Mm]e|[Mm]y|[Ww]e|[Yy]ou|[Yy
 _REWARD_LINE = re.compile(r"(?i)\byour villagers gain\b")
 
 
+LIKES_FILE = ROOT / "data" / "player_events_likes_dislikes.json"   # the style guide's Appendix A, as data
+_likes_cache: dict | None = None
+
+
+def likes_table() -> dict[int, dict]:
+    """Each game's like/dislike words and what each does ({"like": ..., "dislike": ...}; Appendix A)."""
+    global _likes_cache
+    if _likes_cache is None:
+        try:
+            raw = json.loads(LIKES_FILE.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            raw = {}
+        _likes_cache = {int(k[2]): {w: v for w, v in val.items() if isinstance(v, dict)}
+                        for k, val in raw.items() if re.match(r"^VV[1-5]\b", k) and isinstance(val, dict)}
+    return _likes_cache
+
+
+def like_problems(word: str, kind: str, games: Iterable[int]) -> list[str]:
+    """Why a like / dislike word is a poor choice in the event's games: missing there, or doing nothing there."""
+    table = likes_table()
+    out = []
+    for g in games:
+        words = table.get(g)
+        if words is None:
+            continue
+        entry = words.get(word.lower())
+        if entry is None:
+            out.append(f"{word!r} is not a like/dislike word in VV{g}")
+        elif str(entry.get(kind, "")).lower().startswith("nothing"):
+            out.append(f"{kind} {word!r} does nothing in VV{g} (cosmetic)")
+    return out
+
+
+def likes_warnings(it: Item) -> None:
+    """A soft warning for each like/dislike that is missing or does nothing in a game of the event (Appendix A); the
+    AI prompt asks for per-game words from it."""
+    games = (it.graph or {}).get("games", [1, 2, 3, 4, 5]) if it.kind == "event" else it.piece["games"]
+    effects = [(it.meta.get("node_lines", {}).get(nid, it.line), e)
+               for nid, n in ((it.graph or {}).get("nodes") or {}).items() for e in n.get("effects") or []] \
+        if it.kind == "event" else list(it.piece["effects"])
+    for ln, e in effects:
+        if not isinstance(e, dict) or e.get("do") != "preference" or e.get("remove"):
+            continue
+        kind = "dislike" if "dislike" in e or e.get("list") == "dislikes" else "like"
+        word = e.get(kind) or e.get("preference")
+        if not isinstance(word, str) or word == cie.PREF_RANDOM:
+            continue
+        probs = like_problems(word, kind, games)
+        if probs:
+            it.warn(ln, "; ".join(probs) + " (see the style guide's Appendix A)")
+
+
 def person_problem(text: str) -> str | None:
     """The first "I / me / my / we / you / your" outside quotes, or None."""
     for line in text.split("\n"):
@@ -761,8 +814,8 @@ def plain_effect(line: str) -> PlainEffect | str:
                 return f"an event makes 1 or 2 clones of a villager, not {count}"
             return PlainEffect([fx(do="clone", role=need(_target(m.group(2))),
                                    count=2 if count == 2 else None)], roles)
-        m = re.fullmatch(r"(pregnant|nursing) " + _T + r"(?: with " + _T + r")?((?: \((?:any birth sex|twins|triplets|"
-                         r"twins or triplets)\))*)", s, re.I)
+        m = re.fullmatch(r"(pregnant|nursing)(?: (?!\((?:any birth sex|twins|triplets)\b)" + _T + r")?(?: with " + _T +
+                         r")?((?: \((?:any birth sex|twins|triplets|twins or triplets)\))*)", s, re.I)
         if m:
             carrier = need(_target(m.group(2)), min_age=18, carrier=True)
             partner = need(_target(m.group(3)), min_age=18) if m.group(3) else None
@@ -938,7 +991,9 @@ def parse_text(text: str, file: str = "events.txt") -> list[Item]:
         line = raw.strip()
         in_piece = bool(starts) and starts[-1][1] == "piece"
         after_gap = k == 0 or not lines[k - 1].strip() or bool(_SEPARATOR.match(lines[k - 1].strip()))
-        if _HEAD_NEW.match(line) or (_HEAD_NEW2.match(raw) and not raw[:1].isspace()):
+        if owner.HEADING.match(raw) and not raw[:1].isspace():
+            starts.append((k, "owner"))       # "S001. Title [VV..]" (src/vv_owner_layout.py)
+        elif _HEAD_NEW.match(line) or (_HEAD_NEW2.match(raw) and not raw[:1].isspace()):
             starts.append((k, "new"))
         elif _HEAD_TITLE.match(raw) and not raw[:1].isspace() and (not in_piece or after_gap):
             # A piece's own "Title:" (a setup's title) is one of its lines: only after a blank line does a
@@ -958,6 +1013,8 @@ def parse_text(text: str, file: str = "events.txt") -> list[Item]:
             block.pop()
         if how == "piece":
             items.append(_parse_piece(block, file))
+        elif how == "owner":
+            items += _parse_owner(block, file)
         elif any(re.match(r"^start\s*:", b[1], re.I) for b in block):
             items.append(_parse_full(block, file))
         else:
@@ -971,11 +1028,13 @@ def parse_text(text: str, file: str = "events.txt") -> list[Item]:
             continue
         _apply_table_effect(it, ln, letter, num, words, quote)
     for it in items:
-        if it.kind == "event" and it.style == "simple" and it.graph is not None:
+        if it.kind == "event" and it.style in ("simple", "owner") and it.graph is not None:
             _finish_simple(it)
         if it.kind == "event":
             lose_name_warnings(it)
             person_warnings(it)
+        if it.kind in ("event", "piece") and (it.graph or it.piece):
+            likes_warnings(it)
         elif it.kind == "piece" and any(e.get("do") == "lose_name" for _ln, e in it.piece["effects"]) \
                 and not LOSE_NAME_WORDS.search(it.piece["text"]):
             it.warn(it.line, f"piece {it.piece['id']} has LOSE NAME but its text says nothing of a head, a bump, a "
@@ -1332,11 +1391,11 @@ def _finish_simple(it: Item) -> None:
             if not text.strip():
                 it.problem(o["line"], "an outcome needs its story text")
             node: dict[str, Any] = {"text": text}
-            if c["lead"]:
+            if c["lead"] and not meta.get("lead_own_popup"):
                 node.update(popup="append", join="paragraph")
             effects = []
             for ln, words in o["effects"]:
-                pe = plain_effect(words)
+                pe = words if isinstance(words, PlainEffect) else plain_effect(words)
                 if isinstance(pe, str):
                     it.problem(ln, pe)
                     continue
@@ -1398,7 +1457,7 @@ def _finish_simple(it: Item) -> None:
             if extras.get("speaks"):
                 speaks.append(rid)
         else:
-            role = {"kind": "villager"}
+            role = dict(meta.get("role_facts", {}).get(rid, {"kind": "villager"}))
         facts = role_need.get(rid, {})
         if rid == main:
             facts = {**role_need.get("subject", {}), **role_need.get(main, {}), **role_need.get("", {})}
@@ -1477,6 +1536,281 @@ def _finish_simple(it: Item) -> None:
     meta["speaks"] = speaks
     meta["auto_filters"] = True
     meta["auto_speakers"] = True
+
+
+# ---- The owner's own layout ("S001. Title [VV..]", src/vv_owner_layout.py) ----------------------------------------
+
+_PRONOUN_WORDS = set(cie.PRONOUNS_V6) | {"name", "name1"}
+
+
+def _slotify(text: str, main: str, second: str | None) -> str:
+    """A seed's text with its unprefixed names and pronouns given to the piece's slots ("(Name)" -> "(Seeker)")."""
+    def ph(m: re.Match) -> str:
+        inner = m.group(1)
+        low = inner.lower()
+        if low in ("name", "name1"):
+            return "(" + (main[0].upper() + main[1:] if inner[0].isupper() else main) + ")"
+        if low == "name2" and second:
+            return "(" + (second[0].upper() + second[1:] if inner[0].isupper() else second) + ")"
+        if low in cie.PRONOUNS_V6:
+            return f"({main}.{inner})"
+        return m.group(0)
+    return re.sub(r"\(([^()\n.]*)\)", ph, text)
+
+
+def _parse_owner(block: list[tuple[int, str]], file: str) -> list[Item]:
+    """One block of the owner's layout: the static event and, after "MIXER SEED", its procedural pieces."""
+    ln0, first = block[0]
+    m = owner.HEADING.match(first.strip())
+    code, title, games_text = m.group(1), plain_typography(m.group(2).strip()), m.group(3)
+    it = Item("event", file, ln0, block[-1][0], title, "owner")
+    it.code = code
+    games = parse_games(games_text)
+    if games is None:
+        it.problem(ln0, f"[{games_text}] is not a list of games (VV1..VV5)")
+        games = [1, 2, 3, 4, 5]
+    g: dict[str, Any] = {"format": cie.FORMAT, "version": cie.VERSION_V6, "title": title, "games": games,
+                         "roles": {}, "nodes": {}}
+    meta: dict[str, Any] = {"themes": [], "filters": [], "role_lines": {}, "choices": [], "intro": [],
+                            "intro_line": ln0, "pools": {}, "words": {}, "requires": [], "coda": [],
+                            "lead_own_popup": True, "role_facts": {}, "phrases": [0, 0]}
+    it.graph, it.meta = g, meta
+    mode = "head"
+    choices: dict[str, dict] = {}
+    order: list[str] = []
+    current: dict | None = None
+    outcome: dict | None = None
+    seed: dict[str, Any] | None = None
+    seed_line = 0
+    who_text = ""
+
+    def effects_of(ln: int, text: str, target: dict) -> None:
+        phrases = owner.split_top(text.strip().rstrip("."))
+        meta["phrases"][1] += len(phrases)
+        try:
+            effects, roles, notes = owner.owner_effects(text, games)
+        except owner.Unmapped as exc:
+            it.problem(ln, f"EFFECT phrase not in the phrase table (docs/player-events-format.md 10): {exc}")
+            return
+        meta["phrases"][0] += len(phrases)
+        for n in notes:
+            it.warn(ln, n)
+        target["effects"].append((ln, PlainEffect(effects, roles)))
+
+    for ln, raw in block[1:]:
+        line = raw.strip()
+        if not line or line.startswith("^") or _SEPARATOR.match(line):
+            continue
+        if seed is not None:
+            _seed_line(seed, ln, raw, line, it)
+            continue
+        ms = owner._SEED.match(line)
+        if ms:
+            seed = {"code": ms.group(1) or code, "premise": "", "roles": [], "approaches": [], "outcomes": [],
+                    "flavour": [], "mode": "", "line": ln}
+            seed_line = ln
+            continue
+        if line.startswith("WHO:"):
+            who_text = line[4:].strip()
+            continue
+        if line == "EVENT TEXT":
+            mode = "intro"
+            continue
+        mc = owner._CHOICE_LIST.match(line)
+        if mc and mode in ("intro", "choices"):
+            mode = "choices"
+            letter = mc.group(1)
+            choices[letter] = {"label": plain_typography(mc.group(2).strip()), "line": ln, "outcomes": [], "lead": []}
+            order.append(letter)
+            continue
+        mh = owner._CHOICE_HEAD.match(line)
+        if mh:
+            current = choices.get(mh.group(1))
+            if current is None:
+                it.problem(ln, f"CHOICE {mh.group(1)} is not in the list of choices (\"Choice {mh.group(1)}: ...\")")
+                current = {"label": mh.group(2).title(), "line": ln, "outcomes": [], "lead": []}
+            outcome, mode = None, "choice"
+            continue
+        if line.startswith("First popup:") and current is not None:
+            current["lead"].append(owner.normalize_text(plain_typography(line[len("First popup:"):].strip())))
+            mode = "lead"
+            continue
+        me = owner._ENDING.match(line)
+        if me:
+            if current is None or current is not choices.get(me.group(1)):
+                current = choices.get(me.group(1)) or current
+            if current is None:
+                it.problem(ln, "an Ending before any CHOICE section")
+                continue
+            outcome = {"text": [], "line": ln, "effects": [], "weight": max(1, int(me.group(4))), "filters": [],
+                       "auto": None}
+            current["outcomes"].append(outcome)
+            effects_of(ln, me.group(5), outcome)
+            mode = "ending"
+            continue
+        text = owner.normalize_text(plain_typography(line))
+        if mode == "intro":
+            meta["intro"].append(text)
+        elif mode == "lead" and current is not None:
+            current["lead"].append(text)
+        elif mode == "ending" and outcome is not None:
+            outcome["text"].append(text)
+        # Anything else before EVENT TEXT is the owner's note ("(Source title: ...)"), never shown.
+    meta["choices"] = [choices[k] for k in order]
+    # "(award)" in an ending's text names the amount its food or tech gain gives: that gain is an award (defer),
+    # paid on the same page (cie-v6-binary.md: pay_award).
+    for c in meta["choices"]:
+        for o in c["outcomes"]:
+            if "(award)" not in " ".join(o["text"]).lower():
+                continue
+            paid = False
+            for _ln, pe_ in o["effects"]:
+                gains = [e for e in pe_.effects if e["do"] in ("food", "tech") and not e.get("loss")]
+                if gains:
+                    gains[0]["defer"] = True
+                    pe_.effects.append({"do": "pay_award"})
+                    paid = True
+                    break
+            if not paid:
+                # A loss names no amount in the engine: the owner's "Your village loses (award) food." becomes the
+                # game's own automatic line ("The village loses food.").
+                o["text"] = [re.sub(r"\s*Your villag\w* (?:lose|loses|gain|gains) \(award\)[^.]*\.", "", t)
+                             for t in o["text"]]
+                o["text"] = [t for t in o["text"] if t.strip()]
+                o["auto"] = True
+                it.warn(o["line"], "\"(award)\" with a loss: its sentence is shown as the game's automatic line")
+    # The roles the WHO line names (ages, birth sex, the chief, an Isolan), and the new villager's name.
+    facts = owner.who_roles(who_text)
+    for rid, f in facts.items():
+        role = owner.role_dict(f)
+        for name in ([("subject"), "villager"] if rid == "" else [rid]):
+            meta["role_facts"][name] = role
+    meta["role_facts"]["newname"] = {"kind": "stranger", "named": True}
+    meta["role_facts"]["newname2"] = {"kind": "stranger", "named": True}
+    items = [it]
+    if seed is not None:
+        items += _seed_pieces(seed, it, games, choices, order, seed_line)
+    return items
+
+
+def _seed_line(seed: dict, ln: int, raw: str, line: str, it: Item) -> None:
+    for key in ("Premise:", "Roles:", "Approaches:", "Outcome pool:", "Flavour lines:", "Flavor lines:"):
+        if line.startswith(key):
+            seed["mode"] = key.rstrip(":").split()[0].lower()
+            rest = line[len(key):].strip()
+            if seed["mode"] == "premise":
+                seed["premise"] = rest
+            elif seed["mode"] == "roles" and rest:
+                seed["roles"].append((ln, rest))
+            elif seed["mode"] == "approaches":
+                seed["approaches"] = [(ln, a.strip()) for a in re.split(r"\s*[|/]\s*(?![^()]*\))|,\s+", rest)
+                                      if a.strip()]
+            return
+    if seed["mode"] == "roles":
+        seed["roles"].append((ln, line))
+    elif seed["mode"] in ("outcome", "flavour", "flavor") and line.startswith("-"):
+        (seed["outcomes"] if seed["mode"] == "outcome" else seed["flavour"]).append((ln, line[1:].strip()))
+    elif seed["mode"] == "premise":
+        seed["premise"] += " " + line
+    elif seed["mode"] in ("flavour", "flavor"):
+        seed["mode"] = "done"                 # the seed is over: the file's own notes follow (never read)
+    elif seed["mode"] != "done":
+        it.problem(ln, f"{line[:60]!r}: not a mixer seed line (Premise, Roles, Approaches, Outcome pool, Flavour lines)")
+
+
+def _seed_pieces(seed: dict, ev: Item, games: list[int], choices: dict, order: list[str], ln0: int) -> list[Item]:
+    """The seed's pieces: a setup (the premise), an approach per approach, an outcome per pool line, a flavour line
+    per flavour line; the slots from its role lines."""
+    fam = re.sub(r"[^a-z0-9_]+", "_", seed["code"].lower()).strip("_")
+    slots: dict[str, tuple[dict, str]] = {}
+    for ln, whole in seed["roles"]:
+        for text in re.split(r";\s*(?=\()", whole):
+            m = re.match(r"^\(?([A-Za-z][A-Za-z0-9 ]*?)\)?\s*:\s*(.+)$", text.strip())
+            if not m:
+                continue
+            rid = owner.role_of(m.group(1)) or "subject"
+            facts = owner.who_roles("(x) " + m.group(2)).get("x", owner.who_roles(m.group(2)).get("", {}))
+            slots[rid] = (owner.role_dict(facts), m.group(2).lower())
+    if not slots:
+        slots["subject"] = ({"kind": "villager"}, "")
+    main = next(iter(slots))
+    second = list(slots)[1] if len(slots) > 1 else None
+    out: list[Item] = []
+
+    def piece(pid: str, kind: int, ln: int, text: str, **kw) -> Item:
+        it = Item("piece", ev.file, ln, ln, pid, "piece")
+        it.piece = {"id": pid, "kind": kind, "mood": kw.get("mood", 1), "games": list(games), "family": kw.get(
+            "family", ""), "text": _slotify(owner.normalize_text(plain_typography(text)), main, second),
+                    "label": kw.get("label", ""), "weight": 1, "tags": [], "never": [], "age_band": 0,
+                    "slots": {k: (dict(v[0]), v[1]) for k, v in slots.items()}, "effects": [], "links": [],
+                    "filters": [], "themes": [], "speaks": []}
+        it.meta = {"phrases": [0, 0]}
+        return it
+
+    moods = [owner.MOODS.get(re.search(r"\[mood:\s*([a-z]+)", t).group(1), 1)
+             for _ln, t in seed["outcomes"] if re.search(r"\[mood:\s*([a-z]+)", t)]
+    mood = max(set(moods), key=moods.count) if moods else 1
+    setup = piece(f"{fam}_setup", 1, seed["line"], seed["premise"] or ev.title, family=fam, label=ev.title, mood=mood)
+    out.append(setup)
+    labels = {}
+    lead_of = {plain_typography(choices[k]["label"]).lower(): " ".join(choices[k]["lead"]) for k in order}
+    for k, (ln, label) in enumerate(seed["approaches"], 1):
+        aid = f"{fam}_a{k}"
+        labels[label.lower()] = aid
+        out.append(piece(aid, 2, ln, lead_of.get(label.lower()) or label + ".", family=fam,
+                         label=plain_typography(label)))
+    for k, (ln, line) in enumerate(seed["outcomes"], 1):
+        tags = dict(re.findall(r"\[(answers|mood|effect):\s*([^\]]*)\]", line, re.I))
+        tags = {a.lower(): b for a, b in tags.items()}
+        text = re.sub(r"\s*\[[a-zA-Z]+:[^\]]*\]", "", line).strip()
+        it = piece(f"{fam}_o{k}", 3, ln, text, mood=owner.MOODS.get(tags.get("mood", "").strip().lower(), 1))
+        for ans in [a.strip() for a in tags.get("answers", "").split(",") if a.strip()]:
+            aid = labels.get(ans.lower())
+            if aid is None:
+                it.problem(ln, f"[answers: {ans}] is not one of the seed's approaches")
+            else:
+                it.piece["links"].append((aid, 1))
+        eff = tags.get("effect", "none")
+        phrases = owner.split_top(eff.strip().rstrip("."))
+        it.meta["phrases"][1] += len(phrases)
+        try:
+            effects, roles, notes = owner.owner_effects(eff, games)
+            it.meta["phrases"][0] += len(phrases)
+            for e in effects:
+                for key in ("role", "partner", "with", "copy_of", "who"):
+                    if key in e and e[key] in (None, "@default"):
+                        e[key] = main
+                if "role" not in e and e["do"] not in ("food", "tech", "pay_award", "damage", "repair",
+                                                       "new_villager", "celebrate") and not e.get("target"):
+                    e["role"] = main
+                for key in ("role", "partner", "with", "copy_of"):
+                    rid = e.get(key)
+                    if isinstance(rid, str) and not rid.startswith("$") and rid not in it.piece["slots"]:
+                        it.piece["slots"][rid] = ({"kind": "villager"}, "")
+                it.piece["effects"].append((ln, e))
+            for n in notes:
+                it.warn(ln, n)
+        except owner.Unmapped as exc:
+            it.problem(ln, f"EFFECT phrase not in the phrase table (docs/player-events-format.md 10): {exc}")
+        out.append(it)
+    for k, (ln, line) in enumerate(seed["flavour"], 1):
+        out.append(piece(f"{fam}_f{k}", 4, ln, line, mood=mood))
+    for it in out:
+        finish_piece(it, it.line, romance_is_error=False)
+        if not it.piece["slots"] or it.piece["kind"] == 4:
+            pass
+    return out
+
+
+def owner_coverage(items: list[Item]) -> tuple[int, int]:
+    """(EFFECT phrases mapped, phrases in all) over the owner-layout items."""
+    done = total = 0
+    for it in items:
+        ph = (it.meta or {}).get("phrases")
+        if ph:
+            done += ph[0]
+            total += ph[1]
+    return done, total
 
 
 # ---- Full events ---------------------------------------------------------------------------------------------------
@@ -1883,6 +2217,12 @@ def _parse_piece(block: list[tuple[int, str]], file: str) -> Item:
                 p["links"].append((m.group(1), int(m.group(2) or 1)))
         else:
             it.problem(ln, f"{key.group(1)!r} is not a piece line")
+    return finish_piece(it, ln0)
+
+
+def finish_piece(it: Item, ln0: int, romance_is_error: bool = True) -> Item:
+    """A piece's own checks and the owner's four mixer blocks (shared by every layout that makes pieces)."""
+    p = it.piece
     if p["kind"] == 0:
         it.problem(ln0, "a piece needs its Kind")
     if not p["text"].strip():
@@ -1907,7 +2247,10 @@ def _parse_piece(block: list[tuple[int, str]], file: str) -> Item:
     if minor and "minor" not in p["tags"]:
         p["tags"].append("minor")
     if _ROMANCE.search(p["text"] + " " + p["label"]) and "romance" not in p["tags"]:
-        it.problem(ln0, "this piece reads as romance: add \"Tags: romance\" (it then never meets a minor)")
+        if romance_is_error:
+            it.problem(ln0, "this piece reads as romance: add \"Tags: romance\" (it then never meets a minor)")
+        else:
+            p["tags"].append("romance")       # the owner's seeds have no Tags line: tagged here
     if "romance" in p["tags"]:
         if "minor" not in p["never"]:
             p["never"].append("minor")
@@ -2599,7 +2942,9 @@ main villager):
 - LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
   LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
   Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the
-  villager actually comes to like or dislike (the water, the dark, bees).
+  villager actually comes to like or dislike (the water, the dark, bees). Pick the words from the style guide's
+  Appendix A for each game the event applies to: a word missing from a game cannot be given there, and one that
+  does nothing in a game is only cosmetic.
 - INJURY <who> (a health loss; add (minor), (serious) or (grave)), ILLNESS <who> (falls sick), HEALTH <who> +10 TO +20,
   HEAL <who> (full health), CURE <who> (an illness cured), REPAIR (the damaged huts are repaired).
 - Groups: put "EVERYONE:", "EVERY HEALER:" (also builder, farmer, researcher, parent: every villager good at that

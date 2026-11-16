@@ -75,6 +75,376 @@ rule below. When in doubt, read them and write like them.
    In VV5, Isolans (Guardians of Isola wording).
 
 ##############################################################################
+# APPENDIX A
+##############################################################################
+APPENDIX: LIKES AND DISLIKES
+Choose a like/dislike for what it does in the game; describe the thing itself, never the job;
+use the right value for each game (see below).
+
+(Words exactly as each game shows them. Any word not listed under a game is cosmetic there.)
+
+VV1 A NEW HOME
+==============
+47 words; 19 change behaviour, 28 are cosmetic (proven).
+
+crowds: LIKE -> nothing; DISLIKE -> sits out village-wide celebrations
+resting: LIKE -> nothing; DISLIKE -> never relaxes in a well-off village
+laundry: LIKE -> nothing; DISLIKE -> never does laundry
+medicine: LIKE -> nothing; DISLIKE -> passes over the Healing job more than half the time (still heals when picked)
+turnips: LIKE -> nothing; DISLIKE -> skips crop (turnip field) trips 75% of the time
+butterflies: LIKE -> nothing; DISLIKE -> never chases butterflies
+flowers: LIKE -> nothing; DISLIKE -> no garden work and no flower gathering
+caves: LIKE -> nothing; DISLIKE -> dropped on one cave spot, does nothing
+herbs: LIKE -> nothing; DISLIKE -> refuses to study the strange plants when dropped on them
+berries: LIKE -> nothing; DISLIKE -> refuses foraging (berry bushes) 75% of the time
+rocks: LIKE -> nothing; DISLIKE -> refuses clearing the lagoon blockage 75% of the time
+the ocean: LIKE -> nothing; DISLIKE -> keeps away from the lagoon and swimming; dropped in water it says "Leaving the water"
+bushes: LIKE -> nothing; DISLIKE -> refuses foraging (berry bushes) 75% of the time
+drift wood: LIKE -> nothing; DISLIKE -> skips the beach clean-up 85% of the time
+fish: LIKE -> nothing; DISLIKE -> always refuses fishing ("Running away")
+swimming: LIKE -> nothing; DISLIKE -> keeps away from the lagoon and swimming; dropped in water it says "Leaving the water"
+running: LIKE -> an adult (14+) runs on walks: speed 300 instead of 100 (elders always walk slowly at 40); DISLIKE -> every villager, any age, is slowed: walks instead of running (seen live by the owner; the code path read so far only showed children under 14)
+dancing: LIKE -> nothing; DISLIKE -> never dances, and skips the dance steps at celebrations and honouring
+work: LIKE -> nothing; DISLIKE -> 70% of idle job picks end in no job (lazy)
+
+Cosmetic only (LIKE and DISLIKE do nothing; proven):
+    ants, bees, the dark, snakes, wind, rough wood, playing, exploring, blue, green, red, yellow, drums, bananas, coconuts, sand, sunlight, crab meat, whale meat, fruit, papaya, flies, monkeys, birds, lifting, surprises, jokes, sleeping
+
+Note: Only ONE like does anything in A New Home: running (the game tests likes only for running). Every other like is cosmetic. 19 dislikes act; the other 28 are cosmetic. This is proven: every one of the 34 calls of the dislike test was scanned (vv_game_mechanics_vv1.py:172-180). A New Home has no 'learning', 'heights', 'wood', 'rain', 'fire', 'children' or 'talking' words; liking or disliking learning cannot be given and the skill check reads no like (0x43D440).
+
+VV2 THE LOST CHILDREN
+=====================
+62 words; 25 change behaviour, 37 are cosmetic as far as traced.
+
+crowds: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never joins Heat Wave, Isola Day, Day of Honor, the Blessings Days, completion celebrations or Gong watching
+resting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses resting
+laundry: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses laundry
+medicine: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> passes over the Healing job half the time
+turnips: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses crop trips 75% of the time
+herbs: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses to study the strange plants ("Running away")
+heights: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses coconut trips (climbing) 75% of the time; "Running away" at that spot
+the ocean: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses the ocean activity
+playing: LIKE -> a child picks one of 4 lively plays (and never starts stock tag); DISLIKE -> stock: no effect found; with the Children Play patch never plays tag or sandcastles
+coconuts: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses coconut trips 75% of the time; "Running away" at that spot
+sand: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses the sand/beach activity
+wood: LIKE -> a builder always takes the short route to the wood and never walks off a job; DISLIKE -> a builder walks off the building job about 1 trip in 5 (50% short route x 40% walk off), and refuses half of drops on the firewood
+fish: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> always refuses fishing
+swimming: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> "Running away" when sent or dropped at the swimming spot
+running: LIKE -> walks at speed 300 instead of 100 (any age); DISLIKE -> walks at 40 on every walk, children too (elders always 40)
+learning: LIKE -> every skill try passes at skill+66 instead of skill+33 and the skill gain is doubled; DISLIKE -> skill try passes at skill+16 and the gain is halved
+dancing: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never dances
+work: LIKE -> never takes the 15% 'no job' skip and always keeps a job the player gave; DISLIKE -> also gives up 70% of job picks; drops a player-given job 52% of the time
+jumping: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never jumps (only when edited in)
+cooking: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> "Running away" at the stew pot; with the Empty Stew Pot patch it runs away instead of emptying the pot (only when edited in)
+fire: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> "Running away" at the fire spot (only when edited in: not rolled at birth)
+eating: LIKE -> snacks instead of walking to the pond, and always eats a ready stew (only when edited in); DISLIKE -> nothing found (UNCONFIRMED)
+children: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> as a storyteller tells a story only 2% of the time (only when edited in)
+talking: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses talking (only when edited in)
+vegetables: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses crop trips 75% of the time (only when edited in)
+
+Cosmetic only (LIKE and DISLIKE do nothing; no effect found, UNCONFIRMED):
+    ants, butterflies, flowers, bees, the dark, caves, berries, snakes, wind, rocks, exploring, blue, green, red, yellow, drums, bushes, bananas, sunlight, crab meat, whale meat, fruit, papaya, flies, monkeys, parrots, lifting, surprises, jokes, sleeping, dragonflies, owls, dreaming, holidays, quiet, clouds, dirt
+
+Note: New villagers only ever roll from the first 47 words; jumping, cooking, fire, eating, children, talking and vegetables appear only when edited in (patcher tools / Custom Island Events can set them). The other 37 words: no effect found, but about 90 places read likes and not all were traced (UNCONFIRMED that they do nothing).
+
+VV3 THE SECRET CITY
+===================
+79 words; 35 change behaviour, 44 are cosmetic as far as traced.
+
+crowds: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> left out of celebrations
+resting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses resting; when sick, paces instead of lying down
+laundry: LIKE -> does laundry 37% of the time it could (10% otherwise); DISLIKE -> never does laundry
+medicine: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> passes over Healing half the time, and half of cures that pass the skill test fail anyway (at Healing 50: 42% instead of 84%)
+flowers: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses the flower activity
+bees: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of honey jobs become running away; a drop on the hive refused 60%
+the dark: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses a drop on a dark spot
+caves: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses a drop on a cave
+herbs: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses herbs; refuses to gather herbs
+rocks: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of rubble / bath-repair jobs become running away
+heights: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses the high-place activity
+the ocean: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses fishing ("Running away")
+playing: LIKE -> a child picks only from the plays (sandcastles 1 of 5 choices); DISLIKE -> a child never makes sandcastles or plays in the dirt; never joins patched tag
+bushes: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of clearing (bushes) jobs become running away
+sand: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses the sand/beach activity
+wood: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of wood jobs become running away; walks off a hut 40%; refuses half of drops on the driftwood
+fish: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses fishing ("Running away"); a fish-hater who does start walks off
+fruit: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of fruit-tree jobs become "Running away"
+swimming: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses fishing ("Running away")
+running: LIKE -> an adult walks at 300 instead of 100; DISLIKE -> any age walks at 40, even when running away
+learning: LIKE -> skill test at skill+66 instead of skill+33 and every skill gain doubled; DISLIKE -> skill test at skill+16 and every gain halved
+dancing: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses dancing
+work: LIKE -> never takes the 15% 'no job' skip; always keeps an assigned spot; DISLIKE -> 70% of the remaining job picks end in no job; keeps an assigned fishing spot 47.5% (80% otherwise)
+lifting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of rubble / bath-repair jobs become running away
+jumping: LIKE -> Dancing becomes a 30-hop dance; DISLIKE -> no hops
+fire: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses a drop on the fire
+children: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> storytelling to a child is called off 69 times in 70
+talking: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never chooses talking
+alchemy: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses a drop on the alchemy spot
+potions: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> refuses a drop on the potion spot
+plants: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of clearing (plants) jobs become running away
+rain: LIKE -> in heavy rain stops work to go "Drinking rain"; DISLIKE -> in heavy rain stops work to go "Getting out of the rain"
+sitting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> when sick, paces instead of sitting down
+honey: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of honey jobs become running away; a drop on the hive refused 60%
+stories: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> an adult dropped on a child tells no story
+
+Cosmetic only (LIKE and DISLIKE do nothing; no effect found, UNCONFIRMED):
+    ants, turnips, butterflies, berries, snakes, wind, exploring, blue, green, red, yellow, drums, bananas, coconuts, sunlight, crab meat, whale meat, papaya, flies, monkeys, parrots, surprises, jokes, sleeping, cooking, eating, dragonflies, owls, dreaming, holidays, vegetables, quiet, clouds, dirt, magic, fog, sharks, coral, thunder, lightning, pearls, stars, mango, nature
+
+Note: The other 44 words: no effect found in the running game (UNCONFIRMED that none exists). The island events' liking/disliking ants, liking clouds, liking medicine and liking crowds are known to change nothing (events_vv3.py:73-74). The potion 'feels smarter' gives the same skill-test bonus as liking learning, but not the doubled gain.
+
+VV4 THE TREE OF LIFE
+====================
+79 words; 29 change behaviour, 50 are cosmetic as far as traced.
+
+crowds: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> skips the Celebrating rally
+resting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no Relaxing; when unwell, paces instead of lying down
+laundry: LIKE -> does laundry 38% of the time (11% otherwise); DISLIKE -> never does laundry
+medicine: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> considers Healing half as often and cures about half as often
+flowers: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never "Curious about the herbs"
+herbs: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never "Curious about the herbs"
+berries: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from berry picking
+rocks: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from clearing rubble
+the ocean: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from fishing; no water leisure
+playing: LIKE -> a child only plays (sandcastles 1 of 6 choices); DISLIKE -> no dirt or sandcastle play; never joins patched tag
+sand: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no beach lounging
+wood: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> takes hut building 29% of the time instead of 70%; 41% stop half-way ("Running away"); half of drops on the wood pile end in running away
+fish: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from fishing
+fruit: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from fruit gathering
+swimming: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from fishing; no water leisure
+running: LIKE -> an adult walks at 300 instead of 100 (children run anyway); DISLIKE -> walks at 40, children too
+learning: LIKE -> skill check at skill+67 in 100 instead of skill+34 (always succeeds from skill 33) and doubled gain; DISLIKE -> skill check at skill+17 in 100 and halved gain
+dancing: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never dances, and dance steps are cut from 5 other actions
+work: LIKE -> idle self-picks drop from 18.7% to 5%; a job you give is always done; DISLIKE -> 75.9% of self-picks idle; a job you give is done 47.9% of the time (food under 8,000)
+lifting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from clearing rubble and debris
+jumping: LIKE -> Dancing becomes 30 hops; DISLIKE -> every hop is skipped
+fire: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> dropped on the fire pit runs away (always when lit, 81% unlit)
+children: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> "Telling a story" ends 99% of the time
+talking: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no Chatting
+frogs: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> dropped on the cooking table runs away (100% / 76%)
+plants: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% run away from clearing debris
+rain: LIKE -> always "Drinking rain" in the rain; DISLIKE -> always "Getting out of the rain"
+sitting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> when unwell, paces instead of sitting down
+stories: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no story when either villager dislikes stories
+
+Cosmetic only (LIKE and DISLIKE do nothing; no effect found, UNCONFIRMED):
+    ants, turnips, butterflies, bees, the dark, caves, snakes, wind, heights, exploring, blue, green, red, yellow, drums, bushes, bananas, coconuts, sunlight, crab meat, whale meat, papaya, flies, monkeys, parrots, surprises, jokes, sleeping, cooking, eating, dragonflies, owls, dreaming, holidays, vegetables, quiet, clouds, dirt, soap, magic, fog, sharks, honey, coral, thunder, lightning, pearls, stars, mango, nature
+
+Note: The rest: no effect found in the running game (UNCONFIRMED that none exists). Note: the Game Mechanics page says 'the other 46', but it names 29 acting words, which leaves 50; the page's count looks off. Which of fish/ocean/swimming blocks 'water leisure' on its own is not split out in the source (shown here for ocean and swimming).
+
+VV5 NEW BELIEVERS
+=================
+79 words; 24 change behaviour, 55 are cosmetic as far as traced.
+
+crowds: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never joins village celebrations
+resting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no relaxing; when unwell paces instead of lying down
+laundry: LIKE -> does laundry 53% of the time (12.3% otherwise); DISLIKE -> never does laundry
+medicine: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> takes the Healing job 42.6% instead of 78.5%; a cure works 36.7% instead of 73.5%
+berries: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of noni picking becomes running away
+rocks: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never works on the statue; running away
+heights: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never goes to the waterfall
+the ocean: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no swimming or pools; 60% of fishing becomes running away
+playing: LIKE -> a child picks from 5 plays; DISLIKE -> never plays in the dirt; never joins patched tag
+wood: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> wooden projects offered only 16% of the time; 37% of hut building becomes running away; a drop on the wood pile refused half the time
+fish: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> 60% of fishing becomes running away
+swimming: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no swimming, pools, lake or waterfall; 60% of fishing becomes running away
+running: LIKE -> walks at 300 instead of 100; DISLIKE -> walks at 40, except when fleeing (children run unless they dislike it)
+learning: LIKE -> skill check at skill+66 instead of skill+33; gain doubled; DISLIKE -> skill check at skill+16; gain halved
+dancing: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no dancing or rain dancing, no dance moves at celebrations
+work: LIKE -> skips the 15% 'do nothing' chance; keeps a player-given task 99% (86% otherwise); DISLIKE -> 70% of job picks end in nothing; player-given task kept 63%; while catching up 78% find no job (29% otherwise)
+jumping: LIKE -> Dancing becomes a 30-jump dance; DISLIKE -> jump steps skipped
+fire: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> dropped on the fire pit runs away (80% unlit, always when burning)
+owls: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> the granary job offered only 16% of the time
+children: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> "Telling a story" stops 69 times in 70
+talking: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> never praises
+rain: LIKE -> drinks the rain 98.7% of the time in rain (12% otherwise); DISLIKE -> gets out of the rain 98.7% of the time
+sitting: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> when unwell paces instead of sitting down
+stories: LIKE -> nothing found (UNCONFIRMED); DISLIKE -> no story when either villager dislikes stories
+
+Cosmetic only (LIKE and DISLIKE do nothing; no effect found, UNCONFIRMED):
+    ants, turnips, butterflies, flowers, bees, the dark, caves, herbs, snakes, wind, exploring, blue, green, red, yellow, drums, bushes, bananas, coconuts, sand, sunlight, crab meat, whale meat, fruit, papaya, flies, monkeys, parrots, lifting, surprises, jokes, sleeping, cooking, eating, dragonflies, dreaming, holidays, vegetables, quiet, clouds, dirt, frogs, soap, magic, plants, fog, sharks, honey, coral, thunder, lightning, pearls, stars, mango, nature
+
+Note: Heathen adults ignore their likes and dislikes entirely (heathen children follow the children's ways). The other 55 words (plants and lifting among them): no code that reads them was found (UNCONFIRMED that none exists).
+
+WHICH VALUE TO USE FOR A STORY INTENT
+=====================================
+NO VALUE = the game has no word that does this; pick the nearest flavour word knowing it is cosmetic.
+
+Afraid of / avoids water:
+    VV1: swimming + the ocean
+    VV2: swimming (runs away) + the ocean (never chosen)
+    VV3: swimming or the ocean
+    VV4: swimming or the ocean
+    VV5: swimming (strongest: no swimming, pools, lake or waterfall)
+Afraid of heights:
+    VV1: NO VALUE (word not in the game)
+    VV2: heights (refuses coconut climbing 75%)
+    VV3: heights (never picks the high place)
+    VV4: NO VALUE (heights does nothing here)
+    VV5: heights (never goes to the waterfall)
+Hates getting dirty / tidy:
+    VV1: NO VALUE ('laundry' like does nothing)
+    VV2: NO VALUE (dirt does nothing)
+    VV3: like laundry (does more laundry); for a child, dislike playing (no dirt play)
+    VV4: like laundry; for a child, dislike playing (no dirt play)
+    VV5: like laundry; for a child, dislike playing (no dirt play)
+Loves learning / quick learner:
+    VV1: NO VALUE (no learning word)
+    VV2: like learning
+    VV3: like learning
+    VV4: like learning
+    VV5: like learning
+Slow learner / hates school:
+    VV1: NO VALUE
+    VV2: dislike learning
+    VV3: dislike learning
+    VV4: dislike learning
+    VV5: dislike learning
+Avoids children / not a storyteller:
+    VV1: NO VALUE
+    VV2: dislike children (only edited in)
+    VV3: dislike children
+    VV4: dislike children (or stories)
+    VV5: dislike children (or stories)
+Avoids sick people / squeamish healer:
+    VV1: dislike medicine
+    VV2: dislike medicine
+    VV3: dislike medicine
+    VV4: dislike medicine
+    VV5: dislike medicine
+Loves food / glutton:
+    VV1: NO VALUE
+    VV2: like eating (snacks, eats every ready stew)
+    VV3: NO VALUE
+    VV4: NO VALUE
+    VV5: NO VALUE
+Hates work / lazy:
+    VV1: dislike work
+    VV2: dislike work
+    VV3: dislike work
+    VV4: dislike work
+    VV5: dislike work
+Hard worker / diligent:
+    VV1: NO VALUE (like work does nothing)
+    VV2: like work
+    VV3: like work
+    VV4: like work
+    VV5: like work
+Fast, athletic:
+    VV1: like running (adults only)
+    VV2: like running
+    VV3: like running (adults)
+    VV4: like running (adults)
+    VV5: like running
+Slow, injured, frail:
+    VV1: dislike running (children only in code)
+    VV2: dislike running
+    VV3: dislike running
+    VV4: dislike running
+    VV5: dislike running
+Shy / avoids crowds:
+    VV1: dislike crowds
+    VV2: dislike crowds
+    VV3: dislike crowds
+    VV4: dislike crowds
+    VV5: dislike crowds
+Hates rain:
+    VV1: NO VALUE
+    VV2: NO VALUE
+    VV3: dislike rain
+    VV4: dislike rain
+    VV5: dislike rain
+Loves rain:
+    VV1: NO VALUE
+    VV2: NO VALUE
+    VV3: like rain
+    VV4: like rain
+    VV5: like rain
+Afraid of fire:
+    VV1: NO VALUE (no fire)
+    VV2: dislike fire (only edited in)
+    VV3: dislike fire
+    VV4: dislike fire
+    VV5: dislike fire
+Won't dance:
+    VV1: dislike dancing
+    VV2: dislike dancing
+    VV3: dislike dancing
+    VV4: dislike dancing
+    VV5: dislike dancing
+Loves dancing / bouncy:
+    VV1: NO VALUE
+    VV2: NO VALUE
+    VV3: like jumping (30-hop dance)
+    VV4: like jumping
+    VV5: like jumping
+Afraid of caves / the dark:
+    VV1: dislike caves
+    VV2: NO VALUE
+    VV3: dislike caves or the dark
+    VV4: NO VALUE
+    VV5: NO VALUE
+Hates heavy labour:
+    VV1: dislike rocks
+    VV2: dislike wood
+    VV3: dislike rocks, lifting or wood
+    VV4: dislike rocks, lifting, plants or wood
+    VV5: dislike wood or rocks
+Hates fishing:
+    VV1: dislike fish
+    VV2: dislike fish
+    VV3: dislike fish
+    VV4: dislike fish
+    VV5: dislike fish
+Hates fruit/berry picking:
+    VV1: dislike berries or bushes
+    VV2: dislike coconuts
+    VV3: dislike fruit (or bees/honey)
+    VV4: dislike berries or fruit
+    VV5: dislike berries
+Hates farming crops:
+    VV1: dislike turnips
+    VV2: dislike turnips or vegetables
+    VV3: NO VALUE
+    VV4: NO VALUE
+    VV5: NO VALUE
+Quiet, doesn't chat:
+    VV1: NO VALUE
+    VV2: dislike talking (only edited in)
+    VV3: dislike talking
+    VV4: dislike talking
+    VV5: dislike talking
+Restless, never rests:
+    VV1: dislike resting
+    VV2: dislike resting
+    VV3: dislike resting
+    VV4: dislike resting
+    VV5: dislike resting
+Dislikes herbs / plant lore:
+    VV1: dislike herbs
+    VV2: dislike herbs
+    VV3: dislike herbs
+    VV4: dislike herbs or flowers
+    VV5: NO VALUE
+Serious child, doesn't play:
+    VV1: NO VALUE
+    VV2: NO VALUE (patch only: dislike playing skips tag)
+    VV3: dislike playing
+    VV4: dislike playing
+    VV5: dislike playing
+Playful child:
+    VV1: NO VALUE
+    VV2: like playing
+    VV3: like playing
+    VV4: like playing
+    VV5: like playing
+Builder who hates wood / woodwork:
+    VV1: NO VALUE (drift wood = beach clean-up)
+    VV2: dislike wood
+    VV3: dislike wood
+    VV4: dislike wood
+    VV5: dislike wood
+
+##############################################################################
 # APPENDIX B
 ##############################################################################
 OUTCOMES = ANY CHANGE TO THE VILLAGE, A VILLAGER OR BEHAVIOUR, OR TO TECH LEVELS, FOOD, TECH POINTS ETC.
