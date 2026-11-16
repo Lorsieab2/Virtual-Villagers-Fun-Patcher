@@ -1962,8 +1962,9 @@ class App(tk.Tk):
                 master.set(value)
 
         def ticked() -> None:
+            value = master.get()               # read once: each row set below moves the tick (follow)
             for i in joined:
-                self.fun_patch_vars[i].set(master.get())
+                self.fun_patch_vars[i].set(value)
             self._fun_patch_changed()
 
         for i in joined:
@@ -1975,7 +1976,8 @@ class App(tk.Tk):
         self._help_button(head, "more_island_events_and_creator").pack(side="left", padx=(4, 0))
         ttk.Label(box, text=MIE_CREATOR_NOTE, wraplength=620, justify="left",
                   font=requirement_font).pack(anchor="w", pady=(0, 4))
-        self._mie_creator_vars = getattr(self, "_mie_creator_vars", []) + [master]
+        # each game's row: its tick, what a click on it does, and the rows it ticks
+        self._mie_creator_rows = getattr(self, "_mie_creator_rows", []) + [(master, ticked, tuple(joined))]
 
     def _build_partner_carry(self, box) -> None:
         """"A man may carry the baby by chance" (the owner, 2026-11-16: "Or the player sets it!"): with More Island
