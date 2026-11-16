@@ -175,7 +175,7 @@ HIDDEN_LINES = (
     ("Work: 15% of idle picks take no job, whatever the villager likes; with Fix Vanilla Bugs, as in the later "
      "games, a villager who likes work is never one of those 15%.", gm.CODE),
     # The work-spot routine 0x447CD0 (the job a player assigned by a drop, +0x3B8) reads no like or dislike; with
-    # Fix Vanilla Bugs (0x447CFF -> 0x456E00) it follows The Lost Children's 0x461580: likes work -> the spot;
+    # Fix Vanilla Bugs (0x447CFF -> 0x454B32, pieces in padding) it follows The Lost Children's 0x461580: likes work -> the spot;
     # else rand(100) < 20 -> nothing that turn; else rand(100) < 40 and (food +0xA2EC >= 4,000 or dislikes work)
     # -> nothing that turn.
     ("A job you assigned by dropping a villager: in the normal game liking or disliking work makes no difference "

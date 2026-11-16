@@ -2380,14 +2380,104 @@
         {
           "offset": "0x47CFF",
           "before": "FF2485A8804400",
-          "after": "E9FCF000009090",
-          "purpose": "Keeping an assigned job: the work-spot routine's jump to its spot (0x447CFF) goes to the like-work rule at 0x456E00 first"
+          "after": "E92ECE00009090",
+          "purpose": "Keeping an assigned job: the work-spot routine's jump to its spot (0x447CFF) goes to the like-work rule first (its first piece at 0x454B32)"
         },
         {
-          "offset": "0x56E00",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "506A2A558BCEE80505FEFF84C0753E6A64E8FAC0FAFF83C40483F8147C396A64E8EBC0FAFF83C40483F8287D208B8610E0030081B8ECA20000A00F00007D186A2A558BCEE89704FEFF84C0750A588BCEFF2485A880440058E99E11FFFF",
-          "purpose": "Keeping an assigned job, in the unused end of the code section: likes work (0x437310, word 42) -> the stock spot jump; else rand(100) < 20 -> nothing started (0x447FFB); else rand(100) >= 40 -> the spot; else stored food (+0xA2EC) >= 4,000 or dislikes work (0x4372E0) -> nothing started; else the spot.  EAX (the spot) and ECX (the villager table) as at the site"
+          "offset": "0x54B32",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "506A2A5589F1E935000000",
+          "purpose": "Keeping an assigned job (piece 1 of 16, in unused padding between functions; each piece ends in a jump to the next): likes work (0x437310, word 42) -> the stock spot jump; else rand(100) < 20 -> nothing started (0x447FFB); else rand(100) >= 40 -> the spot; else stored food (+0xA2EC) >= 4,000 or dislikes work (0x4372E0) -> nothing started; else the spot.  EAX (the spot) and ECX (the villager table) as at the site"
+        },
+        {
+          "offset": "0x54B72",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "E89927FEFF84C0E944020000",
+          "purpose": "Keeping an assigned job (piece 2 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x54DC2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85800A00006A64E943020000",
+          "purpose": "Keeping an assigned job (piece 3 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55012",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "E8F9DEFAFF83C404E933000000",
+          "purpose": "Keeping an assigned job (piece 4 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55052",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "83F8140F8CD70C0000E972000000",
+          "purpose": "Keeping an assigned job (piece 5 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x550D2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "6A64E837DEFAFFE9A4000000",
+          "purpose": "Keeping an assigned job (piece 6 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55182",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "83C40483F828E915010000",
+          "purpose": "Keeping an assigned job (piece 7 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x552A2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F8DA0050000E9A5030000",
+          "purpose": "Keeping an assigned job (piece 8 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55652",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B8610E00300E915000000",
+          "purpose": "Keeping an assigned job (piece 9 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55672",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B80ECA20000E945000000",
+          "purpose": "Keeping an assigned job (piece 10 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x556C2",
+          "before": "CCCCCCCCCCCCCCCCCCCC",
+          "after": "3DA00F0000E976000000",
+          "purpose": "Keeping an assigned job (piece 11 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55742",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F8DEA0500006A2A55E992000000",
+          "purpose": "Keeping an assigned job (piece 12 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x557E2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "89F1E8F71AFEFF84C0E952000000",
+          "purpose": "Keeping an assigned job (piece 13 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55842",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85EA0400005889F1E992000000",
+          "purpose": "Keeping an assigned job (piece 14 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x558E2",
+          "before": "CCCCCCCCCCCCCC",
+          "after": "FF2485A8804400",
+          "purpose": "Keeping an assigned job (piece 15 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55D32",
+          "before": "CCCCCCCCCCCC",
+          "after": "58E9C322FFFF",
+          "purpose": "Keeping an assigned job (piece 16 of 16, in unused padding between functions)"
         }
       ]
     },
@@ -4817,7 +4907,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -5004,7 +5094,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         }
       ],
       "runtime_detours": [
@@ -5026,7 +5116,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -5115,7 +5205,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -5204,7 +5294,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",

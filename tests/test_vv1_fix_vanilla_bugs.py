@@ -107,13 +107,20 @@ LIKE_WORK_FIXES = (
     (0x554B2, b"\xCC" * 14, bytes.fromhex("84C00F854646FEFF57E96246FEFF")),
 )
 # ...and keeping a job the player assigned follows The Lost Children's rule (KeepAssignedJobTests below).
-KEEP_JOB_CAVE = bytes.fromhex(
-    "506A2A558BCEE80505FEFF84C0753E6A64E8FAC0FAFF83C40483F8147C396A64E8EBC0FAFF83C40483F8287D208B8610E00300"
-    "81B8ECA20000A00F00007D186A2A558BCEE89704FEFF84C0750A588BCEFF2485A880440058E99E11FFFF")
-KEEP_JOB_FIXES = (
-    (0x47CFF, bytes.fromhex("FF2485A8804400"), bytes.fromhex("E9FCF000009090")),
-    (0x56E00, b"\0" * len(KEEP_JOB_CAVE), KEEP_JOB_CAVE),
-)
+# The rule is laid out over sixteen int3 padding runs between functions, each piece ending in a jump to the next (the
+# zero run at the end of the code section is all owned: Origins holds 0x56900..0x56FFF).
+KEEP_JOB_PIECES = tuple((off, bytes.fromhex(code)) for off, code in (
+    (0x54B32, "506A2A5589F1E935000000"), (0x54B72, "E89927FEFF84C0E944020000"),
+    (0x54DC2, "0F85800A00006A64E943020000"), (0x55012, "E8F9DEFAFF83C404E933000000"),
+    (0x55052, "83F8140F8CD70C0000E972000000"), (0x550D2, "6A64E837DEFAFFE9A4000000"),
+    (0x55182, "83C40483F828E915010000"), (0x552A2, "0F8DA0050000E9A5030000"),
+    (0x55652, "8B8610E00300E915000000"), (0x55672, "8B80ECA20000E945000000"),
+    (0x556C2, "3DA00F0000E976000000"), (0x55742, "0F8DEA0500006A2A55E992000000"),
+    (0x557E2, "89F1E8F71AFEFF84C0E952000000"), (0x55842, "0F85EA0400005889F1E992000000"),
+    (0x558E2, "FF2485A8804400"), (0x55D32, "58E9C322FFFF"),
+))
+KEEP_JOB_FIXES = ((0x47CFF, bytes.fromhex("FF2485A8804400"), bytes.fromhex("E92ECE00009090")),) + tuple(
+    (off, b"\xCC" * len(code), code) for off, code in KEEP_JOB_PIECES)
 FIXES = FIXES + LIKE_WORK_FIXES + KEEP_JOB_FIXES
 
 # Game addresses and fields.
@@ -636,16 +643,29 @@ class KeepAssignedJobTests(unittest.TestCase):
     def test_the_cave_is_unused_space_no_code_or_row_reaches(self) -> None:
         pe = pefile.PE(data=self.stock, fast_load=True)
         text = pe.sections[0]
-        self.assertGreaterEqual(text.PointerToRawData + text.SizeOfRawData, 0x56E00 + len(KEEP_JOB_CAVE))
         self.assertTrue(text.Characteristics & 0x20000000, "executable")
+        code = self.stock[text.PointerToRawData:text.PointerToRawData + text.SizeOfRawData]
+        targets = set()
+        for insn in Cs(CS_ARCH_X86, CS_MODE_32).disasm(code, 0x400000 + text.VirtualAddress):
+            if insn.mnemonic.startswith("j") or insn.mnemonic == "call":
+                try:
+                    targets.add(int(insn.op_str, 16))
+                except ValueError:
+                    pass
+        pieces = [(off, len(c)) for off, c in KEEP_JOB_PIECES]
+        for off, size in pieces:
+            with self.subTest(piece=hex(off)):
+                self.assertLess(off + size, text.VirtualAddress + text.Misc_VirtualSize, "inside the code")
+                self.assertEqual(set(self.stock[off:off + size]), {0xCC}, "int3 padding")
+                self.assertFalse(any(0x400000 + off <= t < 0x400000 + off + size for t in targets),
+                                 "no stock code reaches it")
         for p in load_fun_patches():
             if p.game_id != "vv1" or p.id == FEATURE_ID:
                 continue
             for patch in p.raw.get("patches", []):
                 o, n = int(patch["offset"], 16), len(patch["after"]) // 2
-                for lo, size in ((0x56E00, len(KEEP_JOB_CAVE)), (0x47CFF, 7)):
+                for lo, size in pieces + [(0x47CFF, 7)]:
                     self.assertFalse(o < lo + size and lo < o + n, (p.id, hex(o)))
-
 
 if __name__ == "__main__":
     unittest.main()
