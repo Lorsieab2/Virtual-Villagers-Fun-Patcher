@@ -2858,6 +2858,7 @@ AUTO_LINES = {
     "dislike": "<R> now dislikes <W>.",
     "unlike": "<R> no longer likes <W>.",
     "cure": "<R> is cured.",
+    "young_look": "<R> looks younger.",
     "repair": "The damaged buildings are being repaired.",
     "skill_best": "<R> gets better at what <P> does best.",
     "undislike": "<R> no longer dislikes <W>.",
@@ -2917,7 +2918,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
     if e.get("target") or r in NEW_ROLES:
         return []                                       # a group or a new villager: the engine's own lines
     if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change", "presentation", "cure"):
+              "sex_change", "presentation", "cure", "young_look"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]

@@ -49,11 +49,16 @@ class ThePage(unittest.TestCase):
             with self.subTest(game=game):
                 rows = gc.manifest(game)
                 self.assertTrue(rows)
+                # A Living Event Engine seed's event is in one of the game's living-<group>.pak files (one per series,
+                # living-pack.md 1), never a .cieg.
+                packs = b"".join(p.read_bytes() for p in
+                                 sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("living-*.pak")))
                 for event_id, _title, _series in rows:
                     self.assertIn(event_id, gc.index())
-                    # A Living Event Engine seed's event is in the game's living.pak (living-pack.md 1), never a .cieg.
-                    shipped = (f"vv{game}/living.pak" if event_id.startswith("living_") else f"{event_id}.cieg")
-                    self.assertTrue((ROOT / "assets" / "event_collection" / shipped).is_file(), event_id)
+                    if event_id.startswith("living_"):
+                        self.assertIn(event_id.encode("ascii") + b"\0", packs, event_id)
+                    else:
+                        self.assertTrue((ROOT / "assets" / "event_collection" / f"{event_id}.cieg").is_file(), event_id)
                 listed = [title for _words, titles in gc.sections(game) for title in titles]
                 living = {title for event_id, title, _s in rows if event_id.startswith("living_")}
                 self.assertEqual(sorted(listed), sorted([title for event_id, title, _s in rows

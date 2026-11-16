@@ -1,7 +1,8 @@
 """The Living Event Engine's mixer (src/vv_living_mixer.py) and its pack (docs/event-collection/living-pack.md).
 
   * the build is deterministic, and the shipped packs and manifest rows are what it makes;
-  * VLEP v1: the header, the tables and the blobs read back; every blob decompiles; the outcome map's node indexes
+  * VLEP v2 (one pack per series): the header, the tables and the blobs read back; every blob decompiles; the
+    outcome map's node indexes
     are the decompiled graph's;
   * the variants: K per active seed, variant 0 of a MIX seed flagged, the games of each;
   * the run-time twin lv_order: weights 1000 / (1 + uses), at most 12 tries, no roll when the weights sum to 1 or
@@ -24,7 +25,8 @@ import vv_cie_graph as cg  # noqa: E402
 import vv_living_mixer as mx  # noqa: E402
 
 BANK = mx.Bank()
-VARIANTS, PACKS = mx.build(BANK)
+VARIANTS, GROUPS = mx.build(BANK)                         # {game: {series: living-<group>.pak}}
+PACKS = {g: mx.pack(g, VARIANTS, BANK) for g in mx.GAMES}   # every Living Engine variant of a game in one pack
 
 
 class Determinism(unittest.TestCase):
@@ -34,18 +36,22 @@ class Determinism(unittest.TestCase):
                          [(v.manifest_id, v.k, v.graph) for v in VARIANTS])
 
     def test_the_shipped_packs_are_what_the_build_makes(self) -> None:
+        import build_event_collection_features as build
+        lg = build.living_groups(VARIANTS)
         for game in mx.GAMES:
-            with self.subTest(game=game):
-                shipped = (ROOT / "assets" / "event_collection" / f"vv{game}" / "living.pak").read_bytes()
-                self.assertEqual(shipped, PACKS[game])
+            for series, data in GROUPS[game].items():
+                with self.subTest(game=game, series=series):
+                    shipped = (ROOT / "assets" / "event_collection" / f"vv{game}" / f"living-{lg[series]}.pak")
+                    self.assertEqual(shipped.read_bytes(), data)
 
     def test_the_shipped_manifest_rows_are_the_build_rows(self) -> None:
         import build_event_collection_features as build
         for game in mx.GAMES:
             with self.subTest(game=game):
-                text = (ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt").read_text(encoding="utf-8")
-                shipped = [r for r in text.splitlines() if r.startswith("living_")]
-                self.assertEqual(shipped, [build.living_line(r) for r in mx.manifest_rows(game, VARIANTS, BANK)])
+                text = "\n".join(q.read_text(encoding="utf-8") for q in
+                                 sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt")))
+                shipped = sorted(r for r in text.splitlines() if r.startswith(("living_le_", "living_mc_")))
+                self.assertEqual(shipped, sorted(build.living_line(r) for r in mx.manifest_rows(game, VARIANTS, BANK)))
 
     def test_the_fixture_is_what_the_mixer_makes(self) -> None:
         for name, data in mx.fixture_files(VARIANTS, BANK).items():
@@ -59,12 +65,12 @@ class ThePack(unittest.TestCase):
             with self.subTest(game=game):
                 self.assertEqual(data[:4], b"VLEP")
                 version, hbytes, total, crc = struct.unpack_from("<HHII", data, 4)
-                self.assertEqual((version, hbytes, total), (1, 64, len(data)))
+                self.assertEqual((version, hbytes, total), (2, 72, len(data)))
                 self.assertEqual(zlib.crc32(data[:12] + b"\0" * 4 + data[16:]) & 0xFFFFFFFF, crc)
                 self.assertEqual(data[16], game)
                 p = mx.read_pack(data)
                 self.assertEqual((p["roles"], p["archetypes"], p["lenses"]), (30, 38, 15))
-                blobs = struct.unpack_from("<I", data, 48)[0]
+                blobs = struct.unpack_from("<I", data, 52)[0]
                 self.assertEqual(blobs % 4, 0)
 
     def test_tables_and_blobs(self) -> None:

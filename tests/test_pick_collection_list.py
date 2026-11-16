@@ -49,10 +49,11 @@ ROLELESS = {
 
 
 def manifest_rows(game: int) -> list[list[str]]:
-    """The manifest's rows with a .cieg of their own: the Living Event Engine's rows (id living_...) are variants
-    in living.pak, listed and checked by tests/test_living_runtime.py."""
-    path = ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt"
-    return [line.split("\t") for line in path.read_text(encoding="utf-8").splitlines()
+    """The manifests' rows with a .cieg of their own: the Living Event Engine's rows (id living_...) are variants
+    in the living-<group>.pak files, listed and checked by tests/test_living_runtime.py.  The manifests are split
+    per source section and living series (living-pack.md 1)."""
+    paths = sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt"))
+    return [line.split("\t") for path in paths for line in path.read_text(encoding="utf-8").splitlines()
             if line and not line.startswith("#") and not line.startswith("living_")]
 
 
