@@ -2186,7 +2186,8 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early",
+              "apostasy"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX

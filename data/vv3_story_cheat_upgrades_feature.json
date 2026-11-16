@@ -38,7 +38,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "216E2EE8B4F5005531FA90319D876D63414E221693B93B334B7FE0E2F71EE573"
+      "sha256": "D791B6294481DDDA72D425D31E2D5A5EA06A654B45577B156C9D4305AB64875B"
     }
   ],
   "runtime_detours": [

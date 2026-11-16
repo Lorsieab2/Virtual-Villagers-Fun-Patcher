@@ -2963,7 +2963,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_SPEAKS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -6030,6 +6030,12 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                          int role, unsigned char *record, int index, const char *name) {
     ce_result one;
     ce_change *c;
+    if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record) && !cg_heathen_effect_ok(e)) {
+        /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
+           only, as the load checks a Heathen's own role (Codex, #771). */
+        ce_refuse(r, CE_WHY_OTHER);
+        return;
+    }
     if ((role < 0 || (cg_role_at(&cg_g, role)[1] & CG_ROLE_PROTECTED)) && cg_effect_harmful(a, game, e)
         && cg_protected(a, game, record)) {
         /* The hard guard's last word (the walk's guard took the branch out unless they became protected since):
@@ -6907,6 +6913,19 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         }
         w.pages = &pages;
         w.scroll = cg_scrolls();
+        if (!w.scroll) {
+            /* A title wider than its area shows its rest as the page's first lines (cg_display): those lines kept
+               free on every page, so the text is paged around them, never cut (Codex, #771). */
+            static char probe[CG_LABEL_V6 * 4];
+            ce_layout bare = *w.first;
+            bare.with_title = 0;
+            lstrcpynA(probe, widest, (int)sizeof probe);
+            cg_title_wrap(probe);
+            if (cg_title_rest[0] != '\0') {
+                w.reserve += ce_lines_used_in(&bare, "", cg_title_rest);
+            }
+            cg_title_rest[0] = '\0';
+        }
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
             int d, kind = CGD_PAGE;
