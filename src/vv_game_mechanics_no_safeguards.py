@@ -66,9 +66,9 @@ GAMES = {
         "cast); \"not sick\" for the Heathen children and Heathens of Outreach and The Defector; \"not pregnant or "
         "nursing\" for Bed Bugs; Science below 2 (You're Doing It Wrong) and exactly 2 (The Advanced Artifacts); "
         "100 food for Trick Or Trade; Food Mastery below 2 for The Migrating Fruit Bats; the room for the four "
-        "events that bring villagers; The Strange Nectar's 18 (any age now: a child who drinks it grows up at once; "
-        "not yet seen in play).",
-        "Kept: each event's own believer or Heathen (and a believer child where the story is a child's); the "
+        "events that bring villagers.",
+        "Kept: each event's own believer or Heathen (a believer child where the story is a child's, a believer of "
+        "18 or more for The Strange Nectar); the "
         "Heathen role characters; the puzzles (the Hydroponic Farm, the Knowing Totem, The Heathen Scientist); the "
         "burning fire for The Cold Snap; no God Power armed on the pointer (kept for safety: not proven safe "
         "without it); the catch-up wait."),

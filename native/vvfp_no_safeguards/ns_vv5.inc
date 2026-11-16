@@ -109,11 +109,8 @@
      44 The Defector (0x416900)
          LIFTED  0x416928 not sick.   KEPT (casting)  a living Heathen.   KEPT (puzzle)  the Heathen's role.
      46 The Strange Nectar (0x416AB0)
-         LIFTED  0x416AB1 the role test; 0x416ACD the minimum age 18 (any age: the picker's -1, as its other
-                 unused bounds).  The owner (2026-11-15): not an obvious crash; to be checked live -- "Drink it" sets
-                 the age to 330 units (16.5 years) directly, so a child drinking it grows up at once (UNCONFIRMED in
-                 play; it goes back to 18 if it misbehaves).
-         KEPT (casting)  a living believer.
+         LIFTED  0x416AB1 the role test.
+         KEPT (casting, the owner 2026-11-15: vanilla)  a believer of 18 or more (0x416ACD, push 0x168).
      55 Innovation in Farming, the mysterious storyteller (0x416FA0)
          LIFTED  0x416FB5 the role test.   KEPT (casting)  a believer child under 14.
          KEPT (puzzle)  The Heathen Scientist solved (puzzle 13).
@@ -170,9 +167,8 @@ static const ns_site NS_VV5_SITES[] = {
     { 0x416736u, 3, { 0x0F, 0x9C, 0xC0 }, { 0xB0, 0x01, 0x90 } },
     /* 44 The Defector: the Heathen may be sick */
     { 0x416928u, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
-    /* 46 The Strange Nectar: the role test; the minimum age 360 -> none (-1) */
+    /* 46 The Strange Nectar: the role test (its 18 or more stays the stock one) */
     { 0x416AB1u, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
-    { 0x416ACDu, 5, { 0x68, 0x68, 0x01, 0x00, 0x00 }, { 0x68, 0xFF, 0xFF, 0xFF, 0xFF } },
     /* 55 the mysterious storyteller: the role test */
     { 0x416FB5u, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
 };
