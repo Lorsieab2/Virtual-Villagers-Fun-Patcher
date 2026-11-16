@@ -74,6 +74,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
        child's pastime pick. */
     "VVFP Children Play.dll",
+    /* More Frequent Island Events (all five games): the game's own island events N times as often (the patcher
+       window's slider, read from "VVFP Island Frequency.txt" beside it). */
+    "VVFP Island Frequency.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

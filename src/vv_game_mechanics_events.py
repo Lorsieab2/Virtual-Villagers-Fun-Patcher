@@ -99,6 +99,71 @@ def with_scaling(game: int, events: tuple, titles: frozenset) -> tuple:
                  for event in events)
 
 
+# More Frequent Island Events (all five games): the game's own wait between events, rand(K) + K whole real-life
+# hours (scripts/build_island_frequency_features.py), divided by the patcher window's N.
+FREQUENCY_HOURS = {1: 12, 2: 10, 3: 8, 4: 8, 5: 8}
+TIMING = "Timing:"
+
+
+def frequency_id(game: int) -> str:
+    """More Frequent Island Events, in all five games."""
+    return f"vv{game}_more_frequent_island_events"
+
+
+def frequency_multiplier(village) -> int | None:
+    """The N the game's "VVFP Island Frequency.txt" holds (beside its companion, in the patcher's folder next to the
+    game's exe), read as the companion reads it: 2 to 100 (above 100 is 100, below 2 is 2), 2 with no number;
+    None when the exe is not known or the file cannot be read."""
+    import patcher_files
+    from pathlib import Path
+    exe = getattr(village, "exe", None)
+    if exe is None:
+        return None
+    try:
+        raw = (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / "VVFP Island Frequency.txt").read_bytes()[:15]
+    except OSError:
+        return None
+    text = raw.decode("latin-1").lstrip(" \t")
+    digits = ""
+    for ch in text:
+        if not ("0" <= ch <= "9"):
+            break
+        digits += ch
+    if not digits:
+        return 2
+    return max(2, min(100, int(digits[:4])))
+
+
+def _span(seconds: int) -> str:
+    """A wait in plain words: whole hours and minutes (seconds only under a minute)."""
+    hours, rest = divmod(seconds, 3600)
+    minutes, secs = divmod(rest, 60)
+    parts = []
+    if hours:
+        parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+    if minutes:
+        parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+    if secs and not hours:
+        parts.append(f"{secs} second{'s' if secs != 1 else ''}")
+    return " ".join(parts) or "0 seconds"
+
+
+def frequency_words(village) -> str:
+    """The timing line's patched sub-line: the shortened wait, at the game's own N when it can be read."""
+    game = village.game
+    k = FREQUENCY_HOURS[game]
+    n = frequency_multiplier(village)
+    if n is None:
+        effect = (f"each wait after an event ({k} to {2 * k - 1} hours) is divided by the number set on its slider "
+                  "(2 to 100), so the game's own events come that many times as often; the first events' minutes "
+                  "are unchanged")
+    else:
+        effect = (f"the game's own events come {n} times as often: the wait after an event is "
+                  f"{_span(k * 3600 // n)} to {_span((2 * k - 1) * 3600 // n)} of real-life time instead of {k} to "
+                  f"{2 * k - 1} hours (each of the {k} waits as likely); the first events' minutes are unchanged")
+    return patched_words(frequency_id(game), effect)
+
+
 def _line(item) -> Line:
     return item if isinstance(item, Line) else Line(item)
 
@@ -119,6 +184,9 @@ def event_facts(village: gm.Village, rules=(), events=(), extra=()) -> list[gm.F
         line = _line(item)
         if shown(line.only_with):
             out.append(gm.Fact(GROUP, line.text, line.verified, sub=line.sub))
+            if line.text.startswith(TIMING) and village.game in FREQUENCY_HOURS \
+                    and village.has(frequency_id(village.game)) is True:
+                out.append(gm.Fact(GROUP, frequency_words(village), gm.CODE, sub=True))
             if line.text.startswith(ROOM):
                 import vv_game_mechanics_life as life       # the limit this game's exe gives (its population mode)
                 words = life.room_words(village)

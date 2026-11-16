@@ -344,6 +344,11 @@ LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.j
 # each child's pastime pick for tag and for sandcastles; companion only, "VVFP Children Play.dll", started by
 # VVFP Startup.dll from its second word; scripts/build_children_play_feature.py.
 CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_feature.json" for n in range(1, 6))
+# More Frequent Island Events (all five games; off by default, on in Owner's Defaults): the game's own island events
+# N times as often (the slider, 2 to 100, 2 unless moved); companion only, "VVFP Island Frequency.dll", started by
+# VVFP Startup.dll from its second word; scripts/build_island_frequency_features.py.
+ISLAND_FREQUENCY_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_more_frequent_island_events_feature.json" for n in range(1, 6))
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -4232,6 +4237,7 @@ def _load_fun_patch_records(
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
                          + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
+                         + ISLAND_FREQUENCY_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS):
@@ -10578,6 +10584,9 @@ def _result(
         # Louder Wind Flutes' multiplier, written beside its companion (only when the row is in the build).
         **({"louder_flutes_multiplier": _louder_flutes_multiplier}
            if any(patch.id.endswith("_louder_wind_flutes") for patch in fun_patches) else {}),
+        # More Frequent Island Events' multiplier, likewise.
+        **({"island_frequency_multiplier": _island_frequency_multiplier}
+           if any(patch.id.endswith("_more_frequent_island_events") for patch in fun_patches) else {}),
     }
 
 
@@ -10873,6 +10882,9 @@ def _log_data(
         # Louder Wind Flutes' multiplier, written beside its companion (only when the row is in the build).
         **({"louder_flutes_multiplier": _louder_flutes_multiplier}
            if any(patch.id.endswith("_louder_wind_flutes") for patch in fun_patches) else {}),
+        # More Frequent Island Events' multiplier, likewise.
+        **({"island_frequency_multiplier": _island_frequency_multiplier}
+           if any(patch.id.endswith("_more_frequent_island_events") for patch in fun_patches) else {}),
     }
 
 
@@ -11002,6 +11014,7 @@ def _copy_companion_files(
                     generated_temp.cleanup()
     _write_unicode_font_choice(output_folder, fun_patches)
     _write_louder_flutes_choice(output_folder, fun_patches)
+    _write_island_frequency_choice(output_folder, fun_patches)
     return copied
 
 
@@ -11136,6 +11149,51 @@ def _write_louder_flutes_choice(output_folder: Path, fun_patches: list[FunPatch]
             dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
             dll.parent.mkdir(parents=True, exist_ok=True)
             (dll.parent / LOUDER_FLUTES_CHOICE_FILE).write_text(f"{_louder_flutes_multiplier}\n", encoding="ascii")
+
+
+# More Frequent Island Events (all five games): how many times as often the game's own island events come, the
+# patcher window's slider (the owner, 2026-11-15: like the other multiplier sliders, 2x to 100x; 2 unless moved).
+# Written beside "VVFP Island Frequency.dll" as one whole number (ASCII), which the companion reads at start (2 to
+# 100; a missing or unreadable file is 2).  The window's slider and --island-frequency-multiplier set it.
+ISLAND_FREQUENCY_CHOICE_FILE = "VVFP Island Frequency.txt"
+ISLAND_FREQUENCY_MULTIPLIER_DEFAULT = 2
+ISLAND_FREQUENCY_MULTIPLIER_RANGE = range(2, 101)
+_island_frequency_multiplier = ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
+
+
+def validate_island_frequency_multiplier(multiplier: int) -> int:
+    """More Frequent Island Events' multiplier as a whole number 2 to 100, or a PatcherError."""
+    if isinstance(multiplier, bool) or not isinstance(multiplier, int) \
+            or multiplier not in ISLAND_FREQUENCY_MULTIPLIER_RANGE:
+        raise PatcherError(
+            f"More Frequent Island Events: the multiplier must be a whole number from "
+            f"{ISLAND_FREQUENCY_MULTIPLIER_RANGE[0]} to {ISLAND_FREQUENCY_MULTIPLIER_RANGE[-1]}, not {multiplier!r}. "
+            "Nothing was written."
+        )
+    return multiplier
+
+
+def set_island_frequency_multiplier(multiplier: int) -> int:
+    """Choose how many times as often More Frequent Island Events makes island events come (2 to 100)."""
+    global _island_frequency_multiplier
+    _island_frequency_multiplier = validate_island_frequency_multiplier(multiplier)
+    return _island_frequency_multiplier
+
+
+def island_frequency_multiplier() -> int:
+    """The multiplier More Frequent Island Events is written with now (set_island_frequency_multiplier)."""
+    return _island_frequency_multiplier
+
+
+def _write_island_frequency_choice(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    for feature in fun_patches:
+        if not feature.id.endswith("_more_frequent_island_events"):
+            continue
+        for item in feature.raw.get("companion_files", []):
+            dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
+            dll.parent.mkdir(parents=True, exist_ok=True)
+            (dll.parent / ISLAND_FREQUENCY_CHOICE_FILE).write_text(f"{_island_frequency_multiplier}\n",
+                                                                   encoding="ascii")
 
 
 def _remove_unselected_companions(
@@ -12929,6 +12987,8 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
     # child's pastime pick.
     "VVFP Children Play.dll",
+    # More Frequent Island Events (all five games): the game's own island events N times as often.
+    "VVFP Island Frequency.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
@@ -13503,6 +13563,8 @@ def _game_opened_relatives(
             relatives.append(str(installed))
             if feature.id.endswith("_louder_wind_flutes"):
                 relatives.append(str(installed.parent / LOUDER_FLUTES_CHOICE_FILE))
+            if feature.id.endswith("_more_frequent_island_events"):
+                relatives.append(str(installed.parent / ISLAND_FREQUENCY_CHOICE_FILE))
             if feature.id.endswith("_unicode_font"):
                 relatives.append(str(installed.parent / UNICODE_FONT_CHOICE_FILE))
                 if _unicode_font_file is not None:
@@ -14269,6 +14331,18 @@ def _add_check_logs_arg(parser: argparse.ArgumentParser) -> None:
             f"(default {MEAL_MULTIPLIER_DEFAULT}); only with that row selected"
         ),
     )
+    # More Frequent Island Events' multiplier (the patcher window's slider): only used when that row is selected.
+    parser.add_argument(
+        "--island-frequency-multiplier",
+        type=int,
+        choices=list(ISLAND_FREQUENCY_MULTIPLIER_RANGE),
+        default=None,
+        help=(
+            "More Frequent Island Events: the game's own island events come this many times as often, a whole "
+            f"number {ISLAND_FREQUENCY_MULTIPLIER_RANGE[0]} to {ISLAND_FREQUENCY_MULTIPLIER_RANGE[-1]} "
+            f"(default {ISLAND_FREQUENCY_MULTIPLIER_DEFAULT}); only with that row selected"
+        ),
+    )
     # Louder Wind Flutes' multiplier (the patcher window's slider): only used when that row is selected.
     parser.add_argument(
         "--louder-flutes-multiplier",
@@ -14480,6 +14554,8 @@ def main() -> int:
             set_unicode_font_file(args.unicode_font_file)
         if getattr(args, "louder_flutes_multiplier", None) is not None:
             set_louder_flutes_multiplier(args.louder_flutes_multiplier)
+        if getattr(args, "island_frequency_multiplier", None) is not None:
+            set_island_frequency_multiplier(args.island_frequency_multiplier)
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":

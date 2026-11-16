@@ -453,6 +453,9 @@ def render_transparency_text(
         if feature["id"].endswith("_sickness_multiplier") and data.get("sickness_multiplier"):
             lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 2-100x Sickness slider): villagers fall "
                          "sick that many times as often.")
+        if feature["id"].endswith("_more_frequent_island_events") and data.get("island_frequency_multiplier"):
+            lines.append(f"  Multiplier: x{data['island_frequency_multiplier']} (the More Frequent Island Events "
+                         "slider): the game's own island events come that many times as often.")
         if feature["id"].endswith("_louder_wind_flutes") and data.get("louder_flutes_multiplier"):
             lines.append(f"  Multiplier: x{data['louder_flutes_multiplier']} (the Louder Wind Flutes slider): the wind "
                          "flutes are that many times louder, held under clipping.")
