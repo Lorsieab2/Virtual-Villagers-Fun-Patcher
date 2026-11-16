@@ -122,7 +122,12 @@ game's own ranges (the same as the More Island Events rewards); food and tech sc
 | `NEW VILLAGER (child\|teen\|adult\|elder\|any)`, `DUPLICATE OF <who>`, `CLONE OF <who>` | a newcomer; a lookalike; an exact double | new_villager, clone |
 | `PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]`, `NURSING <who> [WITH <who>] [(ANY BIRTH SEX)]` | a pregnancy; a baby now | pregnant, nursing |
 | `NEW LOOK (head\|body\|both) <who>`, `OLD LOOK <who>`, `SEX CHANGE <who>`, `BODY SWAP <who> WITH <who>` | looks | appearance, old_look, sex_change, body_swap |
-| `LOSE NAME <who>`, `CHANGE NAME <who>` | the name becomes "?"; a new name from the game's list | lose_name, change_name |
+| `LOSE NAME <who>`, `CHANGE NAME <who>`, `CHANGE NAME <who> TO Lani` | the name becomes "?"; a new name from the game's list, or that name (1-31 letters, spaces, `'`, `-`, `.`, starting with a letter) | lose_name, change_name |
+
+**A "?" name** (LOSE NAME) only comes from a bump on the head or something like it (a fall, a fever, magic or
+anything that takes the villager's memory), never from a villager choosing or being given "?" as a name. Check File
+warns (a warning, not an error: the event still installs) when a LOSE NAME page's text says none of head, bump, fall,
+knock, fever, forget / forgot, memory, magic, spell or charm.
 | `CHANGE AGE <who> YOUNGER\|OLDER 5 YEARS`, `CHANGE AGE <who> TO child\|teen\|18\|adult\|50\|elder` | age | change_age |
 | `MOOD GOOD\|BAD <who>`, `CELEBRATE [<who>\|everyone]`, `ACTION <who> "words"` | behaviour | mood, celebrate, action |
 | `DAMAGE (size) [ON hut, school]` | buildings damaged | damage |

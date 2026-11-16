@@ -328,9 +328,35 @@ class Item:
     piece: dict | None = None
     problems: list[Problem] = field(default_factory=list)
     code: str = ""                         # the owner's "NEW-001" code, for the effect table
+    warnings: list[Problem] = field(default_factory=list)   # shown, never a reason to leave the item out
 
     def problem(self, line: int, text: str) -> None:
         self.problems.append(Problem(self.file, line, text))
+
+    def warn(self, line: int, text: str) -> None:
+        self.warnings.append(Problem(self.file, line, "Warning (not an error): " + text))
+
+
+# The owner's rule: a "?" name only comes from a bump on the head or something like it (a fall, a fever, magic, or
+# anything that takes the villager's memory), never a villager choosing or being given "?" as a name.
+LOSE_NAME_WORDS = re.compile(r"(?i)\b(head\w*|bump\w*|fall\w*|fell|knock\w*|fever\w*|forg[eo]t\w*|memor\w*|"
+                             r"magic\w*|spell\w*|charm\w*)\b")
+LOSE_NAME_RULE = ("a \"?\" name only comes from a bump on the head or something like it (a fall, a fever, magic or "
+                  "anything that takes the villager's memory), never from choosing or being given \"?\" as a name")
+
+
+def lose_name_warnings(it: Item) -> None:
+    """A soft warning for each page with LOSE NAME whose text says nothing of a bump, a fall, a fever, magic or a lost
+    memory (the owner's rule)."""
+    for nid, n in ((it.graph or {}).get("nodes") or {}).items():
+        effects = n.get("effects") or []
+        if not any(isinstance(e, dict) and e.get("do") == "lose_name" for e in effects):
+            continue
+        texts = [n.get("text") or ""] + [v.get("text") or "" for v in n.get("variants") or []]
+        if not any(LOSE_NAME_WORDS.search(t) for t in texts):
+            line = it.meta.get("node_lines", {}).get(nid, it.line)
+            it.warn(line, f"page {nid} has LOSE NAME but its text says nothing of a head, a bump, a fall, a knock, a "
+                          f"fever, forgetting, memory, magic, a spell or a charm: {LOSE_NAME_RULE}")
 
 
 # ---- Games ---------------------------------------------------------------------------------------------------------
@@ -780,6 +806,12 @@ def parse_text(text: str, file: str = "events.txt") -> list[Item]:
     for it in items:
         if it.kind == "event" and it.style == "simple" and it.graph is not None:
             _finish_simple(it)
+        if it.kind == "event":
+            lose_name_warnings(it)
+        elif it.kind == "piece" and any(e.get("do") == "lose_name" for _ln, e in it.piece["effects"]) \
+                and not LOSE_NAME_WORDS.search(it.piece["text"]):
+            it.warn(it.line, f"piece {it.piece['id']} has LOSE NAME but its text says nothing of a head, a bump, a "
+                             f"fall, a fever, forgetting, memory or magic: {LOSE_NAME_RULE}")
     return items
 
 
@@ -1157,6 +1189,7 @@ def _finish_simple(it: Item) -> None:
             if o["filters"]:
                 meta.setdefault("node_filters", {})[oid] = o["filters"]
             nodes[oid] = node
+            meta.setdefault("node_lines", {})[oid] = o["line"]
             outs.append({"next": oid, "weight": o["weight"]})
         if c["lead"]:
             lead = escape_prose("\n".join(c["lead"]))
@@ -2051,13 +2084,15 @@ def compile_item(it: Item, ident: str | None = None, keep_collection: bool = Fal
 
 
 def check_items(items: list[Item]) -> list[Problem]:
-    """Every problem of the items, the compile's included (Check File)."""
+    """Every problem of the items, the compile's included, and the warnings (Check File).  A problem leaves its item
+    out at patch time; a warning ("Warning (not an error): ...") does not."""
     out: list[Problem] = []
     for it in items:
         out += it.problems
         if it.kind == "event" and not it.problems:
             _c, probs = compile_item(it)
             out += [Problem(it.file, it.line, f"{it.title or 'the event'}: {p}") for p in probs]
+        out += it.warnings
     return out
 
 
@@ -2153,6 +2188,7 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
         k = 0
         for it in items:
             label = f"{path.name}, line {it.line}: {it.title or it.kind}"
+            report.notes += [str(w) for w in it.warnings]
             if it.problems:
                 report.skipped += [str(p) for p in it.problems]
                 continue
@@ -2382,7 +2418,9 @@ main villager):
   older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
   potion), or for NURSING when a father is caring for a baby.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
-  LOSE NAME <who> (the name becomes "?"), CHANGE NAME <who> (a new name from the game's own list),
+  LOSE NAME <who> (the name becomes "?"; it only comes from a bump on the head or something like it: a fall, a fever,
+  magic or anything that takes the villager's memory, never a villager choosing or being given "?" as a name),
+  CHANGE NAME <who> (a new name from the game's own list),
   CHANGE NAME <who> TO <name> (that name: letters, spaces, ' - . only, up to 31),
   CHANGE AGE <who> YOUNGER|OLDER <n> YEARS, CHANGE AGE <who> TO child|teen|18|adult|50|elder.
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",

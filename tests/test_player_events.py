@@ -217,6 +217,26 @@ class ChangeNameToAFixedName(unittest.TestCase):
         self.assertFalse(cie.CHANGE_NAME_RE.match("Lani "))
 
 
+class LoseNameNeedsABump(unittest.TestCase):
+    """The owner: a "?" name only comes from a bump on the head or something like it -- a soft warning, never an
+    error."""
+
+    def test_a_lose_name_page_without_a_cause_warns_but_installs(self):
+        text = SIMPLE.replace("Effect: SKILL + Building a little", "Effect: LOSE NAME")
+        it = one(text)
+        self.assertFalse(it.problems)
+        self.assertEqual(len(it.warnings), 1)
+        self.assertEqual(it.warnings[0].line, 12)
+        self.assertIn("Warning (not an error)", it.warnings[0].text)
+        self.assertIsNotNone(pe.compile_item(it, "pl_t_001")[0])
+        self.assertTrue(any("Warning" in p.text for p in pe.check_items([it])))
+        bumped = one(text.replace("(Name) invents a splitting wedge.",
+                                  "A falling coconut knocks (Name) on the head."))
+        self.assertEqual(bumped.warnings, [])
+        self.assertIn("bump on the head", pe.FORMAT_SECTION)
+        self.assertIn("bump on the head", DOC)
+
+
 class FormatSectionMatchesTheParser(unittest.TestCase):
     """The prompt's format section is what the parser reads: its example parses and compiles, and every effect it
     lists is a line the parser accepts."""
