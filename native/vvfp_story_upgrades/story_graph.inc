@@ -817,6 +817,8 @@ static int cg_title_ok(const cg_graph *g, const char *title) {
     return title[0] != '\0' && lstrlenA(title) < (g->version >= 6 ? CG_LABEL_V6 : CE_TITLE_BYTES);
 }
 
+static int cg_fixed_name_ok(const char *name);   /* effect 33's fixed name (below) */
+
 static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     const unsigned char *h = data;
     int i, k;
@@ -1118,8 +1120,12 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_BODY_SWAP:
                 ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
                 break;
-            case CGE_CLONE: case CGE_LOSE_NAME: case CGE_CHANGE_NAME:
+            case CGE_CLONE: case CGE_LOSE_NAME:
                 ok = a == 0 && b == 0 && str == CG_NONE;
+                break;
+            case CGE_CHANGE_NAME:
+                /* the string: NONE (a random first name), or the fixed name to give (cg_fixed_name_ok) */
+                ok = a == 0 && b == 0 && (str == CG_NONE || cg_fixed_name_ok(cg_s(g, str)));
                 break;
             case CGE_CHANGE_AGE:
                 ok = str == CG_NONE && e[2] <= CG_AGE_ADD
@@ -4814,6 +4820,56 @@ static int cg_copy_villager(const ce_adapter *a, int game, int index) {
 
 /* A first name from the game's own list (either sex, the game's random routine), never the one the record has; with
    `keep_last`, the record's last name kept after it.  1 when the record holds the new name. */
+/* Effect 33's fixed name (the owner, 2026-11-15: "CHANGE NAME villager TO Lani"): 1 to 31 characters of letters,
+   spaces, apostrophes, hyphens and full stops, starting with a letter; "" (an empty string) counts as none. */
+static int cg_fixed_name_ok(const char *name) {
+    int k;
+    if (name[0] == '\0') {
+        return 1;
+    }
+    if (!((name[0] >= 'A' && name[0] <= 'Z') || (name[0] >= 'a' && name[0] <= 'z'))) {
+        return 0;
+    }
+    for (k = 0; name[k] != '\0'; ++k) {
+        char c = name[k];
+        if (k >= 31 || !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ' || c == '\'' || c == '-'
+                         || c == '.')) {
+            return 0;
+        }
+    }
+    return name[k - 1] != ' ';
+}
+
+/* Effect 33 with a fixed name: one word is a first name (the villager's last name kept, as the random pick keeps it),
+   a name with a space the whole name; past the room the game holds, the first name alone, then cut to the room.
+   Nothing when the villager already has that name.  1 when the name was written. */
+static int cg_rename_fixed(const ce_adapter *a, unsigned char *record, const char *fixed) {
+    char now[64], full[96];
+    const char *last = NULL;
+    int n_last = 0, k;
+    lstrcpynA(now, (const char *)record + a->off_name, (int)sizeof now);
+    for (k = 0; fixed[k] != '\0' && fixed[k] != ' '; ++k) {
+    }
+    if (fixed[k] == '\0') {
+        n_last = cg_last_of(now, &last);
+    }
+    if (n_last > 0 && lstrlenA(fixed) + 1 + n_last < (int)sizeof full) {
+        wsprintfA(full, "%s %.*s", fixed, n_last, last);
+    } else {
+        lstrcpynA(full, fixed, (int)sizeof full);
+    }
+    if (lstrlenA(full) > a->name_room) {
+        lstrcpynA(full, fixed, (int)sizeof full);
+        if (lstrlenA(full) > a->name_room) {
+            full[a->name_room > 0 ? a->name_room : 0] = '\0';
+        }
+    }
+    if (full[0] == '\0' || lstrcmpiA(full, now) == 0) {
+        return 0;
+    }
+    return ce_write_name(record + a->off_name, a->name_bytes, full);
+}
+
 static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *record, int keep_last) {
     char now[64], pick[64], full[96];
     const char *last = NULL, *list;
@@ -4990,8 +5046,10 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         static char was[64];
         const void *recs[1];
         const char *olds[1];
+        unsigned int fixed = cg_u16(e + 12);
         lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
-        if (!cg_rename_from_list(a, game, record, 1)) {
+        if (fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
+                                                              : !cg_rename_from_list(a, game, record, 1)) {
             return;
         }
         recs[0] = record;
