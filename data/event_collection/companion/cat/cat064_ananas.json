@@ -116,6 +116,12 @@
      "min": 5,
      "max": 10,
      "src": "L7874"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7874"
     }
    ],
    "text_only": [

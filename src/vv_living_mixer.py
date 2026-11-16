@@ -41,7 +41,8 @@ K = 10
 MC_K = 1
 GAMES = (1, 2, 3, 4, 5)
 ALL_SKILLS = ("Parenting", "Building", "Farming", "Healing", "Research")
-W_GOOD, W_ADVERSE, W_RARE = 20, 20, 2           # per choice (living-events.md Q7)
+# per choice (living-events.md Q7); the owner, 2026-11-15 ("ignore weights"): the rare outcome is as likely as the others
+W_GOOD, W_ADVERSE, W_RARE = 20, 20, 20
 FAMILIES = ("consult", "act", "relate", "withdraw", "play")
 FAM_BIT = {f: 1 << i for i, f in enumerate(FAMILIES)}
 FAM_CHOICE_SET = 1 << 5
@@ -112,7 +113,7 @@ SENSITIVITY_RULES = {
           "child, a teenager or anyone younger than 18 in any role.",
     "S8": "An injury may land on a child or a teenager only at the rare tier, like any villager's rare harm (owner, "
           "2026-11-15: \"Allow it, rare\"); never from a comedic or a trial choice (S2, S3). The bank's only injury "
-          "outcome (minor injury or exhaustion) is an adverse one (weight 20 of 42), so it never lands on a child or "
+          "outcome (minor injury or exhaustion) is an adverse one (weight 20 of 60), so it never lands on a child or "
           "a teenager: a rare-tier injury line from the owner would be needed for one.",
     "S9": "Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied).",
     # Owner world rule (2026-11-15): some villagers believe, others do not; whether gods or spirits exist stays
@@ -1049,7 +1050,7 @@ def compose_mc(bank: Bank, sit: dict, order: tuple[int, ...]) -> tuple[dict, lis
                 node["effects"] = effects
                 node["auto_text"] = True
             nodes[name] = node
-            kids.append({"next": name, "weight": int(o.get("weight", 1))})
+            kids.append({"next": name, "weight": 1})   # "ignore weights" (owner, 2026-11-15): all outcomes equal
             outs.append((name, 1 if j == 0 else 3, NONE8))
         nodes[f"c{ap['letter'].lower()}"] = {"type": "branch", "children": kids}
     subject = mc_subject(sit)

@@ -260,6 +260,14 @@
     {
      "next": "ending"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3080-3081"
+    }
    ]
   },
   "p2": {

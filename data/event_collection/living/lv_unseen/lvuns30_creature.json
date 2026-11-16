@@ -115,6 +115,12 @@
      "do": "celebrate",
      "who": "all",
      "src": "L22563"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L22563"
     }
    ]
   },

@@ -255,7 +255,15 @@
   },
   "b1_more": {
    "src": "L7236-7239",
-   "text": "(builder) receives the highest praise of the builders, and the village adopts the new technique after independent testing."
+   "text": "(builder) receives the highest praise of the builders, and the village adopts the new technique after independent testing.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7236-7239"
+    }
+   ]
   },
   "b2": {
    "src": "L7241-7245",

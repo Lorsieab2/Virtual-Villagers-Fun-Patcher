@@ -291,6 +291,14 @@
     {
      "next": "coda"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9303"
+    }
    ]
   },
   "c3": {

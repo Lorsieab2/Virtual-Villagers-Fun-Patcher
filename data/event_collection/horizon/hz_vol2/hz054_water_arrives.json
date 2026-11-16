@@ -128,6 +128,14 @@
      "reason": "technology talked about or imagined; no tech points change",
      "src": "L752"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L752"
+    }
    ]
   },
   "c2": {

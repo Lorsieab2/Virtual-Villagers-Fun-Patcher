@@ -69,7 +69,15 @@
    "popup": "append",
    "join": "paragraph",
    "text": "Neighbors share roasted meat, roots and fruit.",
-   "src": "L3428"
+   "src": "L3428",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3428"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",

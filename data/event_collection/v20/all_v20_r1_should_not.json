@@ -326,6 +326,15 @@
     {
      "next": "coda"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9212-9213"
+    }
    ]
   },
   "a2": {
@@ -371,6 +380,12 @@
      "min": 5,
      "max": 10,
      "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9219-9220"
     }
    ]
   },
@@ -408,6 +423,12 @@
      ],
      "min": 5,
      "max": 10,
+     "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
      "src": "L9223-9224"
     }
    ]

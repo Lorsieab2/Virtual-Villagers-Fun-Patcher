@@ -70,7 +70,15 @@
   "a": {
    "name": "Answer A",
    "text": "Craftspeople learn a new knot, but cannot identify the builder.",
-   "src": "L6464"
+   "src": "L6464",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6464"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",

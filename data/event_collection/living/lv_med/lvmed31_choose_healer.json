@@ -92,7 +92,15 @@
   "a1": {
    "name": "Outcome A1",
    "text": "A new technique helps a patient, but its risks remain unknown.",
-   "src": "L20612"
+   "src": "L20612",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20612"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",

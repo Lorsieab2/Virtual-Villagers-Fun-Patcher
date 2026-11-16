@@ -160,6 +160,11 @@ def graph_for_engine(doc: dict) -> dict:
             for v in x:
                 scrub(v)
     for n in g.get("nodes", {}).values():
+        # The owner, 2026-11-15 ("ignore weights"): every random outcome of a random node is equally likely in the
+        # game.  The files keep their rarity words and weights (check h still reads them); the engine never sees them.
+        for c in n.get("children") or []:
+            if isinstance(c, dict):
+                c.pop("weight", None)
         n.pop("text_only", None)
         n.pop("set", None)
         n.pop("src_pick", None)

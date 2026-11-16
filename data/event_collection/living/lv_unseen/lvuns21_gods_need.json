@@ -104,7 +104,15 @@
   "b1": {
    "name": "Outcome B1",
    "text": "A fortunate harvest inspires conflicting interpretations.",
-   "src": "L22446"
+   "src": "L22446",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L22446"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

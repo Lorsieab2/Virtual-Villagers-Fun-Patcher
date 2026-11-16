@@ -91,7 +91,15 @@
    "popup": "append",
    "join": "paragraph",
    "text": "The catch inspires a new stew.",
-   "src": "L3415"
+   "src": "L3415",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3415"
+    }
+   ]
   }
  }
 }

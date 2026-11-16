@@ -228,6 +228,14 @@
     {
      "next": "result"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L5551-5552"
+    }
    ]
   },
   "t3": {

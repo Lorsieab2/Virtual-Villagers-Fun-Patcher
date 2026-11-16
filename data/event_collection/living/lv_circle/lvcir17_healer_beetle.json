@@ -92,7 +92,15 @@
   "a1": {
    "name": "Outcome A1",
    "text": "The harvest improves, but birds that ate the beetles visit less often.",
-   "src": "L21455"
+   "src": "L21455",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21455"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",

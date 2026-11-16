@@ -316,6 +316,14 @@
      "what": "celebrated",
      "reason": "rule 7: a reputation, told only"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9392-9394"
+    }
    ]
   },
   "set_a": {

@@ -168,6 +168,14 @@
     {
      "next": "pp"
     }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8395-8396"
+    }
    ]
   },
   "c2": {

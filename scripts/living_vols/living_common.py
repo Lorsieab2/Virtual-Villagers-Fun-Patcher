@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import collection_check as cc  # noqa: E402
 import collection_lib as lib  # noqa: E402
+import food_tech_additions as fta  # noqa: E402  (food / tech where the text fits, owner 2026-11-15)
 
 ALL = [1, 2, 3, 4, 5]
 
@@ -309,6 +310,6 @@ def write_and_check(docs: list[tuple[str, str, dict]]) -> int:
     for section, eid, doc in docs:
         p = lib.LIVING_DIR / section / f"{eid}.json"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(fta.apply(doc)), encoding="utf-8", newline="\n")
         paths.append(str(p))
     return subprocess.call([sys.executable, str(ROOT / "scripts" / "collection_check.py"), "--format", *paths])
