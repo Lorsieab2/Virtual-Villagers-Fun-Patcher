@@ -340,8 +340,10 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                 name = b.value("Name") or ""
                 sexed = vv_sex_changes.history_names([b])
                 out.sex_changed |= sexed
-                if sexed and old == new and b.value("Old mask") == b.value("New mask"):
-                    out.names.add(name)         # a change of sex alone: no change of look
+                if old == new and b.value("Old mask") == b.value("New mask"):
+                    # A change of sex, gender presentation or head look alone keeps the head/body rows and mask:
+                    # no change of look, so never evidence of an appearance change (Codex, #784).
+                    out.names.add(name)
                 elif None not in old + new and name:
                     masked = b.value("Old mask") is not None and b.value("New mask") is not None
                     out.changes.append(Change(name, old, new, _mask(b.value("Old mask")) if masked else None,
