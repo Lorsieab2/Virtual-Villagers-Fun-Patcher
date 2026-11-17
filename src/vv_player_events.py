@@ -3522,9 +3522,19 @@ def _export_refusals(norm: dict, q_id: str) -> list[str]:
             out.append(f"page {nid} has an answer with a condition")
         if nid != q_id and n.get("type") == "question":
             out.append(f"page {nid} is a second question (a piece answers only the first)")
+    # The whole requirement: a piece set carries none of it (its roles' own needs are its only gate), so anything
+    # in it but the usual head-count of the required villager roles is a refusal, named.
     req = norm.get("requirement") or {}
-    if req.get("if") is not None:
-        out.append("the event has a condition on when it can happen")
+    needed = sum(1 for r in (norm.get("roles") or {}).values()
+                 if r.get("kind") == "villager" and not r.get("optional"))
+    for key, value in sorted(req.items()):
+        if key == "min_eligible" and value in (None, needed):
+            continue
+        if value in (None, [], {}, False):
+            continue
+        what = {"if": "a condition on when it can happen", "min_eligible": f"a need of {value} villagers",
+                "puzzles": "a puzzle that must be solved first"}.get(key, f"a requirement ({key})")
+        out.append(f"the event has {what}: {json.dumps(value, sort_keys=True)}")
     for key, words in (("title_variants", "title variants"), ("include_pools", "shared text pools"),
                        ("pools", "text pools")):
         if norm.get(key):

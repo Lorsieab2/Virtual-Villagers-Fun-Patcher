@@ -916,6 +916,11 @@ class ExportRoundTrip(unittest.TestCase):
         flat = copy.deepcopy(self.MULTI)
         flat["nodes"]["p5"]["text"] = "(friend) rests."
         cases.append((flat, "has one page of one paragraph"))
+        # Every part of the requirement, not only its condition (Codex, #774): a puzzle that must be solved first
+        # has no piece form, so the export refuses, naming it.
+        puzzled = copy.deepcopy(self.MULTI)
+        puzzled.setdefault("requirement", {})["puzzles"] = {"1": ["The Cave"]}
+        cases.append((puzzled, "a puzzle that must be solved first"))
         for g, words in cases:
             with self.subTest(words=words), self.assertRaises(ValueError) as refused:
                 pe.pieces_file_text(g)
