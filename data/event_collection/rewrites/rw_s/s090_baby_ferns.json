@@ -176,7 +176,7 @@
    "src": "L4239"
   },
   "c2o2": {
-   "text": "Deep in the jungle, on the second day, (subject) hears weeping. (subject.He/She) follows it, and finds a frightened young couple huddled under a rock, filthy and exhausted. They were travelling, they say, and a storm caught them, and in the dark and the rain they set the baby down safe in the ferns to fight their way back to the path, and then they couldn't find the ferns again. They've been searching for two days. When they see the baby on (subject)'s chest, they both burst into tears. They come back to the village with (subject), and the baby, and stay.",
+   "text": "Deep in the jungle, on the second day, (subject) hears weeping. (subject.He/She) follows it, and finds a frightened young couple huddled under a rock, filthy and exhausted. They were travelling, they say, and a storm caught them, and in the dark and the rain they set the baby down safe in the ferns to fight their way back to the path, and then they couldn't find the ferns again. They've been searching for two days. When they see the baby on (subject)'s chest, they both burst into tears. They come back to the village with (subject), and the baby, and {#made:only one of them can stay; the village has no room for more|only two of them can stay; the village has no room for more|stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -208,5 +208,12 @@
    ],
    "src": "L4236"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L4242",
+   "before": "and the baby, and stay.",
+   "after": "and the baby, and {#made:only one of them can stay; the village has no room for more|only two of them can stay; the village has no room for more|stay}."
+  }
+ ]
 }

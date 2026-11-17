@@ -128,7 +128,7 @@
    "src": "L5951-5953"
   },
   "c1o1": {
-   "text": "They reach the raft just before the rocks. A tired adult, a teenager with a split lip and a small child wrapped in a sail climb into the canoe, soaked and shaking, and it sits so low in the water that every wave comes in over the side. They bail all the way home. On the beach, the adult can only say \"Thank you\" over and over. The raft breaks up on the rocks that afternoon. They stay.",
+   "text": "They reach the raft just before the rocks. A tired adult, a teenager with a split lip and a small child wrapped in a sail climb into the canoe, soaked and shaking, and it sits so low in the water that every wave comes in over the side. They bail all the way home. On the beach, the adult can only say \"Thank you\" over and over. The raft breaks up on the rocks that afternoon. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -171,7 +171,7 @@
    "src": "L5959"
   },
   "c2o1": {
-   "text": "Five canoes go out. They pull a young couple off the raft and a baby off the young couple, and bring everyone home without losing a paddle. The couple were fishing when the storm took their canoe, and they built the raft from the wreck. They have been drifting for six days. They eat everything the cooks put in front of them, and then sleep for a whole day. They stay.",
+   "text": "Five canoes go out. They pull a young couple off the raft and a baby off the young couple, and bring everyone home without losing a paddle. The couple were fishing when the storm took their canoe, and they built the raft from the wreck. They have been drifting for six days. They eat everything the cooks put in front of them, and then sleep for a whole day. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -213,5 +213,17 @@
    ],
    "src": "L5968"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L5962",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L5971",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  }
+ ]
 }

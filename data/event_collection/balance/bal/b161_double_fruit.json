@@ -138,7 +138,7 @@
    "src": "L7444"
   },
   "c1o2": {
-   "text": "Each half of the fruit, it turns out, was doubled too. By the time (subject) has finished eating, there are three of (subject.him/her) standing on the path, all with juice on their chins. The elders take one look as the three of them walk into the village, and say, \"We told you.\" Two of them take the names (made1) and (made2). They spend the next week arguing about who has to do the work.",
+   "text": "Each half of the fruit, it turns out, was doubled too. By the time (subject) has finished eating, there are {#made:two|three} of (subject.him/her) standing on the path, all with juice on their chins. The elders take one look as the {#made:two|three} of them walk into the village, and say, \"We told you.\" {#made:One of them takes the name (made1)|Two of them take the names (made1) and (made2)}. They spend the next week arguing about who has to do the work.",
    "effects": [
     {
      "do": "clone",
@@ -201,5 +201,22 @@
    ],
    "src": "L7450"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7447",
+   "before": "there are three of (him/her) standing",
+   "after": "there are {#made:two|three} of (him/her) standing"
+  },
+  {
+   "src": "L7447",
+   "before": "as the three of them walk",
+   "after": "as the {#made:two|three} of them walk"
+  },
+  {
+   "src": "L7447",
+   "before": "Two of them take the names (new name) and (new name 2).",
+   "after": "{#made:One of them takes the name (new name)|Two of them take the names (new name) and (new name 2)}."
+  }
+ ]
 }

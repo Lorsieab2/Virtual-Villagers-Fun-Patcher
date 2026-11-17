@@ -129,7 +129,7 @@
    "src": "L12990-12992"
   },
   "c1o1": {
-   "text": "A canoe arrives a week later with (hermit)'s grown child and (subject.his/her) partner, and a baby that has (hermit)'s exact frown. (hermit) holds the baby for a long time without saying anything. The family decides to stay, in the village rather than on the far side of the island, and (hermit) starts coming to the cooking fire in the evenings.",
+   "text": "A canoe arrives a week later with (hermit)'s grown child and (subject.his/her) partner, and a baby that has (hermit)'s exact frown. (hermit) holds the baby for a long time without saying anything. {#made:Only one of them can stay, as the village has no room for more|The family decides to stay}, in the village rather than on the far side of the island, and (hermit) starts coming to the cooking fire in the evenings.",
    "effects": [
     {
      "do": "new_villager",
@@ -143,7 +143,7 @@
    "src": "L13001"
   },
   "c1o2": {
-   "text": "The canoe brings one of (hermit)'s children, now grown, and two grandchildren: a gangly teenager and a small child who won't let go of (subject.his/her) parent's leg. The teenager takes one look at the island and declares that it is \"much better than the last one.\" They stay. (hermit) teaches the teenager to dry fish, and they don't talk much, which suits them both.",
+   "text": "The canoe brings one of (hermit)'s children, now grown, and two grandchildren: a gangly teenager and a small child who won't let go of (subject.his/her) parent's leg. The teenager takes one look at the island and declares that it is \"much better than the last one.\" {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}. (hermit) teaches the teenager to dry fish, and they don't talk much, which suits them both.",
    "effects": [
     {
      "do": "new_villager",
@@ -175,7 +175,7 @@
    "src": "L12998"
   },
   "c2o1": {
-   "text": "In the canoe are a nervous young couple with a baby. (subject) spends the whole walk across the island telling them about (hermit): (subject.his/her) dried fish, (subject.his/her) frown, (subject.his/her) twice-yearly silences. By the time they arrive, they know what to expect, and the meeting goes better than anyone hoped. (subject) turns out to have a gift for this sort of thing.",
+   "text": "In the canoe are a nervous young couple with a {#made:baby, though the village has room for only one of them|baby}. (subject) spends the whole walk across the island telling them about (hermit): (subject.his/her) dried fish, (subject.his/her) frown, (subject.his/her) twice-yearly silences. By the time they arrive, they know what to expect, and the meeting goes better than anyone hoped. (subject) turns out to have a gift for this sort of thing.",
    "effects": [
     {
      "do": "new_villager",
@@ -213,5 +213,22 @@
    ],
    "src": "L13007"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L13001",
+   "before": "The family decides to stay,",
+   "after": "{#made:Only one of them can stay, as the village has no room for more|The family decides to stay},"
+  },
+  {
+   "src": "L13004",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L13010",
+   "before": "with a baby.",
+   "after": "with a {#made:baby, though the village has room for only one of them|baby}."
+  }
+ ]
 }

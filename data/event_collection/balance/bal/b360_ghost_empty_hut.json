@@ -160,7 +160,7 @@
    "src": "L16609"
   },
   "c2o1": {
-   "text": "The builders mend the hut, and every other hut that needs it on the way. The very next week, a young couple with a baby come over the hill, looking for somewhere to live. The empty hut is ready for them, and they move straight in. That night, from inside, (name) hears a happy, tuneful sort of humming: the baby's parent, singing to the baby.",
+   "text": "The builders mend the hut, and every other hut that needs it on the way. The very next week, a young couple with a baby come over the hill, looking for somewhere to live. The empty hut is ready for them, and {#made:one of them moves straight in, as the village has no room for more|they move straight in}. That night, from inside, (name) hears a happy, tuneful sort of humming: the baby's parent, singing to the baby.",
    "effects": [
     {
      "do": "repair",
@@ -195,5 +195,12 @@
    ],
    "src": "L16618"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L16621",
+   "before": "and they move straight in",
+   "after": "and {#made:one of them moves straight in, as the village has no room for more|they move straight in}"
+  }
+ ]
 }

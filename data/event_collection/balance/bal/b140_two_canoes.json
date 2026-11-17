@@ -135,7 +135,7 @@
    "src": "L6432-6434"
   },
   "c1o1": {
-   "text": "The couple and their baby stay, and so does the old man. His granddaughter and the boy move on to a cousin's island after a month. The old man and turns out to know how to find water in places nobody else would look. The goat comes back three days later and moves into the {@chief}'s hut.",
+   "text": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay, and so does the old man}. His granddaughter and the boy move on to a cousin's island after a month. The old man and turns out to know how to find water in places nobody else would look. The goat comes back three days later and moves into the {@chief}'s hut.",
    "effects": [
     {
      "do": "new_villager",
@@ -158,7 +158,7 @@
    "src": "L6443"
   },
   "c1o2": {
-   "text": "The couple and their baby are on their way to family further along the coast, and leave after a few days rest. The second canoe stays: the old man's granddaughter, her teenage cousin who turns up from under a pile of mats, and the small boy with the goat. The old man goes on with the couple. \"Too old to start again,\" he says. \"But they're not.\"",
+   "text": "The couple and their baby are on their way to family further along the coast, and leave after a few days rest. {#made:The second canoe stays, though the village has room for only one of them|The second canoe stays, though the village has room for only two of them|The second canoe stays}: the old man's granddaughter, her teenage cousin who turns up from under a pile of mats, and the small boy with the goat. The old man goes on with the couple. \"Too old to start again,\" he says. \"But they're not.\"",
    "effects": [
     {
      "do": "new_villager",
@@ -190,7 +190,7 @@
    "src": "L6440"
   },
   "c2o1": {
-   "text": "The {@chief} listens to everything, then nods and says yes. The village holds a welcome feast that same night. The couple and their baby stay. The others go on to a cousin's island a few days later, loaded with food. The husband's leg heals, and he turns out to be a very good cook, which the village appreciates more every day.",
+   "text": "The {@chief} listens to everything, then nods and says yes. The village holds a welcome feast that same night. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay}. The others go on to a cousin's island a few days later, loaded with food. The husband's leg heals, and he turns out to be a very good cook, which the village appreciates more every day.",
    "effects": [
     {
      "do": "new_villager",
@@ -247,5 +247,22 @@
    ],
    "src": "L6449"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L6443",
+   "before": "The couple and their baby stay, and so does the old man.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay, and so does the old man}."
+  },
+  {
+   "src": "L6446",
+   "before": "The second canoe stays:",
+   "after": "{#made:The second canoe stays, though the village has room for only one of them|The second canoe stays, though the village has room for only two of them|The second canoe stays}:"
+  },
+  {
+   "src": "L6452",
+   "before": "The couple and their baby stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay}."
+  }
+ ]
 }

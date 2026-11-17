@@ -167,7 +167,7 @@
    "src": "L5721"
   },
   "c2o1": {
-   "text": "On the way back, a strange canoe comes drifting round the point with a torn sail, carrying a young couple and a baby who has been crying for a day. Their island is far, the storm was long and their water ran out yesterday. (subject) and (friend) tow them in. The couple stay. Before long the baby is spending half its time in (subject) and (friend)'s hut, and they don't mind one bit.",
+   "text": "On the way back, a strange canoe comes drifting round the point with a torn sail, carrying a young couple and a baby who has been crying for a day. Their island is far, the storm was long and their water ran out yesterday. (subject) and (friend) tow them in. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple stay}. Before long the baby is spending half its time in (subject) and (friend)'s hut, and they don't mind one bit.",
    "effects": [
     {
      "do": "new_villager",
@@ -203,5 +203,12 @@
    ],
    "src": "L5730"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L5733",
+   "before": "The couple stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple stay}."
+  }
+ ]
 }
