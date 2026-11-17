@@ -24,6 +24,7 @@ the patcher's "Player Events" folder.
 from __future__ import annotations
 
 import copy
+import math
 import json
 import os
 import random
@@ -31,6 +32,7 @@ import re
 import shutil
 import struct
 import zlib
+from fractions import Fraction
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
@@ -382,6 +384,7 @@ class Problem:
     file: str
     line: int
     text: str
+    kind: str = "problem"          # "flavor": kept as story text only; "note": reported, nothing left out
 
     def __str__(self) -> str:
         return f"{self.file}, line {self.line}: {self.text}"
@@ -1075,7 +1078,7 @@ _OUTCOME = re.compile(r"^(?:[*\-\u2022]\s*)?(?:outcome\s*[A-Za-z0-9]*|\(random o
                       r"(?:\s*\((?:weight|chance)\s*(\d+)\))?\s*:?\s*(.*)$", re.I)
 _TABLE = re.compile(r"^([A-Z][A-Z0-9]*-\d+[A-Z]?)\s*\|\s*([A-Z])(\d+)\s*\|\s*([^|]+?)\s*(?:\|\s*(.*))?$")
 _SEPARATOR = re.compile(r"^(?:[=#\-_*~]{4,}.*|#.*)$")
-_KEY = re.compile(r"^([A-Za-z][A-Za-z_ ()]*?)\s*:\s?(.*)$")
+_KEY = re.compile(r"^([A-Za-z][A-Za-z0-9_ ()]*?)\s*:\s?(.*)$")
 _BLOCK = re.compile(r"^(Page|Question|Random)\s+([A-Za-z0-9_]+)\s*:\s*$")
 
 
@@ -2246,6 +2249,7 @@ def full_text(graph: dict, meta: dict | None = None) -> str:
 
 # ---- Mixer pieces --------------------------------------------------------------------------------------------------
 
+AGE_LIMIT = 120                     # the oldest a piece's role may ask (the engine's pc_validate and cg_load)
 PIECE_KINDS = {"setup": 1, "approach": 2, "outcome": 3, "flavour": 4, "flavor": 4, "opening": 4,
                "flavour line": 4, "frame": 5, "personality frame": 5}
 MOODS = {"warm": 0, "funny": 0, "ordinary": 0, "social": 1, "curious": 1, "mixed": 1, "serious": 2, "solemn": 2,
@@ -2337,6 +2341,13 @@ def _parse_piece(block: list[tuple[int, str]], file: str) -> Item:
                 for rid, facts in pe.roles.items():
                     p["slots"].setdefault(rid or "subject", ({"kind": "villager", **(
                         {"min_age": facts["min_age"]} if "min_age" in facts else {})}, ""))
+                for e in pe.effects:
+                    # "the villager" (DUPLICATE OF villager, SWAP BODIES WITH villager, ...): the piece's own main
+                    # slot, as an event's main role.
+                    for key2 in ("copy_of", "with", "who"):
+                        if e.get(key2) == "@default":
+                            e[key2] = "subject"
+                            p["slots"].setdefault("subject", ({"kind": "villager"}, ""))
                 p["effects"] += [(ln, e) for e in pe.effects]
         elif k in ("answers",):
             for part in split_list(v):
@@ -2400,7 +2411,9 @@ def finish_piece(it: Item, ln0: int, romance_is_error: bool = True) -> Item:
 
 
 def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | None = None) -> tuple[bytes, list]:
-    """The VPCB v1 file of the usable pieces (docs/event-collection/procedural-pieces.md 2) and the problems."""
+    """The VPCB v2 file of the usable pieces (docs/event-collection/procedural-pieces.md 2, 2.5a: 20-byte effects
+    with group selectors) and the problems (kind "flavor": an effect kept as story text only; kind "note": a role
+    constraint the file cannot hold, reported)."""
     problems: list[Problem] = []
     pieces = [it for it in items if it.kind == "piece" and not it.problems and game in it.piece["games"]]
     if not pieces:
@@ -2441,6 +2454,11 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
         first_slot, first_fx, first_link = n_slot, n_fx, n_link
         believers = False
         deadly = False
+        # Only an outcome's effects are made (story_procedural.inc pc_write); any other piece's are its story only.
+        live = p["effects"] if p["kind"] == PIECE_KINDS["outcome"] else []
+        for ln, e in ([] if live else p["effects"]):
+            problems.append(Problem(it.file, ln, f"{e['do']}: only an outcome's effects happen in the game",
+                                    kind="flavor"))
         for rid in names:
             role, words = p["slots"][rid]
             flags = 0
@@ -2452,41 +2470,66 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
             if rid in p["speaks"]:
                 flags |= 4
             harm = any(e.get("role", "subject") == rid and e["do"] in DEADLY + ("health_change", "sick")
-                       for _ln, e in p["effects"])
+                       for _ln, e in live)
             if harm:
                 flags |= 8
             if role.get("believers_only") is False:
                 flags |= 16
             special = {"golden_child": 1, "tribal_chief": 2}.get(role.get("special") or "", 0)
             carrier = any(e["do"] in ("pregnant", "nursing") and e.get("role", "subject") == rid
-                          for _ln, e in p["effects"])
+                          for _ln, e in live)
             if carrier or role.get("special") == "nursing_parent":
                 special = 3
-                if any(e.get("any_birth_sex") for _ln, e in p["effects"] if e.get("role", "subject") == rid):
+                if any(e.get("any_birth_sex") for _ln, e in live if e.get("role", "subject") == rid):
                     flags |= 32
             sex = {"male": 1, "female": 2}.get(role.get("sex", "any"), 0)
+            # A slot holds kind, sex, ages, special and flags only (procedural-pieces.md 2.4): a skill or a
+            # relation the role asks for cannot be kept, so any villager of its age and sex may be cast.  Reported;
+            # the piece is kept (the owner decides whether such pieces stay).
+            lost = []
+            if role.get("skill"):
+                sk = role["skill"]
+                lost.append(f"{'best at' if sk.get('pick') == 'highest' else 'skill'} {', '.join(sk.get('names', []))}"
+                            + (f" {sk['min']}+" if sk.get("min", 1) > 1 else ""))
+            for rel, other in (role.get("relation") or {}).items():
+                lost.append(f"{rel.replace('_', ' ')} {other}")
+            if lost:
+                problems.append(Problem(it.file, it.line, f"role {rid}: {'; '.join(lost)} cannot be kept in a mixer "
+                                        "piece, so any villager of its age and sex may be cast", kind="note"))
+            # Ages the game can hold (0..120, the engine's pc_validate): one outside them must never make the
+            # engine refuse the whole file, so it is written within them -- a role nobody can fill -- and reported.
+            lo, hi = role.get("min_age", 0) or 0, role.get("max_age") or 0
+            if lo > AGE_LIMIT or hi > AGE_LIMIT or (hi and hi < lo):
+                problems.append(Problem(it.file, it.line, f"role {rid}: ages {lo} to {hi or 'any'} -- no villager "
+                                        f"can ever be cast (a villager is 0 to {AGE_LIMIT}); the piece is kept, "
+                                        "the rest of the file loads", kind="note"))
+                lo, hi = min(lo, AGE_LIMIT), min(hi, AGE_LIMIT)
+                if hi and hi < lo:
+                    lo, hi = AGE_LIMIT, AGE_LIMIT
             slots_b += struct.pack("<IBBBBBBHI", s(rid), 1 if role.get("kind") == "stranger" else 0, sex,
-                                   min(255, role.get("min_age", 0) or 0), min(255, role.get("max_age") or 0),
-                                   special, flags, 0, 0)
+                                   lo, hi, special, flags, 0, 0)
             n_slot += 1
-        for ln, e in p["effects"]:
+        for ln, e in live:
             code, flags, a, b, st, bad = _effect_record(e, local, game)
+            try:
+                role_byte, sel, extra = _piece_effect_target(e, local)
+            except (KeyError, TypeError, ValueError) as exc:
+                bad = bad or f"{e['do']}: {exc} is missing or unknown"
             if bad:
-                problems.append(Problem(it.file, ln, bad))
+                # The owner (2026-11-16): an effect never leaves a piece out; one the pieces file cannot hold is kept
+                # as flavour -- the story text stays, with no effect in the game -- and the report says so.
+                problems.append(Problem(it.file, ln, bad, kind="flavor"))
                 continue
             deadly |= e["do"] in DEADLY
-            if e["do"] == "new_villager":
-                role_byte = local.get(e["copy_of"], 0xFF) if e.get("copy_of") else 0xFF   # its copy_of role, or none
-            elif e["do"] in ("food", "tech", "pay_award", "damage", "repair", "celebrate"):
-                role_byte = 0xFF
-            else:
-                role_byte = local.get(e.get("role", "subject"), 0xFF)
-            effects_b += struct.pack("<BBBBiiI", code, role_byte, flags, 0, a, b, s(st))
+            effects_b += struct.pack("<BBBBiiII", code, role_byte, flags, sel, a, b, s(st),
+                                     s(extra) if isinstance(extra, str) else extra)
             n_fx += 1
         for aid, w in p["links"]:
             if aid not in ids:
                 problems.append(Problem(it.file, it.line, f"{p['id']} answers {aid}, which is not a piece here"))
-            links_b += struct.pack("<II", s(aid), min(1000, max(1, w)))
+            # A favoured theme (the player's own setting) makes this outcome more likely for each approach it
+            # answers: the composer draws an outcome by these link weights (story_procedural.inc pc_link_weight).
+            links_b += struct.pack("<II", s(aid), min(1000, max(1, w * (multiplier or {}).get(p["id"], 1))))
             n_link += 1
         fam = 0
         if p["family"]:
@@ -2510,8 +2553,13 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
             if any(filt >> (int(f[1:]) - 1) & 1 for f in fs):
                 notes |= 1 << k
         weight = p["weight"] * (multiplier or {}).get(p["id"], 1)
-        tags = sum(1 << tag_bits[t] for t in p["tags"] if t in tag_bits)
-        never = sum(1 << tag_bits[t] for t in p["never"] if t in tag_bits)
+        # Bits OR'ed, never added: a tag written twice, or two words for one bit ("lesser"), must not carry into
+        # another bit (a minor piece losing its minor bit could meet romance).
+        tags = never = 0
+        for t in p["tags"]:
+            tags |= 1 << tag_bits[t] if t in tag_bits else 0
+        for t in p["never"]:
+            never |= 1 << tag_bits[t] if t in tag_bits else 0
         mask = sum(1 << (g - 1) for g in p["games"])
         recs += struct.pack("<IBBBBIIIIIIIIIHHIHHIHH", s(p["id"]), p["kind"], p["mood"],
                             (1 if deadly else 0) | (2 if believers else 0), mask, topic, fam, filt, notes, never, tags,
@@ -2533,7 +2581,7 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
     body[slots_at:links_at] = slots_b
     body[links_at:size] = links_b
     mask_all = 1 << (game - 1)
-    struct.pack_into("<4sHHIIBBHIIIIIIIIIII", body, 0, b"VPCB", 1, 64, size, 0, mask_all, 0, 0, len(pieces),
+    struct.pack_into("<4sHHIIBBHIIIIIIIIIII", body, 0, b"VPCB", 2, 64, size, 0, mask_all, 0, 0, len(pieces),
                      pieces_at, strings_at, len(strings), effects_at, n_fx, slots_at, n_slot, links_at, n_link, 0)
     crc = zlib.crc32(bytes(body)) & 0xFFFFFFFF
     struct.pack_into("<I", body, 12, crc)
@@ -2542,14 +2590,40 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
     return bytes(body), problems
 
 
+def _piece_slot(local: dict[str, int], name: str) -> int:
+    """A piece effect's villager as its record writes it (procedural-pieces.md 2.5a): the piece's own slot, or the
+    villagers the event made ($newest 0xFD, $previous 0xFC), kept as they are."""
+    return cie.NEW_ROLES[name] if name in cie.NEW_ROLES else local[name]
+
+
+def _piece_effect_target(e: dict, local: dict[str, int]) -> tuple[int, int, int | str]:
+    """(role byte, group selector, extra) of a piece's effect (VPCB v2, procedural-pieces.md 2.5a).  The extra is
+    a group's N, a skill name (a string, written into the strings by the caller) or change_age's cap; else 0."""
+    tg = e.get("target")
+    if tg:
+        if tg.get("all"):
+            return cie.TARGET_ROLE, cie.TARGET_ALL, 0
+        if "skill" in tg:
+            return cie.TARGET_ROLE, cie.TARGET_SKILL, str(tg["skill"])
+        return cie.TARGET_ROLE, cie.TARGET_RANDOM, int(tg["random"])
+    do = e["do"]
+    extra = int(e.get("max_age", 0) or 0) if do == "change_age" else 0
+    if do == "new_villager":
+        return (_piece_slot(local, e["copy_of"]) if e.get("copy_of") else 0xFF), 0, extra
+    if do == "celebrate":
+        # vv_cie_graph.effect_role: everyone (0xFF, the whole village dances) only for who "all"; else that villager
+        who = e.get("who", "all")
+        return (0xFF if who in (None, "all") else _piece_slot(local, who)), 0, extra
+    if do in ("food", "tech", "pay_award", "damage", "repair"):
+        return 0xFF, 0, extra
+    return _piece_slot(local, e.get("role", "subject")), 0, extra
+
+
 def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int, int, int, str, str]:
     """(code, flags, a, b, string, problem) for a piece's effect, as the .cieg encodes it (cie-v6-binary.md 8)."""
     do = e["do"]
     if do not in cie.EFFECT_CODES:
         return 0, 0, 0, 0, "", f"{do} is not an effect"
-    if e.get("target") or any(str(e.get(k, "")).startswith("$") for k in ("role", "partner", "with", "copy_of")):
-        # The piece record (procedural-pieces.md 2.5) has no group target or "the newcomer" yet.
-        return 0, 0, 0, 0, "", f"{do}: a group or the newcomer is not in mixer pieces yet (write it in an event)"
     code = cie.EFFECT_CODES[do]
     flags = a = b = 0
     st = ""
@@ -2599,9 +2673,9 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             flags = cie.CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
         elif do in ("pregnant", "nursing"):
             flags = (cie.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cie.BABIES_FLAGS.get(e.get("babies"), 0)
-            a = local[e["partner"]] if e.get("partner") else 0xFF
+            a = _piece_slot(local, e["partner"]) if e.get("partner") else 0xFF
         elif do == "body_swap":
-            a = local[e["with"]]
+            a = _piece_slot(local, e["with"])
         elif do == "change_name":
             st = e.get("name", "")
         elif do == "clone":
@@ -2889,7 +2963,17 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
                 ident = ID_PREFIX + ident
             ident = re.sub(r"[^a-z0-9_]", "_", ident)[:cap]
             if ident in used_ids:
-                again = f"{group}_{k:03d}"
+                # The next free number of this file's own ids: never one an earlier event (its Id or its
+                # number) already took, so no event's file or manifest row is ever overwritten.
+                n, stem = k, re.sub(r"[^a-z0-9_]", "_", group)
+
+                def numbered(n: int) -> str:
+                    suffix = f"_{n:03d}"
+                    return stem[:cap - len(suffix)] + suffix     # the number always kept whole
+                again = numbered(n)
+                while again in used_ids:
+                    n += 1
+                    again = numbered(n)
                 report.notes.append(f"{label}: its Id {ident} is already used, so it is {again}")
                 ident = again
             used_ids.add(ident)
@@ -2907,7 +2991,10 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
             out[f"manifest-{group}.txt"] = ("\n".join(rows) + "\n").encode("utf-8")
         if pieces:
             data, probs = compile_pieces(pieces, game, mult)
-            report.skipped += [str(p) for p in probs]
+            report.skipped += [str(p) for p in probs if p.kind == "problem"]
+            report.notes += [f"{p}: kept as flavor (the story text stays, with no effect in the game)"
+                             for p in probs if p.kind == "flavor"]
+            report.notes += [str(p) for p in probs if p.kind == "note"]
             if data:
                 out[f"pieces-{group}.pcb"] = data
                 report.pieces += len(pieces)
@@ -2928,7 +3015,8 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
     reference and a copy of the player's files into "...\\Player Events"."""
     source = source or game_folder(game, root)
     settings = settings or load_settings(game, root)
-    files_dir = game_folder_path / PATCHER_FILES
+    import patcher_files                              # a deep game folder: every path through \\?\ (no MAX_PATH)
+    files_dir = patcher_files.long_path(game_folder_path / PATCHER_FILES)
     coll = files_dir / COLLECTION_FOLDER
     report = InstallReport()
     if coll.is_dir():
@@ -2945,7 +3033,7 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
             tmp = coll / (name + ".tmp")
             tmp.write_bytes(data)
             os.replace(tmp, coll / name)
-            report.files.append(coll / name)
+            report.files.append(patcher_files.plain_path(coll / name))
     shown = install_references(game, files_dir, settings, root)
     if source.is_dir():
         for p in source.glob("*.txt"):
@@ -3329,29 +3417,42 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
         raise ValueError("the event has no question to make approaches from")
     q = nodes[q_id]
     roles = norm.get("roles", {})
+    speaks = set(norm.get("speaking_roles") or [])
+    refusals = _export_refusals(norm, q_id)
+    if norm.get("start") != q_id:
+        # A piece set opens at its question: pages before it (their text and effects) have no piece form (Codex, #774).
+        refusals.append(f"the event opens with page {norm.get('start')} before its first question")
     out = ["# Mixer pieces written by the Custom Island Event Library from \"" + norm.get("title", "") + "\".",
            "# docs/player-events-format.md 6 explains every line.", ""]
     games = games_words(norm.get("games", [1, 2, 3, 4, 5]))
 
+    role_notes: list[str] = []
+
     def role_lines() -> list[str]:
+        # Every role with all its requirements in the plain role words (_role_words), each read back to the same
+        # requirements; one the words cannot hold is named in the file (role_notes), never changed silently.
         lines = []
         for rid, r in roles.items():
-            if r.get("kind") != "villager":
+            if r.get("kind") not in ("villager", "stranger"):
+                if f"# role {rid} not kept" not in "".join(role_notes):
+                    role_notes.append(f"# role {rid} not kept (a {r.get('kind')} role has no piece form): "
+                                      f"{json.dumps(r, sort_keys=True)}")
                 continue
-            words = []
-            if r.get("sex") in ("male", "female"):
-                words.append(r["sex"])
-            if r.get("max_age"):
-                words.append(f"{r.get('min_age', 0)} to {r['max_age']}")
-            elif r.get("min_age") is not None:
-                words.append(f"{r['min_age']}+")
-            if r.get("optional"):
-                words.append("optional")
+            words, lost = _role_words(r, rid in speaks)
             lines.append(f"Role {rid}: {', '.join(words) or 'villager'}")
+            if lost and not any(n.startswith(f"# role {rid}:") for n in role_notes):
+                role_notes.append(f"# role {rid}: {', '.join(lost)} not kept in the plain role words")
         return lines
 
-    def effect_lines(n: dict) -> list[str]:
-        return [f"Effect: {_plain_of(e)}" for e in n.get("effects", []) if _plain_of(e)]
+    def effect_lines(effects: list[dict]) -> list[str]:
+        # Every effect the plain words hold exactly (it reads back to the same piece effect); any other is kept as
+        # flavor -- the text stays, the effect is left out -- and the file says so (the owner's rule).
+        out = []
+        for e in effects:
+            words = _plain_of(e)
+            out.append(f"Effect: {words}" if words else
+                       f"# kept as flavor (no plain words hold it exactly): {json.dumps(e, sort_keys=True)}")
+        return out
 
     text = q["text"]
     out += [f"Piece: {stem}_setup", "Kind: Setup", "Mood: social", f"Family: {family}", f"Applies to: {games}",
@@ -3359,32 +3460,204 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
     for k, c in enumerate(q["choices"], 1):
         aid = f"{stem}_a{k}"
         first = nodes.get(c["next"], {})
+        paths = _answer_paths(nodes, c["next"])
+        first_text = first.get("text") or c["label"]
+        single = all(len(path) == 1 for path, _p, _n in paths)
+        if single:
+            # One page: the composer shows the approach, then the outcome as the next paragraph, so the page's
+            # paragraphs are split between them -- never the whole page twice.
+            paras = [x for x in first_text.split("\n\n") if x.strip()]
+            if len(paras) < 2:
+                refusals.append(f"the answer \"{c['label']}\" has one page of one paragraph (an approach and an "
+                                "outcome each need their own text)")
+                paras = [first_text, first_text]
+            first_text, single_rest = paras[0], "\n\n".join(paras[1:])
         out += [f"Piece: {aid}", "Kind: Approach", f"Family: {family}", f"Applies to: {games}",
                 f"Label: {to_title_case(cie.title_case(c['label']))}"] + role_lines() + \
-            _text_piece_lines(first.get("text") or c["label"]) + [""]
-        ends: list[tuple[str, int]] = []
-        stack = [(c["next"], 1)]
-        seen: set[str] = set()
-        while stack:
-            nid, w = stack.pop(0)
-            if nid in seen or nid not in nodes:
-                continue
-            seen.add(nid)
-            n = nodes[nid]
-            if n["type"] == "branch" or (n["children"] and len(n["children"]) > 1):
-                stack += [(ch["next"], ch["weight"]) for ch in n["children"]]
-            elif n["type"] == "popup" and nid != c["next"]:
-                ends.append((nid, w))
-            elif n["children"]:
-                stack += [(ch["next"], ch["weight"]) for ch in n["children"]]
-        if not ends and first:
-            ends = [(c["next"], 1)]
-        for j, (nid, w) in enumerate(ends, 1):
-            n = nodes[nid]
+            _text_piece_lines(first_text) + [""]
+        # Every path an answer can take, page by page to its end: through a random branch (its weights), a later
+        # question (each of its answers) and a page that leads on.  Its outcome holds ALL the effects of its pages,
+        # the answer's own first page included, in order, and the text of the pages after that first one.
+        weights = _link_weights([p for _path, p, _notes in paths])
+        if [Fraction(w, sum(weights)) for w in weights] != [p for _path, p, _notes in paths]:
+            out.append(f"# {aid}: its outcomes' chances are rounded to whole link weights (at most 1000)")
+        for j, ((path, _p, notes), w) in enumerate(zip(paths, weights), 1):
+            later = path[1:]
+            text = single_rest if single else \
+                "\n\n".join(nodes[nid].get("text", "") for nid in later if nodes[nid].get("text"))
+            effects = [e for nid in path for e in nodes[nid].get("effects", [])]
             out += [f"Piece: {aid}_o{j}", "Kind: Outcome", f"Applies to: {games}",
-                    f"Answers: {aid} ({min(1000, max(1, w))})"] + role_lines() + _text_piece_lines(n["text"]) + \
-                effect_lines(n) + [""]
+                    f"Answers: {aid} ({w})"] + role_lines() + _text_piece_lines(text) + \
+                effect_lines(effects) + [f"# {n}" for n in notes] + [""]
+    out[3:3] = role_notes + ([""] if role_notes else [])
+    # Export only what the pieces carry exactly (the event itself is never changed): anything kept as flavor, a
+    # role requirement, a rounded chance or a path note is a refusal naming it.
+    for line in out:
+        if line.startswith("# kept as flavor"):
+            refusals.append("an effect has no exact plain words: " + line.split(": ", 1)[1])
+        elif line.startswith("# role "):
+            refusals.append(line[2:])
+        elif line.startswith("# ") and ("chances are rounded" in line or "becomes a draw" in line
+                                        or "condition is not kept" in line):
+            refusals.append(line[2:])
+    if refusals:
+        raise ValueError("it cannot be exported as mixer pieces exactly -- " + "; ".join(dict.fromkeys(refusals))
+                         + ". The event itself is unchanged.")
     return "\n".join(out) + "\n"
+
+
+def _export_refusals(norm: dict, q_id: str) -> list[str]:
+    """What an event uses that mixer pieces cannot carry exactly (pieces_file_text refuses to export it)."""
+    out: list[str] = []
+    nodes = norm.get("nodes", {})
+    texts = [(nid, n.get("text") or "") for nid, n in nodes.items()] + \
+        [(nid, ch.get("label") or "") for nid, n in nodes.items() for ch in n.get("choices") or []]
+    for nid, text in texts:
+        m = re.search(r"\{(?!#)([^}]*)\}", text)
+        if m:
+            out.append(f"page {nid} uses a text pool or pick ({{{m.group(1)}}})")
+    for nid, n in nodes.items():
+        if n.get("variants"):
+            out.append(f"page {nid} has text variants")
+        if n.get("title"):
+            out.append(f"page {nid} has a title of its own")
+        if any(ch.get("if") is not None for ch in n.get("choices") or []):
+            out.append(f"page {nid} has an answer with a condition")
+        if nid != q_id and n.get("type") == "question":
+            out.append(f"page {nid} is a second question (a piece answers only the first)")
+    # The whole requirement: a piece set carries none of it (its roles' own needs are its only gate), so anything
+    # in it but the usual head-count of the required villager roles is a refusal, named.
+    req = norm.get("requirement") or {}
+    needed = sum(1 for r in (norm.get("roles") or {}).values()
+                 if r.get("kind") == "villager" and not r.get("optional"))
+    for key, value in sorted(req.items()):
+        if key == "min_eligible" and value in (None, needed):
+            continue
+        if value in (None, [], {}, False):
+            continue
+        what = {"if": "a condition on when it can happen", "min_eligible": f"a need of {value} villagers",
+                "puzzles": "a puzzle that must be solved first"}.get(key, f"a requirement ({key})")
+        out.append(f"the event has {what}: {json.dumps(value, sort_keys=True)}")
+    for key, words in (("title_variants", "title variants"), ("include_pools", "shared text pools"),
+                       ("pools", "text pools")):
+        if norm.get(key):
+            out.append(f"the event uses {words}")
+    return out
+
+
+_PATHS_MAX = 64
+
+
+def _answer_paths(nodes: dict, start: str) -> list[tuple[list[str], Fraction, list[str]]]:
+    """Every path from an answer's first page to an end, as (its node ids, its overall chance, notes): a random
+    branch forks by its children's weights (each child's share of its siblings'), a later question by each of its
+    answers (the player's choice becomes an equal draw: noted), a page with one way on goes on; a page already on
+    the path (a loop) ends it, and a condition on a way on is noted (pieces have none).  At most _PATHS_MAX paths."""
+    out: list[tuple[list[str], Fraction, list[str]]] = []
+    todo: list[tuple[list[str], Fraction, list[str]]] = [([start], Fraction(1), [])] if start in nodes else []
+    while todo and len(out) < _PATHS_MAX:
+        path, chance, notes = todo.pop(0)
+        nid = path[-1]
+        n = nodes[nid]
+        if n.get("type") == "question":
+            nexts = [(ch.get("next"), 1, None) for ch in n.get("choices") or []]
+        else:
+            nexts = [(ch.get("next"), ch.get("weight", 1) or 1, ch.get("if")) for ch in n.get("children") or []]
+        nexts = [x for x in nexts if x[0] in nodes and x[0] not in path]
+        if not nexts:
+            out.append((path, chance, notes))
+            continue
+        total = sum(w for _x, w, _c in nexts)
+        for x, w, cond in nexts:
+            more = list(notes)
+            if n.get("type") == "question" and len(nexts) > 1:
+                more.append(f"{nid}: the player's answer becomes a draw among its {len(nexts)} answers")
+            if cond is not None:
+                more.append(f"{nid} -> {x}: its condition is not kept {json.dumps(cond, sort_keys=True)}")
+            todo.append((path + [x], chance * Fraction(w, total), more))
+    return out
+
+
+def _link_weights(chances: list[Fraction]) -> list[int]:
+    """Whole link weights (1..1000) in the same ratio as the chances, exactly when that fits, else rounded."""
+    if not chances:
+        return []
+    lcm = 1
+    for c in chances:
+        lcm = lcm * c.denominator // math.gcd(lcm, c.denominator)
+    exact = [int(c * lcm) for c in chances]
+    g = 0
+    for x in exact:
+        g = math.gcd(g, x)
+    exact = [x // g for x in exact]
+    if max(exact) <= 1000:
+        return exact
+    top = max(chances)
+    return [max(1, round(1000 * c / top)) for c in chances]
+
+
+def _role_words(r: dict, speaks: bool = False) -> tuple[list[str], list[str]]:
+    """A role's plain role words (plain_role) and the requirements they could not hold (read back and compared)."""
+    words: list[str] = []
+    if r.get("kind") == "stranger":
+        if r.get("new_name_for"):
+            words.append(f"new name for {r['new_name_for']} {r.get('sex', 'same')} sex "
+                         f"{r.get('last_name', 'same')} last name")
+        else:
+            words.append("named stranger" if r.get("named") else "stranger")
+            if r.get("sex") in ("male", "female"):
+                words.append(r["sex"])
+    else:
+        if r.get("sex") in ("male", "female"):
+            words.append(r["sex"])
+        if r.get("max_age") is not None:
+            words.append(f"{r.get('min_age', 0)} to {r['max_age']}")
+        elif r.get("min_age") is not None:
+            words.append(f"{r['min_age']}+")
+        if r.get("optional"):
+            words.append("optional")
+        special = {"golden_child": "golden child", "tribal_chief": "tribal chief",
+                   "nursing_parent": "nursing parent"}.get(r.get("special") or "")
+        if special:
+            words.append(special)
+        if r.get("believers_only") is True:
+            words.append("believers only")
+        elif r.get("believers_only") is False:
+            words.append("any faith")
+        if r.get("protected") == "allow":
+            words.append("protected allowed")
+        elif r.get("protected") == "exclude":
+            words.append("never protected")
+        sk = r.get("skill")
+        if sk and len(sk.get("names") or []) == 1:
+            words.append(f"{'best at' if sk.get('pick') == 'highest' else 'skill'} {sk['names'][0].lower()}"
+                         + (f" {sk['min']}+" if sk.get("min", 1) > 1 else ""))
+        for rel, other in (r.get("relation") or {}).items():
+            back = {v: k for k, v in reversed(list(_RELATIONS.items()))}.get(rel)
+            if back:
+                words.append(f"{back} {other}")
+        gap = r.get("max_age_gap")
+        if gap:
+            words.append(f"within {gap['years']} years of {gap['role']}")
+    if speaks:
+        words.append("speaks")
+    back, _extras, problems = plain_role(", ".join(words))
+    lost = [] if not problems else ["(" + "; ".join(problems) + ")"]
+    keys = set(r) | set(back)
+    for k in sorted(keys):
+        a, b = r.get(k), back.get(k)
+        if k == "sex" and {a, b} <= {None, "any", "random"}:
+            continue
+        if k == "kind" or a == b:
+            continue
+        if k == "min_age" and a in (None, 0) and b in (None, 0):
+            continue
+        if (k, a, b) in (("optional", False, None), ("optional", None, False), ("protected", "auto", None),
+                         ("protected", None, "auto")):
+            continue                                   # the defaults, written or not
+        lost.append(f"{k} {json.dumps(a, sort_keys=True)}")
+    return words, lost
+
 
 
 def _text_piece_lines(text: str) -> list[str]:
@@ -3392,41 +3665,181 @@ def _text_piece_lines(text: str) -> list[str]:
     return [f"Text: {first}"] + [f"| {line}" for line in rest]
 
 
-def _plain_of(e: dict) -> str:
-    """An effect in the plain words (best effort; "" when it has none)."""
-    who = e.get("role")
-    tail = f" {who}" if who and who != "subject" else ""
+class _Names(dict):
+    """A slot map that answers every role with its own name: an effect's compiled record with names for slots."""
+
+    def __missing__(self, key):
+        return key
+
+
+def _piece_signature(e: dict) -> tuple:
+    """What a piece compiled from this effect holds in every game (procedural-pieces.md 2.5a), with role names for
+    slots: the record's code, flags, values and string, and its role, group selector and extra.  A food or tech
+    effect with each game's own range ("per_game") is compared by those ranges."""
+    out = []
+    for game in range(1, 6):
+        x = copy.deepcopy(e)
+        if x["do"] in ("food", "tech") and "per_game" in x:
+            lo, hi = (x["per_game"].get(str(game)) or x["per_game"].get(game) or [x["amount"], x.get("max", 0)])
+            x["amount"], x["max"] = lo, hi
+            x.pop("per_game")
+        rec = _effect_record(x, _Names(), game)
+        if x["do"] in ("food", "tech") and rec[3] == 0:
+            rec = rec[:3] + (rec[2],) + rec[4:]           # one amount: its range is that amount alone
+        try:
+            target = _piece_effect_target(x, _Names())
+        except (KeyError, TypeError, ValueError):
+            target = None
+        out.append((rec, target))
+    return tuple(out)
+
+
+_GROUP_WORDS = {v: k for k, v in reversed(list(GROUP_SKILLS.items()))}     # Healing -> healer, ...
+
+
+def _plain_words(e: dict) -> str:
+    """An effect in the plain words the importer reads back (plain_effect); "" when the words have no form for it."""
+    tg = e.get("target")
+    if tg:
+        prefix = "EVERYONE: " if tg.get("all") else \
+            f"EVERY {_GROUP_WORDS[tg['skill']].upper()}: " if tg.get("skill") in _GROUP_WORDS else \
+            f"{tg['random']} RANDOM VILLAGERS: " if tg.get("random") else None
+        inner = {k: v for k, v in e.items() if k != "target"}
+        words = _plain_words(inner) if prefix else ""
+        return prefix + words if words else ""
+
+    def who(r) -> str:
+        return {None: "villager", "subject": "villager", "$newest": "newcomer",
+                "$previous": "previous newcomer"}.get(r, r)
+    r = e.get("role")
+    for_who = f" FOR {who(r)}" if r not in (None, "subject") else ""
     do = e["do"]
     if do in ("food", "tech"):
-        if "per_game" in e:
-            lo, hi = next(iter(e["per_game"].values()))
-            return f"{do.upper()} {'LOSS' if lo < 0 else 'GAIN'} {abs(lo)} TO {abs(hi)}"
-        return f"{do.upper()} {'LOSS' if e['amount'] < 0 else 'GAIN'} {abs(e['amount'])}"
+        verb = "AWARD" if e.get("defer") else None
+        per = e.get("per_game")
+        if per:
+            for size in ("small", "normal", "large", "huge"):
+                for loss in (False, True):
+                    try:
+                        same = all(list(cie.size_range(do, size, g) if not loss else
+                                        [-cie.size_range(do, size, g)[1], -cie.size_range(do, size, g)[0]])
+                                   == list(per.get(str(g)) or per.get(g) or []) for g in range(1, 6))
+                    except (KeyError, ValueError, TypeError):
+                        same = False
+                    if same:
+                        return f"{do.upper()} {verb or ('LOSS' if loss else 'GAIN')} {size}"
+            return ""
+        lo, hi = e["amount"], e.get("max") or e["amount"]
+        if lo < 0:
+            return f"{do.upper()} LOSS {abs(hi)}" + (f" TO {abs(lo)}" if hi != lo else "")
+        return f"{do.upper()} GAIN {lo}" + (f" TO {hi}" if hi != lo else "")
+    if do == "pay_award":
+        return "PAY AWARD"
     if do == "skill":
         if "set" in e:
-            return f"SKILL SET {e['skills'][0]} {e['set']}" + (f" FOR {who}" if tail else "")
-        size = next((k for k, v in cie.SKILL_SIZES.items() if v == (abs(e['min']), abs(e['max']))), None)
-        words = {"small": "a little", "normal": "some", "large": "a lot", "huge": "hugely"}.get(size or "", "some")
-        return f"SKILL {'-' if e['min'] < 0 else '+'} {e['skills'][0]} {words}" + (f" FOR {who}" if tail else "")
+            return f"SKILL SET {e['skills'][0]} {e['set']}{for_who}" if len(e.get("skills") or []) == 1 else ""
+        span = tuple(sorted((abs(e["min"]), abs(e["max"]))))
+        size = next((k for k, v in cie.SKILL_SIZES.items() if tuple(v) == span), None)
+        if size is None or not (e.get("best") or len(e.get("skills") or []) == 1):
+            return ""
+        words = {"small": "a little", "normal": "some", "large": "a lot", "huge": "hugely"}[size]
+        name = "BEST" if e.get("best") else e["skills"][0]
+        return f"SKILL {'-' if e['min'] < 0 else '+'} {name} {words}{for_who}"
     if do == "preference":
-        return f"{'DISLIKE' if e['list'] == 'dislikes' else 'LIKE'} {'-' if e.get('remove') else '+'} " \
-               f"{e['preference']}" + (f" FOR {who}" if tail else "")
-    simple = {"kill": "DEATH", "vanish": "DISAPPEARS", "die_unrecovered": "LOST FOREVER", "sick": "ILLNESS",
-              "baby_lost": "PREGNANCY LOSS", "birth_then_die": "BIRTH THEN DEATH", "deliver_early": "EARLY BIRTH",
-              "old_look": "OLD LOOK", "sex_change": "SEX CHANGE", "lose_name": "LOSE NAME",
-              "change_name": "CHANGE NAME", "clone": "CLONE OF"}
-    if do == "clone" and e.get("count") == 2:
-        return "TWO CLONES OF" + (tail or " villager")
-    if do in simple:
-        return simple[do] + (tail or " villager")
+        word = e.get("preference")
+        return f"{'DISLIKE' if e.get('list') == 'dislikes' else 'LIKE'} {'-' if e.get('remove') else '+'} " \
+               f"{word}{for_who}"
+    if do == "health":
+        return f"HEAL {who(r)}" if e.get("min", e.get("value")) == cie.HEALTH_MAX else ""
     if do == "health_change":
-        return f"HEALTH{tail or ' villager'} {e['min']:+d} TO {e['max']:+d}"
+        return f"HEALTH {who(r)} {e['min']:+d} TO {e['max']:+d}"
+    if do == "kill":
+        return f"DEATH {who(r)}" + (f" CAUSE \"{e['cause']}\"" if e.get("cause") else "")
+    if do == "birth_then_die":
+        return f"BIRTH THEN DEATH {who(r)}" + (f" CAUSE \"{e['cause']}\"" if e.get("cause") else "")
+    simple = {"vanish": "DISAPPEARS", "die_unrecovered": "LOST FOREVER", "sick": "ILLNESS",
+              "baby_lost": "PREGNANCY LOSS", "deliver_early": "EARLY BIRTH", "old_look": "OLD LOOK",
+              "sex_change": "SEX CHANGE", "lose_name": "LOSE NAME", "cure": "CURE", "young_look": "YOUNG LOOK"}
+    if do in simple:
+        return f"{simple[do]} {who(r)}"
+    if do == "change_name":
+        return f"CHANGE NAME {who(r)}" + (f" TO {e['name']}" if e.get("name") else "")
+    if do == "clone":
+        return ("TWO CLONES OF " if e.get("count") == 2 else "CLONE OF ") + who(r)
+    if do == "body_swap":
+        return f"BODY SWAP {who(r)} WITH {who(e.get('with'))}"
+    if do == "change_age":
+        if "to" in e:
+            return f"CHANGE AGE {who(r)} TO {e['to']}"
+        lo, hi = (e["years"], e["years"]) if isinstance(e["years"], int) else e["years"]
+        if lo < 0 <= hi or hi < 0 < lo:
+            return ""
+        a, b = sorted((abs(lo), abs(hi)))
+        cap = e.get("max_age")
+        return (f"CHANGE AGE {who(r)} {'YOUNGER' if lo < 0 else 'OLDER'} {a}" + (f" TO {b}" if b != a else "")
+                + " YEARS" + (f" (NEVER PAST {cap})" if cap else ""))
     if do == "mood":
-        return f"MOOD {e['mood'].upper()}{tail}"
-    if do == "change_name" and e.get("name"):
-        return f"CHANGE NAME{tail or ' villager'} TO {e['name']}"
+        return f"MOOD {e['mood'].upper()} {who(r)}"
     if do == "celebrate":
-        return "CELEBRATE"
+        w = e.get("who", "all")
+        return "CELEBRATE" if w in (None, "all") else f"CELEBRATE {who(w)}"
+    if do == "action":
+        return f"ACTION {who(r)} \"{e['action']}\""
+    if do == "damage":
+        size = next((k for k, v in cie.DAMAGE_SIZES.items() if tuple(v) == (e.get("min"), e.get("max"))), None)
+        if size is None:
+            return ""
+        st = e.get("structures")
+        return f"DAMAGE ({size})" + ("" if st in (None, cie.DAMAGE_ANY) else f" ON {', '.join(st)}")
+    if do == "repair":
+        return "REPAIR" if e.get("structures") in (None, cie.DAMAGE_ANY) else ""
+    if do == "status":
+        return f"BECOMES HEATHEN {who(r)}" if e.get("status") == "heathen" else ""
+    if do == "trait":
+        return f"STORY MUTE {who(r)}" if e.get("trait") == "mute" else ""
+    if do == "presentation":
+        return f"{'OTHER' if e.get('on', True) else 'OWN'} PRESENTATION {who(r)}"
+    if do == "appearance":
+        head, body = e.get("head"), e.get("body")
+        part = {("random", "random"): "both", ("random", None): "head", (None, "random"): "body"}.get((head, body))
+        return f"NEW LOOK ({part}) {who(r)}" if part else ""
+    if do in ("pregnant", "nursing"):
+        mods = (" (ANY BIRTH SEX)" if e.get("any_birth_sex") else "") + \
+            {"roll": " (TWINS OR TRIPLETS)", 2: " (TWINS)", 3: " (TRIPLETS)"}.get(e.get("babies"), "")
+        return f"{do.upper()} {who(r)}" + (f" WITH {who(e['partner'])}" if e.get("partner") else "") + mods
     if do == "new_villager":
-        return f"NEW VILLAGER ({e.get('age', 'any')})" if not e.get("copy_of") else f"DUPLICATE OF {e['copy_of']}"
+        if e.get("copy_of"):
+            age = e.get("age")
+            return f"DUPLICATE OF {who(e['copy_of'])}" + (f" ({age})" if age else "")
+        sex = {"male": " male", "female": " female"}.get(e.get("sex") or "", "")
+        return (f"NEW VILLAGER ({e.get('age') or 'any'}{sex})"
+                + (" CHILD OF THE NEWCOMERS" if e.get("child_of_newest") else ""))
     return ""
+
+
+def _plain_of(e: dict) -> str:
+    """An effect in the plain words, only when the words read back to the same piece effect in every game
+    (_piece_signature); "" otherwise -- the caller keeps it as flavor and says so, never changes it."""
+    words = _plain_words(e)
+    if not words:
+        return ""
+    back = plain_effect(words)
+    if isinstance(back, str) or len(back.effects) != 1:
+        return ""
+    got = dict(back.effects[0])
+    for key in ("copy_of", "with", "who"):
+        if got.get(key) == "@default":
+            got[key] = "subject"
+    if got.get("role") is None and "target" not in got and got["do"] not in ("food", "tech", "pay_award", "damage",
+                                                                              "repair", "celebrate", "new_villager"):
+        got["role"] = "subject"
+    want = dict(e)
+    if want.get("role") is None and "target" not in want and want["do"] not in ("food", "tech", "pay_award",
+                                                                                 "damage", "repair", "celebrate",
+                                                                                 "new_villager"):
+        want["role"] = "subject"
+    try:
+        same = _piece_signature(got) == _piece_signature(want)
+    except (KeyError, TypeError, ValueError):
+        same = False
+    return words if same else ""

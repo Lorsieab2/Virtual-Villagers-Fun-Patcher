@@ -153,14 +153,9 @@ def build_index(living_seeds=()) -> dict:
     vv_living_mixer.generate(), a repository-only module this shipped one never imports."""
     out = {}
     base = ROOT / "data" / "event_collection"
-    for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
-                         + list((base / "living").glob("*/*.json")) + list((base / "horizon").glob("*/*.json"))
-                         + list((base / "rolemodels").glob("*/*.json"))
-                         + list((base / "drafts_a").glob("*/*.json"))
-                         + list((base / "drafts_b").glob("*/*.json"))
-                         + list((base / "drafts_c").glob("*/*.json"))
-                         + list((base / "drafts_d").glob("*/*.json"))
-                         + list((base / "anthology").glob("*/*.json"))):
+    # Every event file at any depth (the GO and More Island Events folders included), as the collection's builder
+    # reads them; the content tag tables are not events.
+    for source in sorted(p for p in base.rglob("*.json") if "content_tags" not in p.relative_to(base).parts):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

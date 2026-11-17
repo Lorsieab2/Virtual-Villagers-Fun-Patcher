@@ -165,7 +165,7 @@ static int pc_check(const unsigned char *data, unsigned int size) {
         }
         for (k = 0; k < slots; ++k) {
             const unsigned char *s = pc_slot(first_slot + k);
-            if (pc_str(pc_u32(s)) == NULL || s[4] > 1u || s[5] > 2u || s[6] > 80u || s[7] > 120u
+            if (pc_str(pc_u32(s)) == NULL || s[4] > 1u || s[5] > 2u || s[6] > 120u || s[7] > 120u
                 || (s[7] != 0 && s[7] < s[6]) || s[8] > 3u || (s[9] & 0xC0u) != 0u) {
                 pc_f.d = NULL;
                 return 0;
@@ -914,7 +914,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                                                           | CG_ROLE_SPECIAL);
         }
         rr[2] = role->sex;
-        rr[3] = role->min_age > 80 ? 80 : role->min_age;
+        rr[3] = role->min_age;          /* 0..120 (story_graph.inc cg_load; elders of 90 and more exist) */
         rr[8] = role->max_age;
         rr[9] = role->special;
         rr[13] = (role->flags & PC_S_SPEAKS) ? (unsigned char)CG_ROLE_SPEAKS : 0;

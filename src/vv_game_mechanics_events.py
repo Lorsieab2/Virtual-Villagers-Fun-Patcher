@@ -124,7 +124,7 @@ def frequency_multiplier(village) -> int | float | None:
         raw = (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / "VVFP Island Frequency.txt").read_bytes()[:15]
     except OSError:
         return None
-    text = raw.decode("latin-1").lstrip(" \t")
+    text = raw.decode("ascii", "replace").lstrip(" \t")        # only leading blanks and digits are read
     digits = ""
     for ch in text:
         if not ("0" <= ch <= "9"):

@@ -217,6 +217,10 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_children_play",
                # Isola Grand Event Collection (v1.35.97): its page entry.
                "vv_game_mechanics_collection",
+               # No Safeguards for Island Events (v1.35.97): its page lines.
+               "vv_game_mechanics_no_safeguards",
+               # Player Events (v1.35.97): the patcher window's Player Events section.
+               "vv_player_events_ui",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
                # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
@@ -462,7 +466,11 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
             # and each game's events.
             ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life",
-                                          "vv_game_mechanics_collection"}),
+                                          "vv_game_mechanics_collection",
+                                          # No Safeguards' page lines; More Frequent Island Events' setting file
+                                          # beside its companion (function-level)
+                                          "vv_game_mechanics_no_safeguards", "patcher_files"}),
+            ("vv_game_mechanics_no_safeguards", {"vv_game_mechanics"}),
             ("vv_game_mechanics_collection", {"vv_game_mechanics", "vv_game_mechanics_adventurer"}),
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
                                                   # More Island Events' The Aspiring Adventurer

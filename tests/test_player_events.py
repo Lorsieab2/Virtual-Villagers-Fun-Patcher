@@ -4,6 +4,7 @@ compile into the collection's own files, the AI prompt, and the round trip of th
 Run alone: python -m pytest -p no:xdist tests/test_player_events.py"""
 from __future__ import annotations
 
+import copy
 import json
 import re
 import struct
@@ -432,7 +433,7 @@ class DocExamples(unittest.TestCase):
         data, probs = pe.compile_pieces(items, 1)
         self.assertFalse([str(p) for p in probs])
         magic, version, head, size, crc = struct.unpack_from("<4sHHII", data)
-        self.assertEqual((magic, version, head, size), (b"VPCB", 1, 64, len(data)))
+        self.assertEqual((magic, version, head, size), (b"VPCB", 2, 64, len(data)))   # v2: 20-byte effects
         self.assertEqual(crc, zlib.crc32(data[:12] + b"\0\0\0\0" + data[16:]) & 0xFFFFFFFF)
         count, pieces_at = struct.unpack_from("<II", data, 20)
         self.assertEqual(count, 3)
@@ -468,10 +469,10 @@ class PieceEffectRecords(unittest.TestCase):
         data, probs = pe.compile_pieces(items, 1)
         self.assertFalse([str(p) for p in probs])
         effects_at, n_fx = struct.unpack_from("<II", data, 36)
-        return [struct.unpack_from("<BBBBiiI", data, effects_at + 16 * k) for k in range(n_fx)]
+        return [struct.unpack_from("<BBBBiiII", data, effects_at + 20 * k) for k in range(n_fx)]
 
     def test_a_new_villager_keeps_its_sex_and_copies_nobody(self):
-        code, role, flags, _sel, a, b, _st = self.records()[0]
+        code, role, flags, _sel, a, b, _st, _extra = self.records()[0]
         self.assertEqual(code, cie.EFFECT_CODES["new_villager"])
         self.assertEqual((a, b), (cie.NEW_VILLAGER_AGES["adult"], cie.NEW_VILLAGER_SEX["female"]))
         self.assertEqual(role, 0xFF, "no copy_of: a new villager, not a lookalike of the piece's villager")
@@ -502,8 +503,535 @@ class PieceEffectRecords(unittest.TestCase):
         self.assertEqual(record[:5], (0, 0, 0, 0, ""))
         self.assertIn("not supported in mixer pieces", record[5])
 
+    GROUPS = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Wave\nRole a: villager\nText: (A) waves at a boat.\n\n"
+              "Piece: party\nKind: Outcome\nFamily: f\nAnswers: x\nLabel: Throw a Party\nRole a: villager\n"
+              "Text: (A) throws a party.\nEffect: EVERYONE: MOOD GOOD\nEffect: EVERY HEALER: SKILL + Healing some\n"
+              "Effect: 3 RANDOM VILLAGERS: ILLNESS\n")
+
+    def test_group_effects_are_written_with_their_selector(self):
+        items = pe.parse_text(self.GROUPS, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertFalse([str(p) for p in probs])
+        effects_at, n_fx = struct.unpack_from("<II", data, 36)
+        strings_at = struct.unpack_from("<I", data, 28)[0]
+        recs = [struct.unpack_from("<BBBBiiII", data, effects_at + 20 * k) for k in range(n_fx)]
+        self.assertEqual([(r[0], r[1], r[3]) for r in recs],
+                         [(cie.EFFECT_CODES["mood"], cie.TARGET_ROLE, cie.TARGET_ALL),
+                          (cie.EFFECT_CODES["skill"], cie.TARGET_ROLE, cie.TARGET_SKILL),
+                          (cie.EFFECT_CODES["sick"], cie.TARGET_ROLE, cie.TARGET_RANDOM)])
+        self.assertEqual(recs[2][7], 3, "3 random villagers: N in the extra")
+        skill_at = strings_at + recs[1][7]
+        self.assertEqual(data[skill_at:data.index(b"\0", skill_at)], b"Healing", "the skill's name in the extra")
+
+    def test_an_effect_the_file_cannot_hold_is_kept_as_flavor_and_the_piece_stays(self):
+        with tempfile.TemporaryDirectory() as d:
+            folder = Path(d)
+            (folder / "mine.txt").write_text(self.GROUPS, encoding="utf-8")
+            orig = pe._piece_effect_target
+
+            def failing(e, local):
+                if e["do"] == "sick":
+                    raise KeyError("a group the file cannot hold")
+                return orig(e, local)
+            pe._piece_effect_target = failing
+            try:
+                out, report = pe.compile_folder(1, folder, pe.Settings())
+            finally:
+                pe._piece_effect_target = orig
+        self.assertEqual(report.pieces, 2, "both pieces are kept")
+        self.assertTrue(any(name.startswith("pieces-") for name in out))
+        self.assertFalse(report.skipped, "nothing is Left out over an effect")
+        self.assertTrue(any("kept as flavor" in n for n in report.notes), report.notes)
+
+    def test_a_role_constraint_a_slot_cannot_hold_is_reported(self):
+        text = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Ask the Healer\nRole h: adult, skill Healing 50+\n"
+                "Role w: adult, spouse of h\nText: (H) and (W) talk.\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertTrue(data, "the piece is kept")
+        notes = [p.text for p in probs if p.kind == "note"]
+        self.assertTrue(any("role h" in n and "skill Healing 50+" in n for n in notes), notes)
+        self.assertTrue(any("role w" in n and "spouse of h" in n for n in notes), notes)
+        self.assertFalse([p for p in probs if p.kind == "problem"])
+
+    def test_only_an_outcomes_effects_are_written_the_others_are_kept_as_flavor(self):
+        # The composer makes only an outcome's effects (story_procedural.inc): an effect on an approach is story only.
+        text = self.GROUPS.replace("Text: (A) waves at a boat.\n", "Text: (A) waves at a boat.\nEffect: MOOD GOOD (A)\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertEqual([(p.kind, "only an outcome" in p.text) for p in probs], [("flavor", True)])
+        self.assertEqual(struct.unpack_from("<I", data, 40)[0], 3, "the outcome's three effects only")
+        self.assertEqual(struct.unpack_from("<I", data, 20)[0], 2, "both pieces kept")
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "mine.txt").write_text(text, encoding="utf-8")
+            _out, report = pe.compile_folder(1, Path(d), pe.Settings())
+        self.assertFalse(report.skipped)
+        self.assertTrue(any("only an outcome" in n and "kept as flavor" in n for n in report.notes), report.notes)
+
+    def test_a_favoured_theme_weighs_the_outcomes_answers(self):
+        # The composer draws an outcome by its Answers link weights (pc_link_weight), so a favoured theme's
+        # multiplier goes there; with no theme favoured they are as written.
+        items = pe.parse_text(self.GROUPS, "p.txt")
+
+        def links(multiplier):
+            data, _ = pe.compile_pieces(items, 1, multiplier)
+            links_at, n_link = struct.unpack_from("<II", data, 52)
+            return [struct.unpack_from("<II", data, links_at + 8 * k)[1] for k in range(n_link)]
+        plain = links(None)
+        self.assertEqual(len(plain), 1)
+        self.assertEqual(links({"party": pe.THEME_FAVOUR}), [plain[0] * pe.THEME_FAVOUR])
+        self.assertEqual(links({"x": pe.THEME_FAVOUR}), plain, "an approach's own multiplier is not its answers'")
+
+    def test_ages_a_villager_can_have_load_and_impossible_ones_are_reported(self):
+        # Codex P2 (#774): a role's ages outside 0..120 once made the engine refuse the whole file.  90+ is kept as
+        # written; 130+ (nobody) and 50 to 30 are written within the bounds and reported; every piece stays.
+        def slot_ages(text):
+            items = pe.parse_text(text, "p.txt")
+            self.assertFalse([str(p) for i in items for p in i.problems])
+            data, probs = pe.compile_pieces(items, 1)
+            slots_at = struct.unpack_from("<I", data, 44)[0]
+            return struct.unpack_from("<BB", data, slots_at + 6), [p for p in probs if p.kind != "note"], \
+                [p.text for p in probs if p.kind == "note"], struct.unpack_from("<I", data, 20)[0]
+        base = "Piece: old\nKind: Flavour\nRole e: {}\nText: (E) remembers.\n\n" \
+               "Piece: kid\nKind: Flavour\nRole k: child\nText: (K) plays.\n"
+        ages, bad, notes, count = slot_ages(base.format("90+"))
+        self.assertEqual((ages, bad, notes, count), ((90, 0), [], [], 2))
+        for words in ("130+", "50 to 30"):
+            with self.subTest(words=words):
+                ages, bad, notes, count = slot_ages(base.format(words))
+                self.assertEqual(bad, [])
+                self.assertTrue(all(a <= pe.AGE_LIMIT for a in ages) and (ages[1] == 0 or ages[1] >= ages[0]))
+                self.assertTrue(any("can ever be cast" in n for n in notes), notes)
+                self.assertEqual(count, 2, "both pieces kept")
+
+    def test_tag_bits_are_ored_so_a_minor_keeps_its_block(self):
+        # A child's piece is tagged minor (and never romance) by finish_piece; "Tags: minor, minor" and both
+        # words for one bit ("lesser") once added the bit twice and carried it into the next one.
+        text = ("Piece: kid\nKind: Flavour\nRole k: child\nTags: minor, minor, lesser, "
+                "portraying anyone as lesser\nText: (K) builds a sandcastle.\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, _ = pe.compile_pieces(items, 1)
+        pieces_at = struct.unpack_from("<I", data, 24)[0]
+        never, tags = struct.unpack_from("<II", data, pieces_at + 24)
+        bits = pe.BLOCK_TAGS
+        low = (1 << 5) - 1
+        self.assertEqual(tags & low, (1 << bits["minor"]) | (1 << bits["lesser"]), "minor and lesser, each once")
+        self.assertTrue(never & (1 << bits["romance"]), "a minor's piece never meets romance")
+
+    def test_duplicate_of_the_villager_is_the_pieces_main_slot(self):
+        text = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Wave\nRole a: villager\nText: (A) waves at a boat.\n\n"
+                "Piece: twin\nKind: Outcome\nFamily: f\nAnswers: x\nLabel: Meet a Double\nRole a: villager\n"
+                "Text: (A) meets someone who looks the same.\nEffect: DUPLICATE OF villager\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertFalse([str(p) for p in probs], "not kept as flavor: its villager is the piece's main slot")
+        effects_at, n_fx = struct.unpack_from("<II", data, 36)
+        code, role, *_ = struct.unpack_from("<BBBBiiII", data, effects_at)
+        self.assertEqual((n_fx, code), (1, cie.EFFECT_CODES["new_villager"]))
+        twin = next(i for i in items if i.piece["id"] == "twin").piece
+        self.assertEqual(role, list(twin["slots"]).index("subject"), "copy_of the piece's main slot")
+
+    def test_exported_new_villagers_keep_their_sex_and_parents(self):
+        for e in ({"do": "new_villager", "age": "adult", "sex": "female"},
+                  {"do": "new_villager", "age": "child", "child_of_newest": True},
+                  {"do": "new_villager", "sex": "male"},
+                  {"do": "new_villager", "age": "teen", "sex": "male", "child_of_newest": True}):
+            with self.subTest(effect=e):
+                back = pe.plain_effect(pe._plain_of(e))
+                self.assertNotIsInstance(back, str, back)
+                self.assertEqual({k: v for k, v in back.effects[0].items() if v is not None}, e)
+
+
+class ExportRoundTrip(unittest.TestCase):
+    """The library's "export as mixer pieces" (pieces_file_text): every effect kind the pieces file holds, with every
+    target and field the plain words can say, comes back as the same piece effect in every game; an effect the words
+    cannot hold exactly is kept as flavor and the file says so -- never written as something else (Codex, #774)."""
+
+    EXACT = [
+        {"do": "food", "size": "normal", "scaled": True}, {"do": "food", "size": "small", "loss": True, "scaled": True},
+        {"do": "food", "size": "large", "defer": True, "scaled": True}, {"do": "food", "amount": 200, "max": 800,
+                                                                         "scaled": True},
+        {"do": "food", "amount": 500, "scaled": True}, {"do": "food", "amount": -300, "max": -100, "scaled": True},
+        {"do": "tech", "size": "huge", "scaled": True}, {"do": "tech", "amount": 50, "max": 90, "scaled": True},
+        {"do": "skill", "role": "subject", "skills": ["Healing"], "size": "small"},
+        {"do": "skill", "role": "friend", "skills": ["Farming"], "size": "large", "loss": True},
+        {"do": "skill", "role": "subject", "skills": ["Building"], "set": 100},
+        {"do": "skill", "role": "friend", "best": True, "size": "normal"},
+        {"do": "preference", "role": "subject", "like": "dancing"},
+        {"do": "preference", "role": "friend", "dislike": "rocks", "remove": True},
+        {"do": "preference", "role": "subject", "like": "random"},
+        {"do": "health", "role": "friend", "value": 100},
+        {"do": "health_change", "role": "subject", "min": -40, "max": -20},
+        {"do": "sick", "role": "friend"}, {"do": "kill", "role": "lost", "cause": "a fall"},
+        {"do": "vanish", "role": "gone"}, {"do": "die_unrecovered", "role": "away"},
+        {"do": "old_look", "role": "subject"}, {"do": "young_look", "role": "friend"}, {"do": "cure", "role": "friend"},
+        {"do": "sex_change", "role": "friend"}, {"do": "lose_name", "role": "friend"},
+        {"do": "change_name", "role": "subject"}, {"do": "change_name", "role": "friend", "name": "Kai"},
+        {"do": "clone", "role": "subject"}, {"do": "clone", "role": "friend", "count": 2},
+        {"do": "body_swap", "role": "subject", "with": "friend"},
+        {"do": "change_age", "role": "friend", "to": "elder"},
+        {"do": "change_age", "role": "subject", "years": [3, 5]},
+        {"do": "change_age", "role": "friend", "years": [-10, -2], "max_age": 60},
+        {"do": "mood", "role": "subject", "mood": "good"}, {"do": "mood", "role": "friend", "mood": "bad"},
+        {"do": "celebrate", "who": "all"}, {"do": "celebrate", "who": "friend"},
+        {"do": "damage", "size": "normal", "structures": "any"}, {"do": "repair", "structures": "any"},
+        {"do": "presentation", "role": "friend", "on": True}, {"do": "presentation", "role": "subject", "on": False},
+        {"do": "appearance", "role": "friend", "head": "random"},
+        {"do": "appearance", "role": "subject", "head": "random", "body": "random"},
+        {"do": "new_villager", "age": "adult", "sex": "female"},
+        {"do": "new_villager", "age": "child", "child_of_newest": True},
+        {"do": "new_villager", "copy_of": "friend", "age": "child"},
+        {"do": "mood", "target": {"all": True}, "mood": "good"},
+        {"do": "skill", "target": {"skill": "Healing"}, "skills": ["Healing"], "size": "normal"},
+        {"do": "sick", "target": {"random": 3}},
+    ]
+    FLAVOR = [
+        {"do": "skill", "role": "subject", "skills": ["Healing"], "min": 3, "max": 7},       # no size word for 3-7
+        {"do": "food", "amount": 200, "max": 800, "scaled": False},                       # unscaled: no words for it
+    ]
+
+    def graph(self, effects):
+        return {"format": "vvfp-cie-graph", "version": 6, "title": "Round Trip", "games": [1, 2, 3, 4, 5],
+                "roles": {"subject": {"kind": "villager", "min_age": 18},
+                          "friend": {"kind": "villager", "min_age": 18, "protected": "allow"},
+                          **{k: {"kind": "villager", "min_age": 18, "protected": "allow"} for k in ("lost", "gone", "away")}},
+                "start": "ask",
+                "nodes": {"ask": {"type": "question",
+                                  "text": "(subject) meets (friend), (lost), (gone) and (away) at the shore.",
+                                  "choices": [{"label": "Talk", "next": "out"}, {"label": "Leave", "next": "out"}]},
+                          "out": {"type": "popup", "text": "Something changes.\n\nIt stays changed.", "effects": effects,
+                                  "children": []}}}
+
+    def test_every_effect_round_trips_or_the_export_is_refused(self):
+        for e in self.FLAVOR:
+            with self.subTest(effect=e), self.assertRaises(ValueError) as refused:
+                pe.pieces_file_text(self.graph(copy.deepcopy(self.EXACT + [e])))
+            self.assertIn("no exact plain words", str(refused.exception))
+        g = self.graph(copy.deepcopy(self.EXACT))
+        norm, _ = cie.normalize(copy.deepcopy(g), pe._shared_pools())
+        want = [pe._piece_signature(e if e.get("role") or "target" in e or e["do"] in (
+            "food", "tech", "pay_award", "damage", "repair", "celebrate", "new_villager") else dict(e, role="subject"))
+                for e in norm["nodes"]["out"]["effects"]]
+        text = pe.pieces_file_text(g)
+        items = pe.parse_text(text, "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        outcomes = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]]
+        self.assertNotIn("# kept as flavor", text)
+        outcome = outcomes[0]
+        got = [pe._piece_signature(e) for _ln, e in outcome.piece["effects"]]
+        self.assertEqual(got, want[:len(self.EXACT)], "every exact effect, in its order, the same piece effect")
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                data, probs = pe.compile_pieces(items, game)
+                self.assertFalse([str(p) for p in probs if p.kind != "note"])
+                self.assertEqual(struct.unpack_from("<I", data, 40)[0], len(self.EXACT) * len(outcomes),
+                                 "every effect written")
+
+    @staticmethod
+    def event_records(g: dict, game: int) -> list[tuple]:
+        """The ordinary event compiler's effect records for `g` (vv_cie_graph.compile_graph), each as names and values:
+        (code, role, flags, selector, a, b, string, extra) with role indexes as role names, strings as their text and
+        a food / tech effect's own range for `game` (its per-game string read)."""
+        packed: list[tuple] = []
+        real = cie._EFFECT
+
+        class Spy:
+            size = real.size
+
+            def pack(self, *v):
+                packed.append(v)
+                return real.pack(*v)
+        cie._EFFECT = Spy()
+        try:
+            blob = cie.compile_graph(cie.load(copy.deepcopy(g), scrolling=True))
+        finally:
+            cie._EFFECT = real
+        u16 = lambda at: struct.unpack_from("<H", blob, at)[0]  # noqa: E731
+        u32 = lambda at: struct.unpack_from("<I", blob, at)[0]  # noqa: E731
+        n_role, n_string, o_role, o_string = u16(26), u16(38), u32(44), u32(72)
+
+        def s(i):
+            if i == 0xFFFF:
+                return ""
+            at = o_string + 4 * n_string + u32(o_string + 4 * i)
+            return blob[at:blob.index(b"\0", at)].decode()
+        names = [s(u16(o_role + 16 * i + 4)) for i in range(n_role)]
+        out = []
+        for code, role, flags, sel, a, b, st, last in packed:
+            text = s(st)
+            if code in (cie.EFFECT_CODES["food"], cie.EFFECT_CODES["tech"]) and text:
+                a, b = cie.per_game_parse(text).get(game, cie.per_game_parse(text).get(str(game), (a, b)))
+                text = ""
+            if code in (cie.EFFECT_CODES[k] for k in ("pregnant", "nursing", "body_swap")) and a < n_role:
+                a = names[a]
+            out.append((code, names[role] if role < n_role else role, flags, sel, a, b or a, text,
+                        s(last) if sel == cie.TARGET_SKILL else last))
+        return out
+
+    @staticmethod
+    def piece_records(data: bytes, piece_index: int) -> list[tuple]:
+        """The same tuple for every effect of piece `piece_index` in a VPCB v2 file (slot indexes as slot names)."""
+        pieces_at, strings_at = struct.unpack_from("<II", data, 24)
+        effects_at, slots_at = struct.unpack_from("<I", data, 36)[0], struct.unpack_from("<I", data, 44)[0]
+
+        def s(off):
+            if off == 0xFFFFFFFF:
+                return ""
+            at = strings_at + off
+            return data[at:data.index(b"\0", at)].decode()
+        rec = pieces_at + 64 * piece_index
+        first_slot, n_slot = struct.unpack_from("<I", data, rec + 40)[0], struct.unpack_from("<H", data, rec + 44)[0]
+        first_fx, n_fx = struct.unpack_from("<I", data, rec + 48)[0], struct.unpack_from("<H", data, rec + 52)[0]
+        names = [s(struct.unpack_from("<I", data, slots_at + 16 * (first_slot + k))[0]) for k in range(n_slot)]
+        out = []
+        for k in range(n_fx):
+            code, role, flags, sel, a, b, st, extra = struct.unpack_from("<BBBBiiII", data, effects_at + 20 * (first_fx + k))
+            if code in (cie.EFFECT_CODES[x] for x in ("pregnant", "nursing", "body_swap")) and a < n_slot:
+                a = names[a]
+            out.append((code, names[role] if role < n_slot else role, flags, sel, a, b or a, s(st),
+                        s(extra) if sel == cie.TARGET_SKILL else extra))
+        return out
+
+    def test_the_pieces_hold_what_the_event_compiler_writes(self):
+        # Exported, imported and compiled as pieces, every exact effect is the ordinary compiler's own record for the
+        # same event, field by field, in every game (the encoder and the exporter checked at once).
+        g = self.graph(copy.deepcopy(self.EXACT))
+        items = pe.parse_text(pe.pieces_file_text(g), "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        pieces = [i for i in items if not i.problems]
+        first_outcome = next(k for k, i in enumerate(pieces) if i.piece["kind"] == pe.PIECE_KINDS["outcome"])
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                data, _ = pe.compile_pieces(items, game)
+                want = self.event_records(g, game)
+                got = self.piece_records(data, first_outcome)
+                self.assertEqual(len(got), len(self.EXACT))
+                for e, w, h in zip(self.EXACT, want, got):
+                    self.assertEqual(h, w, e)
+
+    MULTI = {"format": "vvfp-cie-graph", "version": 6, "title": "Many Ways", "games": [1, 2, 3, 4, 5],
+             "roles": {"subject": {"kind": "villager", "min_age": 18},
+                       "friend": {"kind": "villager", "min_age": 18},
+                       "lost": {"kind": "villager", "min_age": 18, "protected": "allow"},
+                       "visitor": {"kind": "stranger", "sex": "random", "named": True}},
+             "start": "ask",
+             "nodes": {
+                 "ask": {"type": "question", "text": "(subject) and (friend) meet (visitor.name) and (lost).",
+                         "choices": [{"label": "Trade", "next": "p1"}, {"label": "Gamble", "next": "br"},
+                                     {"label": "Rest", "next": "p5"}]},
+                 "p1": {"type": "popup", "text": "(visitor.name) trades.",
+                        "effects": [{"do": "food", "amount": 100, "scaled": True}],
+                        "children": [{"next": "p2"}]},
+                 "p2": {"type": "popup", "text": "The trade goes on.",
+                        "effects": [{"do": "tech", "amount": 200, "scaled": True}], "children": [{"next": "p2b"}]},
+                 "p2b": {"type": "popup", "text": "It ends.", "effects": [{"do": "mood", "role": "friend",
+                                                                            "mood": "good"}]},
+                 "br": {"type": "branch", "children": [{"next": "p3", "weight": 3}, {"next": "br2", "weight": 1}]},
+                 "br2": {"type": "branch", "children": [{"next": "p4", "weight": 1}, {"next": "p7", "weight": 2}]},
+                 "p7": {"type": "popup", "text": "Luck wavers.", "effects": [{"do": "mood", "role": "friend",
+                                                                                "mood": "bad"}]},
+                 "p3": {"type": "popup", "text": "Luck holds.", "effects": [{"do": "mood", "role": "subject",
+                                                                              "mood": "good"}]},
+                 "p4": {"type": "popup", "text": "Luck fails.", "effects": [{"do": "kill", "role": "lost",
+                                                                              "cause": "a fall"}]},
+                 "p5": {"type": "popup", "text": "(friend) rests.\n\nThe day is quiet.",
+                        "effects": [{"do": "sick", "role": "friend"},
+                                    {"do": "food", "size": "small", "scaled": True},
+                                    {"do": "celebrate", "who": "friend"}]}}}
+
+    @staticmethod
+    def graph_paths(nodes, start):
+        """Every path from a page to an end, written here independently of the exporter."""
+        out = []
+
+        def walk(path):
+            n = nodes[path[-1]]
+            nxt = [ch["next"] for ch in n.get("choices", [])] if n["type"] == "question" else \
+                [ch["next"] for ch in n.get("children", [])]
+            nxt = [x for x in nxt if x not in path]
+            if not nxt:
+                out.append(path)
+            for x in nxt:
+                walk(path + [x])
+        walk([start])
+        return out
+
+    def test_a_role_name_with_digits_survives_the_export(self):
+        # "Role helper2:" must parse back as the helper2 slot (Codex, #774), not be lost as an unknown line.
+        g = json.loads(json.dumps(self.MULTI).replace('"friend"', '"helper2"').replace("(friend)", "(helper2)"))
+        items = pe.parse_text(pe.pieces_file_text(g), "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        setup = next(i for i in items if i.piece["kind"] == pe.PIECE_KINDS["setup"])
+        self.assertIn("helper2", setup.piece["slots"])
+
+    def test_every_path_keeps_every_effect_or_says_it_is_flavor(self):
+        # For every path through the event, the effects along it (kind, target, every field) are the effects of the
+        # matching exported outcome, or are kept as flavor and listed in the file -- never dropped silently.
+        g = copy.deepcopy(self.MULTI)
+        norm, _ = cie.normalize(copy.deepcopy(g), pe._shared_pools())
+        nodes = norm["nodes"]
+        text = pe.pieces_file_text(g)
+        items = pe.parse_text(text, "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        self.assertTrue(all("visitor" in i.piece["slots"] for i in items), "the named stranger is a slot")
+        self.assertEqual(next(i for i in items if i.piece["kind"] == pe.PIECE_KINDS["setup"])
+                         .piece["slots"]["visitor"][0]["kind"], "stranger")
+
+        def sig(e):
+            e = dict(e)
+            if e.get("role") is None and "target" not in e and e["do"] not in (
+                    "food", "tech", "pay_award", "damage", "repair", "celebrate", "new_villager"):
+                e["role"] = "subject"
+            return pe._piece_signature(e)
+        outcomes = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]]
+        got = sorted(sorted(sig(e) for _ln, e in o.piece["effects"]) for o in outcomes)
+        want, flavored = [], 0
+        for c in nodes["ask"]["choices"]:
+            for path in self.graph_paths(nodes, c["next"]):
+                effects = [e for nid in path for e in nodes[nid].get("effects", [])]
+                kept = [e for e in effects if pe._plain_of(e)]
+                flavored += len(effects) - len(kept)
+                want.append(sorted(sig(e) for e in kept))
+        self.assertEqual(got, sorted(want))
+        self.assertEqual(len(outcomes), 5, "Trade (one path of three pages), Gamble (3), Rest (1)")
+        self.assertEqual(flavored, 0)
+        self.assertNotIn("# kept as flavor", text)
+        rest = next(o for o in outcomes if o.piece["links"][0][0].endswith("_a3")).piece
+        approach = next(i for i in items if i.piece["id"].endswith("_a3")).piece
+        self.assertEqual((approach["text"], rest["text"]), ("(friend) rests.", "The day is quiet."),
+                         "a one-page answer's text split between its approach and outcome, never shown twice")
+        trade = next(o for o in outcomes if o.piece["links"][0][0].endswith("_a1"))
+        self.assertEqual([e["do"] for _ln, e in trade.piece["effects"]], ["food", "tech", "mood"],
+                         "the answer's own first page's food, then the later pages' effects")
+
+    def test_what_pieces_cannot_carry_is_refused_by_name(self):
+        # The export carries an event exactly or refuses it, naming the feature (Codex, #774): the event itself is
+        # never changed, and a player's own files keep the owner's "kept as flavor" rule.
+        cases = []
+        pooled = copy.deepcopy(self.MULTI)
+        pooled["pools"] = {"gift": {"items": ["a shell", "a feather"]}}
+        pooled["nodes"]["p1"]["text"] = "(visitor.name) trades {gift}."
+        cases.append((pooled, "uses a text pool or pick ({gift})"))
+        second = copy.deepcopy(self.MULTI)
+        second["nodes"]["p5"] = {"type": "question", "text": "(friend) asks around.",
+                                 "choices": [{"label": "Rest", "next": "p3"}, {"label": "Push On", "next": "p7"}]}
+        cases.append((second, "is a second question"))
+        flat = copy.deepcopy(self.MULTI)
+        flat["nodes"]["p5"]["text"] = "(friend) rests."
+        cases.append((flat, "has one page of one paragraph"))
+        # Every part of the requirement, not only its condition (Codex, #774): a puzzle that must be solved first
+        # has no piece form, so the export refuses, naming it.
+        puzzled = copy.deepcopy(self.MULTI)
+        puzzled.setdefault("requirement", {})["puzzles"] = {"1": ["The Cave"]}
+        cases.append((puzzled, "a puzzle that must be solved first"))
+        # An opening page before the first question, with its own text and food (Codex, #774): refused, named.
+        opened = copy.deepcopy(self.MULTI)
+        opened["nodes"]["intro"] = {"type": "popup", "text": "(visitor.name) arrives.",
+                                    "effects": [{"do": "food", "amount": 100, "scaled": True}],
+                                    "children": [{"next": "ask"}]}
+        opened["start"] = "intro"
+        cases.append((opened, "opens with page intro before its first question"))
+        for g, words in cases:
+            with self.subTest(words=words), self.assertRaises(ValueError) as refused:
+                pe.pieces_file_text(g)
+            self.assertIn(words, str(refused.exception))
+            self.assertIn("The event itself is unchanged", str(refused.exception))
+
+    def test_every_outcomes_overall_chance_survives(self):
+        # Nested random branches: each final outcome's overall chance (the product of its shares at every fork),
+        # computed here on its own, is its Answers weight's share among the approach's outcomes.
+        from fractions import Fraction
+        g = copy.deepcopy(self.MULTI)
+        nodes = cie.normalize(copy.deepcopy(g), pe._shared_pools())[0]["nodes"]
+        items = pe.parse_text(pe.pieces_file_text(g), "export.txt")
+        gamble = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]
+                  and i.piece["links"][0][0].endswith("_a2")]
+
+        def chances(nid, share):
+            kids = nodes[nid].get("children") or []
+            if not kids:
+                return {nid: share}
+            total = sum(k.get("weight", 1) for k in kids)
+            out = {}
+            for k in kids:
+                out.update(chances(k["next"], share * Fraction(k.get("weight", 1), total)))
+            return out
+        want = chances("br", Fraction(1))
+        self.assertEqual(want, {"p3": Fraction(3, 4), "p4": Fraction(1, 12), "p7": Fraction(2, 12)})
+        total = sum(i.piece["links"][0][1] for i in gamble)
+        got = {}
+        for i in gamble:
+            end = next(nid for nid in want if nodes[nid]["text"] in i.piece["text"])
+            got[end] = Fraction(i.piece["links"][0][1], total)
+        self.assertEqual(got, want)
+
+    def test_every_roles_requirements_survive(self):
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "Roles", "games": [3],
+             "roles": {"subject": {"kind": "villager", "sex": "male", "min_age": 20, "max_age": 40},
+                       "chief": {"kind": "villager", "special": "tribal_chief", "protected": "allow"},
+                       "healer": {"kind": "villager", "min_age": 18, "optional": True,
+                                  "skill": {"names": ["Healing"], "min": 30, "pick": "highest"}},
+                       "wife": {"kind": "villager", "sex": "female", "min_age": 18,
+                                "relation": {"spouse_of": "subject"}},
+                       "visitor": {"kind": "stranger", "sex": "female", "named": True}},
+             "start": "ask",
+             "nodes": {"ask": {"type": "question",
+                               "text": "(subject), (wife), (healer) and (chief) meet (visitor.name).",
+                               "choices": [{"label": "Greet", "next": "a"}, {"label": "Wait", "next": "a"}]},
+                       "a": {"type": "popup", "text": "They talk.\n\nThey part."}}}
+        roles = cie.normalize(copy.deepcopy(g), pe._shared_pools())[0]["roles"]
+        text = pe.pieces_file_text(g)
+        self.assertNotIn("# role", text, "every requirement held")
+        for it in pe.parse_text(text, "export.txt"):
+            for rid, r in roles.items():
+                slot = it.piece["slots"][rid][0]
+                with self.subTest(piece=it.piece["id"], role=rid):
+                    for key, value in r.items():
+                        if key == "sex" and value in ("any", "random") and slot.get(key) in (None, "any", "random"):
+                            continue
+                        if (key, value) in (("optional", False), ("protected", "auto")) and slot.get(key) is None:
+                            continue                     # the defaults, which the words leave unwritten
+                        self.assertEqual(slot.get(key), value, key)
+        self.assertIn("tribal chief", text)
+
+    def test_each_kind_alone(self):
+        for e in self.EXACT:
+            with self.subTest(effect=e):
+                norm, _ = cie.normalize(self.graph([copy.deepcopy(e)]), pe._shared_pools())
+                self.assertTrue(pe._plain_of(norm["nodes"]["out"]["effects"][0]), "plain words that read back the same")
+        for e in self.FLAVOR:
+            with self.subTest(effect=e):
+                norm, _ = cie.normalize(self.graph([copy.deepcopy(e)]), pe._shared_pools())
+                self.assertEqual(pe._plain_of(norm["nodes"]["out"]["effects"][0]), "", "kept as flavor")
+
 
 class InstallAndRules(unittest.TestCase):
+    def test_an_id_and_a_later_number_never_share_a_file(self):
+        # Codex P2 (#774): in foo.txt the first event's Id pl_foo_002 is the second event's own number; both once
+        # compiled as pl_foo_002, the second .cieg over the first, and the report said both were installed.
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            first = SIMPLE.replace("Applies to: VV1, VV3\n", "Applies to: VV1, VV3\nId: pl_foo_002\n")
+            second = SIMPLE.replace("The Coconut That Would Not Open", "The Second Coconut")
+            third = SIMPLE.replace("The Coconut That Would Not Open", "The Third Coconut").replace(
+                "Applies to: VV1, VV3\n", "Applies to: VV1, VV3\nId: pl_foo_002\n")
+            (folder / "foo.txt").write_text(first + "\n" + second + "\n" + third, encoding="utf-8")
+            out, report = pe.compile_folder(1, folder, pe.Settings())
+        self.assertEqual(pe.group_name("foo", set())[0], "pl_foo")
+        ciegs = sorted(n for n in out if n.endswith(".cieg"))
+        self.assertEqual(len(ciegs), 3, ciegs)
+        self.assertEqual(len(report.installed), 3)
+        rows = [line.split("\t")[0] for line in out["manifest-pl_foo.txt"].decode().splitlines()
+                if not line.startswith("#")]
+        self.assertEqual(sorted(f"{r}.cieg" for r in rows), ciegs, "each row its own file")
+        self.assertIn("pl_foo_002.cieg", ciegs)
+        self.assertEqual(sum("already used" in n for n in report.notes), 2, report.notes)
+
     def test_install_writes_only_its_own_files_and_reports_bad_items(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "Player Events"
@@ -736,9 +1264,12 @@ class LibraryExport(unittest.TestCase):
         got, probs2 = cie.validate({k: v for k, v in it.graph.items()})
         self.assertEqual(probs, probs2)
         self.assertEqual(cie.compile_graph(got), cie.compile_graph(want))
-        pieces = pe.parse_text(pe.pieces_file_text(norm), "p.txt")
-        self.assertTrue(any(p.piece["kind"] == 1 for p in pieces))
-        self.assertTrue(any(p.piece["kind"] == 2 for p in pieces))
+        # Its variants and its roles' protections have no piece form: the export refuses, naming them (the event
+        # itself is unchanged), never writes something else.
+        with self.assertRaises(ValueError) as refused:
+            pe.pieces_file_text(norm)
+        self.assertIn("text variants", str(refused.exception))
+        self.assertIn("unchanged", str(refused.exception))
 
 
 class BuiltInEventsRoundTrip(unittest.TestCase):

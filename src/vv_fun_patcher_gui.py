@@ -2039,10 +2039,25 @@ class App(tk.Tk):
         game = next((int(i[2]) for i in ids if len(i) > 3 and i[:2] == "vv" and i[2] in "12345"), None)
         if game is None:
             return
-        try:
-            self.player_event_sections[game] = vv_player_events_ui.PlayerEventsSection(box, game, requirement_font)
-        except OSError as exc:
-            ttk.Label(box, text=f"Player Events could not open their folder: {exc}", wraplength=640).pack(anchor="w")
+        # Built only when asked for: its forty-odd controls would otherwise sit on every game's tab (the page
+        # height guard, tests/test_gui_page_height.py).  Its settings live in its own file, so a patch made
+        # without opening it installs what was chosen last time.
+        holder = ttk.Frame(box)
+        holder.pack(fill="x", pady=(10, 0))
+        head = ttk.Frame(holder)
+        head.pack(fill="x")
+        ttk.Label(head, text="Player Events", font=requirement_font).pack(side="left")
+
+        def show() -> None:
+            head.destroy()
+            try:
+                self.player_event_sections[game] = vv_player_events_ui.PlayerEventsSection(holder, game,
+                                                                                           requirement_font)
+            except OSError as exc:
+                ttk.Label(holder, text=f"Player Events could not open their folder: {exc}",
+                          wraplength=640).pack(anchor="w")
+
+        ttk.Button(head, text="Show Player Events...", command=show).pack(side="left", padx=(8, 0))
 
     def _build_patch_row(self, frame, row, styles) -> None:
         """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and

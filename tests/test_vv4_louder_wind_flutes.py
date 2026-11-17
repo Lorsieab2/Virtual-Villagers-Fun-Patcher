@@ -413,7 +413,8 @@ class Setting(unittest.TestCase):
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text("utf-8")
         self.assertEqual(source.count('**({"louder_flutes_multiplier": _louder_flutes_multiplier}'), 2)
         self.assertIn("relatives.append(str(installed.parent / LOUDER_FLUTES_CHOICE_FILE))", source)
-        self.assertIn("    _write_louder_flutes_choice(output_folder, fun_patches)\n", source)
+        self.assertRegex(source, r"    _write_louder_flutes_choice\(output_folder, fun_patches\)\n"
+                                 r"(    _write_\w+\(output_folder, fun_patches\)\n)*    return copied")
         report = (ROOT / "src" / "transparency.py").read_text("utf-8")
         self.assertIn("(the Louder Wind Flutes slider)", report)
 

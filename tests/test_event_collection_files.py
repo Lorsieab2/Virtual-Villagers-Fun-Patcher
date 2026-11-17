@@ -428,9 +428,15 @@ class Manifest(unittest.TestCase):
         ids = [r["id"] for r in self.data["rows"]]
         self.assertEqual(len(ids), len(set(ids)))
         owner = set(cm.OWNER_CREDITS.values())     # the owner's three handwritten events (the owner, 2026-11-16)
+        # The owner's GO and More Island Events files: their credits are the owner's own words for the events
+        # (collection_manifest GO_CREDITS / MIE_CREDITS), not a line of the source.
+        written = set(cm.GO_CREDITS.values()) | set(cm.MIE_CREDITS.values())
         for r in self.data["rows"]:
             if r["credit"]["text"] in owner:
                 self.assertEqual(r["credit"]["who"], "lorsieab2_original", r["id"])
+                continue
+            if r["credit"]["text"] in written:
+                self.assertIn(r["source"], {*lib.GO_SOURCES, lib.MIE_ID}, r["id"])
                 continue
             with lib.use_source(r["source"]):
                 text = "\n".join(lib.line(n) for spec in r["credit"]["lines"] for n in lib.src_lines(spec))

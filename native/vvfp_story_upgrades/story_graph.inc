@@ -732,8 +732,11 @@ static int cg_count_token_in(const cg_graph *g, const char *s, int *which, const
             p = e;
             continue;
         }
+        /* The plain text set of a version 6 body (cg_text_ok): the Custom Island Event's characters, and " ; / & %
+           (cie-v6-binary.md 33). */
         if (*p == '\0' || *p == '{' || *p == ')' || *p == '\n' || *p == '.' || *p == '!' || *p == '?'
-            || !ce_text_char_ok(*p) || ++run > 160) {
+            || !(ce_text_char_ok(*p) || *p == '"' || *p == ';' || *p == '/' || *p == '&' || *p == '%')
+            || ++run > 160) {
             return 0;
         }
     }
@@ -1172,7 +1175,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     for (i = 0; i < g->n_role; ++i) {
         const unsigned char *r = cg_role_at(g, i);
         if (r[0] > (g->version >= 6 ? 3u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
-            || (r[0] == 0 && (r[2] > 2u || r[3] > 80u))
+            || (r[0] == 0 && (r[2] > 2u || r[3] > 120u))
             || (r[0] == 1 && (r[2] < 1u || r[2] > ((r[1] & CG_STRANGER_NEW_NAME) ? 5u : 3u)))
             || (r[0] == 1 && g->version >= 6 && (r[1] & ~(CG_STRANGER_NAMED | CG_STRANGER_NEW_NAME)) != 0u)
             || (r[0] == 1 && (r[1] & CG_STRANGER_NEW_NAME) && (!(r[1] & CG_STRANGER_NAMED) || r[3] > 2u))
@@ -1402,6 +1405,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_CHANGE_AGE:
                 ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
                      && (e[2] == CG_AGE_ADD ? (a >= -120 && b <= 120 && a <= b) : (a == 0 && b == 0));
+                break;
             case CGE_PRESENTATION:
                 /* 31: a = 1 the other sex's look, 0 the villager's own again. */
                 ok = (a == 0 || a == 1) && b == 0 && str == CG_NONE;
