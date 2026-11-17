@@ -248,10 +248,8 @@ class TheVillagersEffectsPause(unittest.TestCase):
         self.assertEqual(self._ends(c, 0), list(self.ENDS))
 
 
-class TheAutosaveKeepsTheEffects(unittest.TestCase):
-    """The Tree of Life (the owner, 2026-11-16: "just the autosave should have all effects kept"): the save writer's
-    per-villager call of 0x45EAA0 (0x4660C4) ends every effect; with the DLL the autosave's call of the slot saver
-    (0x41F1C4) runs with a flag that makes that call skip it, and every other save is the base game's."""
+class EffectsProcess:
+    """The Tree of Life in the emulator with one villager carrying the clean body, the glow, the gunk and a stew's wait."""
 
     AUTOSAVE_SITE, STRIP_SITE, SLOT_SAVER = 0x41F1C4, 0x4660C4, 0x41F160
     SPARKLES, SPARKLES_VT, STEWS, STEWS_VT = 0x4CE1C0, 0x48D54C, 0x4D6F50, 0x48D5C4
@@ -289,6 +287,12 @@ class TheAutosaveKeepsTheEffects(unittest.TestCase):
 
     def _left(self, p, rec: int) -> int:
         return p.u32(rec + VV4_COUNT)
+
+
+class TheAutosaveKeepsTheEffects(EffectsProcess, unittest.TestCase):
+    """The Tree of Life (the owner, 2026-11-16: "just the autosave should have all effects kept"): the save writer's
+    per-villager call of 0x45EAA0 (0x4660C4) ends every effect; with the DLL the autosave's call of the slot saver
+    (0x41F1C4) runs with a flag that makes that call skip it, and every other save is the base game's."""
 
     def test_the_sites_are_written_together(self) -> None:
         if not have(4):
@@ -330,6 +334,62 @@ class TheAutosaveKeepsTheEffects(unittest.TestCase):
         p, rec = self._process(install=False)
         self._save_through(p, rec, autosave=True)                    # the stock call: the slot saver itself
         self.assertEqual(self._left(p, rec), 0)
+
+
+class WipingGunkEndsOnlyTheGunk(EffectsProcess, unittest.TestCase):
+    """The Tree of Life (the owner, 2026-11-16): the last step of "Wiping sticky gunk off on tree" called 0x45EAA0
+    (0x46431C), which ends every effect of the villager; with the DLL that call ends only the gunk (kind 5)."""
+
+    GUNK_SITE = 0x46431C
+
+    def _wipe(self, p, rec: int) -> None:
+        p.call(self._target(p, self.GUNK_SITE), [], ecx=rec)
+
+    def _kinds(self, p, rec: int) -> list[tuple[int, int]]:
+        return [struct.unpack("<Ii", p.read(rec + VV4_EFFECTS + n * VV4_EFFECT, 8)) for n in range(self._left(p, rec))]
+
+    def test_only_the_gunk_ends(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, rec = self._process()
+        self.assertNotEqual(self._target(p, self.GUNK_SITE), 0x45EAA0)
+        self._wipe(p, rec)
+        self.assertEqual(self._kinds(p, rec), [(0x4CE1C0, 7), (0x4CE1C0, 12), (0x4D6F50, 8)])
+        self.assertEqual(p.u32(self.SPARKLES + 4 + 20 * 0x44), MASK)        # the gunk's sparkle freed
+        self.assertEqual(p.u32(self.SPARKLES + 4 + 7 * 0x44), 2)            # the clean body's kept
+        self.assertEqual(p.u32(self.SPARKLES + 4 + 12 * 0x44), 1)           # the glow's kept
+
+    def test_two_gunk_entries_and_none(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, rec = self._process()
+        # a second gunk sparkle first in the list: both go, the rest stay in order
+        entries = [(0x4CE1C0, 30, 5)] + list(self.ENTRIES)
+        p.put32(self.SPARKLES + 4 + 30 * 0x44, 5)
+        for n, (manager, sid, kind) in enumerate(entries):
+            p.write(rec + VV4_EFFECTS + n * VV4_EFFECT, struct.pack("<Iiiiiii", manager, sid, kind, 0, 0, 1_000_240, 0))
+        p.put32(rec + VV4_COUNT, len(entries))
+        self._wipe(p, rec)
+        self.assertEqual(self._kinds(p, rec), [(0x4CE1C0, 7), (0x4CE1C0, 12), (0x4D6F50, 8)])
+        self._wipe(p, rec)                                                   # no gunk: nothing changes
+        self.assertEqual(self._kinds(p, rec), [(0x4CE1C0, 7), (0x4CE1C0, 12), (0x4D6F50, 8)])
+
+    def test_without_the_dll_every_effect_ends(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, rec = self._process(install=False)
+        self.assertEqual(self._target(p, self.GUNK_SITE), 0x45EAA0)
+        self._wipe(p, rec)
+        self.assertEqual(self._left(p, rec), 0)
+
+    def test_the_gunk_site_is_written_with_the_others(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, _ = self._process(install=False)
+        p.write(self.GUNK_SITE + 1, b"\x00")                         # one changed byte: no effect site is written
+        p.export("VvfpStartup", 4, 0)
+        self.assertEqual(p.read(self.AUTOSAVE_SITE, 5), bytes.fromhex("E897FFFFFF"))
+        self.assertEqual(p.read(self.STRIP_SITE, 5), bytes.fromhex("E8D789FFFF"))
 
 
 class TheOtherGamesAlreadyRescale(unittest.TestCase):

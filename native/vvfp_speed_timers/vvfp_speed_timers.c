@@ -296,6 +296,55 @@ static __declspec(naked) void vv4_strip(void) {
     }
 }
 
+/* WIPING STICKY GUNK ENDS ONLY THE GUNK (Fix Vanilla Bugs, the owner 2026-11-16).  The last step of "Wiping
+   sticky gunk off on tree" (the action's step 0x4A, at 0x46431C) calls 0x45EAA0, which ends EVERY effect of the
+   villager: the clean body and the glow went with the gunk.  That call now runs vv4_wipe_gunk instead, which ends
+   only the gunk: each entry of the sparkle manager 0x4CE1C0 whose sparkle is of kind 5 (the kind the game's own
+   gunk check 0x438FA0 looks for) goes through the game's own remove-one routine 0x45E9F0 (which frees its
+   sparkle as 0x45EAA0 does).  Every other effect keeps its own end. */
+#define VV4_GUNK_SITE 0x46431Cu            /* call 0x45EAA0, step 0x4A of "Wiping sticky gunk off on tree" */
+#define VV4_SPARKLES 0x4CE1C0u             /* the sparkle manager: an effect entry's owner */
+#define VV4_SPARKLE_KIND 0x41D1C0u         /* thiscall(sparkles; id) -> its kind, -1 for none */
+#define VV4_EFFECT_REMOVE 0x45E9F0u        /* thiscall(villager; owner, &id), ret 8: ends that one entry */
+#define VV4_GUNK_KIND 5
+
+static const unsigned char VV4_GUNK_STOCK[] = { 0xE8, 0x7F, 0xA7, 0xFF, 0xFF };
+
+/* The game's thiscall routines, called as __fastcall (ecx = this, edx unused, the rest on the stack, callee pops). */
+typedef int (__fastcall *vv4_kind_fn)(unsigned int sparkles, unsigned int unused, int id);
+typedef void (__fastcall *vv4_remove_fn)(unsigned char *villager, unsigned int unused, unsigned int owner, int *id);
+
+static void __stdcall vv4_wipe_gunk_of(unsigned char *villager) {
+    int n = 0;
+    for (;;) {
+        int count = *(const int *)(villager + VV4_EFFECT_COUNT);
+        const unsigned char *entry;
+        int id;
+        if (count <= 0 || count > VV4_EFFECTS_MAX || n >= count) {
+            return;
+        }
+        entry = villager + VV4_EFFECTS + (unsigned int)n * VV4_EFFECT_SIZE;
+        id = *(const int *)(entry + 4);
+        if (*(const unsigned int *)entry == VV4_SPARKLES && id >= 0
+            && ((vv4_kind_fn)(UINT_PTR)VV4_SPARKLE_KIND)(VV4_SPARKLES, 0, id) == VV4_GUNK_KIND) {
+            ((vv4_remove_fn)(UINT_PTR)VV4_EFFECT_REMOVE)(villager, 0, VV4_SPARKLES, &id);
+            if (*(const int *)(villager + VV4_EFFECT_COUNT) < count) {
+                continue;                  /* the rest moved down one: look at the same place again */
+            }
+        }
+        ++n;
+    }
+}
+
+/* At VV4_GUNK_SITE: thiscall(villager), in place of 0x45EAA0. */
+static __declspec(naked) void vv4_wipe_gunk(void) {
+    __asm {
+        push ecx
+        call vv4_wipe_gunk_of
+        ret
+    }
+}
+
 /* ---- installing ------------------------------------------------------------------------ */
 
 static int installed;
@@ -334,20 +383,22 @@ static void install_vv3(void) {
     detour(VV3_SITE, VV3_SITE_LEN, vv3_from_paused, VV3_STOCK + (VV3_SITE - VV3_ROUTINE));
 }
 
-/* The set_speed detour and the autosave's two calls: all three, or nothing at all. */
+/* The set_speed detour, the autosave's two calls and the gunk wipe's call: all four, or nothing at all. */
 static void install_vv4(void) {
-    vvfp_site_write w[3];
+    vvfp_site_write w[4];
     if (!holds(VV4_ROUTINE, VV4_STOCK, sizeof VV4_STOCK)
         || !holds(VV4_TWO32, TWO32_FLOAT, sizeof TWO32_FLOAT)
         || !holds(VV4_AUTOSAVE_SITE, VV4_AUTOSAVE_STOCK, sizeof VV4_AUTOSAVE_STOCK)
-        || !holds(VV4_STRIP_SITE, VV4_STRIP_STOCK, sizeof VV4_STRIP_STOCK)) {
+        || !holds(VV4_STRIP_SITE, VV4_STRIP_STOCK, sizeof VV4_STRIP_STOCK)
+        || !holds(VV4_GUNK_SITE, VV4_GUNK_STOCK, sizeof VV4_GUNK_STOCK)) {
         return;
     }
     vvfp_site_branch(&w[0], VV4_SITE, VV4_SITE_LEN, VV4_STOCK + (VV4_SITE - VV4_ROUTINE), 0xE9,
                      (const void *)vv4_from_paused);
     vvfp_site_branch(&w[1], VV4_AUTOSAVE_SITE, 5, VV4_AUTOSAVE_STOCK, 0xE8, (const void *)vv4_autosave);
     vvfp_site_branch(&w[2], VV4_STRIP_SITE, 5, VV4_STRIP_STOCK, 0xE8, (const void *)vv4_strip);
-    if (vvfp_install_sites(w, 3)) {
+    vvfp_site_branch(&w[3], VV4_GUNK_SITE, 5, VV4_GUNK_STOCK, 0xE8, (const void *)vv4_wipe_gunk);
+    if (vvfp_install_sites(w, 4)) {
         installed = 1;
     }
 }

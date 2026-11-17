@@ -140,7 +140,8 @@ EFFECTS_FIX_LINE = (
     "the village for the slot menu, a menu's save; effects are never saved), and every villager effect stops "
     "while the game is paused and goes on when it runs again, so each lasts its full time of play: the clean body and the Purify Tree's glow their 4 real-life minutes, the sticky gunk its 3 and a "
     "stew's wait its 10 (real time while the game runs, the same at every speed; the save is written exactly as "
-    "before); and a bath in the rain makes a villager clean as it does in fine weather")
+    "before); a bath in the rain makes a villager clean as it does in fine weather; and wiping sticky gunk off on "
+    "the tree takes off only the gunk, so the clean body, the glow and a stew's wait stay")
 STEW_WAIT_FIX_LINE = ("the autosave no longer ends a villager's stew effects and the wait stops while the game is "
                       "paused, "
                       "so the healing and sick stews' wait lasts its full 10 real-life minutes of play (real time "
@@ -589,7 +590,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                    "leaves the villager not clean at all: the rain's splashes take all the room the "
                                    "clean body's sparkles may use, and with no sparkle the game does not count the "
                                    "villager clean (the same when the village view is opened again in the rain). "
-                                   "The glow is not affected by the rain.", gm.CODE)
+                                   "The glow is not affected by the rain. Wiping sticky gunk off on the tree ends every "
+                                   "effect the villager has, the glow and the clean body too, not only the gunk.", gm.CODE)
     out.append(gm.Fact("Tech points and effects", gm.patch_words(village, FIX_VANILLA, EFFECTS_FIX_LINE),
                        gm.RUNNING, True))
     # The bonus 0x464E6F: cmp al,12 / jne instead of test / jle (scripts/build_science_collectibles_complete_features.py).
