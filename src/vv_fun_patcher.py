@@ -11395,6 +11395,14 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     own(_no_safeguards_companion()["destination"])
     for choice in (LOUDER_FLUTES_CHOICE_FILE, ISLAND_FREQUENCY_CHOICE_FILE, UNICODE_FONT_CHOICE_FILE):
         own(choice)
+    # Player Events' "Player Events" folder (vv_player_events.install): the AI prompt, the references and copies of
+    # the player's own files, written afresh at every patch from the player's folder (which is not here).
+    long_root = patcher_files.long_path(output_folder)
+    for base in (long_root / "Player Events", long_root / patcher_files.PATCHER_FILES_FOLDER / "Player Events"):
+        if base.is_dir():
+            for f in base.rglob("*"):
+                if f.is_file():
+                    owned.add(f.relative_to(long_root).as_posix().casefold())
     for feature in _load_fun_patch_records():
         if feature.raw.get("game_id") != build.id:
             continue

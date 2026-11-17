@@ -1175,7 +1175,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     for (i = 0; i < g->n_role; ++i) {
         const unsigned char *r = cg_role_at(g, i);
         if (r[0] > (g->version >= 6 ? 3u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
-            || (r[0] == 0 && (r[2] > 2u || r[3] > 80u))
+            || (r[0] == 0 && (r[2] > 2u || r[3] > 120u))
             || (r[0] == 1 && (r[2] < 1u || r[2] > ((r[1] & CG_STRANGER_NEW_NAME) ? 5u : 3u)))
             || (r[0] == 1 && g->version >= 6 && (r[1] & ~(CG_STRANGER_NAMED | CG_STRANGER_NEW_NAME)) != 0u)
             || (r[0] == 1 && (r[1] & CG_STRANGER_NEW_NAME) && (!(r[1] & CG_STRANGER_NAMED) || r[3] > 2u))

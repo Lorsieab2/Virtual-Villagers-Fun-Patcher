@@ -2249,6 +2249,7 @@ def full_text(graph: dict, meta: dict | None = None) -> str:
 
 # ---- Mixer pieces --------------------------------------------------------------------------------------------------
 
+AGE_LIMIT = 120                     # the oldest a piece's role may ask (the engine's pc_validate and cg_load)
 PIECE_KINDS = {"setup": 1, "approach": 2, "outcome": 3, "flavour": 4, "flavor": 4, "opening": 4,
                "flavour line": 4, "frame": 5, "personality frame": 5}
 MOODS = {"warm": 0, "funny": 0, "ordinary": 0, "social": 1, "curious": 1, "mixed": 1, "serious": 2, "solemn": 2,
@@ -2495,9 +2496,18 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
             if lost:
                 problems.append(Problem(it.file, it.line, f"role {rid}: {'; '.join(lost)} cannot be kept in a mixer "
                                         "piece, so any villager of its age and sex may be cast", kind="note"))
+            # Ages the game can hold (0..120, the engine's pc_validate): one outside them must never make the
+            # engine refuse the whole file, so it is written within them -- a role nobody can fill -- and reported.
+            lo, hi = role.get("min_age", 0) or 0, role.get("max_age") or 0
+            if lo > AGE_LIMIT or hi > AGE_LIMIT or (hi and hi < lo):
+                problems.append(Problem(it.file, it.line, f"role {rid}: ages {lo} to {hi or 'any'} -- no villager "
+                                        f"can ever be cast (a villager is 0 to {AGE_LIMIT}); the piece is kept, "
+                                        "the rest of the file loads", kind="note"))
+                lo, hi = min(lo, AGE_LIMIT), min(hi, AGE_LIMIT)
+                if hi and hi < lo:
+                    lo, hi = AGE_LIMIT, AGE_LIMIT
             slots_b += struct.pack("<IBBBBBBHI", s(rid), 1 if role.get("kind") == "stranger" else 0, sex,
-                                   min(255, role.get("min_age", 0) or 0), min(255, role.get("max_age") or 0),
-                                   special, flags, 0, 0)
+                                   lo, hi, special, flags, 0, 0)
             n_slot += 1
         for ln, e in live:
             code, flags, a, b, st, bad = _effect_record(e, local, game)

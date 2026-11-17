@@ -135,12 +135,6 @@ PATCHER_READS: frozenset[str] = frozenset({
     # whose presence beside the companions tells "VVFP Island Events Scale.dll" to scale by the stored food and tech
     # points instead of the population (vvfp_island_events_scale.c).
     "VVFP Island Events Scale Stored.txt",
-    # The sliders' setting files the patcher writes beside their companions: Louder Wind Flutes (The Tree of Life,
-    # "VVFP VV4 Louder Flutes.dll") and More Frequent Island Events ("VVFP Island Frequency.dll"); and Use Unicode
-    # Font's typeface ("VVFP Unicode Font.dll").
-    "VVFP VV4 Louder Flutes.txt",
-    "VVFP Island Frequency.txt",
-    "VVFP Unicode Font.txt",
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.
@@ -166,8 +160,17 @@ PATCHER_READ_FOLDERS: tuple[str, ...] = (
     "Island Event Collection/",
 )
 
+# Setting files the patcher itself writes beside their companions (no catalog record ships them): the sliders'
+# numbers for Louder Wind Flutes ("VVFP VV4 Louder Flutes.dll") and More Frequent Island Events ("VVFP Island
+# Frequency.dll"), and Use Unicode Font's typeface ("VVFP Unicode Font.dll").  They go in the patcher's folder too.
+PATCHER_SETTINGS: frozenset[str] = frozenset({
+    "VVFP VV4 Louder Flutes.txt",
+    "VVFP Island Frequency.txt",
+    "VVFP Unicode Font.txt",
+})
+
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
-_PATCHER_READS = {key.casefold() for key in PATCHER_READS}
+_PATCHER_READS = {key.casefold() for key in PATCHER_READS | PATCHER_SETTINGS}
 _PATCHER_READ_FOLDERS = tuple(folder.casefold() for folder in PATCHER_READ_FOLDERS)
 
 # The patch log. Its name is short and the same in every build (the owner,

@@ -585,6 +585,28 @@ class PieceEffectRecords(unittest.TestCase):
         self.assertEqual(links({"party": pe.THEME_FAVOUR}), [plain[0] * pe.THEME_FAVOUR])
         self.assertEqual(links({"x": pe.THEME_FAVOUR}), plain, "an approach's own multiplier is not its answers'")
 
+    def test_ages_a_villager_can_have_load_and_impossible_ones_are_reported(self):
+        # Codex P2 (#774): a role's ages outside 0..120 once made the engine refuse the whole file.  90+ is kept as
+        # written; 130+ (nobody) and 50 to 30 are written within the bounds and reported; every piece stays.
+        def slot_ages(text):
+            items = pe.parse_text(text, "p.txt")
+            self.assertFalse([str(p) for i in items for p in i.problems])
+            data, probs = pe.compile_pieces(items, 1)
+            slots_at = struct.unpack_from("<I", data, 44)[0]
+            return struct.unpack_from("<BB", data, slots_at + 6), [p for p in probs if p.kind != "note"], \
+                [p.text for p in probs if p.kind == "note"], struct.unpack_from("<I", data, 20)[0]
+        base = "Piece: old\nKind: Flavour\nRole e: {}\nText: (E) remembers.\n\n" \
+               "Piece: kid\nKind: Flavour\nRole k: child\nText: (K) plays.\n"
+        ages, bad, notes, count = slot_ages(base.format("90+"))
+        self.assertEqual((ages, bad, notes, count), ((90, 0), [], [], 2))
+        for words in ("130+", "50 to 30"):
+            with self.subTest(words=words):
+                ages, bad, notes, count = slot_ages(base.format(words))
+                self.assertEqual(bad, [])
+                self.assertTrue(all(a <= pe.AGE_LIMIT for a in ages) and (ages[1] == 0 or ages[1] >= ages[0]))
+                self.assertTrue(any("can ever be cast" in n for n in notes), notes)
+                self.assertEqual(count, 2, "both pieces kept")
+
     def test_tag_bits_are_ored_so_a_minor_keeps_its_block(self):
         # A child's piece is tagged minor (and never romance) by finish_piece; "Tags: minor, minor" and both
         # words for one bit ("lesser") once added the bit twice and carried it into the next one.

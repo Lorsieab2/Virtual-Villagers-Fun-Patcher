@@ -554,6 +554,31 @@ class Casting(unittest.TestCase):
                 r.walk_through()
                 self.assertIn(r.state()["records"][0], (1, 2), "only the villagers with the top value")
 
+    def test_a_piece_of_extreme_ages_never_stops_its_file(self):
+        # Codex P2 (PR #774): one player piece asking "90+" once made pc_validate refuse the WHOLE pieces file.
+        # Elders of 90 and more exist: ages up to 120 load, and the rest of the file composes.
+        import vv_player_events as pe
+        game = self.run_game()
+        text = ("Piece: walk\nKind: Setup\nFamily: f\nTitle: A Walk\nRole a: adult\nText: (A) goes for a walk.\n\n"
+                "Piece: look\nKind: Approach\nFamily: f\nLabel: Look Around\nRole a: adult\nText: (A) looks around.\n\n"
+                "Piece: see\nKind: Outcome\nFamily: f\nAnswers: look\nRole a: adult\nText: (A) sees the sea.\n\n"
+                "Piece: rest\nKind: Approach\nFamily: f\nLabel: Sit Down\nRole a: adult\nText: (A) sits down.\n\n"
+                "Piece: calm\nKind: Outcome\nFamily: f\nAnswers: rest\nRole a: adult\nText: (A) feels calm.\n\n"
+                "Piece: old\nKind: Setup\nFamily: g\nTitle: The Eldest\nRole e: 90+\nText: (E) remembers.\n\n"
+                "Piece: hear\nKind: Approach\nFamily: g\nLabel: Listen\nRole e: 90+\nText: (E) talks.\n\n"
+                "Piece: told\nKind: Outcome\nFamily: g\nAnswers: hear\nRole e: 90+\nText: (E) is heard.\n")
+        items = pe.parse_text(text, "mine.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, int(game[2]))
+        self.assertFalse([str(p) for p in probs])
+        r = V6(game, [(0, "m", 30, "Adam", 0, False), (1, "f", 33, "Eve", 0, False)])
+        at, out = r.p.alloc(len(data)), r.p.alloc(0x40000)
+        r.p.write(at, data)
+        r.p.export("VvfpStoryProbeProceduralFile", at, len(data))
+        setup = next(k for k, i in enumerate(items) if i.piece["id"] == "walk")
+        size = r.p.export("VvfpStoryProbeProceduralCompose", int(game[2]), setup, 0, 0, out, 0x40000)
+        self.assertGreater(size, 0, "the file loads and the walk composes, a 90+ piece beside it")
+
     def test_a_procedural_apostasy_is_harmful(self):
         # Codex P2 (PR #771): a composed event's apostasy (40) takes the harm guard and the protected flag, as the
         # engine's own cg_effect_harmful counts it -- never a nursing parent with the safeguards on.
