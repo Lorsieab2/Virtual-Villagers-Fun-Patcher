@@ -1,0 +1,40 @@
+{
+  "id": "vv1_golden_child_born_female",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "The Golden Child May Be Born Female (50:50)",
+  "description": "The Golden Child may be born a girl: whenever a Golden Child comes (the puzzle at the lagoon, a Golden Child's own child, or an island event), it is a boy or a girl, 50:50 -- the game's own roll for any newborn, which it makes for the Golden Child too and then sets aside -- and the name fits. The Golden Child is still drawn as the game draws the Golden Child, the same golden boy's look, and keeps every power, the age of five and the skills. The Golden Child's words in island events follow the recorded sex (she, her, girl), the Births log records it, and the game's \"The Golden Child\" message says \"No one can doubt or deny her powers!\" for a girl. **Needs \"Change Sex and Gender Presentation\": ticking this patch ticks it too, and unticking that one unticks this one.** **On in Owner's Defaults; off in the normal defaults and in Select All.** **Not yet seen in a running game** (checked by emulation of the game's own creator code). The patch adds one small file, \"VVFP Golden Child Born Female.txt\", to the patcher's folder, which tells \"VVFP Gender Presentation.dll\" to keep the sex; the save is never written for it.",
+  "output_tag": "Golden Child Born Female",
+  "dependencies": [
+    "vv1_gender_presentation"
+  ],
+  "behavior_changes": [
+    "\"VVFP Gender Presentation.dll\" (the vv1_gender_presentation row's companion) checks at start (VvfpStartup) whether \"VVFP Golden Child Born Female.txt\" is in the patcher's folder (GetFileAttributesW, by full path from the executable's own; the contents are never read), and only when its draws are installed (the Golden Child's portrait and a dialog's figure are handed \"male\", option 1).",
+    "When it is, the villager creator 0x43C350's last write for the Golden Child's family 0xC7 -- `mov dword [esi+0x350], 1` at 0x43C7FB, the sex field forced to a boy -- is replaced by a call: the sex the creator drew for the newborn (the sex argument 0 every Golden Child is made with: rand(100) 0-49 a boy, 50-99 a girl, 0x43C5F1, the game's own roll, made as before) is kept, and with it the name drawn from that sex's list. Every Golden Child comes from this creator: the puzzle's drop (0x4242F8), a delivery whose family is the Golden Child's (0x42EF5F), Story / Cheat Upgrades' island event.",
+    "The English \"The Golden Child\" message (message 0x14A, table entry 0x489264 in the writable data) is pointed at a copy of the game's text with \"or deny her powers!\" when a Golden Child is born a girl, and back at the game's own text (0x46F650) when one is born a boy; an entry another companion has changed (a translation) is left as it is."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the call is written at run time, only after verifying the site holds its stock bytes.",
+    "The Golden Child's look, age, skills, health and powers are the game's: only the sex field is the drawn one. A Golden Child born before the patch stays a boy.",
+    "The German, Spanish and French messages are the game's."
+  ],
+  "evidence_status": "the creator read statically (the sex drawn at 0x43C5F1, forced at 0x43C7FB); the call emulated on the stock executable in tests/test_golden_child_born_female.py (the sex kept, the message's words); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/gender_presentation/VVFP Golden Child Born Female.txt",
+      "destination": "VVFP Golden Child Born Female.txt",
+      "sha256": "6E06E445F644D20F4A6FABF5A1C5388A2FD2D4B210AC2BEA16FB8D01E7C2BC22"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x43C7FB",
+      "stock_bytes": "C7865003000001000000",
+      "routine": "the villager creator 0x43C350's Golden Child block (the sex forced to a boy)",
+      "installed_by": "VVFP Gender Presentation.dll, VvfpStartup (started by VVFP Startup.dll, second word), with VVFP Golden Child Born Female.txt"
+    }
+  ]
+}

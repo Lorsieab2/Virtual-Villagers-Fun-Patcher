@@ -349,7 +349,11 @@ CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_featur
 # companion only, "VVFP Gender Presentation.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_gender_presentation_feature.py.
 GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_presentation_feature.json"
-                                          for n in range(1, 6))
+                                          for n in range(1, 6)) + (
+    # The Golden Child May Be Born Female (50:50) (A New Home; the owner, 2026-11-16): an option of the row above (on
+    # in Owner's Defaults only); its one file, a flag in the patcher's folder, makes the same companion keep the sex
+    # the game's creator draws for a new Golden Child.
+    ROOT / "data" / "vv1_golden_child_born_female_feature.json",)
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag

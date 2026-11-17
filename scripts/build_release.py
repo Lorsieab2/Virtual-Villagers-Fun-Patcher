@@ -141,6 +141,7 @@ FILES = [
     "assets/children_play/VVFP Children Play.dll",
     # Change Sex and Gender Presentation (all five games): the other sex's look, keeping the recorded sex.
     "assets/gender_presentation/VVFP Gender Presentation.dll",
+    "assets/gender_presentation/VVFP Golden Child Born Female.txt",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -336,6 +337,7 @@ FILES = [
     "data/vv3_gender_presentation_feature.json",
     "data/vv4_gender_presentation_feature.json",
     "data/vv5_gender_presentation_feature.json",
+    "data/vv1_golden_child_born_female_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",
