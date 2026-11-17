@@ -261,8 +261,13 @@ if rt is not None:
                     self.assertEqual(run.state()["records"][0], 1, "Bea was cast")
                     run.rolls([1] + [0] * 40)
                     run.force([], graph=talk)
-                    self.assertIsNone(run.queue(cg.compile_graph(talk)))
-                    self.assertNotEqual(run.state()["records"][0], 1, "Bea is story-mute: never the one who speaks")
+                    data = cg.compile_graph(talk)
+                    self.assertIsNone(run.queue(data))
+                    run.play()      # cast and shown: before it the records are not bound yet (-1)
+                    speaker = list(cg.decompile_graph(data)["roles"]).index("friend")
+                    self.assertGreaterEqual(run.state()["records"][speaker], 0, "the speaker was cast")
+                    self.assertNotEqual(run.state()["records"][speaker], 1, "Bea is story-mute: never the one who "
+                                                                            "speaks")
 
         @staticmethod
         def _talking(run):
@@ -284,26 +289,32 @@ if rt is not None:
                 if not have_stock(game):
                     continue
                 with self.subTest(game=game):
+                    data = cg.compile_graph(talk)
+                    speaker = list(cg.decompile_graph(data)["roles"]).index("friend")
                     run = rt.Run(game)
                     run.rolls([1] + [0] * 40)
                     run.force([], graph=talk)
-                    self.assertIsNone(run.queue(cg.compile_graph(talk)))
-                    self.assertEqual(run.state()["records"][0], 1, "without the dislike Bea is the one who speaks")
+                    self.assertIsNone(run.queue(data))
+                    run.play()
+                    who = run.state()["records"][speaker]
+                    self.assertGreaterEqual(who, 0, "the speaker was cast")
                     word = self._talking(run)
                     run = rt.Run(game)
                     L = run.v.L
                     for k in range(L["slots"]):
-                        run.p.put32(run.v.record(1) + L["dislikes"] + 4 * k, 0xFFFFFFFF)
-                    run.p.put32(run.v.record(1) + L["dislikes"], 56 if word is None else word)
+                        run.p.put32(run.v.record(who) + L["dislikes"] + 4 * k, 0xFFFFFFFF)
+                    run.p.put32(run.v.record(who) + L["dislikes"], 56 if word is None else word)
                     run.rolls([1] + [0] * 40)
                     run.force([], graph=talk)
-                    self.assertIsNone(run.queue(cg.compile_graph(talk)))
+                    self.assertIsNone(run.queue(data))
+                    run.play()
+                    again = run.state()["records"][speaker]
                     if word is None:
-                        self.assertEqual(run.state()["records"][0], 1, "A New Home: no talking dislike, Bea speaks")
+                        self.assertEqual(again, who, "A New Home: no talking dislike, the same villager speaks")
                     else:
                         self.assertEqual(word, 56)
-                        self.assertNotEqual(run.state()["records"][0], 1, "Bea dislikes talking: never the one who "
-                                                                          "speaks")
+                        self.assertGreaterEqual(again, 0)
+                        self.assertNotEqual(again, who, "a villager who dislikes talking never speaks")
 
         def test_the_quiet_hands_also_gives_the_talking_dislike(self):
             quiet = graph({"s": {"text": "(Name) folds (his/her) hands and says nothing.", "children": []}})
