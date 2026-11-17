@@ -26,6 +26,8 @@ def test_crash_once():
         os._exit(139)
 """
 CRASHES_ALWAYS = "import os\n\ndef test_crash():\n    os._exit(139)\n"
+# Passes, writes its report, then dies at interpreter exit -- both times.
+CRASHES_AT_EXIT = "import atexit, os\natexit.register(lambda: os._exit(139))\n\ndef test_ok():\n    assert True\n"
 
 
 # A file whose game-file tests all skip, as tests/conftest.py reports it to the shard (VVFP_FIXTURE_TALLY): six
@@ -83,6 +85,17 @@ class TheShardRunner(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("test_crash.py", errors[0].get("classname"))
         self.assertEqual(len(list(root.iter("testcase"))), 2, "the next file still ran")
+
+    def test_a_crash_at_exit_after_a_passing_report_is_an_error(self):
+        """Codex, #783: the passing cases are kept and an error case names the file, so the report is never green
+        while the shard fails."""
+        code, root = self.run_shard({"test_exit.py": CRASHES_AT_EXIT})
+        self.assertEqual(code, 1)
+        cases = list(root.iter("testcase"))
+        self.assertIn("test_ok", [c.get("name") for c in cases], "the completed results are kept")
+        errors = [c for c in cases if c.find("error") is not None]
+        self.assertEqual(len(errors), 1)
+        self.assertIn("test_exit.py", errors[0].get("classname"))
 
     def test_a_file_that_only_skips_is_no_failure_of_its_own(self):
         """Codex, #783: alone, a file whose tests all skip for a missing game file tripped conftest's guard (exit 1).

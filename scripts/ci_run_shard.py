@@ -96,14 +96,17 @@ def main(argv: list[str]) -> int:
         last = codes[-1]
         if last not in PYTEST_OK:
             failed.append(path)
+        suites = []
         if report.exists():
             try:
                 rep = ET.parse(report).getroot()
                 suites = [rep] if rep.tag == "testsuite" else list(rep.iter("testsuite"))
             except ET.ParseError:
-                suites = [crash_suite(path, codes)]
-        else:
-            suites = [crash_suite(path, codes)] if last not in PYTEST_OK else []
+                suites = []
+        if last not in PYTEST_OK and last != PYTEST_FAILED:
+            # The process crashed both times: whatever report it wrote is kept, and an error case names the file
+            # (Codex, #783: a crash at interpreter exit after a passing report must never read as green).
+            suites.append(crash_suite(path, codes))
         for suite in suites:
             if len(codes) > 1:
                 note = ET.SubElement(suite, "system-out")
