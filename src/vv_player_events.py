@@ -2444,6 +2444,11 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
         first_slot, first_fx, first_link = n_slot, n_fx, n_link
         believers = False
         deadly = False
+        # Only an outcome's effects are made (story_procedural.inc pc_write); any other piece's are its story only.
+        live = p["effects"] if p["kind"] == PIECE_KINDS["outcome"] else []
+        for ln, e in ([] if live else p["effects"]):
+            problems.append(Problem(it.file, ln, f"{e['do']}: only an outcome's effects happen in the game",
+                                    kind="flavor"))
         for rid in names:
             role, words = p["slots"][rid]
             flags = 0
@@ -2455,17 +2460,17 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
             if rid in p["speaks"]:
                 flags |= 4
             harm = any(e.get("role", "subject") == rid and e["do"] in DEADLY + ("health_change", "sick")
-                       for _ln, e in p["effects"])
+                       for _ln, e in live)
             if harm:
                 flags |= 8
             if role.get("believers_only") is False:
                 flags |= 16
             special = {"golden_child": 1, "tribal_chief": 2}.get(role.get("special") or "", 0)
             carrier = any(e["do"] in ("pregnant", "nursing") and e.get("role", "subject") == rid
-                          for _ln, e in p["effects"])
+                          for _ln, e in live)
             if carrier or role.get("special") == "nursing_parent":
                 special = 3
-                if any(e.get("any_birth_sex") for _ln, e in p["effects"] if e.get("role", "subject") == rid):
+                if any(e.get("any_birth_sex") for _ln, e in live if e.get("role", "subject") == rid):
                     flags |= 32
             sex = {"male": 1, "female": 2}.get(role.get("sex", "any"), 0)
             # A slot holds kind, sex, ages, special and flags only (procedural-pieces.md 2.4): a skill or a
@@ -2485,7 +2490,7 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
                                    min(255, role.get("min_age", 0) or 0), min(255, role.get("max_age") or 0),
                                    special, flags, 0, 0)
             n_slot += 1
-        for ln, e in p["effects"]:
+        for ln, e in live:
             code, flags, a, b, st, bad = _effect_record(e, local, game)
             try:
                 role_byte, sel, extra = _piece_effect_target(e, local)
@@ -2503,7 +2508,9 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
         for aid, w in p["links"]:
             if aid not in ids:
                 problems.append(Problem(it.file, it.line, f"{p['id']} answers {aid}, which is not a piece here"))
-            links_b += struct.pack("<II", s(aid), min(1000, max(1, w)))
+            # A favoured theme (the player's own setting) makes this outcome more likely for each approach it
+            # answers: the composer draws an outcome by these link weights (story_procedural.inc pc_link_weight).
+            links_b += struct.pack("<II", s(aid), min(1000, max(1, w * (multiplier or {}).get(p["id"], 1))))
             n_link += 1
         fam = 0
         if p["family"]:

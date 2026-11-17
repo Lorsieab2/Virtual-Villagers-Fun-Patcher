@@ -555,6 +555,35 @@ class PieceEffectRecords(unittest.TestCase):
         self.assertTrue(any("role w" in n and "spouse of h" in n for n in notes), notes)
         self.assertFalse([p for p in probs if p.kind == "problem"])
 
+    def test_only_an_outcomes_effects_are_written_the_others_are_kept_as_flavor(self):
+        # The composer makes only an outcome's effects (story_procedural.inc): an effect on an approach is story only.
+        text = self.GROUPS.replace("Text: (A) waves at a boat.\n", "Text: (A) waves at a boat.\nEffect: MOOD GOOD (A)\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertEqual([(p.kind, "only an outcome" in p.text) for p in probs], [("flavor", True)])
+        self.assertEqual(struct.unpack_from("<I", data, 40)[0], 3, "the outcome's three effects only")
+        self.assertEqual(struct.unpack_from("<I", data, 20)[0], 2, "both pieces kept")
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "mine.txt").write_text(text, encoding="utf-8")
+            _out, report = pe.compile_folder(1, Path(d), pe.Settings())
+        self.assertFalse(report.skipped)
+        self.assertTrue(any("only an outcome" in n and "kept as flavor" in n for n in report.notes), report.notes)
+
+    def test_a_favoured_theme_weighs_the_outcomes_answers(self):
+        # The composer draws an outcome by its Answers link weights (pc_link_weight), so a favoured theme's
+        # multiplier goes there; with no theme favoured they are as written.
+        items = pe.parse_text(self.GROUPS, "p.txt")
+
+        def links(multiplier):
+            data, _ = pe.compile_pieces(items, 1, multiplier)
+            links_at, n_link = struct.unpack_from("<II", data, 52)
+            return [struct.unpack_from("<II", data, links_at + 8 * k)[1] for k in range(n_link)]
+        plain = links(None)
+        self.assertEqual(len(plain), 1)
+        self.assertEqual(links({"party": pe.THEME_FAVOUR}), [plain[0] * pe.THEME_FAVOUR])
+        self.assertEqual(links({"x": pe.THEME_FAVOUR}), plain, "an approach's own multiplier is not its answers'")
+
 
 class InstallAndRules(unittest.TestCase):
     def test_install_writes_only_its_own_files_and_reports_bad_items(self):
