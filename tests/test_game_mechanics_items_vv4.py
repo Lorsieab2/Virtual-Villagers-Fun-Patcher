@@ -50,7 +50,7 @@ PINS = (
     ("puzzle", "Fishing Nets", "E", "UCOCE"),
     ("puzzle", "Pruning the Tree", "E", "U"),
     ("puzzle", "Honoring the Tree", "E", ""),
-    ("puzzle", "Purify Tree", "E", "U"),
+    ("puzzle", "Purify Tree", "E", "UE"),
     ("puzzle", "Decorating the Tree", "E", "C"),     # the hummingbird's clock: real time (traced 2026-11-10)
     ("building", "Building in general", "E", "UC"),
     ("building", "Hut 1", "C", ""),
@@ -66,7 +66,7 @@ PINS = (
     ("item", "Hot rocks", "E", "OE"),
     ("item", "A ready stew", "E", ""),
     ("item", "The grate", "O", ""),
-    ("item", "Eating a stew", "E", ""),
+    ("item", "Eating a stew", "E", "E"),
     ("item", "Spicy stew", "E", ""),
     ("item", "Spicy, spicy, sweet stew", "E", ""),
     ("item", "Spicy, spicy, soapy stew", "E", ""),

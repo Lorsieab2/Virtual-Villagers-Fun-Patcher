@@ -76,6 +76,8 @@ VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"
 STORY = "vv4_story_cheat_upgrades"
 STORY_COST = "vv4_story_cheat_upgrades_cost_tech_points"
 HARDER_FISHING = "vv4_harder_fishing_unlock"
+# Fix Vanilla Bugs: the save writer no longer ends every villager's effects (0x4660C4 -> 0x45EAA0 dropped).
+FIX_VANILLA = "vv4_fix_vanilla_bugs"
 
 
 @dataclass(frozen=True)
@@ -277,10 +279,19 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "Honoring the Tree", f"solved in 1 step (the sweet x3 stew honours the tree); {tree}.",
               VERIFIED_E),
         Entry(PUZZLE, "Purify Tree", (
-            f"solved in 1 step; {tree}. One of the Purify Tree's two results gives the villager a glow for 4 "
-            "real-life minutes (240 seconds; real time, the same at every speed), and while it lasts their research brings 3 times the tech points."),
+            f"solved in 1 step; {tree}. A villager who finishes \"Meditating to purify the mind\" gets the Purify "
+            "Tree's glow for 4 real-life minutes (240 seconds; real time, the same at every speed), and while it "
+            "lasts their research brings 3 times the tech points; one who finishes \"Getting clean in soapy pond\" "
+            "is clean for the same 4 minutes. Only a clean villager dropped on the tree starts purifying it, and only "
+            "one who also glows can finish. In the base game every save, the 10-minute autosave included, ends the "
+            "glow and the clean body at once, a bath in heavy rain often leaves the villager not clean at all (the "
+            "rain's splashes take the room its sparkles need), and paused time uses them up too."),
             VERIFIED_E,
-            (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),)),
+            (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),
+             (patch(FIX_VANILLA) + ": the 10-minute autosave no longer ends them (every other save still does) and they stop "
+              "while the game is paused, so each lasts its full 4 real-life minutes of play (real time while the game "
+              "runs, the same at every speed); and a bath in the rain makes the "
+              "villager clean as in fine weather.", VERIFIED_E))),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
             "minutes, the same at every speed, every 23 to 25 once the tree is decorated; it changes nothing."),
@@ -409,8 +420,12 @@ def _items() -> list[Entry]:
         Entry(ITEM, "Eating a stew", (
             "a villager who already has that stew's effect, or already has 12 effects, is refused: \"That villager "
             "can't eat more stew so soon.\" It lasts until that effect ends (real time, the same at every speed: 10 real-life minutes for the healing "
-            "and soapy stews), for that villager and that stew only; saving the game ends every villager's stew "
-            "effects."), VERIFIED_E),
+            "and soapy stews), for that villager and that stew only. The save does not keep it; in the base game "
+            "saving (the 10-minute autosave too) also ends every villager's stew effects at once."), VERIFIED_E,
+            ((patch(FIX_VANILLA) + ": the 10-minute autosave no longer ends them and the wait stops while the game is paused, so "
+              "it lasts its full "
+              "10 real-life minutes of play (real time while the game runs, the same at every speed).",
+              VERIFIED_E),)),
     ]
     out += [Entry(ITEM, name, f"{recipe}: {does}.", ok) for name, recipe, does, ok in STEWS]
     out += [
