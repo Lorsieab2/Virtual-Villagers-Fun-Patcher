@@ -751,8 +751,9 @@ class Version4(unittest.TestCase):
         # Compiled before format version 4 (the module at 538ddc27): versions 1 to 3 are unchanged.  The Aspiring
         # Adventurer re-pinned in v1.35.97: its awards are the real event's per-game ranges (format version 5); the
         # parts' names are never compiled (The Cave Explorers' bytes are the same with them).
-        pins = {"the_aspiring_adventurer.json": "5801bf94439645f9035a1e6453f98ce2404f5f59b8e17b80d357e22acc579109",
-                "the_cave_explorers.json": "b922a6878a819698084c7c0f3671012e8a7d0e0f0b22ca11f6af23ae340269be"}
+        # Both re-pinned again in v1.35.97 for the Title Case labels (the owner, 2026-11-15): letter case only.
+        pins = {"the_aspiring_adventurer.json": "2f51486eb0fcf907f7bac9a0e1d80e32066177ffa57e4be60ea449af03e40930",
+                "the_cave_explorers.json": "e2d132542bd94f74b55e700f09f1859a88607e8a2f2684085e447783b348ede5"}
         for name, digest in pins.items():
             blob = cg.compile_graph(cg.load(ROOT / "data" / "cie_graphs" / name))
             self.assertEqual(__import__("hashlib").sha256(blob).hexdigest(), digest, name)

@@ -1,14 +1,14 @@
 {
   "the_aspiring_adventurer.json": {
     "version": 5,
-    "cieg_sha256": "5801bf94439645f9035a1e6453f98ce2404f5f59b8e17b80d357e22acc579109",
-    "normalized_sha256": "419e83038651355eb234c8a200a556edfa59df6bafeac3b3fc560325c9114c72",
+    "cieg_sha256": "2f51486eb0fcf907f7bac9a0e1d80e32066177ffa57e4be60ea449af03e40930",
+    "normalized_sha256": "dead22e2af4955b045e565b2ffab573f59e0fe7b5c813a64742561dea2993f82",
     "chances_sha256": "7005ec5610db90e0ca70110370821aa3a2249dc47123b154bfdafe2227a59917"
   },
   "the_cave_explorers.json": {
     "version": 3,
-    "cieg_sha256": "b922a6878a819698084c7c0f3671012e8a7d0e0f0b22ca11f6af23ae340269be",
-    "normalized_sha256": "95169ee38923490a0d747ec33649934e3087c4bbd738ca38c56d6b37722e28cc",
+    "cieg_sha256": "e2d132542bd94f74b55e700f09f1859a88607e8a2f2684085e447783b348ede5",
+    "normalized_sha256": "790bff3c36515d639328b12d7f5a729b5ed00186a5e6cdcab8b718bc2910f76a",
     "chances_sha256": "43e9fc6001aa51bbb7e546245fbf3eba773aa6d0ff1843742056d5419b34ba08"
   },
   "tiny_v1": {

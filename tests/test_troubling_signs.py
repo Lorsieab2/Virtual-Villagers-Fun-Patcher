@@ -293,7 +293,7 @@ class TheWords(unittest.TestCase):
             if not line or line.startswith("then") or (line.startswith("(") and not line.startswith("(Name)")):
                 continue
             if line.endswith(":") and owner_label(line[:-1]) in LABELS.values():
-                used.add(line[:-1])
+                used.add(owner_label(line[:-1]))
                 continue
             shown = (line.replace("(Name)", "Ana").replace("(name)", "Ana").replace("(he/she)", "she")
                      .replace("(his/her)", "her").replace("(random name)", "Ben").replace("(tribe name)", "Kalahuna")
