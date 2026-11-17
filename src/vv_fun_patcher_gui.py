@@ -176,7 +176,8 @@ MIE_CREATOR_ROWS = ("more_island_events", "isola_grand_event_collection")
 MIE_CREATOR_NOTE = (
     "Every island event the patcher adds, in one row: ticking it ticks More Island Events and the Isola Grand Event "
     "Collection below (each can still be unticked on its own). Needs Story / Cheat Upgrades and Scrolling Popups; "
-    "ticking it ticks them. Write your own events with the Custom Island Event Library below.")
+    "ticking it ticks them. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row. Write your "
+    "own events with the Custom Island Event Library below.")
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -341,13 +342,15 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv%d_island_events_scale_with_population" % game for game in (1, 4, 5)]
     # Scrolling Popups (all five games; the owner, 2026-11-12): off by default, on in
-    # Owner's Defaults, which ticks it like every default-off patch it does not name; not in Classic VV Difficulty.
+    # Owner's Defaults, which ticks it like every default-off patch it does not name; Classic VV Difficulty ticks it
+    # for the Isola Grand Event Collection (the owner, 2026-11-16).
     + ["vv%d_scrolling_popups" % game for game in (1, 2, 3, 4, 5)]
     # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, off by default, on in
     # Owner's Defaults (and in Classic VV Difficulty where a game has it).
     + ["vv%d_more_island_events" % game for game in range(1, 6)]
-    # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
-    # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
+    # Isola Grand Event Collection (all five games): off by default; Owner's Defaults, Select All and Classic VV
+    # Difficulty tick it with More Island Events -- the whole "More Island Events and Creator" row (the owner,
+    # 2026-11-16).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
@@ -422,8 +425,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
-    # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
-    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # (The Isola Grand Event Collection is NOT here: the owner (2026-11-16), Select All ticks the whole "More Island
+    # Events and Creator" row, the collection too.)
     # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
     # only, the filters off everywhere.
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
