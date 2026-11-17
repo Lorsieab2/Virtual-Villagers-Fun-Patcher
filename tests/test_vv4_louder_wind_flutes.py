@@ -13,9 +13,11 @@ EMULATED, on the executable the patcher renders for the row, in each of the thre
   effect is loaded through), with the thunk 0x47099E stood in for.
 
 Then Flute1.ogg, Flute3.ogg and Flute5.ogg come back N times louder through the limiter -- exactly louder() below,
-never over -1 dBFS -- at x 2, x 5, x 10 and x 100, and every other sound, a sample that is not 16-bit signed PCM,
+never over -1 dBFS -- at x 2, x 5, x 10 and x 100, and (the owner, 2026-11-17: every slider goes less as well
+as more) quieter at x 0.5 and x 0.1 -- and every other sound, a sample that is not 16-bit signed PCM,
 and one FMOD will not hand back whole, exactly as loaded.  Without fmod.dll's functions, or in another game, nothing
-is installed.  The setting file: 2 to 100 as written, above 100 is 100, below 2 is 2, no number or no file is 5.
+is installed.  The setting file: 0.1 to 100 in tenths as written, above 100 is 100, below 0.1 is 0.1, no number or
+no file is 5.
 """
 from __future__ import annotations
 
@@ -66,18 +68,19 @@ BURST = [v for i in range(240) for v in
 ONE, CEILING, ATTACK, RELEASE = 1 << 24, 29204, 17312359, 16803516
 
 
-def louder(values: list[int], n: int, channels: int = 2) -> list[int]:
-    """The sample N x louder through the companion's limiter, exactly."""
+def louder(values: list[int], n, channels: int = 2) -> list[int]:
+    """The sample N x louder through the companion's limiter, exactly (N in tenths there: 5 is 50)."""
+    tenths = round(n * 10)
     frames = len(values) // channels
     gain = []
     for f in range(frames):
-        loud = max(abs(v) for v in values[f * channels:(f + 1) * channels]) * n
+        loud = max(abs(v) for v in values[f * channels:(f + 1) * channels]) * tenths // 10
         gain.append((CEILING << 24) // loud if loud > CEILING else ONE)
     for f in range(frames - 2, -1, -1):
         gain[f] = min(gain[f], (gain[f + 1] * ATTACK) >> 24)
     for f in range(1, frames):
         gain[f] = min(gain[f], (gain[f - 1] * RELEASE) >> 24)
-    return [max(-32768, min(32767, (v * n * gain[k // channels]) >> 24)) for k, v in enumerate(values)]
+    return [max(-32768, min(32767, (v * (tenths * gain[k // channels] // 10)) >> 24)) for k, v in enumerate(values)]
 
 
 def rms(values: list[int]) -> float:
@@ -245,12 +248,12 @@ class LouderWindFlutes(unittest.TestCase):
         return m.u32(holder)
 
     def test_the_three_flutes_follow_the_slider(self) -> None:
-        for n in (2, 5, 10, 100):
+        for n in (2, 5, 10, 100, 0.5, 0.1, 1):
             for mode in (MODES if n == 5 else MODES[:1]):
                 m, fake = self.machine(mode, setting=f"{n}\n".encode())
                 m.export("VvfpStartup", 4, 0)
                 self.assertEqual(m.export("VvfpLouderFlutesInstalled"), 1, mode)
-                self.assertEqual(m.export("VvfpLouderFlutesMultiplier"), n)
+                self.assertEqual(m.export("VvfpLouderFlutesMultiplier"), round(n * 10))
                 self.assertTrue(fake.opened and fake.opened[-1].endswith("\\" + CHOICE), fake.opened)
                 for k, path in enumerate(("Sounds/Flute1.ogg", "Sounds\\FLUTE3.OGG",
                                           "C:\\Games\\Tree\\Sounds\\flute5.ogg")):
@@ -282,8 +285,10 @@ class LouderWindFlutes(unittest.TestCase):
         self.assertEqual(fake.pcm(len(PCM)), louder(PCM, 10, channels=1))
 
     def test_the_setting_file(self) -> None:
-        cases = ((b"2", 2), (b"10\n", 10), (b"100\r\n", 100), (b" 42 ", 42), (b"\t7", 7), (b"0", 2), (b"1", 2),
-                 (b"101", 100), (b"99999999999999", 100), (b"abc", 5), (b"", 5), (b"-3", 5), (None, 5))
+        # In tenths: 50 is 5.
+        cases = ((b"2", 20), (b"10\n", 100), (b"100\r\n", 1000), (b" 42 ", 420), (b"\t7", 70), (b"0", 1), (b"1", 10),
+                 (b"101", 1000), (b"99999999999999", 1000), (b"abc", 50), (b"", 50), (b"-3", 50), (None, 50),
+                 (b"0.5", 5), (b"0.1", 1), (b".3\n", 3), (b"2.5", 25))
         for setting, wanted in cases:
             with self.subTest(setting=setting):
                 m, fake = self.machine(setting=setting)
@@ -355,25 +360,26 @@ class LouderWindFlutes(unittest.TestCase):
         callers = [0x401000 + i for i in range(len(text) - 5) if text[i] == 0xE8
                    and (0x401000 + i + 5 + struct.unpack_from("<i", text, i + 1)[0]) & 0xFFFFFFFF == LOAD_THUNK]
         self.assertEqual(callers, [LOAD_CALL])
-        self.assertIn("2 to 100 times", row["description"])
+        self.assertIn("0.1 to 100 times", row["description"])
         self.assertIn("5 unless you move it", row["description"])
         self.assertIn(CHOICE, row["description"])
 
 
 class Setting(unittest.TestCase):
-    """The patcher's side: the slider's number, 2 to 100 (5 by default), written beside the companion."""
+    """The patcher's side: the slider's number, 0.1 to 100 in tenths (5 by default), written beside the companion."""
 
     def setUp(self) -> None:
         self.saved = patcher.louder_flutes_multiplier()
         self.addCleanup(patcher.set_louder_flutes_multiplier, self.saved)
 
-    def test_whole_numbers_2_to_100_default_5(self) -> None:
+    def test_tenths_from_a_tenth_to_100_default_5(self) -> None:
         self.assertEqual(patcher.LOUDER_FLUTES_MULTIPLIER_DEFAULT, 5)
-        self.assertEqual(list(patcher.LOUDER_FLUTES_MULTIPLIER_RANGE), list(range(2, 101)))
-        for good in (2, 5, 10, 100):
+        r = patcher.LOUDER_FLUTES_MULTIPLIER_RANGE
+        self.assertEqual((r[0], r[-1], len(r)), (0.1, 100, 1000))
+        for good in (1, 0.1, 2.5, 2, 5, 10, 100):
             self.assertEqual(patcher.set_louder_flutes_multiplier(good), good)
             self.assertEqual(patcher.louder_flutes_multiplier(), good)
-        for bad in (1, 101, 0, -5, 2.5, "5", True, None):
+        for bad in (0, 101, -5, 0.05, "5", True, None):
             with self.subTest(bad=bad), self.assertRaises(patcher.PatcherError):
                 patcher.set_louder_flutes_multiplier(bad)
         self.assertEqual(patcher.louder_flutes_multiplier(), 100)      # a refused number changes nothing
@@ -381,7 +387,7 @@ class Setting(unittest.TestCase):
     def test_written_beside_the_companion_only_with_the_row(self) -> None:
         row = next(p for p in patcher.load_public_fun_patches() if p.id == ROW)
         other = next(p for p in patcher.load_public_fun_patches() if p.id == "vv4_children_play")
-        for n in (2, 10, 100):
+        for n in (2, 10, 100, 0.5):
             with tempfile.TemporaryDirectory() as out, self.subTest(n=n):
                 patcher.set_louder_flutes_multiplier(n)
                 patcher._write_louder_flutes_choice(Path(out), [other])
@@ -397,9 +403,9 @@ class Setting(unittest.TestCase):
         parser = argparse.ArgumentParser()
         patcher._add_check_logs_arg(parser)
         self.assertIsNone(parser.parse_args([]).louder_flutes_multiplier)
-        for n in ("2", "10", "100"):
-            self.assertEqual(parser.parse_args(["--louder-flutes-multiplier", n]).louder_flutes_multiplier, int(n))
-        for bad in ("1", "101", "x"):
+        for n in ("2", "10", "100", "1", "0.5"):
+            self.assertEqual(parser.parse_args(["--louder-flutes-multiplier", n]).louder_flutes_multiplier, float(n))
+        for bad in ("0", "101", "x"):
             with self.subTest(value=bad), self.assertRaises(SystemExit):
                 parser.parse_args(["--louder-flutes-multiplier", bad])
 
@@ -407,7 +413,7 @@ class Setting(unittest.TestCase):
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text("utf-8")
         self.assertEqual(source.count('**({"louder_flutes_multiplier": _louder_flutes_multiplier}'), 2)
         self.assertIn("relatives.append(str(installed.parent / LOUDER_FLUTES_CHOICE_FILE))", source)
-        self.assertIn("    _write_louder_flutes_choice(output_folder, fun_patches)\n    return copied", source)
+        self.assertIn("    _write_louder_flutes_choice(output_folder, fun_patches)\n", source)
         report = (ROOT / "src" / "transparency.py").read_text("utf-8")
         self.assertIn("(the Louder Wind Flutes slider)", report)
 

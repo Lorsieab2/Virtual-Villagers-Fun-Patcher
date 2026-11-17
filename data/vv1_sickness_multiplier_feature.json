@@ -4,11 +4,11 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv1",
-  "name": "2-100x Sickness",
-  "description": "**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 100 times as often as they would: you choose how many times with the 2-100x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches. Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.",
+  "name": "0.1-100x Sickness",
+  "description": "**Needs no other patch.** Off by default. Villagers fall sick 0.1 to 100 times as often as they would: you choose how many times with the 0.1-100x Sickness slider in the patcher window (in steps of 0.1, 2 unless you move it; type it in the box beside the slider too). 1 is the normal game; above 1 the game is harder, below 1 easier (at x 0.5 half as often). The rarest chances cannot go below the game's own smallest, about 1 in 32,768 a check, so at the lowest settings the rarest rolls are a little more likely than the number says. Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches. Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.",
   "output_tag": "Sickness",
   "behavior_changes": [
-    "The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 100): each chance about N times as large."
+    "The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (0.1 to 100 in tenths): each chance about N times as large (below 1, smaller)."
   ],
   "explicit_non_changes": [
     "The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published."
@@ -16,7 +16,7 @@
   "evidence_status": "implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending",
   "sickness_multiplier": {
     "default": 2,
-    "minimum": 2,
+    "minimum": 0.1,
     "maximum": 100,
     "sites": {
       "stock": [

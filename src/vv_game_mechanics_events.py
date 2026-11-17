@@ -110,10 +110,11 @@ def frequency_id(game: int) -> str:
     return f"vv{game}_more_frequent_island_events"
 
 
-def frequency_multiplier(village) -> int | None:
+def frequency_multiplier(village) -> int | float | None:
     """The N the game's "VVFP Island Frequency.txt" holds (beside its companion, in the patcher's folder next to the
-    game's exe), read as the companion reads it: 2 to 100 (above 100 is 100, below 2 is 2), 2 with no number;
-    None when the exe is not known or the file cannot be read."""
+    game's exe), read as the companion reads it (native/shared/multiplier_choice.h): 0.1 to 100 in tenths (above 100
+    is 100, below 0.1 is 0.1), 2 with no number; an int when whole; None when the exe is not known or the file cannot
+    be read."""
     import patcher_files
     from pathlib import Path
     exe = getattr(village, "exe", None)
@@ -129,9 +130,12 @@ def frequency_multiplier(village) -> int | None:
         if not ("0" <= ch <= "9"):
             break
         digits += ch
-    if not digits:
+    rest = text[len(digits):]
+    tenth = rest[1] if rest[:1] == "." and rest[1:2].isdigit() and rest[1:2].isascii() else ""
+    if not digits and not tenth:
         return 2
-    return max(2, min(100, int(digits[:4])))
+    tenths = max(1, min(1000, int(digits[:6] or "0") * 10 + int(tenth or "0")))
+    return tenths // 10 if tenths % 10 == 0 else tenths / 10
 
 
 def _span(seconds: int) -> str:
@@ -155,12 +159,14 @@ def frequency_words(village) -> str:
     n = frequency_multiplier(village)
     if n is None:
         effect = (f"each wait after an event ({k} to {2 * k - 1} hours) is divided by the number set on its slider "
-                  "(2 to 100), so the game's own events come that many times as often; the first events' minutes "
-                  "are unchanged")
+                  "(0.1 to 100; below 1 the wait is longer), so the game's own events come that many times as often; "
+                  "the first events' minutes are unchanged")
     else:
+        tenths = round(n * 10)
         effect = (f"the game's own events come {n} times as often: the wait after an event is "
-                  f"{_span(k * 3600 // n)} to {_span((2 * k - 1) * 3600 // n)} of real-life time instead of {k} to "
-                  f"{2 * k - 1} hours (each of the {k} waits as likely); the first events' minutes are unchanged")
+                  f"{_span(k * 36000 // tenths)} to {_span((2 * k - 1) * 36000 // tenths)} of real-life time instead "
+                  f"of {k} to {2 * k - 1} hours (each of the {k} waits as likely); the first events' minutes are "
+                  "unchanged")
     return patched_words(frequency_id(game), effect)
 
 

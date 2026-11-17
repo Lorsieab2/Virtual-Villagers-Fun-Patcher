@@ -1,10 +1,13 @@
-"""The patcher window's multiplier sliders (the owner, 2026-11-15): 2-100x Tech Cost, Hungrier Villagers, 2-100x
-Sickness, Louder Wind Flutes and More Frequent Island Events all go from 2 to 100, keep their defaults (3, 2, 2,
-5 and 2) and Owner's Defaults values (2, 2, 2, Louder Wind Flutes' own 5 and 2), and each has a box beside it to
-type the number in: kept in sync with the slider both ways, out-of-range numbers kept within 2 to 100, anything else put back to the slider's number, and
-copy / cut / paste working in it.  Nothing out of range is ever saved."""
+"""The patcher window's multiplier sliders (the owner, 2026-11-15; 2026-11-17: every slider goes LESS as well as
+more): 0.1-100x Tech Cost, Hungrier Villagers, 0.1-100x Sickness, Louder Wind Flutes and More Frequent Island Events
+all go from 0.1 to 100 in tenths (1 the normal game) on a logarithmic track, keep their defaults (3, 2, 2, 5 and 2)
+and Owner's Defaults values (2, 2, 2, Louder Wind Flutes' own 5 and 2), and each has a box beside it to type the
+number in: kept in sync with the slider both ways, numbers rounded to a tenth and kept within 0.1 to 100, anything
+else put back to the slider's number, and copy / cut / paste working in it.  Saved numbers outside the range are
+kept to its nearest end; nothing out of range is ever saved."""
 from __future__ import annotations
 
+import argparse
 import sys
 import unittest
 from pathlib import Path
@@ -15,14 +18,16 @@ sys.path.insert(0, str(ROOT / "src"))
 import vv_fun_patcher as patcher  # noqa: E402
 import vv_fun_patcher_gui as gui  # noqa: E402
 
-SLIDERS = (  # (variable, scale, box, range, default, help key)
-    ("tech_cost_var", "tech_cost_scale", "tech_cost_box", "TECH_COST_MULTIPLIER_RANGE", 3, "tech_cost_multiplier"),
-    ("meal_var", "meal_scale", "meal_box", "MEAL_MULTIPLIER_RANGE", 2, "meal_multiplier"),
-    ("sickness_var", "sickness_scale", "sickness_box", "SICKNESS_MULTIPLIER_RANGE", 2, "sickness_multiplier"),
+SLIDERS = (  # (variable, scale, box, range, default, help key, label)
+    ("tech_cost_var", "tech_cost_scale", "tech_cost_box", "TECH_COST_MULTIPLIER_RANGE", 3, "tech_cost_multiplier",
+     "0.1-100x Tech Cost:"),
+    ("meal_var", "meal_scale", "meal_box", "MEAL_MULTIPLIER_RANGE", 2, "meal_multiplier", "Hungrier Villagers:"),
+    ("sickness_var", "sickness_scale", "sickness_box", "SICKNESS_MULTIPLIER_RANGE", 2, "sickness_multiplier",
+     "0.1-100x Sickness:"),
     ("louder_flutes_var", "louder_flutes_scale", "louder_flutes_box", "LOUDER_FLUTES_MULTIPLIER_RANGE", 5,
-     "louder_flutes_multiplier"),
+     "louder_flutes_multiplier", "Louder Wind Flutes:"),
     ("island_frequency_var", "island_frequency_scale", "island_frequency_box", "ISLAND_FREQUENCY_MULTIPLIER_RANGE", 2,
-     "island_frequency_multiplier"),
+     "island_frequency_multiplier", "More Frequent Island Events:"),
 )
 
 
@@ -30,27 +35,57 @@ def source() -> str:
     return (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
 
 
+class Ranges(unittest.TestCase):
+    def test_every_range_is_a_tenth_to_100(self) -> None:
+        for *_, multipliers, _default, _key, _label in ((s[0], s[3], s[4], s[5], s[6]) for s in SLIDERS):
+            r = getattr(patcher, multipliers)
+            with self.subTest(range=multipliers):
+                self.assertEqual((r[0], r[-1], len(r)), (0.1, 100, 1000))
+                self.assertEqual(list(r)[:3], [0.1, 0.2, 0.3])
+                self.assertEqual(list(r)[9], 1)
+                for inside in (0.1, 0.5, 1, 1.5, 2, 99.9, 100, 2.0):
+                    self.assertIn(inside, r)
+                for outside in (0, 0.05, 0.25, 100.1, 101, -1, True, "2", None, float("nan"), float("inf")):
+                    self.assertNotIn(outside, r)
+
+    def test_numbers_are_ints_when_whole(self) -> None:
+        self.assertEqual(patcher.multiplier_number(20), 2)
+        self.assertIsInstance(patcher.multiplier_number(20), int)
+        self.assertEqual(patcher.multiplier_number(5), 0.5)
+        self.assertEqual([patcher.multiplier_text(v) for v in (2, 2.0, 0.5, 12.3, 100, 0.1)],
+                         ["2", "2", "0.5", "12.3", "100", "0.1"])
+        with self.assertRaises(ValueError):
+            patcher.multiplier_text(0.25)
+
+    def test_the_command_line_takes_tenths(self) -> None:
+        parse = patcher.multiplier_argument(patcher.TECH_COST_MULTIPLIER_RANGE)
+        self.assertEqual(parse("0.5"), 0.5)
+        self.assertEqual(parse("3"), 3)
+        for bad in ("0", "101", "abc", "0.05", ""):
+            with self.subTest(bad=bad), self.assertRaises(argparse.ArgumentTypeError):
+                parse(bad)
+
+    def test_validation_names_the_slider_and_refuses_out_of_range(self) -> None:
+        self.assertEqual(patcher.validate_tech_cost_multiplier(0.5), 0.5)
+        self.assertEqual(patcher.validate_tech_cost_multiplier(2.0), 2)
+        for bad in (0, 0.05, 101, True, "2"):
+            with self.subTest(bad=bad), self.assertRaises(patcher.PatcherError):
+                patcher.validate_tech_cost_multiplier(bad)
+
+
 class Source(unittest.TestCase):
-    def test_every_slider_is_2_to_100_with_a_box_and_its_default(self) -> None:
+    def test_every_slider_has_a_track_a_box_a_help_and_its_default(self) -> None:
         text = source()
-        for var, scale, box, multipliers, default, key in SLIDERS:
+        for var, scale, box, multipliers, default, key, label in SLIDERS:
             with self.subTest(var=var):
-                self.assertEqual(list(getattr(patcher, multipliers)), list(range(2, 101)))
-                body = text[text.index(f"self.{scale} = tk.Scale("):]
-                body = body[:body.index(")\n")]
-                self.assertIn(f"variable=self.{var}", body)
-                self.assertIn(f"from_={multipliers}[0], to={multipliers}[-1], resolution=1", body)
-                self.assertIn(f"self.{box} = self._multiplier_box(", text)
-                group = var.replace("_var", "_group")
-                self.assertIn(f'self._help_button({group}, "{key}")', text)
+                self.assertIn(f"self.{var} = tk.DoubleVar(value=", text)
+                call = text[text.index(f"self.{scale}, self.{box} = self._multiplier_slider("):]
+                call = call[:call.index(")\n")]
+                for part in (f'"{label}"', f"self.{var},", f"{multipliers},", f'"{key}"'):
+                    self.assertIn(part, call)
         self.assertEqual((patcher.TECH_COST_MULTIPLIER_DEFAULT, patcher.MEAL_MULTIPLIER_DEFAULT,
-                          patcher.SICKNESS_MULTIPLIER_DEFAULT, patcher.LOUDER_FLUTES_MULTIPLIER_DEFAULT), (3, 2, 2, 5))
-        self.assertIn("self.louder_flutes_var = tk.IntVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)", text)
-        self.assertEqual(patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT, 2)
-        self.assertIn("self.island_frequency_var = tk.IntVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)", text)
-        for label in ("2-100x Tech Cost:", "Hungrier Villagers:", "2-100x Sickness:", "Louder Wind Flutes:",
-                      "More Frequent Island Events:"):
-            self.assertIn(f'text="{label}"', text)
+                          patcher.SICKNESS_MULTIPLIER_DEFAULT, patcher.LOUDER_FLUTES_MULTIPLIER_DEFAULT,
+                          patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT), (3, 2, 2, 5, 2))
 
     def test_owners_defaults_keeps_its_values(self) -> None:
         text = source()
@@ -66,58 +101,83 @@ class Source(unittest.TestCase):
             self.assertFalse(gui.default_fun_patch_selection(f"vv{game}_more_frequent_island_events"))
             self.assertFalse(gui.select_all_fun_patch_selection(f"vv{game}_more_frequent_island_events"))
 
-    def test_the_frequency_slider_is_saved_restored_and_followed(self) -> None:
+    def test_the_frequency_and_flute_sliders_are_saved_restored_and_followed(self) -> None:
         text = source()
         self.assertIn('"island_frequency_multiplier": (App._island_frequency_multiplier(self)', text)
         self.assertIn("            self.island_frequency_var.set(saved_island_frequency_multiplier(data))", text)
         self.assertIn('self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())',
                       text)
         self.assertIn("        self._island_frequency_changed()    # the saved number", text)
-        for saved, restored in ((2, 2), (10, 10), (100, 100), (1, 2), (101, 2), ("50", 2), (True, 2), (None, 2)):
-            with self.subTest(saved=saved):
-                self.assertEqual(gui.saved_island_frequency_multiplier({"island_frequency_multiplier": saved}),
-                                 restored)
-        self.assertEqual(gui.saved_island_frequency_multiplier({}), 2)
-
-    def test_the_flute_slider_is_saved_restored_and_followed(self) -> None:
-        text = source()
         self.assertIn('"louder_flutes_multiplier": (App._louder_flutes_multiplier(self) if hasattr(self, '
                       '"louder_flutes_var")', text)
         self.assertIn("            self.louder_flutes_var.set(saved_louder_flutes_multiplier(data))", text)
         self.assertIn('self.louder_flutes_var.trace_add("write", lambda *_args: self._louder_flutes_changed())',
                       text)
-        for saved, restored in ((2, 2), (5, 5), (10, 10), (100, 100), (1, 5), (101, 5), ("50", 5), (5.0, 5),
-                                (True, 5), (None, 5)):
-            with self.subTest(saved=saved):
-                self.assertEqual(gui.saved_louder_flutes_multiplier({"louder_flutes_multiplier": saved}), restored)
-        self.assertEqual(gui.saved_louder_flutes_multiplier({}), 5)
-        self.assertEqual(gui.saved_louder_flutes_multiplier(None), 5)
 
-    def test_the_other_sliders_restore_up_to_100(self) -> None:
+
+class Saved(unittest.TestCase):
+    """Saved settings keep their values; old numbers outside the range go to its nearest end; anything that is not a
+    number is the default."""
+
+    CASES = ((2, 2), (10, 10), (100, 100), (0.5, 0.5), (0.1, 0.1), (1, 1), (2.0, 2), (1.25, 1.2), (1.26, 1.3),
+             (0, 0.1), (-5, 0.1), (0.01, 0.1), (101, 100), (500, 100), (float("inf"), 100))
+
+    def test_every_slider_restores_and_clamps(self) -> None:
         for read, key, default in ((gui.saved_tech_cost_multiplier, "tech_cost_multiplier", 3),
                                    (gui.saved_meal_multiplier, "meal_multiplier", 2),
-                                   (gui.saved_sickness_multiplier, "sickness_multiplier", 2)):
-            for saved, restored in ((2, 2), (10, 10), (100, 100), (101, default), (1, default)):
+                                   (gui.saved_sickness_multiplier, "sickness_multiplier", 2),
+                                   (gui.saved_louder_flutes_multiplier, "louder_flutes_multiplier", 5),
+                                   (gui.saved_island_frequency_multiplier, "island_frequency_multiplier", 2)):
+            for saved, restored in self.CASES + (("50", default), (True, default), (None, default),
+                                                 (float("nan"), default)):
                 with self.subTest(key=key, saved=saved):
-                    self.assertEqual(read({key: saved}), restored)
+                    value = read({key: saved})
+                    self.assertEqual(value, restored)
+                    self.assertIn(value, patcher.TECH_COST_MULTIPLIER_RANGE)
+            self.assertEqual(read({}), default)
+            self.assertEqual(read(None), default)
+
+    def test_a_whole_saved_number_stays_an_int(self) -> None:
+        self.assertIsInstance(gui.saved_tech_cost_multiplier({"tech_cost_multiplier": 2.0}), int)
 
 
 class Typed(unittest.TestCase):
-    def test_typed_numbers_are_kept_within_2_to_100(self) -> None:
-        r = range(2, 101)
-        for text, value in (("2", 2), ("10", 10), ("100", 100), (" 42 ", 42), ("7x", 7), ("7 X", 7), ("0", 2),
-                            ("1", 2), ("-5", 2), ("+9", 9), ("101", 100), ("100000000000000000000", 100),
-                            ("abc", None), ("", None), ("  ", None), ("4.5", None), ("1e3", None), ("٣", None),
-                            ("x", None), ("--3", None)):
+    def test_typed_numbers_are_rounded_and_kept_within_range(self) -> None:
+        r = patcher.TECH_COST_MULTIPLIER_RANGE
+        for text, value in (("2", 2), ("10", 10), ("100", 100), (" 42 ", 42), ("7x", 7), ("7 X", 7), ("0", 0.1),
+                            ("1", 1), ("-5", 0.1), ("+9", 9), ("101", 100), ("100000000000000000000", 100),
+                            ("0.5", 0.5), (".5", 0.5), ("0,5", 0.5), ("4.5", 4.5), ("1.25", 1.2), ("1.26", 1.3),
+                            ("0.04", 0.1), ("2.", 2),
+                            ("abc", None), ("", None), ("  ", None), ("1e3", None), ("٣", None), ("x", None),
+                            ("--3", None), (".", None), ("1.2.3", None)):
             with self.subTest(text=text):
                 self.assertEqual(gui.typed_multiplier(text, r), value)
 
 
+class Track(unittest.TestCase):
+    """The logarithmic track: 1 a third of the way along, both ends reachable, every position a number in range."""
+
+    def test_positions(self) -> None:
+        r = patcher.TECH_COST_MULTIPLIER_RANGE
+        self.assertEqual(gui.slider_position(0.1, r), 0)
+        self.assertEqual(gui.slider_position(100, r), gui.SLIDER_STEPS)
+        self.assertEqual(gui.slider_position(1, r), 333)
+        self.assertEqual(gui.slider_value(0, r), 0.1)
+        self.assertEqual(gui.slider_value(gui.SLIDER_STEPS, r), 100)
+        self.assertEqual(gui.slider_value(333, r), 1)
+        for position in range(0, gui.SLIDER_STEPS + 1):
+            self.assertIn(gui.slider_value(position, r), r)
+        for value in (0.1, 0.5, 1, 2, 3, 5, 10, 50, 100):
+            with self.subTest(value=value):
+                self.assertEqual(gui.slider_value(gui.slider_position(value, r), r), value)
+
+
 class Tk(unittest.TestCase):
-    """The box itself, in a real Tk window (App._multiplier_box on a stand-in that counts saves)."""
+    """The slider and its box, in a real Tk window (App._multiplier_slider on a stand-in that counts saves)."""
 
     def setUp(self) -> None:
         import tkinter as tk
+        from tkinter import ttk
         try:
             self.root = tk.Tk()
         except tk.TclError as exc:  # pragma: no cover - no display
@@ -128,16 +188,23 @@ class Tk(unittest.TestCase):
         outer = self
 
         class Stand:
+            _multiplier_box = gui.App._multiplier_box
+
             def _save_settings(self) -> None:
                 outer.saves += 1
 
-        self.var = tk.IntVar(value=5)
+            def _help_button(self, parent, _key):
+                return ttk.Label(parent, text="?")
+
+        self.var = tk.DoubleVar(value=5)
         group = tk.Frame(self.root)
         group.pack()
-        self.scale = tk.Scale(group, variable=self.var, orient="horizontal", from_=2, to=100, resolution=1)
-        self.scale.pack()
-        self.box = gui.App._multiplier_box(Stand(), group, self.var, range(2, 101))
+        self.scale, self.box = gui.App._multiplier_slider(
+            Stand(), group, "Test:", self.var, patcher.TECH_COST_MULTIPLIER_RANGE, "tech_cost_multiplier")
         self.root.update()
+
+    def value(self):
+        return gui.App._slider_number(self.var, patcher.TECH_COST_MULTIPLIER_RANGE, None)
 
     def typed(self, text: str) -> None:
         self.box.delete(0, "end")
@@ -145,43 +212,49 @@ class Tk(unittest.TestCase):
         self.box.commit()
 
     def test_typing_moves_the_slider(self) -> None:
-        for text, value in (("50", 50), ("100", 100), ("2", 2), ("10", 10)):
+        r = patcher.TECH_COST_MULTIPLIER_RANGE
+        for text, value in (("50", 50), ("100", 100), ("2", 2), ("10", 10), ("0.5", 0.5), ("0.1", 0.1), ("1", 1)):
             with self.subTest(text=text):
                 self.typed(text)
-                self.assertEqual(self.var.get(), value)
-                self.assertEqual(self.scale.get(), value)
-                self.assertEqual(self.box.get(), str(value))
+                self.assertEqual(self.value(), value)
+                self.assertEqual(self.scale.get(), gui.slider_position(value, r))
+                self.assertEqual(self.box.get(), patcher.multiplier_text(value))
 
-    def test_out_of_range_is_kept_within_2_to_100_and_nothing_bad_is_kept(self) -> None:
-        for text, value in (("500", 100), ("0", 2), ("1", 2), ("-40", 2)):
+    def test_out_of_range_is_kept_within_range_and_nothing_bad_is_kept(self) -> None:
+        for text, value in (("500", 100), ("0", 0.1), ("-40", 0.1), ("0.04", 0.1)):
             with self.subTest(text=text):
                 self.typed(text)
-                self.assertEqual(self.var.get(), value)
-                self.assertEqual(self.box.get(), str(value))
+                self.assertEqual(self.value(), value)
+                self.assertEqual(self.box.get(), patcher.multiplier_text(value))
         self.typed("33")
-        for text in ("abc", "", "4.5"):
+        for text in ("abc", "", "1e3"):
             with self.subTest(text=text):
                 self.typed(text)
-                self.assertEqual(self.var.get(), 33)
+                self.assertEqual(self.value(), 33)
                 self.assertEqual(self.box.get(), "33")
 
     def test_enter_and_leaving_the_box_commit(self) -> None:
+        self.box.focus_force()             # a key goes to the widget with the focus
+        self.root.update()
         self.box.delete(0, "end")
         self.box.insert(0, "77")
         self.box.event_generate("<Return>")
-        self.assertEqual(self.var.get(), 77)
+        self.assertEqual(self.value(), 77)
         self.box.delete(0, "end")
-        self.box.insert(0, "12")
+        self.box.insert(0, "0.3")
         self.box.event_generate("<FocusOut>")
-        self.assertEqual(self.var.get(), 12)
+        self.assertEqual(self.value(), 0.3)
 
     def test_the_slider_and_other_settings_move_the_box(self) -> None:
-        for value in (2, 64, 100):
-            self.scale.set(value)
+        r = patcher.TECH_COST_MULTIPLIER_RANGE
+        for position in (0, 333, gui.SLIDER_STEPS):
+            self.scale.set(position)
             self.root.update()
-            self.assertEqual(self.box.get(), str(value))
+            self.assertEqual(self.box.get(), patcher.multiplier_text(gui.slider_value(position, r)))
         self.var.set(9)                     # settings loaded, Owner's Defaults
+        self.root.update()
         self.assertEqual(self.box.get(), "9")
+        self.assertEqual(self.scale.get(), gui.slider_position(9, r))
 
     def test_copy_cut_and_paste(self) -> None:
         self.typed("42")
@@ -190,19 +263,19 @@ class Tk(unittest.TestCase):
         self.box.event_generate("<<Copy>>")
         self.assertEqual(self.root.clipboard_get(), "42")
         self.root.clipboard_clear()
-        self.root.clipboard_append("88")
+        self.root.clipboard_append("0.7")
         self.box.select_range(0, "end")
         self.box.icursor("end")
         self.box.event_generate("<<Paste>>")
-        self.assertEqual(self.box.get(), "88")
+        self.assertEqual(self.box.get(), "0.7")
         self.box.commit()
-        self.assertEqual(self.var.get(), 88)
+        self.assertEqual(self.value(), 0.7)
         self.root.clipboard_clear()
         self.root.clipboard_append("250")
         self.box.delete(0, "end")
         self.box.event_generate("<<Paste>>")
         self.box.commit()
-        self.assertEqual(self.var.get(), 100)       # a pasted number out of range is kept within it too
+        self.assertEqual(self.value(), 100)       # a pasted number out of range is kept within it too
         self.box.select_range(0, "end")
         self.box.event_generate("<<Cut>>")
         self.assertEqual(self.root.clipboard_get(), "100")
@@ -214,6 +287,7 @@ class Tk(unittest.TestCase):
         self.typed("40")
         self.assertEqual(self.saves, 1)
         self.typed("40")
+        self.typed("40.0")
         self.typed("nonsense")
         self.assertEqual(self.saves, 1)
 

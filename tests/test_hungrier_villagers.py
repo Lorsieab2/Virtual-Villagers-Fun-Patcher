@@ -1,4 +1,4 @@
-"""Hungrier Villagers (2-100x Meals) (all five games) and Classic VV Difficulty (The Tree of Life, New Believers).
+"""Hungrier Villagers (0.1-100x Meals) (all five games) and Classic VV Difficulty (The Tree of Life, New Believers).
 The traces are in scripts/build_hungrier_villagers_features.py and scripts/build_classic_vv_difficulty_features.py.
 
   * Each game's two meal sites decode, patched at every N, to the same instruction taking 2 x N food.
@@ -8,6 +8,10 @@ The traces are in scripts/build_hungrier_villagers_features.py and scripts/build
     0 or less.
   * A published build writes x N at every site and its records say so; the slider, Owner's Defaults and Classic VV
     Difficulty's red title and dependencies.
+  * The owner (2026-11-17): every slider goes less as well as more, 0.1 to 100 in tenths.  A multiplier whose 2 x N
+    is whole food (0.5, 1.5 ...) is written in the bytes; any other (0.1, 0.3, 1.7 ...) leaves them at the normal -2
+    and "VVFP Meal Scale.dll", emulated on the published executable, takes 2 x N food on average at both sites, with
+    every register as the game left it and the game's own clamp after.
 Tests that need the stock executables skip when they are absent.
 """
 from __future__ import annotations
@@ -162,13 +166,37 @@ class Publish(unittest.TestCase):
                         self.assertGreaterEqual(-2 * written, -128)
                     self.assertEqual(patcher.meal_multiplier_applied(applied), written)
 
+    def test_halves_are_written_in_the_bytes_and_other_tenths_leave_the_normal_meal(self) -> None:
+        builds = {b.id: b for b in patcher.load_builds()}
+        for game in NAMES:
+            ids = [f"vv{game}_hungrier_villagers"]
+            for n, food in ((0.5, 1), (1, 2), (1.5, 3), (0.1, 2), (0.3, 2), (1.7, 2), (64.5, 128), (70.3, 128)):
+                data, applied = patcher.render_patched_bytes(stock_path(game), builds[f"vv{game}"], "stock", ids)
+                patcher.apply_meal_multiplier(data, f"vv{game}", n, applied)
+                with self.subTest(game=game, n=n):
+                    for p in manifest(game)["patches"]:
+                        self.assertEqual(data[int(p["offset"], 16)], (-food) & 0xFF)
+                    self.assertEqual(patcher.meal_in_bytes(n), n in (0.5, 1, 1.5, 64.5, 70.3))
+                    self.assertEqual(patcher.meal_multiplier_applied(applied), min(n, 64))
+
     def test_out_of_range_is_refused(self) -> None:
-        for bad in (1, 101, True, 2.0, "3"):
+        for bad in (0, 101, True, 0.05, "3"):
             with self.assertRaises(patcher.PatcherError):
                 patcher.validate_meal_multiplier(bad)
-        for good in (2, 10, 100):
+        for good in (2, 10, 100, 1, 0.1, 0.5, 2.0):
             self.assertEqual(patcher.validate_meal_multiplier(good), good)
         self.assertEqual(patcher.MEAL_MULTIPLIER_SAFE_MAXIMUM, 64)
+
+    def test_the_companion_number_is_written_beside_it(self) -> None:
+        import tempfile
+        row = next(p for p in patcher.load_public_fun_patches() if p.id == "vv3_hungrier_villagers")
+        self.assertEqual([c["destination"] for c in row.raw["companion_files"]], ["VVFP Meal Scale.dll"])
+        for n in (0.3, 2, 0.5):
+            with tempfile.TemporaryDirectory() as out, self.subTest(n=n):
+                patcher._write_meal_scale_choice(Path(out), [row], n)
+                beside = Path(out) / Path(*patcher.patcher_files.installed_relative_path(
+                    "VVFP Meal Scale.dll").parts).parent / "VVFP Meal Scale.txt"
+                self.assertEqual(beside.read_bytes(), f"{n}\n".encode())
 
 
 class Registration(unittest.TestCase):
@@ -181,12 +209,15 @@ class Registration(unittest.TestCase):
             self.assertTrue(owners_default_fun_patch_selection(patch_id))
             self.assertTrue(select_all_fun_patch_selection(patch_id))
 
-    def test_the_slider_is_2_to_100_default_2(self) -> None:
-        self.assertEqual(list(patcher.MEAL_MULTIPLIER_RANGE), list(range(2, 101)))
+    def test_the_slider_is_a_tenth_to_100_default_2(self) -> None:
+        r = patcher.MEAL_MULTIPLIER_RANGE
+        self.assertEqual((r[0], r[-1], len(r)), (0.1, 100, 1000))
         self.assertEqual(patcher.MEAL_MULTIPLIER_DEFAULT, 2)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 7}), 7)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 100}), 100)
-        for bad in ({}, {"meal_multiplier": 101}, {"meal_multiplier": True}, None):
+        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 0.3}), 0.3)
+        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 101}), 100)
+        for bad in ({}, {"meal_multiplier": True}, None):
             self.assertEqual(saved_meal_multiplier(bad), 2)
 
     def test_classic_ticks_the_harder_patches_and_owners_defaults_sets_sliders_to_2(self) -> None:
@@ -226,3 +257,124 @@ class Registration(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+try:
+    from test_companion_installs_all_or_none import HAVE_EMULATOR, Machine, render, with_requirements
+except ImportError:  # pragma: no cover - environment dependent
+    HAVE_EMULATOR = False
+
+MEAL_DLL = ROOT / "assets" / "meal_scale" / "VVFP Meal Scale.dll"
+MEAL_CHOICE = "VVFP Meal Scale.txt"
+FAKE_FILE = 0x0000F00D
+# Where each game keeps its food (VV1/VV2: [eax + offset], eax the game object; VV3-VV5: the store ecx points at).
+FOOD_AT = {1: 0xA2EC, 2: 0x2EAA4, 3: 0x582490, 4: 0x4D6DD0, 5: 0x51D34C}
+
+
+@unittest.skipUnless(HAVE_TOOLS and HAVE_EMULATOR, "pefile/unicorn not installed")
+class MealCompanion(unittest.TestCase):
+    """"VVFP Meal Scale.dll" started as VVFP More Companions.dll starts it, on the executable a build at that number
+    publishes, with the number in "VVFP Meal Scale.txt"; each meal site is run and the food it takes counted."""
+
+    def setUp(self) -> None:
+        if not have_stock():
+            self.skipTest("stock executables not present")
+        if not MEAL_DLL.is_file():
+            self.skipTest("companion not built")
+
+    def machine(self, game: int, setting: bytes | None) -> "Machine":
+        sys.path.insert(0, str(ROOT / "tests"))
+        # As a build publishes a number that is not whole food: the meal bytes at the normal -2 (apply_meal_multiplier).
+        data = bytearray(render(game, with_requirements(game, [f"vv{game}_hungrier_villagers"]), "stock"))
+        for p in manifest(game)["patches"]:
+            data[int(p["offset"], 16)] = 0xFE
+        m = Machine(bytes(data), MEAL_DLL)
+
+        def open_(p):
+            path = p.wstring(p.arg(0))
+            ok = setting is not None and path.endswith("\\Virtual Villagers Fun Patcher Files\\" + MEAL_CHOICE)
+            return (FAKE_FILE if ok else 0xFFFFFFFF), 28
+
+        def read(p):
+            if p.arg(0) != FAKE_FILE:
+                return 0, 20
+            data = (setting or b"")[:p.arg(2)]
+            p.write(p.arg(1), data)
+            p.put32(p.arg(3), len(data))
+            return 1, 20
+
+        m.api_handlers["CreateFileW"] = open_
+        m.api_handlers["ReadFile"] = read
+        m.api_handlers["CloseHandle"] = lambda p: (1, 4)
+        m.api_handlers["GetCurrentProcessId"] = lambda p: (0x1234, 0)
+        return m
+
+    def meal(self, m: "Machine", game: int, va: int) -> int:
+        """One meal at the site: the food it takes (VV1/VV2 from the object, VV3-VV5 the pushed amount)."""
+        values = {"ebx": 0x11111111, "esi": 0x44444444, "edi": 0x55555555, "ebp": 0x66666666}
+        for name, value in values.items():
+            m.set_reg(name, value)
+        esp = m.reg("esp")
+        if game <= 2:
+            obj = m.alloc(0x30000)
+            m.put32(obj + FOOD_AT[game], 10_000)
+            m.set_reg("eax", obj)
+            m.set_reg("ecx", 0x22222222)
+            m.set_reg("edx", 0x33333333)
+            m.run(va, va + 7)
+            self.assertEqual(m.reg("esp"), esp)
+            self.assertEqual((m.reg("eax"), m.reg("ecx"), m.reg("edx")), (obj, 0x22222222, 0x33333333))
+            taken = 10_000 - m.u32(obj + FOOD_AT[game])
+        else:
+            m.set_reg("eax", 0x77777777)
+            m.set_reg("edx", 0x33333333)
+            m.run(va, va + 7)
+            self.assertEqual(m.reg("esp"), esp - 4, "one argument pushed, as `push -2`")
+            self.assertEqual(m.reg("ecx"), FOOD_AT[game], "ecx the food store, as `mov ecx, store`")
+            self.assertEqual((m.reg("eax"), m.reg("edx")), (0x77777777, 0x33333333))
+            taken = -struct.unpack("<i", struct.pack("<I", m.u32(m.reg("esp"))))[0]
+            m.set_reg("esp", esp)
+        self.assertEqual({name: m.reg(name) for name in values}, values)
+        return taken
+
+    def test_the_meal_takes_two_times_n_on_average(self) -> None:
+        for game in NAMES:
+            for n, low, high in ((0.3, 0, 1), (0.1, 0, 1), (1.7, 3, 4), (0.9, 1, 2)):
+                with self.subTest(game=game, n=n):
+                    m = self.machine(game, f"{n}\n".encode())
+                    m.export("VvfpStartup", game, 0)
+                    self.assertEqual(m.export("VvfpMealScaleInstalled"), 1)
+                    self.assertEqual(m.export("VvfpMealScaleTenths"), round(n * 10))
+                    for va, _ in SITES[game]:
+                        draws = [self.meal(m, game, va) for _ in range(150)]
+                        self.assertTrue(all(low <= d <= high for d in draws), set(draws))
+                        self.assertIn(low, draws)
+                        self.assertIn(high, draws)
+                    many = [m.export("VvfpMealScaleNextMeal") for _ in range(4000)]
+                    self.assertAlmostEqual(sum(many) / len(many), 2 * n, delta=0.06)
+
+    def test_a_whole_food_number_installs_nothing(self) -> None:
+        for game in (1, 4):
+            for setting in (b"2", b"0.5", b"1.5", b"", None, b"abc"):
+                with self.subTest(game=game, setting=setting):
+                    m = self.machine(game, setting)
+                    before = [m.read(va, 7) for va, _ in SITES[game]]
+                    m.export("VvfpStartup", game, 0)
+                    self.assertEqual(m.export("VvfpMealScaleInstalled"), 0)
+                    self.assertEqual([m.read(va, 7) for va, _ in SITES[game]], before)
+
+    def test_nothing_in_another_game_or_when_a_site_is_not_stock(self) -> None:
+        m = self.machine(3, b"0.3")
+        m.export("VvfpStartup", 6, 0)
+        self.assertEqual(m.export("VvfpMealScaleInstalled"), 0)
+        m = self.machine(3, b"0.3")
+        m.write(SITES[3][1][0] + 1, b"\xFC")        # the extra meal at x 2: whole food in the bytes
+        before = m.read(SITES[3][0][0], 7)
+        m.export("VvfpStartup", 3, 0)
+        self.assertEqual(m.export("VvfpMealScaleInstalled"), 0)
+        self.assertEqual(m.read(SITES[3][0][0], 7), before)
+
+    def test_the_third_word_starts_it(self) -> None:
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3[0], "VVFP Meal Scale.dll")
+        header = (ROOT / "native" / "shared" / "startup_companions_3.h").read_text("utf-8")
+        self.assertIn('"VVFP Meal Scale.dll",', header)

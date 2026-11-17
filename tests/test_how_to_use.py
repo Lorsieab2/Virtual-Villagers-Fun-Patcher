@@ -159,7 +159,9 @@ class GuiSourceTests(unittest.TestCase):
         for key in CONTROLS:
             with self.subTest(control=key):
                 self.assertRegex(self.SOURCE, r'_help_button\(\s*\w+, "%s"\)' % re.escape(key)
-                                 + "|" + r'\(\d+, "%s"\)' % re.escape(key))
+                                 + "|" + r'\(\d+, "%s"\)' % re.escape(key)
+                                 # a multiplier slider's "?" (App._multiplier_slider passes its key on)
+                                 + "|" + r'_multiplier_slider\([^()]*(?:\([^()]*\)[^()]*)*"%s"\)' % re.escape(key))
 
     def test_every_patch_row_and_mode_gets_one(self) -> None:
         # The one patch-row loop (a tab per game, shared patches included) and the mode loop.

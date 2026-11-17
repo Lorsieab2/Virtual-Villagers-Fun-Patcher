@@ -35,7 +35,7 @@ def _owner_keeps_off(patch_id: str) -> bool:
     Refill at the Same Time stays off."""
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on" -- Use
     # Unicode Font, the alternative of Render Unicode with In-Game Fonts, stays off.
-    # 2-100x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
+    # 0.1-100x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
     # Upgrades cost Tech Points is not ("set "story upgrades cost tech points" default off in owner's defaults").
     # Move the "Playing in the dirt" Spot stays off (the owner, 2026-11-08): Puddle Play Moves to the Lake Shore,
     # ticked, moves "Playing in the dirt" to the lake shore, and the two untick each other.

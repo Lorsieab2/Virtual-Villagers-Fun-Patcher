@@ -833,7 +833,9 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
-                                        "take 2 to 100 times the food (the slider; at most 64 times); food never goes below 0"))
+                                        "take 0.1 to 100 times the food (the slider, 1 the normal game; at most 64 "
+                                        "times; a number like 0.3 on "
+                                        "average); food never goes below 0"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Sickness works like VV1-3",
-  "description": "**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and on Hard one step more (twice as often with the fire burning, three times with it out). With the fire burning on Easy or Medium nothing changes. Medicine's levels keep their own chances (the higher the level, the rarer), old villagers keep their extra chance, and Easy still lets a sickness end by itself. The Secret City's Aromatherapy, which cancels the fire's part there, does not exist in this game. 2-100x Sickness multiplies these chances too.",
+  "description": "**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and on Hard one step more (twice as often with the fire burning, three times with it out). With the fire burning on Easy or Medium nothing changes. Medicine's levels keep their own chances (the higher the level, the rarer), old villagers keep their extra chance, and Easy still lets a sickness end by itself. The Secret City's Aromatherapy, which cancels the fire's part there, does not exist in this game. 0.1-100x Sickness multiplies these chances too.",
   "output_tag": "Sickness like VV3",
   "behavior_changes": [
     "The natural sickness roll 0x465F50 (its only caller the life tick) rewritten in place: m = 1 + (the fire is out) + (Hard), and by Medicine rand(1440) <= 3m, rand(2460) <= 3m, rand(5400) <= 2m, as The Secret City 0x455C00 without Aromatherapy; Easy, an existing sickness and the old villagers' roll as stock."
