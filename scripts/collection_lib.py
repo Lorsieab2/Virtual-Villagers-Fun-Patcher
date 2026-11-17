@@ -383,6 +383,21 @@ def strip_structural(text: str) -> str:
 
 LABEL_SMALL_WORDS = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or",
                      "the", "to", "with"}
+# Proper nouns keep their own form in a title-case label, small words included ("the Tree of Life", never "Of"
+# rules applied around them): matched case-blind as whole words, never inside a placeholder or a game word
+# ("(chief.he/she)", "{@chief}").  Villagers' names come from placeholders and are never cased here.
+LABEL_PROPER_NOUNS = ("Isola", "Isolan", "Isolans", "Tribal Chief", "Chief", "Golden Child", "Village Elders",
+                      "New Home", "Lost Children", "Secret City", "Tree of Life", "New Believers",
+                      "Guardians of Isola")
+_PROPER_RX = [(re.compile(r"(?<![A-Za-z@(.])" + re.escape(p) + r"(?![A-Za-z.)}])", re.I), p)
+              for p in sorted(LABEL_PROPER_NOUNS, key=len, reverse=True)]
+
+
+def keep_proper_nouns(text: str) -> str:
+    """`text` with every LABEL_PROPER_NOUNS phrase in its own form."""
+    for rx, p in _PROPER_RX:
+        text = rx.sub(p, text)
+    return text
 
 
 def title_case_label(text: str) -> str:
@@ -395,7 +410,7 @@ def title_case_label(text: str) -> str:
             out.append(w)
             continue
         out.append("-".join(p[:1].upper() + p[1:] for p in w.split("-")))
-    return " ".join(out)
+    return keep_proper_nouns(" ".join(out))
 
 
 def _title_case_inner(text: str, first: bool) -> str:

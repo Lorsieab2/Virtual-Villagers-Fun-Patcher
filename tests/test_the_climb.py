@@ -4,7 +4,7 @@ Static (always run):
   * the words: the companion's table (native/vvfp_more_island_events/climb_text.inc) is what
     scripts/build_more_island_events.py makes of src/vv_the_climb.py, every piece in every form is a translation row
     of its own (route "key", The Lost Children only), and the owner's wording is intact, word for word;
-  * the odds and the numbers: "Go with the plan" 50% the fall / 50% the summit, a large (2x) tech award, +10 to 20
+  * the odds and the numbers: "Go with the Plan" 50% the fall / 50% the summit, a large (2x) tech award, +10 to 20
     Research for the advice, the Trainee level 20, the cap 100, 18 years -- and the companion rolls the same;
   * Game Mechanics: the event is listed only with the patch, in The Lost Children only, with who may go, who never
     does, every branch with its chance and the rewards.
@@ -136,7 +136,7 @@ class TheWords(unittest.TestCase):
                 self.assertEqual(owner_text(key), text)
         self.assertEqual(climb.TITLE, "The Climb")
         self.assertEqual((climb.english("LABEL_PLAN", ""), climb.english("LABEL_ADVICE", "")),
-                         ("Go with the plan", "Follow the scientists' advice"))
+                         ("Go with the Plan", "Follow the Scientists' Advice"))
         male = owner_text("SUMMIT", "m", "Ben")
         self.assertIn("Ben is certainly setting a name for himself throughout", male)
         self.assertIn("Behind him, he hears the rushing", male)
@@ -201,8 +201,8 @@ class TheMechanicsPage(unittest.TestCase):
         self.assertEqual(event.only_with, "vv2_more_island_events")
         text = event.text + " " + " ".join(s if isinstance(s, str) else s.text for s in event.subs)
         for words in ("18 villager years", "Research of 20 or more", "\"Trainee\"", "not nursing a baby",
-                      "not an Esteemed Elder's totem statue", "one such villager is enough", "Go with the plan",
-                      "Follow the scientists' advice", "the fall 50%", "the summit 50%", "1,000 to 6,000 tech points",
+                      "not an Esteemed Elder's totem statue", "one such villager is enough", "Go with the Plan",
+                      "Follow the Scientists' Advice", "the fall 50%", "the summit 50%", "1,000 to 6,000 tech points",
                       "Research becomes 100", "celebrat", "+10 to 20 Research", "a grave", "Distinguished Scientist",
                       "never takes a share of the game's own draw", "30-50% chance (rolled each time) to be one of the patcher's new events instead",
                       "Pick Island Event", "when the page"):
@@ -333,7 +333,7 @@ class ClimbVillage(Village):
     def play_climb(self, rolls: list[int], answer: int) -> list[str]:
         """The whole event: every page shown, in order, until the close (each as one line of words, the title and the
         dialog's own line breaks taken out); `self.states` the village as each result page is shown.  `answer` 1 is
-        "Go with the plan", 2 the advice."""
+        "Go with the Plan", 2 the advice."""
         if not self.begin_climb(rolls):
             raise AssertionError("The Climb was not drawn")
         seen = [self.shown()]
@@ -621,7 +621,7 @@ class Effects(unittest.TestCase):
         v = self.village()
         v.begin_climb(climb_rolls())
         self.assertEqual((v.p.cstring(v.dlg + 0x4E9A, 300), v.p.cstring(v.dlg + 0x4F9A, 300)),
-                         ("Go with the plan", "Follow the scientists' advice"))
+                         ("Go with the Plan", "Follow the Scientists' Advice"))
         self.assertEqual(v.p.u32(v.dlg + 0x50A0), 0)              # the villager in the picture
         self.assertIn(("select", 0), v.ui)
 
@@ -647,7 +647,7 @@ class TheLog(unittest.TestCase):
         self.assertEqual(begin[1], before)                         # the village before the effects ...
         self.assertEqual(end[1][0], 0)                             # ... and after them
         self.assertEqual((last[1], last[3], last[4], last[5]),
-                         (2, "  Event: The Climb\n  Choice: Go with the plan\n  Ana: Health 100 -> 0\n", -1, 1))
+                         (2, "  Event: The Climb\n  Choice: Go with the Plan\n  Ana: Health 100 -> 0\n", -1, 1))
         self.assertEqual(v.logged_while_open, 1)
         self.assertEqual(v.logged(), 1)                            # through the close's own bracket
         v.begin_climb([5] * 20, pick=None)                         # the game's next draw: not ours
@@ -661,7 +661,7 @@ class TheLog(unittest.TestCase):
         self.assertEqual(v.log_calls[0][1][1], 50)                  # Research before the advice's last page ...
         self.assertEqual(v.log_calls[1][1][1], 60)                  # ... and after it
         self.assertEqual(v.log_calls[-1][3],
-                         "  Event: The Climb\n  Choice: Follow the scientists' advice\n  Ana: Health 100 -> 0\n")
+                         "  Event: The Climb\n  Choice: Follow the Scientists' Advice\n  Ana: Health 100 -> 0\n")
         self.assertEqual(v.log_calls[-1][5], 1)
 
     def test_without_the_log_companion_nothing_is_asked(self) -> None:

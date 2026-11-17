@@ -116,7 +116,7 @@ def adventurer_event(game: int) -> Event:
         "is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in "
         "play the friend always exists and A8 is always possible.",
         never_picked(game),
-        "\"Go investigate!\" (one popup with the opening and the find, then one with the ending): the find is a pile "
+        "\"Go Investigate!\" (one popup with the opening and the find, then one with the ending): the find is a pile "
         "of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a "
         "surviving ending and 50% a deadly one, each equally likely within its half.",
         "After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or "
@@ -128,7 +128,7 @@ def adventurer_event(game: int) -> Event:
         f"{_pct(a['A4'])}; A6 (the knife, disappears, no grave) {_pct(a['A6'])}. In all: home safe 50% (12.5% with "
         "the food, 12.5% with the tech points, 25% with nothing), dies 25%, disappears 25%. The stranger of A4 and A6 "
         "is a man or a woman, 50% each.",
-        "\"Stay on the safe path\" (one popup with the walk home; when lost, a second with the ending; after the "
+        "\"Stay on the Safe Path\" (one popup with the walk home; when lost, a second with the ending; after the "
         f"healers, a third): home safe {_pct(b['HOME'])}; lost {adv.LOST_PERCENT}%, then each of the six lost "
         "endings 1 in 6.",
         f"Lost ending 1, brought to the healers, then 1 in 3 each: dies, a grave ({_pct(b['H1'])}); a full recovery "
@@ -176,10 +176,10 @@ def cave_explorers_event() -> Event:
         "every such pair equally likely, either way round).",
         never_picked(1),
         "Three questions in a row in the encounter's own popup, each after its pages: \"Explore the Cave\" or "
-        "\"Don't explore\"; then \"Proceed Further\" or \"Stay Here\"; then, depending on the way, \"Run towards the "
-        "left path\" or \"Run towards the right path\" (the same odds either way), or \"You're right, I'll return "
-        "them.\" or \"Curses schmurses. I'm keeping them.\"",
-        "After \"Don't explore\" nothing happens.",
+        "\"Don't Explore\"; then \"Proceed Further\" or \"Stay Here\"; then, depending on the way, \"Run Towards the "
+        "Left Path\" or \"Run Towards the Right Path\" (the same odds either way), or \"You're Right, I'll Return "
+        "Them.\" or \"Curses Schmurses. I'm Keeping Them.\"",
+        "After \"Don't Explore\" nothing happens.",
         f"After \"Proceed Further\", {_pct(p['A'])} a scream in the dark (A), {_pct(100 - p['A'])} a find (B). In A the "
         "one who screams is name1 or name2 (1 in 2) and what they felt one of four (1 in 4 each); then they run: "
         f"they argue {_pct(run['ARGUE'])} (nothing happens), they make up {_pct(run['MAKEUP'])} (nothing happens), "
@@ -192,9 +192,9 @@ def cave_explorers_event() -> Event:
         f"Out of every \"Proceed Further\": the map {_pct(p['FIND_MAP'])}, the coins {_pct(p['FIND_COINS'])}, the "
         f"treasure map {_pct(p['FIND_TREASURE'])}, the food {_pct(p['FIND_FOOD'])}, and in A the chasm "
         f"{_pct(p['A'] * run['CHASM'] / 100)}.",
-        f"\"Stay Here\", then \"You're right, I'll return them.\": food {_pct(ret['RETURN_FOOD'])} "
+        f"\"Stay Here\", then \"You're Right, I'll Return Them.\": food {_pct(ret['RETURN_FOOD'])} "
         f"({adv.award_words(1, 'food')}) or tech points {_pct(ret['RETURN_TECH'])} ({adv.award_words(1, 'tech')}).",
-        f"After \"Curses schmurses. I'm keeping them.\", the researchers {_pct(keep['KEEP_RESEARCH'])} "
+        f"After \"Curses Schmurses. I'm Keeping Them.\", the researchers {_pct(keep['KEEP_RESEARCH'])} "
         f"({adv.award_words(1, 'tech')}); both die {_pct(keep['KEEP_BOTH'])} (name2, then name1: two graves); only "
         f"name2 dies {_pct(keep['KEEP_ONE'])} (one grave).",
         "Each amount is drawn, each equally likely, from the smallest to the largest food or tech-point gain of the "
@@ -240,8 +240,8 @@ def troubling_signs_event() -> Event:
         "own island events never pick; the Tribal Chief is only ever the speaker. Everyone else may be picked (titles, "
         "Esteemed Elders and founders included).",
         "One question with four answers, in the game's own island-event popup with two more buttons in the game's own "
-        "look: \"Consult the spiritual leaders\", \"Ask the magicians for advice\", \"Call the naturalists to a "
-        "discussion\" or \"Talk with the scientists and healers\" (the mouse, or the keys 1 to 4; Enter or Esc for "
+        "look: \"Consult the Spiritual Leaders\", \"Ask the Magicians for Advice\", \"Call the Naturalists to a "
+        "Discussion\" or \"Talk with the Scientists and Healers\" (the mouse, or the keys 1 to 4; Enter or Esc for "
         "OK).",
         "Every answer shows that group's advice, then the chief's call to the tribe (\"Hear me, O ...!\", the tribe's "
         f"own name), then the decree; the {ts.TRAVELLERS} travellers then leave for good: no body, no grave, and the "
@@ -284,8 +284,8 @@ def diving_for_treasure_event() -> Event:
         "Never picked (the owner's protected villagers): a nursing mother or father, the Tribal Chief, and anyone the "
         f"game's own island events never pick; nor anyone under {dt.ADULT_YEARS}. Everyone else may be picked "
         "(titles, Esteemed Elders and founders included).",
-        "One question in the game's own two-choice popup: \"Swim deeper\" or \"Better not\".",
-        f"\"Swim deeper\": a crate of golden doubloons {_pct(c['A'])}, a chewed-up buoy {_pct(c['B'])}, a shipping "
+        "One question in the game's own two-choice popup: \"Swim Deeper\" or \"Better Not\".",
+        f"\"Swim Deeper\": a crate of golden doubloons {_pct(c['A'])}, a chewed-up buoy {_pct(c['B'])}, a shipping "
         f"container of exotic ingredients {_pct(c['C'])}, or an air tank pops {dt.FIND_PERCENT}% (1 in 4 each).",
         f"The doubloons: the village gains tech points ({adv.award_words(3, 'tech')}). The buoy: nothing happens. "
         f"The container: the village gains food ({adv.award_words(3, 'food')}). Each amount is drawn when the popup "
@@ -299,7 +299,7 @@ def diving_for_treasure_event() -> Event:
         f"good, no body, no grave, the Deaths log records a disappearance (overall {_pct(c['D2B'])}); "
         f"{dt.RESCUED_PERCENT}% rescued -- +{lo} to {hi} Healing (each equally likely), at most {dt.SKILL_MAX}, the "
         f"game's maximum (overall {_pct(c['D2C'])}).",
-        f"\"Better not\": always +{lo} to {hi} Parenting (each equally likely), at most {dt.SKILL_MAX}; nothing else "
+        f"\"Better Not\": always +{lo} to {hi} Parenting (each equally likely), at most {dt.SKILL_MAX}; nothing else "
         "happens.",
         "The effects wait for their own page: they come when the page that ends that ending's text is shown, never on "
         "an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. "
@@ -328,13 +328,13 @@ def playful_dolphins_event() -> Event:
         f"Who: the swimmer is a villager who is {who}, drawn among them, each equally likely.",
         never_picked(4) + f" Nor anyone under {dp.ADULT_YEARS}.",
         "Needs no fishing nets or other puzzle.",
-        "One question in the game's own two-choice popup: \"Swim towards the dolphins\" or \"Hang back\".",
-        f"\"Swim towards the dolphins\": the hunt {_pct(c['HUNT'])} or the tail slap {_pct(c['SLAP'])}.",
+        "One question in the game's own two-choice popup: \"Swim Towards the Dolphins\" or \"Hang Back\".",
+        f"\"Swim Towards the Dolphins\": the hunt {_pct(c['HUNT'])} or the tail slap {_pct(c['SLAP'])}.",
         f"The hunt: the swimmer's Farming becomes {dp.SKILL_MAX} (fully mastered, the game's maximum), and the village "
         f"gains a large food award, twice a normal one: {2 * food:,} food{FOOD_WRITER[4]}.",
         f"The tail slap: the swimmer loses {lo} to {hi} health (out of 100; each equally likely), never below "
         f"{dp.HEALTH_LEFT_AT_LEAST} -- the slap never kills. Nothing else happens.",
-        f"\"Hang back\": always a small food award, half a normal one: {food // 2:,} food{FOOD_WRITER[4]}.",
+        f"\"Hang Back\": always a small food award, half a normal one: {food // 2:,} food{FOOD_WRITER[4]}.",
         "Each award is drawn when the popup opens and goes through the game's own food writer, as drawn (scaled only "
         "with Island Events Scale ticked: below).",
         Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this game): each "
@@ -373,11 +373,11 @@ def mysterious_mask_event() -> Event:
         "(a volunteer may be a child's parent).",
         never_picked(4),
         "One question in the game's own island-event popup with four answers, one above the other (click one, or press "
-        "the keys 1 to 4): \"Wait for their parents to come\", \"Cry for help\", \"Walk towards the clearing\" or "
-        "\"Walk towards the forest\". Its pages are laid out shorter (3 lines less for each answer past two), so the "
+        "the keys 1 to 4): \"Wait for Their Parents to Come\", \"Cry for Help\", \"Walk Towards the Clearing\" or "
+        "\"Walk Towards the Forest\". Its pages are laid out shorter (3 lines less for each answer past two), so the "
         "popup is no taller than a two-answer one.",
-        "\"Wait for their parents to come\" and \"Cry for help\": the children are safe.",
-        f"\"Walk towards the clearing\" and \"Walk towards the forest\" (the same odds): home safe {mm.HOME_PERCENT}%; "
+        "\"Wait for Their Parents to Come\" and \"Cry for Help\": the children are safe.",
+        f"\"Walk Towards the Clearing\" and \"Walk Towards the Forest\" (the same odds): home safe {mm.HOME_PERCENT}%; "
         f"lost {100 - mm.HOME_PERCENT}%, then rescued {100 - mm.CAPTURED_PERCENT}% or captured "
         f"{mm.CAPTURED_PERCENT}%. Out of every walk: home safe {_pct(c['CLEARING_HOME'])}, rescued "
         f"{_pct(c['CLEARING_RESCUED'])}, captured {_pct(c['CLEARING_CAPTURED'])}. Captured: every child of the group "
@@ -414,9 +414,9 @@ def the_climb_event() -> Event:
         f"Who: a villager who is {who}; one such villager is enough, and the villager is drawn among them, each "
         "equally likely; anyone younger or below Trainee in Research never climbs.",
         never_picked(2),
-        "One question in the game's own two-choice popup: \"Go with the plan\" or \"Follow the scientists' "
-        "advice\".",
-        f"\"Go with the plan\" (its page, then the climb): the fall {c['PLAN']['FALL']:g}% or the summit "
+        "One question in the game's own two-choice popup: \"Go with the Plan\" or \"Follow the Scientists' "
+        "Advice\".",
+        f"\"Go with the Plan\" (its page, then the climb): the fall {c['PLAN']['FALL']:g}% or the summit "
         f"{c['PLAN']['SUMMIT']:g}%.",
         "The fall: the villager dies, the game's own death (\"Unknown causes\", as the game's own island events "
         "give; the body is buried and gets a grave).",
@@ -426,7 +426,7 @@ def the_climb_event() -> Event:
         "up to 50, x3 above), through the game's own tech writer; and the village celebrates as in the game's own Old "
         "Friends event (every living villager of 14 or more who is not sick and does not dislike crowds goes "
         "\"Celebrating\"). \"Distinguished Scientist\" is the story's words only: no title is given.",
-        f"\"Follow the scientists' advice\" gives +{lo} to {hi} Research (each equally likely), at most "
+        f"\"Follow the Scientists' Advice\" gives +{lo} to {hi} Research (each equally likely), at most "
         f"{climb.RESEARCH_MAX}; nothing else happens.",
         "The effects wait for their own page: the fall's, the summit's and the advice's come when the page that ends "
         "that text is shown (never on the plan's page); the Island Events log keeps one entry for the event, with the "

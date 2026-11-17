@@ -10,7 +10,7 @@ Island Events question event runs whole in the popup the game builds for it (mie
     the same dialog's text field, with its effects made then, once; a second question (The Cave Explorers) asks
     in the same popup, its rows after its text;
   * that text starts with the answer picked, its row's words on a line of their own and a blank line
-    (docs/event-collection/cie-v6-binary.md 19: "Go investigate!\n\n..."), never in the log (its "Choice:" line);
+    (docs/event-collection/cie-v6-binary.md 19: "Go Investigate!\n\n..."), never in the log (its "Choice:" line);
   * the game's own OK (a click, or Enter) then ends it: the game's close, nothing made again, ONE Island Events log
     entry ("VVFP Island Events.dll" stood in for);
   * the game's own two answer buttons are never shown (VV1 / VV2: taken off the dialog at its first draw; the later
@@ -52,7 +52,7 @@ DRAW = {1: 0x4187E0, 2: 0x41F430}
 BODY_ID = {3: 0x3A9, 4: 0x361, 5: 0x3B5}
 QUESTION_FIELD = {1: 0x74, 2: 0x7C}
 OK_ID = {1: 4, 2: 4, 3: 1, 4: 1, 5: 1}
-ADV_LABELS = ["Go investigate!", "Stay on the safe path"]
+ADV_LABELS = ["Go Investigate!", "Stay on the Safe Path"]
 BUTTON_H = 32
 
 

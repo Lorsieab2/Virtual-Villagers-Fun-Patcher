@@ -235,6 +235,13 @@ def standard(population: int = 61, **chief) -> Signs:
     return v
 
 
+
+def owner_label(text: str) -> str:
+    """An owner's label as the event shows it: Title Case (the owner, 2026-11-15; scripts/collection_lib.py)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib
+    return collection_lib.title_case_label(text)
+
 def words(text: str) -> list[str]:
     return re.sub(r"\s+", " ", text).strip().split(" ")
 
@@ -285,7 +292,7 @@ class TheWords(unittest.TestCase):
             line = line.strip()
             if not line or line.startswith("then") or (line.startswith("(") and not line.startswith("(Name)")):
                 continue
-            if line.endswith(":") and line[:-1] in LABELS.values():
+            if line.endswith(":") and owner_label(line[:-1]) in LABELS.values():
                 used.add(line[:-1])
                 continue
             shown = (line.replace("(Name)", "Ana").replace("(name)", "Ana").replace("(he/she)", "she")

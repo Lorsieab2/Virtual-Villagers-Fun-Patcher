@@ -672,7 +672,7 @@ class Version3(unittest.TestCase):
             "find_coins": ("tech", *tech), "find_treasure": ("tech", 3 * tech[0], 3 * tech[1]),
             "find_food": ("food", 2 * food[0], 2 * food[1]), "return_food": ("food", *food),
             "return_tech": ("tech", *tech), "keep_research": ("tech", *tech)})
-        self.assertEqual(g["nodes"]["stay_q"]["choices"][1]["label"], "Curses schmurses. I'm keeping them.")
+        self.assertEqual(g["nodes"]["stay_q"]["choices"][1]["label"], "Curses Schmurses. I'm Keeping Them.")
 
     def test_the_puzzles_mirror_the_companion(self):
         for game in range(1, 6):

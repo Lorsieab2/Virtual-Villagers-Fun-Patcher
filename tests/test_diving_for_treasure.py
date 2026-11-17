@@ -53,6 +53,13 @@ SWIMMING = 37
 TITLE_ID = 0x3A7
 
 
+
+def owner_label(text: str) -> str:
+    """An owner's label as the event shows it: Title Case (the owner, 2026-11-15; scripts/collection_lib.py)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib
+    return collection_lib.title_case_label(text)
+
 def words(text: str) -> list[str]:
     return re.sub(r"\s+", " ", text).strip().split(" ")
 
@@ -156,8 +163,8 @@ class Dive(Village):
         return tuple(out)
 
     def play(self, answer: int) -> list[tuple]:
-        """The whole event: (what was clicked, the village after it) for each click; answer 0 "Swim deeper", 1
-        "Better not"."""
+        """The whole event: (what was clicked, the village after it) for each click; answer 0 "Swim Deeper", 1
+        "Better Not"."""
         s = self.dv_state()
         steps = []
         for _ in range(s[14] - 1):
@@ -229,8 +236,8 @@ class TheWords(unittest.TestCase):
                     line = line.strip()
                     if not line or line.startswith("--"):
                         continue
-                    if line.endswith(":") and line[:-1] in LABELS:
-                        used.append(line[:-1])
+                    if line.endswith(":") and owner_label(line[:-1]) in LABELS:
+                        used.append(owner_label(line[:-1]))
                         continue
                     shown = line.replace("(Name)", "Ana").replace("(name)", "Ana").replace("(random name)", "Ben")
                     shown = shown.replace("(award)", "300")
@@ -372,7 +379,7 @@ class Branches(unittest.TestCase):
         v = three()
         self.assertTrue(v.open(dive_rolls(find=0)))
         v.play(1)
-        self.assertEqual(ENDINGS[v.dv_state()[12]], "NOT")    # "Better not": always
+        self.assertEqual(ENDINGS[v.dv_state()[12]], "NOT")    # "Better Not": always
 
     def test_a_and_c_awards_in_range(self) -> None:
         for find, kind, (lo, hi) in ((0, 1, (1000, 2000)), (2, 0, (200, 600))):
@@ -417,7 +424,7 @@ class Branches(unittest.TestCase):
         self.assertEqual(v.health(1), 0)                       # the game's own death: a body and a grave
         self.assertEqual(v.vanished, [])
         self.assertEqual([c[0] for c in calls], ["begin", "end", "write"])
-        self.assertEqual(calls[-1][2].splitlines()[:2], ["  Event: Diving for Treasure", "  Choice: Swim deeper"])
+        self.assertEqual(calls[-1][2].splitlines()[:2], ["  Event: Diving for Treasure", "  Choice: Swim Deeper"])
 
     def test_d2b_disappears_no_grave(self) -> None:
         v = three()
@@ -492,7 +499,7 @@ class Pages(unittest.TestCase):
         self.assertTrue(v.open(dive_rolls(diver=0, find=3, survive=False, sink="dies")))
         for _ in range(v.dv_state()[14] - 1):
             v.click(0)
-        v.click(1)                                              # "Swim deeper": its first page only
+        v.click(1)                                              # "Swim Deeper": its first page only
         v.click(0)                                              # the sinking's page
         self.assertEqual(calls, [])                             # a save or a quit now: no effects and no entry
         self.assertEqual(v.snapshot(), before)

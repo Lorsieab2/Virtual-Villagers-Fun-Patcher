@@ -36,8 +36,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("INTRO_2", "During {his} travels, {he} sees something glinting in the corner of {his} eye. {n} feels "
                 "compelled to see what it is, but is unsure whether to leave the known-safe path in order to "
                 "investigate."),
-    ("LABEL_A", "Go investigate!"),
-    ("LABEL_B", "Stay on the safe path"),
+    ("LABEL_A", "Go Investigate!"),
+    ("LABEL_B", "Stay on the Safe Path"),
     ("A_OPEN", "Against {his} better judgement, {n} leaves the beaten path to check out the strange sight. As {he} "
                "pushes through the foliage, the area gets noticeably darker and colder. The hairs on {n}'s neck "
                "stand on end as {he} gets closer to the spot. When {n} approaches, {he} finds..."),
