@@ -37,11 +37,32 @@ PYTEST_OK = (0, 5)            # passed; nothing collected
 PYTEST_FAILED = 1             # a test failed: a real result, never re-run
 
 
-def run_file(path: str, report: Path) -> int:
+def run_file(path: str, report: Path, tally: Path | None = None) -> int:
+    """One file's pytest session.  tests/conftest.py's "this run verified nothing" guard is per session, and a
+    file whose game-file tests all skip (CI has no game files) is not a failure of its own: the session's guard is
+    off (VVFP_ALLOW_NO_FIXTURES) and its counts go to `tally` (VVFP_FIXTURE_TALLY), so the guard is applied to the
+    whole shard as one run (shard_verified_nothing)."""
     cmd = [sys.executable, "-X", "faulthandler", "-m", "pytest", path, "-q", "-rf", "-p", "no:cacheprovider",
            "-o", "faulthandler_timeout=600", f"--junit-xml={report}"]
+    env = dict(os.environ, VVFP_ALLOW_NO_FIXTURES="1")
+    if tally is not None:
+        env["VVFP_FIXTURE_TALLY"] = str(tally)
     sys.stdout.flush()
-    return subprocess.call(cmd, cwd=REPO, env=dict(os.environ))
+    return subprocess.call(cmd, cwd=REPO, env=env)
+
+
+def shard_verified_nothing(tally: Path) -> bool:
+    """tests/conftest.py's guard over the whole shard, as when the shard was one session: every test that needs a
+    game file skipped and nothing else ran.  Honours VVFP_ALLOW_NO_FIXTURES=1 set for the shard itself."""
+    if os.environ.get("VVFP_ALLOW_NO_FIXTURES") == "1" or not tally.exists():
+        return False
+    skips = executed = 0
+    for line in tally.read_text(encoding="utf-8").split("\n"):
+        if line.strip():
+            s, e = line.split()
+            skips += int(s)
+            executed += int(e)
+    return skips > 0 and executed == 0
 
 
 def crash_suite(path: str, codes: list[int]) -> ET.Element:
@@ -58,17 +79,19 @@ def main(argv: list[str]) -> int:
     parts = REPO / "junit-parts"
     parts.mkdir(exist_ok=True)
     files = ci_test_shard.shards(count)[which]
+    tally = parts / "fixture-tally.txt"
+    tally.unlink(missing_ok=True)
     root = ET.Element("testsuites")
     failed, crashed_once = [], []
     t0 = time.time()
     for k, path in enumerate(files, 1):
         report = parts / f"{k:04d}.xml"
         print(f"\n===== [{k}/{len(files)}] {path}", flush=True)
-        codes = [run_file(path, report)]
+        codes = [run_file(path, report, tally)]
         if codes[0] not in PYTEST_OK and codes[0] != PYTEST_FAILED:
             print(f"===== NATIVE CRASH (exit {codes[0]}) in {path}: running it again, alone", flush=True)
             report.unlink(missing_ok=True)
-            codes.append(run_file(path, report))
+            codes.append(run_file(path, report, tally))
             crashed_once.append(f"{path} (exit {codes[0]}, then {codes[1]})")
         last = codes[-1]
         if last not in PYTEST_OK:
@@ -86,11 +109,19 @@ def main(argv: list[str]) -> int:
                 note = ET.SubElement(suite, "system-out")
                 note.text = f"{path}: crashed once (exit {codes[0]}), then exit {codes[1]} alone"
             root.append(suite)
+    nothing = shard_verified_nothing(tally)
+    if nothing:
+        suite = ET.SubElement(root, "testsuite", name="the shard", tests="1", errors="1", failures="0", skipped="0")
+        case = ET.SubElement(suite, "testcase", classname="tests/conftest.py", name="verified nothing")
+        ET.SubElement(case, "error", message="every selected test that needs a game file skipped: this shard "
+                                             "verified nothing")
+        print("\n===== every selected test that needs a game file skipped: this shard verified nothing "
+              "(tests/conftest.py's guard over the whole shard)", flush=True)
     ET.ElementTree(root).write(out, encoding="utf-8", xml_declaration=True)
     print(f"\n===== shard {which}/{count}: {len(files)} files in {time.time() - t0:.0f} s; "
           f"failed: {len(failed)}: {', '.join(failed) or 'none'}; "
           f"crashed once then re-run alone: {len(crashed_once)}: {', '.join(crashed_once) or 'none'}", flush=True)
-    return 1 if failed else 0
+    return 1 if failed or nothing else 0
 
 
 if __name__ == "__main__":

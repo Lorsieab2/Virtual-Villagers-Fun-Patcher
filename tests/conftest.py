@@ -649,6 +649,12 @@ def pytest_sessionfinish(session, exitstatus):
     counted.
     """
     yield
+    tally = os.environ.get("VVFP_FIXTURE_TALLY")
+    if tally:
+        # scripts/ci_run_shard.py runs each file in its own session (VVFP_ALLOW_NO_FIXTURES=1 there) and applies
+        # this guard to the whole shard from every session's counts: "<fixture skips> <tests executed>".
+        with open(tally, "a", encoding="utf-8") as fh:
+            fh.write(f"{len(_fixture_skips)} {len(_fixture_executed)}\n")
     if os.environ.get("VVFP_ALLOW_NO_FIXTURES") == "1":
         return
     if not _fixture_skips:
