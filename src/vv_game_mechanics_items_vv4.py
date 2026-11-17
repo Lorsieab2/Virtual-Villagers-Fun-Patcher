@@ -285,13 +285,13 @@ def _puzzles() -> list[Entry]:
             "is clean for the same 4 minutes. Only a clean villager dropped on the tree starts purifying it, and only "
             "one who also glows can finish. In the base game every save, the 10-minute autosave included, ends the "
             "glow and the clean body at once, a bath in heavy rain often leaves the villager not clean at all (the "
-            "rain's splashes take the room its sparkles need), and the soap makes the pond soapy for only 1 minute "
-            "of the game's clock."),
+            "rain's splashes take the room its sparkles need), and paused time uses them up too."),
             VERIFIED_E,
             (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),
-             (patch(FIX_VANILLA) + ": saving no longer ends them, so each lasts its full 4 real-life minutes; a bath in the "
-              "rain makes the villager clean as in fine weather; and the pond stays soapy for 4 minutes of the game's "
-              "clock.", VERIFIED_E))),
+             (patch(FIX_VANILLA) + ": the 10-minute autosave no longer ends them (every other save still does) and they stop "
+              "while the game is paused, so each lasts its full 4 real-life minutes of play (real time while the game "
+              "runs, the same at every speed); and a bath in the rain makes the "
+              "villager clean as in fine weather.", VERIFIED_E))),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
             "minutes, the same at every speed, every 23 to 25 once the tree is decorated; it changes nothing."),
@@ -422,7 +422,9 @@ def _items() -> list[Entry]:
             "can't eat more stew so soon.\" It lasts until that effect ends (real time, the same at every speed: 10 real-life minutes for the healing "
             "and soapy stews), for that villager and that stew only. The save does not keep it; in the base game "
             "saving (the 10-minute autosave too) also ends every villager's stew effects at once."), VERIFIED_E,
-            ((patch(FIX_VANILLA) + ": saving no longer ends them, so the wait lasts its full 10 real-life minutes (real time, the same at every speed).",
+            ((patch(FIX_VANILLA) + ": the 10-minute autosave no longer ends them and the wait stops while the game is paused, so "
+              "it lasts its full "
+              "10 real-life minutes of play (real time while the game runs, the same at every speed).",
               VERIFIED_E),)),
     ]
     out += [Entry(ITEM, name, f"{recipe}: {does}.", ok) for name, recipe, does, ok in STEWS]

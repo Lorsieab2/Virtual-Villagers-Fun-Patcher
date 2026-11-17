@@ -434,11 +434,8 @@ from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
 FIX_PERCENT |= {off for off, _, _ in nursery_tie_fixes("vv4")}
 # ... and the frogs after The Frog Rescue (the leap ranges and the ripple frames), kept with 256 Villagers.
 FIX_PERCENT |= {0x6D3F8, 0x6D406, 0x6D440, 0x6D44E, 0x6D488, 0x6D496, 0xB9F0C, 0xB9F1C}
-# ... and saving no longer ends the villagers' effects (the writer's call at 0x4660C4, before 256 Villagers' own
-# row at 0x4660C9; tests/test_vv4_effects_survive_save.py), kept with 256 Villagers.
-FIX_PERCENT |= {0x660C4}
-# ... and the clean body's sparkles beyond the rain's 101 slots, and the soapy pond's 240 seconds.
-FIX_PERCENT |= {0x1CEDB, 0x6D503, 0x6D5C8}
+# ... and the clean body's sparkles beyond the rain's 101 slots.
+FIX_PERCENT |= {0x1CEDB}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 

@@ -41,6 +41,7 @@
 #include <string.h>
 #include "../shared/install_sites.h"
 #include "../shared/patcher_files.h"
+#include "../shared/vv4_villager_table.h"
 
 #define VV3_GAME 3
 #define VV4_GAME 4
@@ -152,12 +153,61 @@ static const unsigned char VV4_STOCK[] = {
     0x20, 0x89, 0x46, 0x24, 0x89, 0x6E, 0x20, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x0C, 0xC2, 0x04, 0x00,
 };
 
+/* THE VILLAGERS' EFFECTS PAUSE TOO (Fix Vanilla Bugs, the owner 2026-11-16: "All of those effect timers should
+   pause when the game is paused").  A villager's effects (+0x1D0C, up to 12 entries of 0x1C, count +0x1E5C: the
+   clean body, the meditation's glow, the sticky gunk, a stew's wait) end when the computer's clock 0x403750
+   reaches the end each keeps at +0x14 (0 = no end; checked by 0x45FC70, which does not run while paused).  They
+   are not timers of the game clock, so set_speed never moves them.  Coming out of a pause -- the one branch this
+   detour enters -- every set end is moved on by the time paused (now - the wall clock at the pause, +0x28), so
+   each effect resumes with the time it had left.  Their length while the game runs is unchanged (real time, the
+   same at every speed). */
+#define VV4_EFFECTS 0x1D0Cu
+#define VV4_EFFECT_COUNT 0x1E5Cu
+#define VV4_EFFECT_SIZE 0x1Cu
+#define VV4_EFFECT_END 0x14u
+#define VV4_RECORD_SIZE 0x2E3Cu
+#define VV4_FIRST_RECORD 0x44u
+#define VV4_EFFECTS_MAX 12
+
+static int readable(unsigned int va, size_t length);
+
+static void __stdcall vv4_effects_paused(unsigned int paused) {
+    const unsigned char *module = (const unsigned char *)(UINT_PTR)0x400000u;
+    unsigned int manager_rva, slots, i;
+    unsigned char *record;
+    vv4_villager_table(module, &manager_rva, &slots);
+    record = (unsigned char *)(UINT_PTR)(0x400000u + manager_rva + VV4_FIRST_RECORD);
+    if (paused == 0 || !readable((unsigned int)(UINT_PTR)record, (size_t)slots * VV4_RECORD_SIZE)) {
+        return;
+    }
+    for (i = 0; i < slots; ++i, record += VV4_RECORD_SIZE) {
+        int count = *(const int *)(record + VV4_EFFECT_COUNT), n;
+        if (count <= 0 || count > VV4_EFFECTS_MAX) {
+            continue;
+        }
+        for (n = 0; n < count; ++n) {
+            unsigned int *end = (unsigned int *)(record + VV4_EFFECTS + (unsigned int)n * VV4_EFFECT_SIZE
+                                                 + VV4_EFFECT_END);
+            if (*end != 0) {
+                *end += paused;
+            }
+        }
+    }
+}
+
 /* At VV4_SITE, from a paused clock: esi = the clock, ecx = now, the factor slot [esp+0x10], the new
-   speed [esp+0x20] (ebx, edi, esi, ebp pushed below 12 bytes of locals).  Leaves ecx = now -
+   speed [esp+0x20] (ebx, edi, esi, ebp pushed below 12 bytes of locals).  First moves the villagers'
+   effects on by the time paused (vv4_effects_paused, every register kept).  Leaves ecx = now -
    trunc(pause * factor) and the factor in [esp+0x10] for the stock code at VV4_RESUME, converting
    with truncation exactly as the routine's own fistp does (0x41DC7D..0x41DC9D). */
 static __declspec(naked) void vv4_from_paused(void) {
     __asm {
+        pushad
+        mov eax, ecx
+        sub eax, dword ptr [esi + 0x28]
+        push eax
+        call vv4_effects_paused
+        popad
         mov eax, dword ptr [esi + 0x24]
         cmp eax, 3
         je before_ok
@@ -207,6 +257,45 @@ static __declspec(naked) void vv4_from_paused(void) {
     }
 }
 
+/* THE AUTOSAVE KEEPS THE VILLAGERS' EFFECTS (Fix Vanilla Bugs, the owner 2026-11-16: "just the autosave should
+   have all effects kept").  The save writer 0x4660A0 ends every effect of each villager it saves (0x4660C4: call
+   0x45EAA0); the effects are not part of the saved entry, so this only wipes the village in play.  The 10-minute
+   autosave (0x41F1A0: its one call of the slot saver 0x41F160, at 0x41F1C4) now runs with a flag set, and the
+   writer's call at 0x4660C4 skips 0x45EAA0 while it is set.  Every other save -- quitting, leaving the village for
+   the slot menu, each menu's save -- calls 0x41F160 from elsewhere and ends the effects as the base game does. */
+#define VV4_AUTOSAVE_SITE 0x41F1C4u        /* call 0x41F160, in the autosave check 0x41F1A0 */
+#define VV4_SLOT_SAVER 0x41F160u
+#define VV4_STRIP_SITE 0x4660C4u           /* call 0x45EAA0, in the save writer 0x4660A0 */
+#define VV4_STRIP 0x45EAA0u
+
+static const unsigned char VV4_AUTOSAVE_STOCK[] = { 0xE8, 0x97, 0xFF, 0xFF, 0xFF };
+static const unsigned char VV4_STRIP_STOCK[] = { 0xE8, 0xD7, 0x89, 0xFF, 0xFF };
+static volatile unsigned int g_autosaving;
+
+/* At VV4_AUTOSAVE_SITE: thiscall(game; slot argument), ret 4 -- the slot saver with the flag set around it. */
+static __declspec(naked) void vv4_autosave(void) {
+    __asm {
+        mov dword ptr [g_autosaving], 1
+        push dword ptr [esp + 4]
+        mov eax, VV4_SLOT_SAVER
+        call eax
+        mov dword ptr [g_autosaving], 0
+        ret 4
+    }
+}
+
+/* At VV4_STRIP_SITE: thiscall(villager) -- 0x45EAA0 unless the autosave is writing. */
+static __declspec(naked) void vv4_strip(void) {
+    __asm {
+        cmp dword ptr [g_autosaving], 0
+        jne keep
+        mov eax, VV4_STRIP
+        jmp eax
+    keep:
+        ret
+    }
+}
+
 /* ---- installing ------------------------------------------------------------------------ */
 
 static int installed;
@@ -245,12 +334,22 @@ static void install_vv3(void) {
     detour(VV3_SITE, VV3_SITE_LEN, vv3_from_paused, VV3_STOCK + (VV3_SITE - VV3_ROUTINE));
 }
 
+/* The set_speed detour and the autosave's two calls: all three, or nothing at all. */
 static void install_vv4(void) {
+    vvfp_site_write w[3];
     if (!holds(VV4_ROUTINE, VV4_STOCK, sizeof VV4_STOCK)
-        || !holds(VV4_TWO32, TWO32_FLOAT, sizeof TWO32_FLOAT)) {
+        || !holds(VV4_TWO32, TWO32_FLOAT, sizeof TWO32_FLOAT)
+        || !holds(VV4_AUTOSAVE_SITE, VV4_AUTOSAVE_STOCK, sizeof VV4_AUTOSAVE_STOCK)
+        || !holds(VV4_STRIP_SITE, VV4_STRIP_STOCK, sizeof VV4_STRIP_STOCK)) {
         return;
     }
-    detour(VV4_SITE, VV4_SITE_LEN, vv4_from_paused, VV4_STOCK + (VV4_SITE - VV4_ROUTINE));
+    vvfp_site_branch(&w[0], VV4_SITE, VV4_SITE_LEN, VV4_STOCK + (VV4_SITE - VV4_ROUTINE), 0xE9,
+                     (const void *)vv4_from_paused);
+    vvfp_site_branch(&w[1], VV4_AUTOSAVE_SITE, 5, VV4_AUTOSAVE_STOCK, 0xE8, (const void *)vv4_autosave);
+    vvfp_site_branch(&w[2], VV4_STRIP_SITE, 5, VV4_STRIP_STOCK, 0xE8, (const void *)vv4_strip);
+    if (vvfp_install_sites(w, 3)) {
+        installed = 1;
+    }
 }
 
 /* ---- A New Home: the Golden Child's fix, in its own companion ---------------------------- */

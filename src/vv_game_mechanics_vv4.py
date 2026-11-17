@@ -125,6 +125,9 @@ REHEAT_CODE_LINE = (
 # have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); the save writer
 # ends every villager's effects first (0x4660C4 -> 0x45EAA0) -- the 10-minute autosave too -- and the saved entry
 # (0x45DB30) never holds them, so a loaded village has none.  Fix Vanilla Bugs drops that call (EFFECTS_FIX_LINE).
+# The saves (every caller of the slot saver 0x41F160): the autosave 0x41F1A0 (0x41F1C4, every 10 real-life
+# minutes) and the menus' and quitting's saves (0x4185A1, 0x418D83, 0x419055, 0x419481, 0x41F440).  Fix Vanilla
+# Bugs' companion keeps the effects through the first only.
 CANT_EAT_LINE = (
     "\"That villager can't eat more stew so soon.\" is the game's answer when that villager already has the same "
     "stew's effect, or already has 12 effects: it lasts until that effect ends (10 real-life minutes at every speed "
@@ -133,22 +136,23 @@ CANT_EAT_LINE = (
     "every villager's effects at once.")
 FIX_VANILLA = "vv4_fix_vanilla_bugs"
 EFFECTS_FIX_LINE = (
-    "saving no longer ends a villager's effects, so each lasts its full time: the clean body and the Purify Tree's "
-    "glow their 4 real-life minutes, the sticky gunk its 3 and a stew's wait its 10 (real time, the same at every "
-    "speed; the save is written exactly as before), "
-    "and a bath in the rain makes a villager clean as it does in fine weather")
-STEW_WAIT_FIX_LINE = ("saving no longer ends a villager's stew effects, so the healing and sick stews' wait lasts its "
-                      "full 10 real-life minutes (real time, the same at every speed)")
+    "the 10-minute autosave no longer ends a villager's effects (every other save still does: quitting, leaving "
+    "the village for the slot menu, a menu's save; effects are never saved), and every villager effect stops "
+    "while the game is paused and goes on when it runs again, so each lasts its full time of play: the clean body and the Purify Tree's glow their 4 real-life minutes, the sticky gunk its 3 and a "
+    "stew's wait its 10 (real time while the game runs, the same at every speed; the save is written exactly as "
+    "before); and a bath in the rain makes a villager clean as it does in fine weather")
+STEW_WAIT_FIX_LINE = ("the autosave no longer ends a villager's stew effects and the wait stops while the game is "
+                      "paused, "
+                      "so the healing and sick stews' wait lasts its full 10 real-life minutes of play (real time "
+                      "while the game runs, the same at every speed)")
 # The soapy pond: "Adding soap to the pond" (action 0x96, 0x43A430) ends with step 0x2E (0x4698D0, 0x43A4CD) turning
 # world state 0x1A on through 0x46D530, whose table gives 0x1A 60 seconds of the game clock 0x4D6F18 (0x46D54E);
 # 0x46D7F0 turns it off when the game clock reaches that.  Nothing else sets or clears 0x1A.  A villager dropped on
 # the pond (0x438500, drop spot 0x38) gets "Getting clean in soapy pond" (action 0x97) only with The Stream solved,
-# the stream's flow level 2 (0x4396E0: debris 75 or less) and state 0x1A on.  Fix Vanilla Bugs gives 0x1A its own
-# case, 240 (0x46D503, jump table entry 0x46D5C8); state 0xB keeps 60.
-SOAP_FIX_LINE = ("the pond stays soapy for 4 minutes of the game's clock (4 real-life minutes on Normal speed, 2 on "
-                 "Fast, 6 minutes 40 seconds on Slow), as long as the clean body lasts")
+# the stream's flow level 2 (0x4396E0: debris 75 or less) and state 0x1A on.  Unchanged by the patcher (the owner,
+# 2026-11-16: the soap stays as it is).
 SOAPY_POND_LINE = (
-    "In the base game adding soap to the pond makes it soapy for 1 minute of the game's clock: 1 real-life minute on Normal speed, "
+    "Adding soap to the pond makes it soapy for 1 minute of the game's clock: 1 real-life minute on Normal speed, "
     "30 seconds on Fast and 1 minute 40 seconds on Slow; it does not run down while the game is paused. A villager "
     "dropped in the pond goes \"Getting clean in soapy pond\" only while it is soapy, The Stream is solved and the "
     "stream's debris is 75 or less (of 100).")
@@ -636,7 +640,6 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", CANT_EAT_LINE, gm.RUNNING)
     out.append(gm.Fact("Other", gm.patch_words(village, FIX_VANILLA, STEW_WAIT_FIX_LINE), gm.RUNNING, True))
     add("Other", SOAPY_POND_LINE, gm.CODE)
-    out.append(gm.Fact("Other", gm.patch_words(village, FIX_VANILLA, SOAP_FIX_LINE), gm.RUNNING, True))
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
     # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).

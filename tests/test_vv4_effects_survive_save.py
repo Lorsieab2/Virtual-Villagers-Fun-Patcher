@@ -54,20 +54,12 @@ MODES = ("stock", "collection_progression", "immediate_fixed")
 
 CALL_OFFSET = 0x660C4                       # file offset of 0x4660C4
 CALL_STOCK = bytes.fromhex("E8D789FFFF")    # call 0x45EAA0
-CALL_FIXED = bytes.fromhex("9090909090")
+# The writer's call stays in the executable: "VVFP Speed Change Timers.dll" skips it for the autosave only, at run
+# time (tests/test_speed_change_timers.py TheAutosaveKeepsTheEffects).
 # The clean body's sparkle (kind 2) may use every sparkle slot, not only the first 101 the rain's splashes fill.
 POOL_OFFSET, POOL_STOCK, POOL_FIXED = 0x1CEDB, bytes.fromhex("83F902"), bytes.fromhex("83F913")
-# The soapy pond (world state 0x1A) lasts 240 game-clock seconds: a new case in the padding after 0x46D500, and the
-# jump table's entry for states 0xB / 0x1A pointed at it.
-SOAP_CASE_OFFSET = 0x6D503
-SOAP_CASE_STOCK = bytes.fromhex("CC" * 13)
-SOAP_CASE_FIXED = bytes.fromhex("6A3C5E83F91A7503C1E602EB7B")
-SOAP_TABLE_OFFSET, SOAP_TABLE_STOCK, SOAP_TABLE_FIXED = 0x6D5C8, bytes.fromhex("4ED54600"), bytes.fromhex("03D54600")
 EFFECTS_FIXES = (
-    (CALL_OFFSET, CALL_STOCK, CALL_FIXED),
     (POOL_OFFSET, POOL_STOCK, POOL_FIXED),
-    (SOAP_CASE_OFFSET, SOAP_CASE_STOCK, SOAP_CASE_FIXED),
-    (SOAP_TABLE_OFFSET, SOAP_TABLE_STOCK, SOAP_TABLE_FIXED),
 )
 
 REMOVE_ALL = 0x45EAA0
@@ -138,7 +130,7 @@ class StaticTests(unittest.TestCase):
                 without = _render(mode, [])
                 rendered = _render(mode, [FEATURE_ID])
                 self.assertEqual(without[CALL_OFFSET:CALL_OFFSET + 5], CALL_STOCK)
-                self.assertEqual(rendered[CALL_OFFSET:CALL_OFFSET + 5], CALL_FIXED)
+                self.assertEqual(rendered[CALL_OFFSET:CALL_OFFSET + 5], CALL_STOCK)      # the DLL's, at run time
                 # 0x45EAA0 itself and the "Wiping sticky gunk" caller are untouched.
                 for va in (REMOVE_ALL, 0x46431C):
                     off = va - 0x400000
@@ -172,15 +164,6 @@ class StaticTests(unittest.TestCase):
         self.assertIn((0x46B683, "mov", "eax, 0x14"), self._listing(0x46B683, 0x1C))
         self.assertIn((0x46B5C9, "push", "0x14"), self._listing(0x46B5C8, 0x10))
 
-    def test_the_soap_case_decodes(self) -> None:
-        md = Cs(CS_ARCH_X86, CS_MODE_32)
-        self.assertEqual([(i.address, i.mnemonic, i.op_str) for i in md.disasm(SOAP_CASE_FIXED, 0x46D503)], [
-            (0x46D503, "push", "0x3c"), (0x46D505, "pop", "esi"), (0x46D506, "cmp", "ecx, 0x1a"),
-            (0x46D509, "jne", "0x46d50e"), (0x46D50B, "shl", "esi, 2"), (0x46D50E, "jmp", "0x46d58b"),
-        ])
-        # The padding is unused: 0x46D500 is `ret 8` and 0x46D510 the next routine.
-        self.assertEqual(self._listing(0x46D500, 3), [(0x46D500, "ret", "8")])
-        self.assertEqual(self._listing(0x46D58B, 3)[0], (0x46D58B, "lea", "edi, [ecx + ecx*4]"))
 
 
 @unittest.skipUnless(_have_stock(), "needs research/stock-executables (the stock VV4 exe)")
@@ -190,6 +173,7 @@ class SaveEmulationTests(unittest.TestCase):
 
     CLEAN_IDS = (7, 8, 9, 10, 11)
     GLOW_IDS = (12, 13, 14)
+    GUNK_ID = 20                      # the sticky gunk: a kind-5 sparkle (0x438CA0)
     STEW_ID = 8                       # the stew's number is the effect's id (0x42E960); 8 is the healing stew
 
     @classmethod
@@ -209,8 +193,10 @@ class SaveEmulationTests(unittest.TestCase):
         for sid in range(512):
             mu.mem_write(_sparkle(sid), struct.pack("<i", -1))
         rec = m.record(0)
-        entries = [(SPARKLES, sid, 2) for sid in self.CLEAN_IDS] + [(SPARKLES, sid, 1) for sid in self.GLOW_IDS]
-        entries.append((STEWS, self.STEW_ID, -1))
+        # mixed order: the clean body, the glow, the gunk and a stew's wait
+        entries = ([(STEWS, self.STEW_ID, -1)] + [(SPARKLES, sid, 2) for sid in self.CLEAN_IDS[:2]]
+                   + [(SPARKLES, self.GUNK_ID, 5)] + [(SPARKLES, sid, 2) for sid in self.CLEAN_IDS[2:]]
+                   + [(SPARKLES, sid, 1) for sid in self.GLOW_IDS])
         for n, (manager, sid, kind) in enumerate(entries):
             if manager == SPARKLES:
                 mu.mem_write(_sparkle(sid), struct.pack("<i", kind))
@@ -226,14 +212,15 @@ class SaveEmulationTests(unittest.TestCase):
             "clean": m.thiscall(CLEAN_BODY, rec) & 0xFF,
             "glow": m.thiscall(GLOW, rec) & 0xFF,
             "stew wait": m.thiscall(HAS_EFFECT, rec, STEWS, self.STEW_ID) & 0xFF,
+            "gunk": m.thiscall(HAS_EFFECT, rec, SPARKLES, self.GUNK_ID) & 0xFF,
             "sparkles": [struct.unpack("<i", m.mu.mem_read(_sparkle(s), 4))[0]
-                         for s in self.CLEAN_IDS + self.GLOW_IDS],
+                         for s in self.CLEAN_IDS + self.GLOW_IDS + (self.GUNK_ID,)],
         }
 
-    def test_before_the_save_the_villager_is_clean_glowing_and_waiting(self) -> None:
+    def test_before_the_save_the_villager_is_clean_glowing_waiting_and_gunky(self) -> None:
         m, rec, entries = self._machine(self.builds[("stock", "stock")])
-        self.assertEqual(self._state(m, rec), {"count": 9, "clean": 1, "glow": 1, "stew wait": 1,
-                                               "sparkles": [2] * 5 + [1] * 3})
+        self.assertEqual(self._state(m, rec), {"count": 10, "clean": 1, "glow": 1, "stew wait": 1, "gunk": 1,
+                                               "sparkles": [2] * 5 + [1] * 3 + [5]})
 
     def test_stock_save_ends_every_effect(self) -> None:
         for mode in MODES:
@@ -241,17 +228,30 @@ class SaveEmulationTests(unittest.TestCase):
                 m, rec, _ = self._machine(self.builds[(mode, "stock")])
                 self.assertEqual(m.save(), 1)
                 self.assertEqual(self._state(m, rec), {"count": 0, "clean": 0, "glow": 0, "stew wait": 0,
-                                                       "sparkles": [-1] * 8})
+                                                       "gunk": 0, "sparkles": [-1] * 9})
 
-    def test_fixed_save_keeps_every_effect(self) -> None:
+    def test_the_rendered_executable_alone_still_ends_every_effect(self) -> None:
+        # Without the companion (or for every save but the autosave) the writer is the base game's.
         for mode in MODES:
             with self.subTest(mode=mode):
-                m, rec, entries = self._machine(self.builds[(mode, "patched")])
-                before = bytes(m.mu.mem_read(rec + EFFECTS, COUNT + 4 - EFFECTS))
+                m, rec, _ = self._machine(self.builds[(mode, "patched")])
                 self.assertEqual(m.save(), 1)
-                self.assertEqual(self._state(m, rec), {"count": 9, "clean": 1, "glow": 1, "stew wait": 1,
-                                                       "sparkles": [2] * 5 + [1] * 3})
-                self.assertEqual(bytes(m.mu.mem_read(rec + EFFECTS, COUNT + 4 - EFFECTS)), before)
+                self.assertEqual(self._state(m, rec)["count"], 0)
+
+    def test_quitting_still_ends_every_effect(self) -> None:
+        # Effects are not saved, and the record reset every load and every new village runs (0x45D8A0: xor ebx,
+        # ebx ... mov [esi+0x1E5C], ebx) leaves each villager with none; the game reset 0x41F1E0 resets all 150
+        # records (0x466240) and frees every sparkle (0x41F22A).
+        pe = pefile.PE(str(STOCK), fast_load=True)
+        data = STOCK.read_bytes()
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        off = pe.get_offset_from_rva(0x45D8A0 - 0x400000)
+        listing = [(i.address, i.mnemonic, i.op_str) for i in md.disasm(data[off:off + 0x10C], 0x45D8A0)]
+        self.assertIn((0x45D98F, "mov", "dword ptr [esi + 0x1e5c], ebx"), listing)
+        self.assertTrue(any(m == "xor" and ops == "ebx, ebx" for a, m, ops in listing if a < 0x45D98F))
+        self.assertFalse(any("ebx" in ops.split(",")[0] for a, m, ops in listing
+                             if 0x45D8A0 < a < 0x45D98F and m in ("mov", "add", "inc", "pop", "lea", "or")
+                             and ops.startswith("ebx")))
 
     def test_the_saved_bytes_are_the_same(self) -> None:
         for mode in MODES:
@@ -353,17 +353,15 @@ class SoapTimerTests(unittest.TestCase):
             out[state] = value - self.NOW if value else 0
         return out
 
-    def test_stock_soap_lasts_60_and_fixed_240_nothing_else_changes(self) -> None:
+    def test_the_soap_and_every_world_state_keep_their_stock_lengths(self) -> None:
+        # The owner (2026-11-16): the soap stays as it is -- 60 seconds of the game clock (it already stops while
+        # the game is paused: the game clock does).
         for mode in MODES:
             with self.subTest(mode=mode):
                 stock = self._deadlines(self.builds()[(mode, "stock")])
                 fixed = self._deadlines(self.builds()[(mode, "patched")])
                 self.assertEqual(stock[0x1A], 60)
-                self.assertEqual(fixed[0x1A], 240)
-                self.assertEqual(stock[0xB], 60)
-                self.assertEqual(fixed[0xB], 60)
-                self.assertEqual({k: v for k, v in stock.items() if k != 0x1A},
-                                 {k: v for k, v in fixed.items() if k != 0x1A})
+                self.assertEqual(fixed, stock)
 
     @classmethod
     def builds(cls):

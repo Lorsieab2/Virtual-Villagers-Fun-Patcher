@@ -191,6 +191,147 @@ class AllOrNothing(unittest.TestCase):
         self.assertEqual(c.emu.p.read(site, len(stock)), stock)
 
 
+VV4_RECORDS, VV4_RECORD_SIZE = 0x50E5AC, 0x2E3C       # the population manager 0x50E568 + 0x44, 150 records
+VV4_EFFECTS, VV4_COUNT, VV4_EFFECT = 0x1D0C, 0x1E5C, 0x1C
+
+
+class TheVillagersEffectsPause(unittest.TestCase):
+    """The Tree of Life (the owner, 2026-11-16: "All of those effect timers should pause when the game is paused"):
+    each villager effect ends when the computer's clock reaches the end it keeps (+0x14 of its entry); with the DLL,
+    coming out of a pause moves every set end on by the time paused, through the real set_speed."""
+
+    ENDS = (1_000_240, 1_000_180, 1_000_600, 0, 1_000_001)     # clean body, gunk, stew wait, no end, about to end
+
+    def _village(self, c: Clock) -> None:
+        p = c.emu.p
+        for record in (0, 77, 149):
+            base = VV4_RECORDS + record * VV4_RECORD_SIZE
+            for n, end in enumerate(self.ENDS):
+                p.put32(base + VV4_EFFECTS + n * VV4_EFFECT + 0x14, end)
+            p.put32(base + VV4_COUNT, len(self.ENDS))
+        junk = VV4_RECORDS + 5 * VV4_RECORD_SIZE              # a record whose count is not a real one
+        p.put32(junk + VV4_COUNT, 0x40)
+        p.put32(junk + VV4_EFFECTS + 0x14, 1_000_100)
+
+    def _ends(self, c: Clock, record: int) -> list[int]:
+        base = VV4_RECORDS + record * VV4_RECORD_SIZE
+        return [c.emu.p.u32(base + VV4_EFFECTS + n * VV4_EFFECT + 0x14) for n in range(len(self.ENDS))]
+
+    def test_a_pause_stops_every_effect(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        now = 1_000_000
+        for dll in (False, True):
+            for before, after in ((6, 6), (3, 6), (10, 3)):
+                with self.subTest(dll=dll, before=before, after=after):
+                    c = Clock(4, dll=dll)
+                    c.start(before, now, now + 50_000)
+                    self._village(c)
+                    c.at(now + 30, 999)                     # paused 30 s into the effects
+                    c.at(now + 30 + 600, after)             # ten minutes later, unpaused (any speed)
+                    shift = 600 if dll else 0
+                    for record in (0, 77, 149):
+                        self.assertEqual(self._ends(c, record),
+                                         [e + shift if e else 0 for e in self.ENDS])
+                    junk = VV4_RECORDS + 5 * VV4_RECORD_SIZE
+                    self.assertEqual(c.emu.p.u32(junk + VV4_EFFECTS + 0x14), 1_000_100)
+
+    def test_a_speed_change_while_running_moves_nothing(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        now = 1_000_000
+        c = Clock(4, dll=True)
+        c.start(6, now, now + 50_000)
+        self._village(c)
+        c.at(now + 30, 3)                                   # Fast, while running: effects stay real time
+        c.at(now + 60, 10)
+        self.assertEqual(self._ends(c, 0), list(self.ENDS))
+
+
+class TheAutosaveKeepsTheEffects(unittest.TestCase):
+    """The Tree of Life (the owner, 2026-11-16: "just the autosave should have all effects kept"): the save writer's
+    per-villager call of 0x45EAA0 (0x4660C4) ends every effect; with the DLL the autosave's call of the slot saver
+    (0x41F1C4) runs with a flag that makes that call skip it, and every other save is the base game's."""
+
+    AUTOSAVE_SITE, STRIP_SITE, SLOT_SAVER = 0x41F1C4, 0x4660C4, 0x41F160
+    SPARKLES, SPARKLES_VT, STEWS, STEWS_VT = 0x4CE1C0, 0x48D54C, 0x4D6F50, 0x48D5C4
+    # (manager, id, kind): the clean body, the glow, the sticky gunk, a stew's wait
+    ENTRIES = ((0x4CE1C0, 7, 2), (0x4CE1C0, 12, 1), (0x4CE1C0, 20, 5), (0x4D6F50, 8, -1))
+
+    def _process(self, install: bool = True):
+        from story_emulator import Process
+        p = Process(edit.stock_exe(4).read_bytes(), DLL)
+        if install:
+            p.export("VvfpStartup", 4, 0)
+        p.put32(self.SPARKLES, self.SPARKLES_VT)
+        p.put32(self.STEWS, self.STEWS_VT)
+        for sid in range(512):
+            p.put32(self.SPARKLES + 4 + sid * 0x44, 0xFFFFFFFF)
+        rec = VV4_RECORDS
+        for n, (manager, sid, kind) in enumerate(self.ENTRIES):
+            if manager == self.SPARKLES:
+                p.put32(self.SPARKLES + 4 + sid * 0x44, kind & MASK)
+            p.write(rec + VV4_EFFECTS + n * VV4_EFFECT,
+                    struct.pack("<Iiiiiii", manager, sid, kind, 0, 0, 1_000_240, 0))
+        p.put32(rec + VV4_COUNT, len(self.ENTRIES))
+        return p, rec
+
+    def _target(self, p, site: int) -> int:
+        return (site + 5 + struct.unpack("<i", p.read(site + 1, 4))[0]) & MASK
+
+    def _save_through(self, p, rec: int, autosave: bool) -> None:
+        # The slot saver stand-in: one villager through the writer's call site's target (ecx = the record).
+        strip = self._target(p, self.STRIP_SITE)
+        p.write(self.SLOT_SAVER, b"\xB9" + struct.pack("<I", rec) + b"\xB8" + struct.pack("<I", strip)
+                + b"\xFF\xD0\xC2\x04\x00")
+        caller = self._target(p, self.AUTOSAVE_SITE) if autosave else self.SLOT_SAVER
+        p.call(caller, [0], ecx=0x4E0000)
+
+    def _left(self, p, rec: int) -> int:
+        return p.u32(rec + VV4_COUNT)
+
+    def test_the_sites_are_written_together(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, _ = self._process()
+        for site in (self.AUTOSAVE_SITE, self.STRIP_SITE):
+            self.assertEqual(p.read(site, 1), b"\xE8")
+            self.assertNotIn(self._target(p, site), (self.SLOT_SAVER, 0x45EAA0))
+        p, _ = self._process(install=False)
+        p.write(self.STRIP_SITE + 1, b"\x00")                       # one changed byte: neither is written
+        p.export("VvfpStartup", 4, 0)
+        self.assertEqual(p.read(self.AUTOSAVE_SITE, 5), bytes.fromhex("E897FFFFFF"))
+
+    def test_the_autosave_keeps_every_effect(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, rec = self._process()
+        before = p.read(rec + VV4_EFFECTS, VV4_COUNT + 4 - VV4_EFFECTS)
+        self._save_through(p, rec, autosave=True)
+        self.assertEqual(p.read(rec + VV4_EFFECTS, VV4_COUNT + 4 - VV4_EFFECTS), before)
+        self.assertEqual(self._left(p, rec), 4)
+        # the flag is down again: the next other save ends them
+        self._save_through(p, rec, autosave=False)
+        self.assertEqual(self._left(p, rec), 0)
+
+    def test_every_other_save_ends_every_effect(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        for install in (True, False):
+            with self.subTest(dll=install):
+                p, rec = self._process(install)
+                self._save_through(p, rec, autosave=False)
+                self.assertEqual(self._left(p, rec), 0)
+                self.assertEqual(p.u32(self.SPARKLES + 4 + 7 * 0x44), MASK)     # its sparkle freed
+
+    def test_without_the_dll_the_autosave_ends_them(self) -> None:
+        if not have(4):
+            self.skipTest("the stock Tree of Life or the DLL is missing")
+        p, rec = self._process(install=False)
+        self._save_through(p, rec, autosave=True)                    # the stock call: the slot saver itself
+        self.assertEqual(self._left(p, rec), 0)
+
+
 class TheOtherGamesAlreadyRescale(unittest.TestCase):
     """A New Home, The Lost Children, New Believers: pause on Fast, unpause on Normal (an Options
     button: rescale(paused, 6)) -- the stock routine gives Normal's length."""
