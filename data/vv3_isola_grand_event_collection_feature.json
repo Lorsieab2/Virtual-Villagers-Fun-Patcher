@@ -1584,7 +1584,7 @@
     {
       "source": "assets/event_collection/all_v22_4_parents.cieg",
       "destination": "Island Event Collection/all_v22_4_parents.cieg",
-      "sha256": "6CE0729C16BFC44C6E1C840FD7268A6403ED94C9BE31CA98B488EE889982C36C"
+      "sha256": "694C11550445A8624B23132A80554AF2D33A6227099347D8542CB42D957FC835"
     },
     {
       "source": "assets/event_collection/all_v23_1_practical.cieg",
@@ -15404,7 +15404,7 @@
     {
       "source": "assets/event_collection/lvppl02_blue_cloth.cieg",
       "destination": "Island Event Collection/lvppl02_blue_cloth.cieg",
-      "sha256": "FDDAB93953BAB3E7271D5D3E07AAA19371D72B8908B15457A1B388D2F29A602F"
+      "sha256": "A89B12DEBC8EE04EEFED4F6EC57D9E6F391F4F032EA4F507412083812342D4B8"
     },
     {
       "source": "assets/event_collection/lvppl03_cloth_changed.cieg",

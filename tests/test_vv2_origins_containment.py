@@ -70,6 +70,8 @@ REMAINING = {
     "vv2_adult_confused",
     # companion only (the children's pastime pick, at run time); owns no Origins bytes
     "vv2_children_play",
+    # companion only (the island event trigger's wait draws, at run time); owns no Origins bytes
+    "vv2_more_frequent_island_events",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",

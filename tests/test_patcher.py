@@ -1211,8 +1211,9 @@ class ManifestTests(unittest.TestCase):
         # conception sites at run time; 51-80 the island events' content controls -- Content Notes for Island
         # Events, the 28 content filters (vv2_island_event_filter_f01 .. f28) and No Safeguards for Island Events
         # (vv2_island_events_any_time) -- no executable byte: names in the installed patches' list the Story / Cheat
-        # Upgrades companion reads.
-        self.assertEqual(len(feature_ids), 80)
+        # Upgrades companion reads; 81 with More Frequent Island Events (vv2_more_frequent_island_events), no
+        # executable byte -- its companion writes the trigger's three wait draws at run time.
+        self.assertEqual(len(feature_ids), 81)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4199,6 +4200,8 @@ class StockIntegrationTests(unittest.TestCase):
             # The island events' content controls: names in the installed patches' list, no executable bytes.
             "vv2_island_event_content_notes",
             "vv2_island_events_any_time",
+            # More Frequent Island Events: companion only, no executable bytes.
+            "vv2_more_frequent_island_events",
             }
             | {f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)},
         )

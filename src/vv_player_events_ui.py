@@ -17,6 +17,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
 import vv_player_events as pe
+from vv_scrollbars import horizontal_bar
 
 ASK_FILES = filedialog.askopenfilenames
 ASK_FILE = filedialog.askopenfilename
@@ -267,6 +268,7 @@ class PlayerEventsSection:
         self.theme_list.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         self.theme_list.pack(side="left", fill="x", expand=True)
+        horizontal_bar(self.theme_list)              # a long theme scrolls sideways
         for k, t in enumerate(self.theme_names):
             self.theme_list.insert("end", t)
             if t in chosen:

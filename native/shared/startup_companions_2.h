@@ -78,7 +78,7 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
     /* More Frequent Island Events (all five games): the game's own island events N times as often (the patcher
-       window's slider, read from "VVFP Island Frequency.txt" beside it). */
+       window's slider, read from the file VVFP Island Frequency.txt beside it). */
     "VVFP Island Frequency.dll",
     /* No Safeguards for Island Events (and Additional Events too) (all five games): the game's own island events
        without their conditions, except what an event needs (its villagers, its puzzle) and what keeps it safe. */

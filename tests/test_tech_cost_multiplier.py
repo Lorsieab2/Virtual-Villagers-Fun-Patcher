@@ -903,7 +903,7 @@ class GameMechanicsTests(unittest.TestCase):
                     self.assertEqual(len(changed), len(stock_table(game)))
                     for (name, level), price in stock_table(game).items():
                         want = (f"{price:,} tech points normally, {n * price:,} with \"2-100x Tech Cost\" (x{n})"
-                                if n else f"{price:,} tech points normally, {2 * price:,} to {10 * price:,} with "
+                                if n else f"{price:,} tech points normally, {2 * price:,} to {100 * price:,} with "
                                           "\"2-100x Tech Cost\" (its multiplier could not be read")
                         self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in changed),
                                         (name, level))

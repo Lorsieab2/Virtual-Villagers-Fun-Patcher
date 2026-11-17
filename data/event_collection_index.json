@@ -2685,6 +2685,1618 @@
    "harm": [],
    "section": "dr_arm_m"
   },
+  "b001_undertow": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b002_three_day_fever": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b003_basket_mangroves": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b004_pool_under_moon": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b005_blessing_stones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b006_struck_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b007_night_big_wind": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b008_mirror_shell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b009_cliff_path": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b010_cook_hated": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b011_fog_vents": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b012_canoe_north": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b013_spotted_sickness": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b014_naming_stone": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b015_night_moths": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b016_grandchild_spell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b017_child_followed": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b018_night_whales_sang": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b019_mudslide": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b020_cave_echoes": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b021_hundred_year": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b022_fisher_voyage": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b023_rivals_spirit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b024_hot_spring_hills": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b025_fire_weaving_hut": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b026_sleepwalker": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b027_clay_old_kiln": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b028_wishing_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b029_smoke_horizon": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b030_rival_builders": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b031_bonesetter_choice": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b032_mask_another_face": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b033_overturned_canoe": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b034_raft_morning_tide": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b035_lagoon_keeps_time": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b036_festival_lanterns": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b037_wind_bell_rocks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b038_elder_last_winter": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b039_shadow_net": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b040_teaching_day": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b041_dance_shared": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b042_coconut_season": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b043_baby_healers_door": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b044_fruit_two_stones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b045_pearl_bed": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b046_old_couple_wish": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b047_turtle_nest": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b048_granary_floor": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b049_mist_canoe": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b050_healers_garden": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b051_forgetting_fruit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b052_wave_gives_back": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b053_wrestling_match": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b054_two_same_name": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b055_termites": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b056_woman_tide_pools": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b057_sick_canoe": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b058_rope_swing_over": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b059_paired_gourds": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b060_gourd_cradle": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b061_banyan_bark": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b062_torch_fishers": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b063_wedding_night": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b064_floating_chest": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b065_twin_stars": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b066_wild_boar": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b067_shaking_ground": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b068_day_sun_went_dark": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b069_sea_glass_window": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b070_waterfall_curtain": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b071_ancestor_masks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b072_canoe_didnt_come": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b073_scholar_mixture": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b074_remedy_deep": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b075_moon_charm": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b076_giant_eel": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b077_rope_bridge": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b078_coral_grows_twice": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b079_garden_raft": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b080_elder_hills": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b081_walker_fog": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b082_baby_hollow_log": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b083_lightning_stone": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b084_name_day": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b085_hailstones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b086_pond_two_moons": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b087_grey_morning": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b088_wet_rocks_falls": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b089_singing_reef": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b090_healer_steps_down": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b091_double_rainbow": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b092_shell_swap": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b093_leaking_roofs": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b094_baby_waves": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b095_hourglass_shell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b096_storm_lookout": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b097_bark_boat_race": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b098_flood": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b099_moon_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b100_elder_wants_stop": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b101_carved_cradle": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b102_great_bird_egg": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b103_cracking_cliff": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b104_race_far_reef": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b105_second_shadow": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b106_sleeping_sickness": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b107_festival_masks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b108_fire_children_hut": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b109_washing_stones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b110_spring_light": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b111_lagoon_mirror": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b112_contest_hands": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b113_night_fishers": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b114_grandmother": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b115_typhoon": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b116_twin_pools": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b117_leaping_contest": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b118_sunken_statue": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b119_coughing_season": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b120_last_night_year": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b121_fever_tea": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b122_night_roofs_flew": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b123_still_pool_above": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b124_name_stone": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b125_blessing_shell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b126_hollow_log": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b127_festival_masks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b128_goat_path": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b129_weaver_last_mat": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b130_raft_dawn": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b131_knock_after": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b132_builders_wager": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b133_grey_mist": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b134_kite_hill_wish": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b135_healers_moon": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b136_mimic_bird": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b137_red_fish_supper": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b138_fisher_trip": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b139_bitter_berry_week": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b140_two_canoes": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b141_lightning_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b142_fig_fruits_once": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b143_too_many_babies": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b144_painter_pot": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b145_rope_bridge": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b146_cave_keeps_names": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b147_children_spring": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b148_termite_year": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b149_spirit_feast": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b150_grey_clay": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b151_two_round_stones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b152_shadow_stayed": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b153_love_charm_mix_up": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b154_memory_moths": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b155_grandmother_comb": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b156_old_well": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b157_brother_came_back": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b158_shrine_basket": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b159_teaching_turtle": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b160_path_wasnt_there": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b161_double_fruit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b162_mirror_shell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b163_dreaming_hammock": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b164_coconut_shy": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b165_salve_clay_jar": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b166_after_big_wave": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b167_elders_dance": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b168_race_reef": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b169_chore_spirit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b170_naming_feast": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b171_lantern_night": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b172_trader_baby": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b173_hammerhead": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b174_falling_star": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b175_feather_cloak": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b176_sunken_canoe": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b177_shared_gourd": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b178_copycat": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b179_fern_remembers": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b180_family_storm": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b181_hole_garden": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b182_hot_spring_rocks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b183_weed_year": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b184_mask_face": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b185_clay_figures": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b186_dolphin_waits": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b187_elder_hat": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b188_thatcher_ladder": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b189_coughing_season": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b190_crab_moon": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b191_big_canoe": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b192_burning_fever": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b193_night_blooming": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b194_canoe_shed_baby": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b195_bitter_honey": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b196_second_tide": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b197_moth_many_summers": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b198_jumping_rock": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b199_chief_bad_day": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b200_spirit_old_age": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b201_rain_drinker": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b202_tag_champion": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b203_sleepy_spell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b204_scroll_bit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b205_fastest_feet": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b206_washing_stones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b207_night_swim": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b208_eel_under_rock": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b209_twin_pond": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b210_grandchild_wish": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b211_frog_dance": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b212_last_canoe": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b213_seed_copy_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b214_mango_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b215_wind_spirit_visit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b216_apprentice": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b217_swapping_shells": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b218_lost_little_ones": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b219_sleepwalker": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b220_feather_crown": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b221_stone_teaches": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b222_singing_boat": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b223_rain_copies": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b224_wrong_jar": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b225_fishing_contest": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b226_flood": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b227_turtle_beach": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b228_talking_pig": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b229_mask_years": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b230_brave_child": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b231_moon_bowl": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b232_healing_rain": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b233_hut_raising_song": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b234_ghost_canoe": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b235_grey_gull": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b236_doubling_pool": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b237_mud_bath": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b238_island_wedding": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b239_long_night_fire": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b240_seed_traders": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b241_night_roofs_flew": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b242_canoe_beyond_reef": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b243_fever_bitter_root": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b244_fisher_tide": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b245_glass_pool_cave": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b246_vine_swing_over": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b247_red_moon_midwife": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b248_feast_nobody": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b249_grandchild_spell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b250_contest_best": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b251_lightning_under": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b252_basket_mangroves": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b253_ring_white_stones": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b254_bundle_thatch": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b255_coughing_season": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b256_traveller": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b257_wishing_well_coin": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b258_game_went_too_far": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b259_elder_wandered": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b260_warm_stone": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b261_dream_sharing_tea": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b262_baby_whale_wake": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b263_echo_conch": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b264_termites_rafters": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b265_healer_season": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b266_statue_under": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b267_night_hill_moved": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b268_mask_carver_faces": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b269_grey_shark": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b270_festival_floating": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b271_polished_shell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b272_coconut_climb": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b273_elders": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b274_hammock_built_two": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b275_lights_reef": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b276_swamp_fever": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b277_name_carved": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b278_cook_lost_taste": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b279_hermit_children": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b280_two_carved_totems": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b281_lotus_opened_dawn": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b282_grey_fog_off": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b283_warm_lake_crater": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b284_shadow_stood_up": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b285_masks_harvest": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b286_rockfall_quarry": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b287_fever_burns_away": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b288_laziest_summer": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b289_huts_stilts": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b290_sleepwalker": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b291_night_two": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b292_smoke_next_island": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b293_potter_clay": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b294_eel_twin_pools": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b295_ash_fell_like": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b296_spirit_wanted": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b297_wedding_nobody": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b298_crocodile_river": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b299_oldest_hut_falls": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b300_stranger_face": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b301_wrong_jar": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b302_bird_steals_words": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b303_echo_valley": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b304_waterfall_two": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b305_coconut_cried": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b306_pale_blossoms": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b307_burial_cave": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b308_moon_shell": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b309_rope_bridge_over": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b310_carver_masks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b311_raft_river_mouth": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b312_apprentice_roof": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b313_kindnesses": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b314_flood_scroll_hut": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b315_storm_gourd": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b316_grandmother_tree": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b317_visitor_door": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b318_twin_statues": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b319_slippery_rocks": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b320_sister_hills": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b321_healers_week": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b322_sky_lantern_came": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b323_cousins_across": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b324_hollow_log_drum": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b325_old_woman_reef": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b326_double_banana": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b327_fall_festival": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b328_naming_stone": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b329_elder_last_story": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b330_tunnel_under": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b331_basket_turtle": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b332_silver_web_dawn": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b333_two_looked_alike": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b334_fever_ward": {
+   "harm": [
+    "kill"
+   ],
+   "section": "bal"
+  },
+  "b335_ghost_crabs_night": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b336_lazy_river": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b337_hut_deep_jungle": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b338_storm_season": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b339_grey_heron_pool": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b340_shell_doubles": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b341_octopus_fish_trap": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b342_golden_moths": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b343_rainbow_over": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b344_lost_recipe": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b345_games_hill": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b346_dolphin_wouldnt": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b347_smoked_fish": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b348_map_wrinkles": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b349_teenagers_cave": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b350_second_naming": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b351_bundle_breadfruit": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b352_moon_bath": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b353_morning_after": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b354_sweet_spring_sour": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b355_mist_takes_names": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b356_harvest_moon": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b357_shell_turning": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b358_canoe_came_back": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "bal"
+  },
+  "b359_healer_sweet": {
+   "harm": [],
+   "section": "bal"
+  },
+  "b360_ghost_empty_hut": {
+   "harm": [],
+   "section": "bal"
+  },
   "blf01_good_morning_sun": {
    "harm": [],
    "section": "dr_blf"
@@ -11921,6 +13533,472 @@
    "harm": [],
    "section": "lv_ways"
   },
+  "my001_person_beyond": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my002_old_beggar_door": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my003_second_footprint": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my004_crate_owner": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my005_bottle_blue": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my006_woman_else_hears": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my007_mask_changes": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my008_three_sealed": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my009_stranger": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my010_beggar_empty": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my011_door_there": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my012_mirror_another": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my013_guest_knew": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my014_cask_forgotten": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my015_figure_tidal": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my016_potion_two": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my017_woman_last_house": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my018_sealed_box_winds": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my019_three_gifts": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my020_bridge_keeper": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my021_song_opens_cave": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my022_fisherman": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my023_visitor_cast": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my024_lantern_empty": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my025_beggar_broken": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my026_house_dreamed": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my027_river_returned": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my028_orchard_night": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my029_name_spoken_well": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my030_gift_could_given": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my031_shoreline": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my032_stranger": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my033_stone_remembered": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my034_two_identical": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my035_merchant": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my036_empty_seat_feast": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my037_forest_borrowed": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my038_sea_three": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my039_clay_figure": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my040_night_visitor": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my041_woman_three": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my042_broken_seal": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my043_road_returning": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my044_guest_left_name": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my045_promise_beneath": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my046_boatman_asked": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my047_shrine_guest": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my048_wishing_vessel": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my049_hollow_tree": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my050_sea_chest_two": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my051_visitor_cradle": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my052_box_winter": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my053_voice_boundary": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my054_three_knocks": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my055_silent_market": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my056_person_rain": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my057_gourd_would": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my058_beggar_request": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my059_mist_called_name": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_my"
+  },
+  "my060_crown_driftwood": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my061_sleeper_beneath": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my062_flower_bloomed": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my063_bargain_hidden": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my064_threshold_test": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my065_lost_page_world": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my066_night_open_doors": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my067_hidden_companion": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my068_box_last_word": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my069_watcher_cliff": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my070_beggar_returned": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my071_visitor_final": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my072_jar_two_sunrises": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my073_dreamer_stranger": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my074_man_storm_gate": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my075_stone_boat": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my076_voice_behind": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my077_gift_unseen": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my078_forest_unclaimed": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my079_guest_ate_food": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my080_silver_thread": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my081_cave_returned": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my082_traveler_lost": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my083_beggar_golden": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my084_unseen_guide": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my085_box_storms": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my086_last_lamp_ruins": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my087_woman_asked": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my088_hidden_name": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my089_stranger_counted": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my090_hungry_stranger": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my091_unfinished": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my092_silent_stranger": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my093_ancient_bottle": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my094_shore_unseen": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my095_basket_unknown": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my096_traveler_shadow": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my097_book_wrote_back": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my098_stranger_funeral": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my099_hidden_cup_rain": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my100_stranger_two": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my101_traveler_never": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my102_god_garden": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my103_jar_silent": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my104_ferryman_empty": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my105_woman_empty": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my106_circle_unseen": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my107_wanderer_three": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_my"
+  },
+  "my108_beggar_stolen": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my109_stranger_spoke": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my110_returned_lost": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_my"
+  },
+  "my111_wandering": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my112_guest_old_song": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my113_garden_vanished": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my114_stranger_offered": {
+   "harm": [],
+   "section": "rw_my"
+  },
+  "my115_stranger_season": {
+   "harm": [],
+   "section": "rw_my"
+  },
   "nat01_crab_blue_cup": {
    "harm": [],
    "section": "dr_nat"
@@ -12120,6 +14198,406 @@
   "nat50_fish_were_bigger": {
    "harm": [],
    "section": "dr_nat"
+  },
+  "new101_spring": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new102_second_shadow": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new103_twin_mist": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new104_charm_forgot": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new105_night_exchanged": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new106_blessing_tree": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new107_mirror_other": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new108_spirit": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new109_blue_flame": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new110_dream_two": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new111_fishing_line": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new112_watch_night": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new113_lost_public": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new114_council_empty": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new115_water_jar_rule": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new116_refused_duty": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new117_storehouse_key": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new118_stranger": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new119_broken_promise": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new120_vote_tied": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new121_scientist": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new122_secret_fort": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new123_first_fish": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new124_teacher": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new125_broken_toy_boat": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new126_child_feared": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new127_two_best": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new128_lost_shell": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new129_serious_play": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new130_young_helper": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new131_elder_garden": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new132_forgotten_path": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new133_fisher_hands": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new134_birthday": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new135_teacher_retired": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new136_letter_never": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new137_last_dance": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new138_grandparent": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new139_old_scar": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new140_bench_sun": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new141_trader_goods": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new142_sailor_stayed": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new143_letter_across": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new144_farmhand_west": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new145_returning_exile": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new146_mapmaker": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new147_injured_visitor": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new148_stranger_well": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new149_child_raft": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new150_visitor": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new151_rain_after": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new152_fog_held": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new153_wind_granary": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new154_heat_classroom": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new155_flooded_path": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new156_lightning": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new157_sudden_cold": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new158_tide_door": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new159_dusty_season": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new160_calm_before": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new161_second": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new162_farmer_shy": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new163_proposal": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new164_love_letter": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new165_couple_chose": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new166_wedding_without": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new167_partners_work": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new168_friendship": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new169_old_couple_walk": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new170_newcomer_choice": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new171_record_washed": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new172_wrong_name": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new173_name_lost_magic": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new174_family_recipe": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new175_child_word": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new176_unfinished": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new177_two_histories": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new178_hidden_diary": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new179_old_songbook": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new180_stone_names": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new181_apprentice": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new182_overworked": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new183_unwanted": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new184_fisher_wanted": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new185_without_tasks": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new186_misunderstood": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new187_shared_harvest": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new188_long_way_home": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new189_night_shift": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new190_worker_said": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new191_water_tasted": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new192_plant_grew": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new193_shells_holes": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new194_ant_trail": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new195_two_kinds_ash": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new196_tide_clock": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new197_sick_plant": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new198_stone_floats": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new199_breadfruit": {
+   "harm": [],
+   "section": "rw_new"
+  },
+  "new200_echo_cave": {
+   "harm": [],
+   "section": "rw_new"
   },
   "rm01_fair_share": {
    "harm": [],
@@ -12480,6 +14958,432 @@
   "rm90_example_passed": {
    "harm": [],
    "section": "dr_rm2"
+  },
+  "s001_spring_talks_back": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s002_face_tide_pool": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s003_very_long_nap": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s004_two_hammocks": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s005_wind_took_name": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s006_basket_beach": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s007_granary_gets_wet": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s008_coconut_bonanza": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s009_elder_forgot_get": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s010_bee_hat": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s011_second": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s012_biggest_fish_bay": {
+   "harm": [
+    "kill"
+   ],
+   "section": "rw_s"
+  },
+  "s013_researchers": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s014_fog_walker": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_s"
+  },
+  "s015_visitor_enormous": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s016_fertility_stone": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s017_name_nobody_can": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s018_pig_knew_better": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s019_glowing_berries": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s020_grumpy_morning": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s021_spring_years": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s022_echo_cave": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s023_lightning": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s024_sleepwalkers": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s025_quiet_afternoon": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s026_chief_bad_idea": {
+   "allow": true,
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s027_isolan_fire": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s028_tree_remembers": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s029_wrong_step_falls": {
+   "harm": [
+    "kill"
+   ],
+   "section": "rw_s"
+  },
+  "s030_fisher_tide": {
+   "harm": [
+    "kill"
+   ],
+   "section": "rw_s"
+  },
+  "s031_mould_made_friend": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s032_shipwrecked": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s033_monkey_raid": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s034_something_has": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s035_gift_smoking": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s036_weaver_pattern": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s037_coughing_season": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s038_prank_mirror": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s039_sacred_pool": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s040_forgetful_morning": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s041_naming_shell": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s042_midwife_dream": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s043_raft_strangers": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s044_bitter_leaf": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s045_master_builder": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s046_shortcut_over": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_s"
+  },
+  "s047_night_falling": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s048_elder_wet_rocks": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s049_barnacle_beard": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s050_grey_overnight": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s051_parrot_opinions": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s052_old_wanderer": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s053_child_forest": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s054_moon_mirror": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s055_fire_spirit_joke": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s056_blank_morning": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s057_elder_gift_years": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s058_old_friends_again": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s059_magic_seed": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s060_swarm": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s061_soft_yams": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s062_flood": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s063_library_wreck": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s064_stranger_recipe": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s065_coral_reef_dive": {
+   "harm": [
+    "kill"
+   ],
+   "section": "rw_s"
+  },
+  "s066_sinking_sand": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_s"
+  },
+  "s067_whispering_cave": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_s"
+  },
+  "s068_long_illness": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s069_snake_basket": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s070_isolan_healer": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s071_robe_shrank": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s072_tree_blossoms": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s073_sculptor": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s074_clay_copy": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s075_too_many_cooks": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s076_goat_followed": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s077_mask_seller": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s078_second_name_day": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s079_mirror_twins": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s080_child_grew_up": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s081_feast_elders": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s082_healer_mistake": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s083_rock_slide": {
+   "harm": [
+    "kill"
+   ],
+   "section": "rw_s"
+  },
+  "s084_riptide": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "rw_s"
+  },
+  "s085_elder_sea": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s086_two_s_problem": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s087_swapping_mango": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s088_stranger_took": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s089_beach_wedding": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s090_baby_ferns": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s091_fever_dream": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s092_big_wind": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s093_wise_old_tortoise": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s094_spilled_dye": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s095_lucky_harvest": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s096_peaceful_passing": {
+   "harm": [
+    "kill"
+   ],
+   "section": "rw_s"
+  },
+  "s097_ghost_light": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "rw_s"
+  },
+  "s098_grand_copy": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s099_back_childhood": {
+   "harm": [],
+   "section": "rw_s"
+  },
+  "s100_last_sunset_year": {
+   "harm": [],
+   "section": "rw_s"
   },
   "sss001_cartographer": {
    "harm": [],

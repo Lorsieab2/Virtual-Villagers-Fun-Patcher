@@ -1220,7 +1220,10 @@ def check_safety(doc: dict, rep: Report) -> None:
                 rep.add("f SAFETY", f"role {rid}: a stranger cannot take a villager effect")
         if r.get("special") and r["special"] not in SPECIALS:
             rep.add("f SAFETY", f"role {rid}: special is one of {SPECIALS}")
-        if 5 in doc.get("games", []) and r.get("kind", "villager") == "villager" and r.get("believers_only") is False:
+        # A heathen_ok role is a believers_only false role (graph_for_engine says it so to the engine); the files
+        # written by scripts/food_tech_additions.py HEATHEN_ROLES carry heathen_ok alone.
+        if 5 in doc.get("games", []) and r.get("kind", "villager") == "villager" and (
+                r.get("believers_only") is False or r.get("heathen_ok") is True):
             for p in heathen_ok_problems(doc, rid, r):
                 rep.add("f SAFETY", f"role {rid}: {p}")
         elif r.get("heathen_ok") is not None:
@@ -1244,7 +1247,12 @@ def heathen_ok_problems(doc: dict, rid: str, r: dict) -> list[str]:
     out = []
     ph = re.compile(r"\(" + re.escape(rid) + r"(?:\.[^()]*)?\)", re.I)
     texts = [f.text for f in text_fields(doc) if f.kind != "title"]
-    if not any(ph.search(par) and HEATHEN_WORDS.search(par) for t in texts for par in t.split("\n")):
+    # ...or, when it is the event's only heathen_ok role, the event's own description says so ("An Isolan neighbor
+    # gives the village a carving": scripts/food_tech_additions.py HEATHEN_ROLES' vv5_gift_or_insult visitor).
+    only = [k for k, v in (doc.get("roles") or {}).items() if isinstance(v, dict) and v.get("heathen_ok")] == [rid]
+    described = only and HEATHEN_WORDS.search(str((doc.get("collection") or {}).get("description", "")))
+    if not described and not any(ph.search(par) and HEATHEN_WORDS.search(par) for t in texts
+                                 for par in t.split("\n")):
         out.append("heathen_ok, but no paragraph that names it says Isolan or Heathen")
     for n in doc.get("nodes", {}).values():
         for e in n.get("effects", []) or []:

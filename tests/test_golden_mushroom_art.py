@@ -37,7 +37,8 @@ import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
 from unicorn.x86_const import (
     UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
-    UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
+    UC_X86_REG_DS, UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ES, UC_X86_REG_ESI, UC_X86_REG_ESP, UC_X86_REG_FS,
+    UC_X86_REG_GDTR, UC_X86_REG_SS,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -139,6 +140,29 @@ def rd32(mu, a):
     return struct.unpack("<I", mu.mem_read(a, 4))[0]
 
 
+TEB, GDT = 0x0D000000, 0x0D100000
+FS_INDEX, DATA_INDEX = 1, 2
+
+
+def _map_thread_block(mu) -> None:
+    """A thread block at fs:0 (an empty exception chain and the stack bounds), as Windows gives every thread: the
+    C runtime's string formatting the finds record's path takes (native/shared/save_folder.c) links an exception
+    frame through fs:[0].  As tests/startup_emulation.py does."""
+    mu.mem_map(TEB, 0x1000)
+    mu.mem_write(TEB, struct.pack("<7I", 0xFFFFFFFF, STACK + 0x100000, STACK - 0x100000, 0, 0, 0, TEB))
+    mu.mem_map(GDT, 0x1000)
+    limit, access, flags = 0xFFF, 0x92, 0x4
+    descriptor = ((limit & 0xFFFF) | ((TEB & 0xFFFFFF) << 16) | (access << 40)
+                  | (((limit >> 16) & 0xF) << 48) | (flags << 52) | (((TEB >> 24) & 0xFF) << 56))
+    mu.mem_write(GDT + 8 * FS_INDEX, struct.pack("<Q", descriptor))
+    flat = (0xFFFF | (0x92 << 40) | (0xF << 48) | (0xC << 52))
+    mu.mem_write(GDT + 8 * DATA_INDEX, struct.pack("<Q", flat))
+    mu.reg_write(UC_X86_REG_GDTR, (0, GDT, 0x100, 0))
+    for register in (UC_X86_REG_SS, UC_X86_REG_DS, UC_X86_REG_ES):
+        mu.reg_write(register, DATA_INDEX << 3)
+    mu.reg_write(UC_X86_REG_FS, FS_INDEX << 3)
+
+
 class Machine:
     """The DLL and a game image in one emulator, kernel32 and the game's
     allocator/constructor scripted."""
@@ -160,6 +184,7 @@ class Machine:
         mu.mem_map(HEAP, 0x100000)
         mu.mem_map(FAKE, 0x10000)
         mu.mem_map(SENTINEL, 0x1000)
+        _map_thread_block(mu)
         self.fakes = {}
         for i, name in enumerate(sorted(iat)):
             addr = FAKE + i * 0x10
@@ -324,8 +349,9 @@ class SiteTests(unittest.TestCase):
             m = Machine(game)
             detours = rows[f"vv{game}_super_secret_golden_mushroom"]["runtime_detours"]
             probed = _probed(m)
+            record = m.record_probe()      # the finds record's site, listed after the image sites
             with self.subTest(game=game):
-                self.assertEqual([(f"0x{va:X}", stock.hex().upper()) for va, stock, _, _ in probed],
+                self.assertEqual([(f"0x{va:X}", stock.hex().upper()) for va, stock, _, _ in probed + [record]],
                                  [(d["va"], d["stock_bytes"]) for d in detours])
                 for d in detours:
                     self.assertEqual(d["installed_by"], f"VVFP Golden Mushroom.dll, ordinal {game}")
@@ -796,8 +822,10 @@ class ManifestTests(unittest.TestCase):
                     {"source": "assets/golden_mushroom/golden_mushroom.png",
                      "destination": "Images/golden_mushroom.png", "sha256": png_sha},
                 ])
-        self.assertNotIn("companion_files", rows["vv2_super_secret_golden_mushroom"],
-                         "The Lost Children draws its own sheet's art")
+        # The Lost Children draws its own sheet's art: the DLL ships there for the finds record only (ordinal 2).
+        self.assertEqual(rows["vv2_super_secret_golden_mushroom"]["companion_files"], [
+            {"source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+             "destination": "VVFP Golden Mushroom.dll", "sha256": dll_sha}])
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn('"assets/golden_mushroom/VVFP Golden Mushroom.dll"', release)
         self.assertIn('"assets/golden_mushroom/golden_mushroom.png"', release)
@@ -849,7 +877,7 @@ RECORD = {  # site, how the row's code enters it, golden / not-golden registers,
     4: dict(site=0x41460A, golden={UC_X86_REG_ESI: 0x78}, other={UC_X86_REG_ESI: 0x76}, next=0x489150),
     5: dict(site=0x414915, golden={UC_X86_REG_ESI: 0x82}, other={UC_X86_REG_ESI: 0x80}, next=0x4947C0),
 }
-DOCS = "C:\\Users\\Player\\Documents"
+DOCS = "C:\\PlayerHome\\Documents"      # stands for the player's Documents folder
 VV2_VILLAGE, VV2_INDEX = HEAP + 0x10000, 3
 
 
@@ -859,6 +887,7 @@ class FileCalls:
     def __init__(self, root: Path):
         self.root = root
         self.handles: dict[int, Path] = {}
+        self.last_error = 0
         self.local(DOCS).mkdir(parents=True)        # the player's Documents folder exists
 
     def local(self, path: str) -> Path:
@@ -910,7 +939,11 @@ class FileCalls:
             p = self.local(self.wstr(m, a))
             existed = p.exists()
             p.mkdir(exist_ok=True)
+            self.last_error = 183 if existed else 0     # ERROR_ALREADY_EXISTS
             m._ret(0 if existed else 1, 2)
+
+        def GetLastError(m):
+            m._ret(self.last_error, 0)
 
         def GetFileAttributesExW(m):
             a, _level, info = m._args(3)
@@ -951,7 +984,7 @@ class FileCalls:
             m._ret(0, 1)
 
         for fn in (lstrlenW, lstrcpyW, lstrcpynW, lstrcatW, CompareStringW, SHGetSpecialFolderPathW,
-                   CreateDirectoryW, GetFileAttributesExW, FindFirstFileW, CreateFileW, WriteFile, CloseHandle,
+                   CreateDirectoryW, GetLastError, GetFileAttributesExW, FindFirstFileW, CreateFileW, WriteFile, CloseHandle,
                    GetLocalTime):
             m.extra[fn.__name__] = fn
 
