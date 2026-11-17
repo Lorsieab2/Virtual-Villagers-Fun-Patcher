@@ -632,6 +632,77 @@ class TheLostChildrenStewPotPauses(unittest.TestCase):
                     self.assertEqual(p.read(VV2_SITE, 1), b"\x8B")
 
 
+class ActionsEndOnlyTheirEffect(unittest.TestCase):
+    """The owner (2026-11-17): a game action that ended every effect ends only the one it is about.  The Secret City:
+    the hiccups' drink (18), the nonsense talk (38), the breath's meal (36, 37); New Believers: the "stop and wait"
+    reset ends the bees in "Hiding in the water" (170) and nothing in any other action."""
+
+    VV3_SITES = {0x42131F: (18,), 0x4218B6: (38,), 0x421AE1: (36, 37)}
+    VV3_OWNER = 0x582610
+    VV5_RESET, VV5_BEES, VV5_OTHER, VV5_ACTION = 0x467524, 0x4DE000, 0x51C430, 0x1D10
+
+    def villager(self, game: int, entries, dll: bool = True):
+        """Record 0 with `entries` [(owner, id)]; every owner's vtable answers the remove routine's two calls."""
+        f = FX[game]
+        p = stock_process(game, dll)
+        code = p.alloc(16)
+        p.write(code, b"\xC2\x08\x00\x90\xC2\x04\x00")
+        vtable = p.alloc(16)
+        p.put32(vtable + f["slots"][0], code)
+        p.put32(vtable + f["slots"][1], code + 4)
+        for owner in {o for o, _ in entries}:
+            p.put32(owner, vtable)
+        rec = f["records"]
+        for k, (owner, number) in enumerate(entries):
+            p.write(rec + f["effects"] + k * f["entry"], struct.pack("<Ii", owner, number) + b"\0" * (f["entry"] - 8))
+            p.put32(rec + f["effects"] + k * f["entry"] + f["end"], 1_000_000 + k)
+        p.put32(rec + f["count"], len(entries))
+        return p, rec
+
+    def left(self, p, game: int, rec: int) -> list[tuple[int, int]]:
+        f = FX[game]
+        return [struct.unpack("<Ii", p.read(rec + f["effects"] + k * f["entry"], 8))
+                for k in range(p.u32(rec + f["count"]))]
+
+    def test_the_secret_city(self) -> None:
+        if not have_game(3):
+            self.skipTest("the stock Secret City or the DLL is missing")
+        everything = [(self.VV3_OWNER, n) for n in (18, 36, 37, 38)]       # 4 entries: the most a villager has
+        for site, ends in self.VV3_SITES.items():
+            for dll in (True, False):
+                with self.subTest(site=hex(site), dll=dll):
+                    p, rec = self.villager(3, everything, dll)
+                    self.assertEqual(target(p, site) == 0x455DD0, not dll)
+                    p.call(target(p, site), [], ecx=rec)
+                    want = [e for e in everything if e[1] not in ends] if dll else []
+                    self.assertEqual(self.left(p, 3, rec), want)
+
+    def test_new_believers(self) -> None:
+        if not have_game(5):
+            self.skipTest("the stock New Believers or the DLL is missing")
+        entries = [(self.VV5_BEES, 4), (self.VV5_OTHER, 9), (self.VV5_BEES, 6)]
+        for action, dll, want in ((170, True, [(self.VV5_OTHER, 9)]), (158, True, entries), (7, True, entries),
+                                  (170, False, []), (158, False, [])):
+            with self.subTest(action=action, dll=dll):
+                p, rec = self.villager(5, entries, dll)
+                p.put32(rec + self.VV5_ACTION, action)
+                p.call(target(p, self.VV5_RESET), [], ecx=rec)
+                self.assertEqual(self.left(p, 5, rec), want)
+
+    def test_a_changed_byte_writes_no_effect_site(self) -> None:
+        for game, sites in ((3, list(self.VV3_SITES)), (5, [self.VV5_RESET])):
+            if not have_game(game):
+                continue
+            for site in sites:
+                with self.subTest(game=game, site=hex(site)):
+                    p = stock_process(game, install=False)
+                    stock = p.read(site, 5)
+                    p.write(site - 1, bytes([p.read(site - 1, 1)[0] ^ 0xFF]))
+                    p.export("VvfpStartup", game, 0)
+                    self.assertEqual(p.read(site, 5), stock)
+                    self.assertEqual(p.read(FX[game]["autosave"], 5).hex().upper(), FX[game]["autosave_stock"])
+
+
 class ANewHomeIsUnchanged(unittest.TestCase):
     def test_nothing_is_written(self) -> None:
         if not have_game(1):

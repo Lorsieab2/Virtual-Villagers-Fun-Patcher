@@ -376,12 +376,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # and the autosave's call runs with a flag that makes the writer skip 0x4660C0.
     add("Other", "A villager's short effects (each kept on the villager's own list) last 5 to 39 real-life seconds "
                  "(real time, the same at every speed). In the base game they also count while the game is paused, and every save (the "
-                 "10-minute autosave too) ends them.", gm.CODE)
+                 "10-minute autosave too) ends them. The short stop-and-wait in Hiding in the water (from the bees), "
+                 "Going indoors, Hiding from lightning, Escaping from foulness, Getting new clothes and a few other "
+                 "actions also ends every effect the villager has.", gm.CODE)
     add("Other", gm.patch_words(village, "vv5_fix_vanilla_bugs",
                                 "those effects stop while the game is paused and go on when it runs again, and only "
                                 "the autosave (every 10 minutes of real time) keeps them: every other save (quitting, leaving the village "
                                 "for the slot menu, starting a new village, a menu's save) still ends them, and the "
-                                "save never holds them"), gm.CODE)
+                                "save never holds them; and that stop-and-wait ends only the bees in Hiding in the "
+                                "water, and no effect in the other actions (each ends at its own time)"), gm.CODE)
     for line, ok in FIRE_LINES:
         add("Other", line, ok)
     for line, ok in PUDDLE_LINES:

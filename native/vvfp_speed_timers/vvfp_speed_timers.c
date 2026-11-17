@@ -535,6 +535,129 @@ static __declspec(naked) void vv5_strip(void) {
     }
 }
 
+/* ---- Game actions end only the effect they are about (the owner, 2026-11-17) ----------------
+   Besides the save writer, the game ends EVERY effect of a villager in a few actions that are about one effect only:
+
+   The Secret City (end every effect 0x455DD0; the potions' "say" effects are owned by 0x582610, each entry
+   {owner, effect number}):
+     * 0x42131F: a villager with hiccups (effect 18, checked by 0x455E10 just before) goes "Getting a drink"
+       (action 144): only the hiccups end;
+     * 0x4218B6: a villager talking nonsense ("Blannesamagawa loomajoobamooga!!", effect 38): only that ends;
+     * 0x421AE1: a villager with stinky breath (36) or who tasted soap (37) goes "Eating" (action 84): only those end.
+     Each removal goes through the game's own remove-one routine 0x455D20 (thiscall(villager; owner, &number),
+     ret 8), which frees what the entry holds as 0x455DD0 does.
+   New Believers (end every effect 0x4660C0): the shared "stop and wait" step's reset 0x467500 ends with a jump to it
+     (0x467524).  Of the actions that use that step, only "Hiding in the water" (action 170, which the swarm of bees
+     starts right after giving the villager its bee effect, owner 0x4DE000: 0x4215A7 / 0x4215DD, 0x421988 / 0x4219BD)
+     is about an effect: it ends only the bees.  Every other action using the step (Going indoors, Hiding from
+     lightning, Escaping from foulness, Getting new clothes and the others) is about no effect and ends none; each
+     effect ends at its own time (5 to 39 real-life seconds).  The remove-one routine is 0x466010.
+     (0x46CE85, the other caller, is The Tree of Life's gunk-wipe step copied as step 0x5E, which no action of New
+     Believers queues: no call of the step adder 0x474DE0 pushes 0x5E.  Left as it is.) */
+#define VV3_SAY_EFFECTS 0x582610u
+#define VV3_HAS_EFFECT 0x455E10u           /* thiscall(villager; owner, number) -> al */
+#define VV3_REMOVE_EFFECT 0x455D20u        /* thiscall(villager; owner, &number), ret 8 */
+#define VV3_DRINK_SITE 0x42131Fu           /* call 0x455DD0: hiccups -> "Getting a drink" */
+#define VV3_NONSENSE_SITE 0x4218B6u        /* call 0x455DD0: talking nonsense */
+#define VV3_BREATH_SITE 0x421AE1u          /* call 0x455DD0: stinky breath / soap -> "Eating" */
+#define VV5_RESET_SITE 0x467524u           /* jmp 0x4660C0, the reset 0x467500's last instruction */
+#define VV5_REMOVE_EFFECT 0x466010u        /* thiscall(villager; owner, &id), ret 8 */
+#define VV5_BEES 0x4DE000u
+#define VV5_ACTION 0x1D10u                 /* the villager's current action (the starter 0x465580 writes it) */
+#define VV5_HIDING_IN_WATER 170
+
+/* Each site with the instructions before it (`mov ecx, esi`) and its own call. */
+static const unsigned char VV3_DRINK_AROUND[] = { 0x8B, 0xCE, 0xE8, 0xAC, 0x4A, 0x03, 0x00 };
+static const unsigned char VV3_NONSENSE_AROUND[] = { 0x8B, 0xCE, 0xE8, 0x15, 0x45, 0x03, 0x00 };
+static const unsigned char VV3_BREATH_AROUND[] = { 0x8B, 0xCE, 0xE8, 0xEA, 0x42, 0x03, 0x00 };
+/* 0x46751A: mov dword [ecx+0x1D08], 4; jmp 0x4660C0 */
+static const unsigned char VV5_RESET_AROUND[] = { 0xC7, 0x81, 0x08, 0x1D, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+                                                  0xE9, 0x97, 0xEB, 0xFF, 0xFF };
+
+typedef char (__fastcall *vv3_has_fn)(unsigned char *villager, unsigned int unused, unsigned int owner, int number);
+typedef void (__fastcall *remove_fn)(unsigned char *villager, unsigned int unused, unsigned int owner, int *id);
+
+/* The Secret City: the potion effects `a` and `b` (-1: none) end, through the game's own remove-one routine. */
+static void __stdcall vv3_end_only(unsigned char *villager, int a, int b) {
+    int k, n;
+    for (k = 0; k < 2; ++k) {
+        int number = k == 0 ? a : b;
+        if (number < 0) {
+            continue;
+        }
+        for (n = 0; n < VV3_EFFECTS_MAX
+                    && ((vv3_has_fn)(UINT_PTR)VV3_HAS_EFFECT)(villager, 0, VV3_SAY_EFFECTS, number); ++n) {
+            int id = number;
+            ((remove_fn)(UINT_PTR)VV3_REMOVE_EFFECT)(villager, 0, VV3_SAY_EFFECTS, &id);
+        }
+    }
+}
+
+/* At each site: thiscall(villager), in place of 0x455DD0. */
+static __declspec(naked) void vv3_end_hiccups(void) {
+    __asm {
+        push -1
+        push 18
+        push ecx
+        call vv3_end_only
+        ret
+    }
+}
+
+static __declspec(naked) void vv3_end_nonsense(void) {
+    __asm {
+        push -1
+        push 38
+        push ecx
+        call vv3_end_only
+        ret
+    }
+}
+
+static __declspec(naked) void vv3_end_breath(void) {
+    __asm {
+        push 37
+        push 36
+        push ecx
+        call vv3_end_only
+        ret
+    }
+}
+
+/* New Believers: "Hiding in the water" ends the bees; every other action ends no effect. */
+static void __stdcall vv5_reset_effects(unsigned char *villager) {
+    int n = 0;
+    if (*(const int *)(villager + VV5_ACTION) != VV5_HIDING_IN_WATER) {
+        return;
+    }
+    for (;;) {
+        int count = *(const int *)(villager + VV5_EFFECT_COUNT);
+        const unsigned char *entry;
+        int id;
+        if (count <= 0 || count > VV5_EFFECTS_MAX || n >= count) {
+            return;
+        }
+        entry = villager + VV5_EFFECTS + (unsigned int)n * VV5_EFFECT_SIZE;
+        id = *(const int *)(entry + 4);
+        if (*(const unsigned int *)entry == VV5_BEES && id >= 0) {
+            ((remove_fn)(UINT_PTR)VV5_REMOVE_EFFECT)(villager, 0, VV5_BEES, &id);
+            if (*(const int *)(villager + VV5_EFFECT_COUNT) < count) {
+                continue;                  /* the rest moved down one: look at the same place again */
+            }
+        }
+        ++n;
+    }
+}
+
+/* At VV5_RESET_SITE (the reset's tail jump, ecx = the villager): in place of 0x4660C0. */
+static __declspec(naked) void vv5_reset_end(void) {
+    __asm {
+        push ecx
+        call vv5_reset_effects
+        ret
+    }
+}
+
 /* ---- The Lost Children: the stew pot's 15 minutes pause -----------------------------------
    A finished stew stays in the pot until the computer's clock 0x403200 reaches the end the cook routine sets at
    +0x30450 of the game object (0x425BAB: now + 900); the world update empties the pot then (0x42EBCC..0x42EBE7).
@@ -589,38 +712,46 @@ static int holds(unsigned int va, const unsigned char *bytes, size_t length) {
     return readable(va, length) && memcmp((const void *)(UINT_PTR)va, bytes, length) == 0;
 }
 
-/* The set_speed detour and the autosave's two sites: all three, or nothing at all. */
+/* The set_speed detour, the autosave's two sites and the three actions' calls: all six, or nothing at all. */
 static void install_vv3(void) {
-    vvfp_site_write w[3];
+    vvfp_site_write w[6];
     if (!holds(VV3_ROUTINE, VV3_STOCK, sizeof VV3_STOCK)
         || !holds(VV3_FTOL, VV3_FTOL_STOCK, sizeof VV3_FTOL_STOCK)
         || !holds(VV3_TWO32, TWO32_FLOAT, sizeof TWO32_FLOAT)
         || !holds(VV3_AUTOSAVE_SITE - 3u, VV3_AUTOSAVE_AROUND, sizeof VV3_AUTOSAVE_AROUND)
-        || !holds(VV3_STRIP_SITE - 2u, VV3_STRIP_AROUND, sizeof VV3_STRIP_AROUND)) {
+        || !holds(VV3_STRIP_SITE - 2u, VV3_STRIP_AROUND, sizeof VV3_STRIP_AROUND)
+        || !holds(VV3_DRINK_SITE - 2u, VV3_DRINK_AROUND, sizeof VV3_DRINK_AROUND)
+        || !holds(VV3_NONSENSE_SITE - 2u, VV3_NONSENSE_AROUND, sizeof VV3_NONSENSE_AROUND)
+        || !holds(VV3_BREATH_SITE - 2u, VV3_BREATH_AROUND, sizeof VV3_BREATH_AROUND)) {
         return;
     }
     vvfp_site_branch(&w[0], VV3_SITE, VV3_SITE_LEN, VV3_STOCK + (VV3_SITE - VV3_ROUTINE), 0xE9,
                      (const void *)vv3_from_paused);
     vvfp_site_branch(&w[1], VV3_AUTOSAVE_SITE, 5, VV3_AUTOSAVE_STOCK, 0xE9, (const void *)vv3_autosave);
     vvfp_site_branch(&w[2], VV3_STRIP_SITE, 5, VV3_STRIP_STOCK, 0xE8, (const void *)vv3_strip);
-    if (vvfp_install_sites(w, 3)) {
+    vvfp_site_branch(&w[3], VV3_DRINK_SITE, 5, VV3_DRINK_AROUND + 2, 0xE8, (const void *)vv3_end_hiccups);
+    vvfp_site_branch(&w[4], VV3_NONSENSE_SITE, 5, VV3_NONSENSE_AROUND + 2, 0xE8, (const void *)vv3_end_nonsense);
+    vvfp_site_branch(&w[5], VV3_BREATH_SITE, 5, VV3_BREATH_AROUND + 2, 0xE8, (const void *)vv3_end_breath);
+    if (vvfp_install_sites(w, 6)) {
         installed = 1;
     }
 }
 
-/* The from-pause detour and the autosave's two calls: all three, or nothing at all. */
+/* The from-pause detour, the autosave's two calls and the reset's jump: all four, or nothing at all. */
 static void install_vv5(void) {
-    vvfp_site_write w[3];
+    vvfp_site_write w[4];
     if (!holds(VV5_AROUND_VA, VV5_AROUND, sizeof VV5_AROUND)
         || !holds(VV5_AUTOSAVE_SITE, VV5_AUTOSAVE_STOCK, sizeof VV5_AUTOSAVE_STOCK)
-        || !holds(VV5_STRIP_SITE, VV5_STRIP_STOCK, sizeof VV5_STRIP_STOCK)) {
+        || !holds(VV5_STRIP_SITE, VV5_STRIP_STOCK, sizeof VV5_STRIP_STOCK)
+        || !holds(VV5_RESET_SITE - 10u, VV5_RESET_AROUND, sizeof VV5_RESET_AROUND)) {
         return;
     }
     vvfp_site_branch(&w[0], VV5_SITE, VV5_SITE_LEN, VV5_AROUND + (VV5_SITE - VV5_AROUND_VA), 0xE9,
                      (const void *)vv5_from_paused);
     vvfp_site_branch(&w[1], VV5_AUTOSAVE_SITE, 5, VV5_AUTOSAVE_STOCK, 0xE8, (const void *)vv5_autosave);
     vvfp_site_branch(&w[2], VV5_STRIP_SITE, 5, VV5_STRIP_STOCK, 0xE8, (const void *)vv5_strip);
-    if (vvfp_install_sites(w, 3)) {
+    vvfp_site_branch(&w[3], VV5_RESET_SITE, 5, VV5_RESET_AROUND + 10, 0xE9, (const void *)vv5_reset_end);
+    if (vvfp_install_sites(w, 4)) {
         installed = 1;
     }
 }

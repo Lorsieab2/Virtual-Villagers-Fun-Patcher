@@ -636,7 +636,8 @@ POTION_EFFECTS_LINE = (
     "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
     "ocean) or not at all (the rest, such as curing sickness, which happen at once). The times are real time, the "
     "same at every speed. In the base game they also count while the game is paused, and every save (the 10-minute "
-    "autosave too) ends every effect.")
+    "autosave too) ends every effect. Drinking away the hiccups, getting over the nonsense talk and eating away "
+    "stinky breath or a soapy taste also end every potion effect the villager has, not only that one.")
 FIX_VANILLA = "vv3_fix_vanilla_bugs"
 # VVFP Speed Change Timers.dll: the set_speed detour (from a pause) moves every villager effect end (+0xF50 list, +0x10)
 # on by the paused time; the autosave check 0x427DD0's jump to the save 0x427D90 (0x427DF3) runs with a flag that makes
@@ -645,7 +646,8 @@ EFFECTS_FIX_LINE = (
     "potion effects stop while the game is paused and go on when it runs again, so each lasts its full 10 or 5 "
     "real-life minutes of play (real time while the game runs, the same at every speed); and only the 10-minute "
     "autosave keeps them: every other save (quitting, leaving the village for the slot menu, starting a new "
-    "village, a menu's save) still ends them, and the save never holds them")
+    "village, a menu's save) still ends them, and the save never holds them; and drinking away the hiccups, "
+    "getting over the nonsense talk or eating away stinky breath or a soapy taste ends only that effect")
 HERBS_LINE = (
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.")
