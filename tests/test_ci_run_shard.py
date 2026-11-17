@@ -26,6 +26,17 @@ def test_crash_once():
         os._exit(139)
 """
 CRASHES_ALWAYS = "import os\n\ndef test_crash():\n    os._exit(139)\n"
+# Fails its test the first time only, then dies at interpreter exit (a retry would pass).
+FAIL_THEN_CRASH = """import atexit, os
+from pathlib import Path
+MARK = Path(__file__).with_suffix(".ran")
+atexit.register(lambda: os._exit(139))
+
+def test_flaky():
+    first = not MARK.exists()
+    MARK.write_text("x")
+    assert not first
+"""
 # Passes, writes its report, then dies at interpreter exit -- both times.
 CRASHES_AT_EXIT = "import atexit, os\natexit.register(lambda: os._exit(139))\n\ndef test_ok():\n    assert True\n"
 
@@ -96,6 +107,15 @@ class TheShardRunner(unittest.TestCase):
         errors = [c for c in cases if c.find("error") is not None]
         self.assertEqual(len(errors), 1)
         self.assertIn("test_exit.py", errors[0].get("classname"))
+
+    def test_a_failure_then_a_crash_is_never_forgiven(self):
+        """Codex, #783: a retry forgives a crash, never a failure.  This file fails its test the first time (it
+        would pass the second), then dies at exit: the file fails, its failure kept, and it is not run again."""
+        with mock.patch.object(ci_run_shard, "run_file", wraps=ci_run_shard.run_file) as spy:
+            code, root = self.run_shard({"test_fail_exit.py": FAIL_THEN_CRASH})
+        self.assertEqual(code, 1)
+        self.assertEqual(spy.call_count, 1)
+        self.assertEqual(len([c for c in root.iter("testcase") if c.find("failure") is not None]), 1)
 
     def test_a_file_that_only_skips_is_no_failure_of_its_own(self):
         """Codex, #783: alone, a file whose tests all skip for a missing game file tripped conftest's guard (exit 1).

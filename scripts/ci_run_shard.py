@@ -65,6 +65,22 @@ def shard_verified_nothing(tally: Path) -> bool:
     return skips > 0 and executed == 0
 
 
+def read_suites(report: Path) -> list[ET.Element]:
+    """The <testsuite> elements of one file's JUnit report ([] when it wrote none or a broken one)."""
+    if not report.exists():
+        return []
+    try:
+        rep = ET.parse(report).getroot()
+    except ET.ParseError:
+        return []
+    return [rep] if rep.tag == "testsuite" else list(rep.iter("testsuite"))
+
+
+def bad(suite: ET.Element) -> bool:
+    """Whether a suite recorded any failing or erroring case."""
+    return any(c.find("failure") is not None or c.find("error") is not None for c in suite.iter("testcase"))
+
+
 def crash_suite(path: str, codes: list[int]) -> ET.Element:
     suite = ET.Element("testsuite", name=path, tests="1", errors="1", failures="0", skipped="0")
     case = ET.SubElement(suite, "testcase", classname=path, name="native crash")
@@ -88,21 +104,25 @@ def main(argv: list[str]) -> int:
         report = parts / f"{k:04d}.xml"
         print(f"\n===== [{k}/{len(files)}] {path}", flush=True)
         codes = [run_file(path, report, tally)]
+        first_bad = False
         if codes[0] not in PYTEST_OK and codes[0] != PYTEST_FAILED:
-            print(f"===== NATIVE CRASH (exit {codes[0]}) in {path}: running it again, alone", flush=True)
-            report.unlink(missing_ok=True)
-            codes.append(run_file(path, report, tally))
-            crashed_once.append(f"{path} (exit {codes[0]}, then {codes[1]})")
+            first = read_suites(report)
+            first_bad = any(bad(s) for s in first)
+            if first_bad:
+                # A retry forgives a crash, never a failure (Codex, #783): a test that failed or errored before the
+                # process crashed fails the file, its results kept; it is not run again.
+                print(f"===== NATIVE CRASH (exit {codes[0]}) in {path} after failing tests: not re-run", flush=True)
+                suites = first
+            else:
+                print(f"===== NATIVE CRASH (exit {codes[0]}) in {path}: running it again, alone", flush=True)
+                report.unlink(missing_ok=True)
+                codes.append(run_file(path, report, tally))
+                crashed_once.append(f"{path} (exit {codes[0]}, then {codes[1]})")
         last = codes[-1]
-        if last not in PYTEST_OK:
+        if last not in PYTEST_OK or first_bad:
             failed.append(path)
-        suites = []
-        if report.exists():
-            try:
-                rep = ET.parse(report).getroot()
-                suites = [rep] if rep.tag == "testsuite" else list(rep.iter("testsuite"))
-            except ET.ParseError:
-                suites = []
+        if not first_bad:
+            suites = read_suites(report)
         if last not in PYTEST_OK and last != PYTEST_FAILED:
             # The process crashed both times: whatever report it wrote is kept, and an error case names the file
             # (Codex, #783: a crash at interpreter exit after a passing report must never read as green).
