@@ -1638,6 +1638,10 @@ typedef struct {
     int start_picks;                   /* the picks drawn at the purchase (a start question's own) */
     /* Each display's popup title (cie-v6-binary.md 14): a node title's string index + 1, 0 = the event's title. */
     unsigned short display_title[CG_MAX_DISPLAYS];
+    /* Run file version 5 (cie-v6-binary.md 35), after everything version 4 kept: each role's words' sex (cg.female)
+       just before display k's effects were made, restored with identity_at when a quit rewinds to that page (a
+       version 4 file is read with every display holding its cg.female). */
+    unsigned char female_at[CG_MAX_DISPLAYS][CG_MAX_ROLES];
 } cg_state;
 
 
@@ -7391,6 +7395,12 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
+    {
+        int role;
+        for (role = 0; role < CG_MAX_ROLES; ++role) {
+            cg.female_at[k][role] = (unsigned char)(cg.female[role] != 0);   /* 35: the words before its effects */
+        }
+    }
     for (j = 0; j < cg.job_count[k]; ++j) {
         int i = cg.jobs[cg.job_first[k] + j];
         const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
@@ -8704,12 +8714,13 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 4u                 /* 2: the run keeps its path and every question's answers; 3: and a
+#define CG_FILE_VERSION 5u                 /* 2: the run keeps its path and every question's answers; 3: and a
                                               question's third and fourth answers (cg_state.seg_more); 4 (format
                                               version 6): answers five to seven, the pool picks, the aliases, each
                                               question's buttons, the origin and the cast */
 #define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more))   /* a version 2 file's state bytes */
 #define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6))     /* a version 3 file's */
+#define CG_FILE_V4_STATE ((unsigned int)offsetof(cg_state, female_at))  /* a version 4 file's (35) */
 
 typedef struct {
     unsigned int magic;
@@ -8730,6 +8741,7 @@ static cg_state cg_read_state;
    empty: cg_file_upgrade); 0 for any other. */
 static unsigned int cg_file_state_bytes(void) {
     return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 4u ? CG_FILE_V4_STATE
          : cg_head.version == 3u ? CG_FILE_V3_STATE
          : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
 }
@@ -8737,8 +8749,16 @@ static unsigned int cg_file_state_bytes(void) {
 /* A run read from an older file: what it lacks as a run of its own version had it (no alias drawn, every choice
    shown as its version shows them, the cast strict). */
 static void cg_file_upgrade(cg_state *st) {
-    int r;
+    int r, k;
     if (cg_head.version >= CG_FILE_VERSION) {
+        return;
+    }
+    for (k = 0; k < CG_MAX_DISPLAYS; ++k) {
+        for (r = 0; r < CG_MAX_ROLES; ++r) {
+            st->female_at[k][r] = (unsigned char)(st->female[r] != 0);   /* 35: before version 5 */
+        }
+    }
+    if (cg_head.version >= 4u) {
         return;
     }
     for (r = 0; r < CG_MAX_ROLES; ++r) {
@@ -8889,6 +8909,12 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
             int qi;
             cg.gone = cg.gone_at[rewind];
             memcpy(cg.identity, cg.identity_at[rewind], sizeof cg.identity);
+            {
+                int r;
+                for (r = 0; r < CG_MAX_ROLES; ++r) {
+                    cg.female[r] = cg.female_at[rewind][r];   /* 35: the words as the page first read them */
+                }
+            }
             for (qi = 0; qi < cg.answers && cg.q_display[qi] < (again >= 0 ? again : rewind); ++qi) {
             }
             /* The entry continues from that page: its own lines are taken back, made again as it is shown (or,

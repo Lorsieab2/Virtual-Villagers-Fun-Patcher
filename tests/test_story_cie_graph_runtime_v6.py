@@ -494,7 +494,7 @@ class ResumeAndFile(unittest.TestCase):
         file = bytearray(r.graph_file())
         r.p.export("VvfpStoryProbeGraphFileLayout", LAYOUT_BUF)
         v3, head, whole = struct.unpack("<3i", r.p.read(LAYOUT_BUF, 12))
-        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 4, "written as version 4")
+        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 5, "written as version 5")
         old = bytes(file[:head]) + bytes(file[head:head + v3]) + bytes(file[head + whole:])
         old = bytearray(old)
         struct.pack_into("<I", old, 4, 3)

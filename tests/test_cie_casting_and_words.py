@@ -306,6 +306,43 @@ class Engine(unittest.TestCase):
                     self.assertRegex(pages[0], rf"\b{before}\b")
                     self.assertRegex(pages[1], rf"(?<![A-Za-z]){after}\b")
 
+    def test_a_quit_before_the_save_reads_the_page_again_with_its_first_words(self):
+        """Codex on #787: the page that changes the sex is shown, the player quits without saving; the run comes
+        back at that page against the older save and reads it with the words it first had."""
+        from test_story_custom_island_event import TEXT_BUF
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                people = [(0, "f", 30, "Ari", 0, False)]
+                r = V6(game, people)
+                r.rolls([0] * 40)
+                r.p.export("VvfpStoryProbeQueueSession", 0, 0, 1, 0)
+                self.assertIsNone(r.queue6(compiled(SEX_GRAPH)))
+                bought = r.p.tick
+                r.p.tick += 1000                                 # the page is shown after the purchase
+                r.p.export("VvfpStoryProbeSetTick", r.p.tick)
+                if not r.state()["armed"]:
+                    assert r.p.export("VvfpStoryProbeGraphArmNext", r.n) == 1
+                r.p.write(TEXT_BUF, b"\0")
+                assert r.p.export("VvfpStoryProbeDeliver", r.n, TEXT_BUF, 9000) == 1
+                first = norm(r.p.cstring(TEXT_BUF, 9000))
+                self.assertRegex(first, r"\bshe is glad\b")
+                self.assertEqual(r.state()["female"][0], 0, "the change is made: his words now")
+                r.tick()
+                file = r.graph_file()
+                again = V6(game, people)                     # the older save: Ari as she was
+                again.rolls([0] * 40)
+                again.p.export("VvfpStoryProbeQueueSession", 0, 0, bought + 500, 0)    # saved before the page
+                buf = again.p.alloc(len(file) + 16)
+                again.p.write(buf, file)
+                again.p.export("VvfpStoryProbeGraphSession", buf, len(file))
+                again.tick()
+                self.assertEqual(again.state()["female"][0], 1, "the words as the page first read them")
+                self.assertRegex(norm(again.displays()[0]), r"\bshe is glad\b")
+                pages = [norm(t) for _k, t, _l in again.walk_through()]
+                self.assertRegex(pages[0], r"\bshe is glad\b")
+                self.assertRegex(pages[-1], r"(?<![A-Za-z])he laughs\b")
     def test_the_golden_childs_words_follow_the_recorded_sex(self):
         if not have_stock("vv1"):
             self.skipTest("A New Home's executable")
