@@ -788,6 +788,89 @@ class ExportRoundTrip(unittest.TestCase):
                 for e, w, h in zip(self.EXACT, want, got):
                     self.assertEqual(h, w, e)
 
+    MULTI = {"format": "vvfp-cie-graph", "version": 6, "title": "Many Ways", "games": [1, 2, 3, 4, 5],
+             "roles": {"subject": {"kind": "villager", "min_age": 18},
+                       "friend": {"kind": "villager", "min_age": 18},
+                       "lost": {"kind": "villager", "min_age": 18, "protected": "allow"},
+                       "visitor": {"kind": "stranger", "sex": "random", "named": True}},
+             "start": "ask",
+             "nodes": {
+                 "ask": {"type": "question", "text": "(subject) and (friend) meet (visitor.name) and (lost).",
+                         "choices": [{"label": "Trade", "next": "p1"}, {"label": "Gamble", "next": "br"},
+                                     {"label": "Ask Around", "next": "q2"}]},
+                 "p1": {"type": "popup", "text": "(visitor.name) trades.",
+                        "effects": [{"do": "food", "amount": 100, "scaled": True},
+                                    {"do": "skill", "role": "subject", "skills": ["Healing"], "min": 3, "max": 7}],
+                        "children": [{"next": "p2"}]},
+                 "p2": {"type": "popup", "text": "The trade goes on.",
+                        "effects": [{"do": "tech", "amount": 200, "scaled": True}], "children": [{"next": "p2b"}]},
+                 "p2b": {"type": "popup", "text": "It ends.", "effects": [{"do": "mood", "role": "friend",
+                                                                            "mood": "good"}]},
+                 "br": {"type": "branch", "children": [{"next": "p3", "weight": 3}, {"next": "p4", "weight": 1}]},
+                 "p3": {"type": "popup", "text": "Luck holds.", "effects": [{"do": "mood", "role": "subject",
+                                                                              "mood": "good"}]},
+                 "p4": {"type": "popup", "text": "Luck fails.", "effects": [{"do": "kill", "role": "lost",
+                                                                              "cause": "a fall"}]},
+                 "q2": {"type": "question", "text": "(friend) asks around.",
+                        "choices": [{"label": "Rest", "next": "p5"}, {"label": "Push On", "next": "p6"}]},
+                 "p5": {"type": "popup", "text": "(friend) rests.", "effects": [{"do": "sick", "role": "friend"},
+                                                                          {"do": "food", "size": "small", "scaled": True}]},
+                 "p6": {"type": "popup", "text": "(friend) pushes on.",
+                        "effects": [{"do": "celebrate", "who": "friend"}]}}}
+
+    @staticmethod
+    def graph_paths(nodes, start):
+        """Every path from a page to an end, written here independently of the exporter."""
+        out = []
+
+        def walk(path):
+            n = nodes[path[-1]]
+            nxt = [ch["next"] for ch in n.get("choices", [])] if n["type"] == "question" else \
+                [ch["next"] for ch in n.get("children", [])]
+            nxt = [x for x in nxt if x not in path]
+            if not nxt:
+                out.append(path)
+            for x in nxt:
+                walk(path + [x])
+        walk([start])
+        return out
+
+    def test_every_path_keeps_every_effect_or_says_it_is_flavor(self):
+        # For every path through the event, the effects along it (kind, target, every field) are the effects of the
+        # matching exported outcome, or are kept as flavor and listed in the file -- never dropped silently.
+        g = copy.deepcopy(self.MULTI)
+        norm, _ = cie.normalize(copy.deepcopy(g), pe._shared_pools())
+        nodes = norm["nodes"]
+        text = pe.pieces_file_text(g)
+        items = pe.parse_text(text, "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        self.assertTrue(all("visitor" in i.piece["slots"] for i in items), "the named stranger is a slot")
+        self.assertEqual(next(i for i in items if i.piece["kind"] == pe.PIECE_KINDS["setup"])
+                         .piece["slots"]["visitor"][0]["kind"], "stranger")
+
+        def sig(e):
+            e = dict(e)
+            if e.get("role") is None and "target" not in e and e["do"] not in (
+                    "food", "tech", "pay_award", "damage", "repair", "celebrate", "new_villager"):
+                e["role"] = "subject"
+            return pe._piece_signature(e)
+        outcomes = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]]
+        got = sorted(sorted(sig(e) for _ln, e in o.piece["effects"]) for o in outcomes)
+        want, flavored = [], 0
+        for c in nodes["ask"]["choices"]:
+            for path in self.graph_paths(nodes, c["next"]):
+                effects = [e for nid in path for e in nodes[nid].get("effects", [])]
+                kept = [e for e in effects if pe._plain_of(e)]
+                flavored += len(effects) - len(kept)
+                want.append(sorted(sig(e) for e in kept))
+        self.assertEqual(got, sorted(want))
+        self.assertEqual(len(outcomes), 5, "Trade (one path of three pages), Gamble (2), Ask Around (2)")
+        self.assertEqual(text.count("# kept as flavor"), flavored)
+        self.assertEqual(flavored, 1, "the 3-7 skill range, on the Trade path")
+        trade = next(o for o in outcomes if o.piece["links"][0][0].endswith("_a1"))
+        self.assertEqual([e["do"] for _ln, e in trade.piece["effects"]], ["food", "tech", "mood"],
+                         "the answer's own first page's food, then the later pages' effects")
+
     def test_each_kind_alone(self):
         for e in self.EXACT:
             with self.subTest(effect=e):

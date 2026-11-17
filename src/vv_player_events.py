@@ -3402,6 +3402,13 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
     def role_lines() -> list[str]:
         lines = []
         for rid, r in roles.items():
+            if r.get("kind") == "stranger":
+                # a stranger the text names or calls by a pronoun: the piece casts one too (plain_role)
+                words = ["named stranger" if r.get("named") else "stranger"]
+                if r.get("sex") in ("male", "female"):
+                    words.append(r["sex"])
+                lines.append(f"Role {rid}: {', '.join(words)}")
+                continue
             if r.get("kind") != "villager":
                 continue
             words = []
@@ -3416,11 +3423,11 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
             lines.append(f"Role {rid}: {', '.join(words) or 'villager'}")
         return lines
 
-    def effect_lines(n: dict) -> list[str]:
+    def effect_lines(effects: list[dict]) -> list[str]:
         # Every effect the plain words hold exactly (it reads back to the same piece effect); any other is kept as
         # flavor -- the text stays, the effect is left out -- and the file says so (the owner's rule).
         out = []
-        for e in n.get("effects", []):
+        for e in effects:
             words = _plain_of(e)
             out.append(f"Effect: {words}" if words else
                        f"# kept as flavor (no plain words hold it exactly): {json.dumps(e, sort_keys=True)}")
@@ -3435,29 +3442,41 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
         out += [f"Piece: {aid}", "Kind: Approach", f"Family: {family}", f"Applies to: {games}",
                 f"Label: {to_title_case(cie.title_case(c['label']))}"] + role_lines() + \
             _text_piece_lines(first.get("text") or c["label"]) + [""]
-        ends: list[tuple[str, int]] = []
-        stack = [(c["next"], 1)]
-        seen: set[str] = set()
-        while stack:
-            nid, w = stack.pop(0)
-            if nid in seen or nid not in nodes:
-                continue
-            seen.add(nid)
-            n = nodes[nid]
-            if n["type"] == "branch" or (n["children"] and len(n["children"]) > 1):
-                stack += [(ch["next"], ch["weight"]) for ch in n["children"]]
-            elif n["type"] == "popup" and nid != c["next"]:
-                ends.append((nid, w))
-            elif n["children"]:
-                stack += [(ch["next"], ch["weight"]) for ch in n["children"]]
-        if not ends and first:
-            ends = [(c["next"], 1)]
-        for j, (nid, w) in enumerate(ends, 1):
-            n = nodes[nid]
+        # Every path an answer can take, page by page to its end: through a random branch (its weights), a later
+        # question (each of its answers) and a page that leads on.  Its outcome holds ALL the effects of its pages,
+        # the answer's own first page included, in order, and the text of the pages after that first one.
+        for j, (path, w) in enumerate(_answer_paths(nodes, c["next"]), 1):
+            later = path[1:] or path
+            text = "\n\n".join(nodes[nid].get("text", "") for nid in later if nodes[nid].get("text"))
+            effects = [e for nid in path for e in nodes[nid].get("effects", [])]
             out += [f"Piece: {aid}_o{j}", "Kind: Outcome", f"Applies to: {games}",
-                    f"Answers: {aid} ({min(1000, max(1, w))})"] + role_lines() + _text_piece_lines(n["text"]) + \
-                effect_lines(n) + [""]
+                    f"Answers: {aid} ({min(1000, max(1, w))})"] + role_lines() + _text_piece_lines(text) + \
+                effect_lines(effects) + [""]
     return "\n".join(out) + "\n"
+
+
+_PATHS_MAX = 64
+
+
+def _answer_paths(nodes: dict, start: str) -> list[tuple[list[str], int]]:
+    """Every path from an answer's first page to an end, as (its node ids, its weight): a random branch forks by its
+    children's weights, a later question by each of its answers, a page with one way on goes on; a page already on
+    the path (a loop) ends it.  At most _PATHS_MAX paths."""
+    out: list[tuple[list[str], int]] = []
+    todo: list[tuple[list[str], int]] = [([start], 1)] if start in nodes else []
+    while todo and len(out) < _PATHS_MAX:
+        path, w = todo.pop(0)
+        n = nodes[path[-1]]
+        nexts = [(ch.get("next"), ch.get("weight", 1) or 1) for ch in n.get("children") or []]
+        if n.get("type") == "question":                # a later question: each of its answers
+            nexts = [(ch.get("next"), 1) for ch in n.get("choices") or []]
+        nexts = [(x, wt) for x, wt in nexts if x in nodes and x not in path]
+        if not nexts:
+            out.append((path, w))
+            continue
+        for x, wt in nexts:
+            todo.append((path + [x], w * wt if len(nexts) > 1 else w))
+    return out
 
 
 def _text_piece_lines(text: str) -> list[str]:
