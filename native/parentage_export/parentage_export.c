@@ -4683,6 +4683,12 @@ static void note_appearance_logged(const struct game_layout *g, const unsigned c
         || sscanf_s(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d", &oh, &ob, &nh, &nb) != 4) {
         return;
     }
+    if (oh == nh && ob == nb) {
+        /* A record that changes no look (a sex change, a gender presentation, a head look: native/shared/
+           look_change_log.h) is no transition: noted, it would be a self-loop AppearanceAlreadyLogged could
+           follow instead of the real A -> C (Codex, #784). */
+        return;
+    }
     look_notes[look_note_next].game = game_of_layout(g);
     copy_villager_name(g, record, look_notes[look_note_next].name, sizeof look_notes[0].name);
     look_notes[look_note_next].sex = *(const int *)(record + g->sex);
@@ -4712,6 +4718,9 @@ __declspec(dllexport) int __stdcall AppearanceAlreadyLogged(int game_id, const v
                 && look_notes[i].ob == body && strcmp(look_notes[i].name, name) == 0) {
                 if (look_notes[i].nh == new_head && look_notes[i].nb == new_body) {
                     return 1;             /* a note straight to the look wanted */
+                }
+                if (look_notes[i].nh == head && look_notes[i].nb == body) {
+                    continue;             /* a self-loop leads nowhere (Codex, #784) */
                 }
                 if (next < 0) {
                     next = i;
