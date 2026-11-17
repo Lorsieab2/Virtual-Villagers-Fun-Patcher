@@ -12763,7 +12763,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "136D72FEB8B411FD8293D6DB07F163732F18E6F2161F29474553FCC3B9E0F2CC",
+    "sha256": "420FF0D7A7E7DB8509F44D0C2C4CD7B66084CB1E4A31A08DC9F02DF532F3034C",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12882,6 +12882,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
     # keeping the recorded sex; its row also offers Change Appearance's "Change sex...".
     "VVFP Gender Presentation.dll",
+    # Fix Vanilla Bugs (The Tree of Life, New Believers): the Food Mastery tech's description says its Level 2 bonus
+    # is to collected food.
+    "VVFP Food Mastery Text.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
