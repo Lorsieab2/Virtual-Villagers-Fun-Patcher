@@ -274,8 +274,15 @@
    "variants": [
     {
      "if": {
-      "game": [
-       1
+      "all": [
+       {
+        "game": [
+         1
+        ]
+       },
+       {
+        "special_present": "golden_child"
+       }
       ]
      },
      "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nThe Golden Child inexplicably recognizes a function no adult knows.",

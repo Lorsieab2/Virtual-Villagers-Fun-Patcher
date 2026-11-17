@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Little Stormcaller",
    "src": "L7715-7718",
-   "text": "On a hot afternoon, the Golden Child claps toward a distant cloud. Thunder answers. Rain drums on the village roofs. The boy looks pleased, then startled by the volume, and hurries under shelter with everyone else.",
+   "text": "On a hot afternoon, the Golden Child claps toward a distant cloud. Thunder answers. Rain drums on the village roofs. The (child.boy/girl) looks pleased, then startled by the volume, and hurries under shelter with everyone else.",
    "text_only": [
     {
      "src": "L7718-7719",

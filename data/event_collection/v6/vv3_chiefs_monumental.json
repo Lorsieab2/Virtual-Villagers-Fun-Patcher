@@ -3,10 +3,14 @@
  "version": 6,
  "title": "The Chief's Monumental Speech",
  "games": [
-  3
+  1,
+  2,
+  3,
+  4,
+  5
  ],
  "collection": {
-  "id": "vv3_chiefs_monumental_speech",
+  "id": "vv3_chiefs_monumental",
   "source": "v28",
   "lines": [
    2996,
@@ -64,8 +68,8 @@
  "roles": {
   "chief": {
    "kind": "villager",
-   "min_age": 0,
-   "special": "tribal_chief"
+   "min_age": 14,
+   "prefer": "tribal_chief"
   }
  },
  "pools": {
@@ -93,7 +97,7 @@
   "RESULT": {
    "items": [
     {
-     "text": "The Chief laughs and finishes the speech in (chief.his/her) own words. The villagers applaud warmly.",
+     "text": "{@Chief} laughs and finishes the speech in (chief.his/her) own words. The villagers applaud warmly.",
      "src": "L3027-3028"
     },
     {
@@ -104,25 +108,25 @@
      }
     },
     {
-     "text": "The child is promised snacks AFTER the speech. The Chief then decides that a shorter speech might be wise.",
+     "text": "The child is promised snacks AFTER the speech. {@Chief} then decides that a shorter speech might be wise.",
      "src": "L3030-3031",
      "if": {
       "visited": "b1"
      }
     },
     {
-     "text": "The Chief abandons the speech and invites villagers to share their own stories. Several speak with unexpected eloquence.",
+     "text": "{@Chief} abandons the speech and invites villagers to share their own stories. Several speak with unexpected eloquence.",
      "src": "L3032-3033"
     },
     {
-     "text": "The Chief delivers the entire shopping list without noticing. The crowd is baffled but impressed by the passion shown for beans.",
+     "text": "{@Chief} delivers the entire shopping list without noticing. The crowd is baffled but impressed by the passion shown for beans.",
      "src": "L3034-3035",
      "if": {
       "visited": "b3"
      }
     },
     {
-     "text": "The speech ends quietly. Later, the Chief tells a friend that leadership is sometimes less about appearing impressive than being willing to laugh at oneself.",
+     "text": "The speech ends quietly. Later, {@chief} tells a friend that leadership is sometimes less about appearing impressive than being willing to laugh at oneself.",
      "src": "L3036-3038"
     }
    ]
@@ -146,7 +150,7 @@
   "B3": {
    "items": [
     {
-     "text": "the Chief realizes (chief.he/she) is holding a shopping list",
+     "text": "{@chief} realizes (chief.he/she) is holding a shopping list",
      "src": "L3019"
     }
    ]
@@ -162,7 +166,7 @@
   "B5": {
    "items": [
     {
-     "text": "a nearby bird perfectly imitates the Chief's voice",
+     "text": "a nearby bird perfectly imitates {@chief}'s voice",
      "src": "L3021"
     }
    ]
@@ -170,7 +174,7 @@
   "B6": {
    "items": [
     {
-     "text": "the Chief forgets a carefully rehearsed phrase and improvises",
+     "text": "{@chief} forgets a carefully rehearsed phrase and improvises",
      "src": "L3022"
     }
    ]
@@ -178,7 +182,7 @@
   "B7": {
    "items": [
     {
-     "text": "a father gently rocks his baby, who begins squeaking precisely whenever the Chief pauses",
+     "text": "a father gently rocks his baby, who begins squeaking precisely whenever {@chief} pauses",
      "src": "L3023-3024"
     }
    ]
@@ -189,7 +193,7 @@
   "speech": {
    "name": "The speech",
    "src": "L3002-3006",
-   "text": "The tribal Chief has prepared a speech celebrating the village's progress. It is supposed to be {short and inspiring|formal and dignified|heartfelt and personal}. The entire village gathers to listen.\nThe Chief begins: {A}",
+   "text": "{@Tribal_chief} has prepared a speech celebrating the village's progress. It is supposed to be {short and inspiring|formal and dignified|heartfelt and personal}. The entire village gathers to listen.\n{@Chief} begins: {A}",
    "text_only": [
     {
      "src": "L3002",
@@ -312,5 +316,32 @@
    "join": "paragraph",
    "text": "{RESULT}"
   }
- }
+ },
+ "words": {
+  "Tribal_chief": {
+   "3": "The tribal Chief",
+   "*": "The leader"
+  },
+  "Chief": {
+   "3": "The Chief",
+   "*": "The leader"
+  },
+  "chief": {
+   "3": "the Chief",
+   "*": "the leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader's Monumental Speech"
+  }
+ ]
 }

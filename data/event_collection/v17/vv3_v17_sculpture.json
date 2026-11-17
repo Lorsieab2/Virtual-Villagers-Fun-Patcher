@@ -36,14 +36,14 @@
   "chief": {
    "kind": "villager",
    "min_age": 14,
-   "special": "tribal_chief"
+   "prefer": "tribal_chief"
   }
  },
  "start": "contest",
  "nodes": {
   "contest": {
    "src": "L8214,L8245-8247",
-   "text": "The Tribal Chief presides ceremonially over the Secret City's festival.\nA sculptor presents a solemn portrait of the Chief. A rival unveils a lopsided figure with a nose like a bent yam. The Chief laughs, then asks why the second statue is surrounded by children who adore it.",
+   "text": "{@Tribal_chief} presides ceremonially over {@city}'s festival.\nA sculptor presents a solemn portrait of {@chief}. A rival unveils a lopsided figure with a nose like a bent yam. {@Chief} laughs, then asks why the second statue is surrounded by children who adore it.",
    "name": "The Chief's Most Unflattering Likeness",
    "type": "question",
    "choices": [
@@ -58,7 +58,7 @@
      "src": "L8248"
     },
     {
-     "label": "Let the Chief speak",
+     "label": "Let {@chief} speak",
      "next": "pick_c",
      "src": "L8248"
     }
@@ -251,5 +251,19 @@
   "v8_c11",
   "v8_c14",
   "v8_c15"
- ]
+ ],
+ "words": {
+  "Tribal_chief": {
+   "3": "The Tribal Chief"
+  },
+  "Chief": {
+   "3": "The Chief"
+  },
+  "chief": {
+   "3": "the Chief"
+  },
+  "city": {
+   "3": "the Secret City"
+  }
+ }
 }

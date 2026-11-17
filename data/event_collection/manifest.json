@@ -1768,10 +1768,14 @@
    }
   },
   {
-   "id": "vv3_chiefs_monumental_speech",
+   "id": "vv3_chiefs_monumental",
    "title": "The Chief's Monumental Speech",
    "games": [
-    3
+    1,
+    2,
+    3,
+    4,
+    5
    ],
    "lines": [
     2996,
@@ -2823,10 +2827,14 @@
    }
   },
   {
-   "id": "vv3_chief_and_the_pearl",
+   "id": "vv3_chief_and_pearl",
    "title": "The Chief and the Pearl",
    "games": [
-    3
+    1,
+    2,
+    3,
+    4,
+    5
    ],
    "lines": [
     4874,
@@ -5055,10 +5063,14 @@
    }
   },
   {
-   "id": "vv3_child_who_claimed_to_be",
+   "id": "vv3_child_who_claimed",
    "title": "The Child Who Claimed to Be Chief",
    "games": [
-    3
+    1,
+    2,
+    3,
+    4,
+    5
    ],
    "lines": [
     7879,
@@ -5090,10 +5102,14 @@
    }
   },
   {
-   "id": "vv3_chiefs_impossible_question",
+   "id": "vv3_chiefs_impossible",
    "title": "The Chief's Impossible Question",
    "games": [
-    3
+    1,
+    2,
+    3,
+    4,
+    5
    ],
    "lines": [
     7893,

@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Living Map",
    "src": "L7674-7677",
-   "text": "With a stick in the dirt, the Golden Child draws the Southern Shore, including an old path and a little-used stream. A scouting party confirms some of the details. The boy adds fish to the coastline and asks whether he can go swimming now.",
+   "text": "With a stick in the dirt, the Golden Child draws the Southern Shore, including an old path and a little-used stream. A scouting party confirms some of the details. The (child.boy/girl) adds fish to the coastline and asks whether (child.he/she) can go swimming now.",
    "effects": [
     {
      "do": "tech",

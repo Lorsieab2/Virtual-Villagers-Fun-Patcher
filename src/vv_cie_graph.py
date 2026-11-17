@@ -416,11 +416,14 @@ RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
 HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
-            "has_living_child", "drew", "has_dead_relative")
+            "has_living_child", "drew", "has_dead_relative", "is_special")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
                    "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
-                   "has_dead_relative": 17})   # 21a (gap C3)
-ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative")   # run-time facts of a bound role
+                   "has_dead_relative": 17,     # 21a (gap C3)
+                   "is_special": 18})           # 35: the role's villager is the Golden Child / the Tribal Chief
+ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative",
+              "is_special")                     # run-time facts of a bound role
+ONE_ROLE_FACTS = ("has_living_child", "has_dead_relative", "is_special")   # ... whose argument is the role's id
 
 
 def fact_of(op: str, arg: Any) -> str:
@@ -435,13 +438,24 @@ def fact_of(op: str, arg: Any) -> str:
 
 
 def fact_role(op: str, arg: Any) -> str | None:
-    return arg if op in ("has_living_child", "has_dead_relative") else arg["role"] if op in ("age", "skill_at_least") \
+    return arg if op in ONE_ROLE_FACTS else arg["role"] if op in ("age", "skill_at_least") \
         else None
 STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
 TITLE_CONDS = ("game", "patch", "not", "all", "any")   # a title variant's "if": known before anyone is cast
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
 NURSING_PARENT_MIN_AGE = 18          # years: children never carry in events (cie-v6-binary.md 22)
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
+# cie-v6-binary.md 35: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
+# may take the role, else any villager the role takes.  Allowed in every game (the owner, 2026-11-16).
+PREFER_CODES = {"golden_child": 4, "tribal_chief": 5}
+POOL_LINKED = 2               # 35: a pool's flags bit: it draws the item number the first linked pool drawn drew
+# 35: the chief's title words (the owner, 2026-11-16): a game word of these names is the chief's title; each run draws
+# one title, the same on every page (linked pools): "Chief", "leader", "elder", "headman" / "headwoman" (a cast chief's
+# presentation) or "council head"; The Secret City's real Tribal Chief, cast in the event's chief role, is the Chief.
+CHIEF_WORDS = ("chief", "Chief", "a_chief", "A_chief", "chiefs_possessive", "village_chief", "tribal_chief",
+               "Tribal_chief")
+CHIEF_TITLES = ("chief", "leader", "elder", "headman", "council head")
+_CHIEF_NOUN = re.compile(r"\b(?:Tribal |tribal |TRIBAL )?(?:Chief|chief|CHIEF|Leader|leader|LEADER)\b")
 PRESENT_CODES = {"golden_child": 1, "tribal_chief": 2}
 PROTECTED_MODES = ("auto", "exclude", "allow")
 PICK_CODES = {"random": 0, "highest": 1}
@@ -464,7 +478,9 @@ PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("
                # Role-sex words (male word, female word), as the pronouns (cie-v6-binary.md 5).
                "mother/father": ("father", "mother"), "father/mother": ("father", "mother"), "mom/dad": ("dad", "mom"),
                "sister/brother": ("brother", "sister"), "aunt/uncle": ("uncle", "aunt"), "girl/boy": ("boy", "girl"),
-               "lady/gentleman": ("gentleman", "lady")}
+               "lady/gentleman": ("gentleman", "lady"),
+               # 35: the chief's title, as a role-sex word (a cast chief's words follow Gender Presentation)
+               "headman/headwoman": ("headman", "headwoman")}
 HINT_PRONOUNS = ("he/she", "him/her", "his/her", "himself/herself")   # a label name's fallback forms (section 15)
 HINT_DEFAULT = "him/her"
 GLYPH_FALLBACK = {";": ",", "(": "-", ")": "-", "&": "and", "%": " percent"}
@@ -684,7 +700,7 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
         if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
             problems.append(f"{where}: {op} is 1..255")
             return None
-        if op in ("has_living_child", "has_dead_relative") and not isinstance(arg, str):
+        if op in ONE_ROLE_FACTS and not isinstance(arg, str):
             problems.append(f"{where}: {op} names one role")
             return None
         if op == "age":
@@ -1180,8 +1196,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok"}
+                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok", "prefer"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                if r.get("prefer") is not None:
+                    # 35: the role prefers the Golden Child / the Tribal Chief (any game; cast when they may be)
+                    if r["prefer"] not in PREFER_CODES:
+                        problems.append(f"{where}: prefer is golden_child or tribal_chief")
+                    elif r.get("special") is not None:
+                        problems.append(f"{where}: give special or prefer, not both")
+                    else:
+                        roles[rid]["prefer"] = r["prefer"]
                 for flag in ("speaks", "heathen_ok"):
                     # 32 / 33c: "speaks": true (the role's words have them speak; never a story-mute villager),
                     # "heathen_ok": true (New Believers: an Isolan's role, cast only among the Heathens)
@@ -2276,17 +2300,115 @@ def _guard_for(g: dict, node: dict, harm: set[str]) -> Any:
     return {"harmable": rs[0]} if len(rs) == 1 else {"all": [{"harmable": r} for r in rs]}
 
 
+def _graph_texts(g: dict) -> Iterable[str]:
+    """Every text of a normalized graph a game word may stand in: pages, variants, labels, pool items."""
+    for n in g.get("nodes", {}).values():
+        yield n.get("text") or ""
+        for v in n.get("variants") or []:
+            yield v.get("text") or ""
+        for c in n.get("choices") or []:
+            yield c.get("label") or ""
+    for p in g.get("pools", {}).values():
+        for it in p.get("items") or []:
+            yield it["text"] if isinstance(it, dict) else it
+
+
+def is_chief_word(word: str) -> bool:
+    """35: a game word that is the chief's title (CHIEF_WORDS, or a label's title-case copy of one, w_tc / w_tcN)."""
+    return re.sub(r"_tc\d*$", "", word) in CHIEF_WORDS
+
+
+def chief_role_of(g: dict) -> str | None:
+    """35: the event's chief: the villager role that is or prefers The Secret City's Tribal Chief (the first one)."""
+    for rid, r in (g.get("roles") or {}).items():
+        if r.get("kind") == "villager" and ("tribal_chief" in (r.get("special"), r.get("prefer"))):
+            return rid
+    return None
+
+
+def _cased_title(title: str, noun: str, role: str | None, case: str) -> str:
+    """A chief's title in `case`: "upper" ("COUNCIL HEAD"), "title" ("Council Head": a label's word, or a word that
+    is the capital noun alone), "first" ("Council head": the noun opens the word) or "lower"."""
+    if title == "headman":
+        return {"upper": f"({str(role).upper()}.HEADMAN/HEADWOMAN)", "title": f"({role}.Headman/Headwoman)",
+                "first": f"({role}.Headman/Headwoman)"}.get(case, f"({role}.headman/headwoman)")
+    if case == "upper":
+        return title.upper()
+    if case == "title":
+        return " ".join(w.capitalize() for w in title.split())
+    return title.capitalize() if case == "first" else title
+
+
+def chief_title_items(g: dict, word: str, per: dict[str, str], elder: bool) -> list[dict] | None:
+    """35: the linked pool's items of chief word `word` (per game: its text): first one item per text with its games
+    (the author's words, as every game word -- lift reads them back), then each other title of CHIEF_TITLES for each
+    of those texts, with the same games, every one of them equally likely; with a chief role, the real Tribal Chief
+    cast in it keeps the author's VV3 word (the other titles need {"not": {"is_special": role}}).  "elder" only when
+    `elder` (no "a {@w}" in the event's texts); "headman" only with a chief role.  None when a text has no chief or
+    leader noun (the word is then an ordinary game word)."""
+    role = chief_role_of(g)
+    texts: dict[str, list[int]] = {}
+    for gn, text in per.items():
+        texts.setdefault(text, []).append(int(gn))
+    items = []
+    owns = []
+    for t, gs in texts.items():
+        m = _CHIEF_NOUN.search(t)
+        if m is None:
+            return None
+        owns.append((t, gs, m, "chief" if "chief" in m.group(0).lower() else "leader"))
+        items.append({"text": t, "weight": 1, "if": {"game": sorted(gs)}, "slot": owns[-1][3]})
+    for t, gs, m, own in owns:
+        for title in CHIEF_TITLES:
+            if title == own or (title == "elder" and not elder) or (title == "headman" and role is None):
+                continue
+            before = t[:m.start()]
+            art = re.search(r"\b([Aa])n? $", before)
+            if art:
+                vowel = title[0] in "aeiou"
+                before = before[:art.start()] + art.group(1) + ("n " if vowel else " ")
+            noun = m.group(0).split()[-1]
+            case = "upper" if noun.isupper() and len(noun) > 1 else "lower" if not noun[:1].isupper() \
+                else "title" if (word != re.sub(r"_tc\d*$", "", word) or t.strip() == m.group(0)) \
+                else "first" if m.start() == 0 else "lower"
+            text = before + _cased_title(title, noun, role, case) + t[m.end():]
+            cond: dict = {"all": [{"game": sorted(gs)}]}
+            if role is not None:
+                cond["all"].append({"not": {"is_special": role}})
+            items.append({"text": text, "weight": 1, "if": cond, "slot": title})
+    return items
+
+
 def lower(g: dict) -> dict:
     """A normalized version 6 graph as the .cieg holds it: each inline pick its own pool _iN (the text says
-    {_iN}), each game word the pool @word (one item per text, its condition the games using it), every pool's
-    items as {"text", "weight", "if"}, and each child's harm guard ("guard")."""
+    {_iN}), each game word the pool @word (one item per text, its condition the games using it; a chief's title word
+    every title, linked: cie-v6-binary.md 35), every pool's items as {"text", "weight", "if"}, and each child's harm
+    guard ("guard")."""
     out = without_names(g)
     pools: dict[str, dict] = {}
     for name, p in out.get("pools", {}).items():
         pools[name] = {"items": [{"text": it["text"], "weight": it["weight"], "if": it["if"]} for it in p["items"]],
                        "distinct": p["distinct"], **({"distinct_from": list(p["distinct_from"])}
                                                      if p.get("distinct_from") else {})}
+    chief_words = [w for w in out.get("words", {}) if is_chief_word(w)]
+    elder = not any(re.search(r"\b[Aa]n?\s+\{@" + re.escape(w) + r"\}", t)
+                    for w in chief_words for t in _graph_texts(out))
+    linked: dict[str, list[dict]] = {}
+    for word in chief_words:
+        items = chief_title_items(out, word, out["words"][word], elder)
+        if items is not None:
+            linked[word] = items
+    # Linked pools draw by item number: every one must hold the same titles for the same games in the same order.
+    shapes = {json.dumps([(it["if"], it["slot"]) for it in items]) for items in linked.values()}
+    if len(shapes) > 1:
+        linked = {}
+    for items in linked.values():
+        for it in items:
+            del it["slot"]
     for word, per in out.get("words", {}).items():
+        if word in linked:
+            pools["@" + word] = {"items": linked[word], "distinct": False, "linked": True}
+            continue
         texts: dict[str, list[int]] = {}
         for gn, text in per.items():
             texts.setdefault(text, []).append(int(gn))
@@ -2336,6 +2458,8 @@ def lift(lg: dict) -> dict:
         if name.startswith("@"):
             per: dict[str, str] = {}
             for it in p["items"]:
+                if set(it["if"] or {}) != {"game"}:
+                    continue                   # 35: a chief's other titles (lower writes them; the words do not)
                 for gn in it["if"]["game"]:
                     per[str(gn)] = it["text"]
             words[name[1:]] = {k: per[k] for k in sorted(per, key=int)}
@@ -3660,7 +3784,7 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], arg["max"] or 0)
         elif op == "skill_at_least":
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], s(arg["skill"]))
-        elif op in ("has_living_child", "has_dead_relative"):
+        elif op in ONE_ROLE_FACTS:
             conds[at] = _COND.pack(code, 0, ridx[arg], 0, 0)
         elif op == "drew":
             item = [it["text"] for it in g["pools"][arg["pool"]]["items"]].index(arg["item"])
@@ -3699,7 +3823,8 @@ def _compile_v6(g: dict) -> bytes:
             sk = v["skill"]
             roles += _ROLE6.pack(0, flags, SEX_CODES[v["sex"]], v["min_age"], s(r),
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
-                                 v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
+                                 v["max_age"] or 0,
+                                 SPECIAL_CODES.get(v["special"], 0) or PREFER_CODES.get(v.get("prefer"), 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
                                  (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
                                  | (ROLE_HEATHEN if v.get("heathen_ok") else 0), 0)
@@ -3774,7 +3899,8 @@ def _compile_v6(g: dict) -> bytes:
     pools = items = b""
     n_item = 0
     for name, p in lg["pools"].items():
-        pools += _POOL.pack(s(name), n_item, len(p["items"]), 1 if p["distinct"] else 0, 0,
+        pools += _POOL.pack(s(name), n_item, len(p["items"]),
+                            (1 if p["distinct"] else 0) | (POOL_LINKED if p.get("linked") else 0), 0,
                             s(",".join(p.get("distinct_from") or [])), 0)
         for it in p["items"]:
             items += _ITEM.pack(s(it["text"]), it["weight"], cond(it["if"]), 0)
@@ -3860,6 +3986,7 @@ def _decompile_v6(data: bytes) -> dict:
     code_effect = {v: k for k, v in EFFECT_CODES.items()}
     code_status = {v: k for k, v in STATUS_CODES.items()}
     code_special = {v: k for k, v in SPECIAL_CODES.items()}
+    code_prefer = {v: k for k, v in PREFER_CODES.items()}
     code_present = {v: k for k, v in PRESENT_CODES.items()}
     code_pick = {v: k for k, v in PICK_CODES.items()}
 
@@ -3870,7 +3997,7 @@ def _decompile_v6(data: bytes) -> dict:
         name = code_cond[op]
         if name == "visited":
             return {name: node_ids[a]}
-        if name in ("role", "harmable", "has_living_child", "has_dead_relative"):
+        if name in ("role", "harmable", *ONE_ROLE_FACTS):
             return {name: role_ids[a]}
         if name == "age":
             return {name: {"role": role_ids[a], "min": b, "max": c3 or None}}
@@ -3916,6 +4043,8 @@ def _decompile_v6(data: bytes) -> dict:
                           if skills != NONE else None,
                           "special": code_special.get(special), "protected": said,
                           "believers_only": bool(flags & 8)}
+            if special in code_prefer:
+                roles[rid]["prefer"] = code_prefer[special]     # 35
             if gap_role:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
             if speaks:
@@ -4026,6 +4155,8 @@ def _decompile_v6(data: bytes) -> dict:
             it, w, c, _ = _ITEM.unpack_from(data, o_item + (first + k) * _ITEM.size)
             its.append({"text": s(it), "weight": w, "if": cond(c)})
         pools[s(name)] = {"items": its, "distinct": bool(pflags & 1)}
+        if pflags & POOL_LINKED:
+            pools[s(name)]["linked"] = True        # 35: a chief's title word (the compiler's, never an author's)
         if frm != NONE:
             pools[s(name)]["distinct_from"] = s(frm).split(",")
     lg = {"format": FORMAT, "version": version, "title": s(title),
@@ -4423,6 +4554,15 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if any(p[0] == name and p[1] == k for p in picks) or name not in lg["pools"]:
                 continue
             pool = lg["pools"][name]
+            if pool.get("linked"):
+                # 35: the item number the first linked pool drawn drew: no roll, no condition asked again
+                first = next((p[2] for p in picks if lg["pools"].get(p[0], {}).get("linked") and p[2] is not None),
+                             None)
+                if first is not None and first < len(pool["items"]):
+                    picks.append([name, k, first])
+                    if depth + 1 < MAX_POOL_DEPTH + 1:
+                        scan(pool["items"][first]["text"], visited, picks, depth + 1)
+                    continue
             eligible = [i for i, it in enumerate(pool["items"]) if cond_holds(it["if"], cx(picks), visited)]
             left = eligible
             if pool["distinct"]:

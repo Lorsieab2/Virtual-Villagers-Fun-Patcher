@@ -46,7 +46,7 @@
   "scene": {
    "name": "The Thirsty Garden",
    "src": "L7722-7724",
-   "text": "The Golden Child sees the farmers staring at dry soil. He closes his eyes and lifts his palms. A soft rain falls over the crops while the nearby paths remain dry. The farmers cheer as the plants recover.",
+   "text": "The Golden Child sees the farmers staring at dry soil. (child.He/She) closes (child.his/her) eyes and lifts (child.his/her) palms. A soft rain falls over the crops while the nearby paths remain dry. The farmers cheer as the plants recover.",
    "text_only": [
     {
      "src": "L7725-7727",

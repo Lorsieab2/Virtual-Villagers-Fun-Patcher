@@ -41,7 +41,7 @@
   "scene": {
    "name": "The Little Philosopher",
    "src": "L7667-7670",
-   "text": "Elders argue whether wisdom comes from knowledge, experience or kindness. The Golden Child asks, 'If you know everything but never help anybody, are you really wise?' The elders have no immediate answer. One eventually thanks him for reminding them what their arguments were supposed to serve.",
+   "text": "Elders argue whether wisdom comes from knowledge, experience or kindness. The Golden Child asks, 'If you know everything but never help anybody, are you really wise?' The elders have no immediate answer. One eventually thanks (child.him/her) for reminding them what their arguments were supposed to serve.",
    "effects": [
     {
      "do": "tech",
