@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b087_grey_morning",
+  "source": "balance",
+  "lines": [
+   3930,
+   3971
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3930",
+  "ledger": [
+   {
+    "src": "L3931",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3932",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3940",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3949",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3937",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3938",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3941",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3950",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3943",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3946",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3952",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3955",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3958-3971",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This morning, a villager's hair has gone pure white.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 50
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Last night (name) slept outside, in the long grass near the old burial ground, because (his/her) hut was too hot. (He/She) dreamed of a crowd of quiet people walking past, one after another, each stopping to look down at (him/her) and smile.\nThis morning, (name)'s hair has gone pure white. Every strand. The village is gathered round, staring. The elders say the old ones sometimes \"leave a mark\" on whoever sleeps near them, and that the mark can sometimes be given back, if the sleeper asks politely, at the same place, the next night.\nShould (name) go back and ask, or keep the mark?",
+   "choices": [
+    {
+     "label": "Go Back and Ask",
+     "next": "c1",
+     "src": "L3937"
+    },
+    {
+     "label": "Keep the Mark",
+     "next": "c2",
+     "src": "L3938"
+    }
+   ],
+   "src": "L3933-3935"
+  },
+  "c1o1": {
+   "text": "In the dream, the quiet people come back, and one of them, an old woman with a kind face, leans down and touches (name)'s hair. In the morning, the white is gone, and so are a good many years from (his/her) face. \"You asked politely,\" says the elder, impressed. \"They like that.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3944"
+  },
+  "c1o2": {
+   "text": "No dream comes. In the morning (name)'s hair is still white, and (his/her) face has settled to match it, lined and calm. The elders say the old ones must have wanted (him/her) to keep it. (Name) decides that's a compliment, and stops minding. The children think (he/she) looks like a cloud.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3947"
+  },
+  "c1": {
+   "text": "(Name) lies down in the same long grass that night, and before (he/she) sleeps, (he/she) asks, out loud and politely, for (his/her) own hair back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3941"
+  },
+  "c2o1": {
+   "text": "(Name) keeps it, and within a few days (his/her) face has grown into it: older, steadier, the kind of face people come to with their troubles. And people do. Within a month, (name) has become the person half the village goes to for advice, though (he/she) has no idea why.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3953"
+  },
+  "c2o2": {
+   "text": "By the end of the week, the white is fading, strand by strand, back to (his/her) own colour. By the end of the month there's only a single white streak left over (his/her) forehead, which (name) keeps, and is quite proud of.",
+   "src": "L3956"
+  },
+  "c2": {
+   "text": "(Name) looks at (his/her) white hair in the water bowl for a long time. Then (he/she) shrugs. \"It's a nice colour,\" (he/she) says...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3950"
+  }
+ }
+}

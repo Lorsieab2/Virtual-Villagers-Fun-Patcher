@@ -97,6 +97,15 @@
     {
      "next": "u"
     }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L8282-8284"
+    }
    ]
   },
   "set_a": {

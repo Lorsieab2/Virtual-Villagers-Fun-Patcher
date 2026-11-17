@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Woman at the Last House",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my017_woman_last_house",
+  "source": "rewrites",
+  "lines": [
+   10818,
+   10873
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10818",
+  "ledger": [
+   {
+    "src": "L10819",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10820",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10829",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10836",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10843",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10850",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10824",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10825",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10826",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10827",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10830",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10837",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10844",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10851",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10833",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10838",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10840",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10845",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10847",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10852",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10854",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10857-10873",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For a week now, every evening, a villager has seen a woman standing beside the very last house at the edge of the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a week now, every evening, (subject) has seen a woman standing beside the very last house at the edge of the village. She wears a pale wrap and stands perfectly still in the long shadows, looking toward the door. The dogs never bark at her.\n(subject) finally asks the family who lives there who their visitor is. They look at (subject.him/her) blankly. \"Nobody's been visiting us,\" they say. \"Nobody at all.\" That evening, there she is again. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Invite Her Inside",
+     "next": "c1",
+     "src": "L10824"
+    },
+    {
+     "label": "Watch from a Distance",
+     "next": "c2",
+     "src": "L10825"
+    },
+    {
+     "label": "Ask Who She Seeks",
+     "next": "c3",
+     "src": "L10826"
+    },
+    {
+     "label": "Ignore the Figure",
+     "next": "c4",
+     "src": "L10827"
+    }
+   ],
+   "src": "L10821-10822"
+  },
+  "c1o1": {
+   "text": "The woman inclines her head and follows (subject) inside. By the fire, she tells a long, quiet story about a family who lived in a house on this very spot, long before the village was built: a mother, a father, three little girls who loved to sing. When she finishes, she thanks (subject), stands, and walks out into the night. (subject) never sees her again. The family in the last house start leaving a small lamp burning in the window, though nobody quite remembers deciding to.",
+   "src": "L10832"
+  },
+  "c1o2": {
+   "text": "As (subject) reaches the house, (subject.he/she) blinks, and the woman is gone. The path is empty. But on the doorstep sits a big clay bowl of soup, still steaming, spiced with something nobody in the village has ever tasted before. The family in the last house swear they didn't make it. It's delicious. They share it around, and nobody gets sick, which everyone agrees is a very good sign. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10834"
+  },
+  "c1": {
+   "text": "Gathering every scrap of courage (subject.he/she) has, (subject) walks over. \"You must be cold,\" (subject.he/she) says. \"Would you like to come in and sit by a fire?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10830"
+  },
+  "c2o1": {
+   "text": "For a long time, nothing happens. Then the woman turns to face (subject), straight toward the firewood pile, as if she always knew (subject.he/she) was there. But her feet never move. Her whole body just... turns. (subject) is back in (subject.his/her) own hut with the door shut before (subject.he/she) even remembers deciding to run.",
+   "src": "L10839"
+  },
+  "c2o2": {
+   "text": "As (subject) watches, (friend), an old neighbor, shuffles out of the last house and stands in exactly the same spot, looking out at the road. Later, (friend) admits it: (friend.he/she) has stood there every evening for years, waiting for a sister who went out fishing long ago and never came home. Was the woman (subject) saw someone else waiting too? Or was it the sister? (friend) doesn't want to know, and (subject) doesn't ask.",
+   "src": "L10841"
+  },
+  "c2": {
+   "text": "(subject) hides behind a pile of firewood across the path and watches the woman as the sun sinks lower and lower...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10837"
+  },
+  "c3o1": {
+   "text": "The woman turns her pale face toward (subject) and says a name. (subject) knows it. Everyone knows it. It's the name of a villager who disappeared years ago and was never found. Before (subject) can say anything, the woman is simply not there. When (subject) tells the others, a few of the elders go very quiet and leave flowers at the last house that night.",
+   "src": "L10846"
+  },
+  "c3o2": {
+   "text": "\"I'm looking for the way to the village by the three springs,\" the woman says, in a voice like dry leaves. \"Is it far?\" (subject) has never heard of any village by three springs. Nobody has. The woman thanks (subject.him/her) anyway and walks off down the road into the dusk. The researchers spend weeks looking for three springs. They never find them.",
+   "src": "L10848"
+  },
+  "c3": {
+   "text": "(subject) walks up to her slowly. \"Excuse me,\" (subject.he/she) says, as politely as (subject.he/she) can manage. \"Who are you waiting for?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10844"
+  },
+  "c4o1": {
+   "text": "After another week, the sightings simply stop. The woman doesn't come back. Life goes on as before. Every now and then, though, (subject) catches (subject.himself/herself) glancing down toward the last house at dusk, half hoping to see her.",
+   "src": "L10853"
+  },
+  "c4o2": {
+   "text": "That night, the woman appears in (subject)'s dream. She doesn't speak. She only points at a spot in the dirt under the old tree beside the last house. In the morning, unable to stop thinking about it, (subject) digs there. (subject.His/Her) stick strikes something small and hard: an old bracelet of carved bone, green with age. Nobody knows whose it was. The family in the last house hang it above their door.",
+   "src": "L10855"
+  },
+  "c4": {
+   "text": "(subject) decides that whatever she is, she's none of (subject.his/her) business. (subject.He/She) stops looking toward the last house in the evenings...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10851"
+  }
+ }
+}

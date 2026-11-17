@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two (Name)s Problem",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s086_two_s_problem",
+  "source": "rewrites",
+  "lines": [
+   4032,
+   4075
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4032",
+  "ledger": [
+   {
+    "src": "L4033",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4034",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4043",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4052",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4040",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4041",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4044",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4053",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4046",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4049",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4055",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4058",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4061-4075",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's the height of the dry season.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's the height of the dry season. Dust lies thick and yellow on all the hill paths, and gets in everything: eyes, food, teeth, dreams. (Name) has walked up past the old carved stones on the hill, the ones with the faces that nobody remembers carving. The elders say they were carved long ago to keep the island's spirits company, and that the spirits get restless in the dry season. The dust is getting right up (his/her) nose.\n(He/She) sneezes. A huge one, a real thunderclap of a sneeze, that echoes off the stones.\nAnd something sneezes back.\n(Name) wipes (his/her) eyes and looks round. Standing right beside (him/her), dusty from head to foot, is another (name). Or someone who looks exactly like (him/her), down to the last hair. It's already complaining, loudly, about the dust. \"What am I supposed to do with... me?\" (name) thinks.",
+   "choices": [
+    {
+     "label": "Make the Best of It",
+     "next": "c1",
+     "src": "L4040"
+    },
+    {
+     "label": "Ask the Elders",
+     "next": "c2",
+     "src": "L4041"
+    }
+   ],
+   "src": "L4035-4038",
+   "text_only": [
+    {
+     "src": "L4035",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "By the time they reach the village, (name) has worked out that the newcomer looks exactly like (him/her) and is nothing like (him/her) inside. It likes different food. It's good at different jobs, and terrible at the ones (name) is good at. It laughs differently, a big honking laugh that makes everyone turn round. It walks differently, it sits differently, it even sneezes differently, which seems unfair, since that's how it arrived. It takes the name (made1), and fits in surprisingly well.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L4047",
+   "text_only": [
+    {
+     "src": "L4047",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Halfway down the hill, the dust gets up the newcomer's nose. It stops. Its face scrunches up. \"Ah... ahh... AHCHOO!\" And with the sneeze, it's gone. Just gone. A little puff of yellow dust drifts away on the breeze where it was standing. (Name) stands there with (his/her) mouth open for a long time. Then (he/she) walks the rest of the way home very carefully, breathing through (his/her) mouth, trying very hard not to sneeze.",
+   "src": "L4050"
+  },
+  "c1": {
+   "text": "(Name) is too surprised to be frightened. \"Bless you,\" (he/she) says, automatically. \"Thanks,\" says the other one. \"Awful, isn't it? The dust.\" They look at each other. Then, because there's nothing else to do, they walk back down to the village together...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4044"
+  },
+  "c2o1": {
+   "text": "The elders look at each other, and shrug. \"It happens,\" says the oldest, as if it's no more surprising than rain. \"The stones do that sometimes, in the dry season. Something to do with the dust. My grandmother had one.\" Before (name) can ask any of the hundred questions in (his/her) head, the elders have named the newcomer on the spot, (made1), and found it a mat to sleep on, and sent them both off to get washed, and gone back to their game of stones.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L4056"
+  },
+  "c2o2": {
+   "text": "The oldest elder looks at the newcomer for a long, long time. Then the elder gives it a look. A stern, steady, ancient look, the kind of look elders give children who have been somewhere they shouldn't. The newcomer shuffles its feet. It looks at the ground. Then it turns round, without a word, and shuffles off out of the hut, back up the hill, and behind the old stones, and never comes out again. \"The stones do that sometimes,\" says the elder. \"You just have to be firm with them.\"",
+   "src": "L4059"
+  },
+  "c2": {
+   "text": "(Name) marches the newcomer straight down the hill to the elders' hut, and stands the two of them side by side in front of the oldest elder. \"This,\" (he/she) says, \"happened at the stones.\" The elder looks from one to the other, slowly...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4053"
+  }
+ }
+}

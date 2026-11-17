@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Peaceful Passing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s096_peaceful_passing",
+  "source": "rewrites",
+  "lines": [
+   4488,
+   4530
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4488",
+  "ledger": [
+   {
+    "src": "L4489",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4490",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4498",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4507",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4495",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4496",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4499",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4508",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4501",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4504",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4510",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4513",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4516-4530",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is very old now.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is very old now. Older than almost anyone can remember. (He/She) has outlived friends and rivals and one of (his/her) own children, and seen the village grow from a few huts into what it is today.\nOne evening, as the sun is going down, (name) asks everyone to come to the fire. All of them, even the little ones. When they've gathered, (he/she) sits for a while without speaking, looking round at every face. Then (he/she) tells them, simply, how much (he/she) has loved being part of the village. Every day of it. Even the hard ones.\nThe fire crackles softly. Someone tucks a blanket round (his/her) shoulders. Even the children are quiet. Nobody wants to be the first to say what everyone is thinking. Should the village stay with (him/her) through the night, or help (him/her) to bed to rest?",
+   "choices": [
+    {
+     "label": "Stay with (Him/Her)",
+     "next": "c1",
+     "src": "L4495"
+    },
+    {
+     "label": "Let (Him/Her) Rest",
+     "next": "c2",
+     "src": "L4496"
+    }
+   ],
+   "src": "L4491-4493"
+  },
+  "c1o1": {
+   "text": "The village sits with (name) all night. People talk quietly, and tell stories about (him/her), and (he/she) listens, and smiles, and sometimes corrects them. The children fall asleep against (his/her) legs. Somewhere in the darkest part of the night, (name) stops correcting them. In the morning, (he/she) is gone, sitting up by the cold fire with (his/her) blanket round (his/her) shoulders and a smile on (his/her) face. The village buries (him/her) under the trees at the edge of the clearing, where (he/she) used to sit in the afternoons, and every one of them leaves something on the grave.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L4502"
+  },
+  "c1o2": {
+   "text": "The village sits with (name) all night, talking quietly, holding (his/her) hands, telling stories. Some people cry. At dawn, (name) yawns, stretches, opens (his/her) eyes, and looks round at the whole village sitting there, red-eyed and exhausted, in a circle round (him/her). \"What,\" (he/she) says, \"is all the fuss about?\" Then (he/she) gets up, a little stiffly, and goes off to make breakfast. Nobody can quite believe it. Several people have to go and lie down.",
+   "src": "L4505"
+  },
+  "c1": {
+   "text": "Nobody leaves. One by one, the villagers settle down around the fire, close to (name), and the night comes on, and the stars come out, and they stay...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4499"
+  },
+  "c2o1": {
+   "text": "(Name) rests, and sleeps a long, deep sleep, and wakes up the next morning feeling much, much better than (he/she) has in weeks. (He/She) sits up on the mat, and looks around, and seems almost surprised. \"Hm,\" (he/she) says. \"Not today, then.\" And (he/she) gets up, and goes out into the sun, and asks what's for breakfast, and lives on for a good while yet.",
+   "src": "L4511"
+  },
+  "c2o2": {
+   "text": "(Name) rests, and sleeps, peacefully, with the sound of the village settling down for the night all around (him/her). And in the morning, (he/she) doesn't wake. (He/She) is lying just as they left (him/her), the blanket still tucked round (his/her) shoulders, (his/her) face calm. The village mourns a much-loved elder. They gather at the fire again that night, all of them, and tell every story about (him/her) they can remember, and some they can't, until dawn.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L4514"
+  },
+  "c2": {
+   "text": "\"You need to rest,\" someone says gently, and they help (name) up, and walk (him/her) slowly to (his/her) hut, and lay (him/her) down on (his/her) mat with the blanket tucked round (him/her), and let (him/her) sleep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4508"
+  }
+ }
+}

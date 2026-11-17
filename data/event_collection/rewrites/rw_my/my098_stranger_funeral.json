@@ -1,0 +1,284 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger at the Funeral Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my098_stranger_funeral",
+  "source": "rewrites",
+  "lines": [
+   15556,
+   15611
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15556",
+  "ledger": [
+   {
+    "src": "L15557",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15558",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15566",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15573",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15580",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15587",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15561",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15562",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15563",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15564",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15567",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15574",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15581",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15588",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15568",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15570",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15575",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15577",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15582",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15589",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15591",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15594-15611",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The only sounds are the sea below and the soft shuffle of feet.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The village walks in a long, quiet procession along the cliff path to the memorial, carrying armfuls of bright flowers for those they have lost. Nobody speaks. The only sounds are the sea below and the soft shuffle of feet.\nAnd then (subject) notices someone new walking beside the procession. A stranger, dressed in grey, barefoot, carrying nothing at all. (subject.He/she) walks with them, matching their slow pace, eyes on the path. (subject) glances around. Nobody else seems to see the stranger. Nobody else is even looking. Should (subject) say something, or keep walking?",
+   "choices": [
+    {
+     "label": "Offer a Flower",
+     "next": "c1",
+     "src": "L15561"
+    },
+    {
+     "label": "Ask Whom They Mourn",
+     "next": "c2",
+     "src": "L15562"
+    },
+    {
+     "label": "Tell a Companion",
+     "next": "c3",
+     "src": "L15563"
+    },
+    {
+     "label": "Leave the Stranger Alone",
+     "next": "c4",
+     "src": "L15564"
+    }
+   ],
+   "src": "L15559-15560"
+  },
+  "c1o1": {
+   "text": "The stranger looks at the flower for a long moment, and then takes it, and holds it close against (subject.his/her) chest. (subject.He/she) bows to (subject), deeply and gratefully. Then (subject.he/she) steps sideways into the crowd of mourners, and is simply not there anymore. (subject) looks for (subject.him/her) all the way to the memorial. At the memorial, among all the offerings, (subject) finds the red flower lying on one of the oldest graves, whose name has long since worn away.",
+   "src": "L15569"
+  },
+  "c1o2": {
+   "text": "The stranger reaches for the flower. And (subject.his/her) hand passes straight through it, as though through smoke. The flower falls from (subject)'s fingers onto the path. When (subject) looks up, the stranger is gone. (subject) is left standing in the middle of the path, trembling, while the procession flows around (subject.him/her). Someone gently picks up the fallen flower and puts it back in (subject.his/her) hands, and leads (subject.him/her) on.",
+   "src": "L15571"
+  },
+  "c1": {
+   "text": "(subject) separates one flower from (subject.his/her) armful, a bright red one, and quietly holds it out to the stranger as they walk...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15567"
+  },
+  "c2o1": {
+   "text": "The stranger names someone, a name nobody in the village would know, and says they are buried on a distant shore, far across the sea, where no one ever goes to visit. \"I have no grave to walk to,\" (subject.he/she) says, \"so I walk to yours.\" (subject) offers to share (subject.his/her) flowers, and the stranger accepts. At the memorial, they lay them side by side. When (subject) turns to say something more, the stranger is walking away down the cliff path, alone.",
+   "src": "L15576"
+  },
+  "c2o2": {
+   "text": "\"Everyone,\" the stranger says softly, \"who was loved.\" And (subject.he/she) walks on, as calm as before. (subject) does not know what to say to that. (subject.He/she) walks beside the stranger the rest of the way in silence. At the memorial, the stranger stands at the back as the flowers are laid, head bowed. When the ceremony ends and everyone turns for home, the stranger is gone.",
+   "src": "L15578"
+  },
+  "c2": {
+   "text": "(subject) falls into step beside the stranger, and whispers, so as not to disturb the silence: \"Who are you mourning?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15574"
+  },
+  "c3o1": {
+   "text": "(friend) looks, and frowns. \"There's no one there,\" (subject.he/she) whispers. Then (subject.he/she) looks at (subject)'s pale face, and does not argue. Instead (subject.he/she) takes (subject)'s hand and holds it tightly, and walks closer beside (subject.him/her) the rest of the way. At the memorial, (friend) does not let go once. Later, (subject) cannot remember when the stranger left. (subject.He/she) only remembers the warm hand holding (subject.his/her) own.",
+   "src": "L15583"
+  },
+  "c3o2": {
+   "text": "(friend) cannot see anyone. But when (subject) describes the stranger later, the grey clothes, the bare feet, the scar across one cheek, (friend) goes very quiet. \"That's my great-grandmother,\" (subject.he/she) says. \"Or someone exactly like her. There's an old painting of her in my family's hut. She always walked in the processions barefoot. She said the dead could hear you better that way.\" (subject.He/she) takes (subject) to see the painting. It is the stranger.",
+   "src": "L15585"
+  },
+  "c3": {
+   "text": "(subject) leans over to (friend), walking beside (subject.him/her), and whispers: \"Who's that? In grey, walking with us?\" (friend) looks where (subject) is pointing...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15581"
+  },
+  "c4o1": {
+   "text": "The procession reaches the memorial peacefully. The flowers are laid, the names are spoken, and some people cry, and some people smile, and the sea goes on whispering below the cliff. When (subject) looks up again, the stranger is gone, and (subject) finds that (subject.he/she) does not mind. It felt, somehow, as though the stranger belonged there.",
+   "src": "L15590"
+  },
+  "c4o2": {
+   "text": "At the memorial, after every villager has laid their flowers, (subject) counts them out of habit, and stops. There is one too many. Among the red and yellow and orange blooms lies a single white flower, perfect and fresh, of a kind that does not grow anywhere on the island. Nobody remembers bringing it. Nobody knows what it is. It does not wilt for a whole month.",
+   "src": "L15592"
+  },
+  "c4": {
+   "text": "Whoever the stranger is, this is a day for mourning, not for questions. (subject) lowers (subject.his/her) eyes and keeps walking in silence...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15588"
+  }
+ }
+}

@@ -8,10 +8,11 @@ block (id, source lines, section, credit, draw weight, series).  This compiles e
 src/vv_cie_graph.py (validate, then compile_graph) and writes:
 
   * assets/event_collection/<id>.cieg -- each event's compiled file;
-  * assets/event_collection/vvN/manifest.txt -- the events of game N, one line each:
+  * assets/event_collection/vvN/manifest-<group>.txt -- the events of game N (one file per source section and per
+    living series; living-<group>.pak holds each living series' variants), one line each:
     id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit<TAB>description<TAB>Guardians title<TAB>Guardians
     description (Story / Cheat Upgrades' story_collection.inc reads it from "<game folder>\\Virtual Villagers Fun
-    Patcher Files\\Island Event Collection\\manifest.txt"): the title the game shows (its title variant's, cie-v6-
+    Patcher Files\\Island Event Collection\\manifest-<group>.txt"): the title the game shows (its title variant's, cie-v6-
     binary.md 18), Pick Island Event's sentence (collection.description), and -- New Believers only, empty when the
     same -- both with Guardians of Isola Rewrite on (the title variant and collection.description_variants);
   * assets/event_collection/Credits.txt ("Island Event Collection\\Credits.txt" in the game), and the same text as
@@ -20,7 +21,8 @@ src/vv_cie_graph.py (validate, then compile_graph) and writes:
   * data/vvN_isola_grand_event_collection_feature.json -- the five rows, pinning every file by SHA-256.
 
 No executable byte, no DLL of its own: Story / Cheat Upgrades (the row's prerequisite) runs the events -- its separate
-rare roll after a natural island event, Pick Island Event and the in-game library's "Isola Grand Event Collection"
+choice at a natural island event (half of them, from 61 villagers), Pick Island Event and the in-game library's
+"Isola Grand Event Collection"
 group.  The script works on whatever event files exist (none yet is fine: the rows then ship only the manifest header
 and the credits).
 
@@ -38,6 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 import vv_cie_graph as cie  # noqa: E402
 import vv_living_mixer as living  # noqa: E402
+import vv_event_content as content  # noqa: E402  (the content notes, filters and story traits)
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from collection_check import graph_for_engine  # noqa: E402  (drops the authoring-only keys)
@@ -58,10 +61,18 @@ VV1_ID_MAX = 22
 CREDITS_MD = ROOT / "docs" / "more-island-events" / "Isola Grand Event Collection - Credits.md"
 NAME = "Isola Grand Event Collection"
 GAMES = (1, 2, 3, 4, 5)
-NOT_EVENTS = {"manifest.json", "shared_pools.json"}
+NOT_EVENTS = {"manifest.json", "shared_pools.json",
+              # the procedural pieces' situation tables (scripts/procedural_pieces.py), not events
+              "procedural_never_with.json", "procedural_situations.json"}
 # The Living Event Engine (docs/event-collection/living-pack.md): its variants ship in one pack per game,
 # "Island Event Collection\\living.pak", and its seeds are manifest rows (id living_..., one series per category).
-LIVING_NAME = "living.pak"
+LIVING_NAME = "living-*.pak"                 # one per living series (below)
+# Split files (the owner, 2026-11-15; the engine's layout, feat/97-island-events-ui 70df06497): one
+# "manifest-<group>.txt" per source section and per living series, one "living-<group>.pak" per living series.  A group
+# is [a-z0-9_]; it is kept short so every path stays inside VV1's deep-folder limit (VV1_ID_MAX: the file name at most
+# 22 characters, as a .cieg's id): a manifest group at most 9, a living group at most 11.
+MANIFEST_GROUP_MAX, LIVING_GROUP_MAX = 9, 11
+MANIFEST_ROWS_MAX, MANIFEST_BYTES_MAX = 4096, 1024 * 1024
 LIVING_SOURCE = ROOT / "docs" / "more-island-events" / "Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt"
 LIVING_SHA256 = (ROOT / "data" / "living_events" / "SOURCE.sha256").read_text(encoding="ascii").split()[0].upper()
 LIVING_CREDIT_LINE = 23815
@@ -240,6 +251,25 @@ def span(lines: list[str], first: int, last: int) -> str:
     return "".join(lines[first - 1:last])
 
 
+# The owner, 2026-11-15: the three handwritten events are credited to the owner alone; their ledger lines (L22-28)
+# read so in Credits.txt (collection_manifest.OWNER_CREDITS gives the events' own credit the same words).
+OWNER_LEDGER_LINES = ((22, 24, "cooking"), (25, 26, "child"), (27, 28, "faith"))
+
+
+def ledger_text(lines: list[str]) -> str:
+    import collection_manifest as cm
+    out, n = [], LEDGER[0]
+    while n <= LEDGER[1]:
+        hit = next((x for x in OWNER_LEDGER_LINES if x[0] == n), None)
+        if hit:
+            out.append(cm.OWNER_CREDITS[hit[2]] + "\n")
+            n = hit[1] + 1
+        else:
+            out.append(lines[n - 1])
+            n += 1
+    return "".join(out)
+
+
 def event_files(src: Path = DATA) -> list[Path]:
     if not src.is_dir():
         return []
@@ -287,10 +317,22 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "description_variants": meta.get("description_variants") or [],
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
-            "cieg": cie.compile_graph(g),
+            "section": meta.get("section", ""),
+            # collection.mixer_only (the coordinator, 2026-11-16): an event that already runs elsewhere (More Island
+            # Events' own DLL) gives only its mixer versions; its static form is in no manifest
+            "mixer_only": meta.get("mixer_only") is True,
+            # The content controls written in (src/vv_event_content.py): the source's tag table's node tags.
+            "cieg": cie.compile_graph(content.inject(g, content.node_tags_for(meta.get("source", "v28"), ident, g),
+                                                         content.extras_for(meta.get("source", "v28"), ident, g))[0]),
         })
     return sorted(out, key=lambda e: e["id"])
 
+
+# How the new events come (the owner, 2026-11-15), the plain words every island-event row says.
+PLAIN = ("Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the "
+         "two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen "
+         "once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take "
+         "come in a random size each time (small, normal, large or huge, in the game's own ranges).")
 
 GUARDIANS = "guardians_of_isola"            # Guardians of Isola Rewrite (New Believers): the engine's patch name
 
@@ -318,14 +360,15 @@ def manifest_line(game: int, e: dict) -> str:
 def living_line(r: dict) -> str:
     """A Living Event Engine seed's row: its event is in living.pak (the id's living_ prefix says so)."""
     return "\t".join([r["id"], r["title"], ",".join(str(n) for n in r["games"]), str(r["weight"]), r["series"],
-                      one_line(r["credit"]), one_line(r["description"]), "", ""])
+                      one_line(r["credit"]), one_line(r["description"]), "",
+                      one_line(r.get("guardians_description", ""))])
 
 
 def manifest_text(game: int, events: list[dict], living_rows: list[dict] | None = None) -> str:
     rows = ["# Isola Grand Event Collection: the events of this game, read by VVFP Story Upgrades.dll.",
             "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
     for e in events:
-        if game in e["games"]:
+        if game in e["games"] and not e.get("mixer_only"):
             rows.append(manifest_line(game, e))
     for r in living_rows or []:
         rows.append(living_line(r))
@@ -347,11 +390,12 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     lines = lines if lines is not None else source_lines()
     out = ["ISOLA GRAND EVENT COLLECTION - CREDITS\n",
            "\n",
-           f"Source: {SOURCE.name} (SHA-256 {SOURCE_SHA256}). The texts below are copied from it verbatim.\n",
+           f"Source: {SOURCE.name} (SHA-256 {SOURCE_SHA256}). The texts below are copied from it verbatim, except "
+           "that the three handwritten events (L22-28) are credited to the owner alone (the owner, 2026-11-15).\n",
            "\n",
            f"THE CREDIT LEDGER (source lines {LEDGER[0]}-{LEDGER[1]})\n",
            "\n",
-           span(lines, *LEDGER),
+           ledger_text(lines),
            "\n"]
     for first, last, what in CREDIT_BLOCKS:
         out += [f"SECTION CREDIT: {what} (source lines {first}-{last})\n", "\n", span(lines, first, last), "\n"]
@@ -390,6 +434,8 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     if not events:
         out.append("(No event of the collection is in this build yet.)\n")
     for e in events:
+        if e.get("mixer_only"):
+            continue      # More Island Events' own events: their credits are that patch's, never listed twice
         which = SOURCE_LINE_WORDS.get(e.get("source"), "source lines")
         where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")
@@ -413,17 +459,16 @@ def sha(data: bytes) -> str:
 def description(game: int, count: int, living_count: int = 0) -> str:
     return (
         "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; "
-        "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"), as rare, separate events: "
-        "the game's own island events and their chances never change. After a natural island event, a separate rare "
-        "roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours "
-        "later, between two natural ones: about three in seven days of game time, never during a village's two "
-        "opening events, never while the village is in trouble (the game's own rescue rule, little food, much "
-        "sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names "
+        "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"). " + PLAIN + " "
+        "It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- "
+        "then comes in the natural event's place (Story / "
+        "Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much "
+        "sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names "
         "(never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event "
         "lists them (with what each needs), and the Custom Island Event library has them in its own \"" + NAME
         + "\" group. " + (f"{count} events in this game in this build. " if count else "")
         + (f"The Living Event Engine adds {living_count} situations, each shown as one of its owner-written "
-           "variants with the villagers' names (each category counts as one event in the rare roll). "
+           "variants with the villagers' names (each category counts as one event in the draw). "
            if living_count else "")
         + "Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. "
         "**Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** "
@@ -444,17 +489,22 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
         "output_tag": "Isola Grand Event Collection",
         "dependencies": [f"vv{game}_story_cheat_upgrades", f"vv{game}_scrolling_popups"],
         "behavior_changes": [
-            "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural "
-            "island event (the Island Events Seen count went up with nothing armed or on its way), past the two "
-            "opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The "
-            "roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is "
-            "armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble "
-            "guard cancels it. Every event that can happen is equally likely, More Island Events' and the "
-            "collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, "
-            "each collection event by its draw weight (1), a series as one event; the event is armed as a purchase "
-            "arms one, so the island timer's keeper puts the natural next time back after it.",
+            "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island "
+            "event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New "
+            "Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, "
+            "much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and "
+            "then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living "
+            "villagers the game lists and the babies being carried; New Believers' believers only) an event that "
+            "can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards "
+            "for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random "
+            "size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen "
+            "is equally likely, More Island Events' and the collection's alike: one draw over all of them, each "
+            "collection event by its draw weight (1), a series as one event; when none can be cast the game's own "
+            "event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given "
+            "a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), "
+            "so the new event takes the natural event's place.",
             f"The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\{FOLDER}\", "
-            "listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) "
+            "listed in its manifest-*.txt files (one per source section and living series); Pick Island Event lists them (strict casting: every requirement must hold) "
             "and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a "
             "requirement nobody meets is dropped, the protected villagers' safety never).",
         ],
@@ -478,11 +528,118 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
 _LIVING_CACHE: dict = {}
 
 
-def living_build() -> tuple[list, dict[int, bytes]]:
-    """The Living Event Engine's variants and packs (built once per process: about half a minute)."""
+def living_build(events: list[dict] | None = None) -> tuple[list, dict[int, dict[str, bytes]]]:
+    """The Living Event Engine's variants and packs, with every static event's mixer versions
+    (scripts/living_from_static.py) when `events` is given; built once per process."""
     if "built" not in _LIVING_CACHE:
-        _LIVING_CACHE["built"] = living.build()
+        extra = []
+        if events is not None:
+            import living_from_static as lfs
+            extra, _LIVING_CACHE["static_only"] = lfs.build(events)
+        _LIVING_CACHE["built"] = living.build(extra=extra)
     return _LIVING_CACHE["built"]
+
+
+def _short(name: str, cap: int, taken: set[str]) -> str:
+    """A [a-z0-9_] group name of at most `cap` characters, unique among `taken`."""
+    base = re.sub(r"[^a-z0-9_]", "_", name.lower()).strip("_")[:cap] or "g"
+    out, n = base, 2
+    while out in taken:
+        tail = str(n)
+        out, n = base[:cap - len(tail)] + tail, n + 1
+    taken.add(out)
+    return out
+
+
+def manifest_groups(events: list[dict]) -> dict[str, str]:
+    """{event id: its manifest group}: one group per source section (a section two sources share is told apart)."""
+    taken: set[str] = set()
+    names: dict[tuple[str, str], str] = {}
+    out = {}
+    for e in events:
+        key = (e["source"], e.get("section") or e["source"])
+        if key not in names:
+            names[key] = _short(key[1], MANIFEST_GROUP_MAX, taken)
+        out[e["id"]] = names[key]
+    return out
+
+
+def living_group(series: str, taken: dict[str, str]) -> str:
+    """The file group of a living series (living_le_per -> le_per, living_st_companion -> st_compani)."""
+    if series not in taken:
+        taken[series] = _short(series.removeprefix("living_"), LIVING_GROUP_MAX, set(taken.values()))
+    return taken[series]
+
+
+def split_rows(group: str, lines: list[tuple[str, str]]) -> list[tuple[str, list[str]]]:
+    """[(file group, its lines)]: `lines` (series, line) cut at series boundaries so that no file passes
+    MANIFEST_ROWS_MAX rows or MANIFEST_BYTES_MAX bytes; a series is never split."""
+    chunks: list[list[str]] = [[]]
+    size = 0
+    by_series: dict[str, list[str]] = {}
+    order: list[str] = []
+    for ser, line in lines:
+        key = ser or f"\0{len(order)}"
+        if key not in by_series:
+            by_series[key] = []
+            order.append(key)
+        by_series[key].append(line)
+    for key in order:
+        block = by_series[key]
+        b = sum(len(x.encode("utf-8")) + 1 for x in block)
+        if chunks[-1] and (len(chunks[-1]) + len(block) > MANIFEST_ROWS_MAX - 2 or size + b > MANIFEST_BYTES_MAX - 512):
+            chunks.append([])
+            size = 0
+        if len(block) > MANIFEST_ROWS_MAX - 2 or b > MANIFEST_BYTES_MAX - 512:
+            raise SystemExit(f"manifest group {group}: one series outgrows a manifest file")
+        chunks[-1] += block
+        size += b
+    if len(chunks) == 1:
+        return [(group, chunks[0])]
+    return [(f"{group[:MANIFEST_GROUP_MAX - 1]}{i + 1}"[:MANIFEST_GROUP_MAX], c) for i, c in enumerate(chunks)]
+
+
+MANIFEST_HEAD = ["# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.",
+                 "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
+
+
+def static_mixer_line(game: int, v) -> str:
+    """A static event's mixer seed row: the event's own title, description, credit and games, its own id and series."""
+    e = v.plan["static"]
+    fields = manifest_line(game, e).split("\t")
+    fields[0], fields[4], fields[3] = v.manifest_id, v.series, "1"
+    return "\t".join(fields)
+
+
+def living_groups(variants: list) -> dict[str, str]:
+    """{living series: its file group}, the same in every game (series in sorted order)."""
+    lg: dict[str, str] = {}
+    for s in sorted({v.series for v in variants}):
+        living_group(s, lg)
+    return lg
+
+
+def game_manifests(game: int, events: list[dict], variants: list, groups: dict[str, str],
+                   lg: dict[str, str]) -> dict[str, bytes]:
+    """{file group: manifest-<group>.txt bytes} for one game."""
+    per_group: dict[str, list[tuple[str, str]]] = {}
+    for e in events:
+        if game in e["games"] and not e.get("mixer_only"):
+            per_group.setdefault(groups[e["id"]], []).append((e["series"], manifest_line(game, e)))
+    for r in living.manifest_rows(game, variants):
+        per_group.setdefault(living_group(r["series"], lg), []).append((r["series"], living_line(r)))
+    seen = set()
+    for v in variants:
+        if v.bank == 2 and game in v.games and v.manifest_id not in seen:
+            seen.add(v.manifest_id)
+            per_group.setdefault(living_group(v.series, lg), []).append((v.series, static_mixer_line(game, v)))
+    out = {}
+    for grp, lines in per_group.items():
+        for name, chunk in split_rows(grp, lines):
+            if name in out:
+                raise SystemExit(f"manifest group {name} is made twice")
+            out[name] = ("\n".join(MANIFEST_HEAD + chunk) + "\n").encode("utf-8")
+    return out
 
 
 def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data", docs: Path = CREDITS_MD,
@@ -494,35 +651,44 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
     lines = source_lines()
     events = compile_events(src)
     credits = credits_text(events, lines, living_on)
-    variants, packs = living_build() if living_on else ([], {})
+    variants, packs = living_build(events) if living_on else ([], {})
+    groups = manifest_groups(events)
+    lg = living_groups(variants)
     rows = {}
     planned: dict[Path, bytes] = {}
     for e in events:
         planned[assets / f"{e['id']}.cieg"] = e["cieg"]
     planned[assets / CREDITS_NAME] = credits.encode("utf-8")
+    rel = assets.relative_to(ROOT).as_posix()
     for game in GAMES:
-        living_rows = living.manifest_rows(game, variants) if living_on else []
-        manifest = manifest_text(game, events, living_rows).encode("utf-8")
-        planned[assets / f"vv{game}" / "manifest.txt"] = manifest
-        files = [(f"{assets.relative_to(ROOT).as_posix()}/vv{game}/manifest.txt", f"{FOLDER}/manifest.txt", manifest),
-                 (f"{assets.relative_to(ROOT).as_posix()}/{CREDITS_NAME}", f"{FOLDER}/{CREDITS_NAME}",
-                  credits.encode("utf-8"))]
-        if living_on:
-            planned[assets / f"vv{game}" / LIVING_NAME] = packs[game]
-            files.append((f"{assets.relative_to(ROOT).as_posix()}/vv{game}/{LIVING_NAME}", f"{FOLDER}/{LIVING_NAME}",
-                          packs[game]))
+        manifests = game_manifests(game, events, variants, groups, lg)
+        files = [(f"{rel}/{CREDITS_NAME}", f"{FOLDER}/{CREDITS_NAME}", credits.encode("utf-8"))]
+        for grp in sorted(manifests):
+            name = f"manifest-{grp}.txt"
+            planned[assets / f"vv{game}" / name] = manifests[grp]
+            files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{name}", manifests[grp]))
+        living_count = 0
+        for series, data in sorted((packs.get(game) or {}).items()):
+            name = f"living-{lg[series]}.pak"
+            planned[assets / f"vv{game}" / name] = data
+            files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{name}", data))
+            # the Living Engine's own situations; a static event's mixer versions (bank 2) are that event again
+            living_count += sum(1 for s in living.read_pack(data)["seeds"] if s["bank"] in (0, 1))
         mine = [e for e in events if game in e["games"]]
-        files += [(f"{assets.relative_to(ROOT).as_posix()}/{e['id']}.cieg", f"{FOLDER}/{e['id']}.cieg", e["cieg"])
-                  for e in mine]
-        rows[game] = row(game, files, len(mine), len(living_rows))
+        files += [(f"{rel}/{e['id']}.cieg", f"{FOLDER}/{e['id']}.cieg", e["cieg"]) for e in mine]
+        rows[game] = row(game, files, len(mine), living_count)
     if write:
         for path, data in planned.items():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
-        for stale in assets.glob("*.cieg"):
+        for stale in list(assets.glob("*.cieg")) + list(assets.glob("vv*/manifest*.txt")) + \
+                list(assets.glob("vv*/living*.pak")):
             if stale not in planned:
                 stale.unlink()
         docs.write_bytes(credits.encode("utf-8"))
+        if living_on and "static_only" in _LIVING_CACHE:
+            import living_from_static as lfs
+            lfs.write_static_only_doc(events, [v for v in variants if v.bank == 2], _LIVING_CACHE["static_only"])
         for game, record in rows.items():
             (data_dir / f"vv{game}_isola_grand_event_collection_feature.json").write_text(
                 json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
@@ -532,11 +698,16 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
 def main() -> None:
     rows = build()
     for game, record in rows.items():
-        print(f"vv{game}: {len(record['companion_files']) - 3} events and living.pak -> "
-              f"data/vv{game}_isola_grand_event_collection_feature.json")
-    # The Game Mechanics page's index (src/vv_game_mechanics_collection.py), the living seeds from the variants.
+        names = [f["destination"].rsplit("/", 1)[-1] for f in record["companion_files"]]
+        packs_ = [n for n in names if n.startswith("living-")]
+        size = sum((ASSETS / f"vv{game}" / n).stat().st_size for n in packs_)
+        print(f"vv{game}: {sum(n.endswith('.cieg') for n in names)} events, "
+              f"{sum(n.startswith('manifest-') for n in names)} manifests, {len(packs_)} living packs "
+              f"({size:,} bytes) -> data/vv{game}_isola_grand_event_collection_feature.json")
+    # The Game Mechanics page's index (src/vv_game_mechanics_collection.py), the living seeds from the variants (the
+    # static events' mixer versions are those events, already in it).
     import vv_game_mechanics_collection as gc
-    gc.write_index([(v.manifest_id, v.graph) for v in living_build()[0]])
+    gc.write_index([(v.manifest_id, v.graph) for v in living_build()[0] if v.bank != 2])
     print("wrote data/event_collection_index.json")
 
 

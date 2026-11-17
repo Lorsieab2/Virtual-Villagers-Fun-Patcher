@@ -1,0 +1,269 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teaching Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b040_teaching_day",
+  "source": "balance",
+  "lines": [
+   1798,
+   1840
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1798",
+  "ledger": [
+   {
+    "src": "L1799",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1800",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1808",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1817",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1805",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1806",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1809",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1818",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1811",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1814",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1820",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1823",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1826-1840",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "How should a villager teach?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year the village holds a teaching day, when every elder takes on one young person and teaches them everything they can in a single day. This year, (subject) has been paired with (young), who has never shown the slightest interest in anything (subject) does.\n(young) is sitting cross-legged, arms folded, already bored. (subject) can teach (subject.him/her) the hard way, properly, from the beginning, or try to find whatever (young) actually cares about and teach that.\nHow should (subject) teach?",
+   "choices": [
+    {
+     "label": "Teach It Properly",
+     "next": "c1",
+     "src": "L1805"
+    },
+    {
+     "label": "Find What (Young) Cares About",
+     "next": "c2",
+     "src": "L1806"
+    }
+   ],
+   "src": "L1801-1803"
+  },
+  "c1o1": {
+   "text": "By the afternoon (young) has stopped yawning and started asking questions, and by evening (young.he/she) is arguing with (subject) about the right way to do it, and is occasionally right. The skills aren't the ones (subject) set out to teach, exactly: (young) has just learned how to learn. Whatever (young.he/she) was already good at, (young.he/she) gets better at, fast.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L1812"
+  },
+  "c1o2": {
+   "text": "(subject) is such a good teacher, it turns out, that by noon other young people have drifted over to listen, and by afternoon there's a crowd. Three of them go home with their heads full and their hands itching to try. (young), who started all this, is sulking at the back. \"I was here first,\" (young.he/she) says.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 10,
+     "max": 20,
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L1815"
+  },
+  "c1": {
+   "text": "(subject) starts at the beginning, the way (subject.he/she) was taught: slowly, carefully, every step explained twice. (young) yawns. Then, despite (subject.himself/herself), (young.he/she) starts to watch...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1809"
+  },
+  "c2o1": {
+   "text": "So (subject) takes (young) to watch birds, and talks about how the birds build their nests, and how that is exactly how a roof is built, or a basket woven, or a net tied. By the end of the day, (young) has decided that tying thatch is just bird-work with bigger hands, and the splinters of rough wood, which (young.he/she) always hated, don't bother (young.him/her) anymore.",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L1821"
+  },
+  "c2o2": {
+   "text": "(subject) talks about birds all day: their feathers, their calls, their eggs, which ones are good to eat. By sunset (young) has heard more about birds than anyone ever should. (young.He/She) never looks at a bird the same way again. \"You ruined birds,\" (young.he/she) tells (subject), and (subject) has to admit (subject.he/she) might have overdone it. After a whole day of it, (young) has no appetite for lessons of any kind.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L1824"
+  },
+  "c2": {
+   "text": "\"What do you like?\" (subject) asks. (young) shrugs. \"Nothing.\" (subject) waits. Eventually, sullenly, (young) admits to liking watching the birds...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1818"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "young",
+     "remove": true,
+     "dislike": "wood"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "young",
+     "remove": true,
+     "like": "learning"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

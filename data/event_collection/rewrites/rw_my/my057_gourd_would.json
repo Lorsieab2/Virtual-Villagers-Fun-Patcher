@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gourd That Would Not Empty",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my057_gourd_would",
+  "source": "rewrites",
+  "lines": [
+   13178,
+   13233
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13178",
+  "ledger": [
+   {
+    "src": "L13179",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13180",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13189",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13196",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13203",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13210",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13184",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13185",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13186",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13187",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13190",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13197",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13204",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13211",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13191",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13193",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13198",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13200",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13205",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13207",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13212",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13214",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13217-13233",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's smooth and worn, with a stopper of carved wood, and when a villager shakes it, it makes no sound at all.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wandering elder stops at (name)'s hut for a drink, and before leaving, presses an old drinking gourd into (name)'s hands. It's smooth and worn, with a stopper of carved wood, and when (name) shakes it, it makes no sound at all.\n\"It will always hold exactly what is needed,\" the elder says. \"Never what is wanted. Remember that.\" And off the elder goes, before (name) can say thank you. (Name) pulls out the stopper and peers inside. It's dark in there. What should (he/she) do with it?",
+   "choices": [
+    {
+     "label": "Use It for Water",
+     "next": "c1",
+     "src": "L13184"
+    },
+    {
+     "label": "Use It for Soup",
+     "next": "c2",
+     "src": "L13185"
+    },
+    {
+     "label": "Study the Gourd",
+     "next": "c3",
+     "src": "L13186"
+    },
+    {
+     "label": "Return It to the Elder",
+     "next": "c4",
+     "src": "L13187"
+    }
+   ],
+   "src": "L13181-13182"
+  },
+  "c1o1": {
+   "text": "Water flows out of the gourd: cool, clear, and exactly enough. The traveler drinks it all, gasping with relief, and the gourd runs dry at the very last drop. (Name) shakes it. Empty. The next day, when a child comes in from the fields red-faced and parched, it's full again, with exactly a child's worth. (Name) begins to understand.",
+   "src": "L13192"
+  },
+  "c1o2": {
+   "text": "The gourd pours one cup. Then (name) tries to pour a second, for (himself/herself), since it's a hot day. Nothing. (He/She) peers inside, and finds it bone dry, as if it had never held water at all. \"Never what is wanted,\" (name) mutters. The traveler laughs so hard (he/she) nearly spills (his/her) own cup.",
+   "src": "L13194"
+  },
+  "c1": {
+   "text": "That afternoon, a thirsty traveler stops at the village, and (name) tips the gourd to pour (him/her) a drink...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13190"
+  },
+  "c2o1": {
+   "text": "Out pours broth, rich, golden and steaming hot, far more than a gourd that size should ever hold. It keeps coming until the pot is full, and then stops. The cooks stare at (name). (Name) stares at the gourd. Supper that night is the tastiest anyone has had in weeks, and everyone gets seconds. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13199"
+  },
+  "c2o2": {
+   "text": "Broth flows out of the gourd, hot and fragrant, and the cooks cheer. Then (name)'s elbow catches the pot, and the whole lot goes over into the dirt. When (name) tips the gourd again, nothing comes out. Apparently what was needed was a lesson in being careful. The cooks are not amused.",
+   "src": "L13201"
+  },
+  "c2": {
+   "text": "The cooks are short on broth for supper. (Name) has an idea, and tips the gourd over the pot...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13197"
+  },
+  "c3o1": {
+   "text": "After a whole afternoon, one of the builders presses a little knot on its side and laughs triumphantly. There's a hidden second chamber inside the walls. One chamber is small and easy to fill; the other only opens for someone who knows where to press. A clever traveler's trick, for carrying a secret supply of water. The builders start making their own at once. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13206"
+  },
+  "c3o2": {
+   "text": "They look at it for days. They tap it, measure it, fill it, empty it. There's no seam, no hidden chamber, no trick anyone can find. It's just a gourd, an old, ordinary gourd, and yet. The researchers hand it back to (name) with a shrug and a frown, and quietly agree never to mention it again.",
+   "src": "L13208"
+  },
+  "c3": {
+   "text": "(Name) brings the gourd to the researchers and builders, who turn it over and over, tapping, sniffing, holding it up to the light...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13204"
+  },
+  "c4o1": {
+   "text": "(Name) catches up with the elder by the river. The elder smiles and takes the gourd back. \"Thank you,\" the old one says. \"Not many give it back.\" Then, as (name) watches, the elder sets the gourd down on a flat stone by the path, in plain view. \"For the next person in need,\" (he/she) explains, and walks on. The next morning, the gourd is gone.",
+   "src": "L13213"
+  },
+  "c4o2": {
+   "text": "(Name) runs all the way to the river, then to the crossroads, then halfway to the next village. The elder is nowhere to be found. No one saw (him/her) pass. No one knows where (he/she) went. (Name) walks home slowly, holding the gourd, which seems for some reason to be exactly as heavy as (he/she) needs it to be.",
+   "src": "L13215"
+  },
+  "c4": {
+   "text": "A gift like this is too much, (name) decides. (He/She) hurries down the path after the wandering elder...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13211"
+  }
+ }
+}

@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Step at the Falls",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s029_wrong_step_falls",
+  "source": "rewrites",
+  "lines": [
+   1353,
+   1397
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1353",
+  "ledger": [
+   {
+    "src": "L1354",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1355",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1363",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1372",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1360",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1361",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1364",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1373",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1366",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1369",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1375",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1378",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1381-1397",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has carried water from the top of the falls for years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has carried water from the top of the falls for years. (He/She) could do it in (his/her) sleep: down the path, over the three flat rocks, fill the jars from the clear pool at the lip, and back. The spray throws little rainbows over the rocks, and the roar is so loud that nobody would hear a shout.\nToday, with both jars full and heavy, (name) steps onto the third flat rock, the one (he/she) always steps on. It wobbles. It has never wobbled before. Then it slides out from under (his/her) foot, and the jars fly, and (name) goes over the edge of the falls.\nHalfway down the cliff, a thick old vine hangs out over the water. Far below, there's the deep pool at the foot of the falls, or the rocks around it. (Name) has only a heartbeat. Grab for the vine, or let go and hope for the pool?",
+   "choices": [
+    {
+     "label": "Grab the Vine",
+     "next": "c1",
+     "src": "L1360"
+    },
+    {
+     "label": "Let Go and Hope for the Pool",
+     "next": "c2",
+     "src": "L1361"
+    }
+   ],
+   "src": "L1356-1358"
+  },
+  "c1o1": {
+   "text": "The vine holds. (Name) swings back in and slams into the cliff, and something in (his/her) arm goes crack, and (he/she) lands hard on a narrow ledge below with the breath knocked out of (him/her). (He/She) lies there for a long time, listening to (his/her) heart, before (he/she) can face climbing back up one-handed. When (he/she) finally staggers into the village, shaking, soaked, with one empty jar still somehow hooked over (his/her) shoulder, everyone comes running. The healers set the arm and splint it, and (name) is off water duty for the season.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L1367"
+  },
+  "c1o2": {
+   "text": "The vine holds. (His/her) leg doesn't. (Name) swings back into the cliff feet first, and the rocks take the full force of it. (He/She) hangs there, screaming into the roar of the water, until the people below see (him/her) and climb up with ropes. The healers do everything they can, for weeks. (Name) walks again, in the end, slowly and stiffly, with a stick. (He/She) never carries water from the falls again, and the sound of rushing water makes (his/her) hands shake. The elders put up a post of carved wood beside the third flat rock, so nobody else steps on it.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1370"
+  },
+  "c1": {
+   "text": "(Name) twists in the air and lunges for the vine with both hands. (His/her) fingers close round it. It burns through (his/her) palms as (he/she) slides, and then catches, and holds, and (name) swings out over the white water like a weight on a string...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1364"
+  },
+  "c2o1": {
+   "text": "(Name) hits the deep pool at the bottom feet first with a tremendous splash and goes down, down, into the cold dark green, then kicks back up and bursts out into the air, gasping, alive, and somehow completely unhurt. (He/She) floats on (his/her) back and laughs at the sky, and laughs, and can't stop, though (his/her) heart is pounding hard enough to break (his/her) ribs. When (he/she) finally climbs out, (he/she) has had enough of water for a lifetime. Someone else can carry it from now on.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L1376"
+  },
+  "c2o2": {
+   "text": "(Name) misses the pool. When (he/she) doesn't come back with the water, they go looking, and they find (him/her) on the rocks at the bottom of the falls, in the spray, with the little rainbows still dancing over (him/her). They carry (him/her) home for the last time, slowly, taking turns. The village buries (name) beside the path to the falls, and for a long time afterwards, nobody can bring themselves to fetch water from there.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L1379"
+  },
+  "c2": {
+   "text": "There's no time to reach the vine. (Name) shuts (his/her) eyes, pulls (his/her) arms in tight, and falls, and falls, down through the rainbows and the spray and the roaring white...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1373"
+  }
+ }
+}

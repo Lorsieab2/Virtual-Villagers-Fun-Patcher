@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon-Shell Necklace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b308_moon_shell",
+  "source": "balance",
+  "lines": [
+   14282,
+   14324
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14282",
+  "ledger": [
+   {
+    "src": "L14306",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): (neighbour name) pregnant, the engine's own partner"
+   },
+   {
+    "src": "L14283",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14284",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14291",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14300",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14288",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14289",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14292",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14301",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14294",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14297",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14306",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14309-14324",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The stories also say that a moon shell worn at the throat for one full moon brings a child, and sometimes more than one.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "neighbour": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(friend) has found a moon shell on the reef: round, white and shining, the kind the old stories say the sea spirit gives to women she favours. The stories also say that a moon shell worn at the throat for one full moon brings a child, and sometimes more than one. (friend) has strung it on a cord, and holds it out to (subject).\n(subject) and (friend) have talked about a family, but haven't decided. Should she wear it, or hang it in the doorway as a charm for the hut instead?",
+   "choices": [
+    {
+     "label": "Wear It",
+     "next": "c1",
+     "src": "L14288"
+    },
+    {
+     "label": "Hang It in the Doorway",
+     "next": "c2",
+     "src": "L14289"
+    }
+   ],
+   "src": "L14285-14286"
+  },
+  "c1o1": {
+   "text": "At the end of the month, (subject) is pregnant. The midwives, feeling her belly a few weeks later, look at each other and grin: {#babies:one strong baby, they say, a real kicker|twins|triplets}. \"The stories said sometimes more than one,\" says (friend) faintly. \"I thought that was just the stories.\" The moon shell goes in the {#babies:baby's|babies'|babies'} basket.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L14295"
+  },
+  "c1o2": {
+   "text": "At the end of the month, (subject) is pregnant with one baby, and gives the moon shell back to the sea, as the stories say she should, with a thank-you. (friend) rows her out to the reef to do it. They watch the white shell sink slowly into the blue until they can't see it any more.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L14298"
+  },
+  "c1": {
+   "text": "(subject) ties the cord around her neck. The shell is cool against her skin, and for the whole month it never once gets warm, even in the midday sun...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14292"
+  },
+  "c2o1": {
+   "text": "It seems the sea spirit isn't fussy about where her shell is hung. A few weeks later, (subject) is pregnant anyway. \"It's the doorway,\" the oldest midwife says knowingly. \"Everyone walks through a doorway.\" (friend) looks at the shell with new respect.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L14304"
+  },
+  "c2o2": {
+   "text": "Nothing happens for (subject). But (neighbour), who lives next door and has walked past that doorway every day for a month, is suddenly pregnant, and not a little surprised. (subject) and (friend) decide that's a fine use for a moon shell, and give it to (neighbour) to keep for the baby.",
+   "src": "L14307",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "neighbour"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) hangs the moon shell in the doorway, where it turns slowly in the breeze and catches the light every evening...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14301"
+  }
+ }
+}

@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Eel of the Twin Pools",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b294_eel_twin_pools",
+  "source": "balance",
+  "lines": [
+   13657,
+   13698
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13657",
+  "ledger": [
+   {
+    "src": "L13658",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13659",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13666",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13675",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13663",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13664",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13667",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13676",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13669",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13672",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13678",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13681",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13684-13698",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have come up to catch it, because silver eel is the best eating on the island.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Up in the hills there are two rock pools side by side, joined underneath by a tunnel, and in them lives a long silver eel that the children say can swim through people as well as water. Nobody believes it. (subject) and (friend) have come up to catch it, because silver eel is the best eating on the island.\n(subject) is at one pool and (friend) at the other, each with a net. The eel is in the tunnel between them. Should they both dive in at the same time to trap it, or wait for it to come out on its own?",
+   "choices": [
+    {
+     "label": "Both Dive In",
+     "next": "c1",
+     "src": "L13663"
+    },
+    {
+     "label": "Wait for It",
+     "next": "c2",
+     "src": "L13664"
+    }
+   ],
+   "src": "L13660-13661"
+  },
+  "c1o1": {
+   "text": "They surface gasping, each in the other's pool, and each in the other's body. The eel is gone. The children were right after all. (subject) and (friend) climb out, look at each other, and sit down on the rocks for a long time. The eel never comes back to swap them again, though they go up to the pools together every month to ask.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L13670"
+  },
+  "c1o2": {
+   "text": "They come up in each other's bodies, tangled in each other's nets and choking on pool water. It takes ages to get free. Neither of them ever wants to go in the water again, in either body. \"I've been swum through,\" (friend) says, in (subject)'s voice, whenever anyone suggests a dip. \"Once is enough.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "swimming"
+    }
+   ],
+   "src": "L13673"
+  },
+  "c1": {
+   "text": "\"Now!\" They dive into their pools at the same moment. Underwater, the silver eel flashes out of the tunnel and straight through (subject)'s chest, and out the other side, and through (friend)'s...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13667"
+  },
+  "c2o1": {
+   "text": "Late in the afternoon the eel slides out of the tunnel into (friend)'s pool, and (friend) scoops it up in one go. It's as long as a person and as thick as an arm. They carry it home between them on a pole, singing. It is, everyone agrees at supper, the best eel anyone has ever eaten. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13679"
+  },
+  "c2o2": {
+   "text": "The eel slides out into (subject)'s pool, straight through the net as if it isn't there, and straight through (subject)'s hand. It feels like being touched by cold water from the inside. After that day, (subject) can't face eating eel, or fish of any kind, without remembering that feeling. (subject.He/She) passes the fish basket along at every meal without taking any.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "fish",
+     "role": "subject"
+    }
+   ],
+   "src": "L13682"
+  },
+  "c2": {
+   "text": "They crouch at the edges of the pools and wait. The eel takes its time. The sun moves across the sky...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13676"
+  }
+ }
+}

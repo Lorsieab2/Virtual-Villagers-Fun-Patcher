@@ -82,7 +82,10 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_preferred_job_graves", "vv3_tech_cost_multiplier",
                          "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full",
                          "vv3_collectibles_stay_collected", "vv3_more_island_events",
-                         "vv3_scrolling_popups", "vv3_isola_grand_event_collection", "vv3_gender_presentation"})
+                         "vv3_scrolling_popups", "vv3_isola_grand_event_collection", "vv3_gender_presentation",
+                          "vv3_more_frequent_island_events"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
+    {"vv3_island_event_content_notes", "vv3_island_events_any_time"}
+    | {f"vv3_island_event_filter_f{n:02d}" for n in range(1, 29)})
 
 ORIGINS = "vv3_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv3_origins_village_wide_upgrades"
@@ -234,7 +237,7 @@ def _techs() -> list[Entry]:
             "faction for your tribe, you cannot change it.\", and once one is above 0 clicking the other only says "
             "\"You have already chosen your faction!\" -- a stock village has one faction for good."), VERIFIED_C,
             ((patch("vv3_both_factions") + ": the second faction can be bought too, at its Tech screen price (its normal "
-              "price, times the multiplier with \"2-10x Tech Cost\"); buying "
+              "price, times the multiplier with \"2-100x Tech Cost\"); buying "
               "level 1 of either asks \"With the power of the Fun Patcher, you can now embrace both Nature and Magic "
               "Factions. Use this gift wisely.\", and every level of both works at once. The save keeps the first "
               "faction; the second is kept in the patcher's per-save file (Virtual Villagers 3 Second Faction - Save "

@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bitter Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s044_bitter_leaf",
+  "source": "rewrites",
+  "lines": [
+   2078,
+   2122
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2078",
+  "ledger": [
+   {
+    "src": "L2079",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2080",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2088",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2097",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2085",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2086",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2089",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2098",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2091",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2094",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2100",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2103",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2106-2122",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "When a villager walks past with a heavy load of firewood, the herbalist calls out.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wandering herbalist has set up a little mat by the path, with a bag that clinks with tiny clay pots and smells so strongly of mint that it makes eyes water. (He/She) has been offering everyone things: a root for headaches, a powder for good dreams, a seed \"for luck in love,\" which has been very popular.\nWhen (name) walks past with a heavy load of firewood, the herbalist calls out. \"You look like someone with a lot of hard work ahead,\" (he/she) says. \"Chew this.\" (He/She) holds out a dark, glossy leaf. \"Makes hard work feel easy.\"\n(Name) is suspicious. (Name) is very suspicious. But (he/she) also has a very great deal of hard work to do. (He/She) takes the leaf. Should (he/she) chew it and trust the herbalist, or spit it out before it does anything?",
+   "choices": [
+    {
+     "label": "Chew It",
+     "next": "c1",
+     "src": "L2085"
+    },
+    {
+     "label": "Spit It Out",
+     "next": "c2",
+     "src": "L2086"
+    }
+   ],
+   "src": "L2081-2083"
+  },
+  "c1o1": {
+   "text": "It works. Not because the leaf does anything at all, as far as anyone can tell, but because (name)'s mouth tastes so unbelievably awful for the rest of the day that work feels like a relief. Anything to take (his/her) mind off it. (Name) throws (himself/herself) into the job (he/she) always hated, the one (he/she) always found a reason not to do, and does it all afternoon without complaining once. By evening, (he/she) realises (he/she) doesn't mind it any more. The taste wears off by the next morning. The not-minding doesn't.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "work",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2092"
+  },
+  "c1o2": {
+   "text": "It works. It works too well. Within an hour (name) loves the hammer, the hoe and the scroll alike. (He/She) builds a fence. Then (he/she) weeds a field. Then (he/she) reads three scrolls in the research hut. Then (he/she) builds another fence, for no reason at all, around a tree. (He/She) can't stop. At midnight, two of (his/her) friends find (him/her) digging a ditch by moonlight, singing, and have to carry (him/her) home to bed. When (he/she) wakes, the frenzy has gone, but the love of it all is still there. The herbalist has, very wisely, moved on.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L2095"
+  },
+  "c1": {
+   "text": "(Name) takes the leaf, sniffs it, and puts it in (his/her) mouth. (He/She) chews once. (His/her) whole face screws up. It's the bitterest thing (he/she) has ever tasted. The herbalist nods encouragingly. \"Keep going,\" (he/she) says...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2089"
+  },
+  "c2o1": {
+   "text": "The taste stays in (name)'s mouth all day, no matter how much water (he/she) drinks. And somewhere around the fifth cup, (name) decides (he/she) hates herbalists. And herbs. And leaves. And roots, and powders, and teas, and anything at all that smells like mint, and anything to do with healing whatsoever. From that day on (he/she) won't go near the healers' hut unless (he/she) absolutely has to, and makes a face whenever anyone mentions medicine.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L2101"
+  },
+  "c2o2": {
+   "text": "The herbalist throws back (his/her) head and laughs, long and loud. \"Ha! Good! You've got sense.\" (He/She) digs in the bag and gives (name) a different leaf, pale green and soft. \"Try that one instead.\" (Name) tries it, cautiously. It tastes like honey and lime and summer. \"What does this one do?\" (he/she) asks. \"Nothing at all,\" says the herbalist cheerfully. \"But it's delicious.\" It is.",
+   "src": "L2104"
+  },
+  "c2": {
+   "text": "The moment it touches (his/her) tongue, (name) knows. (He/She) spits it out onto the path, coughing and gagging, and wipes (his/her) tongue on (his/her) sleeve. The herbalist looks at the leaf in the dirt, then back at (name)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2098"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "wood",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "like": "vegetables",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "like": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

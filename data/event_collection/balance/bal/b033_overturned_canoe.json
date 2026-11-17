@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Overturned Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b033_overturned_canoe",
+  "source": "balance",
+  "lines": [
+   1480,
+   1522
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1480",
+  "ledger": [
+   {
+    "src": "L1481",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1482",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1490",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1499",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1487",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1488",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1491",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1500",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1493",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1496",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1502",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1505",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1508-1522",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager were fishing at the reef edge when a rogue wave flipped their canoe.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) were fishing at the reef edge when a rogue wave flipped their canoe. (subject) has surfaced, clinging to the hull. (friend) hasn't. Then (subject) sees (friend.him/her), a dark shape under the water, tangled in the net.\n(subject) has a knife at (subject.his/her) belt. (subject.He/She) could dive and cut (friend) free, but the waves are big and the canoe is drifting towards the coral. Or (subject.he/she) could hold onto the hull and shout for the other canoes, which are close, but maybe not close enough.\nThere's no time to think. What does (subject) do?",
+   "choices": [
+    {
+     "label": "Dive and Cut the Net",
+     "next": "c1",
+     "src": "L1487"
+    },
+    {
+     "label": "Hold On and Shout",
+     "next": "c2",
+     "src": "L1488"
+    }
+   ],
+   "src": "L1483-1485"
+  },
+  "c1o1": {
+   "text": "(subject) cuts, and cuts, and drags (friend) to the surface, and the other canoes reach them a moment later. They paddle for the beach as fast as they've ever paddled. The healers try for a long time. (friend) had been under too long. The village buries (friend.him/her) above the beach, with (friend.his/her) fishing spear. (subject) did everything anyone could have done, and everyone tells (subject.him/her) so, and (subject.he/she) sits by the grave every evening for a month anyway.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L1494"
+  },
+  "c1o2": {
+   "text": "(subject) slashes the net, gets a hand under (friend)'s arm and kicks for the light. They come up coughing and spitting into the arms of the other fishers. (friend) is sick for a day and fine after that. That evening every fisher in the village sits on the beach and practises cutting free from a net, blindfolded, again and again, until it's as natural as breathing.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 5,
+     "max": 5,
+     "skills": [
+      "Farming"
+     ],
+     "target": {
+      "skill": "Farming"
+     }
+    }
+   ],
+   "src": "L1497"
+  },
+  "c1": {
+   "text": "(subject) takes the biggest breath of (subject.his/her) life and dives, knife in hand, down into the churning blue. The net is everywhere, wrapped round (friend)'s arm and leg...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1491"
+  },
+  "c2o1": {
+   "text": "The other fisher dives and cuts (friend) free, and they get (friend.him/her) breathing again on the canoe floor. Everyone is fine. Everyone except (subject), who can't stop thinking about how long (subject.he/she) held onto that hull. (subject.He/She) still fishes, because the village needs fish. But the joy of it doesn't come back, and (subject.he/she) never goes past the reef again.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "fish",
+     "role": "subject"
+    }
+   ],
+   "src": "L1503"
+  },
+  "c2o2": {
+   "text": "The other canoe reaches them almost at once, and three fishers dive together and have (friend) out in moments, coughing and furious with the net. By sundown the two of them are on the beach, laughing too loud, mending the net that nearly killed (friend). \"Next time,\" says (friend), \"I'll hold the canoe, and you can get tangled.\"",
+   "src": "L1506"
+  },
+  "c2": {
+   "text": "(subject) bellows across the water, and the nearest canoe turns towards them. The fisher in it is already reaching for (subject.his/her) own knife...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1500"
+  }
+ }
+}

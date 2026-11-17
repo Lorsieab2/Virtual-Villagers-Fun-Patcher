@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Bird's Egg",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b102_great_bird_egg",
+  "source": "balance",
+  "lines": [
+   4608,
+   4650
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4608",
+  "ledger": [
+   {
+    "src": "L4609",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4610",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4618",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4627",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4615",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4616",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4619",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4628",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4621",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4624",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4630",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4633",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4636-4650",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Nobody living has seen it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The old stories tell of a great white sea-bird that \"carries lost children home,\" laying them in nests on high places for someone kind to find. Nobody living has seen it. This morning, (subject) is collecting eggs on the cliff top when (subject.he/she) finds a nest as wide as a canoe, and in it, an egg as big as a water jar, warm and cracked, with a tiny fist poking through the shell.\nHigh overhead, a huge white bird is circling, watching.\nShould (subject) help the baby out of the egg, or leave it for the bird?",
+   "choices": [
+    {
+     "label": "Help the Baby Out",
+     "next": "c1",
+     "src": "L4615"
+    },
+    {
+     "label": "Leave It for the Bird",
+     "next": "c2",
+     "src": "L4616"
+    }
+   ],
+   "src": "L4611-4613"
+  },
+  "c1o1": {
+   "text": "The great bird circles once more, low enough that (subject) feels the wind of its wings, and then turns out to sea and is gone. \"It carries lost children home,\" the elders say when (subject) comes down with the baby. \"And this one, it seems, was coming to you.\" (subject) keeps a white feather from the nest over the cradle.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4622"
+  },
+  "c1o2": {
+   "text": "(subject) carries the baby down the cliff path wrapped in (subject.his/her) shirt, and (friend), meeting them at the bottom, simply holds out (friend.his/her) arms. The great bird watches them all the way home before it flies off. They raise the baby together, and the child grows up loving high places and the sound of wings.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4625"
+  },
+  "c1": {
+   "text": "(subject) peels the shell away, piece by piece, as gently as (subject.he/she) can. Inside, curled up and blinking at the light, is a baby, warm and wet and furious about the whole business...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4619"
+  },
+  "c2o1": {
+   "text": "The bird lifts the baby, shell and all, very carefully in its great beak, and walks across the cliff top, and sets the baby down at (subject)'s feet. Then it flies away. There's nothing to do but pick the baby up. \"It carries lost children home,\" (subject) says to the elders. \"I suppose this is home now.\"",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4631"
+  },
+  "c2o2": {
+   "text": "The bird lifts the egg in its great feet and flies away out over the sea with it, towards some other island. (subject) watches until it's a white speck, and then nothing. On the way down, (subject.he/she) finds a single white feather on the path, and keeps it.",
+   "src": "L4634"
+  },
+  "c2": {
+   "text": "(subject) backs away from the nest. The great bird drops down out of the sky, lands on the edge of the nest and looks at (subject) for a long time with one gold eye...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4628"
+  }
+ }
+}

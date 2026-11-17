@@ -1,0 +1,314 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger at the Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new148_stranger_well",
+  "source": "rewrites",
+  "lines": [
+   7040,
+   7096
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7040",
+  "ledger": [
+   {
+    "src": "L7041",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7042",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7052",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7059",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7066",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7073",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7047",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7048",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7049",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7050",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7053",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7060",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7067",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7074",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7054",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7056",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7061",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7063",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7068",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7070",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7075",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7077",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7080-7096",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A stranger appears at the spring while a villager is filling jars, and asks, very politely, for water.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A stranger appears at the spring while (name) is filling jars, and asks, very politely, for water.\n(Name) hands over a bowl. The stranger drinks it in one go. And another. And a third. When (name) asks, conversationally, where (he/she) has come from, the stranger goes quiet, and doesn't answer.\nThe stranger keeps glancing back toward the trees, over and over, as if expecting something to follow (him/her) out of them.\nNothing does. But (name) finds (himself/herself) glancing back at the trees too. (Name) wants to help, but should (he/she) ask what the stranger is running from?",
+   "choices": [
+    {
+     "label": "Fill Their Water Skin",
+     "next": "c1",
+     "src": "L7047"
+    },
+    {
+     "label": "Ask Gently About the Road",
+     "next": "c2",
+     "src": "L7048"
+    },
+    {
+     "label": "Offer Them a Place Among Us",
+     "next": "c3",
+     "src": "L7049"
+    },
+    {
+     "label": "Swap Water for a Day's Help",
+     "next": "c4",
+     "src": "L7050"
+    }
+   ],
+   "src": "L7043-7046"
+  },
+  "c1o1": {
+   "text": "The stranger drinks their fill and rests in the shade. After a while, some of the tension leaves (his/her) shoulders, and (he/she) stops looking at the trees quite so often. By evening, (he/she) is laughing at something a child said.",
+   "src": "L7055"
+  },
+  "c1o2": {
+   "text": "The stranger shares a handful of wild berries gathered on the road, in a leaf, as thanks. It adds a little food. \"They're safe,\" (he/she) adds quickly, seeing (name)'s face. They are.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7057"
+  },
+  "c1": {
+   "text": "(Name) doesn't ask again. (He/She) just fills the stranger's water skin to the top, and points to a patch of shade...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7053"
+  },
+  "c2o1": {
+   "text": "That, the stranger will talk about. (He/She) points out a faster trail to fresh water on the far side of the ridge, one nobody in the village knew about, through a gap in the rocks. It teaches the village something useful, and saves the water carriers a long walk in dry seasons.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7062"
+  },
+  "c2o2": {
+   "text": "The stranger still won't say where (he/she) came from, and doesn't say much about the road either. No one insists. Some things, (name) decides, are not anyone else's business.",
+   "src": "L7064"
+  },
+  "c2": {
+   "text": "Later, (name) asks again, more gently, not where the stranger came from, but how the road was...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7060"
+  },
+  "c3o1": {
+   "text": "The stranger decides to stay, and joins the village permanently as a new adult villager. (He/She) settles in well, works hard, and is kind to the children. (He/She) still prefers not to talk about the trees, and never walks near them alone, and nobody ever asks why.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L7069"
+  },
+  "c3o2": {
+   "text": "The stranger thanks the village sincerely, and moves on before nightfall, walking quickly down the beach, away from the trees. (Name) watches until (he/she) is out of sight, and finds (himself/herself) hoping, very much, that the stranger gets wherever (he/she) is going.",
+   "src": "L7071"
+  },
+  "c3": {
+   "text": "As dusk falls, (name) notices the stranger has nowhere to go. (He/She) offers a place by the fire, and more than that, if (he/she) wants it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7067"
+  },
+  "c4o1": {
+   "text": "The stranger helps carry the harvest in from the fields, basket after basket, without stopping, adding a good amount of food to the stores. (He/She) works as if staying busy is the only thing keeping (him/her) together.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L7076"
+  },
+  "c4o2": {
+   "text": "The villagers notice the stranger's water skin leaks badly, which explains the three bowls. They patch it with sap and send (him/her) onward with it full, and a bundle of food besides.",
+   "src": "L7078",
+   "text_only": [
+    {
+     "src": "L7078",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The stranger asks if there's any work (he/she) could do to pay for the water and a meal...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7074"
+  }
+ }
+}

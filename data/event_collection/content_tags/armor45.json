@@ -1,0 +1,318 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "armor45",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "arm01_first_armorer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm02_wooden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm03_woven_armor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm04_ceremonial": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm05_armorer_mistake": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm06_old_suit_armor": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F19"
+    ]
+   }
+  },
+  "arm07_shieldmaker": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm08_armor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm09_spearmaker_craft": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm10_bowyer_workshop": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm11_arrowmaker": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm12_ceremonial_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm13_broken_bow": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm14_practice_targets": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm15_spear_dance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm16_ancient": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm17_hunter_walking": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm18_keeper": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm19_farmer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm20_sturdy_staff": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm21_harvesting_blade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm22_fisherman_spear": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm23_village": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm24_defender": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm25_warrior_armor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm26_forgotten": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm27_village": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm28_weapons_peace": {
+   "filters": [
+    "F15"
+   ],
+   "notes": [
+    "Historical suffering"
+   ],
+   "nodes": {
+    "setup": [
+     "F15"
+    ]
+   }
+  },
+  "arm29_veteran_silence": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm30_shield_wall": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm31_grandparent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm32_three": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm33_unfinished_bow": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm34_family_quiver": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm35_heirloom_hoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm36_armor_longer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm37_lesson_before": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm38_lost_technique": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm39_keeper_choice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm40_names_beneath": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm41_bow_passed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm42_spear_without": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm43_festival": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm44_broken_heirloom": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm45_changing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

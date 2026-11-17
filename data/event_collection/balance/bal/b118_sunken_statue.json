@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sunken Statue",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b118_sunken_statue",
+  "source": "balance",
+  "lines": [
+   5332,
+   5372
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5332",
+  "ledger": [
+   {
+    "src": "L5333",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5334",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5350",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5338",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5339",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5342",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5351",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5344",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5347",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5353",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5356",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5359-5372",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has dived down to look.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The divers have found a statue on the bottom of the lagoon, half buried in sand: a stone figure of a person standing with arms out, palms up, worn smooth by the sea. The elders say there's an old story of a carver who carved \"a statue that makes company for the lonely,\" and that the sea took it long ago.\n(Name) has dived down to look. Up close, the statue's face looks very like (his/her) own. (His/Her) breath is running out. Should (he/she) touch the statue's open palm, or swim up?",
+   "choices": [
+    {
+     "label": "Touch the Palm",
+     "next": "c1",
+     "src": "L5338"
+    },
+    {
+     "label": "Swim Up",
+     "next": "c2",
+     "src": "L5339"
+    }
+   ],
+   "src": "L5335-5336"
+  },
+  "c1o1": {
+   "text": "When (name) breaks the surface, gasping, {#made:another head comes up|two more heads come up|three more heads come up} beside (him/her), all gasping just as hard, all (name) exactly. \"Makes company for the lonely,\" says the eldest on the beach, faintly. {#made:The newcomer gets a name of its own|The newcomers become (made1) and (made1)|The newcomers each get a name of their own}.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L5345"
+  },
+  "c1o2": {
+   "text": "Someone surfaces beside (name), wearing (his/her) face, and nothing else of (his/hers): different likes, different gifts, a different way of laughing. It treads water and grins. \"Hello,\" it says. \"Are you lonely?\" It takes the name (made1), and is very good company.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L5348"
+  },
+  "c1": {
+   "text": "(Name) presses (his/her) palm against the cold stone one. The water around them shivers, and the sand at the statue's feet starts to stir...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5342"
+  },
+  "c2o1": {
+   "text": "On the beach, (name) tells the elders about the face. They row out the next day, and the statue is gone, the sand smooth. Nobody can find it again. Sometimes (name) dives in the lagoon, looking, and never finds it, and isn't sure whether (he/she) is sorry.",
+   "src": "L5354"
+  },
+  "c2o2": {
+   "text": "The statue didn't get its company, but it seems to have taken something anyway. When (name) looks into a water bowl that evening, (his/her) face has changed, smoothed and reshaped like stone worn by the sea. (He/She) decides (he/she) likes it. It's a calm face.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L5357"
+  },
+  "c2": {
+   "text": "(Name) kicks for the surface, and doesn't look back, though (he/she) has the strangest feeling the statue's head turned to watch (him/her) go...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5351"
+  }
+ }
+}

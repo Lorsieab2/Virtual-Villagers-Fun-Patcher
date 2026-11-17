@@ -49,10 +49,11 @@ ROLELESS = {
 
 
 def manifest_rows(game: int) -> list[list[str]]:
-    """The manifest's rows with a .cieg of their own: the Living Event Engine's rows (id living_...) are variants
-    in living.pak, listed and checked by tests/test_living_runtime.py."""
-    path = ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt"
-    return [line.split("\t") for line in path.read_text(encoding="utf-8").splitlines()
+    """The manifests' rows with a .cieg of their own: the Living Event Engine's rows (id living_...) are variants
+    in the living-<group>.pak files, listed and checked by tests/test_living_runtime.py.  The manifests are split
+    per source section and living series (living-pack.md 1)."""
+    paths = sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt"))
+    return [line.split("\t") for path in paths for line in path.read_text(encoding="utf-8").splitlines()
             if line and not line.startswith("#") and not line.startswith("living_")]
 
 
@@ -358,10 +359,13 @@ class AThousandEntries(unittest.TestCase):
 
     def test_the_sizes(self) -> None:
         native = ROOT / "native" / "vvfp_story_upgrades"
-        self.assertIn("#define SM_MAX 2048", (native / "story_more_events.inc").read_text(encoding="utf-8"))
+        # The tables are allocated to what they hold (the owner, 2026-11-15: no fixed caps): only sanity limits.
+        self.assertIn("#define SM_MAX STORY_TABLE_LIMIT", (native / "story_more_events.inc").read_text(encoding="utf-8"))
         coll = (native / "story_collection.inc").read_text(encoding="utf-8")
-        self.assertIn("#define SC_MAX 2048", coll)
-        self.assertIn("#define SC_MANIFEST_BYTES 1048576", coll)
+        self.assertIn("#define SC_MAX STORY_TABLE_LIMIT", coll)
+        self.assertIn("#define SC_MANIFEST_BYTES 0x04000000u", coll)
+        self.assertIn("#define STORY_TABLE_LIMIT 65536",
+                      (native / "vvfp_story_upgrades.c").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

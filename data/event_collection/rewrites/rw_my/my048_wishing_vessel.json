@@ -1,0 +1,319 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wishing Vessel",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my048_wishing_vessel",
+  "source": "rewrites",
+  "lines": [
+   12647,
+   12702
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12647",
+  "ledger": [
+   {
+    "src": "L12648",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12649",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12658",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12665",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12672",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12679",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12653",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12654",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12655",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12656",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12659",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12666",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12673",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12680",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12660",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12662",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12667",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12669",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12674",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12676",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12681",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12683",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12686-12702",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's painted with blue waves and a single staring eye, and when a villager lifts it, something inside seems to settle, like sand.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing out a collapsed old hut that once belonged to a healer nobody alive remembers, (subject) finds a painted clay vessel buried under the fallen thatch. It's painted with blue waves and a single staring eye, and when (subject) lifts it, something inside seems to settle, like sand. But when (subject.he/she) tips it, nothing comes out.\nAround its neck, in faded paint, are the words: 'Ask once, and listen twice.' The other villagers dare (subject.him/her) to try it. (subject) laughs it off. Then, when they've gone, (subject.he/she) holds it up to (subject.his/her) mouth. What should (subject.he/she) ask for?",
+   "choices": [
+    {
+     "label": "Ask for Food",
+     "next": "c1",
+     "src": "L12653"
+    },
+    {
+     "label": "Ask for a Lost Answer",
+     "next": "c2",
+     "src": "L12654"
+    },
+    {
+     "label": "Ask for a Loved One",
+     "next": "c3",
+     "src": "L12655"
+    },
+    {
+     "label": "Ask for Nothing",
+     "next": "c4",
+     "src": "L12656"
+    }
+   ],
+   "src": "L12650-12651",
+   "text_only": [
+    {
+     "src": "L12650",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) tips the vessel again, and this time a handful of seeds pours out into (subject.his/her) palm: small, round and golden. (subject.He/She) plants them that afternoon. They sprout within days, and the plants grow straight and strong and heavy with grain, faster than anything else in the garden. The farmers want to know where the seeds came from. (subject) just shrugs. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12661"
+  },
+  "c1o2": {
+   "text": "The vessel stays empty. (subject) shakes it, sighs, and puts it down. That evening, (friend), a neighbor (subject) barely knows, knocks on the door with a steaming pot of stew. \"Made too much,\" (friend) says. \"Thought you might want some.\" It's the most generous meal (subject) has had in weeks. Coincidence, surely. Surely.",
+   "src": "L12663"
+  },
+  "c1": {
+   "text": "\"Food,\" (subject) whispers into the vessel, feeling silly. \"For the village.\" Then (subject.he/she) listens, once, twice...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12659",
+   "text_only": [
+    {
+     "src": "L12659",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "Nothing happens. (subject) puts the vessel on a shelf and goes to bed, disappointed. But in the middle of the night, (subject.he/she) sits bolt upright. (subject.He/She) remembers. Every ingredient, every step, (subject.his/her) grandmother's voice saying \"not too much ginger, child.\" The next day, (subject) cooks it for the whole family, and writes it down so it can never be lost again. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12668"
+  },
+  "c2o2": {
+   "text": "(subject) listens once. (subject.He/She) listens twice. From deep inside the vessel comes (subject.his/her) own question, whispered back to (subject.him/her), exactly as (subject.he/she) asked it. Nothing more. No answer, just the question, echoing around and around inside the clay until it fades. (subject) puts the vessel down, feeling strange.",
+   "src": "L12670"
+  },
+  "c2": {
+   "text": "(subject) thinks of something (subject.he/she) has forgotten: (subject.his/her) grandmother's recipe for honeyed yams, lost when she died. (subject.He/She) whispers the question into the vessel, and listens...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12666"
+  },
+  "c3o1": {
+   "text": "Two days later, a traveler arrives at the village with news of the very person (subject) asked about: they're alive and well, living in a fishing village far down the coast, married, with a garden of their own. They send their love. (subject) has to sit down. (subject.He/She) holds the vessel in (subject.his/her) lap for a long time that night, saying thank you to it, just in case.",
+   "src": "L12675"
+  },
+  "c3o2": {
+   "text": "The vessel grows warm in (subject)'s hands. Very warm, like a hand held. (subject) waits, hoping. But nobody comes. No news, no traveler, no knock at the door. The person (subject) misses doesn't return. Only that warmth, which fades slowly over the evening, as if someone sat with (subject.him/her) for a while and then quietly left.",
+   "src": "L12677"
+  },
+  "c3": {
+   "text": "(subject) holds the vessel close and whispers the name of someone (subject.he/she) misses terribly, someone who went away long ago. Then (subject.he/she) listens...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12673"
+  },
+  "c4o1": {
+   "text": "For a moment, there's silence. Then, from deep inside the vessel, comes a faint sound like distant laughter. Soft and warm and delighted, it fades away slowly, like footsteps going into another room. (subject) finds (subject.himself/herself) smiling without knowing why, and keeps smiling for the rest of the day.",
+   "src": "L12682"
+  },
+  "c4o2": {
+   "text": "Nothing happens. No sound, no warmth, no magic. (subject) shrugs, rinses it out, and puts it on the shelf among the ordinary pots, where it becomes a perfectly good jar for keeping dried beans. If it's magic, it's being very polite about it.",
+   "src": "L12684"
+  },
+  "c4": {
+   "text": "(subject) decides (subject.he/she) has everything (subject.he/she) needs. (subject.He/She) holds the vessel up and says, \"Nothing, thank you. I don't need anything.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12680"
+  }
+ }
+}

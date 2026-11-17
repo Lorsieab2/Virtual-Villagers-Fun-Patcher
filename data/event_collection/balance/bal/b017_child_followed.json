@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Followed the Parrot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b017_child_followed",
+  "source": "balance",
+  "lines": [
+   752,
+   794
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L752",
+  "ledger": [
+   {
+    "src": "L753",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L754",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L762",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L771",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L759",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L760",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L763",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L772",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L765",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L768",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L774",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L777",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L780-794",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager was playing by the edge of the jungle at noon, chasing a red parrot that kept landing just out of reach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) was playing by the edge of the jungle at noon, chasing a red parrot that kept landing just out of reach. Nobody has seen (subject.him/her) since. It's now late afternoon, and the shadows under the trees are getting long.\n(friend) has gathered everyone who can walk. Some want to spread out into the jungle at once and call (subject)'s name. Others say the jungle is too big for that, and they should follow the parrot, which comes back to the same tree every evening, and see where it goes.\nWhat should (friend) decide?",
+   "choices": [
+    {
+     "label": "Spread Out and Search",
+     "next": "c1",
+     "src": "L759"
+    },
+    {
+     "label": "Follow the Parrot",
+     "next": "c2",
+     "src": "L760"
+    }
+   ],
+   "src": "L755-757"
+  },
+  "c1o1": {
+   "text": "Just as the light is going, somebody hears a small voice calling back. (subject) is sitting at the bottom of a dry gully, scratched, filthy and absolutely fine, having been waiting for hours \"because you're supposed to stay where you are.\" (friend) carries (subject.him/her) home on (friend.his/her) shoulders. The whole village has a feast that night, even though it's nobody's birthday, and (subject) falls asleep halfway through it with a mango in each hand.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L766"
+  },
+  "c1o2": {
+   "text": "They search all night. They search the next day, and the next, and every day for a month. They find a sandal by a stream, and a little pile of red feathers, and nothing else. The jungle doesn't give (subject) back. The village never stops looking, not really. For years afterwards, whenever anyone goes into the trees, they call (subject.his/her) name once, just in case, and listen.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L769"
+  },
+  "c1": {
+   "text": "The villagers go into the trees in a long line, an arm's length apart, calling and calling, banging pots, shaking rattles, until the whole jungle rings with (subject)'s name...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L763"
+  },
+  "c2o1": {
+   "text": "The parrot leads them to a huge old fig tree, and (subject) is in it, high up, on a branch next to the nest, where (subject.he/she) climbed to see the chicks. (subject.He/She) slipped on the way down and hit (subject.his/her) head on a branch. (subject.He/She) is fine, mostly. But when (friend) asks (subject.his/her) name to check, (subject) frowns and says (subject.he/she) doesn't know. The healers say it will come back. It never does. (subject.He/She) is \"?\" now, and is very proud of being the only child in the village with a name that's a question.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L775"
+  },
+  "c2o2": {
+   "text": "The parrot flies in a big circle and lands on the roof of (subject)'s own hut. Inside, curled up on the sleeping mat, fast asleep, is (subject), who got bored chasing it hours ago and walked home the back way and went to bed. The whole village has been searching the jungle for a child who was asleep at home. Nobody can stop laughing, mostly from relief.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L778"
+  },
+  "c2": {
+   "text": "At sunset the red parrot comes back to its tree, right on time. When it flies off, (friend) and a few others follow it, crashing through the undergrowth, trying not to lose sight of the flash of red...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L772"
+  }
+ }
+}

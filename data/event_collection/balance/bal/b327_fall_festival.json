@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fall From the Festival Tower",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b327_fall_festival",
+  "source": "balance",
+  "lines": [
+   15128,
+   15168
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15128",
+  "ledger": [
+   {
+    "src": "L15129",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15130",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15137",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15146",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15134",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15135",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15138",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15147",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15140",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15143",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15149",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15152",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15155-15168",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This year it's a villager's turn.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For the harvest festival, the village has built a tower of bamboo poles taller than the meeting hut, and the custom is that someone climbs to the top at sunset and hangs the first fruit of the harvest from it. This year it's (name)'s turn. The tower sways in the evening breeze. Below, the whole village is watching, holding its breath.\nHalfway up, one of the lashings creaks. Should (name) keep climbing, or come down and let the builders check the tower first?",
+   "choices": [
+    {
+     "label": "Keep Climbing",
+     "next": "c1",
+     "src": "L15134"
+    },
+    {
+     "label": "Come Down",
+     "next": "c2",
+     "src": "L15135"
+    }
+   ],
+   "src": "L15131-15132"
+  },
+  "c1o1": {
+   "text": "(Name) reaches the top and hangs the fruit, and the village cheers. On the way down, the creaking lashing gives, and (name) drops the last stretch, landing on (his/her) back with (his/her) head smacking the ground. (He/She) is up in a moment, dazed, waving to show (he/she) is fine. But when the {@chief} calls (his/her) name to thank (him/her), (name) looks around to see who is being called. The name is gone. Until it comes back, (he/she) is \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15141"
+  },
+  "c1o2": {
+   "text": "The lashing gives way, and the top of the tower folds over. (Name) falls with it. The healers work all night. (Name)'s legs are badly broken and never fully heal. The festival goes quiet. The next year, the fruit is hung from the meeting hut's roof instead, and (name) is given the honour of watching it from the best seat.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L15144"
+  },
+  "c1": {
+   "text": "(Name) keeps going, hand over hand, the fruit tied to (his/her) waist. The tower sways more with every rung...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15138"
+  },
+  "c2o1": {
+   "text": "The builders find three rotten lashings and replace them, and then, since they're already up ladders with rope in their hands, they go round and fix every sagging roof and loose post in the village too. By the time (name) climbs the tower again, at moonrise, it's rock solid. The fruit is hung. The cheer is louder for the wait.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L15150"
+  },
+  "c2o2": {
+   "text": "By the time the tower is fixed, the sun has set and the moment has passed. The festival goes on, but somebody makes a joke about (name) being scared of heights, and then everybody makes it. (Name) laughs along. Later, (he/she) finds that (he/she) no longer enjoys being in the middle of a crowd the way (he/she) used to, and keeps to the edges at festivals after that.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "crowds",
+     "role": "subject"
+    }
+   ],
+   "src": "L15153"
+  },
+  "c2": {
+   "text": "(Name) climbs back down, carefully. The crowd mutters. The builders swarm up the tower to check the lashings...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15147"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -122,7 +122,15 @@
   "o3": {
    "name": "Outcome 3",
    "text": "The craft carries a map of waters beyond known Isola.",
-   "src": "L987"
+   "src": "L987",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L987"
+    }
+   ]
   }
  }
 }

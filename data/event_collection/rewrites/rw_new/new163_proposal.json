@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Proposal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new163_proposal",
+  "source": "rewrites",
+  "lines": [
+   7895,
+   7941
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7895",
+  "ledger": [
+   {
+    "src": "L7896",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7897",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7906",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7913",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7920",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7902",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7903",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7904",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7907",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7914",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7921",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7908",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7910",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7915",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7917",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7922",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7924",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7927-7941",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every week for ten years, a villager and another villager have shared a pot of stew.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every week for ten years, (subject) and (friend) have shared a pot of stew. Same day, same fire, same pot. It is the most dependable thing in either of their lives.\nTonight, halfway through the stew, (subject) puts down (subject.his/her) bowl, looks into the fire, and asks, very quietly, whether their friendship might become something more.\n(friend) drops the ladle.\nIt lands in the stew with a plop. Neither of them moves to fish it out. (friend) has no idea what to say. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Answer Honestly in Private",
+     "next": "c1",
+     "src": "L7902"
+    },
+    {
+     "label": "Take a Long Walk Together",
+     "next": "c2",
+     "src": "L7903"
+    },
+    {
+     "label": "Seek a Trusted Ear",
+     "next": "c3",
+     "src": "L7904"
+    }
+   ],
+   "src": "L7898-7901"
+  },
+  "c1o1": {
+   "text": "Before (friend) can answer, (subject) explains (subject.his/her) feelings properly: how it crept up over the years, how (subject.he/she) couldn't not say it any longer. \"And there's no rush,\" (subject.he/she) adds. \"None at all. I'll still be here next week, with the stew.\" (friend) nods, unable to speak, and the two of them finish the stew in a warm, strange silence.",
+   "src": "L7909"
+  },
+  "c1o2": {
+   "text": "(friend) doesn't feel the same way, and says so, gently, honestly. (subject) takes the answer with grace, though (subject.his/her) ears go red. Then (friend) refills both their bowls. \"Same time next week?\" \"Same time next week.\" Stew night carries on as always.",
+   "src": "L7911"
+  },
+  "c1": {
+   "text": "(friend) fishes out the ladle, very slowly, buying time. Then (subject.he/she) sets it down and looks at (subject)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7907"
+  },
+  "c2o1": {
+   "text": "The long walk ends on the far beach under the stars, where they finally talk, really talk, for hours. By the time they walk back, they have both agreed to try, carefully. And to keep stew night, whatever happens. The stew, when they get back, is cold. They eat it anyway.",
+   "src": "L7916"
+  },
+  "c2o2": {
+   "text": "On the walk, they discover that they want very different things from life, even though they care about each other deeply. It's a sad walk home. But the next week, (subject) arrives at the fire, and (friend) is already there, with the pot.",
+   "src": "L7918"
+  },
+  "c2": {
+   "text": "\"I need to walk,\" (friend) says. \"Come with me.\" They leave the stew to cool and walk to the far beach, not talking...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7914"
+  },
+  "c3o1": {
+   "text": "(Name3) listens closely, asks a few careful questions, and leaves the decision where it belongs: with (subject) and (friend). \"Only you two know what's in that stew pot,\" (subject.he/she) says. (friend) goes home and thinks about it for a long time, and that week, at stew night, gives (subject.his/her) answer.",
+   "src": "L7923"
+  },
+  "c3o2": {
+   "text": "(Name3)'s only response is to throw up (subject.his/her) hands and shout \"FINALLY!\", loud enough for the neighbours to hear. This is not much help. (friend) follows (subject.his/her) own judgment, but walks home grinning anyway.",
+   "src": "L7925"
+  },
+  "c3": {
+   "text": "The next day, (friend) goes to (name3), who has known them both for years, and pours out the whole story...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7921"
+  }
+ }
+}

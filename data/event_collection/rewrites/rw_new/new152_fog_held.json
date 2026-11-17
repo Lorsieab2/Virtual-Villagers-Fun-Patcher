@@ -1,0 +1,325 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fog That Held",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new152_fog_held",
+  "source": "rewrites",
+  "lines": [
+   7274,
+   7329
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7274",
+  "ledger": [
+   {
+    "src": "L7275",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7276",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7285",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7292",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7299",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7306",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7280",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7281",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7282",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7283",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7286",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7293",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7300",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7307",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7287",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7289",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7294",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7296",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7301",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7308",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7310",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7313-7329",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It doesn't lift by midday.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A fog rolls in from the sea, so thick that (name) can't see (his/her) own feet. It doesn't lift by midday. It doesn't lift by evening. By the second morning, it's still there, grey and wet and silent, swallowing every sound.\nThe fishing canoes can't find the reef markers. Most of them felt their way back to the beach by sound. One canoe hasn't come back at all.\n(Name) stands at the water's edge, listening to the fog, and hears nothing. Not a paddle. Not a voice. Should (name) save what can be saved on shore, or try to guide the missing canoe home?",
+   "choices": [
+    {
+     "label": "Bring the Catch Inside",
+     "next": "c1",
+     "src": "L7280"
+    },
+    {
+     "label": "Light Fires Along the Shore",
+     "next": "c2",
+     "src": "L7281"
+    },
+    {
+     "label": "Note Where the Fog Thins",
+     "next": "c3",
+     "src": "L7282"
+    },
+    {
+     "label": "Reset the Reef Markers",
+     "next": "c4",
+     "src": "L7283"
+    }
+   ],
+   "src": "L7277-7279"
+  },
+  "c1o1": {
+   "text": "They hurry the morning's catch into the smoke hut before the damp can spoil it, and keep the fire going strong. The fish come out perfectly smoked, adding a little food to the stores. And late that afternoon, the missing canoe bumps onto the beach, its crew cold and frightened, but safe.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7288"
+  },
+  "c1o2": {
+   "text": "The fog's damp creeps into everything. When (name) opens the storehouse, a whole basket of dried food has gone furry with mould, and has to be thrown out. The missing canoe paddles in at dusk, its crew safe, which is the only good news of the day.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7290"
+  },
+  "c1": {
+   "text": "There's nothing to do for the missing canoe yet, so (name) does what (he/she) can: (he/she) rounds up the fishers who made it home, and they get to work on the catch...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7286"
+  },
+  "c2o1": {
+   "text": "For hours the fires burn, glowing orange smudges in the grey. And then, out of the fog, comes a shout, and the splash of paddles: the last canoe, following the shore fires home. Everyone is accounted for, and the crew is hugged half to death on the beach.",
+   "src": "L7295",
+   "text_only": [
+    {
+     "src": "L7295",
+     "what": "\"death\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "Groping along the wet rocks in the fog to tend the farthest fire, (name) slips and falls, and cuts (his/her) leg badly on the sharp edge of a rock. (He/She) is carried to the healer, bleeding. The lost canoe finds its way home by the fires that night, but (name) will be off (his/her) feet for some time.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7297"
+  },
+  "c2": {
+   "text": "(Name) has an idea: if the lost canoe can't see the reef markers, maybe it can see fire. The fishers build bonfires all along the beach and on the rocks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7293"
+  },
+  "c3o1": {
+   "text": "(Name) notices the fog always lifts first, and thinnest, over the warm, shallow lagoon. When the missing canoe paddles in, it comes in through the lagoon, exactly where (name) said it would. From then on, the fishers know: in fog, head for the lagoon. It's a useful pattern for finding the way home.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7302"
+  },
+  "c3o2": {
+   "text": "Everyone's notes about the fog disagree: thinner here, thicker there, thinner again. The fishers agree to watch the next one more carefully. The lost canoe drifts home by luck the next morning, its crew sheepish and starving.",
+   "src": "L7304"
+  },
+  "c3": {
+   "text": "(Name) walks the length of the shore, slowly, watching the fog, trying to work out if it's thinner anywhere...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7300"
+  },
+  "c4o1": {
+   "text": "The workers wade out at low tide and reset the reef markers before nightfall, tall poles with bright cloth tied to the tops. The missing canoe finds the first of them in the fog and follows them home. Everyone agrees the new markers are much better.",
+   "src": "L7309"
+  },
+  "c4o2": {
+   "text": "The new markers need weights to hold them down, and in the rush, the workers grab baskets from the storehouse and fill them with stones, dumping out whatever was in them. The food in those baskets is used up or spoiled, leaving less in the stores. The markers do hold, though, and the last canoe comes home by them.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7311"
+  },
+  "c4": {
+   "text": "So this never happens again, (name) gathers workers to wade out at low tide and set new, bigger markers on the reef...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7307"
+  }
+ }
+}

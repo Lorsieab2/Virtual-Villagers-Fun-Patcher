@@ -1,0 +1,325 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bridge Keeper's Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my020_bridge_keeper",
+  "source": "rewrites",
+  "lines": [
+   10995,
+   11050
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10995",
+  "ledger": [
+   {
+    "src": "L10996",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10997",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11006",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11013",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11020",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11027",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11001",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11002",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11003",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11004",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11007",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11014",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11021",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11028",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11008",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11010",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11015",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11017",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11022",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11024",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11029",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11031",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11034-11050",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L11023",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Below, the water runs fast and brown.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Down at the narrow bridge over the river, where everyone crosses on their way to the far gardens, a stranger has set up an upturned basket and sits on it in a tall hat woven from river reeds. Below, the water runs fast and brown.\n\"What will you give to cross?\" the stranger asks everyone who passes. The bridge belongs to the whole village. Nobody ever appointed a keeper. Yet somehow, nobody has quite dared to walk past without answering. Now it's (name)'s turn. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Offer a Story",
+     "next": "c1",
+     "src": "L11001"
+    },
+    {
+     "label": "Challenge the Toll",
+     "next": "c2",
+     "src": "L11002"
+    },
+    {
+     "label": "Offer Food",
+     "next": "c3",
+     "src": "L11003"
+    },
+    {
+     "label": "Find Another Crossing",
+     "next": "c4",
+     "src": "L11004"
+    }
+   ],
+   "src": "L10998-10999"
+  },
+  "c1o1": {
+   "text": "The keeper listens to every word with great seriousness, nodding along, and laughs out loud at the end. Then the keeper stands and steps aside with a bow. \"A fair price,\" (he/she) says. (Name) crosses without any trouble. When (he/she) comes back in the evening, the keeper and the basket are gone.",
+   "src": "L11009"
+  },
+  "c1o2": {
+   "text": "\"A story deserves a story,\" the keeper says, and tells one in return, about a fisher who tied a knot so strong it held a whale. As the keeper talks, (his/her) fingers tie that very knot in a bit of reed, slowly, so (name) can follow. It's simple, strong and clever. By the end of the month, every fisher in the village is using it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11011"
+  },
+  "c1": {
+   "text": "(Name) thinks for a moment, then sits down on the bank and tells the keeper a story, the one about (his/her) grandfather and the very angry goat...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11007"
+  },
+  "c2o1": {
+   "text": "The argument draws a crowd, and soon half the village is standing at the bridge, agreeing loudly with (name). The keeper listens to all of them patiently, then nods. \"Quite right,\" (he/she) says, and moves the basket off the bridge. That evening the villagers agree, all together, that no traveler should ever be made to pay to use a common path, and they say it often after that.",
+   "src": "L11016"
+  },
+  "c2o2": {
+   "text": "(Name) is still in full flow, waving (his/her) arms, when (he/she) realizes the keeper isn't there anymore. The basket is empty. All that remains is a walking stick, leaning against the rail, carved with tiny bridges one after another all the way up the handle. (Name) takes it home. It's a very good stick.",
+   "src": "L11018"
+  },
+  "c2": {
+   "text": "\"This bridge belongs to all of us,\" (name) says, hands on hips. \"Nobody pays to cross it. Not me, not anybody.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11014"
+  },
+  "c3o1": {
+   "text": "The keeper takes it gratefully and waves (name) across. But when (name) looks back, the keeper is sharing the food out to a line of tired, hungry travelers who have come along the river path, and they keep coming, and the keeper keeps sending for more. By evening, (name) has carried two more baskets down from the storehouse. It feels right, though the stores are a little lighter.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L11023"
+  },
+  "c3o2": {
+   "text": "The keeper looks at the food, then at (name), and chuckles. \"You'd give me your own lunch? Keep it.\" When (name) comes back over the bridge that evening, (his/her) pack is strangely heavy. Inside, wrapped in leaves, is twice as much dried fruit as (he/she) left with, and then some. The keeper is nowhere to be seen. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11025"
+  },
+  "c3": {
+   "text": "(Name) opens (his/her) pack and holds out (his/her) lunch, dried fruit and a lump of cold cooked yam. \"Will this do?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11021"
+  },
+  "c4o1": {
+   "text": "It's a long, muddy, mosquito-filled detour, but (name) finds a shallow ford far upstream and wades across. (He/She) reaches the far bank safely in the end, tired and soggy and very late, and grumbles about it all the way home.",
+   "src": "L11030"
+  },
+  "c4o2": {
+   "text": "The detour leads to a row of stepping stones across the river. The third one is slick with green slime. (Name)'s foot shoots out from under (him/her), and (he/she) goes down hard, cracking (his/her) knee on the rock and swallowing half the river. (He/She) limps home bruised and dripping, past the bridge, where the keeper is still sitting on the basket and very politely says nothing at all.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L11032"
+  },
+  "c4": {
+   "text": "(Name) doesn't fancy answering riddles at a bridge. (He/She) turns and heads upstream to find another way over the river...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11028"
+  }
+ }
+}

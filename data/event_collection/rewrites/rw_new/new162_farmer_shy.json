@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Farmer's Shy Admirer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new162_farmer_shy",
+  "source": "rewrites",
+  "lines": [
+   7846,
+   7892
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7846",
+  "ledger": [
+   {
+    "src": "L7847",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7848",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7857",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7864",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7871",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7853",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7854",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7855",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7858",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7865",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7872",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7859",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7861",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7866",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7868",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7873",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7875",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7878-7892",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A farmer from another settlement has come to help with the harvest.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "aunt": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A farmer from another settlement has come to help with the harvest. (subject.He/She) is cheerful, sunburned and very good with a digging stick.\nAnd (subject) has been finding excuses to weed the very same row. Every day. For a week.\n(subject) has rehearsed a greeting eleven times. Out loud, in (subject.his/her) hut, to a coconut. (subject.He/She) has said it to the farmer zero times. Instead, whenever the farmer looks (subject.his/her) way, (subject) suddenly becomes deeply, intensely interested in a weed.\nHalf the village has noticed. The farmer, apparently, has not. (subject) can't keep weeding the same row forever. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Finally Say Something",
+     "next": "c1",
+     "src": "L7853"
+    },
+    {
+     "label": "Let It Grow Slowly",
+     "next": "c2",
+     "src": "L7854"
+    },
+    {
+     "label": "Consult the Matchmaking Aunt",
+     "next": "c3",
+     "src": "L7855"
+    }
+   ],
+   "src": "L7849-7852"
+  },
+  "c1o1": {
+   "text": "...blurts it all out, not the rehearsed greeting at all, just a tumble of words about how (subject.he/she) likes the farmer's laugh and the way (subject.he/she) hums while digging. Then (subject) adds, hurriedly, that the farmer doesn't have to answer. The farmer looks at (subject.him/her) for a long moment. Then smiles. \"I wondered when you'd say something. That's a very well-weeded row.\" They weed together all afternoon, talking.",
+   "src": "L7860"
+  },
+  "c1o2": {
+   "text": "...says it. The farmer is flattered, and kind, but not interested, and says so gently. \"You're lovely. But my heart's back home.\" (subject) takes it far better than (subject.he/she) feared. Mostly, (subject.he/she) is just relieved to have finally said it. They finish the row together as friends, and (subject) never has to look at another weed again.",
+   "src": "L7862"
+  },
+  "c1": {
+   "text": "On the eighth day, (subject) stands up, takes a deep breath, turns to the farmer, opens (subject.his/her) mouth, and...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7858"
+  },
+  "c2o1": {
+   "text": "Day by day, the conversations get longer. The weeds get fewer. By the end of the harvest, the two of them have made up their own minds about what comes next, without anyone pushing. The farmer promises to come back for next year's harvest. And the one after.",
+   "src": "L7867"
+  },
+  "c2o2": {
+   "text": "They get along wonderfully. But the harvest ends, and the farmer is going home with the next boat, and (subject) can't leave the island. They part as friends on the beach, both a little sad. \"Next harvest,\" the farmer says, and waves.",
+   "src": "L7869"
+  },
+  "c2": {
+   "text": "(subject) decides not to rush. (subject.He/She) just keeps working the same row, and starts, very slowly, to actually talk...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7865"
+  },
+  "c3o1": {
+   "text": "(aunt) listens patiently to the whole story, and then, for once in (subject.his/her) life, doesn't decide anything for anyone. \"Just talk to (subject.him/her),\" (subject.he/she) says. \"Like a person. Not a weed.\" (subject) does, the next day, and it goes better than any of the eleven rehearsals.",
+   "src": "L7874"
+  },
+  "c3o2": {
+   "text": "(aunt)'s advice is to sing a love song, in front of the whole village, at the harvest feast. With drums. (subject) is horrified, politely ignores it, and follows (subject.his/her) own judgment instead, which involves a quiet conversation by the field at sunset. It goes rather well.",
+   "src": "L7876"
+  },
+  "c3": {
+   "text": "In desperation, (subject) goes to (aunt), the village's self-appointed matchmaker, who has been waiting for this moment all week...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7872"
+  }
+ }
+}

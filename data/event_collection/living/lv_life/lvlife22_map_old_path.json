@@ -93,7 +93,15 @@
   "a2": {
    "name": "Outcome A2",
    "text": "The explorers reach the destination and improve the map.",
-   "src": "L20919"
+   "src": "L20919",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20919"
+    }
+   ]
   },
   "b": {
    "type": "branch",

@@ -1,0 +1,321 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Breadfruit Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new199_breadfruit",
+  "source": "rewrites",
+  "lines": [
+   9733,
+   9789
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9733",
+  "ledger": [
+   {
+    "src": "L9734",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9735",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9745",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9752",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9759",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9766",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9740",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9741",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9742",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9743",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9746",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9753",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9760",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9767",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9747",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9749",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9754",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9756",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9761",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9763",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9768",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9770",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9773-9789",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Two breadfruit, picked on the same morning, from the same grove, sit side by side on the shelf in the cooking hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two breadfruit, picked on the same morning, from the same grove, sit side by side on the shelf in the cooking hut.\nOne has gone soft and sweet in two days, perfect for roasting.\nThe other is still as hard as a stone. (subject) knocked on it this morning. It went \"tok.\"\n(subject) has started talking to them. \"What's different about you?\" (subject.he/she) asks the hard one, every morning. \"What did you do?\" (subject.he/she) asks the soft one. The other cooks have started avoiding the shelf. How can (subject) find out?",
+   "choices": [
+    {
+     "label": "Track Every Breadfruit Picked",
+     "next": "c1",
+     "src": "L9740"
+    },
+    {
+     "label": "Test Sunny Tree Against Shady Tree",
+     "next": "c2",
+     "src": "L9741"
+    },
+    {
+     "label": "Ask Whether the Basket Matters",
+     "next": "c3",
+     "src": "L9742"
+    },
+    {
+     "label": "Teach the Breadfruit Tally",
+     "next": "c4",
+     "src": "L9743"
+    }
+   ],
+   "src": "L9736-9739"
+  },
+  "c1o1": {
+   "text": "After a few weeks of marks, the pattern shows: breadfruit from the sunny side of the tree softens first, every time, and the shady side stays hard longer. It's a repeatable pattern, and the cooks start picking from the sunny side for this week's meals and the shady side for next week's. Nothing goes to waste.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9748"
+  },
+  "c1o2": {
+   "text": "The fruit soften in no clear order at all: sunny side, shady side, top, bottom, it doesn't seem to matter. (subject) writes down the uncertainty honestly, and asks the hard breadfruit, again, what it's playing at.",
+   "src": "L9750"
+  },
+  "c1": {
+   "text": "From now on, (subject) decides, every breadfruit that comes into the cooking hut gets a mark: which tree, which side of the tree, and what day...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9746"
+  },
+  "c2o1": {
+   "text": "(subject) picks fruit from a sunny tree and a shady tree, and stores them all exactly the same way. The sunny tree's fruit softens first, the shady tree's later, even though they're stored together. How ripe the fruit was when it was picked, not how it was stored, explains it better. The pickers learn to tell ripeness on the tree by the colour of the skin, and the cooking hut's timing improves enormously.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9755"
+  },
+  "c2o2": {
+   "text": "The results are muddled, and both explanations still fit. More breadfruit are needed. The cooks don't mind; more breadfruit means more roasted breadfruit.",
+   "src": "L9757"
+  },
+  "c2": {
+   "text": "(subject) has two ideas: it's how ripe the fruit was when it was picked, or it's how it was stored afterward. (subject.He/She) sets up a test...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9753"
+  },
+  "c3o1": {
+   "text": "(helper) frowns. \"Wasn't the soft one stored next to the bananas? Before it went on the shelf?\" Everyone had assumed both breadfruit were kept the same way. They weren't. (subject) tests it: a hard breadfruit next to ripe bananas softens in a day. It's a hidden assumption, exposed, and a useful trick: to ripen fruit faster, store it with bananas.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9762"
+  },
+  "c3o2": {
+   "text": "The cooks argue about what counts as \"soft.\" Squishy? Bendy? Smells sweet? Finally they agree on a thumb press: if a thumb leaves a dent, it's soft. Every breadfruit in the hut is pressed by every cook. Several are now dented.",
+   "src": "L9764"
+  },
+  "c3": {
+   "text": "(subject) asks the other cooks if they have any ideas, and promises not to talk to the breadfruit while they think...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9760"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the tally properly: one mark per fruit, one mark per day, a different mark for each tree, all on the same board. (novice) learns a great deal about keeping records that can be trusted, and soon the board is covered in neat marks.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9769"
+  },
+  "c4o2": {
+   "text": "(novice) notices that two of the fruit swapped places in the basket at some point, so their marks no longer match. Someone moved them while cooking. The group revises its notes, and (subject) starts carving marks directly onto the breadfruit skins.",
+   "src": "L9771"
+  },
+  "c4": {
+   "text": "(subject) decides (novice) should learn to keep the tally, so the cooking hut can carry on the work...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9767"
+  }
+ }
+}

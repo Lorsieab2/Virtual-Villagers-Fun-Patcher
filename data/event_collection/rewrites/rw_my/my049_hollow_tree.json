@@ -1,0 +1,283 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hollow Tree's Visitor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my049_hollow_tree",
+  "source": "rewrites",
+  "lines": [
+   12706,
+   12761
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12706",
+  "ledger": [
+   {
+    "src": "L12707",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12708",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12717",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12724",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12731",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12738",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12712",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12713",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12714",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12715",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12718",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12725",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12732",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12739",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12719",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12721",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12728",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12733",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12735",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12742",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12745-12761",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There's someone in the big fig tree!",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (child) comes running up to (subject), breathless, eyes like saucers. \"There's someone in the big fig tree! The hollow one! A tall person, all silver hair, and they come out after dark! They have to duck to get out!\"\nThe adults go to look that night. They wait beside the huge hollow fig at the edge of the clearing for hours, and see nothing at all. (Child) insists, stamping (child.his/her) foot, that the visitor is real. The other adults have gone home, rolling their eyes. (subject) is the last one left. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Believe the Child and Listen",
+     "next": "c1",
+     "src": "L12712"
+    },
+    {
+     "label": "Wait Beside the Tree",
+     "next": "c2",
+     "src": "L12713"
+    },
+    {
+     "label": "Leave a Lantern",
+     "next": "c3",
+     "src": "L12714"
+    },
+    {
+     "label": "Ask the Child to Draw the Visitor",
+     "next": "c4",
+     "src": "L12715"
+    }
+   ],
+   "src": "L12709-12710"
+  },
+  "c1o1": {
+   "text": "(Child) talks for an hour without stopping. The visitor is tall and kind and walks only by moonlight, and hums to the owls, and once left a shiny pebble at the foot of the tree. It's such a wonderful, detailed story that (subject) helps (child) turn it into a song. Soon all the children in the village are singing about the tall, kind stranger in the fig tree, and they sing it for months.",
+   "src": "L12720"
+  },
+  "c1o2": {
+   "text": "(Child) starts talking, then stops, and suddenly bursts into tears. \"I'm scared,\" (child.he/she) sobs. \"I'm scared to walk past it.\" Whatever (child) saw, or thinks (child.he/she) saw, it has frightened (child.him/her) badly. (subject) picks (child.him/her) up and carries (child.him/her) home, and from then on, someone always walks (child) past the big fig tree after dark, holding (child.his/her) hand.",
+   "src": "L12722"
+  },
+  "c1": {
+   "text": "(subject) kneels down so (subject.he/she) is eye to eye with (child). \"I believe you,\" (subject) says. \"Tell me all about it.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12718"
+  },
+  "c2o1": {
+   "text": "Around midnight, (subject) hears it: soft footsteps, from inside the trunk. Slow ones. Climbing, as if on stairs. (subject) holds (subject.his/her) breath and stares at the dark hollow. Nothing comes out. Nobody appears. The footsteps go up, and up, and fade away. In the morning, (subject) tells (child) that (subject.he/she) believes (child.him/her), and means it completely.",
+   "src": "L12727"
+  },
+  "c2o2": {
+   "text": "In the middle of the night, there's a scuffle and a flap, and an enormous owl hops out of the hollow and onto a low branch. It's tall, silvery grey, and has to duck its head to get out. It stares at (subject) with huge orange eyes and hoots once, very disapprovingly, as if (subject) is the one who doesn't belong here. Well, that explains at least some of it. (subject) laughs all the way home.",
+   "src": "L12729"
+  },
+  "c2": {
+   "text": "(subject) sends (child) home to bed, then settles down in the long grass beside the hollow fig, alone, to keep watch through the night...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12725"
+  },
+  "c3o1": {
+   "text": "In the morning, the lantern isn't where (subject) left it. It's been carefully moved up onto a high branch, well out of reach of curious children and safely away from the dry grass. It's still burning. Nobody in the village could have reached that branch without a ladder. (Child) is ecstatic. (subject) is not quite sure what (subject.he/she) is.",
+   "src": "L12734"
+  },
+  "c3o2": {
+   "text": "In the morning, the lantern sits exactly where (subject) left it, its flame long burned out, the oil gone. Nothing moved. Nothing touched. (subject) gathers it up, a little disappointed, and (child) says, very seriously, that the visitor just didn't need a light, because the visitor can see in the dark.",
+   "src": "L12736"
+  },
+  "c3": {
+   "text": "Just in case, (subject) leaves a small lit lantern at the foot of the fig tree, so the visitor, if there is one, won't stumble in the dark...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12732"
+  },
+  "c4o1": {
+   "text": "(Child) draws carefully, tongue poking out in concentration. When (child.he/she) holds it up, (subject) goes cold. The tall figure, the long hair, the strange tilt of the head: it looks exactly like the ancestor carved on the old post by the meeting hut, a carving so worn that hardly anyone notices it anymore. (Child) has never looked at it closely. (Child) says so, and (subject) believes (child.him/her).",
+   "src": "L12741"
+  },
+  "c4o2": {
+   "text": "(Child)'s drawing shows a tall person with silver hair and a big pack. (subject) recognizes it at once: a traveler who came through the village that very afternoon to trade, a tall old fellow with a shock of white hair. (Child) must have seen him, and dreamed the rest. Mystery solved. Probably. (Child) still insists the traveler lives in the tree.",
+   "src": "L12743"
+  },
+  "c4": {
+   "text": "(subject) hands (child) a stick of charcoal and a flat piece of bark. \"Can you draw them for me? Exactly how they look?\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12739"
+  }
+ }
+}

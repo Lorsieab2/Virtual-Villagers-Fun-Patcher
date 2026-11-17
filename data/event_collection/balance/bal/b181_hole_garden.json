@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hole in the Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b181_hole_garden",
+  "source": "balance",
+  "lines": [
+   8386,
+   8429
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8386",
+  "ledger": [
+   {
+    "src": "L8387",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8388",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8396",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8405",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8393",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8394",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8397",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8406",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8399",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8408",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8414-8429",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Overnight, a hole has opened up in the middle of the yam garden.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "farmer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Overnight, a hole has opened up in the middle of the yam garden. It is perfectly round, wide enough to swallow a hut, and so deep that a dropped stone takes three heartbeats to land. Half a row of yams went down with it. Cold air breathes up out of it, smelling of wet rock.\nThe farmers stand round the edge in a ring, arguing. (farmer) says the ground is still moving and nobody should go near. The elders say there are old caves under the whole island, and that sometimes the roof of one gives way. And from down in the dark, faintly, (subject) is sure (subject.he/she) can hear water running, and something else: a goat bleating. One of the garden goats is missing.\nShould (subject) climb down on a rope after the goat, or fence off the hole?",
+   "choices": [
+    {
+     "label": "Climb Down on a Rope",
+     "next": "c1",
+     "src": "L8393"
+    },
+    {
+     "label": "Fence Off the Hole",
+     "next": "c2",
+     "src": "L8394"
+    }
+   ],
+   "src": "L8389-8391"
+  },
+  "c1o1": {
+   "text": "The edge of the hole crumbles under the farmers' feet, and the rope goes slack, then tight, then slack again. When the dust settles, the hole is twice as wide. It takes the village two days to reach (subject), with ropes and ladders, and they bring (subject.him/her) up wrapped in a mat. The goat comes up too, alive. The village fills the hole with stones and plants a ring of flowers round it, and nobody farms that spot again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L8400"
+  },
+  "c1o2": {
+   "text": "The rope holds, but the side of the hole breaks under (subject)'s feet and (subject.he/she) swings into the rock, hard. (subject.He/She) reaches the goat on a ledge, and they are both hauled up, the goat bleating the whole way. (subject)'s shoulder never heals properly. (subject.He/She) can't lift (subject.his/her) arm above (subject.his/her) head again, and (subject.he/she) won't go into any dark place, not even the store hut, without a torch.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "caves",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8403"
+  },
+  "c1": {
+   "text": "(subject) ties a rope round (subject.his/her) waist, and four farmers take the other end. (subject.He/She) goes down over the edge into the cold dark, feet against the crumbling side, a torch in (subject.his/her) teeth...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8397"
+  },
+  "c2o1": {
+   "text": "Three days later, the goat walks into the village from the beach, muddy and pleased with itself. It has found its way out through the old caves. Following its hoofprints back, the farmers find a cave mouth by the shore full of sweet water and pale, crunchy mushrooms nobody has eaten before. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8409"
+  },
+  "c2o2": {
+   "text": "The bleating stops on the second night. The fence stays. The farmers plant around it, and in a year the hole is full of ferns, and birds nest in its sides. (subject) still goes and stands by the fence sometimes, listening for running water.",
+   "src": "L8412"
+  },
+  "c2": {
+   "text": "(subject) sides with (farmer). The farmers cut stakes and build a fence all round the hole, and lower a basket of food down on a rope for the goat, in case...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8406",
+   "text_only": [
+    {
+     "src": "L8406",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

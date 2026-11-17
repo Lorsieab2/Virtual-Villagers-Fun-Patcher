@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cave of Returned Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my081_cave_returned",
+  "source": "rewrites",
+  "lines": [
+   14570,
+   14625
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14570",
+  "ledger": [
+   {
+    "src": "L14571",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14572",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14580",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14587",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14594",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14601",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14575",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14576",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14577",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14578",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14581",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14588",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14595",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14602",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14582",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14589",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14591",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14596",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14598",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14603",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14605",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14608-14625",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Sheltering from a sudden shower, a villager ducks into a small cave in the hillside, barely waist-high, its walls slick and dark.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Sheltering from a sudden shower, (subject) ducks into a small cave in the hillside, barely waist-high, its walls slick and dark. \"Phew,\" (subject.he/she) mutters. And the cave answers. But not with \"phew.\" From the back of the cave, in a voice that is not (subject)'s at all, comes: \"...mind the left side, it's not safe...\"\n(subject) freezes. Every sound in here comes back a little too late and a little too clear. And the cave, it seems, does not repeat what is said to it. It repeats what someone else once said. Should (subject) stay and listen, or get out of there?",
+   "choices": [
+    {
+     "label": "Listen to the Echo",
+     "next": "c1",
+     "src": "L14575"
+    },
+    {
+     "label": "Speak a Question",
+     "next": "c2",
+     "src": "L14576"
+    },
+    {
+     "label": "Bring a Scholar",
+     "next": "c3",
+     "src": "L14577"
+    },
+    {
+     "label": "Seal the Cave",
+     "next": "c4",
+     "src": "L14578"
+    }
+   ],
+   "src": "L14573-14574"
+  },
+  "c1o1": {
+   "text": "It is an old man's voice, gruff and worried: \"Taro! Keep away from the cracked rock on the left! It'll come down on you one day!\" Then silence. (subject) looks to the left. The rock there is split with a long crack, and a slab the size of a canoe is hanging by almost nothing. (subject) backs out very slowly and fetches the builders, who prop the slab and seal it with stones. Nobody in the village has ever heard of anyone named Taro, but the elders agree that he was very lucky to have someone looking out for him.",
+   "src": "L14583"
+  },
+  "c1o2": {
+   "text": "A woman's voice, warm and laughing, says a single name, the name of a villager who died many years ago, and whose family has not been able to bear saying it since. (subject) recognizes it at once. (subject.He/she) goes to the family and tells them, gently, what (subject.he/she) heard. That afternoon, three of them crawl into the little cave together and sit in the dark, listening, for hours. When they come out, they are smiling, and that night they say the name aloud at supper for the first time in years.",
+   "src": "L14585"
+  },
+  "c1": {
+   "text": "(subject) holds very still and listens. The cave is quiet for a long moment. Then, faintly, the voices begin to come back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14581"
+  },
+  "c2o1": {
+   "text": "The answer comes back in (subject)'s own voice, unmistakably (subject.his/her) own, but older, slower and saying words (subject.he/she) has never said: \"Don't worry so much. It all works out.\" (subject) scrambles out of the cave so fast (subject.he/she) bumps (subject.his/her) head on the roof. (subject.He/she) does not go back. But years later, as an old (subject.man/woman), (subject.he/she) catches (subject.himself/herself) saying those exact words to a nervous young villager, and stops, and laughs out loud.",
+   "src": "L14590"
+  },
+  "c2o2": {
+   "text": "\"...are you... are you... you...\" comes back, in (subject)'s own voice, exactly as an echo should. (subject) tries again. \"Hello?\" \"...hello... hello...\" Perfectly ordinary. (subject.He/she) tries every word (subject.he/she) can think of, and the cave repeats every one of them back, faithfully and without imagination. The rain stops. (subject) crawls out, half relieved and half disappointed, and decides the first voice must have been the wind.",
+   "src": "L14592"
+  },
+  "c2": {
+   "text": "(subject) takes a breath. \"Who are you?\" (subject.he/she) asks the dark. The question rolls away into the back of the cave, and (subject) waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14588"
+  },
+  "c3o1": {
+   "text": "After a day of crawling, tapping, measuring and getting extremely muddy, (researcher) emerges triumphant. \"Tunnels!\" (subject.he/she) announces. \"The hill is riddled with tiny tunnels that carry sound from far away, from the old paths, the stream, the other side of the hill, and bend it so it comes out here. Whatever you heard was someone talking, somewhere else!\" The discovery sets the researchers studying how sound travels, and soon they are building speaking tubes between huts. It does not explain how the voices are so old. (researcher) prefers not to think about that part.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L14597"
+  },
+  "c3o2": {
+   "text": "(researcher) sits in the dark for a long time. When (subject.he/she) finally crawls out, (subject.he/she) is pale and shaking. \"They were talking,\" (subject.he/she) says, \"about a war. Boats burning on the reef, a {@chief} named someone I've never heard of, an island I've never heard of. It was like listening to a conversation from hundreds of years ago.\" (subject.He/she) writes everything down in careful notes, then puts the notes away in a box and does not take them out again for a long time.",
+   "src": "L14599"
+  },
+  "c3": {
+   "text": "(subject) runs back to the village and drags (researcher), the village's most learned researcher, protesting, up the hill and into the little cave. (researcher) squeezes in, knees up to (subject.his/her) chin, and listens...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14595"
+  },
+  "c4o1": {
+   "text": "The builders pile stones across the entrance and pack the gaps with clay until not a crack remains. The children are forbidden to go near it, which naturally makes them want to go near it more than ever, but the stones are heavy and the elders are watchful. After a few seasons, the grass grows over it, and the cave of returned words becomes just another story told around the fire.",
+   "src": "L14604"
+  },
+  "c4o2": {
+   "text": "The cave is sealed tight. But for weeks afterward, villagers walking past the hillside swear they hear a faint whisper coming from the rocks: not words exactly, just the shape of voices, murmuring behind the stones. Nobody can agree on what it is saying. Eventually, the villagers start walking past without stopping, and saying hello as they go, just to be polite.",
+   "src": "L14606"
+  },
+  "c4": {
+   "text": "(subject) wants nothing to do with a cave full of other people's words. (subject.He/she) tells the elders, who agree that a cave which talks back is not a safe place for curious children, and the builders haul stones up the hill...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14602"
+  }
+ }
+}

@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Person Beyond the Torchlight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my001_person_beyond",
+  "source": "rewrites",
+  "lines": [
+   9872,
+   9928
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L9872",
+  "ledger": [
+   {
+    "src": "L9873",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9874",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9883",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9890",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9897",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9904",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9878",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9879",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9880",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9881",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9884",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9891",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9898",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9905",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9885",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9887",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9892",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9894",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9899",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9901",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9906",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9908",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9911-9928",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Someone is standing there, perfectly still, at the very edge of the light.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is walking home late after a long day's work, humming to (himself/herself) to keep the dark at bay. Just past the last torch on the path, (he/she) stops. Someone is standing there, perfectly still, at the very edge of the light. The torch spits and leans in a wind (name) cannot feel, and the figure's outline wavers like a reed in a current.\nThen the figure speaks. It calls (him/her) by the silly little pet name (his/her) mother used when (name) was barely walking, a name nobody alive in the village has used in years. (Name)'s skin prickles all over. Every sensible part of (him/her) says to run. Every curious part of (him/her) wants to know how on earth this stranger knows that name. What should (name) do?",
+   "choices": [
+    {
+     "label": "Approach the Figure",
+     "next": "c1",
+     "src": "L9878"
+    },
+    {
+     "label": "Call for Witnesses",
+     "next": "c2",
+     "src": "L9879"
+    },
+    {
+     "label": "Ask How They Know",
+     "next": "c3",
+     "src": "L9880"
+    },
+    {
+     "label": "Walk Away",
+     "next": "c4",
+     "src": "L9881"
+    }
+   ],
+   "src": "L9875-9876"
+  },
+  "c1o1": {
+   "text": "\"There is a storm coming,\" the figure says softly. \"It will wash the earth from a stone that wants to be found.\" Before (name) can ask what that means, the figure steps behind a tree and simply isn't there anymore. (Name) circles the trunk twice, feeling foolish. Three days later a storm rolls in off the sea, and when it clears, the rain has stripped the soil from a hillside near the path, uncovering a flat stone carved with lines no one can read. The elders argue over it for a week. (Name) doesn't say much. (He/She) is still thinking about that voice.",
+   "src": "L9886"
+  },
+  "c1o2": {
+   "text": "The figure pushes back its hood and turns out to be a wrinkled old traveler with a grin full of gaps. \"I knew your family, long ago,\" the traveler says. \"I held you when you were this big.\" They sit on a log by the torch and swap stories until the sky goes grey. By sunrise the traveler is wheezing with laughter about the time toddler (name) wandered into a goat pen and came out wearing half of it, and (name) is laughing too, a little embarrassed and a lot delighted. The traveler goes on (his/her) way that morning, leaving (name) with a head full of family stories (he/she) never knew.",
+   "src": "L9888"
+  },
+  "c1": {
+   "text": "(Name) swallows hard and takes one step past the torch, then another. The figure does not move. Up close, (he/she) can make out a hooded wrap, a walking stick, and a face half in shadow...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9884"
+  },
+  "c2o1": {
+   "text": "\"Where?\" they ask. (Name) points. The figure is still there, plain as anything, but the others squint and shrug and see only bushes. Then everyone hears it: soft footsteps retreating through the long grass, unhurried, until they fade away. Nobody sleeps very well that night, and a few of the villagers make (name) walk in the middle of the group on the way back.",
+   "src": "L9893"
+  },
+  "c2o2": {
+   "text": "By the time the others arrive, the figure is gone. They grumble about being dragged out of bed for nothing, until one of them kicks something in the dirt: a necklace of tiny white shells on a braided cord, still warm, as if it had just been taken off. No one in the village recognizes it. (Name) keeps it in a basket by (his/her) bed and isn't quite sure whether that's a good idea.",
+   "src": "L9895"
+  },
+  "c2": {
+   "text": "\"Hey! Somebody come here, quick!\" (name) shouts toward the huts, never taking (his/her) eyes off the shape in the dark. Doors bang open. Sleepy villagers come stumbling down the path with torches...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9891"
+  },
+  "c3o1": {
+   "text": "The figure doesn't answer. Instead it asks (name) a question of its own, quietly, the one question (name) has carried around since childhood and never once dared to say out loud. Then it turns and walks into the dark. (Name) stands there until the torch burns low. (He/She) doesn't sleep a wink that night, and for days afterward the others catch (him/her) staring out past the torches.",
+   "src": "L9900"
+  },
+  "c3o2": {
+   "text": "The figure bursts out laughing. \"Because I lived three huts down from your mother! She shouted that name across the whole village every time you ran off.\" It turns out the stranger grew up on the same patch of beach as (name)'s family, left as a youngster, and has come back for one last look at the old place. (Name) feels both relieved and slightly cheated. All those goosebumps for a nosy old neighbor!",
+   "src": "L9902"
+  },
+  "c3": {
+   "text": "\"How do you know that name?\" (name) demands, voice shaking a little more than (he/she) would like...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9898"
+  },
+  "c4o1": {
+   "text": "Nothing follows (name) home. Nothing knocks at the door. In the morning the path past the last torch is just a path. Still, (name) can't explain what (he/she) saw, and (he/she) starts heading home a little earlier each evening.",
+   "src": "L9907"
+  },
+  "c4o2": {
+   "text": "Just as (name) reaches (his/her) hut, a whisper brushes (his/her) ear: \"Not the cliff path tomorrow.\" (Name) spins around. No one is there. The next morning (he/she) takes the long way to the gathering grounds, grumbling the whole time. That afternoon a scout comes running back with news: a wedge of red earth on the cliff path has broken away and lies smashed on the rocks below, right where (name) walks every day.",
+   "src": "L9909"
+  },
+  "c4": {
+   "text": "(Name) decides that whatever this is, (he/she) wants no part of it. (He/She) turns around and walks home very quickly, not looking back...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9905"
+  }
+ }
+}

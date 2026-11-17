@@ -1,0 +1,222 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Moths",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b015_night_moths",
+  "source": "balance",
+  "lines": [
+   661,
+   702
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L661",
+  "ledger": [
+   {
+    "src": "L662",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L663",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L671",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L680",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L668",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L669",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L672",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L681",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L674",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L677",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L683",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L686",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L689-702",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old people say the dust makes you forget, and that's why nobody should ever sleep out on the hill on vine night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year, the pale moon-vine blooms on the hillside for a single night, and the moths come to feed on it: great soft grey moths as big as a hand, with wings that leave a silver dust on everything they touch. The old people say the dust \"makes you forget,\" and that's why nobody should ever sleep out on the hill on vine night.\n(Name) has fallen asleep on the hill on vine night. (He/She) wakes to a soft fluttering on (his/her) face, and opens (his/her) eyes to find (his/her) arms, chest and hair covered in sleeping moths, glittering with silver dust.\nShould (name) lie still and let them leave on their own, or brush them off and run?",
+   "choices": [
+    {
+     "label": "Lie Still",
+     "next": "c1",
+     "src": "L668"
+    },
+    {
+     "label": "Brush Them Off and Run",
+     "next": "c2",
+     "src": "L669"
+    }
+   ],
+   "src": "L664-666"
+  },
+  "c1o1": {
+   "text": "(Name) walks home at dawn, sparkling with dust, and feels fine. Better than fine. It's only when (his/her) friend calls (him/her) by name that (he/she) realises something is missing. (He/She) knows the friend, knows the village, knows exactly which hut is (his/hers). But the name has gone, carried off on grey wings to wherever the moths keep such things. The elders shake their heads and say \"vine night\" as if that explains everything. The village calls (him/her) \"?\" from then on.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L675"
+  },
+  "c1o2": {
+   "text": "The moths leave, and (name) lies there in the grey light feeling strangely light, as though something heavy has been lifted off (his/her) chest. It takes (him/her) a few days to work out what it was. (Name) has always hated the cold shock of deep water, and one hot morning (he/she) wades straight into the lagoon up to (his/her) neck without thinking about it, and only realises afterwards. \"Vine night,\" (he/she) tells anyone who asks.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L678"
+  },
+  "c1": {
+   "text": "(Name) holds (his/her) breath. The moths shift their wings, slow and soft, like breathing. One by one, as the sky starts to grey, they lift off and drift away towards the vines...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L672"
+  },
+  "c2o1": {
+   "text": "(Name) reaches the village coughing up silver, and washes in the stream until it's all gone. But the next day (he/she) goes to the dancing, where (he/she) always loved to leap higher than anyone, and finds the leaping is just leaping now. Not bad. Not anything. The moths took the loving of it. (Name) tries it a few more times, waiting for the feeling to come back, and then sets it aside, and finds something else to fill the time.",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L684"
+  },
+  "c2o2": {
+   "text": "(Name) runs all the way home, and dives into (his/her) hut, and the next morning (he/she) checks everything. Name: yes. Friends: yes. Breakfast: yes, the same as always. Nothing is missing. Only the silver dust, which takes a week to wash out of (his/her) hair, and which makes (him/her) glitter whenever (he/she) walks into the sun.",
+   "src": "L687"
+  },
+  "c2": {
+   "text": "(Name) leaps up, flapping and spluttering, and a great silver cloud bursts up into the dark. (He/She) runs downhill through the glittering air, dust in (his/her) mouth and eyes...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L681"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "jumping",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

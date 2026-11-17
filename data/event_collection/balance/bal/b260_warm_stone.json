@@ -1,0 +1,248 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Warm Stone of the Mothers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b260_warm_stone",
+  "source": "balance",
+  "lines": [
+   12127,
+   12168
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12127",
+  "ledger": [
+   {
+    "src": "L12142",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other; twins or triplets, 50:50"
+   },
+   {
+    "src": "L12148",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other, one baby"
+   },
+   {
+    "src": "L12128",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12129",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12136",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12145",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12133",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12134",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12137",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12146",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12139",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12142",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12148",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12151",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12154-12168",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old story goes that a sea spirit once rested there after giving birth to the first fish, and left some of her luck in it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "midwife": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Beside the hot spring there is a smooth black stone, always warm to the touch, that the village's mothers have sat on for generations. The old story goes that a sea spirit once rested there after giving birth to the first fish, and left some of her luck in it. Couples who want a child go and sit on it together, and the elders say the stone decides.\n(subject) and (friend) have been wanting a baby for a long time. Tonight they walk to the hot spring. The stone is there, warm as a hand. Should they sit on it together, as the story says, or just bathe in the spring and go home?",
+   "choices": [
+    {
+     "label": "Sit on the Stone Together",
+     "next": "c1",
+     "src": "L12133"
+    },
+    {
+     "label": "Just Bathe",
+     "next": "c2",
+     "src": "L12134"
+    }
+   ],
+   "src": "L12130-12131"
+  },
+  "c1o1": {
+   "text": "A few weeks later, (subject) is pregnant, and it doesn't matter in the least that the healers say it shouldn't be possible. \"The stone decides,\" the elders say, nodding, as if that settles it, which it does. (subject) goes back to the stone every evening after that and sits on it alone, talking to the baby.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12140"
+  },
+  "c1o2": {
+   "text": "The stone hums so loudly that the water in the spring trembles. Some weeks later, (midwife), the healer, presses an ear to the belly, listens, and laughs. \"You must have asked very nicely,\" (subject.he/she) says. {#babies:There is one baby, a big strong one|There are twins|There are triplets}. The couple build an extra room on the hut before {#babies:it is|they're|they're} born.",
+   "src": "L12143",
+   "children": [
+    {
+     "next": "c1o2_r1"
+    },
+    {
+     "next": "c1o2_r2"
+    }
+   ]
+  },
+  "c1": {
+   "text": "They sit on the stone side by side, holding hands, feeling a bit silly. The stone gets warmer and warmer until it is almost hot, and then, very gently, it hums...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12137"
+  },
+  "c2o1": {
+   "text": "A few weeks later, a baby is on the way anyway, stone or no stone. \"See,\" says (friend), \"we didn't need it.\" The elders smile and say nothing. Privately, they think the stone can reach the spring perfectly well from where it sits.",
+   "src": "L12149",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "No baby comes, not yet. Neither of them has ever liked being in the water, but the warm soak does them so much good that they go back every week, and before long they are paddling about in the lagoon as well, and then swimming out to the reef. \"We'll try the stone next time,\" (subject) says, every time, and they never quite do.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "swimming"
+    }
+   ],
+   "src": "L12152"
+  },
+  "c2": {
+   "text": "They decide not to bother the stone, and slip into the hot spring instead. The water is so warm they nearly fall asleep, floating under the stars...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12146"
+  },
+  "c1o2_r1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 2
+    }
+   ]
+  },
+  "c1o2_r2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 3
+    }
+   ]
+  }
+ }
+}

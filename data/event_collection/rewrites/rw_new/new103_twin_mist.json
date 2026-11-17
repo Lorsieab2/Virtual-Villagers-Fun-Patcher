@@ -1,0 +1,250 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twin in the Mist",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new103_twin_mist",
+  "source": "rewrites",
+  "lines": [
+   4816,
+   4861
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L4816",
+  "ledger": [
+   {
+    "src": "L4817",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4818",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4826",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4833",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4840",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4822",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4823",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4824",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4827",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4834",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4841",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4830",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4835",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4842",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4844",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4847-4861",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Morning mist rolls up from the lagoon, thick and white, and out of it walks...",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Morning mist rolls up from the lagoon, thick and white, and out of it walks... (subject).\nSame face. Same hair. Same walk, right down to the way (subject.he/she) scratches behind one ear when (subject.he/she) is thinking. The trouble is that the real (subject) is standing a few steps away holding a basket of fish, and (subject.he/she) is looking very, very unsettled.\nThe double spots (subject.him/her) and smiles warmly, the way someone smiles at an old friend not seen in years. Then it waves. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Study the Double from Afar",
+     "next": "c1",
+     "src": "L4822"
+    },
+    {
+     "label": "Offer the Double a Seat by the Fire",
+     "next": "c2",
+     "src": "L4823"
+    },
+    {
+     "label": "Bar the Doors Until It Lifts",
+     "next": "c3",
+     "src": "L4824"
+    }
+   ],
+   "src": "L4819-4821"
+  },
+  "c1o1": {
+   "text": "For an hour they copy each other, gesture for gesture, until the mist starts to thin. As it does, (subject) notices the double wobbles and stretches whenever the fog gets thicker, the same way the far shore wobbles on hot days. (subject.He/She) brings a careful description of how fog bends light along the water back to the researchers. It is a small piece of new knowledge, and a large piece of new nightmares.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4829"
+  },
+  "c1o2": {
+   "text": "The sun comes up over the trees, and the double thins with the mist. It gives (subject) one last friendly wave as it fades, until nothing is left but wet grass and a single, perfectly ordinary footprint. (subject) puts (subject.his/her) own foot next to it. It is an exact match. (subject.He/She) goes home and does not mention this to anyone for three days.",
+   "src": "L4831"
+  },
+  "c1": {
+   "text": "(subject) puts the fish basket down very slowly and crouches behind a palm, watching. The double crouches behind the next palm and watches (subject.him/her) back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4827"
+  },
+  "c2o1": {
+   "text": "The double sits, eats two bowls of porridge, and simply... stays. By midday it is a real, solid person, laughing at jokes and helping to scrub the pot. (subject.He/She) has (subject)'s face, but picks a different name for (subject.himself/herself) so nobody mixes the two of them up at dinner. (subject) is not sure whether (subject.he/she) has gained a twin or lost an argument, but the village has gained a villager.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L4836"
+  },
+  "c2o2": {
+   "text": "At the edge of the village, (subject) stops dead. \"No. I'm sorry. I can't share a fire with my own face.\" The others honour that, and nobody presses. The double looks only a little hurt. It bows, turns, and drifts back down the path into the mist, scratching behind one ear.",
+   "src": "L4838"
+  },
+  "c2": {
+   "text": "\"Well,\" says (subject) weakly, \"you'd better come and have breakfast, I suppose.\" The double beams and follows (subject.him/her) up the path. The whole village stops what it is doing to stare...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4834"
+  },
+  "c3o1": {
+   "text": "Crammed into one hut, (elder) passes the time by showing (subject) how to tell when fog will lift by watching which way the reeds bend at the water's edge. \"Mist walkers,\" (elder) mutters, \"never stay past the reeds standing up.\" Whether that is true or not, the trick works on ordinary fog, and saves the fishers many wasted mornings afterwards.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4843"
+  },
+  "c3o2": {
+   "text": "When the doors finally open, the double is gone. Only the people who saw it can say it was ever there, and they do, often, loudly, and with more detail every time. By the end of the season, the double has apparently juggled fish and sung a song. It did neither.",
+   "src": "L4845"
+  },
+  "c3": {
+   "text": "(subject) runs. The whole village, hearing (subject.his/her) shouting, decides that running is a fine idea, and every door flap is tied shut. Then the long wait begins...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4841"
+  }
+ }
+}

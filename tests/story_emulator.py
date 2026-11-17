@@ -215,6 +215,46 @@ class Process:
         self.write(buffer, info[:length])
         return min(length, 28), 12
 
+    # The big tables grow on the process heap (vvfp_story_upgrades.c story_grow); the pieces file and a pack are
+    # read into memory of their own (VirtualAlloc).  Each block is a fresh zeroed one from the emulated heap.
+    def _api_GetProcessHeap(self):
+        return 0x00100000, 0
+
+    def _api_HeapAlloc(self):
+        size = self.arg(2)
+        at = self.alloc(size + 4)
+        self.put32(at, size)
+        return at + 4, 12
+
+    def _api_HeapReAlloc(self):
+        old, size = self.arg(2), self.arg(3)
+        have = self.u32(old - 4) if old else 0
+        at = self.alloc(size + 4)
+        self.put32(at, size)
+        if old:
+            self.write(at + 4, self.read(old, min(have, size)))
+        return at + 4, 16
+
+    def _api_HeapFree(self):
+        return 1, 12
+
+    # The collection's split files and the procedural pieces are listed with FindFirstFileW: the emulated folder
+    # holds none of them.
+    def _api_FindFirstFileW(self):
+        return 0xFFFFFFFF, 8
+
+    def _api_FindNextFileW(self):
+        return 0, 8
+
+    def _api_FindClose(self):
+        return 1, 4
+
+    def _api_VirtualAlloc(self):
+        return self.alloc(self.arg(1)), 16
+
+    def _api_VirtualFree(self):
+        return 1, 12
+
     def _api_VirtualProtect(self):
         self.put32(self.arg(3), 0x20)
         return 1, 16

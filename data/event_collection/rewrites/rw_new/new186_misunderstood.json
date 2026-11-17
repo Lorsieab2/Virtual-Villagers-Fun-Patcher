@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Misunderstood Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new186_misunderstood",
+  "source": "rewrites",
+  "lines": [
+   9016,
+   9062
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9016",
+  "ledger": [
+   {
+    "src": "L9017",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9018",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9027",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9034",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9041",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9023",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9024",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9025",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9028",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9035",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9042",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9029",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9031",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9036",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9038",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9043",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9045",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9048-9062",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager was told, this morning, to put a roof over the shed by the field. a villager worked very hard all day.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "master": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) was told, this morning, to \"put a roof over the shed by the field.\"\n(subject) worked very hard all day. And when the builders came back at sunset, they found that (subject) had put a roof over the shed and the field.\nA vast canopy of palm leaves on tall poles now stretches over the entire taro patch, rustling gently in the breeze. It is enormous. It is surprisingly well made. It must have taken every palm leaf on that side of the island.\nThe taro looks very happy in the shade. The builders look very confused. (subject) is standing proudly beside it, waiting to be praised. How should the builders respond?",
+   "choices": [
+    {
+     "label": "Ask How They Read the Order",
+     "next": "c1",
+     "src": "L9023"
+    },
+    {
+     "label": "Turn the Canopy Into a Project",
+     "next": "c2",
+     "src": "L9024"
+    },
+    {
+     "label": "Bring a Master Builder to Look",
+     "next": "c3",
+     "src": "L9025"
+    }
+   ],
+   "src": "L9019-9022"
+  },
+  "c1o1": {
+   "text": "\"Put a roof over the shed by the field,\" (subject) repeats. \"Over the shed, by the field. Over the shed AND the... oh.\" (subject.He/She) works out where the words went wrong, and goes very red. But as (subject.he/she) helps take the canopy down, (subject.he/she) learns a great deal from the builders about how to brace a wide roof properly, and why (subject.his/hers), astonishingly, didn't fall down.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L9030"
+  },
+  "c1o2": {
+   "text": "(subject) points out, quite reasonably, that the order really could mean either thing. Said quickly. With a mouth full of breakfast. The builders repeat it to each other several times, and have to admit (subject.he/she) has a point. The fault was in the wording, not in any lack of effort, and orders get given more carefully from then on.",
+   "src": "L9032"
+  },
+  "c1": {
+   "text": "The head builder clears (subject.his/her) throat, carefully, and asks (subject) to repeat the order (subject.he/she) was given...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9028"
+  },
+  "c2o1": {
+   "text": "(subject) is put in charge of shade for the seedlings, a job nobody even knew the village needed. (subject.He/She) does it well, at a steady pace, building smaller canopies over the young plants each season. The farmers are delighted. (subject) is the proudest apprentice on the island.",
+   "src": "L9037"
+  },
+  "c2o2": {
+   "text": "The first proper shade frame (subject) builds blows over in the next breeze, flattening a row of beans. The team agrees to try again tomorrow, with better poles. (subject) apologizes to the beans.",
+   "src": "L9039"
+  },
+  "c2": {
+   "text": "The farmers come to look, and notice something interesting: the taro under the canopy hasn't wilted in the midday heat, the way it usually does...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9035"
+  },
+  "c3o1": {
+   "text": "Finally (master) says, \"It's good. But it'll come down in the first storm.\" (subject.He/She) teaches (subject) how to anchor a canopy so it can stand up to the wind: guy ropes, deep-set poles, angled bracing. They rebuild it together, smaller, over the seedlings. It survives three storms. (subject) learns more about building in those few days than in a whole year.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9044"
+  },
+  "c3o2": {
+   "text": "(master) starts laughing, and can't stop. When (subject.he/she) finally does, (subject.he/she) admits that, as an apprentice, (subject.he/she) once built a door on the wrong side of a hut. Facing the cliff. Nobody noticed for a year, because the family just climbed in through the window. (subject) feels much better.",
+   "src": "L9046"
+  },
+  "c3": {
+   "text": "(master) is fetched. (subject.He/She) walks all the way around the canopy, slowly, in silence, looking up at it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9042"
+  }
+ }
+}

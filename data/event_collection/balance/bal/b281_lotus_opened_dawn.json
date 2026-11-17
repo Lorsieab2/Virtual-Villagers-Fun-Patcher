@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lotus That Opened at Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b281_lotus_opened_dawn",
+  "source": "balance",
+  "lines": [
+   13077,
+   13119
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13077",
+  "ledger": [
+   {
+    "src": "L13078",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13079",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13087",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13096",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13084",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13085",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13088",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13097",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13090",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13093",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13099",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13102",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13105-13119",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders tell the old story of the Lotus Mother, a spirit who sends a child to any village that has been kind to her pond.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the pond behind the gardens, a single giant lotus bud has been growing all month, bigger every day, until it is the size of a sleeping pig. The elders tell the old story of the Lotus Mother, a spirit who sends a child to any village that has been kind to her pond. This year the children have been clearing the weeds out of it every week.\nAt dawn the bud opens with a sound like a sigh. (subject) is the first one there. Lying in the middle of the flower, on a bed of yellow petals, is a baby, yawning.\n(friend) comes running up behind (subject.him/her). They both reach for the baby at the same moment. Who should take it home?",
+   "choices": [
+    {
+     "label": "(subject) Takes the Baby",
+     "next": "c1",
+     "src": "L13084"
+    },
+    {
+     "label": "Let (friend) Take the Baby",
+     "next": "c2",
+     "src": "L13085"
+    }
+   ],
+   "src": "L13080-13082"
+  },
+  "c1o1": {
+   "text": "(subject) carries the baby home dripping, with yellow petals still stuck to its head. The healers check it over and declare it the healthiest baby they have ever seen. (subject) raises it, and every spring, on the morning the lotus blooms, the child insists on going down to the pond to say thank you.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13091"
+  },
+  "c1o2": {
+   "text": "(subject)'s partner, (partner), is waiting at the edge of the pond and gives a little cry when (subject.he/she) sees what (subject) is carrying. They take the baby home together and spend the first night just looking at it. (friend) brings them a basket of yellow petals in the morning, a little wistfully, to line the sleeping basket.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "partner",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13094"
+  },
+  "c1": {
+   "text": "(subject) wades into the pond, lifts the baby out of the flower, and holds it close. It smells of pollen. The lotus closes slowly behind (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13088"
+  },
+  "c2o1": {
+   "text": "(friend) raises the lotus child, and (subject) helps more than anyone expected: fetching water, rocking the baby, walking up and down with it at night so that (friend) can sleep. (subject) has never had any patience for babies, their crying or their mess. This one, somehow, is different. \"It was my turn to be kind,\" (subject) says, when people ask. The Lotus Mother, the elders say, would approve.",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "friend",
+     "any_birth_sex": true
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L13100"
+  },
+  "c2o2": {
+   "text": "As (friend) lifts the baby, it begins to cry, and the lotus begins to close. (friend) panics and lays it back on the petals, and the flower closes over it gently and sinks below the water. The next morning there is only an ordinary lotus there. The elders say the Lotus Mother will try again, in some other year, when somebody is sure.",
+   "src": "L13103"
+  },
+  "c2": {
+   "text": "(subject) steps back. \"You go,\" (subject.he/she) says. (friend) wades in and lifts the baby out, very carefully, like carrying a full bowl of water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13097"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "children",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

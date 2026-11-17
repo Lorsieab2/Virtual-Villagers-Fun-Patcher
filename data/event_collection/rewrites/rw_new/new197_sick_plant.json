@@ -1,0 +1,322 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sick Plant Puzzle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new197_sick_plant",
+  "source": "rewrites",
+  "lines": [
+   9615,
+   9671
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9615",
+  "ledger": [
+   {
+    "src": "L9616",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9617",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9627",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9634",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9641",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9648",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9622",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9623",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9624",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9625",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9628",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9635",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9642",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9649",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9629",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9631",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9636",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9643",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9645",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9650",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9652",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9655-9671",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In a long, healthy row of taro, every plant is tall and green and glossy.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 17
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In a long, healthy row of taro, every plant is tall and green and glossy. Except one.\nOne plant, right in the middle, has wilted. Its leaves have gone yellow and limp, drooping to the ground. The plants on either side of it are perfectly fine.\n(subject) has been visiting it every hour since dawn. Crouching beside it. Looking at it. Sometimes, when (subject.he/she) thinks nobody is watching, talking to it. As if, with enough patience, the plant might explain itself.\nIt hasn't, so far. What is wrong with this one plant?",
+   "choices": [
+    {
+     "label": "Dig Gently Around the Roots",
+     "next": "c1",
+     "src": "L9622"
+    },
+    {
+     "label": "Test Water Against Bugs",
+     "next": "c2",
+     "src": "L9623"
+    },
+    {
+     "label": "Ask Whether It Is Just Old",
+     "next": "c3",
+     "src": "L9624"
+    },
+    {
+     "label": "Teach the Root Check",
+     "next": "c4",
+     "src": "L9625"
+    }
+   ],
+   "src": "L9618-9621"
+  },
+  "c1o1": {
+   "text": "The soil around this one plant is soaking wet. It's sitting in a little hollow in the ground where water pools after rain, and its roots are drowning. (subject) checks two other weak plants elsewhere in the garden: same thing, both in hollows. It's a repeatable pattern, and the gardeners start filling in hollows before they plant.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9630"
+  },
+  "c1o2": {
+   "text": "The roots look much the same as the healthy plants' roots: white, firm, normal. (subject) can't see anything wrong. (subject.He/She) records the uncertainty honestly, packs the soil back, and apologizes to the plant.",
+   "src": "L9632"
+  },
+  "c1": {
+   "text": "(subject) kneels down and starts, very gently, to scoop the soil away from the wilted plant's roots, with (subject.his/her) bare hands...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9628"
+  },
+  "c2o1": {
+   "text": "(subject) replants one cutting in dry ground and leaves the rest of the plant where it is. Within days, the cutting in dry ground perks up, green and healthy, while the original keeps drooping. No bugs are found on either. The soggy soil explains the wilting far better than bugs do, and the gardeners learn to dig drainage channels along the wettest rows. The next harvest is the best in years.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9637"
+  },
+  "c2o2": {
+   "text": "Both explanations still fit: the cutting perks up a little, but there are some bugs, too. (subject) needs more plants to be sure. (subject.He/She) looks at the long, healthy row, and decides not to make any more of them sick to find out.",
+   "src": "L9639"
+  },
+  "c2": {
+   "text": "(subject) has two ideas: too much water, or bugs in the soil. (subject.He/She) takes a cutting and sets up a test...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9635"
+  },
+  "c3o1": {
+   "text": "(helper), who helped plant the row, says thoughtfully, \"Wasn't that one planted first? Before the others? I think it was the leftover from last season.\" Everyone had assumed all the plants in the row were the same age. It's a hidden assumption, exposed. The plant isn't sick. It's just old, and done. The gardeners start marking when each plant goes in.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9644"
+  },
+  "c3o2": {
+   "text": "The gardeners argue about how to measure \"wilted.\" Yellow? Floppy? Sad-looking? They finally agree to count drooping leaves: anything touching the ground counts as a droop. The wilted plant has seven. It's very satisfying to have a number, though it doesn't help the plant.",
+   "src": "L9646"
+  },
+  "c3": {
+   "text": "(subject) asks everyone who works in the garden what they think...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9642"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the root check without harming the plant: dig at an angle, from the side, never straight down; feel, don't pull; put everything back the way it was. (novice) learns a great deal about plants, and finds two more drowning taro by the end of the day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9651"
+  },
+  "c4o2": {
+   "text": "(novice) notices something nobody else did: the sick plant is also the one everyone steps on when they take the shortcut across the garden. There's a faint path of footprints right over it. The group revises its notes, and puts a fence around the taro row.",
+   "src": "L9653"
+  },
+  "c4": {
+   "text": "(subject) decides to show (novice) how to check a plant's roots without killing it...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9649"
+  }
+ }
+}

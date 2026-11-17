@@ -1,0 +1,4 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+vv1_elders_favorite	The Elder's Favorite Stone	1	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	An elder searches for a favorite stone, and a villager and a child help look for it.		
+vv1_unexpected	The Unexpected Question	1	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	A child asks a question nobody expected during a lesson, and the teacher decides how to answer it.		

@@ -104,7 +104,19 @@
   "a2": {
    "name": "Outcome A2",
    "text": "The elder corrects the record and teaches the scribe to listen more carefully.",
-   "src": "L20906"
+   "src": "L20906",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scribe",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20906"
+    }
+   ]
   },
   "b": {
    "type": "branch",

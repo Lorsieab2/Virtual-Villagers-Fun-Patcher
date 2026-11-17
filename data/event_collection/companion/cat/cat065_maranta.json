@@ -116,6 +116,12 @@
      "min": 5,
      "max": 10,
      "src": "L7886"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7886"
     }
    ],
    "text_only": [

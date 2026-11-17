@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Grandmother's Comb",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b155_grandmother_comb",
+  "source": "balance",
+  "lines": [
+   7145,
+   7188
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7145",
+  "ledger": [
+   {
+    "src": "L7146",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7147",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7155",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7164",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7152",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7153",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7156",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7165",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7158",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7161",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7167",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7170",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7173-7188",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has never worn it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject)'s grandmother left (subject.him/her) a comb carved from a turtle shell, with little fish swimming along its back. She wore it in her hair every day of her life, and she had the most beautiful hair in the village until she was very old, when it went as white as sea foam.\n(subject) has never worn it. It sits in a basket by (subject.his/her) bed. This morning, for the first time, (subject.he/she) picks it up and runs it through (subject.his/her) hair, and feels it pulling, gently, as if it remembers someone else's.\n(healer) says old things that were loved hold on to a little of their owners. Should (subject) keep wearing it, or put it back in the basket?",
+   "choices": [
+    {
+     "label": "Keep Wearing It",
+     "next": "c1",
+     "src": "L7152"
+    },
+    {
+     "label": "Put It Back",
+     "next": "c2",
+     "src": "L7153"
+    }
+   ],
+   "src": "L7148-7150"
+  },
+  "c1o1": {
+   "text": "By the end of the week, (subject)'s hair has started doing what (subject.his/her) grandmother's used to do. It falls the same way and curls at the same place. It won't do anything else, however hard (subject.he/she) tries. The old people stop (subject.him/her) in the path to say how much (subject.he/she) looks like her. (subject) doesn't mind at all.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L7159"
+  },
+  "c1o2": {
+   "text": "The comb remembers all of her. By the end of the week, (subject)'s hair has gone as white as sea foam, and (subject.his/her) face has the soft, crinkled look of (subject.his/her) grandmother's in her last years. (subject) looks in the water, and sees her looking back, and cries a little, and laughs. \"Well,\" (subject.he/she) says, \"I always said she was the beautiful one.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L7162"
+  },
+  "c1": {
+   "text": "(subject) wears the comb all day. Everyone who passes says it looks lovely. A few of the old people stop and stare, as if seeing someone they used to know...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7156"
+  },
+  "c2o1": {
+   "text": "In the dream, (subject.his/her) grandmother hands (subject.him/her) the comb and says, \"It's for wearing, silly. Not for baskets.\" In the morning (subject) wears it, and nothing strange happens at all. It just looks very fine. Over the next month (subject.he/she) adds shells and little carved fish to (subject.his/her) hair to go with it.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L7168"
+  },
+  "c2o2": {
+   "text": "In the dream, (subject.his/her) grandmother tells (subject.him/her) the story of the comb: who carved it, the boy who gave it to her, the storm they were caught in. In the morning (subject) goes and tells it to the elders, who remember the boy, and the storm, and tell it back to (subject.him/her) with all the parts (subject.his/her) grandmother left out.",
+   "src": "L7171"
+  },
+  "c2": {
+   "text": "(subject) takes the comb out and puts it back in the basket. It feels too much like borrowing something without asking. That night, (subject.he/she) dreams of (subject.his/her) grandmother sitting at the end of the bed, combing her own white hair...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7165"
+  }
+ }
+}

@@ -1,0 +1,307 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Letter Across the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new143_letter_across",
+  "source": "rewrites",
+  "lines": [
+   6750,
+   6805
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6750",
+  "ledger": [
+   {
+    "src": "L6751",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6752",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6768",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6775",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6782",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6756",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6757",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6758",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6759",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6762",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6769",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6776",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6783",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6763",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6765",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6770",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6772",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6777",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6784",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6786",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6789-6805",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A passing boat drops off a courier, and the courier brings a roll of bark tied with braided hair.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A passing boat drops off a courier, and the courier brings a roll of bark tied with braided hair.\nIt's a letter. For (name). From someone who sailed away from the island years ago, someone (name) had given up on ever hearing from again. (Name) holds it in shaking hands and hasn't opened it yet.\nThe courier who carried it all this way, from boat to boat, is still standing on the beach. (He/She) is salt-stiff, sunburned and very hopeful, mostly about the smell of dinner drifting down from the cooking fire. (Name) is desperate to read the letter, but the courier looks like (he/she) hasn't eaten in days. What should (name) do first?",
+   "choices": [
+    {
+     "label": "Feed the Courier",
+     "next": "c1",
+     "src": "L6756"
+    },
+    {
+     "label": "Ask How the Letter Travelled",
+     "next": "c2",
+     "src": "L6757"
+    },
+    {
+     "label": "Ask Whether They Would Settle",
+     "next": "c3",
+     "src": "L6758"
+    },
+    {
+     "label": "Trade a Reply for an Afternoon's Work",
+     "next": "c4",
+     "src": "L6759"
+    }
+   ],
+   "src": "L6753-6755"
+  },
+  "c1o1": {
+   "text": "The courier is given a hot meal and a hammock in the shade, and is snoring within minutes. (Name) sits down nearby and finally unrolls the letter. Whatever it says, (he/she) reads it three times, and then sits for a long while looking out at the sea, smiling.",
+   "src": "L6764"
+  },
+  "c1o2": {
+   "text": "After eating, the courier insists on sharing some of the dried fruit (he/she) carries for long trips. \"Payment for the best meal I've had in a moon.\" It adds a small amount of food to the stores, and the children immediately try to steal it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6766"
+  },
+  "c1": {
+   "text": "Before (he/she) can even think about opening the letter, (name) takes the courier by the arm and leads (him/her) up to the fire...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6762"
+  },
+  "c2o1": {
+   "text": "The courier explains how letters are passed from boat to boat across the water, each crew carrying it a little way and handing it on, with knots in the braided hair to show how many hands it has passed through. This one has eleven knots. It's a useful trick for sending news, and the village starts thinking about who else they might write to.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6771"
+  },
+  "c2o2": {
+   "text": "(Name) asks whether the courier knows anything about the writer's life now. The courier shakes (his/her) head firmly. \"That's for the letter to tell, not me.\" No one insists. (Name) finally unrolls it, and goes very quiet for a long time.",
+   "src": "L6773"
+  },
+  "c2": {
+   "text": "(Name) can't stop wondering how this little roll of bark crossed so much water. (He/She) asks the courier to explain...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6769"
+  },
+  "c3o1": {
+   "text": "The courier doesn't laugh. Tired of the sea, and tired of sleeping on other people's boats, (he/she) decides to join the village permanently, and moves in as a new adult villager. \"Somebody else can carry the letters for a while.\" (Name) is the first to help (him/her) find a sleeping mat.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6778"
+  },
+  "c3o2": {
+   "text": "The courier smiles, but pats the bag at (his/her) side. It's full of letters, for people all over the sea. (He/She) thanks the village and sails on to the next landing in the morning, waving from the back of the next passing boat.",
+   "src": "L6780"
+  },
+  "c3": {
+   "text": "Over dinner, the courier mentions how tired (he/she) is of the sea. (Name) asks, half joking, whether (he/she) would ever settle down somewhere...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6776"
+  },
+  "c4o1": {
+   "text": "While (name) spends hours carving the perfect reply, the courier helps with the breadfruit harvest, climbing trees with alarming speed. It adds a good share of food to the stores. By evening, the reply is finished, and tucked safely into the courier's bag.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L6785"
+  },
+  "c4o2": {
+   "text": "The courier's satchel has a long tear along the bottom, and (he/she) has been losing letters through it for weeks without noticing. The villagers stitch it up with strong fibre and send (him/her) off with (name)'s reply tucked safely inside, along with a stern warning to check (his/her) bag more often.",
+   "src": "L6787"
+  },
+  "c4": {
+   "text": "(Name) wants to send a reply. The courier agrees to carry it, and while (name) works on it, offers to help out around the village...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6783"
+  }
+ }
+}

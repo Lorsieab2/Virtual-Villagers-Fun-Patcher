@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Songbook",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new179_old_songbook",
+  "source": "rewrites",
+  "lines": [
+   8674,
+   8720
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8674",
+  "ledger": [
+   {
+    "src": "L8675",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8676",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8685",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8692",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8699",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8681",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8682",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8683",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8686",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8693",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8700",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8687",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8689",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8694",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8696",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8701",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8703",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8706-8720",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Some of the pages are stuck together.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the bottom of a storage basket, under some old nets and a very surprised spider, (subject) finds a songbook: a bundle of damp bark pages, covered in verses nobody has sung in years.\nSome of the pages are stuck together. Some are smudged beyond reading. Some have little drawings in the margins: fish, waves, a person dancing.\nAnd one page, all by itself, has just one word written on it, very large, underlined three times: \"LOUDER.\"\n(subject) has no idea what it means. But (subject.he/she) finds (subject.himself/herself) grinning at it. What should (subject) do with the songbook?",
+   "choices": [
+    {
+     "label": "Dry and Copy the Pages",
+     "next": "c1",
+     "src": "L8681"
+    },
+    {
+     "label": "Ask the Old Singers",
+     "next": "c2",
+     "src": "L8682"
+    },
+    {
+     "label": "Teach the Songs to the Children",
+     "next": "c3",
+     "src": "L8683"
+    }
+   ],
+   "src": "L8677-8680"
+  },
+  "c1o1": {
+   "text": "As the pages dry, (subject) finds a working song for hauling nets: a rhythm for pulling together, a call and a response, a verse for each heave. (subject.He/She) copies it down and teaches it to the fishers, who find they can haul twice as smoothly when they all pull on the beat. It's useful knowledge, preserved, and the beach is a lot noisier.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8688"
+  },
+  "c1o2": {
+   "text": "Two of the stuck pages tear when (subject) tries to peel them apart, and a fragile part of the songbook is lost, half a verse on each torn side, no longer fitting together. (subject) holds the pieces up to the light, trying to read them. (subject.He/She) can only make out \"...and the moon...\" and \"...never again.\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8690"
+  },
+  "c1": {
+   "text": "(subject) lays the pages out carefully in the sun, one by one, and as they dry, starts copying...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8686"
+  },
+  "c2o1": {
+   "text": "(elder) suddenly starts humming, then singing, in a cracked, sweet voice. (subject.He/She) remembers this one! It was sung to keep rowing time on long canoe trips, so every paddle hit the water together. It's a forgotten detail that makes the song useful again, and the canoe crews start singing it. And \"LOUDER,\" (elder) explains, is what the song leader used to shout when the rowers got tired.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8695"
+  },
+  "c2o2": {
+   "text": "The old singers disagree about every single tune. Faster. Slower. Higher. \"No, it goes like THIS.\" Nobody pretends to be sure. They end up singing four different versions at once, very badly, and having the time of their lives.",
+   "src": "L8697"
+  },
+  "c2": {
+   "text": "(subject) takes the songbook to (elder) and the other old singers, who crowd around it, squinting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8693"
+  },
+  "c3o1": {
+   "text": "The village writes the songs out fresh, on good new bark, and (subject) teaches them to the children, who learn them faster than anyone expected. Soon the old songs are being sung all over the village again, and the songbook becomes a careful record for future generations. The children's favourite part is shouting \"LOUDER!\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8702"
+  },
+  "c3o2": {
+   "text": "As (subject) goes through the songs, (subject.he/she) finds some very sad ones: songs about lost canoes, and lost children, and people who never came home. (subject.He/She) decides those should stay private, sung only by those who need them. (subject.He/She) teaches the children the happy ones, and keeps the sad ones for (subject.himself/herself).",
+   "src": "L8704"
+  },
+  "c3": {
+   "text": "(subject) decides songs that sit in a basket aren't songs at all. They need to be sung...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8700"
+  }
+ }
+}

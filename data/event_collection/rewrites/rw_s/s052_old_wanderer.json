@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Wanderer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s052_old_wanderer",
+  "source": "rewrites",
+  "lines": [
+   2465,
+   2508
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2465",
+  "ledger": [
+   {
+    "src": "L2466",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2467",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2475",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2484",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2472",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2473",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2476",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2485",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2478",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2481",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2487",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2490",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2493-2508",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L2488",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "For a few years. Should the village give the old traveller a hut, or a good meal and a fond farewell?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "One afternoon an old traveller comes walking slowly up the path into the village, leaning on a long stick worn smooth by years of hands. (He/She) has a bag over one shoulder that smells of every forest on the island, sandals tied together with vine, and a long white beard so full of twigs and leaves that a small bird could live in it, and possibly does.\n(He/She) stops in the middle of the village, looks around at the huts and the fire and the children, and sighs a long, contented sigh.\n\"I've walked every path on this island,\" (he/she) says, to nobody in particular. \"Every single one. This is the last.\" (He/She) lowers (himself/herself), very carefully, onto a log. \"I'd like to sit down now. For a few years.\" Should the village give the old traveller a hut, or a good meal and a fond farewell?",
+   "choices": [
+    {
+     "label": "Give (Him/Her) a Hut",
+     "next": "c1",
+     "src": "L2472"
+    },
+    {
+     "label": "Give (Him/Her) a Meal and Send (Him/Her) On",
+     "next": "c2",
+     "src": "L2473"
+    }
+   ],
+   "src": "L2468-2470"
+  },
+  "c1o1": {
+   "text": "The wanderer settles in as if (he/she) has always been there. And every night, at the fire, (he/she) tells stories: about the waterfall that runs uphill on the far side of the island, about the village where everyone speaks in whispers, about the lizard (he/she) once shared a cave with for a whole rainy season. Some of the stories might even be true. The children adore (him/her). They sit at (his/her) feet every evening with their mouths open, and pick twigs out of (his/her) beard when (he/she) dozes off.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L2479"
+  },
+  "c1o2": {
+   "text": "The wanderer settles in, and on the very first morning goes for a slow walk round the gardens with (his/her) stick, stopping to look at every plant. Then (he/she) starts talking. \"This one wants more shade. That one is planted too deep. This weed, here, the one you keep pulling up, is good to eat if you boil it twice.\" It turns out the old traveller knows a great deal about plants, more than anyone on the island, gathered on every path (he/she) ever walked. The farmers follow (him/her) around with their mouths open, and the researchers write it all down. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2482"
+  },
+  "c1": {
+   "text": "The elders look at each other, and then at the old traveller, and nod. There's an empty hut at the edge of the village, with a good view of the sea. The children carry (his/her) bag. The builders patch the roof. Someone brings a mat...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2476"
+  },
+  "c2o1": {
+   "text": "The wanderer eats every bit of the stew, slowly, with great enjoyment, and mops the bowl with bread. Then (he/she) ties on the new sandals, thanks everyone warmly, gets up with a great creaking of knees, and picks up the stick. \"I thought this was the last one,\" (he/she) says, smiling. \"But there's always one more path.\" And (he/she) walks off down the far side of the village, humming, and is never seen again.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2488"
+  },
+  "c2o2": {
+   "text": "The wanderer eats, thanks everyone, and then says (he/she) will just sit by the fire \"for a minute\" before setting off. In the morning (he/she) is still there, asleep by the ashes with (his/her) bag for a pillow. And the morning after that. On the third morning, someone quietly builds a little roof over (his/her) spot. On the fourth, someone brings (him/her) a mat. Nobody ever actually says \"you can stay.\" (He/She) just never leaves.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L2491"
+  },
+  "c2": {
+   "text": "The village is kind, but cautious. They bring the old traveller a big bowl of stew, a cup of water and a fresh pair of sandals, and sit with (him/her) while (he/she) eats, and wait to see what (he/she) does next...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2485"
+  }
+ }
+}

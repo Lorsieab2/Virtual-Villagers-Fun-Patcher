@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moth of Many Summers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b197_moth_many_summers",
+  "source": "balance",
+  "lines": [
+   9143,
+   9186
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9143",
+  "ledger": [
+   {
+    "src": "L9144",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9145",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9153",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9162",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9150",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9151",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9154",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9163",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9156",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9159",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9165",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9168",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9171-9186",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It just sits there, opening and closing its wings, slowly, as if breathing.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 50
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A moth has landed on (subject)'s hand while (subject.he/she) sits by the fire: a big, soft moth with wings the colour of a summer sunset, orange and gold and pink. It doesn't fly away. It just sits there, opening and closing its wings, slowly, as if breathing.\nThe elders say these moths come out of the old forest once in a long while, and that they carry summers on their wings, \"the summers people have used up.\" If one lands on someone and stays, it is offering some back. (subject)'s knees are aching, and (subject.his/her) back, and it's been a hard year.\nShould (subject) let the moth stay, or gently shake it off?",
+   "choices": [
+    {
+     "label": "Let It Stay",
+     "next": "c1",
+     "src": "L9150"
+    },
+    {
+     "label": "Shake It Off Gently",
+     "next": "c2",
+     "src": "L9151"
+    }
+   ],
+   "src": "L9146-9148"
+  },
+  "c1o1": {
+   "text": "By morning the moth is gone. (subject)'s knees don't ache. Neither does (subject.his/her) back. (subject.His/her) hair has darkened at the roots and (subject.his/her) face looks the way it did fifteen summers ago. (subject.He/She) walks to the beach without stopping and swims for the first time in years. \"Fifteen summers,\" the elders say, a little enviously. \"That was a generous moth.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -15,
+      -15
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9157"
+  },
+  "c1o2": {
+   "text": "The moth stays all night on (subject)'s shoulder, and leaves at dawn. (subject)'s knees still ache. But (subject.his/her) face, when (subject.he/she) looks in the water jar, is the face of someone who has just had a long, happy summer: younger, brighter, the lines smoothed away. \"The moth gave what it could,\" says (elder). \"Summers are hard to come by.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9160"
+  },
+  "c1": {
+   "text": "(subject) holds (subject.his/her) hand very still. The moth walks up (subject.his/her) wrist, and (subject.his/her) arm, and settles on (subject.his/her) shoulder, close to (subject.his/her) ear, and the soft wings brush (subject.his/her) cheek, warm as sunshine...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9154"
+  },
+  "c2o1": {
+   "text": "The moth lands on a child's shoulder, and the child shrieks with delight, and all the children chase it round the fire until it flies off into the dark. (subject) laughs harder than (subject.he/she) has all year. It turns out that was all (subject.he/she) needed. The aches are still there. (subject.He/She) just minds them, and a few other things, a lot less.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L9166"
+  },
+  "c2o2": {
+   "text": "The moth flies out over the fire, round the huts, and back, and lands on (subject)'s hand again, as if to say: really? (subject) laughs, and this time lets it sit. It stays for a while, opening and closing its wings, then flies away into the dark. Nothing changes, except that (subject) sleeps better that night than in a long time.",
+   "src": "L9169"
+  },
+  "c2": {
+   "text": "(subject) doesn't want anyone's used-up summers. (subject.He/She) gives (subject.his/her) hand a little shake. The moth lifts off and flutters round (subject.his/her) head once, then flies away towards the children playing by the fire...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9163"
+  }
+ }
+}

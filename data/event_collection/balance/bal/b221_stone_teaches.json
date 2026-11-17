@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Teaches",
+ "games": [
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b221_stone_teaches",
+  "source": "balance",
+  "lines": [
+   10275,
+   10318
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10275",
+  "ledger": [
+   {
+    "src": "L10276",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10277",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10285",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10294",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10282",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10283",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10286",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10295",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10288",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10291",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10297",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10303-10318",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the research hut there is a smooth black stone that the researchers call the Teacher.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the research hut there is a smooth black stone that the researchers call the Teacher. Whoever sleeps with a hand on it, they say, wakes up knowing something they didn't. It is never the thing they wanted to know. One researcher woke up knowing how many teeth a shark has. Another woke up knowing the {@chief}'s grandmother's favourite colour.\n(subject) loves learning more than anyone, and has been begging (researcher) for a year to let (subject.him/her) try. Tonight (researcher) has said yes, \"once, and don't complain about what you get.\" The stone is cold under (subject)'s palm.\nShould (subject) ask the stone for something in particular, or just go to sleep and see?",
+   "choices": [
+    {
+     "label": "Ask for Something",
+     "next": "c1",
+     "src": "L10282"
+    },
+    {
+     "label": "Just Go to Sleep",
+     "next": "c2",
+     "src": "L10283"
+    }
+   ],
+   "src": "L10278-10280"
+  },
+  "c1o1": {
+   "text": "For once, the Teacher gives what was asked. (subject) wakes up knowing a dozen small tricks for (subject.his/her) own work that nobody in the village has thought of, and is better at it by the end of the day than (subject.he/she) has ever been. (researcher) is astonished. \"It never does that,\" (subject.he/she) says. \"It must like you.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10289"
+  },
+  "c1o2": {
+   "text": "The Teacher gives (subject) what (subject.he/she) asked for, and takes something back for it. (subject) wakes up much better at (subject.his/her) work, and with no wish to learn anything else at all. The scrolls in the hut look dull now. (researcher) is very sorry. \"Don't complain about what you get,\" (subject) says, a little sadly, and goes back to work.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    }
+   ],
+   "src": "L10292"
+  },
+  "c1": {
+   "text": "(subject) whispers to the stone: \"Teach me to be better at my work.\" Then (subject.he/she) lies down beside it, with (subject.his/her) hand on it, and closes (subject.his/her) eyes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10286"
+  },
+  "c2o1": {
+   "text": "(subject) wakes up knowing exactly how many ripples a stone makes if it is thrown into the lagoon at noon on a still day. It is not useful. It is, however, correct, as (subject) proves to the whole village that afternoon. (researcher) writes it down anyway. \"Everything is worth knowing,\" (subject.he/she) says.",
+   "src": "L10298"
+  },
+  "c2o2": {
+   "text": "(subject) wakes up knowing one thing: that (subject.he/she) doesn't need to know everything. It's a strange thing to learn from a stone. But (subject.he/she) walks out of the research hut lighter than (subject.he/she) has ever felt, and stops begging to read every scroll, and starts enjoying the things (subject.he/she) used to rush past.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10301"
+  },
+  "c2": {
+   "text": "(subject) doesn't ask. (subject.He/She) just lies down with (subject.his/her) hand on the cold stone, and lets (subject.himself/herself) drift off, curious and a little scared...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10295"
+  }
+ }
+}

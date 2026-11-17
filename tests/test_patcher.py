@@ -1192,10 +1192,10 @@ class ManifestTests(unittest.TestCase):
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
         # vtable slots at run time; 38 with Children's Graves Say Apprentice
-        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-10x Tech Cost
+        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-100x Tech Cost
         # (vv2_tech_cost_multiplier), its 35 price immediates only; 40 with Checked Skill Preferences are listed
         # as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in place; 41 with Hungrier
-        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
+        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-100x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
         # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
         # byte -- its companion moves the pickup jobs' award steps at run time; 44 with Scrolling Popups
@@ -1208,8 +1208,12 @@ class ManifestTests(unittest.TestCase):
         # writes the adult dispatcher's Confused call at run time; 49 with Children Play Tag and Build Sandcastles
         # (vv2_children_play), no executable byte -- its companion writes its sites at run time; 50 with Change Sex
         # and Gender Presentation (vv2_gender_presentation), no executable byte -- its companion writes its draw and
-        # conception sites at run time.
-        self.assertEqual(len(feature_ids), 50)
+        # conception sites at run time; 51-80 the island events' content controls -- Content Notes for Island
+        # Events, the 28 content filters (vv2_island_event_filter_f01 .. f28) and No Safeguards for Island Events
+        # (vv2_island_events_any_time) -- no executable byte: names in the installed patches' list the Story / Cheat
+        # Upgrades companion reads; 81 with More Frequent Island Events (vv2_more_frequent_island_events), no
+        # executable byte -- its companion writes the trigger's three wait draws at run time.
+        self.assertEqual(len(feature_ids), 81)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -3125,14 +3129,15 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x604AD:0x604B6]),
             bytes.fromhex("E9EE37010090909090"),
         )
-        # A villager checked on Healing (+0x7F8 = 3) studies as before; any
-        # other only when rand(100) < 14 (the owner, 2026-10-20), else the
-        # stock no-patient exit (al = 0) in the second cave.
+        # One rand(100): a villager checked on Healing (+0x7F8 = 3) studies
+        # when it is below 75 (the owner, 2026-11-15: healers still do other
+        # things), any other only below 14 (2026-10-20); else the stock
+        # no-patient exit (al = 0) in the second cave.
         self.assertEqual(
-            bytes(rendered[0x73CA0:0x73CCE]),
+            bytes(rendered[0x73CA0:0x73CD0]),
             bytes.fromhex(
-                "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E7335"
-                "6A098F87E00700005589F1E8C4C8FEFFEB26"
+                "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E"
+                "7D336A098F87E00700005589F1E8C2C8FEFFEB24"
             ),
         )
         self.assertEqual(bytes(rendered[0x73CF1:0x73CFB]), bytes.fromhex("5930C05F5D5B5EC20800"))
@@ -3257,9 +3262,9 @@ class StockIntegrationTests(unittest.TestCase):
             + 2
             + feature_patch_count,
         )
-        self.assertEqual(bytes(rendered[0x73CA0:0x73CCE]), bytes.fromhex(
-            "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E7335"
-            "6A098F87E00700005589F1E8C4C8FEFFEB26"
+        self.assertEqual(bytes(rendered[0x73CA0:0x73CD0]), bytes.fromhex(
+            "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E"
+            "7D336A098F87E00700005589F1E8C2C8FEFFEB24"
         ))
         self.assertEqual(bytes(rendered[0x73CF1:0x73CFB]), bytes.fromhex("5930C05F5D5B5EC20800"))
         self.assertEqual(bytes(rendered[0x73CD0:0x73CF1]), bytes.fromhex(
@@ -4171,7 +4176,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_copy_paste",
             # Skip All on the Intro Story: companion only, no executable bytes.
             "vv2_skip_all_intro",
-            # 2-10x Tech Cost: the Tech screen's price immediates, x 3.
+            # 2-100x Tech Cost: the Tech screen's price immediates, x 3.
             "vv2_tech_cost_multiplier",
             "vv2_hungrier_villagers",
             "vv2_sickness_multiplier",
@@ -4192,7 +4197,13 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_adult_confused",
             # Children Play Tag and Build Sandcastles: companion only, no executable bytes.
             "vv2_children_play",
-            },
+            # The island events' content controls: names in the installed patches' list, no executable bytes.
+            "vv2_island_event_content_notes",
+            "vv2_island_events_any_time",
+            # More Frequent Island Events: companion only, no executable bytes.
+            "vv2_more_frequent_island_events",
+            }
+            | {f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)},
         )
         for mode in ALL_MODES:
             with self.subTest(mode=mode):

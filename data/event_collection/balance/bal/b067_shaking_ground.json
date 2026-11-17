@@ -1,0 +1,248 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shaking Ground",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b067_shaking_ground",
+  "source": "balance",
+  "lines": [
+   3023,
+   3065
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3023",
+  "ledger": [
+   {
+    "src": "L3024",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3025",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3033",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3042",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3030",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3031",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3034",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3043",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3036",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3039",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3045",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3048",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3051-3065",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the middle of the afternoon the ground shakes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the middle of the afternoon the ground shakes. It lasts as long as a long breath, and then it stops, and the village is full of dust and screaming chickens. Roofs have slid, walls have cracked, and a whole row of drying racks has gone over.\n(subject) is standing by the cooking area when it stops. Inside the half-collapsed hut next to (subject.him/her), someone is calling for help. The elders say a big shake is often followed by a second one.\nShould (subject) go in after the voice now, or wait for (builder) and the others to prop the roof first?",
+   "choices": [
+    {
+     "label": "Go In Now",
+     "next": "c1",
+     "src": "L3030"
+    },
+    {
+     "label": "Wait for the Builders",
+     "next": "c2",
+     "src": "L3031"
+    }
+   ],
+   "src": "L3026-3028",
+   "text_only": [
+    {
+     "src": "L3027",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The shelf comes up, and an elder crawls out from under it, coughing and furious and unhurt. (subject) half carries (subject.him/her) outside just as the roof slides the rest of the way down. There's no second shake. Over the next week, (builder) and the builders put every hut back together, stronger at the joints. The elder brings (subject) a bowl of stew every day for a month.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L3037"
+  },
+  "c1o2": {
+   "text": "The elder gets out. (subject) doesn't. The second shake comes just as (subject.he/she) pushes the elder through the doorway, and the roof comes down. The village digs (subject.him/her) out, but too late. They bury (subject) on the hill above the village, and the elder sits by the grave every evening, and tells anyone who'll listen exactly what (subject) did.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L3040"
+  },
+  "c1": {
+   "text": "(subject) ducks under the sagging doorway into the dusty dark. The voice is coming from under a fallen shelf. (subject) heaves at it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3034"
+  },
+  "c2o1": {
+   "text": "They wedge posts under the roof, and then (subject) goes in, and the elder comes out, coughing and cross and alive. The second shake comes an hour later, small, and the props hold. The builders spend the next week putting the village back together, joint by joint.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L3046"
+  },
+  "c2o2": {
+   "text": "They're wedging the last post when the second shake comes. The elder is pulled out safe, but a beam swings down and catches (subject) across the back. (subject.He/She) heals slowly, and never lifts anything heavy again, and can't bear the creak of a roof beam overhead. (subject.He/She) spends a lot of time sitting outside in the sun after that, and nobody minds.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L3049"
+  },
+  "c2": {
+   "text": "(subject) shouts through the wall, \"Hold on! We're coming!\" and runs for (builder), who comes at once with three builders and an armful of posts...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3043"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

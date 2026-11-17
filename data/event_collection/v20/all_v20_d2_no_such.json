@@ -72,6 +72,12 @@
      "min": 10,
      "max": 30,
      "src": "L8974"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8974"
     }
    ]
   },

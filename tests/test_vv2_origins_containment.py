@@ -31,6 +31,10 @@ PUBLIC = {
 }
 REMAINING = {
     "vv2_last_names",
+    # the island events' content controls: names in the installed patches' list, no executable byte
+    "vv2_island_event_content_notes",
+    "vv2_island_events_any_time",
+    *(f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)),
     # companion only: detours at run time, owns no executable bytes
     "vv2_totems_out_of_entries",
     # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes
@@ -42,11 +46,11 @@ REMAINING = {
     "vv2_copy_paste",
     # companion only: replaces the story pages' vtable slots at run time, owns no bytes
     "vv2_skip_all_intro",
-    # 2-10x Tech Cost: its price immediates only, nothing of Origins.
+    # 2-100x Tech Cost: its price immediates only, nothing of Origins.
     "vv2_tech_cost_multiplier",
     # Hungrier Villagers: the meal's two immediates only, nothing of Origins.
     "vv2_hungrier_villagers",
-    # 2-10x Sickness: no render byte (written at publish), nothing of Origins.
+    # 2-100x Sickness: no render byte (written at publish), nothing of Origins.
     "vv2_sickness_multiplier",
     "vv2_island_events",
     "vv2_storytelling",
@@ -66,6 +70,8 @@ REMAINING = {
     "vv2_adult_confused",
     # companion only (the children's pastime pick, at run time); owns no Origins bytes
     "vv2_children_play",
+    # companion only (the island event trigger's wait draws, at run time); owns no Origins bytes
+    "vv2_more_frequent_island_events",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",

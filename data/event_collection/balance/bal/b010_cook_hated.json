@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cook Who Hated Cooking",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b010_cook_hated",
+  "source": "balance",
+  "lines": [
+   435,
+   477
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L435",
+  "ledger": [
+   {
+    "src": "L436",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L437",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L445",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L454",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L442",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L443",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L446",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L455",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L448",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L457",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L460",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L463-477",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has always loved cooking.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has always loved cooking. Lately, though, (cook), the head cook, has been making (subject.him/her) do nothing but scrape pots, peel roots and carry water, every day, for weeks. (subject) hasn't touched a spice in a month.\nToday (cook) hands (subject.him/her) yet another basket of taro and says, \"Peel. Thin. Not like last time.\" Something in (subject) snaps. (subject.He/She) puts the basket down very slowly.\nShould (subject) tell (cook) exactly what (subject.he/she) thinks, or swallow it and keep peeling?",
+   "choices": [
+    {
+     "label": "Speak Up",
+     "next": "c1",
+     "src": "L442"
+    },
+    {
+     "label": "Keep Peeling",
+     "next": "c2",
+     "src": "L443"
+    }
+   ],
+   "src": "L438-440"
+  },
+  "c1o1": {
+   "text": "(cook) doesn't shout back. (cook.He/She) just says, \"Then cook somewhere else,\" and turns back to the pot. (subject) walks out, and keeps walking. Without meaning to, (subject.he/she) stops cooking at home too. The smell of the fire that (subject.he/she) used to love just reminds (subject.him/her) of that day. (subject.He/She) takes up net-mending instead, and is good at it, and sometimes, passing the cooking fires, (subject.he/she) feels the old pull and keeps walking.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L449"
+  },
+  "c1o2": {
+   "text": "(cook) puts down (cook.his/her) spoon and grins for the first time anyone can remember. \"Finally,\" (cook.he/she) says. \"I've been waiting a month for you to say that. A cook who won't stand up for the food isn't a cook.\" (cook.He/She) gives (subject) the fish stew that night, all of it, to make alone. It is the best stew of the year. After that, (subject) gets better at everything, fast, as if (subject.he/she) had just been waiting for someone to let (subject.him/her).",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L452",
+   "text_only": [
+    {
+     "src": "L452",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "\"I came here to cook,\" (subject) says, a lot louder than (subject.he/she) meant to. The whole cooking area goes quiet. Someone drops a ladle. (cook) looks up from the fire...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L446"
+  },
+  "c2o1": {
+   "text": "(cook) watches (subject) all afternoon. At the end of the day (cook.he/she) holds up one peel to the light, so thin the light shows through it, and nods. \"Tomorrow you cook.\" The weeks of peeling have done something odd to (subject): after a month of taro still caked in garden soil, (subject.he/she) no longer minds the gritty feel of soil, which (subject.he/she) always hated.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "turnips",
+     "role": "subject"
+    }
+   ],
+   "src": "L458"
+  },
+  "c2o2": {
+   "text": "(subject) peels. The next day (subject.he/she) peels again. (cook) never says a word, good or bad. A month later, (subject) finally asks, and (cook) looks genuinely surprised. \"Oh,\" (cook.he/she) says. \"I forgot you liked cooking. You're so good at peeling.\" (subject) is stunned that (subject.he/she) spent a month being too good at the wrong job.",
+   "src": "L461"
+  },
+  "c2": {
+   "text": "(subject) picks the basket back up and peels. Thin. Then thinner. (subject.He/She) peels until (subject.his/her) fingers ache and the taro is as fine as paper...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L455"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "cooking",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

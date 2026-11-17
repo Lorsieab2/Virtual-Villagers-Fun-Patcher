@@ -151,7 +151,15 @@
   "c1": {
    "name": "Outcome C1",
    "text": "The octopus escapes unharmed while fishers still catch their supper.",
-   "src": "L21331"
+   "src": "L21331",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21331"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",

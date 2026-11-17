@@ -243,9 +243,40 @@ class VillageCounts(unittest.TestCase):
                 page.save(fixture(name))
                 off = gm.render([f for f in page.facts([]) if f.group != gm.SOURCES]).lower()
                 self.assertNotIn("golden mushroom", off)
-                on = texts(page.facts([f"vv{game}_super_secret_golden_mushroom"]))
-                self.assertIn("Golden Mushrooms found: not kept.", on)
+                row = [f"vv{game}_super_secret_golden_mushroom"]
+                on = texts(page.facts(row))
+                self.assertIn("Golden Mushrooms found: none recorded yet (counting started with this version).", on)
                 self.assertIn("a Golden Mushroom counting as one", on)
+                # The patcher's record (native/vvfp_golden_mushroom): one line per find, outside the save, in
+                # the save's own folder (or the older layout's).  Only the count and the dates are shown.
+                name = f"Golden Mushrooms - Save {page.slot}.txt"
+                new = page.folder / "Virtual Villagers Fun Patcher" / f"Save {page.slot}" / "Data" / "Golden Mushrooms"
+                new.mkdir(parents=True)
+                (new / name).write_bytes(b"2026-11-15 10:01:02\r\n")
+                self.assertIn("Golden Mushrooms found: 1 (on 2026-11-15).", texts(page.facts(row)))
+                (new / name).write_bytes(b"2026-11-15 10:01:02\r\nnot a find\r\n2026-12-01 23:59:59\r\n"
+                                         b"2027-01-02 00:00:00\r\n")
+                self.assertIn("Golden Mushrooms found: 3 (first 2026-11-15, latest 2027-01-02).",
+                              texts(page.facts(row)))
+                old = page.folder / "Virtual Villagers Fun Patcher Data" / "Golden Mushrooms"
+                old.mkdir(parents=True)
+                (old / name).write_bytes(b"2026-10-01 08:00:00\r\n")
+                self.assertIn("Golden Mushrooms found: 3 (", texts(page.facts(row)), "the longer record")
+                # The row off: nothing about it at all.
+                self.assertNotIn("golden mushroom", gm.render([f for f in page.facts([])
+                                                               if f.group != gm.SOURCES]).lower())
+
+    def test_golden_record_reader(self) -> None:
+        root = Path(tempfile.mkdtemp(prefix="gr"))
+        self.addCleanup(shutil.rmtree, root, True)
+        self.assertIsNone(counts.golden_record(root, 2), "no file: none recorded")
+        place = root / "Virtual Villagers Fun Patcher" / "Save 2" / "Data" / "Golden Mushrooms"
+        place.mkdir(parents=True)
+        (place / "Golden Mushrooms - Save 2.txt").write_bytes(b"")
+        self.assertEqual(counts.golden_record(root, 2), [])
+        (place / "Golden Mushrooms - Save 2.txt").write_bytes(b"2026-11-15 10:01:02\r\n2026-11-16 11:00:00")
+        self.assertEqual(counts.golden_record(root, 2), ["2026-11-15", "2026-11-16"])
+        self.assertIsNone(counts.golden_record(root, 3), "another slot's file is not this one's")
 
     def test_duplication_cheat_normal_value_first(self) -> None:
         page = Page(self, 4)

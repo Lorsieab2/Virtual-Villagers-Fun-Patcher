@@ -1,0 +1,477 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_day",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "day01_everything": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day02_grumpy_reason": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day03_three_good": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "day04_perfect_drying": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day05_sunburnt_nose": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "child",
+    "grownup",
+    "subject"
+   ]
+  },
+  "day06_everywhere_goes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "day07_hut_self": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day08_song": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "day09_goat_ate_lunch": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F20"
+    ]
+   }
+  },
+  "day10_just_time": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day11_brilliant_idea": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "day12_everyone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day13_nap_ate": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "day14_sand_everything": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day15_best_stick": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "day16_wall_fell_down": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day17_hello_hello": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day18_tired_perfect": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day19_everything": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day20_bird_door": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day21_catch_gull": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day22_wet_sandals": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "day23_puddle_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "day24_good_knees_today": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day25_harder_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day26_overslept": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F20"
+    ]
+   }
+  },
+  "day27_too_hot": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day28_cool_breeze": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day29_first_ripe_melon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day30_lost_knife_found": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day31_praised_wrong": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day32_wrong_name_three": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "day33_fire_wouldnt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day34_feeling_splendid": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day35_jar_wont_open": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "day36_watching_rain": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day37_small_kindnesses": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day38_kind_reason": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day39_mosquito_night": {
+   "filters": [
+    "F25",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F25",
+     "F26"
+    ]
+   }
+  },
+  "day40_restless": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "day41_leave_me_please": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day42_smell_fish_racks": {
+   "filters": [
+    "F20",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F25"
+    ],
+    "setup": [
+     "F20",
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day43_cloud_shapes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "day44_misunderstanding": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "day45_bad_person": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "subject",
+    "friend"
+   ]
+  },
+  "day46_bored_cross": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day47_best_mango_year": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day48_perfect_skipping": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "day49_sun_comes_out": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "day50_how_your_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  }
+ }
+}

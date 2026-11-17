@@ -1,0 +1,291 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger's Unfinished Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my032_stranger",
+  "source": "rewrites",
+  "lines": [
+   11703,
+   11758
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11703",
+  "ledger": [
+   {
+    "src": "L11704",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11705",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11714",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11721",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11728",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11735",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11709",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11710",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11711",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11712",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11715",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11722",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11729",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11736",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11716",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11718",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11723",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11725",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11730",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11732",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11737",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11739",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11742-11758",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A mysterious visitor sits by the dying fire one night, telling a story in a low voice.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A mysterious visitor sits by the dying fire one night, telling a story in a low voice. The children who were supposed to be asleep have crept closer and closer until they're practically sitting in the visitor's lap.\nIt's a story about a hero who climbs a mountain, crosses a sea and outwits a giant eel, all to find a forbidden box. And just as the hero puts (his/her) hands on the lid... the visitor stops. \"And then,\" the visitor says, turning to (name), \"you tell me. What does the hero do?\" Every child turns to look at (name), wide-eyed. What should (name) say?",
+   "choices": [
+    {
+     "label": "Open the Box in the Story",
+     "next": "c1",
+     "src": "L11709"
+    },
+    {
+     "label": "Leave the Box Closed",
+     "next": "c2",
+     "src": "L11710"
+    },
+    {
+     "label": "Give the Box Away",
+     "next": "c3",
+     "src": "L11711"
+    },
+    {
+     "label": "Ask the Hero to Seek Help",
+     "next": "c4",
+     "src": "L11712"
+    }
+   ],
+   "src": "L11706-11707"
+  },
+  "c1o1": {
+   "text": "\"And inside,\" the visitor says softly, \"the hero found every answer to every question (he/she) ever had. And (he/she) wept, because some of them were answers (he/she) didn't want.\" The children are silent. \"Curiosity,\" the visitor says, \"sometimes brings knowledge and sorrow both.\" Then the visitor wishes everyone good night, and the children go to bed very thoughtful indeed.",
+   "src": "L11717"
+  },
+  "c1o2": {
+   "text": "The visitor laughs, reaches into a bag, and puts something in (name)'s hand: a small box, no bigger than a fist, bound in black cord. There's no keyhole anywhere on it. No lid that (name) can find. \"Then you'll want this,\" the visitor says, and walks out of the firelight. In the morning, the visitor is gone. The box sits on (name)'s shelf, unopened. (Name) hasn't decided yet.",
+   "src": "L11719"
+  },
+  "c1": {
+   "text": "\"The hero opens it, of course!\" (name) says. \"After all that? Who wouldn't?\" The children cheer. The visitor's eyes glitter in the firelight...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11715"
+  },
+  "c2o1": {
+   "text": "The visitor smiles. \"Wise,\" (he/she) says. \"But be careful. Restraint is good. Yet if you leave every box closed, restraint can become fear, and fear keeps you from ever finding anything at all.\" (Name) opens (his/her) mouth to argue, then closes it again. The visitor winks at the children, who giggle.",
+   "src": "L11724"
+  },
+  "c2o2": {
+   "text": "The visitor nods slowly. \"And so the hero went home,\" (he/she) says, \"and lived a long and happy life.\" A pause. \"But do you think the hero ever stopped wondering what was in the box? Do you think (he/she) ever knew what was lost?\" Nobody answers. (Name) lies awake that night, wondering.",
+   "src": "L11726"
+  },
+  "c2": {
+   "text": "\"The hero leaves it closed,\" (name) says. \"Some things are forbidden for a reason.\" The children groan in disappointment...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11722"
+  },
+  "c3o1": {
+   "text": "\"Ha! Very clever. But giving something away is still a choice,\" the visitor says. \"If the next person opens it and something terrible comes out, is that not partly the hero's doing? Every choice carries responsibility. Even the choice not to choose.\" (Name) grumbles that it's just a story. The visitor says that all stories are just stories, until they aren't.",
+   "src": "L11731"
+  },
+  "c3o2": {
+   "text": "The visitor claps (his/her) hands, delighted. \"Then the box goes to all of you,\" (he/she) tells the children, \"and so does the story. It belongs to this village now. Finish it however you like.\" In the morning, the visitor is gone. The children tell the story for years, each with a different ending, and argue about which is right.",
+   "src": "L11733"
+  },
+  "c3": {
+   "text": "\"The hero doesn't want it,\" (name) says. \"So (he/she) gives the box to someone else to decide.\" The children look confused. The visitor laughs out loud...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11729"
+  },
+  "c4o1": {
+   "text": "\"Ah! Then let me give you a riddle the elders would ask,\" the visitor says, and tells one: a puzzle about three people who can only solve a problem by each knowing a different piece of it. The children puzzle over it for hours. So do the adults. By the time someone finally solves it, everyone has learned a good deal about thinking things through together. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11738"
+  },
+  "c4o2": {
+   "text": "The visitor's smile fades a little. \"A good answer,\" (he/she) says. \"But in this story, the hero must choose alone.\" And with that, the visitor wishes everyone good night. In the morning, only a hollow in the sand where the visitor sat remains, still faintly warm. Nobody saw the visitor leave.",
+   "src": "L11740"
+  },
+  "c4": {
+   "text": "\"The hero goes back down the mountain and asks the elders what to do,\" (name) says firmly. \"No one should make a choice like that alone.\" The visitor leans back, interested...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11736"
+  }
+ }
+}

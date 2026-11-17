@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fig That Fruits Once",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b142_fig_fruits_once",
+  "source": "balance",
+  "lines": [
+   6525,
+   6570
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6525",
+  "ledger": [
+   {
+    "src": "L6526",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6527",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6535",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6544",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6532",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6533",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6536",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6545",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6550",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6553-6570",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There is an old fig tree on the edge of the garden that flowers once every seven years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "farmer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There is an old fig tree on the edge of the garden that flowers once every seven years. It flowered this spring, and now it has exactly one fig on it, fat and purple and so heavy it bends the branch. The old saying is that the couple who share the seven-year fig will have a baby before the next rains.\n(subject) and (friend) were the first to see it, early this morning. But (farmer) and (subject.his/her) partner have been hoping for a baby too, for longer than anyone, and (farmer) has been watering that fig tree every day for seven years.\nShould (subject) and (friend) pick the fig, or leave it for (farmer)?",
+   "choices": [
+    {
+     "label": "Pick the Fig",
+     "next": "c1",
+     "src": "L6532"
+    },
+    {
+     "label": "Leave It for (Farmer)",
+     "next": "c2",
+     "src": "L6533"
+    }
+   ],
+   "src": "L6528-6530"
+  },
+  "c1o1": {
+   "text": "The fig works. Before the next rains (subject) is pregnant, and very happy, and a little bit guilty every time (subject.he/she) walks past (farmer)'s hut. (farmer) is gracious about it. \"The tree chose,\" (subject.he/she) says. But (subject.he/she) stops watering it. Someone else starts.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L6539"
+  },
+  "c1o2": {
+   "text": "(subject) is pregnant within the month. They can't bear the guilt, so they go to (farmer) and tell (subject.him/her) everything. (farmer) laughs and hugs them both. \"Seven years I've watered that tree,\" (subject.he/she) says. \"It was never going to be for me.\" After that, all four of them work the garden together, and (subject) and (friend) find they've stopped minding a lot of things.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L6542"
+  },
+  "c1": {
+   "text": "(subject) reaches up and twists the fig off the branch. It comes away with a soft pop, and the whole tree seems to sigh. They split it in two right there in the garden, and eat it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6536"
+  },
+  "c2o1": {
+   "text": "(farmer) and (subject.his/her) partner share the fig under the tree, crying. The next morning, there are two more figs on the tree, side by side, where there was only one. (farmer) gives them both to (subject) and (friend). By the rains, both families are expecting, and the healers, feeling (subject)'s belly, tell (subject.him/her) to expect {#babies:a baby|twins|triplets}. \"The tree pays its debts,\" says (farmer).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L6548"
+  },
+  "c2o2": {
+   "text": "(farmer) and (subject.his/her) partner share the fig under the tree, and before the rains they are expecting a baby, the first in seven years of hoping. They are so happy that the whole village is happy for them. (subject) and (friend) say they are happy too, and mostly mean it. (farmer) promises to save them the next fig, in seven years.",
+   "src": "L6551"
+  },
+  "c2": {
+   "text": "They walk away from the tree without touching it, and tell (farmer) about the fig. (farmer) runs out of (subject.his/her) hut so fast (subject.he/she) forgets (subject.his/her) sandals...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6545"
+  }
+ }
+}

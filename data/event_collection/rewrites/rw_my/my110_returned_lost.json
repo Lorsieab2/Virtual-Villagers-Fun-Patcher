@@ -1,0 +1,320 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Returned Lost Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my110_returned_lost",
+  "source": "rewrites",
+  "lines": [
+   16252,
+   16307
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16252",
+  "ledger": [
+   {
+    "src": "L16253",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16254",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16262",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16269",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16276",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16283",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16257",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16258",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16259",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16260",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16263",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16270",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16277",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16284",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16264",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16271",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16273",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16280",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16285",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16287",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16290-16307",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the edge of the village, a villager sees a small child standing alone among the tall grass, looking at the huts.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village, (name) sees a small child standing alone among the tall grass, looking at the huts. (Name) knows that face. Everyone over a certain age knows that face. It belongs to a child who vanished from this village years ago, and was mourned, and was never found.\nThe child has not aged a day. The same hair. The same scar on one knee. The same little shell necklace (he/she) was wearing on the day (he/she) disappeared. The child looks at (name) calmly, as though waiting for something, and the grass sways around (him/her) in the wind. Is it really the lost child? What should (name) do?",
+   "choices": [
+    {
+     "label": "Welcome the Child Home",
+     "next": "c1",
+     "src": "L16257"
+    },
+    {
+     "label": "Ask Where They Have Been",
+     "next": "c2",
+     "src": "L16258"
+    },
+    {
+     "label": "Seek an Explanation",
+     "next": "c3",
+     "src": "L16259"
+    },
+    {
+     "label": "Give the Child Time",
+     "next": "c4",
+     "src": "L16260"
+    }
+   ],
+   "src": "L16255-16256",
+   "text_only": [
+    {
+     "src": "L16255",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The child's family see (him/her) coming up the path, and for a moment, nobody can move at all. Then they are running, and the child is in their arms, and they hold (him/her) for a very long time, and nobody can speak. The village gathers around in stunned silence. There are so many questions, and the child answers almost none of them. But (he/she) eats supper at the family table, and sleeps in the family hut, and in the morning, (he/she) is still there. Whatever happened, the child has come home.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L16265"
+  },
+  "c1o2": {
+   "text": "But as they walk into the village, and people begin to gather and stare and weep, the child grows frightened. (He/she) looks at the faces around (him/her), the family who lost (him/her), and does not recognize a single one. \"I don't know you,\" (he/she) says, pulling away. \"Please. I want to go to the other village. My family is there.\" (Name) and the heartbroken family walk (him/her) to the next village, where a couple run out crying with relief to hug (him/her). Nobody can explain the face, the scar, or the necklace.",
+   "src": "L16267"
+  },
+  "c1": {
+   "text": "(Name) does not stop to think. (He/she) runs to the child, kneels, and takes (his/her) small hands. \"Come home,\" (he/she) says, voice shaking. \"Come on, everyone will want to see you.\" The child lets (him/her) lead the way...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16263"
+  },
+  "c2o1": {
+   "text": "\"With the people beyond the hills,\" the child says. \"They found me when I got lost. They were kind. They fed me and let me play with their goats. But I missed home, so they showed me the way back.\" (He/she) does not understand when (name) explains that (he/she) has been gone for years. \"It was only a little while,\" (he/she) insists. A party of villagers crosses the hills to thank the strangers. They find an empty valley, a ruined hut, and a single old goat, who follows them home.",
+   "src": "L16272"
+  },
+  "c2o2": {
+   "text": "\"Somewhere nice,\" the child says dreamily. \"Where it was always the same day. Always warm, never raining, and the fruit was always ripe. Nobody got older there.\" (He/she) frowns. \"I don't know how I got back. I was just walking, and then I was here.\" The elders go very quiet when they hear this. That night they sit up late around the fire, and nobody will tell the younger villagers what they were talking about.",
+   "src": "L16274"
+  },
+  "c2": {
+   "text": "(Name) kneels down in the grass, slowly, so as not to frighten the child. \"Where have you been all this time?\" (he/she) asks softly. The child thinks about it seriously...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16270"
+  },
+  "c3o1": {
+   "text": "\"There's a cousin's line in the village down the coast,\" one elder says slowly. \"They had a child born a few years after ours went missing. Perhaps it's that one, wandered off. Family faces do repeat.\" The scar, they decide, is a coincidence. The necklace is a common style. It is the sensible explanation, and they walk the child down the coast to ask. The village there has no missing child. But a family there takes the little stranger in, and raises (him/her), and (he/she) grows up happy.",
+   "src": "L16279"
+  },
+  "c3o2": {
+   "text": "The elders ask questions only the missing child could answer: the name of (his/her) favourite toy, the song (his/her) mother sang at bedtime, the secret hiding place under the floor of the family hut. The child answers every single one, correctly, without hesitating. The elders look at each other. One of them sits down very suddenly in the grass. Nobody knows what to do next, and the child just waits patiently for them to decide.",
+   "src": "L16281"
+  },
+  "c3": {
+   "text": "Before letting anyone get their hopes up, (name) fetches the elders. They come out to the grass and look the child over carefully, and ask (him/her) a great many questions...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16277"
+  },
+  "c4o1": {
+   "text": "The child rests and eats, and over the following days, slowly begins to come out of the hut and play at the edges of the village, watching the other children. Nobody presses (him/her). The family of the missing child visit every day, bringing food and sitting quietly nearby, never asking. After a week, the child takes the mother's hand of (his/her) own accord. Nobody ever learns what happened. In time, nobody needs to.",
+   "src": "L16286",
+   "text_only": [
+    {
+     "src": "L16286",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o2": {
+   "text": "In the morning, the hut is empty. The blanket is folded neatly. The food has been eaten. And on the pillow lies a small carved turtle, the kind the missing child used to carry everywhere, years ago. It is warm, as if it has only just been put down. The village searches all day, and finds no sign of (him/her) anywhere. The family keep the turtle by their bed, and some nights, they say, it is still warm.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L16288",
+   "text_only": [
+    {
+     "src": "L16288",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4": {
+   "text": "(Name) decides not to overwhelm the child. The village offers (him/her) a quiet hut to rest in, food and a blanket, and leaves (him/her) be, without demanding a single answer...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16284",
+   "text_only": [
+    {
+     "src": "L16284",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

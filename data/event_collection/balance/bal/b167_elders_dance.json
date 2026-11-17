@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elders' Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b167_elders_dance",
+  "source": "balance",
+  "lines": [
+   7718,
+   7762
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7718",
+  "ledger": [
+   {
+    "src": "L7731",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'every elder gets the young head look'"
+   },
+   {
+    "src": "L7734",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'every elder is INJURED (loses health)'"
+   },
+   {
+    "src": "L7719",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7728",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7737",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7725",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7726",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7729",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7738",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7734",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7743",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7746-7762",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There is an old dance that only the elders know, slow and stamping, with clapping in odd places.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There is an old dance that only the elders know, slow and stamping, with clapping in odd places. It is called the Turning-Back Dance, and the story is that when it is danced right, by someone young leading the old ones, it turns back the years a little, for one night. Nobody has danced it right in a lifetime. The last person who knew the steps properly was (subject)'s great-grandmother.\nTonight is the full moon festival, and the elders have asked (subject) to lead it. (subject.He/She) has spent all week learning the steps from (elder), who remembers most of them, and argues with (subject.himself/herself) about the rest.\nShould (subject) follow (elder)'s steps exactly, or dance it the way (subject.he/she) feels it?",
+   "choices": [
+    {
+     "label": "Follow the Steps Exactly",
+     "next": "c1",
+     "src": "L7725"
+    },
+    {
+     "label": "Dance It (subject.His/Her) Own Way",
+     "next": "c2",
+     "src": "L7726"
+    }
+   ],
+   "src": "L7721-7723"
+  },
+  "c1o1": {
+   "text": "It works. As the drums stop, the elders standing round the fire look at each other and gasp. Every one of them has a young face: smooth cheeks, bright eyes, luscious hair. Their knees are still old. Their backs are still old. But their faces are the faces they had at twenty-five. They laugh, and point, and the oldest of them cries. (elder) is very smug about the steps.",
+   "src": "L7732"
+  },
+  "c1o2": {
+   "text": "(elder) has one step wrong. The turn should have been to the left. Halfway through, the elders start crashing into each other, and the dance falls apart in a heap of old people and loud complaints. Only (elder), at the bottom of the heap, has had the years turned back, to a sprightly fifty. Everyone else has bruises. \"It was LEFT,\" says (elder). \"I see that now.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "role": "elder",
+     "to": "50"
+    }
+   ],
+   "src": "L7735"
+  },
+  "c1": {
+   "text": "(subject) leads the elders round the fire, stamping and clapping exactly as (elder) taught (subject.him/her). Stamp, stamp, turn, clap. The elders follow, slow at first, then faster, and the drums speed up to match...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7729"
+  },
+  "c2o1": {
+   "text": "It isn't the Turning-Back Dance any more. It's something new. It doesn't turn back the elders' years. It does something to (subject), who comes out of it at dawn with a face younger than (subject.his/her) own, glowing. The whole village is happier for it. The elders make (subject) teach them the new steps, and call it (subject)'s Dance.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L7741"
+  },
+  "c2o2": {
+   "text": "Nothing turns back. But the elders dance until midnight, and the children join in, and then everyone does, round and round the fire. In the morning a lot of people can't walk properly, and nobody minds. (elder) says the old steps were better. Then (subject.he/she) asks (subject) to show (subject.him/her) the new ones again, slowly.",
+   "src": "L7744"
+  },
+  "c2": {
+   "text": "(subject) starts with the old steps, then lets the drums carry (subject.him/her) somewhere else. The elders follow (subject.him/her), confused at first, then laughing, then dancing like nobody has seen them dance in years...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7738"
+  }
+ }
+}

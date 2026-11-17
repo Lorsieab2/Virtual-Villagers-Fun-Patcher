@@ -1,0 +1,300 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mist That Called a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my059_mist_called_name",
+  "source": "rewrites",
+  "lines": [
+   13295,
+   13352
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13295",
+  "ledger": [
+   {
+    "src": "L13296",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13297",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13305",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13313",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13320",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13328",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13300",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13301",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13302",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13303",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13306",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13314",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13321",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13329",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13307",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13315",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13317",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13323",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13325",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13330",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13332",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13335-13352",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager knows that voice.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is the first one up this morning, as usual, and steps out of the hut to find the whole village swallowed by a low white mist. It is so thick that (he/she) can barely see the cooking fire three steps away, and it smells of wet stone and old rain. Then, from somewhere inside it, a voice calls (his/her) name.\n(Name) knows that voice. It belongs to someone who went missing long ago, someone the village stopped searching for many seasons back. It calls again, warm and patient, exactly the way it used to call (him/her) in for supper. Every hair on (name)'s arms stands up. Part of (him/her) wants to run toward it. The rest of (him/her) wants to run the other way. The elders always say that the lost can walk in a sea mist like this one, if someone at home is still thinking of them. Should (name) follow the voice, or wait for the mist to lift?",
+   "choices": [
+    {
+     "label": "Follow the Voice",
+     "next": "c1",
+     "src": "L13300"
+    },
+    {
+     "label": "Call for Help",
+     "next": "c2",
+     "src": "L13301"
+    },
+    {
+     "label": "Speak to the Mist",
+     "next": "c3",
+     "src": "L13302"
+    },
+    {
+     "label": "Wait for the Mist to Clear",
+     "next": "c4",
+     "src": "L13303"
+    }
+   ],
+   "src": "L13298-13299"
+  },
+  "c1o1": {
+   "text": "The voice stops. Right where it stopped, on a flat stone at the edge of the trees, lies a bracelet of red and black beads, damp with dew. (Name)'s breath catches. (He/she) watched the missing villager braid that bracelet by the fire years ago, and never saw it again after the day they vanished. (Name) carries it home cupped in both hands. The family of the missing villager weeps when they see it, then laughs, then weeps again, and that evening they hang it above their doorway. Whether someone left it there, or the island simply gave it back, nobody can say.",
+   "src": "L13308",
+   "text_only": [
+    {
+     "src": "L13308",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The voice calls once more, closer than ever, and (name) steps toward it... and the mist closes behind (him/her).\nWhen the sun burns the mist away a few hours later, (name) is nowhere to be found. The villagers search the trees, the beach, the rocks and the river until dark, calling (his/her) name until their voices are hoarse. All they find are (name)'s sandals, set neatly side by side at the edge of the trees, as if (he/she) had taken them off to walk somewhere softer. Some villagers say (he/she) was lured away. Others say (he/she) simply went to be with someone (he/she) missed. Nobody ever finds out which.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L13310-13311"
+  },
+  "c1": {
+   "text": "(Name) takes one careful step into the white, then another. The village disappears behind (him/her) as if it had never been there. The voice keeps calling, always a little ahead, always just out of sight, leading (him/her) past the last hut and toward the edge of the trees...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13306",
+   "text_only": [
+    {
+     "src": "L13306",
+     "what": "\"disappears\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The voice leads them to the old fig tree, where they find a traveler huddled among the roots, shivering, with a twisted ankle. The traveler has been calling out every name (he/she) could think of, hoping someone in the village would recognize one. By sheer chance, one of them was (name)'s. The villagers bundle the traveler into a blanket and carry (him/her) to the fire, and (name) spends the rest of the morning wondering why, of all the voices in the world, that one had sounded so very familiar.",
+   "src": "L13316"
+  },
+  "c2o2": {
+   "text": "The moment the others arrive, the voice falls silent. They search for an hour and find nothing but wet grass and a very surprised pig. \"Are you sure you heard something?\" someone yawns. (Name) is sure. Mostly sure. (He/she) spends the rest of the day glancing toward the trees, and when evening comes, (he/she) sleeps with the door firmly shut.",
+   "src": "L13318"
+  },
+  "c2": {
+   "text": "\"Everyone! Wake up! There's someone out there!\" (Name) shouts, banging a cooking pot with a spoon until bleary-eyed villagers stumble out of their huts. Together they link arms and follow the sound into the mist...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13314"
+  },
+  "c3o1": {
+   "text": "The voice tells (name) about the day the two of them stole honey from the old beehive when they were children, and how (name) got stung on the nose and cried so loudly that the missing villager had to hush (him/her). (Name) has never told anyone that story. The missing villager was the only other person there. Tears run down (name)'s face. \"I miss you,\" (he/she) whispers. The mist thins, the sun breaks through, and the voice says nothing more. (Name) is quiet for days afterward, but (he/she) seems lighter somehow, as if something long unfinished has finally been said.",
+   "src": "L13324"
+  },
+  "c3o2": {
+   "text": "(Name)'s own words come back to (him/her), slightly warped: \"...only you would know... would know...\" (He/she) tries again, louder, and the mist politely repeats that too. When the air clears, (name) discovers a rocky hollow just beyond the huts that throws back every sound in a softer, older-sounding voice. (He/she) stands there for a while feeling rather silly, then calls (his/her) own name into it, just to hear it. It sounds almost exactly like the voice from this morning. Almost.",
+   "src": "L13326"
+  },
+  "c3": {
+   "text": "(Name) swallows hard and answers. \"I hear you,\" (he/she) says into the white. \"If it's really you... tell me something only you would know.\"\nThere is a long pause. Then the voice answers.",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13321-13322"
+  },
+  "c4o1": {
+   "text": "The huts reappear one by one, exactly where they belong. The fire is still smouldering, the chickens are complaining about breakfast, and someone is already arguing about whose turn it is to fetch water. Everything is perfectly ordinary. (Name) lets out a breath (he/she) did not know (he/she) was holding, and decides not to mention the voice to anyone. At least not until after breakfast.",
+   "src": "L13331"
+  },
+  "c4o2": {
+   "text": "When the mist has gone, (name) walks to the well and stops dead. Pressed into the soft mud beside it is a set of bare footprints, small and narrow, that walk up to the well, stand there for a while, and then simply end. They do not match anyone's feet in the village. The elders measure them, argue about them, and finally sweep them away, but (name) remembers exactly how long the missing villager's feet were. (He/she) does not say so out loud.",
+   "src": "L13333"
+  },
+  "c4": {
+   "text": "(Name) presses (his/her) back against the hut wall, shuts (his/her) eyes, and waits. The voice calls a few more times. Then it stops. Slowly, the sun climbs and the mist begins to pull back from the village like a tide going out...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13329"
+  }
+ }
+}

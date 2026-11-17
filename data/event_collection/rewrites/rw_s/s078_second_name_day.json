@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Name Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s078_second_name_day",
+  "source": "rewrites",
+  "lines": [
+   3668,
+   3711
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3668",
+  "ledger": [
+   {
+    "src": "L3669",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3670",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3678",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3687",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3675",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3676",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3679",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3688",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3681",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3684",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3690",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3693",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3696-3711",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the old days, the elders say, every villager was given a second name when they did something worth remembering.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the old days, the elders say, every villager was given a second name when they did something worth remembering. A great catch, a brave rescue, a great deed. Nobody has been given one in a very long time.\nBut this afternoon, (subject) built a bridge over the stream, in one afternoon, all alone. A proper one, with a handrail, strong enough to carry a goat. Everyone has been walking across it and back, just for fun.\nNow the elders are gathering at the end of the bridge in their best cloaks, with their tall feather staffs, and the big carved drum that only comes out on very special days. They are looking at (subject), very solemnly. A second name is a great honour, but (subject) has always liked the one (subject.he/she) has. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Accept the New Name",
+     "next": "c1",
+     "src": "L3675"
+    },
+    {
+     "label": "Keep Your Own Name",
+     "next": "c2",
+     "src": "L3676"
+    }
+   ],
+   "src": "L3671-3673"
+  },
+  "c1o1": {
+   "text": "The elders give (subject) a fine new name: (renamed). The drum booms three times, and the village cheers, and everyone uses it from then on, as if it had always been (subject.his/hers). And from then on, whenever a bridge is needed anywhere on the island, over a stream, a gully, a marsh, (renamed) is the one they ask. (subject.He/She) builds every bridge after that, and gets better every time, and the bridges get longer and stronger and finer.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L3682"
+  },
+  "c1o2": {
+   "text": "The elders begin to argue about which name to give. They argue at the bridge. They argue in the elders' hut. They argue all night, while (subject) sits outside on the step waiting. At dawn they finally come out, tired and cross, and announce the name they've settled on: (renamed). Nobody likes it. Not the village, not the elders themselves, and certainly not (subject). It sticks anyway. Names given by the drum always do.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3685"
+  },
+  "c1": {
+   "text": "(subject) steps forward and kneels on the new bridge, while the drum beats slowly. (elder), the oldest elder, lifts the feather staff high over (subject.his/her) head, and the whole village holds its breath...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3679"
+  },
+  "c2o1": {
+   "text": "The elders talk quietly for a moment. Then (elder) smiles, and nods. They respect (subject.his/her) wish. \"Then the bridge shall have the name instead,\" the elder says. The drum booms, and the elders bless the bridge, and they give it a fine new name, and carve it into the handrail. It's still called that today. Children who cross it ask who built it, and are told (subject)'s name, and remember it.",
+   "src": "L3691"
+  },
+  "c2o2": {
+   "text": "The elders shrug, and put the drum away, a little disappointed. (subject) keeps (subject.his/her) own name. Officially. But the village has its own ideas. From that day on, nobody calls (subject.him/her) anything but \"the bridge one.\" \"Ask the bridge one.\" \"Where's the bridge one?\" \"The bridge one's in the river again.\" For years. (subject) protests at first. Then (subject.he/she) gives up and answers to it.",
+   "src": "L3694"
+  },
+  "c2": {
+   "text": "(subject) steps forward and bows low to the elders. \"Thank you,\" (subject.he/she) says. \"But I like the name I have. My mother gave it to me.\" The drum stops. The elders look at each other...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3688"
+  }
+ }
+}

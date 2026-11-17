@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mud Bath",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b237_mud_bath",
+  "source": "balance",
+  "lines": [
+   11027,
+   11070
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11027",
+  "ledger": [
+   {
+    "src": "L11028",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11029",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11037",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11046",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11034",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11035",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11038",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11047",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11040",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11043",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11049",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11052",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11055-11070",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After the rains, a hot mud pool has bubbled up in the valley, grey and warm and smelling of rotten eggs.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After the rains, a hot mud pool has bubbled up in the valley, grey and warm and smelling of rotten eggs. The pigs found it first, and have been wallowing in it all week, and the pigs, everyone has noticed, look years younger: glossy, frisky, and running about like piglets. The oldest sow in the village had piglets yesterday, which nobody thought possible.\n(subject)'s back has ached for years. The mud is warm and inviting, apart from the pigs. (healer) says the mud is \"probably fine for people\" and \"possibly a bit strong.\"\nShould (subject) get in with the pigs, or take a pot of the mud home?",
+   "choices": [
+    {
+     "label": "Get In",
+     "next": "c1",
+     "src": "L11034"
+    },
+    {
+     "label": "Take a Pot Home",
+     "next": "c2",
+     "src": "L11035"
+    }
+   ],
+   "src": "L11030-11032"
+  },
+  "c1o1": {
+   "text": "(subject) climbs out an hour later, grey with mud, and washes it off in the stream, and keeps washing, because (subject.he/she) can't believe what's underneath: smooth skin, strong arms, the body (subject.he/she) had fifteen years ago. (subject.His/her) back doesn't ache at all. The pigs watch (subject.him/her) go, approvingly. Half the village is in the mud by nightfall.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -15,
+      -15
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L11041"
+  },
+  "c1o2": {
+   "text": "(subject) dunks (subject.his/her) head under, once. The mud does nothing for the back, but when (subject.he/she) washes off, (subject.his/her) face is fifteen years younger, glowing and smooth. (healer) says the mud must work on whatever it touches longest. (subject) decides to go back tomorrow and lie down.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L11044"
+  },
+  "c1": {
+   "text": "(subject) wades in up to (subject.his/her) neck, between two delighted pigs. The mud is hot and thick and sucks at (subject.his/her) legs, and the ache in (subject.his/her) back starts to melt...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11038"
+  },
+  "c2o1": {
+   "text": "The mud cools, and the ache goes, and doesn't come back. Nothing else changes. (subject) is so relieved to be free of the pain that (subject.he/she) is in a good mood for a month, and stops complaining about the things (subject.he/she) used to complain about. (subject.He/She) gives the rest of the pot to (healer), who keeps it for bad backs.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11050"
+  },
+  "c2o2": {
+   "text": "By the time (subject) gets home, the pot of mud has gone cold and grey and smells even worse. (subject.He/She) spreads it on (subject.his/her) back anyway. Nothing happens, except that the hut smells of rotten eggs for a week. The pigs look very young for a season, and then just look like pigs again.",
+   "src": "L11053"
+  },
+  "c2": {
+   "text": "(subject) doesn't fancy the pigs. (subject.He/She) scoops up a big pot of the warm mud and carries it home, and spreads it on (subject.his/her) aching back, lying face down on (subject.his/her) mat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11047"
+  }
+ }
+}

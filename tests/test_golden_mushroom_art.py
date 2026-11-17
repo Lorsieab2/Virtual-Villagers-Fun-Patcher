@@ -37,7 +37,8 @@ import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
 from unicorn.x86_const import (
     UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EDX,
-    UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP,
+    UC_X86_REG_DS, UC_X86_REG_EFLAGS, UC_X86_REG_EIP, UC_X86_REG_ES, UC_X86_REG_ESI, UC_X86_REG_ESP, UC_X86_REG_FS,
+    UC_X86_REG_GDTR, UC_X86_REG_SS,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -139,6 +140,29 @@ def rd32(mu, a):
     return struct.unpack("<I", mu.mem_read(a, 4))[0]
 
 
+TEB, GDT = 0x0D000000, 0x0D100000
+FS_INDEX, DATA_INDEX = 1, 2
+
+
+def _map_thread_block(mu) -> None:
+    """A thread block at fs:0 (an empty exception chain and the stack bounds), as Windows gives every thread: the
+    C runtime's string formatting the finds record's path takes (native/shared/save_folder.c) links an exception
+    frame through fs:[0].  As tests/startup_emulation.py does."""
+    mu.mem_map(TEB, 0x1000)
+    mu.mem_write(TEB, struct.pack("<7I", 0xFFFFFFFF, STACK + 0x100000, STACK - 0x100000, 0, 0, 0, TEB))
+    mu.mem_map(GDT, 0x1000)
+    limit, access, flags = 0xFFF, 0x92, 0x4
+    descriptor = ((limit & 0xFFFF) | ((TEB & 0xFFFFFF) << 16) | (access << 40)
+                  | (((limit >> 16) & 0xF) << 48) | (flags << 52) | (((TEB >> 24) & 0xFF) << 56))
+    mu.mem_write(GDT + 8 * FS_INDEX, struct.pack("<Q", descriptor))
+    flat = (0xFFFF | (0x92 << 40) | (0xF << 48) | (0xC << 52))
+    mu.mem_write(GDT + 8 * DATA_INDEX, struct.pack("<Q", flat))
+    mu.reg_write(UC_X86_REG_GDTR, (0, GDT, 0x100, 0))
+    for register in (UC_X86_REG_SS, UC_X86_REG_DS, UC_X86_REG_ES):
+        mu.reg_write(register, DATA_INDEX << 3)
+    mu.reg_write(UC_X86_REG_FS, FS_INDEX << 3)
+
+
 class Machine:
     """The DLL and a game image in one emulator, kernel32 and the game's
     allocator/constructor scripted."""
@@ -160,6 +184,7 @@ class Machine:
         mu.mem_map(HEAP, 0x100000)
         mu.mem_map(FAKE, 0x10000)
         mu.mem_map(SENTINEL, 0x1000)
+        _map_thread_block(mu)
         self.fakes = {}
         for i, name in enumerate(sorted(iat)):
             addr = FAKE + i * 0x10
@@ -174,6 +199,7 @@ class Machine:
         self.stopped = None
         self.raw: list = []                # values the game's raw rand() returns, in order
         self.raw_calls = 0
+        self.extra: dict = {}              # import name -> handler(machine)
         mu.hook_add(UC_HOOK_CODE, self._hook)
 
     def _ret(self, value, nargs):
@@ -232,6 +258,8 @@ class Machine:
                 self._ret(1, 3)
             elif name == "GetCurrentProcess":
                 self._ret(0xFFFFFFFF, 0)
+            elif name in self.extra:
+                self.extra[name](self)                 # the finds record's file calls (RecordTests)
             else:
                 raise AssertionError(f"unexpected import {name}")
         elif addr == RAW.get(self.game):
@@ -274,6 +302,16 @@ class Machine:
         return (rd32(self.mu, buf), bytes(self.mu.mem_read(buf + 0x10, n)),
                 bytes(self.mu.mem_read(buf + 0x30, n)), rd32(self.mu, buf + 0x50))
 
+    def record_probe(self):
+        """The finds record's site: (va, the row's bytes, the bytes the install writes, the stub)."""
+        buf = HEAP + 0x50000
+        n = self.export("VvfpGoldenMushroomProbeRecordSite", self.game, buf, buf + 0x10, buf + 0x30, buf + 0x50)
+        return (rd32(self.mu, buf), bytes(self.mu.mem_read(buf + 0x10, n)),
+                bytes(self.mu.mem_read(buf + 0x30, n)), rd32(self.mu, buf + 0x50))
+
+    def record_stats(self):
+        return struct.unpack("<2i", self.mu.mem_read(self.exports["VvfpGoldenMushroomRecordStats"], 8))
+
     def stats(self):
         return struct.unpack("<3i", self.mu.mem_read(self.exports["VvfpGoldenMushroomStats"], 12))
 
@@ -311,8 +349,9 @@ class SiteTests(unittest.TestCase):
             m = Machine(game)
             detours = rows[f"vv{game}_super_secret_golden_mushroom"]["runtime_detours"]
             probed = _probed(m)
+            record = m.record_probe()      # the finds record's site, listed after the image sites
             with self.subTest(game=game):
-                self.assertEqual([(f"0x{va:X}", stock.hex().upper()) for va, stock, _, _ in probed],
+                self.assertEqual([(f"0x{va:X}", stock.hex().upper()) for va, stock, _, _ in probed + [record]],
                                  [(d["va"], d["stock_bytes"]) for d in detours])
                 for d in detours:
                     self.assertEqual(d["installed_by"], f"VVFP Golden Mushroom.dll, ordinal {game}")
@@ -430,7 +469,7 @@ class InstallTests(unittest.TestCase):
         for game in ART_GAMES:
             with self.subTest(game=game):
                 m = Machine(game)
-                probed = _probed(m)
+                probed = _probed(m) + [m.record_probe()]     # the image sites, then the finds record's
                 self.assertEqual(m.export(game), 1)
                 for va, stock, patched, _ in probed:
                     self.assertEqual(bytes(m.mu.mem_read(va, len(patched))), patched)
@@ -449,12 +488,26 @@ class InstallTests(unittest.TestCase):
             with self.subTest(game=game):
                 m = Machine(game)
                 probed = _probed(m)
+                record = m.record_probe()
                 last_va = probed[-1][0]
                 m.mu.mem_write(last_va, b"\xCC")
                 self.assertEqual(m.export(game), 0)
-                self.assertEqual(m.writes, [])
+                # The image is refused; the finds record is installed on its own.
+                self.assertEqual(set(m.writes), {(record[0], len(record[2]))})
                 for va, stock, _, _ in probed[:-1]:
                     self.assertEqual(bytes(m.mu.mem_read(va, len(stock))), stock)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_a_record_site_that_is_not_the_rows_never_stops_the_image(self):
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                m = Machine(game)
+                probed = _probed(m) if game != 2 else []
+                va, row, _, _ = m.record_probe()
+                m.mu.mem_write(va, b"\xCC")
+                self.assertEqual(m.export(game), 0 if game == 2 else 1)
+                self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xCC", "the record site is left alone")
+                self.assertEqual(sorted(set(m.writes)), sorted({(p[0], len(p[2])) for p in probed}))
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_site_that_cannot_be_made_writable_leaves_every_site_stock(self):
@@ -465,6 +518,7 @@ class InstallTests(unittest.TestCase):
         m = Machine(1)
         probed = _probed(m)
         self.assertEqual(len(probed), 3)
+        record = m.record_probe()
         m.fail_protect_call = 1
         self.assertEqual(m.export(1), 0)
         for va, stock, _, _ in probed:
@@ -472,7 +526,9 @@ class InstallTests(unittest.TestCase):
         first = (probed[0][0], len(probed[0][2]))
         self.assertEqual(m.protects[0][:3], (*first, 0x40))
         self.assertEqual(m.protects[1][3:], ("failed",))
-        self.assertEqual(m.protects[2:], [(*first, 0x20)], "the first site is re-locked")
+        self.assertEqual(m.protects[2], (*first, 0x20), "the first site is re-locked")
+        # ... and then the finds record, on its own.
+        self.assertEqual(m.protects[3:], [(record[0], len(record[2]), 0x40), (record[0], len(record[2]), 0x20)])
         self.assertEqual(m.export(1), 0, "and it stays refused")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
@@ -480,7 +536,7 @@ class InstallTests(unittest.TestCase):
         m = Machine(3)
         self.assertEqual(m.export(4), 0)
         self.assertEqual(m.writes, [])
-        self.assertNotIn(2, m.ordinal, "no ordinal for The Lost Children")
+        self.assertIn(2, m.ordinal, "The Lost Children's ordinal: the finds record only")
 
 
 class NewHomeDrawTests(unittest.TestCase):
@@ -766,8 +822,10 @@ class ManifestTests(unittest.TestCase):
                     {"source": "assets/golden_mushroom/golden_mushroom.png",
                      "destination": "Images/golden_mushroom.png", "sha256": png_sha},
                 ])
-        self.assertNotIn("companion_files", rows["vv2_super_secret_golden_mushroom"],
-                         "The Lost Children draws its own sheet's art")
+        # The Lost Children draws its own sheet's art: the DLL ships there for the finds record only (ordinal 2).
+        self.assertEqual(rows["vv2_super_secret_golden_mushroom"]["companion_files"], [
+            {"source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+             "destination": "VVFP Golden Mushroom.dll", "sha256": dll_sha}])
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn('"assets/golden_mushroom/VVFP Golden Mushroom.dll"', release)
         self.assertIn('"assets/golden_mushroom/golden_mushroom.png"', release)
@@ -802,6 +860,237 @@ class ManifestTests(unittest.TestCase):
                         site = LOADER[game][0]
                         stub = site + 5 + struct.unpack("<i", image[site - 0x400000 + 1:site - 0x400000 + 5])[0]
                         self.assertEqual(image[stub - 0x400000], 0x60, "the call reaches the loader (pushad)")
+
+
+# ---- The finds record ----------------------------------------------------------------------------------------
+# The owner (2026-11-15): "the patcher should keep a record" of the finds, shown in Game Mechanics.  Each
+# delivered golden mushroom appends one "YYYY-MM-DD HH:MM:SS" line to the save's own data file, outside the
+# save and the executable.  Here the record stubs run where the row's code runs, with the files the DLL makes
+# put in a private temporary folder (the kernel32 / shell32 calls answered from it), and Game Mechanics' own
+# reader (src/vv_game_mechanics_counts.py golden_record) reads what was written.
+SAVE_MANAGER = {1: (0x48AEDC, 0xABE4), 2: (0x4997BC, 0x30378), 3: (0x4B309C, 0x12F24),
+                4: (0x4CB51C, 0x17114), 5: (0x4DACE0, 0x17D80)}    # native/shared/game_save_slot.h
+RECORD = {  # site, how the row's code enters it, golden / not-golden registers, where it continues
+    1: dict(site=0x444683, golden={}, other=None, next=0x43AFF1),
+    2: dict(site=0x4633CD, golden={"carry": 0x50}, other={"carry": 0x4F}, next=0x473E05),
+    3: dict(site=0x42E064, golden={UC_X86_REG_ESI: 0x66}, other={UC_X86_REG_ESI: 0x65}, next=0x42E06B),
+    4: dict(site=0x41460A, golden={UC_X86_REG_ESI: 0x78}, other={UC_X86_REG_ESI: 0x76}, next=0x489150),
+    5: dict(site=0x414915, golden={UC_X86_REG_ESI: 0x82}, other={UC_X86_REG_ESI: 0x80}, next=0x4947C0),
+}
+DOCS = "C:\\PlayerHome\\Documents"      # stands for the player's Documents folder
+VV2_VILLAGE, VV2_INDEX = HEAP + 0x10000, 3
+
+
+class FileCalls:
+    """The DLL's file calls, answered from `root` (a real temporary folder standing for C:\\)."""
+
+    def __init__(self, root: Path):
+        self.root = root
+        self.handles: dict[int, Path] = {}
+        self.last_error = 0
+        self.local(DOCS).mkdir(parents=True)        # the player's Documents folder exists
+
+    def local(self, path: str) -> Path:
+        assert path[:3].upper() == "C:\\", path
+        return self.root / path[3:].replace("\\", "/")
+
+    @staticmethod
+    def wstr(m, a):
+        raw = bytes(m.mu.mem_read(a, 2048))
+        end = next(i for i in range(0, len(raw), 2) if raw[i:i + 2] == b"\0\0")
+        return raw[:end].decode("utf-16-le")
+
+    def install(self, m: Machine) -> None:
+        w = lambda a, text: m.mu.mem_write(a, text.encode("utf-16-le") + b"\0\0")  # noqa: E731
+
+        def lstrlenW(m):
+            a, = m._args(1)
+            m._ret(len(self.wstr(m, a)) if a else 0, 1)
+
+        def lstrcpyW(m):
+            d, s = m._args(2)
+            w(d, self.wstr(m, s))
+            m._ret(d, 2)
+
+        def lstrcpynW(m):
+            d, s, n = m._args(3)
+            w(d, self.wstr(m, s)[:max(0, n - 1)])
+            m._ret(d, 3)
+
+        def lstrcatW(m):
+            d, s = m._args(2)
+            w(d, self.wstr(m, d) + self.wstr(m, s))
+            m._ret(d, 2)
+
+        def CompareStringW(m):
+            _loc, _flags, a, na, b, nb = m._args(6)
+            sa = self.wstr(m, a) if na == 0xFFFFFFFF else bytes(m.mu.mem_read(a, 2 * na)).decode("utf-16-le")
+            sb = self.wstr(m, b) if nb == 0xFFFFFFFF else bytes(m.mu.mem_read(b, 2 * nb)).decode("utf-16-le")
+            sa, sb = sa.casefold(), sb.casefold()
+            m._ret(1 if sa < sb else 2 if sa == sb else 3, 6)
+
+        def SHGetSpecialFolderPathW(m):
+            _h, out, _csidl, _create = m._args(4)
+            w(out, DOCS)
+            m._ret(1, 4)
+
+        def CreateDirectoryW(m):
+            a, _sec = m._args(2)
+            p = self.local(self.wstr(m, a))
+            existed = p.exists()
+            p.mkdir(exist_ok=True)
+            self.last_error = 183 if existed else 0     # ERROR_ALREADY_EXISTS
+            m._ret(0 if existed else 1, 2)
+
+        def GetLastError(m):
+            m._ret(self.last_error, 0)
+
+        def GetFileAttributesExW(m):
+            a, _level, info = m._args(3)
+            p = self.local(self.wstr(m, a))
+            if not p.exists():
+                m._ret(0, 3)
+                return
+            m.mu.mem_write(info, struct.pack("<I", 0x10 if p.is_dir() else 0x20) + b"\0" * 32)
+            m._ret(1, 3)
+
+        def FindFirstFileW(m):
+            m._args(2)
+            m._ret(0xFFFFFFFF, 2)                   # nothing found: the folder test the routing makes
+
+        def CreateFileW(m):
+            a, access, _share, _sec, _disp, _flags, _tmpl = m._args(7)
+            p = self.local(self.wstr(m, a))
+            assert access == 4, "append only (FILE_APPEND_DATA)"
+            p.touch()
+            h = 0x500 + 4 * len(self.handles)
+            self.handles[h] = p
+            m._ret(h, 7)
+
+        def WriteFile(m):
+            h, buf, n, wrote, _ov = m._args(5)
+            with open(self.handles[h], "ab") as f:
+                f.write(bytes(m.mu.mem_read(buf, n)))
+            m.mu.mem_write(wrote, struct.pack("<I", n))
+            m._ret(1, 5)
+
+        def CloseHandle(m):
+            m._args(1)
+            m._ret(1, 1)
+
+        def GetLocalTime(m):
+            st, = m._args(1)
+            m.mu.mem_write(st, struct.pack("<8H", 2026, 11, 0, 15, 9, 8, 7, 0))
+            m._ret(0, 1)
+
+        for fn in (lstrlenW, lstrcpyW, lstrcpynW, lstrcatW, CompareStringW, SHGetSpecialFolderPathW,
+                   CreateDirectoryW, GetLastError, GetFileAttributesExW, FindFirstFileW, CreateFileW, WriteFile, CloseHandle,
+                   GetLocalTime):
+            m.extra[fn.__name__] = fn
+
+    def save_folder(self) -> Path:
+        # The emulated executable is C:\Games\Village\game.exe: its saves are Documents\LDW\game.
+        return self.local(DOCS + "\\LDW\\game")
+
+
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class RecordTests(unittest.TestCase):
+    def machine(self, game, slot=2):
+        import tempfile
+        import shutil
+        root = Path(tempfile.mkdtemp(prefix="gm"))
+        self.addCleanup(shutil.rmtree, root, True)
+        m = Machine(game)
+        files = FileCalls(root)
+        files.install(m)
+        manager, field = SAVE_MANAGER[game]
+        m.mu.mem_write(manager, struct.pack("<I", HEAP + 0x60000))
+        m.mu.mem_write(HEAP + 0x60000 + field, struct.pack("<I", slot))
+        self.assertEqual(m.export(game), 1)
+        return m, files
+
+    def find(self, m, game, regs):
+        c = RECORD[game]
+        mu = m.mu
+        esp = STACK - 0x400
+        stack = [0x11111111] * 16
+        if game == 2:
+            # The row's `call 0x473E05` at 0x4633CD: the villager's index is [esp+0x1C] at the call.
+            stack[7] = VV2_INDEX
+            mu.mem_write(VV2_VILLAGE + VV2_INDEX * 0xE48C + 0x44, struct.pack("<I", regs["carry"]))
+            regs = {UC_X86_REG_ESI: VV2_VILLAGE}
+        mu.mem_write(esp, struct.pack("<16I", *stack))
+        before = {r: v for r, v in REGS.items()}
+        before.update(regs)
+        for r, v in before.items():
+            mu.reg_write(r, v)
+        mu.reg_write(UC_X86_REG_ECX, 0xC1C1C1C1)
+        before[UC_X86_REG_ECX] = 0xC1C1C1C1
+        mu.reg_write(UC_X86_REG_EFLAGS, 0x246)
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        m.stop_at = {c["next"]}
+        m.stopped = None
+        mu.emu_start(c["site"], 0xFFFFFFFF, count=400000)
+        self.assertEqual(m.stopped, c["next"], "the row's own code continues")
+        after = {r: mu.reg_read(r) for r in before}
+        if game == 3:
+            del after[UC_X86_REG_EAX], before[UC_X86_REG_EAX]   # the replayed movzx loads eax, as the row does
+        self.assertEqual(after, before, "every register as it was")
+        self.assertEqual(mu.reg_read(UC_X86_REG_EFLAGS) & 0xFFF, 0x246, "and the flags")
+        return esp, mu.reg_read(UC_X86_REG_ESP)
+
+    def test_the_record_sites_are_the_rows_bytes_in_every_rendering(self):
+        rows = {p.id: p.raw for p in vfp.load_fun_patches()}
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                m = Machine(game)
+                va, row, patched, stub = m.record_probe()
+                self.assertEqual(va, RECORD[game]["site"])
+                self.assertEqual(_rendered_bytes(game, va, len(row)), row)
+                detours = rows[f"vv{game}_super_secret_golden_mushroom"]["runtime_detours"]
+                self.assertIn({"va": f"0x{va:X}", "stock_bytes": row.hex().upper(), "routine": "part of the secret",
+                               "installed_by": f"VVFP Golden Mushroom.dll, ordinal {game}"}, detours)
+                self.assertEqual(m.export(game), 1)
+                self.assertEqual(bytes(m.mu.mem_read(va, len(patched))), patched)
+
+    def test_each_golden_find_appends_one_line_and_continues_as_the_row(self):
+        import vv_game_mechanics_counts as counts
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                m, files = self.machine(game, slot=2)
+                esp, after = self.find(m, game, dict(RECORD[game]["golden"]))
+                if game == 1:
+                    self.assertEqual((after, rd32(m.mu, after)), (esp - 4, 0x64), "the row's push, then its jmp")
+                elif game == 2:
+                    self.assertEqual((after, rd32(m.mu, after)), (esp - 4, 0x4633D2), "the row's call frame")
+                else:
+                    self.assertEqual(after, esp)
+                self.assertEqual(m.record_stats(), (1, 1))
+                self.find(m, game, dict(RECORD[game]["golden"]))
+                self.assertEqual(m.record_stats(), (2, 2))
+                placed = (files.save_folder() / "Virtual Villagers Fun Patcher" / "Save 2" / "Data"
+                          / "Golden Mushrooms" / "Golden Mushrooms - Save 2.txt")
+                self.assertEqual(placed.read_bytes(), b"2026-11-15 09:08:07\r\n" * 2)
+                self.assertEqual(counts.golden_record(files.save_folder(), 2), ["2026-11-15"] * 2)
+                self.assertIsNone(counts.golden_record(files.save_folder(), 1))
+                self.assertFalse((files.save_folder() / "Virtual Villagers Fun Patcher Data").exists(),
+                                 "no older-layout folder for a new file")
+
+    def test_any_other_kind_is_never_recorded(self):
+        for game in (2, 3, 4, 5):
+            with self.subTest(game=game):
+                m, files = self.machine(game)
+                self.find(m, game, dict(RECORD[game]["other"]))
+                self.assertEqual(m.record_stats(), (0, 0))
+                self.assertFalse(files.save_folder().exists() and any(files.save_folder().rglob("*.txt")))
+
+    def test_no_slot_writes_nothing_and_still_continues(self):
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                m, files = self.machine(game, slot=0)
+                self.find(m, game, dict(RECORD[game]["golden"]))
+                self.assertEqual(m.record_stats(), (1, 0))
+                self.assertFalse(files.save_folder().exists() and any(files.save_folder().rglob("*.txt")))
 
 
 if __name__ == "__main__":

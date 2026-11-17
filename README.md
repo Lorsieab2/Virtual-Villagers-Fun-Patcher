@@ -780,7 +780,7 @@ Each child who finishes the Going to school activity still gains 7 to 9 points i
 
 **Easier Healing Mastery**
 
-Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 14% roll lives in "VVFP VV1 Easier Healing.dll", started by VVFP Startup.dll; if it cannot be loaded, every villager studies as before.
+Healers and villagers who prefer Healing study the Medical Cactus when the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager checked on Healing does so about three times in four (75%) of those times, so healers still do other things as in the normal game (with Builders Fix Huts When Idle also selected, this is that patch's one roll per choice, shared); a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 75% and 14% rolls live in "VVFP VV1 Easier Healing.dll", started by VVFP Startup.dll; if it cannot be loaded, every villager studies as before.
 
 - Patch ID: `vv1_easier_healing_mastery`
 
@@ -956,7 +956,7 @@ Every technology level on the Tech screen costs 2 to 10 times its normal price i
 
 **Easier Healing Mastery**
 
-Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.
+Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up: a villager checked on Healing about three times in four (75%) of those times, so healers still do other things as in the normal game; a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else.
 
 - Patch ID: `vv2_easier_healing_mastery`
 

@@ -112,7 +112,15 @@
   "o1": {
    "name": "Outcome 1",
    "text": "A shallow-water prototype reveals a new way to observe marine life.",
-   "src": "L903"
+   "src": "L903",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L903"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome 2",

@@ -1,0 +1,255 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child's First Word",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new175_child_word",
+  "source": "rewrites",
+  "lines": [
+   8478,
+   8524
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8478",
+  "ledger": [
+   {
+    "src": "L8479",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8480",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8489",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8496",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8503",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8485",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8486",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8487",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8490",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8497",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8504",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8491",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8493",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8500",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8505",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8507",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8510-8524",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager's baby has said a first word!",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name)'s baby has said a first word!\nIt was \"fish.\" Clear as anything. (Name) was holding the baby by the drying racks, and the baby looked right at them, and said \"fish.\"\nNobody else seems to have heard it.\n(Name) has scratched it onto a strip of bark with berry ink, along with the day and the time, and has told everyone in the village. The baby, meanwhile, has refused to say it again. Or anything else. When people crowd around saying \"fish? fish?\" the baby just looks at them with an expression of enormous smugness. (Name) wants the village to believe it. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Keep the Bark Safe",
+     "next": "c1",
+     "src": "L8485"
+    },
+    {
+     "label": "Ask Who Else Was There",
+     "next": "c2",
+     "src": "L8486"
+    },
+    {
+     "label": "Begin a First Words Board",
+     "next": "c3",
+     "src": "L8487"
+    }
+   ],
+   "src": "L8481-8484"
+  },
+  "c1o1": {
+   "text": "(Name) copies the word onto a smooth board, and along with it, the recipe for the long-lasting berry ink (he/she) used, which (his/her) mother taught (him/her): crushed berries, a little ash, and sap to make it stick. The ink holds beautifully. It's a useful trick for the village, and soon everyone is using \"first word ink\" for their marks.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8492"
+  },
+  "c1o2": {
+   "text": "A sudden downpour soaks the bark strip before (name) can get it inside. The word survives, just. But the ink recipe that (name) had scratched on the back, the only copy of (his/her) mother's method, washes away, and with it, that bit of know-how. The baby watches the rain and says nothing.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8494"
+  },
+  "c1": {
+   "text": "(Name) decides that this bark strip is the most important document in the village, and must be preserved...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8490"
+  },
+  "c2o1": {
+   "text": "A neighbour did hear it! And remembers something else: the baby was pointing at the drying racks, at the fish, when (he/she) said it. The baby knew exactly what fish were. It's a detail everyone had missed, and it sets the village healers talking about how early babies understand words, a useful thing to know for teaching small children.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8499"
+  },
+  "c2o2": {
+   "text": "The witnesses disagree. One says it was definitely \"fish.\" One says it was \"fiss.\" One says it was a sneeze, and is now no longer welcome at (name)'s hut. Nobody pretends to know. The baby sneezes, and everyone gasps.",
+   "src": "L8501"
+  },
+  "c2": {
+   "text": "Stung by the doubtful looks, (name) goes around asking if anyone else heard it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8497"
+  },
+  "c3o1": {
+   "text": "The village starts a carved board of first words, and the seasons they were spoken. Parents come from all over the village to add theirs: \"mama\", \"no\", \"coconut\", and one baby, long ago, whose first word was apparently \"volcano.\" It becomes a careful record for future generations, and teaches the village a great deal about how children learn to talk.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8506"
+  },
+  "c3o2": {
+   "text": "Looking at the board, (name) decides that the first word is a family treasure, and keeps it for (himself/herself). (He/She) tucks the bark strip into a safe place and doesn't carve it. A few days later, the baby says \"fish\" again. Only (name) hears it. That's fine.",
+   "src": "L8508"
+  },
+  "c3": {
+   "text": "(Name) proposes a village board where every family can carve their children's first words, and when they were spoken...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8504"
+  }
+ }
+}

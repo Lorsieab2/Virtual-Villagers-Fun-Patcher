@@ -1,0 +1,322 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Plant That Grew Sideways",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new192_plant_grew",
+  "source": "rewrites",
+  "lines": [
+   9321,
+   9377
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9321",
+  "ledger": [
+   {
+    "src": "L9322",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9323",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9333",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9340",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9347",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9354",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9328",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9329",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9330",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9331",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9334",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9341",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9348",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9355",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9335",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9337",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9342",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9344",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9349",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9351",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9356",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9358",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9361-9377",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Someone left a seedling in a pot inside the storage shelter, in the dark, and forgot about it for a week.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Someone left a seedling in a pot inside the storage shelter, in the dark, and forgot about it for a week.\nWhen (subject) finds it, it has grown almost completely flat. Not up, like a plant should. Sideways. Bending hard toward a crack in the shelter wall, where one thin stripe of sunlight comes through.\nIts whole stem is stretched out toward that crack, thin and pale and determined.\n\"It looks,\" says (child), who is peering at it over (subject)'s shoulder, \"like it's trying to escape.\" Why would a plant grow sideways? (subject) wants to find out.",
+   "choices": [
+    {
+     "label": "Watch the Seedling for a Week",
+     "next": "c1",
+     "src": "L9328"
+    },
+    {
+     "label": "Test Light Against Wind",
+     "next": "c2",
+     "src": "L9329"
+    },
+    {
+     "label": "Ask Whether It Is Sick",
+     "next": "c3",
+     "src": "L9330"
+    },
+    {
+     "label": "Teach the Turning Trick",
+     "next": "c4",
+     "src": "L9331"
+    }
+   ],
+   "src": "L9324-9327"
+  },
+  "c1o1": {
+   "text": "Every single day, by evening, the plant has bent itself back toward the crack. Every time. It's a repeatable pattern that adds to village knowledge: plants grow toward light, and will twist themselves around to find it. The farmers start thinking about which way their fields face.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9336"
+  },
+  "c1o2": {
+   "text": "Some days it bends back toward the crack, and some days it doesn't. (subject) can't work out why. (subject.He/She) records the uncertainty honestly. The plant, meanwhile, keeps growing, in several directions at once.",
+   "src": "L9338"
+  },
+  "c1": {
+   "text": "(subject) leaves the plant where it is, but every morning, turns the pot around so the plant is facing away from the crack...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9334"
+  },
+  "c2o1": {
+   "text": "One pot goes by the crack, with sun and air. One goes in a closed corner where there's a draught from under the door, but no light at all. After a few days, the first one is bending toward the crack, and the second one is just standing there, pale and confused. The plant chases light, not air. It's a useful discovery, and the gardeners start spacing seedlings so none of them are in another's shade.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9343"
+  },
+  "c2o2": {
+   "text": "Both ideas still seem possible after the test: the second plant bends a little toward the draught, but only a little. More watching is needed. (subject) sets up two more pots.",
+   "src": "L9345"
+  },
+  "c2": {
+   "text": "(subject) has two ideas: the plant is chasing the light, or it's chasing the fresh air that comes through the crack. (subject.He/She) sets up a test...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9341"
+  },
+  "c3o1": {
+   "text": "(child) raises a hand. \"What if it's just sick? What if it's not clever at all, it's just droopy?\" Everyone stops. They had all assumed the bending must mean something clever. It's a hidden assumption, exposed, and the gardeners learn to always check for sickness before deciding a plant is doing something on purpose.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9350"
+  },
+  "c3o2": {
+   "text": "The gardeners argue about how to measure \"bending.\" By eye? By the angle? By how sad it looks? Eventually they agree to use a stick marked with notches, held up against the stem. It takes all afternoon.",
+   "src": "L9352"
+  },
+  "c3": {
+   "text": "(subject) asks everyone to suggest what else might be going on...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9348"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the test with other seedlings: several pots, all turned the same way at the same time, all watered the same. (novice) learns how to set up a test that can be trusted, and soon has a whole row of sideways plants in the shelter.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9357"
+  },
+  "c4o2": {
+   "text": "(novice) notices that one pot was always watered more than the other, because it was nearer the door. That could change everything. The group corrects its notes, and starts over with equal water.",
+   "src": "L9359"
+  },
+  "c4": {
+   "text": "(subject) decides to show (novice) how to repeat the pot-turning test properly, with other seedlings...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9355"
+  }
+ }
+}

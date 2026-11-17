@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Turtle's Nest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b047_turtle_nest",
+  "source": "balance",
+  "lines": [
+   2116,
+   2158
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2116",
+  "ledger": [
+   {
+    "src": "L2117",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2118",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2126",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2135",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2123",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2124",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2127",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2136",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2129",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2132",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2141",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2144-2158",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On a moonlit walk, a villager and another villager come across a great sea turtle hauling herself up the beach to lay her eggs.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On a moonlit walk, (subject) and (friend) come across a great sea turtle hauling herself up the beach to lay her eggs. The old fishers say that helping a mother turtle brings children to a home that has hoped for them, and (subject) and (friend) have hoped for a long time.\nThe turtle is struggling: there's a log across her path, and she can't get above the tide line. She stops, and breathes heavily, and looks at them with old, wet eyes.\nShould they move the log for her, or keep back and let her find her own way, as the fishers also say is best?",
+   "choices": [
+    {
+     "label": "Move the Log",
+     "next": "c1",
+     "src": "L2123"
+    },
+    {
+     "label": "Keep Back and Watch",
+     "next": "c2",
+     "src": "L2124"
+    }
+   ],
+   "src": "L2119-2121"
+  },
+  "c1o1": {
+   "text": "A month later, a baby is expected. Whether it was the turtle or not, nobody can say, but (subject) and (friend) go down to that stretch of beach every year when the hatchlings come out, and make sure they all reach the sea. When their child is old enough, they bring the child too.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2130"
+  },
+  "c1o2": {
+   "text": "A baby is expected. Then the healer listens again, and starts to laugh. {#babies:Only one after all, but a big, strong one|Twins|Triplets}. \"That turtle,\" says (friend), shaking (friend.his/her) head, \"laid a hundred eggs. I'm just glad she didn't give us all of them.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L2133"
+  },
+  "c1": {
+   "text": "They heave the log out of the way, and the turtle drags herself up past the tide line, digs her nest, and lays her eggs, while (subject) and (friend) sit in the sand holding hands and watching...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2127"
+  },
+  "c2o1": {
+   "text": "The turtle lays her eggs and goes back to the sea, and (subject) and (friend) walk home in the moonlight, quiet and content. No baby comes that year. They visit the nest every day until it hatches, and help count the hatchlings to the sea. \"Next year,\" says (subject), and squeezes (friend)'s hand.",
+   "src": "L2139"
+  },
+  "c2o2": {
+   "text": "The months go by, and then, the week the hatchlings come out, (subject) realises a baby is expected. \"She took her time too,\" says (friend), watching the little turtles run for the waves. \"Found her own way round the log.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2142"
+  },
+  "c2": {
+   "text": "They sit back in the shadow of the palms and watch. The turtle rests for a long time. Then, slowly, she finds her own way round the end of the log...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2136"
+  }
+ }
+}

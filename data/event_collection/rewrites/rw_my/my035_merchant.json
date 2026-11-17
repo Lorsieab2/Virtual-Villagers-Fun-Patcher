@@ -1,0 +1,334 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Merchant's Impossible Price",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my035_merchant",
+  "source": "rewrites",
+  "lines": [
+   11880,
+   11935
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11880",
+  "ledger": [
+   {
+    "src": "L11881",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11882",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11898",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11905",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11912",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11886",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11887",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11888",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11889",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11892",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11899",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11906",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11913",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11893",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11895",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11900",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11902",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11907",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11909",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11916",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11919-11935",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L11915",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A traveling merchant sets up a little mat under a tree and beckons a villager over.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveling merchant sets up a little mat under a tree and beckons (name) over. \"For you,\" the merchant purrs, holding up a beautiful sealed bottle the colour of a sunset, small enough to fit neatly in the palm. \"Only for you.\"\n\"What's the price?\" (name) asks. The merchant smiles, a smile that doesn't quite reach the merchant's eyes. \"One thing you will not miss until it is gone.\" (Name) has no idea what that means. Neither does anyone else who's gathered around. The bottle glows warmly in the shade. What should (name) do?",
+   "choices": [
+    {
+     "label": "Accept the Bargain",
+     "next": "c1",
+     "src": "L11886"
+    },
+    {
+     "label": "Ask for a Clear Price",
+     "next": "c2",
+     "src": "L11887"
+    },
+    {
+     "label": "Refuse the Trade",
+     "next": "c3",
+     "src": "L11888"
+    },
+    {
+     "label": "Offer Food Instead",
+     "next": "c4",
+     "src": "L11889"
+    }
+   ],
+   "src": "L11883-11884"
+  },
+  "c1o1": {
+   "text": "Inside the bottle are seeds, rare ones, which the farmers plant with great excitement and which grow into the sweetest little melons anyone has ever eaten. It's a wonderful trade. Weeks later, at a feast, the musicians start up (name)'s favourite song, the one (he/she) has loved since childhood. (Name) frowns. (He/She) can't remember what it's called. Or how it goes. Or why (he/she) loved it. It's just gone. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11894"
+  },
+  "c1o2": {
+   "text": "The merchant reaches into the basket at (name)'s feet, takes out an old broken comb that's been lying at the bottom for years, and leaves, apparently satisfied. (Name) laughs. That's it? (He/She) only thinks about the comb once the merchant is long gone, and then can't stop thinking about it: it was (his/her) grandmother's. (Name) hadn't looked at it in years. Now (he/she) misses it terribly.",
+   "src": "L11896"
+  },
+  "c1": {
+   "text": "\"Deal,\" (name) says, before (he/she) can think better of it. The merchant's smile widens. The bottle is placed in (his/her) hand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11892"
+  },
+  "c2o1": {
+   "text": "The merchant sighs and drops the mysterious act. \"Fine, fine. It's perfume. Flowers and oil. Nice perfume. But perfume.\" The merchant names a fair price of three good baskets of food, and (name) haggles it down to two. The perfume smells wonderful. The merchant admits, a little sheepishly, that the riddle usually gets a much better price.",
+   "src": "L11901",
+   "text_only": [
+    {
+     "src": "L11901",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The merchant's smile vanishes. \"That is the price,\" the merchant says coldly. \"There is no other.\" When (name) still refuses to agree without knowing, the merchant tucks the bottle away, rolls up the mat and walks off without another word. Nobody sees which way the merchant went.",
+   "src": "L11903",
+   "text_only": [
+    {
+     "src": "L11903",
+     "what": "\"vanishes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "\"I don't trade for riddles,\" (name) says firmly. \"Tell me exactly what you want, or no deal.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11899"
+  },
+  "c3o1": {
+   "text": "The merchant bows, unoffended. \"A wise choice, perhaps,\" the merchant says. \"Or perhaps not. You'll never know.\" And off the merchant goes, without complaint, leaving (name) feeling clever and slightly cheated at the same time.",
+   "src": "L11908"
+  },
+  "c3o2": {
+   "text": "That night, (name) dreams of the sunset-coloured bottle sitting on (his/her) shelf. In the dream, it opens all by itself, the stopper rising slowly into the air, and something warm and golden drifts out. (Name) wakes before (he/she) can see what it is. (He/She) dreams the same dream for a week, and it never gets any further.",
+   "src": "L11910"
+  },
+  "c3": {
+   "text": "\"No thank you,\" (name) says. \"I'd rather keep whatever it is I won't miss.\" The crowd murmurs approvingly...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11906"
+  },
+  "c4o1": {
+   "text": "The merchant accepts a generous meal, eats every scrap, then accepts a second helping, and a parcel for the road. In return, the merchant crouches and draws a map in the dirt with a stick: every spring along the coast road, every safe camp, every village that trades fairly. (Name) copies it carefully. The merchant leaves with the bottle and rather a lot of the village's food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L11915"
+  },
+  "c4o2": {
+   "text": "The merchant looks at the food and shakes (his/her) head slowly. \"This bargain was never about hunger,\" (he/she) says, almost sadly. The merchant packs up and leaves without eating a bite. (Name) eats the meal (himself/herself), and it tastes strange, and (he/she) isn't sure why.",
+   "src": "L11917",
+   "text_only": [
+    {
+     "src": "L11917",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4": {
+   "text": "\"I can't pay in riddles,\" (name) says. \"But I can give you a good meal. How about that?\" (He/She) fetches some food from the stores...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11913",
+   "text_only": [
+    {
+     "src": "L11913",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

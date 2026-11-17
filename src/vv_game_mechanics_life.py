@@ -666,7 +666,7 @@ def _boost(amount: float, mastery: float) -> float:
 
 
 def meal_multiplier(village: gm.Village) -> int:
-    """Hungrier Villagers' (2-10x Meals) multiplier in the game's executable: k when both of the row's meal sites
+    """Hungrier Villagers' (2-100x Meals) multiplier in the game's executable: k when both of the row's meal sites
     (data/vv<N>_hungrier_villagers_feature.json) hold -2 x k; 1 when the row is not known to be in the game or its
     executable is not found or holds no consistent multiplier."""
     import json
@@ -685,7 +685,8 @@ def meal_multiplier(village: gm.Village) -> int:
     if len(values) != 1:
         return 1
     value = next(iter(values))
-    return -value // 2 if value < 0 and value % 2 == 0 and 2 <= -value // 2 <= 10 else 1
+    # 2 to 64: the slider goes to 100, but the meal's signed byte holds -128 at most (x 64).
+    return -value // 2 if value < 0 and value % 2 == 0 and 2 <= -value // 2 <= 64 else 1
 
 
 def eat_per_unit(ctx: Context, food: int | None = None, level: int | None = -1) -> float:
@@ -865,7 +866,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         + ("; the Golden Child never eats" if any(p.golden for p in members) else "")
         + ("; Heathens outside the tribe never eat" if ctx.game == 5 else "") + ".", True, gm.SAVE)
     add(f"Eating: {ctx.food_words}"
-        + (f" With the patcher's \"Hungrier Villagers (2-10x Meals)\" at x{ctx.meals} in this game, every meal and "
+        + (f" With the patcher's \"Hungrier Villagers (2-100x Meals)\" at x{ctx.meals} in this game, every meal and "
            "extra takes that many times the food." if ctx.meals != 1 else "")
         + f" That is {per_unit:g} food a villager each age unit now, "
         f"{per_unit * units_hour:g} per real-life hour on {on} speed.", True, gm.RUNNING)

@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ring of White Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b253_ring_white_stones",
+  "source": "balance",
+  "lines": [
+   11811,
+   11852
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11811",
+  "ledger": [
+   {
+    "src": "L11812",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11813",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11821",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11830",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11818",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11819",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11822",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11831",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11824",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11827",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11833",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11836",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11839-11852",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "High on the ridge there is a ring of white stones, each one taller than a person, that nobody in the village put there.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "High on the ridge there is a ring of white stones, each one taller than a person, that nobody in the village put there. The elders say the first people to come to the island found them already standing. Once in a while, on a night with no moon, the gaps between the stones shimmer like heat over a fire.\nTonight there is no moon, and (name), walking home late from the far gardens, can see the shimmer from the path. It hums, softly, like a hive.\n(Name) knows the stories. (He/She) also wants very badly to know what's on the other side. Step into the ring, or hurry home?",
+   "choices": [
+    {
+     "label": "Step Into the Ring",
+     "next": "c1",
+     "src": "L11818"
+    },
+    {
+     "label": "Hurry Home",
+     "next": "c2",
+     "src": "L11819"
+    }
+   ],
+   "src": "L11814-11816"
+  },
+  "c1o1": {
+   "text": "(Name) takes one more step, and is gone. In the morning (his/her) footprints lead up to the ring and stop between two stones. The search party walks around and around the ring all day and finds nothing. On the next moonless night, half the village climbs the ridge to watch the gaps shimmer, and some of them swear that for a moment they could see someone on the other side, waving.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L11825"
+  },
+  "c1o2": {
+   "text": "(Name) steps through and steps straight back out, startled, and someone steps out behind (him/her). It is (name), exactly, down to the scar on (his/her) knee and the way (he/she) hates mornings. The two of them stare at each other in the starlight. \"Well, I'm not going back in,\" says the second one. The village names (him/her) (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L11828"
+  },
+  "c1": {
+   "text": "(Name) walks between two of the white stones. The humming fills (his/her) ears, (his/her) chest, (his/her) teeth. The world on the other side of the gap looks almost the same as this one, but brighter...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11822"
+  },
+  "c2o1": {
+   "text": "At home, (name) washes (his/her) face in the water jar and gets a shock. In the lamplight (he/she) looks years younger: the face (he/she) had long ago, bright and smooth, as if (he/she) had brought a little of the other side home on (his/her) skin. (His/her) age hasn't changed. The healers have no explanation, and the elders say it is the ring saying hello.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L11834"
+  },
+  "c2o2": {
+   "text": "(Name) gets home, bars the door, and sits up until dawn listening. Nothing comes. In the morning (he/she) feels a bit foolish, and goes up the ridge in daylight to look. The white stones are just white stones, warm in the sun, with lizards sunning themselves on top of them. A lizard looks at (name) as if (he/she) is the strange one.",
+   "src": "L11837"
+  },
+  "c2": {
+   "text": "(Name) puts (his/her) head down and walks very fast. The humming follows (him/her) all the way down the ridge, softer and softer, like someone calling (his/her) name and then giving up...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11831"
+  }
+ }
+}

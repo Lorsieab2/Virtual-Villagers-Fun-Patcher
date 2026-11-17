@@ -1,0 +1,446 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_dep",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "dep01_night_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep02_week_away": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "dep03_too_much_carry": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep04_goodbye_speech": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep05_empty_side_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep06_more_bend_path": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep07_canoe_kept_going": {
+   "filters": [
+    "F04",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o1": [
+     "F04",
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep08_sound_dogs_night": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "dep09_whoever_needs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep10_name_nobody_says": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "dep11_traveler_edge": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep12_running_away_big": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "dep13_last_day_crew": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F19"
+    ]
+   }
+  },
+  "dep14_hut_too_big_now": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "dep15_walk_far_beach": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "dep16_visitor_stayed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep17_looking_back": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep18_one_place_canoe": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep19_seeds_somewhere": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep20_moving_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep21_home_already": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "dep22_teacher_goes": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F07"
+    ],
+    "setup": [
+     "F07"
+    ]
+   }
+  },
+  "dep23_going_after_all": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "dep24_halfway_there": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "dep25_cracked_pot": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep26_will_you_go_away": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep27_too_big_canoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep28_leaving_fire": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "dep29_learning": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "dep30_little_island": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "dep31_shell_each_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep32_moving_back": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep33_touching_leaving": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep34_dog_wanted_come": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "dep35_nobody_noticed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject",
+    "child"
+   ]
+  },
+  "dep36_saying_goodbye": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "dep37_your_own_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "dep38_season_away": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep39_way_home_written": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep40_last_day_before": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep41_saying_goodbye": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "dep42_second_thoughts": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep43_first_sleepover": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep44_borrowing_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep45_message_gourd": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep46_walk_far_beach": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "dep47_nothing_pack": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   }
+  },
+  "dep48_bed_night": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "dep49_hill_where_you": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "dep50_still_here": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

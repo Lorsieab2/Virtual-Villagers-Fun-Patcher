@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Whispering Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s067_whispering_cave",
+  "source": "rewrites",
+  "lines": [
+   3167,
+   3209
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3167",
+  "ledger": [
+   {
+    "src": "L3168",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3169",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3177",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3186",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3174",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3175",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3178",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3187",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3180",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3189",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3192",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3195-3209",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the hills, past the last of the gardens, there's a cave that whispers.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the hills, past the last of the gardens, there's a cave that whispers. Its mouth is hung with long pale roots like a curtain, and cold air sighs out between them even on the hottest day. Most people who pass it hear only the wind moving through the rocks. The elders say that a few hear more: the voices of people the island has lost, calling from somewhere deep inside.\n(Name) has passed it a hundred times. Today (he/she) stops.\nBecause today, in the sighing of the cold air, (he/she) hears (his/her) name. Clearly. Again and again, soft and patient, in a voice (he/she) almost knows, like someone (he/she) loved a long time ago, calling (him/her) in for supper. (Name)'s heart is racing. Should (he/she) go in and find out who is calling, or turn away while (he/she) still can?",
+   "choices": [
+    {
+     "label": "Go In",
+     "next": "c1",
+     "src": "L3174"
+    },
+    {
+     "label": "Stay Out",
+     "next": "c2",
+     "src": "L3175"
+    }
+   ],
+   "src": "L3170-3172"
+  },
+  "c1o1": {
+   "text": "Deep inside, where the cave opens out, a thin beam of light falls from a crack in the roof onto the far wall. And on the wall there's a painting. Old, very old, the colours faded to rust and ash. It's a painting of the village. Every hut is in the right place. The cooking fire, the paths, the fields. Even (name)'s own hut, with its crooked doorpost. But the paint is so old that it must have been painted long, long before the village was ever built. The whisper has stopped. (Name) comes out blinking into the sunlight with a head full of questions, and brings the researchers back the next day. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3181"
+  },
+  "c1o2": {
+   "text": "(Name) goes in, following the voice, deeper and deeper, until the light from the mouth is a tiny grey dot behind (him/her), and then is gone. (Name) does not come out. When (he/she) hasn't come home by dark, the searchers go up to the cave with torches and call (his/her) name into the dark. Nothing answers. They go in as far as they dare and find nothing but cold stone and roots. That night, for the first time anyone can remember, the cave stops whispering. It hasn't whispered since.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3184"
+  },
+  "c1": {
+   "text": "(Name) pushes the roots aside. They're cold and damp against (his/her) arms. The whisper grows a little louder, and a little closer, and (name) follows it into the dark, one hand on the wall...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3178"
+  },
+  "c2o1": {
+   "text": "The whispering follows (him/her). Not all the time. Only at night, when (he/she) lies down to sleep: (his/her) name, again and again, soft and patient, from just outside the door, from just under the mat, from right beside (his/her) ear. Nobody else ever hears it. It goes on for a week, so loud at night that (name) can't sleep at all. Then, one night, it simply stops. But (name) never trusts the dark again, and dreads bedtime for the rest of (his/her) life.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L3190"
+  },
+  "c2o2": {
+   "text": "(Name) tells the researchers about it the moment (he/she) gets home. They're fascinated, and a little frightened, and the next day four of them go up to the cave together with torches and ropes and a lot of nervous jokes. They don't hear any whispering at all. But a little way inside, behind a fall of rocks, they find a small, dry, hidden store: clay jars, sealed with wax, full of very, very old dried fruit. It's still good. Somebody, a long time ago, kept it safe here. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3193"
+  },
+  "c2": {
+   "text": "(Name) stands there at the mouth for a long time, (his/her) heart thumping, with the voice saying (his/her) name over and over. Then (he/she) turns away, and makes (himself/herself) walk home without looking back...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3187"
+  }
+ }
+}

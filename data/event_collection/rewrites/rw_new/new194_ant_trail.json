@@ -1,0 +1,329 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ant Trail Experiment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new194_ant_trail",
+  "source": "rewrites",
+  "lines": [
+   9438,
+   9494
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9438",
+  "ledger": [
+   {
+    "src": "L9439",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9440",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9450",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9457",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9464",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9471",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9445",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9446",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9447",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9448",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9451",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9458",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9465",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9472",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9452",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9454",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9461",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9466",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9468",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9473",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9475",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9478-9494",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A long trail of ants runs from the edge of the jungle all the way to the honey pot in the cooking hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A long trail of ants runs from the edge of the jungle all the way to the honey pot in the cooking hut. It has been there for days. The cooks have tried everything.\n(subject) has a different idea. (subject.He/She) places a flat stone right across the ants' trail, sits down beside it, and waits to see what they will do.\nSeveral villagers, walking past, sit down too. Then a few more. Soon there's a small crowd, sitting in total silence, staring intently at a stone with ants walking into it.\nNobody will admit that it's the most exciting thing they've watched all week. What will the ants do, and what can (subject) learn from it?",
+   "choices": [
+    {
+     "label": "Count the Ants Around the Stone",
+     "next": "c1",
+     "src": "L9445"
+    },
+    {
+     "label": "Test Scent Against Sight",
+     "next": "c2",
+     "src": "L9446"
+    },
+    {
+     "label": "Ask Why Honey Matters",
+     "next": "c3",
+     "src": "L9447"
+    },
+    {
+     "label": "Teach the Ant Watch",
+     "next": "c4",
+     "src": "L9448"
+    }
+   ],
+   "src": "L9441-9444"
+  },
+  "c1o1": {
+   "text": "For a whole morning, (subject) moves the stone, and counts. Every time, the ants mill about in confusion, then find the shortest way around it within the hour, and the trail settles again. Every single time. It's a repeatable pattern, and the crowd cheers each time the trail reforms. The farmers start wondering what else the ants could teach them about finding the shortest path.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9453"
+  },
+  "c1o2": {
+   "text": "The ants do something different every time the stone moves: go left, go right, go over the top, give up and go home. (subject) records the uncertainty honestly. The crowd is still enthralled.",
+   "src": "L9455"
+  },
+  "c1": {
+   "text": "(subject) starts counting the ants, and timing how long it takes them to get around the stone...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9451"
+  },
+  "c2o1": {
+   "text": "(subject) wipes a stretch of the trail clean with a damp cloth. Nothing changes that anyone can see. But the ants reach the wiped stretch and stop, completely confused, wandering in circles, as if the trail has vanished. Scent, not sight, guides them! It's a useful discovery, and the cooks immediately start wiping down the honey pot's shelf with a damp cloth every morning. The ants stop coming.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9460",
+   "text_only": [
+    {
+     "src": "L9460",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "After wiping, the ants are a little confused, but only a little, and find their way again quickly. Both explanations still fit what they saw. More ant-watching is needed, which nobody minds at all.",
+   "src": "L9462"
+  },
+  "c2": {
+   "text": "(subject) wonders: are the ants following the trail with their eyes, or by smell? (subject.He/She) sets up a test...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9458"
+  },
+  "c3o1": {
+   "text": "(child) raises a hand. \"Would they still march if there wasn't any honey?\" There's a long pause. Everyone had just assumed the ants march because of the honey. But nobody had checked. It's a hidden assumption, exposed. They move the honey pot, and the trail breaks up within a day. (child) is very pleased.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9467"
+  },
+  "c3o2": {
+   "text": "The watchers argue about how to count ants that won't stop moving. One by one? By the handful? By guessing? Eventually they agree to count only the ants that cross one particular leaf. It goes surprisingly well, until the leaf blows away.",
+   "src": "L9469"
+  },
+  "c3": {
+   "text": "(subject) asks the crowd if anyone has any other questions they think should be asked...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9465"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the stone test fairly: the same stone, the same place, the same time of day, and always write down exactly what happens, not what anyone thinks should happen. (novice) learns a great deal about watching carefully, and runs the test (subject.himself/herself) the next morning, with a crowd.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9474"
+  },
+  "c4o2": {
+   "text": "(novice) notices that every time (subject) leans over to watch, (subject.his/her) shadow falls across the trail, and the ants scatter. The scholar's own shadow was scaring them! The group revises its notes. (subject) watches from a respectful distance from then on.",
+   "src": "L9476"
+  },
+  "c4": {
+   "text": "(subject) decides (novice) should learn how to run this kind of test...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9472"
+  }
+ }
+}

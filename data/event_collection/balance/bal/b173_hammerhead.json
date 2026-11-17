@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hammerhead Shallows",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b173_hammerhead",
+  "source": "balance",
+  "lines": [
+   8005,
+   8049
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8005",
+  "ledger": [
+   {
+    "src": "L8006",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8007",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8015",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8024",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8012",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8013",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8016",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8025",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8018",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8021",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8027",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8030",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8033-8049",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The best clams on the island grow in the shallows at the north end of the bay, in water only waist-deep.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The best clams on the island grow in the shallows at the north end of the bay, in water only waist-deep. The trouble is the hammerhead sharks that come in to rest there at midday, lying in the warm water like logs. The fishers say they don't bother anyone who doesn't bother them. They say this in the voice of people who have been bothered.\n(subject) is out on the north shallows with a basket, and it's nearly noon. The basket is half full, and the best clams are just ahead. Behind (subject.him/her), a long grey shape slides in over the sand, and then another.\nShould (subject) keep gathering, quietly, or wade back to shore now?",
+   "choices": [
+    {
+     "label": "Keep Gathering",
+     "next": "c1",
+     "src": "L8012"
+    },
+    {
+     "label": "Wade Back Now",
+     "next": "c2",
+     "src": "L8013"
+    }
+   ],
+   "src": "L8008-8010"
+  },
+  "c1o1": {
+   "text": "A clam slips out of (subject)'s hand and splashes. The nearest shark moves faster than anything that big should be able to. The fishers on the shore hear (subject) scream and come running with spears. They get (subject.him/her) out. The healers save the leg, but not its strength. (subject) walks with a stick now, and never goes in the water above (subject.his/her) ankles again.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8019"
+  },
+  "c1o2": {
+   "text": "The shark looks at (subject) for a long time, then turns its head away and goes back to sleep. (subject) fills the basket to the brim, one silent clam at a time, and wades out backwards, very, very slowly. On the shore, (subject.his/her) legs give out and (subject.he/she) has to sit down. The clams are the best anyone has eaten all year. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8022"
+  },
+  "c1": {
+   "text": "(subject) moves very slowly, bending (subject.his/her) body down into the water, pulling up clams one at a time. The sharks lie still. One of them turns its strange flat head towards (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8016"
+  },
+  "c2o1": {
+   "text": "One of the sharks follows. The fishers see it from the shore and shout, and (subject) runs, splashing, which is the worst thing to do. The fishers bring (subject.him/her) in. The village buries (subject) on the hill above the bay. After that, nobody gathers on the north shallows after the sun is high, and the fishers put up a pole on the shore with a shark's tooth tied to the top, as a warning.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L8028"
+  },
+  "c2o2": {
+   "text": "(subject) reaches the shore without a ripple, and sits down hard on the sand, shaking, with half a basket of clams. Out in the shallows the sharks are lying still, as if nothing happened. \"They don't bother anyone who doesn't bother them,\" says (fisher), cheerfully, coming over. (subject) gives (subject.him/her) a long look.",
+   "src": "L8031"
+  },
+  "c2": {
+   "text": "(subject) turns and wades for the shore, slow and steady, not splashing. The water seems to get deeper with every step. Behind (subject.him/her), the grey shapes stir...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8025"
+  }
+ }
+}

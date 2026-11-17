@@ -1,0 +1,307 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trader with No Goods",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new141_trader_goods",
+  "source": "rewrites",
+  "lines": [
+   6634,
+   6689
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6634",
+  "ledger": [
+   {
+    "src": "L6635",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6636",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6645",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6652",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6659",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6666",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6640",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6641",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6642",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6643",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6646",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6653",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6660",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6667",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6647",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6649",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6654",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6656",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6661",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6663",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6668",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6670",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6673-6689",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A canoe limps onto the beach at dawn, low in the water, its hull cracked along one side and stuffed with moss to slow the leak.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A canoe limps onto the beach at dawn, low in the water, its hull cracked along one side and stuffed with moss to slow the leak. The trader paddling it is soaked, sunburned and looks as if (he/she) has not slept in days.\nTwo nights ago, a storm caught (him/her) far out at sea. Wave after wave broke over the canoe, and one by one, the cargo went over the side: the shells, the carved bowls, the good rope, everything.\nAll that is left is one sack of dried fish and a single bolt of dyed cloth, so soggy it drips. The trader holds the cloth up for (name) to see, and gives a helpless, exhausted laugh. \"I don't suppose,\" (he/she) says, \"you'd like to buy a very wet blanket?\" The trader has lost almost everything. How should (name) respond?",
+   "choices": [
+    {
+     "label": "Offer Them a Hot Meal",
+     "next": "c1",
+     "src": "L6640"
+    },
+    {
+     "label": "Ask What the Storm Was Like",
+     "next": "c2",
+     "src": "L6641"
+    },
+    {
+     "label": "Offer Them a Place Here",
+     "next": "c3",
+     "src": "L6642"
+    },
+    {
+     "label": "Trade Field Work for Repairs",
+     "next": "c4",
+     "src": "L6643"
+    }
+   ],
+   "src": "L6637-6639"
+  },
+  "c1o1": {
+   "text": "The trader is given a bowl of hot stew and a dry mat in the shade, and falls asleep before (he/she) finishes the stew. (He/She) sleeps for half a day, through the noise of the whole village, with the bowl still in (his/her) lap. When (he/she) wakes, the first thing (he/she) asks is whether there's more stew. There is.",
+   "src": "L6648"
+  },
+  "c1o2": {
+   "text": "The trader eats, then insists, absolutely insists, on sharing (his/her) last sack of dried fish with the village. \"You fed me. I'm not taking it back out to sea.\" No amount of arguing will change (his/her) mind, and the sack goes into the storehouse. The stores gain a little food, and the village gains a story about the stubbornest guest it ever had.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6650"
+  },
+  "c1": {
+   "text": "(Name) helps the trader haul the canoe up the sand and leads (him/her) straight to the cooking fire...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6646"
+  },
+  "c2o1": {
+   "text": "The trader explains how (he/she) read the swell before the storm hit: the long, slow waves that come before the wind, and the way the birds stopped flying. And how (he/she) lashed the cargo so it wouldn't shift. \"Not well enough,\" (he/she) admits ruefully. The fishers learn something genuinely useful, and start watching for the long waves before every trip.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6655"
+  },
+  "c2o2": {
+   "text": "The trader starts to talk about the storm, then goes quiet when (he/she) gets to the night the cargo went over the side. (He/She) stares into the fire for a long time. \"Another day,\" (he/she) says at last. No one presses. Someone hands (him/her) more stew instead.",
+   "src": "L6657"
+  },
+  "c2": {
+   "text": "Once the trader has dried off, the fishers gather around, eager to hear about the storm...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6653"
+  },
+  "c3o1": {
+   "text": "With nothing left to go back to, the trader decides to join the village for good. \"I always did want to stay somewhere long enough for my clothes to dry.\" (He/She) moves in as a new adult villager, and the dripping cloth, once it finally dries, becomes the brightest curtain in the village.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6662"
+  },
+  "c3o2": {
+   "text": "The trader thanks everyone warmly, but shakes (his/her) head. (He/She) wants to rebuild (his/her) trade, and that means going back out on the water. Once the canoe is sound, (he/she) paddles away, promising to bring the village the first and best of (his/her) new cargo. Everyone waves from the beach.",
+   "src": "L6664"
+  },
+  "c3": {
+   "text": "(Name) asks, gently, whether the trader has anything to go back to. The trader looks down at (his/her) cracked canoe, and the dripping cloth...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6660"
+  },
+  "c4o1": {
+   "text": "While the canoe's new patches dry in the sun, the trader throws (himself/herself) into the taro harvest, working from dawn to dusk and singing sea songs the whole time. The harvest comes in faster than anyone expected, adding a good load of food to the stores. The trader leaves with a mended canoe and the fields' thanks.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L6669"
+  },
+  "c4o2": {
+   "text": "The villagers patch the trader's cracked hull with sap and fibre, and the trader turns out to be hopeless at farming, pulling up three taro plants by mistake. Nobody minds. They wave (him/her) off from the beach the next morning, canoe sound and spirits high.",
+   "src": "L6671"
+  },
+  "c4": {
+   "text": "(Name) suggests a fair trade: the village will mend the canoe, and while it dries, the trader can help out in the fields...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6667"
+  }
+ }
+}

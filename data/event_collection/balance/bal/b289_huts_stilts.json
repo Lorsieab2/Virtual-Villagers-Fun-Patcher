@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Huts on Stilts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b289_huts_stilts",
+  "source": "balance",
+  "lines": [
+   13434,
+   13475
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13434",
+  "ledger": [
+   {
+    "src": "L13435",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13436",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13443",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13452",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13440",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13441",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13444",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13453",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13446",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13449",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13455",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13458",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13461-13475",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L13450",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "We could just patch the doorposts and hope the tides calm down. Should a villager build the stilts, or just patch?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The king tides have come early this year, and for the third time this season the sea has washed in under the huts nearest the beach, soaking the floors and rotting the doorposts. (subject), one of the builders, has an idea: lift those huts up on stilts of ironwood, the way a trader once described them on another island.\n(chief) isn't sure. \"Ironwood takes a long time to cut,\" (subject.he/she) says. \"We could just patch the doorposts and hope the tides calm down.\" Should (subject) build the stilts, or just patch?",
+   "choices": [
+    {
+     "label": "Build the Stilts",
+     "next": "c1",
+     "src": "L13440"
+    },
+    {
+     "label": "Just Patch",
+     "next": "c2",
+     "src": "L13441"
+    }
+   ],
+   "src": "L13437-13438"
+  },
+  "c1o1": {
+   "text": "After a month, the beach huts stand on tall ironwood stilts, with little ladders up to their doors. The next king tide rolls in under them and out again without wetting a single floor mat. The children use the space underneath as a den. Every builder who worked on them learned a great deal about ironwood.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L13447"
+  },
+  "c1o2": {
+   "text": "The stilts go up, and the huts are dry. But it took every axe and adze in the village, and every pair of hands, and while everyone was cutting ironwood in the hills, the gardens went untended for a month. Half the crop rotted in the ground.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L13450"
+  },
+  "c1": {
+   "text": "(subject) leads every builder in the village up into the hills to cut ironwood. It's hard work. The wood is so dense it blunts every axe twice a day...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13444"
+  },
+  "c2o1": {
+   "text": "The king tides calm down after the next full moon, and the patched huts stay dry. (chief) is very pleased with (subject.himself/herself). (subject) is quietly a little sorry, and keeps (subject.his/her) drawings of the stilt huts rolled up in (subject.his/her) hut, just in case.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L13456"
+  },
+  "c2o2": {
+   "text": "The very next tide washes the clay right out of the gaps and soaks everything again. (chief) comes to find (subject), standing in the wet doorway of a hut. \"Stilts,\" (subject.he/she) says. \"Fine.\" (subject) gets to build them after all, and does a very good job of it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13459"
+  },
+  "c2": {
+   "text": "\"Patch it is,\" says (subject), a little disappointed. The builders replace the rotten doorposts and stuff the gaps with clay...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13453"
+  }
+ }
+}

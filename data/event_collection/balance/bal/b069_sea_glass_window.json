@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sea-Glass Window",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b069_sea_glass_window",
+  "source": "balance",
+  "lines": [
+   3115,
+   3156
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3115",
+  "ledger": [
+   {
+    "src": "L3116",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3117",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3125",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3134",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3122",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3123",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3126",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3135",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3128",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3131",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3137",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3140",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3143-3156",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The whole village has come to see.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a whole year, (name) has been collecting sea glass on the beach, green and blue and white, and today (he/she) has finished setting it into the wall of (his/her) hut in a round window, so that the morning sun throws colours all over the floor. The whole village has come to see.\nAn elder looks at it a long time and says that in the old days, when someone made something beautiful for the village, they were given a new name to go with it, if they wanted one. Another elder says the colours of sea glass \"show you as the sea sees you\" to anyone who stands in them long enough.\nShould (name) ask for a new name, or stand in the colours?",
+   "choices": [
+    {
+     "label": "Ask for a New Name",
+     "next": "c1",
+     "src": "L3122"
+    },
+    {
+     "label": "Stand in the Colours",
+     "next": "c2",
+     "src": "L3123"
+    }
+   ],
+   "src": "L3118-3120"
+  },
+  "c1o1": {
+   "text": "\"(renamed),\" says the elder. \"In the old stories, that was the name of the first person who ever set sea glass in a wall.\" The village repeats it, and (name) finds (he/she) loves it. From then on, (he/she) is (renamed), and the window is (renamed)'s window, and people walk past it at sunrise just to see the colours.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3129"
+  },
+  "c1o2": {
+   "text": "The elders can't agree, so they let the children choose, and the children choose a perfectly ordinary name that nobody in the village has. \"Because it's new,\" they explain. (Name) laughs and takes it, and finds that it fits better every day.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3132"
+  },
+  "c1": {
+   "text": "The elders confer for a long time, heads together, muttering, and then the oldest one stands up and clears (his/her) throat...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3126"
+  },
+  "c2o1": {
+   "text": "When the sun moves on and the colours slide off (his/her) face, (his/her) friends gasp. (Name)'s face has changed, smoothed and reshaped like a piece of glass the sea has rolled for years. (He/She) looks in a bowl of water and is quiet for a long time. Then (he/she) smiles. \"So that's how it sees me.\"",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L3138"
+  },
+  "c2o2": {
+   "text": "The light moves on, and (name) is (himself/herself), with a coloured patch on (his/her) nose that turns out to be a sunburn. The window stays the most beautiful thing in the village. The children lie on the floor of (name)'s hut every morning, letting the colours fall on them, and nothing ever happens to them except that they are late for their chores.",
+   "src": "L3141"
+  },
+  "c2": {
+   "text": "(Name) stands in the middle of the floor while the sun pours through the window, and green and blue and white light washes over (his/her) face. It's warm, and cool, like being underwater...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3135"
+  }
+ }
+}

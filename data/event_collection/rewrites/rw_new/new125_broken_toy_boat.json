@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Toy Boat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new125_broken_toy_boat",
+  "source": "rewrites",
+  "lines": [
+   5859,
+   5904
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5859",
+  "ledger": [
+   {
+    "src": "L5860",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5861",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5869",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5876",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5883",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5865",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5866",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5867",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5870",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5877",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5884",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5871",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5873",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5878",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5880",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5885",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5887",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5890-5904",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It has a tiny sail made from a leaf.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (subject)'s favourite toy canoe was carved by (subject.his/her) grandparent, and it has sailed in every puddle on the island. It has a name. It has a tiny sail made from a leaf. It has survived storms, younger siblings and one very curious pig.\nThis morning, out on the lagoon, it sank.\nIt had to be fished out with a long stick, and now (subject) is holding it in both hands, looking at the crack running right down the hull, and trying very, very hard not to cry. (subject.He/She) is not managing it very well. How can (adult) help?",
+   "choices": [
+    {
+     "label": "Let the Child Talk About the Boat",
+     "next": "c1",
+     "src": "L5865"
+    },
+    {
+     "label": "Mend It Side by Side",
+     "next": "c2",
+     "src": "L5866"
+    },
+    {
+     "label": "Let the Child Test the Patches",
+     "next": "c3",
+     "src": "L5867"
+    }
+   ],
+   "src": "L5862-5864"
+  },
+  "c1o1": {
+   "text": "Between sniffles, (subject) explains everything: the boat is called Swift, (subject.his/her) grandparent carved it for (subject.his/her) fourth birthday, and it is the fastest boat on the whole island, probably the whole world. (subject.He/She) feels better just for being taken seriously. By the end, (subject.he/she) is smiling, and (adult) has promised to help fix Swift tomorrow.",
+   "src": "L5872"
+  },
+  "c1o2": {
+   "text": "Halfway through the story, (subject) stops crying, looks at the crack thoughtfully, and announces that Swift wants to be a shipwreck now. A brave, famous shipwreck. (subject.He/She) buries it ceremonially in the sand with a shell on top and starts telling the other children about the great storm that sank it. Nobody minds the change of heart, and the legend of Swift grows every day.",
+   "src": "L5874"
+  },
+  "c1": {
+   "text": "(adult) sits on the sand next to (subject), says nothing for a while, and then asks the boat's name...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5870"
+  },
+  "c2o1": {
+   "text": "(adult) shows (subject) how to press the fibre into the crack and seal it with warm sap, and explains why wood splits: it dries out faster on the outside than the inside, and pulls itself apart along the grain. (subject) learns a little about why wood cracks, and decides Swift must be oiled every week from now on. Swift sails again by evening, slightly crooked and better than ever.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L5879"
+  },
+  "c2o2": {
+   "text": "After watching for a minute, (subject) asks to do the mending alone, because Swift is (subject.his/hers). So (adult) stays close by holding the sap pot, and passes over fibre when asked. It takes a long time and a lot of sap. The patch is enormous and lumpy. (subject) thinks it is the most beautiful patch ever made.",
+   "src": "L5881"
+  },
+  "c2": {
+   "text": "(adult) fetches a little pot of sticky sap and a bundle of plant fibre, and sits down with (subject) to mend Swift together...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5877"
+  },
+  "c3o1": {
+   "text": "(subject) tests every mixture with great seriousness, and discovers that sap mixed with ash holds best by far. The other patches leak or crumble, but the ash one stays hard and watertight. (subject.He/She) proudly explains it to the adults, who try it on a real canoe with a leaky seam, and it works. Soon every canoe in the village is patched with \"(subject)'s mix.\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5886"
+  },
+  "c3o2": {
+   "text": "None of the patches hold. Swift goes into the lagoon, fills up and sinks again, with a sad little glug. (subject) fishes it out, frowns at it, and says, \"Okay. Tomorrow I'm trying sap and mud. And maybe banana.\" (adult) is quietly very impressed.",
+   "src": "L5888"
+  },
+  "c3": {
+   "text": "(adult) gives (subject) a few different things to try: plain sap, sap mixed with sand, sap mixed with ash from the fire, and lets (subject.him/her) test each one on bits of old wood in a bucket of water...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5884"
+  }
+ }
+}

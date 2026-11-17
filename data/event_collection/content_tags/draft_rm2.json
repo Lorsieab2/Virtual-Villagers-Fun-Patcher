@@ -1,0 +1,456 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_rm2",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "rm41_slow_spring": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F08"
+    ]
+   }
+  },
+  "rm42_stray_dog_place": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm43_last_canoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm44_only_shade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm45_other_hand": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm46_seed_loan": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm47_generous_mistake": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "a2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm48_leader_stepped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm49_rumor_stopped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm50_rival_canoe": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm51_elder_asked": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm52_three_honest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm53_recipe_given_away": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F21"
+    ]
+   }
+  },
+  "rm54_call_against": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm55_pace_walk": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm56_unwatched_embers": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F25"
+    ]
+   }
+  },
+  "rm57_student_surpassed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm58_hammering_next": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm59_parent_apology": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm60_portions_set": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "a2": [
+     "F25"
+    ],
+    "b1": [
+     "F25"
+    ],
+    "c1": [
+     "F25"
+    ],
+    "d2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm61_lesson_move": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm62_secret_kept": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b1": [
+     "F25"
+    ]
+   }
+  },
+  "rm63_rest_before_roof": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm64_two_paths_twins": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm65_child_edge_crowd": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F20"
+    ]
+   }
+  },
+  "rm66_strongest_pair": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm67_kind_refusal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm68_elder_tried": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm69_canceled_voyage": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F25"
+    ],
+    "d1": [
+     "F25"
+    ],
+    "d2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm70_swim_flat_rock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm71_spinning_top": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm72_chore_stones": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm73_congratulations": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm74_untended_graves": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "b1": [
+     "F03"
+    ],
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "rm75_thanks_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm76_missing_adze": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm77_last_red_dye": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm78_corrected_map": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm79_festival_doorway": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm80_dry_corner": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm81_dog_grew_old": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm82_middle_sibling": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "rm83_rope_looked_fine": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm84_borrowed_song": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "b2": [
+     "F05"
+    ]
+   }
+  },
+  "rm85_traveler_far_side": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F25"
+    ]
+   }
+  },
+  "rm86_fire_late_canoes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm87_last_day_kiln": {
+   "filters": [
+    "F04",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "c2": [
+     "F04"
+    ],
+    "d1": [
+     "F25"
+    ]
+   }
+  },
+  "rm88_sandcastle": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F21"
+    ]
+   }
+  },
+  "rm89_name_said_right": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "rm90_example_passed": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  }
+ }
+}

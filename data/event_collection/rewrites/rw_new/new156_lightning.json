@@ -1,0 +1,318 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lightning-Struck Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new156_lightning",
+  "source": "rewrites",
+  "lines": [
+   7506,
+   7562
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7506",
+  "ledger": [
+   {
+    "src": "L7507",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7508",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7518",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7525",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7532",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7539",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7513",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7514",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7515",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7516",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7519",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7526",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7533",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7540",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7520",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7522",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7527",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7529",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7534",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7536",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7543",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7546-7562",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The flash and the noise come together, so loud that everyone in the village hits the ground.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "CRACK.\nThe flash and the noise come together, so loud that everyone in the village hits the ground. When they look up, the old mango tree beside the main trail, the one everyone has eaten from since they were children, has been split right down the middle.\nHalf of it is still standing. The other half leans out over the path at a terrible angle, creaking, groaning, held up by nothing much. Smoke curls up from the blackened heart of the trunk. Ripe mangoes are scattered everywhere.\n(Name) looks at the leaning half, and at the people who will need to walk under it, and swallows. Should (name) save the mangoes, keep everyone away from the tree, or try to bring it down safely?",
+   "choices": [
+    {
+     "label": "Gather the Fallen Mangoes",
+     "next": "c1",
+     "src": "L7513"
+    },
+    {
+     "label": "Warn Everyone Off the Trail",
+     "next": "c2",
+     "src": "L7514"
+    },
+    {
+     "label": "Study the Burn Marks",
+     "next": "c3",
+     "src": "L7515"
+    },
+    {
+     "label": "Clear and Brace the Trunk",
+     "next": "c4",
+     "src": "L7516"
+    }
+   ],
+   "src": "L7509-7512"
+  },
+  "c1o1": {
+   "text": "Quick hands gather the mangoes before the birds and bats can get them, adding a little food to the stores. Some are a little scorched. They taste, (name) reports, \"like mango, but braver.\"",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7521"
+  },
+  "c1o2": {
+   "text": "While everyone is busy with the mangoes, the storm's rain pours in through a corner of the storehouse that the thunder shook loose. A basket of stored food is ruined and has to be thrown out.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7523"
+  },
+  "c1": {
+   "text": "Keeping well clear of the leaning half, (name) and a few others creep around the edges, gathering the mangoes knocked loose by the blast...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7519"
+  },
+  "c2o1": {
+   "text": "Everyone is safe. The trail is closed with a rope across it until the tree is dealt with, and people take the long way around, grumbling. Nobody walks under the leaning half. The next morning, it falls on its own, harmlessly, onto an empty path.",
+   "src": "L7528"
+  },
+  "c2o2": {
+   "text": "While (name) is clearing the trail of debris in the rain, a big branch breaks free from the leaning half and comes down on (him/her). (He/She) is knocked flat. The others drag (him/her) clear and carry (him/her) to the healers; (he/she) is badly bruised and shaken, and will need care for some time.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7530"
+  },
+  "c2": {
+   "text": "(Name) runs to the trail and starts turning people back, waving (his/her) arms and shouting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7526"
+  },
+  "c3o1": {
+   "text": "(Name) notices a pattern: lightning keeps choosing the tallest trees, especially the ones nearest the water. It's a useful lesson about where not to shelter in a storm, and the village teaches every child: in a storm, keep away from tall trees, especially near the shore.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7535"
+  },
+  "c3o2": {
+   "text": "The burn marks point in no clear direction, and the other lightning scars on the island don't seem to follow any pattern either. (Name) decides to wait for more evidence, though (he/she) hopes it doesn't come soon.",
+   "src": "L7537"
+  },
+  "c3": {
+   "text": "Once the storm passes, (name) examines the burned trunk carefully, and then walks around the island looking at other old lightning scars...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7533"
+  },
+  "c4o1": {
+   "text": "The workers cut away the leaning half and brace the standing half with strong poles before nightfall. It looks battered and lopsided, but alive. With luck, it may fruit again. Next season, it does, a little.",
+   "src": "L7542"
+  },
+  "c4o2": {
+   "text": "The clean-up takes three days of hard work, and the workers' meals all come out of the stores, leaving a little less food. But the trail is clear, the stump is braced, and the leftover wood goes into the fires for a month.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7544"
+  },
+  "c4": {
+   "text": "(Name) leads the workers in cutting away the dangerous half, and propping up what's left...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7540"
+  }
+ }
+}

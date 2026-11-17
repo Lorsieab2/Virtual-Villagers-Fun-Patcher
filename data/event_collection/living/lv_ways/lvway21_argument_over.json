@@ -131,7 +131,15 @@
   "c1": {
    "name": "Outcome C1",
    "text": "The expedition improves the map and preserves the story.",
-   "src": "L23033"
+   "src": "L23033",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23033"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",

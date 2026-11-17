@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe from the North",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b012_canoe_north",
+  "source": "balance",
+  "lines": [
+   526,
+   567
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L526",
+  "ledger": [
+   {
+    "src": "L527",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L528",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L536",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L545",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L533",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L534",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L537",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L546",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L539",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L542",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L554-567",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Early one morning, a villager spots a canoe coming in from the north, low in the water and patched with bark.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Early one morning, (name) spots a canoe coming in from the north, low in the water and patched with bark. As it gets closer, (he/she) can see a family aboard: tired, sunburnt, sitting very close together.\nThey land on the beach and don't come any further. One of them stands up and explains, in a voice hoarse from the sea, that their island had a terrible year: the fish left and the gardens failed. They ask, very politely, whether there's anywhere they could rest a few days before going on.\nThe village is not rich this season, and some people are already muttering about the food. What should (name) do?",
+   "choices": [
+    {
+     "label": "Invite Them In",
+     "next": "c1",
+     "src": "L533"
+    },
+    {
+     "label": "Give Them Supplies for the Journey",
+     "next": "c2",
+     "src": "L534"
+    }
+   ],
+   "src": "L529-531",
+   "text_only": [
+    {
+     "src": "L531",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Under a sail cloth at the bottom of the canoe there's a baby, fast asleep, the reason they sat so close. Two days of rest becomes a week, and then one of them is fixing roof thatch without being asked and the other is out with the fishers, and by the end of the month nobody remembers deciding they should stay. They just did. The baby learns to walk on the village path, holding onto (name)'s fingers.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L540"
+  },
+  "c1o2": {
+   "text": "There are three of them: a grandparent with arms like rope from years of paddling, a gangly teen who won't stop staring at the village's huts, and a small child who falls asleep in the first warm lap (he/she) can find. The grandparent takes one look at the gardens and starts telling the farmers what they're doing wrong. Annoyingly, the grandparent is right. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L543"
+  },
+  "c1": {
+   "text": "(Name) walks down the beach and holds out (his/her) hand. \"You won't rest on the sand,\" (he/she) says. \"Come up to the fire.\" Behind (him/her), a few of the mutterers go quiet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L537"
+  },
+  "c2o1": {
+   "text": "They load the food carefully, and push off on the evening tide, and wave until they're just a dot on the water. (Name) stands on the beach long after they've gone. The food store is a little emptier. For weeks, (name) finds (himself/herself) looking north in the mornings, wondering if they ever found where they were going.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L549"
+  },
+  "c2o2": {
+   "text": "The baby, hidden under the sail cloth until now, starts to cry just as they're pushing off. And something about the sound reaches the whole village at once. The people who were muttering are the first ones down the beach, waving their arms. \"Wait. Come back. There's room.\" There is. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L552"
+  },
+  "c2": {
+   "text": "(Name) fetches dried fish, water gourds and a basket of fruit and carries it down to the canoe. The family thanks (him/her) over and over...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L546"
+  }
+ }
+}

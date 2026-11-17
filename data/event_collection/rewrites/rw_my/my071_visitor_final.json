@@ -1,0 +1,297 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor's Final Footstep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my071_visitor_final",
+  "source": "rewrites",
+  "lines": [
+   13992,
+   14047
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13992",
+  "ledger": [
+   {
+    "src": "L13993",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13994",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14002",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14009",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14016",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14023",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13997",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13998",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13999",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14000",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14003",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14010",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14017",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14024",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14004",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14006",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14011",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14013",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14018",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14020",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14025",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14027",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14030-14047",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The visitor has eyes like wet river stones and looks at a villager as if they have known each other a very long time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "neighbour": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is walking back from the fields when a tall, thin figure steps onto the path in front of (subject.him/her). The visitor has eyes like wet river stones and looks at (subject) as if they have known each other a very long time. \"One day,\" the visitor says, \"you will hear my final footstep.\" Then (subject.he/she) turns and walks away down the path, without a sound.\n(subject) looks down. The path is soft mud from yesterday's rain. Where the visitor walked, there are no footprints at all. The old stories say the island's oldest spirits walk without touching the ground. What did the visitor mean? What should (subject) do?",
+   "choices": [
+    {
+     "label": "Follow the Visitor",
+     "next": "c1",
+     "src": "L13997"
+    },
+    {
+     "label": "Ask for Meaning",
+     "next": "c2",
+     "src": "L13998"
+    },
+    {
+     "label": "Tell the Village",
+     "next": "c3",
+     "src": "L13999"
+    },
+    {
+     "label": "Forget the Encounter",
+     "next": "c4",
+     "src": "L14000"
+    }
+   ],
+   "src": "L13995-13996"
+  },
+  "c1o1": {
+   "text": "The visitor stops beside a fallen, hollow log, looks back at (subject) once, and steps behind a tree. When (subject) reaches the spot, the visitor is gone. But inside the hollow log, wrapped carefully in dry leaves, lies a small bundle of tools: two fine stone adzes and a bone awl, sharp and well made and clearly very old. The builders are thrilled with them, and study how the edges were shaped so they can make more.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14005"
+  },
+  "c1o2": {
+   "text": "Then, between one step and the next, the visitor simply is not there anymore. (subject) turns around. Every tree looks the same. The path has vanished. Darkness falls, and (subject) spends a long, cold, frightened night huddled against a tree trunk, listening to every rustle. At sunrise, (subject.he/she) finally stumbles out of the forest, scratched and filthy, to find that (subject.he/she) had been barely a stone's throw from the village the whole time.",
+   "src": "L14007",
+   "text_only": [
+    {
+     "src": "L14007",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "(subject) hurries after the tall figure, but no matter how fast (subject.he/she) walks, the visitor stays exactly the same distance ahead, gliding silently between the trees and leading (subject.him/her) deeper and deeper into the forest...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14003"
+  },
+  "c2o1": {
+   "text": "\"Listen,\" the visitor says, \"when someone needs you.\" Then (subject.he/she) walks on and is gone. (subject) thinks about it all evening, and finds (subject.himself/herself) paying closer attention to the people around (subject.him/her): the friend who has gone quiet, the elder who keeps looking at the sea, the child who never asks for anything. Over the following weeks, more than one villager comes to (subject) to talk, and (subject) is always ready to listen. (subject.He/she) never sees the visitor again.",
+   "src": "L14012"
+  },
+  "c2o2": {
+   "text": "The visitor smiles sadly. \"I am leaving Isola,\" (subject.he/she) says, \"for good, I think. I have walked these paths for a long time, and I wanted someone to know I was here. To say goodbye.\" (subject) does not know what to say. The visitor bows, and (subject) bows back, and the visitor walks off toward the beach. That night a canoe with no light is seen slipping out past the reef. In the morning, the soft sand of the beach is smooth and unmarked.",
+   "src": "L14014"
+  },
+  "c2": {
+   "text": "\"Wait!\" (subject) calls. \"What does that mean? What final footstep?\" The visitor stops, and turns back slowly...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14010"
+  },
+  "c3o1": {
+   "text": "Half the village thinks it was a warning, a sign that something terrible is coming, and spend the next week jumping at every sound. The other half is sure it was a riddle and stays up late guessing at answers \\(\"A tree! Something that walks without feet!\" \"A cloud!\" \"Grandmother's cooking!\"\\). Nothing terrible happens. Nobody solves the riddle. But the village has a lot of fun arguing about it, and the phrase \"final footstep\" becomes the local way of saying someone is taking too long.",
+   "src": "L14019"
+  },
+  "c3o2": {
+   "text": "(neighbour), one of the neighbours, bursts out laughing. \"Tall, thin, eyes like river stones? That's old Pebble-Eyes! (subject.He/she) wanders through every few years and says that kind of thing to everyone. Told my mother the moon would someday ask her a question.\" Everyone laughs, and (subject) laughs too, though (subject.he/she) does not mention the missing footprints. It seems an unfair thing to bring up when everyone is having such a good time.",
+   "src": "L14021"
+  },
+  "c3": {
+   "text": "(subject) rushes home and tells everyone at the evening fire what happened, and what the visitor said. The villagers listen in silence, and then all start talking at once...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14017"
+  },
+  "c4o1": {
+   "text": "And it works. The days go by, the crops grow, the fish bite, and nothing at all unusual happens. After a while, (subject) genuinely forgets about the tall visitor, and when someone reminds (subject.him/her) of it a season later, (subject.he/she) has to think hard to remember what they are talking about.",
+   "src": "L14026"
+  },
+  "c4o2": {
+   "text": "Weeks later, (subject) is walking past an old empty hut when (subject.he/she) hears it: one footstep, heavy, single and certain, right outside the doorway. (subject.He/she) freezes, then looks. There is nothing there but a small swirl of dust, settling slowly on the path. (subject) waits a long time for the next footstep. It never comes. (subject.He/she) walks home very slowly, feeling strangely as if something has finished.",
+   "src": "L14028"
+  },
+  "c4": {
+   "text": "(subject) shakes (subject.his/her) head firmly. It was a strange person saying strange things, and that is all. (subject.He/she) goes home, eats (subject.his/her) supper and resolutely thinks about other things...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14024"
+  }
+ }
+}

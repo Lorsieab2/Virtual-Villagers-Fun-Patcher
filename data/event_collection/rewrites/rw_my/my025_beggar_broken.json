@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beggar and the Broken Cup",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my025_beggar_broken",
+  "source": "rewrites",
+  "lines": [
+   11290,
+   11345
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11290",
+  "ledger": [
+   {
+    "src": "L11291",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11292",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11301",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11308",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11315",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11322",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11296",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11297",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11298",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11299",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11302",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11309",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11316",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11323",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11305",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11310",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11312",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11317",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11319",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11324",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11326",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11329-11345",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An old beggar stops a villager on the path and holds out a cup of red clay with a crack running all the way down one side.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An old beggar stops (name) on the path and holds out a cup of red clay with a crack running all the way down one side. \"Water, please,\" the beggar says. \"Just a little.\"\n(Name) freezes. That voice. (He/She) knows that voice. It sounds a great deal like someone (name) knew long ago, someone who isn't around anymore, though (he/she) can't quite place who. The beggar's face is lined and brown and entirely unfamiliar. The cracked cup trembles in (his/her) hands. What should (name) do?",
+   "choices": [
+    {
+     "label": "Mend the Cup",
+     "next": "c1",
+     "src": "L11296"
+    },
+    {
+     "label": "Give a Better Cup",
+     "next": "c2",
+     "src": "L11297"
+    },
+    {
+     "label": "Invite the Beggar to Rest",
+     "next": "c3",
+     "src": "L11298"
+    },
+    {
+     "label": "Send the Beggar Away",
+     "next": "c4",
+     "src": "L11299"
+    }
+   ],
+   "src": "L11293-11294"
+  },
+  "c1o1": {
+   "text": "\"No, no, not like that,\" the beggar chuckles, taking over. \"Score the edges first. Add ash to the clay. Then bake it slow in the embers.\" The old one shows (name) a clay repair so strong that, when it's done, the crack is harder than the rest of the cup. (Name) passes the trick on to the potters, and the village's pots last far longer after that. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11304"
+  },
+  "c1o2": {
+   "text": "(Name) works hard on it, and the mended cup holds water beautifully. The beggar drinks, thanks (him/her) in that familiar voice, and shuffles off down the path. (Name) watches (him/her) go. Just as the beggar reaches the bend, there's a faint crack, and water splashes onto the dust. The cup has broken again, along exactly the same line. The beggar doesn't look back.",
+   "src": "L11306"
+  },
+  "c1": {
+   "text": "\"That cup won't hold anything for long,\" (name) says gently. \"Let me fix it first.\" (He/She) sits down with the beggar, mixes a little wet clay, and starts pressing it into the crack...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11302"
+  },
+  "c2o1": {
+   "text": "The beggar drinks deeply, then presses something into (name)'s palm in exchange: a tiny carved turtle, worn smooth, with a hole for a cord. \"For luck,\" the old one says. (Name) threads it on a string and wears it around (his/her) neck. It's only later, lying awake, that (he/she) remembers whose voice it was. (He/She) holds the turtle tightly until (he/she) falls asleep.",
+   "src": "L11311"
+  },
+  "c2o2": {
+   "text": "The beggar shakes (his/her) head and pulls the cracked cup close. \"Thank you, but no. This one belonged to someone very dear to me. I'll drink from it until it falls apart.\" So (name) fills the cracked cup instead, slowly, carefully, letting the beggar sip from it before it leaks away. They don't say much. Somehow, they don't need to.",
+   "src": "L11313"
+  },
+  "c2": {
+   "text": "(Name) runs into (his/her) hut and comes back with (his/her) own best cup, smooth and whole, and fills it to the brim...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11309"
+  },
+  "c3o1": {
+   "text": "As the afternoon goes by, a little crowd gathers around the old beggar, who tells story after story about the village as it was long ago, including one about how the farmers used to plant their yams in mounds with ash and fish bones buried underneath. The elders' eyes light up. They'd forgotten all about it. They try it that very season, and the yams come up enormous. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11318"
+  },
+  "c3o2": {
+   "text": "The beggar falls asleep almost immediately, snoring softly under the tree. When (he/she) wakes at dusk, (he/she) stares around in bewilderment. \"Where am I? How did I get here?\" The old one has no memory of the path, or the cup, or (name). And when (he/she) speaks now, the voice is just an ordinary old voice, not the one (name) remembered. (Name) walks the old one to the edge of the village and wonders, all night, what (he/she) heard.",
+   "src": "L11320"
+  },
+  "c3": {
+   "text": "\"Come and sit in the shade,\" (name) says. \"Rest a while. You look like you've walked a long way.\" The beggar sinks down gratefully beneath a breadfruit tree...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11316"
+  },
+  "c4o1": {
+   "text": "The beggar leaves quietly, and nothing unusual happens at all. But that voice stays in (name)'s head for days afterward, and (he/she) catches (himself/herself) almost recognizing it whenever the wind blows a certain way.",
+   "src": "L11325"
+  },
+  "c4o2": {
+   "text": "That evening, walking home, (name) hears it again. That same familiar voice, calling (his/her) name from somewhere behind (him/her) on the empty path. (Name) spins around and runs back to look. There's only dust settling in the low light, and the sound of the wind moving in the sugar cane. (Name) goes home and sits by the fire with every lamp lit.",
+   "src": "L11327"
+  },
+  "c4": {
+   "text": "Something about that voice frightens (name). \"I'm sorry, I can't help you,\" (he/she) says, and hurries off without looking back...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11323"
+  }
+ }
+}

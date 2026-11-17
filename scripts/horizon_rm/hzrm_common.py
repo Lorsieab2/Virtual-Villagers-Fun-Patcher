@@ -39,6 +39,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "living_vols"))
 import collection_check as cc  # noqa: E402
 import collection_lib as lib  # noqa: E402
+import food_tech_additions as fta  # noqa: E402  (food / tech where the text fits, owner 2026-11-15)
 import living_common as lc  # noqa: E402
 
 VILLAGER, GROWN, CHILD, ELDER, YOUNG = lc.VILLAGER, lc.GROWN, lc.CHILD, lc.ELDER, lc.YOUNG
@@ -305,6 +306,6 @@ def write_and_check(docs: list[tuple[Path, dict]]) -> int:
     paths = []
     for p, doc in docs:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(fta.apply(doc)), encoding="utf-8", newline="\n")
         paths.append(str(p))
     return subprocess.call([sys.executable, str(ROOT / "scripts" / "collection_check.py"), "--format", *paths])

@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Banyan's Bark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b061_banyan_bark",
+  "source": "balance",
+  "lines": [
+   2751,
+   2792
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2751",
+  "ledger": [
+   {
+    "src": "L2752",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2753",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2770",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2758",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2759",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2762",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2771",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2764",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2767",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2773",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2776",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2779-2792",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The oldest banyan on the island is shedding its bark, which happens once in a lifetime, the elders say.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The oldest banyan on the island is shedding its bark, which happens once in a lifetime, the elders say. The strips come off soft and silver, and the old healers used to lay them over the faces of the sick, because the tree \"shares its years\" with whoever wears its skin: sometimes its old years, sometimes its young ones, the way it puts out new shoots from old wood.\n(Name) has a long strip of the silver bark in (his/her) hands. It's warm, and smells of rain. The healers are curious what it will do.\nShould (name) lay it over (his/her) face, or wrap it round (his/her) arm and see what happens more slowly?",
+   "choices": [
+    {
+     "label": "Lay It Over the Face",
+     "next": "c1",
+     "src": "L2758"
+    },
+    {
+     "label": "Wrap It Round the Arm",
+     "next": "c2",
+     "src": "L2759"
+    }
+   ],
+   "src": "L2754-2756"
+  },
+  "c1o1": {
+   "text": "When (name) lifts the bark away, the healers lean in and gasp. (His/Her) face is years younger, smooth as new leaves. The bark in (his/her) hand has gone grey and brittle, as if it gave away everything it had. (Name) thanks the tree out loud, feeling a bit silly, and the tree creaks back.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2765"
+  },
+  "c1o2": {
+   "text": "When (name) lifts the bark away, the healers are quiet. (His/Her) face has the tree's years on it now: deep lines, a weathered, patient look. (Name) feels the same as ever, only calmer. \"It shared the old ones,\" says a healer. \"They're the ones it values most.\" (Name) decides to take that as a compliment.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2768"
+  },
+  "c1": {
+   "text": "(Name) lies back in the shade and lays the bark over (his/her) face. It settles like a damp cloth. Through it (he/she) can hear the tree creaking, like an old person stretching...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2762"
+  },
+  "c2o1": {
+   "text": "In the morning the bark has fallen away, and (name)'s face is different. Not older or younger: new, like a new branch on the same tree. (His/Her) friends know (him/her) at once by (his/her) laugh. The healers write it all down, and argue about it for weeks.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L2774"
+  },
+  "c2o2": {
+   "text": "Nothing changes, except a pale patch on (name)'s arm in the shape of the bark, which fades in a week. The healers are disappointed. The tree finishes shedding, and stands in the clearing, silver and new, and keeps whatever it knows to itself.",
+   "src": "L2777"
+  },
+  "c2": {
+   "text": "(Name) wraps the strip round (his/her) forearm and ties it with grass, and goes about (his/her) day. By evening the bark has grown warm, and then hot, and then cool again...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2771"
+  }
+ }
+}

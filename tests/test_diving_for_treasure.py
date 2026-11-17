@@ -282,7 +282,7 @@ class TheOdds(unittest.TestCase):
         self.assertEqual(event.only_with, "vv3_more_island_events")
         text = event.text + " " + " ".join(s if isinstance(s, str) else s.text for s in event.subs)
         for needle in ("18 villager years or more", "not nursing a baby", "not the Tribal Chief", "never the diver",
-                       "wall clock", "25%", "18.75%", "1.06%", "4.13%", "17%", "66%", "dislikes swimming",
+                       "30-50% chance", "25%", "18.75%", "1.06%", "4.13%", "17%", "66%", "dislikes swimming",
                        "1,000 to 2,000 tech points", "200 to 600 food", "+10 to 20 Healing", "+10 to 20 Parenting",
                        "at most 100", "a grave", "no grave", "one entry"):
             self.assertIn(needle, text)

@@ -119,7 +119,15 @@
   "b1": {
    "name": "Outcome B1",
    "text": "The trial reveals which storage method works best.",
-   "src": "L22790"
+   "src": "L22790",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L22790"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

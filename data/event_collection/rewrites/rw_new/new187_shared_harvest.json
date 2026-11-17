@@ -1,0 +1,258 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Harvest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new187_shared_harvest",
+  "source": "rewrites",
+  "lines": [
+   9065,
+   9111
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9065",
+  "ledger": [
+   {
+    "src": "L9066",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9067",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9076",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9083",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9090",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9072",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9073",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9074",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9077",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9084",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9091",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9078",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9080",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9085",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9087",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9092",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9094",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9097-9111",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The fields have given the best harvest in years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The fields have given the best harvest in years. Baskets are overflowing. The storehouse is full. Everyone should be happy.\nInstead, the planting team and the watering team are at war.\nThe planters say the harvest is thanks to their careful planting. The waterers say the harvest is thanks to their careful watering. Both sides have made speeches. Both sides want the first bowl at the harvest feast. Someone has started counting, out loud, how many seeds they personally planted. It's a very large number. They are not finished.\n(subject), who planted AND watered, is trying very hard to stay out of it, and failing. How can (subject) settle the argument?",
+   "choices": [
+    {
+     "label": "Walk the Fields and See",
+     "next": "c1",
+     "src": "L9072"
+    },
+    {
+     "label": "Mix the Two Teams Together",
+     "next": "c2",
+     "src": "L9073"
+    },
+    {
+     "label": "Ask the Channel Builder to Help",
+     "next": "c3",
+     "src": "L9074"
+    }
+   ],
+   "src": "L9068-9071"
+  },
+  "c1o1": {
+   "text": "Walking the rows, (subject) notices that the watering channel (subject.he/she) helped build last season leaks half its water into the ground before it reaches the far rows. And yet the harvest was still the best in years. Imagine what it would be with a channel that didn't leak! (subject) learns a practical building lesson about sealing a channel, and the two teams, for once, agree on something: fix it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L9079"
+  },
+  "c1o2": {
+   "text": "(subject) points out that no one ever actually said which team did what. Half the planters watered. Half the waterers planted. The fight came from muddled instructions, not from anyone slacking or anyone deserving more. Everyone looks at each other. \"So... who gets the first bowl?\" someone asks. \"Whoever gets there first,\" says (subject).",
+   "src": "L9081"
+  },
+  "c1": {
+   "text": "(subject) suggests everyone walk the rows together and see for themselves what made the harvest so good...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9077"
+  },
+  "c2o1": {
+   "text": "Mixing the teams lets the next season's work go on calmly, with everyone planting and watering together, and nobody counting who did more. The harvest is even better. And at the feast, everyone gets their bowl at the same time.",
+   "src": "L9086"
+  },
+  "c2o2": {
+   "text": "The mixed team spends its entire first morning arguing about tools: the planters' digging sticks are better, the waterers' buckets are better. Nobody plants anything. They agree to adjust things tomorrow. (subject) goes and plants a row alone, just to have something done.",
+   "src": "L9088"
+  },
+  "c2": {
+   "text": "(subject) suggests that next season, there shouldn't be two teams at all. Just one...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9084"
+  },
+  "c3o1": {
+   "text": "(builder) teaches (subject) how to line a watering channel with clay, packed and smoothed, so it stops leaking into the ground. They reline the whole channel together over several days. (subject) learns a great deal about building, and the next harvest is so huge that both teams forget what they were arguing about.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9093"
+  },
+  "c3o2": {
+   "text": "(builder) looks at the channel, then sighs. \"My first channel,\" (subject.he/she) admits, \"watered the {@chief}'s hut instead of the field. Flooded it. With the {@chief} inside, asleep.\" Everyone laughs so hard that the argument is forgotten, at least until dinner.",
+   "src": "L9095"
+  },
+  "c3": {
+   "text": "(subject) fetches (builder), who built the original watering channel years ago, to look at it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9091"
+  }
+ }
+}

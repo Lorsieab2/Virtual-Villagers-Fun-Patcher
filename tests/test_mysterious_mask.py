@@ -345,7 +345,7 @@ class TheOdds(unittest.TestCase):
         self.assertEqual(event.only_with, "vv4_more_island_events")
         text = event.text + " " + " ".join(s if isinstance(s, str) else s.text for s in event.subs)
         for needle in ("61 or more", "babies", "under 14", "18 villager years or more", "2 to 4", "five volunteers",
-                       "not nursing a baby", "not a body or a ghost", "wall clock", "50%", "25%", "75%", "12.5%",
+                       "not nursing a baby", "not a body or a ghost", "30-50% chance", "50%", "25%", "75%", "12.5%",
                        "37.5%", "no graves", "every child of the group", "one entry", "keys 1 to 4"):
             self.assertIn(needle, text)
 

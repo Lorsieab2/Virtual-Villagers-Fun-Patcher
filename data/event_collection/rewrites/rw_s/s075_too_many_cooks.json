@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Many Cooks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s075_too_many_cooks",
+  "source": "rewrites",
+  "lines": [
+   3531,
+   3575
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3531",
+  "ledger": [
+   {
+    "src": "L3532",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3533",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3541",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3550",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3538",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3539",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3542",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3551",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3544",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3553",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3556",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3559-3575",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L3545",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L3557",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Everyone in the village has decided, all at the same time, to help with tonight's stew.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Everyone in the village has decided, all at the same time, to help with tonight's stew. Nobody asked them to. Nobody knows how it happened. But there are now twelve people standing round the big pot, and every one of them is stirring.\nNobody agrees on anything. Someone has added fish. Someone else, horrified, has added fruit to \"balance out the fish.\" Someone has added a great deal of salt, and someone else has added water to fix the salt, and someone else has added more salt to fix the water. There may be a sandal in it.\nThe pot is so big that the smallest stirrer is standing on a log to reach. Should the elders let them carry on, or pick one cook and send everyone else to sit down?",
+   "choices": [
+    {
+     "label": "Let Them Carry On",
+     "next": "c1",
+     "src": "L3538"
+    },
+    {
+     "label": "Pick One Cook",
+     "next": "c2",
+     "src": "L3539"
+    }
+   ],
+   "src": "L3534-3536"
+  },
+  "c1o1": {
+   "text": "The stew is a disaster. It's brown. And purple. And green in places. It tastes of fish, and fruit, and salt, and smoke, and something nobody can identify and nobody wants to. But everybody made it, so everybody eats it, sitting round the fire pulling faces at each other and trying very hard not to laugh. They fail. The whole village laughs until they cry. Years later, people still say \"it's a twelve-cook stew\" about anything that's gone horribly wrong.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L3545"
+  },
+  "c1o2": {
+   "text": "The stew is, somehow, the best stew anyone has ever eaten. Nobody knows why. The fish and the fruit and the twelve different handfuls of herbs have all come together into something warm and rich and perfect. People go back for thirds. People go back for fourths. Everyone asks for the recipe, and the twelve cooks all give completely different answers, and nobody can ever make it again, no matter how many times they try. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3548"
+  },
+  "c1": {
+   "text": "Nobody wants to be the one to tell twelve people with spoons to stop. So the cooking goes on. And on. More things go in. Some things come out. One of them is definitely a sandal. The pot bubbles ominously...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3542"
+  },
+  "c2o1": {
+   "text": "(subject) fishes out the sandal, tips out half the pot, adds fresh water and fresh roots and a few careful herbs, and lets it simmer quietly for an hour while eleven people watch (subject.him/her) with their arms folded. It's a fine stew. Not the best ever, but good and hot and honest. The eleven grumble that they would have done it differently. Then they all have seconds.",
+   "src": "L3554"
+  },
+  "c2o2": {
+   "text": "(subject) has never cooked for the whole village before, and eleven people are watching (subject.him/her), and every single one of them keeps saying, \"I'd add a bit more...\" (subject) gets so nervous that (subject.he/she) forgets the pot completely while (subject.he/she) argues about salt, and by the time (subject.he/she) remembers, the bottom of the stew has burned black and stuck to the pot, and the whole village smells of charcoal. They eat bread for supper.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L3557"
+  },
+  "c2": {
+   "text": "(elder), one of the elders, bangs a spoon on the side of the pot. \"ENOUGH! One cook!\" Everyone falls silent. Then everyone points at everyone else. In the end the elders pick (subject), who was standing on the log, and everyone else is sent to sit down...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3551"
+  }
+ }
+}

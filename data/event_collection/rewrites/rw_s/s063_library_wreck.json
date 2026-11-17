@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Library in the Wreck",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s063_library_wreck",
+  "source": "rewrites",
+  "lines": [
+   2987,
+   3029
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2987",
+  "ledger": [
+   {
+    "src": "L2988",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2989",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2997",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3006",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2994",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2995",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2998",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3007",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3000",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3003",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3009",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3012",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3015-3029",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It must have been buried for a very long time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A great storm in the night stirs up the sand on the reef, and in the morning, the fishers see something new out past the breakers: the ribs of an old shipwreck, sticking up out of the water like the bones of a great fish, crusted all over with orange coral. Nobody knew it was there. It must have been buried for a very long time.\n(Name) is the first to swim out to it. (He/She) dives down through the broken hull, between the coral-covered timbers, with little striped fish darting away in front of (him/her). And there, wedged in the wreck, is a chest. Sealed tight, with black tar round the lid.\n(Name) prises it open with (his/her) knife, underwater, and peers in. It's full of strange, flat bundles, dry inside, each one made of thin leaves pressed together, and every leaf covered in tiny marks. Somebody went to a lot of trouble to keep these dry. Should (name) bring the chest ashore, or leave it where its owner hid it?",
+   "choices": [
+    {
+     "label": "Bring It Ashore",
+     "next": "c1",
+     "src": "L2994"
+    },
+    {
+     "label": "Leave It",
+     "next": "c2",
+     "src": "L2995"
+    }
+   ],
+   "src": "L2990-2992"
+  },
+  "c1o1": {
+   "text": "The researchers can't read the marks. Nobody can. They aren't like anything anyone on the island has ever seen. But there are drawings too, hundreds of them, on almost every page: drawings of tools, of boats, of plants, of the stars, of the insides of things, with lines and arrows showing how they fit together. The researchers sit in the sand with the bundles on their knees and turn the pages very, very carefully, and their mouths fall open. The drawings alone teach them more than a whole year of study. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3001"
+  },
+  "c1o2": {
+   "text": "The moment the bundles touch the air and the sun, they start to crumble. The thin leaves curl up, and crack, and fall apart in the researchers' hands like dead leaves in a dry wind, and blow away along the beach. In moments, it's all gone. Everybody stands there in shock. But (name), who opened the chest underwater, looked at the first few pages for a long time before (he/she) swam up. And (he/she) remembers a few of the drawings. (He/She) sits down and draws them out again in the sand, very carefully, as best (he/she) can. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Research"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3004"
+  },
+  "c1": {
+   "text": "It takes (name) and three of the strongest swimmers all morning to haul the heavy chest up out of the wreck and tow it back across the reef to the beach. The whole village crowds round as the researchers lift the lid...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2998"
+  },
+  "c2o1": {
+   "text": "\"Whoever owned it might come back for it,\" (name) says, when the others ask. \"It's not ours.\" Some people think (he/she) is being silly. Some people think (he/she) is right. Either way, nobody goes out to the wreck. Seasons pass. Nobody ever comes back for the chest. The coral grows over the lid, and the wreck slowly sinks back into the sand, and in a few years nobody can find it any more.",
+   "src": "L3010"
+  },
+  "c2o2": {
+   "text": "A week later, another storm comes through in the night. And in the morning, there on the beach, right at the edge of the water, is the chest. Washed up on its own, lid closed, sitting in the sand as if it's waiting for someone. (Name) looks at it, and looks at the sea, and sighs. \"All right,\" (he/she) says. \"If you insist.\" The researchers open it, carefully, in the shade, and find that the bundles inside are dry and whole and full of drawings. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3013"
+  },
+  "c2": {
+   "text": "(Name) looks at the chest for a long time, hanging there in the cold water among the coral. Somebody put this here. Somebody sealed it, carefully, against the sea. (He/She) closes the lid, gently, and swims back up to the light...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3007"
+  }
+ }
+}

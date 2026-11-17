@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grand Copy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s098_grand_copy",
+  "source": "rewrites",
+  "lines": [
+   4578,
+   4620
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4578",
+  "ledger": [
+   {
+    "src": "L4579",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4580",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4588",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4597",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4585",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4586",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4589",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4598",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4591",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4594",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4600",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4603",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4606-4620",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L4595",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The magician claims to have learned every trick from the spirits of the deep sea, in exchange for a song.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A travelling magician has arrived, and set up in the middle of the village, and drawn the biggest crowd anybody has seen since the last wedding. (He/She) wears a long cloak sewn all over with tiny white shells, which clatter and shimmer whenever (he/she) moves, and (he/she) has been making things appear and disappear all afternoon: coins from children's ears, birds from empty baskets, the {@chief}'s sandal from the {@chief}'s own mouth. The magician claims to have learned every trick from the spirits of the deep sea, in exchange for a song.\nNow (he/she) holds up both hands for silence. \"And now,\" (he/she) says, \"the greatest trick on the island. The trick of tricks! For which I shall need... a volunteer!\"\nEvery child's hand shoots up. The magician's eyes slide past them all, and land on (name). \"You,\" (he/she) says, with a slow smile. And (name), who never volunteers for anything, finds (he/she) has stepped forward. Should (he/she) let the magician go ahead, or back out while (he/she) still can?",
+   "choices": [
+    {
+     "label": "Let the Magician Do the Trick",
+     "next": "c1",
+     "src": "L4585"
+    },
+    {
+     "label": "Back Out",
+     "next": "c2",
+     "src": "L4586"
+    }
+   ],
+   "src": "L4581-4583",
+   "text_only": [
+    {
+     "src": "L4581",
+     "what": "\"disappear\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "There's a flash of white light, so bright everyone has to cover their eyes. When they can see again, there are three of (name) standing in the circle. Exactly the same. Down to the last eyelash and the last freckle and the stain on the left sandal. The magician bows, deeply. All three of them bow back, in exactly the same way, at exactly the same moment. The crowd goes wild. The magician leaves that night, with a great deal of fruit and cloth and praise. {#made:One new one walks off; the other stays|The two new ones stay}, {#made:taking the name (made1)|taking the names (made1) and (made2)}, and nobody, not even the magician, it seems, knows how to undo it.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L4592"
+  },
+  "c1o2": {
+   "text": "There's a flash of light. A great puff of thick grey smoke. Everyone coughs and splutters and waves their arms, and when the smoke finally clears, (name) is still standing alone in the circle, blinking. And the magician is gone. Completely gone, shell cloak and all. So is a very large basket of food from the store, and somebody's good knife, and the {@chief}'s other sandal. The village stands in the empty circle for a long time. Then someone starts laughing, and can't stop.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L4595"
+  },
+  "c1": {
+   "text": "The magician stands (name) in the middle of a circle drawn in the sand, sweeps the shell cloak up and round in a great clattering arc, and shouts a word that nobody understands...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4589"
+  },
+  "c2o1": {
+   "text": "Someone else volunteers instead, a cheerful farmer who volunteers for everything. The magician stands (him/her) in the circle, sweeps the cloak, shouts the word. There's a puff of smoke, a lot of coughing, and when it clears, the farmer is standing there holding a live chicken. Everybody cheers. That's the trick. It turns out to be just a puff of smoke, and a chicken, and a very good story. (Name) is a little bit disappointed, and very relieved.",
+   "src": "L4601"
+  },
+  "c2o2": {
+   "text": "The magician's smile comes back, slowly. \"No matter,\" (he/she) says, softly, looking straight at (name) through the crowd. \"I can do it from here.\" (He/She) sweeps the cloak, and says the word, and there's a flash. When everyone can see again, (name) is standing in the crowd, and so is (name), right beside (him/her), a perfect copy, blinking in surprise. The second one looks at (name), and grins (name)'s grin, and picks the name (made1). The magician bows, and packs up, and is gone by morning.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L4604"
+  },
+  "c2": {
+   "text": "(Name) looks at the magician's slow smile, and at the circle in the sand, and suddenly gets cold feet. \"Actually,\" (he/she) says, \"I think I'll let one of the children have a go.\" (He/She) steps back into the crowd. The magician's smile flickers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4598"
+  }
+ }
+}

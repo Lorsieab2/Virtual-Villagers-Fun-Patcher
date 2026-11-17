@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shadow Net",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b039_shadow_net",
+  "source": "balance",
+  "lines": [
+   1753,
+   1794
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1753",
+  "ledger": [
+   {
+    "src": "L1754",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1755",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1763",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1772",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1760",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1761",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1764",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1773",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1766",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1769",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1775",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1778",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1781-1794",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has woven a fine net from the silk of the big yellow spiders in the forest.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has woven a fine net from the silk of the big yellow spiders in the forest. It's beautiful, light as mist, and strong enough to hold a pig. The weavers say the old spider-silk nets could \"catch anything,\" and the oldest one swears her grandmother caught a shadow in one.\n(Name) is testing it at dusk, at the edge of the clearing, when (his/her) own long shadow stretches out across the grass and right into the net, and the net goes tight, as if something heavy has just fallen into it.\nThe shadow is pulling. Should (name) haul the net in, or let it go?",
+   "choices": [
+    {
+     "label": "Haul It In",
+     "next": "c1",
+     "src": "L1760"
+    },
+    {
+     "label": "Let It Go",
+     "next": "c2",
+     "src": "L1761"
+    }
+   ],
+   "src": "L1756-1758"
+  },
+  "c1o1": {
+   "text": "The net comes in with a person in it: (name), exactly, blinking and confused and tangled up in spider silk, (his/her) own shadow made solid. It knows everything (name) knows and likes everything (name) likes. When they stand side by side in the sun, only one of them casts a shadow, and the village decides not to think about that. The newcomer becomes (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L1767"
+  },
+  "c1o2": {
+   "text": "The person in the net has (name)'s face, but the shadow came only with the outside. Inside, it's somebody new: shy where (name) is bold, good at things (name) has never tried. It sits up in the tangle of silk and asks, very politely, what it should be called. It chooses (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L1770"
+  },
+  "c1": {
+   "text": "(Name) hauls, hand over hand. The net is heavy, and cold, and getting heavier. Out of the dark mesh, something is starting to take shape...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1764"
+  },
+  "c2o1": {
+   "text": "(Name) tries to let go, but the silk is wound round (his/her) wrist. (His/Her) friends see (him/her) pulled into the trees at a stumbling run, shouting. They follow with torches, and find the net at the edge of the old forest, empty and cold. They search for a week. (Name) is never seen again, and the weavers burn every spider-silk net in the village.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L1776"
+  },
+  "c2o2": {
+   "text": "The wind gusts, the net flaps, and the pulling stops. The net drifts down to the grass, light as mist again. (Name)'s shadow is right where it should be, attached to (his/her) feet. (He/She) folds the net up and uses it for pigs from then on, and never tests it at dusk again.",
+   "src": "L1779"
+  },
+  "c2": {
+   "text": "(Name) opens (his/her) hands. The net doesn't fall. It goes on pulling, harder, towards the dark trees, and (name)'s feet start sliding across the grass...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1773"
+  }
+ }
+}

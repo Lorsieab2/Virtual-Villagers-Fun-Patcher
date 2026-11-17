@@ -445,14 +445,20 @@ def render_transparency_text(
         if feature.get("partial_failure_limit"):
             lines.append(f"  Partial-write disclosure: {feature['partial_failure_limit']}")
         if feature["id"].endswith("_tech_cost_multiplier") and data.get("tech_cost_multiplier"):
-            lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 2-10x Tech Cost slider): every "
+            lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 2-100x Tech Cost slider): every "
                          "technology price is its normal price times this.")
         if feature["id"].endswith("_hungrier_villagers") and data.get("meal_multiplier"):
             lines.append(f"  Multiplier: x{data['meal_multiplier']} (the Hungrier Villagers slider): every villager "
                          "meal takes its normal food times this.")
         if feature["id"].endswith("_sickness_multiplier") and data.get("sickness_multiplier"):
-            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 2-10x Sickness slider): villagers fall "
+            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 2-100x Sickness slider): villagers fall "
                          "sick that many times as often.")
+        if feature["id"].endswith("_more_frequent_island_events") and data.get("island_frequency_multiplier"):
+            lines.append(f"  Multiplier: x{data['island_frequency_multiplier']} (the More Frequent Island Events "
+                         "slider): the game's own island events come that many times as often.")
+        if feature["id"].endswith("_louder_wind_flutes") and data.get("louder_flutes_multiplier"):
+            lines.append(f"  Multiplier: x{data['louder_flutes_multiplier']} (the Louder Wind Flutes slider): the wind "
+                         "flutes are that many times louder, held under clipping.")
         if (
             "Cure all Villagers" in feature.get("description", "")
             and "Cured X villagers" not in feature.get("description", "")

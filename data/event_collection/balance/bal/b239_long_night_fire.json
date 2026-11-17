@@ -1,0 +1,236 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Night Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b239_long_night_fire",
+  "source": "balance",
+  "lines": [
+   11122,
+   11166
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11122",
+  "ledger": [
+   {
+    "src": "L11123",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11124",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11132",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11141",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11129",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11130",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11133",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11142",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11144",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11147",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11150-11166",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L11148",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "At midnight, the wood pile is running low, and the rain has started.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the longest night of the year, the village keeps the big fire burning till dawn, and everyone takes turns telling what they are best at, and teaching it to anyone who wants to listen. The elders say the long night fire \"makes skills take root.\" This year (subject) has been chosen to keep the fire going all night, alone, while the others talk and learn and fall asleep around it.\nAt midnight, the wood pile is running low, and the rain has started. (subject) can go into the dark jungle for more dry wood, or start burning the village's spare roof thatch, which the builders will be furious about.\nWhich should (subject) do?",
+   "choices": [
+    {
+     "label": "Go for Wood",
+     "next": "c1",
+     "src": "L11129"
+    },
+    {
+     "label": "Burn the Spare Thatch",
+     "next": "c2",
+     "src": "L11130"
+    }
+   ],
+   "src": "L11125-11127"
+  },
+  "c1o1": {
+   "text": "(subject) comes back with an armful of dry wood just as the fire is about to go out, and builds it up roaring. All night the villagers teach each other round it, and by dawn every one of them has learned something from someone. (subject), who stayed up all night listening to all of it, has learned the most.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11136"
+  },
+  "c1o2": {
+   "text": "In the dark, (subject) trips over a root and falls on the axe handle and cracks a rib. By the time (subject.he/she) limps back with the wood, the fire is out and everyone has gone to bed. Nobody blames (subject.him/her), but the elders say the skills won't take root this year. (subject) spends a week in the healers' hut.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L11139"
+  },
+  "c1": {
+   "text": "(subject) wraps up against the rain and goes into the dark jungle with an axe, feeling for dry branches under the big trees, while behind (subject.him/her) the fire sinks lower and lower...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11133"
+  },
+  "c2o1": {
+   "text": "The thatch burns so bright that nobody falls asleep, and the teaching goes on till dawn, and every villager comes away better at something. Then the builders wake up and find the spare thatch gone. (builder) doesn't speak to (subject) for a week. It was, everyone else agrees, worth it.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L11145"
+  },
+  "c2o2": {
+   "text": "The thatch burns very bright, and a burning wisp flies up on the wind and lands on the roof of the research hut. It's put out in moments, but not before a season of notes has gone up. The long night still does its work: every villager learns something by dawn. The researchers learn the most, about where to keep their notes.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L11148"
+  },
+  "c2": {
+   "text": "(subject) drags the bundles of spare thatch out of the store and feeds them to the fire one by one. The fire flares up bright and hot and crackling, and the builders, asleep, don't notice...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11142"
+  }
+ }
+}

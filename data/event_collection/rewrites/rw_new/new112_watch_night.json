@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Watch at Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new112_watch_night",
+  "source": "rewrites",
+  "lines": [
+   5243,
+   5288
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5243",
+  "ledger": [
+   {
+    "src": "L5244",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5245",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5253",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5260",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5267",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5249",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5250",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5251",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5254",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5261",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5268",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5255",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5257",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5262",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5264",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5269",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5271",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5274-5288",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Someone has to sit the watch between midnight and dawn.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 20
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Someone has to sit the watch between midnight and dawn. It is the worst watch there is: the fire burns low, the insects bite their hardest, and the jungle is at its noisiest, full of cracks and rustles and things that go \"hoo\" in a way that sounds personal.\nNobody wants it. Over supper, three different villagers have already \"volunteered\" each other, loudly, and with increasing creativity. \\(\"(subject.He/She) has the best ears!\" \"(subject.He/She) snores anyway, (subject.he/she) won't miss the sleep!\"\\)\n(subject), who has ended up with the late watch more often than anyone, is sitting very quietly, which is a bad sign. How should (leader) decide who sits it?",
+   "choices": [
+    {
+     "label": "Hear the Night Guards Out",
+     "next": "c1",
+     "src": "L5249"
+    },
+    {
+     "label": "Count the Notches on the Watch Post",
+     "next": "c2",
+     "src": "L5250"
+    },
+    {
+     "label": "Rotate the Worst Watch Each Moon",
+     "next": "c3",
+     "src": "L5251"
+    }
+   ],
+   "src": "L5246-5248"
+  },
+  "c1o1": {
+   "text": "(subject) tells them. How the late watch wrecks (subject.his/her) sleep for days afterwards. How (subject.he/she) snapped at (subject.his/her) own children last week over nothing, and how bad (subject.he/she) felt. Everyone listens, a little guiltily, and the three loud \"volunteers\" go very quiet. Afterwards, two of them offer to take (subject)'s next turns without being asked.",
+   "src": "L5256"
+  },
+  "c1o2": {
+   "text": "Before (subject) can say a word, (friend) raises a hand, then lowers it, then raises it again. \"I... never sleep well anyway,\" (subject.he/she) mumbles. \"I like the night. The jungle sounds are nice. I'd take it, if nobody minds.\" The argument turns completely upside down. Nobody minds. Several people want to hug (subject.him/her).",
+   "src": "L5258"
+  },
+  "c1": {
+   "text": "(leader) holds up a hand for quiet and turns to (subject). \"You've sat it more than anyone. Tell us.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5254"
+  },
+  "c2o1": {
+   "text": "The notches tell a surprising story: the fire only ever needs feeding twice a night, at the same two times, if it is banked properly before midnight. The rest of the watch is just sitting there being bitten. With a well-banked fire, the late watch can be cut in half, and the guards learn a better way to bank the fire that the cooks start using too.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5263"
+  },
+  "c2o2": {
+   "text": "The notches show something nobody expected: everyone HAS been taking their turn, more or less fairly. It only felt unfair because the late watch is so miserable. The accusations are quietly dropped, and the three loud \"volunteers\" find something very interesting to look at in the fire.",
+   "src": "L5265"
+  },
+  "c2": {
+   "text": "Every guard cuts a notch into the old watch post at the end of a shift, and a different mark each time the fire is fed. (leader) has the whole post hauled into the firelight and starts counting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5261"
+  },
+  "c3o1": {
+   "text": "...and it works well enough to keep. Each household grumbles when its moon comes around, and then grumbles a lot less when it passes. (subject) sleeps through the whole night for the first time in a season and comes to breakfast looking like a new person.",
+   "src": "L5270"
+  },
+  "c3o2": {
+   "text": "...but it confuses everyone. On the first night, two people from two different households turn up at the fire, both sure it is their turn. On the second night, nobody comes at all, and the fire goes out, and a curious pig wanders straight through the village. The idea is dropped, and (subject) sighs and picks up the watch stick again.",
+   "src": "L5272"
+  },
+  "c3": {
+   "text": "(leader) announces that the worst watch will pass from household to household, one each moon, so nobody gets stuck with it. It sounds simple. It sounds fair...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5268"
+  }
+ }
+}

@@ -61,8 +61,14 @@ static void vvfp_sex_change_refused_text(char *out, const char *name, int why) {
    row (its "VVFP Gender Presentation.dll" in the game, gender_presentation.h), and never for the Golden Child
    (sex_change.h). */
 static int vvfp_ax_change_sex_offered(int game, const unsigned char *record) {
+#ifdef VV_SEX_GC_OPTION1
+    return vv_sex_game_ok(game) && record != NULL
+        && (!vv_sex_golden_child(game, record) || vv_sex_gc_draws_follow(game))
+        && GetModuleHandleA(VVFP_GP_DLL) != NULL;
+#else
     return vv_sex_game_ok(game) && record != NULL && !vv_sex_golden_child(game, record)
         && GetModuleHandleA(VVFP_GP_DLL) != NULL;
+#endif
 }
 
 #ifndef VVFP_SEX_MESSAGE_BOX
@@ -79,7 +85,11 @@ static int vvfp_ax_change_sex(HWND w, int game, unsigned char *record, int index
         return 0;
     }
     vv_sex_name(game, record, name);
+#ifdef VV_SEX_GC_OPTION1
+    why = vv_sex_change_refusal_sex(game, record, index);
+#else
     why = vv_sex_change_refusal(game, record, index);
+#endif
     if (why != VV_SEX_OK) {
         vvfp_sex_change_refused_text(text, name, why);
         (void)VVFP_SEX_MESSAGE_BOX(w, text, VVFP_AX_CHANGE_SEX_TITLE, MB_OK | MB_ICONINFORMATION);

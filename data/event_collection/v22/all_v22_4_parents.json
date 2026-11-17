@@ -900,6 +900,15 @@
     {
      "next": "coda"
     }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9856-9859"
+    }
    ]
   },
   "d3": {

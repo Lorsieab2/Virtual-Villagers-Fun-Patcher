@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rainbow Over the Waterfall",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b343_rainbow_over",
+  "source": "balance",
+  "lines": [
+   15839,
+   15880
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15839",
+  "ledger": [
+   {
+    "src": "L15840",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15841",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15848",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15857",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15845",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15846",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15849",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15858",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15851",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15854",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15863",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15866-15880",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This morning the rainbow is there, bright and close.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "When the morning sun hits the spray of the big waterfall at just the right angle, a rainbow forms that touches the pool at its foot. The old story says a couple who swim through the rainbow together will be blessed with children, and that the sea spirit's daughter, who lives in the pool, decides how many.\nThis morning the rainbow is there, bright and close. (subject) and (friend) are standing at the edge of the pool. Should they swim through it together, or just sit and watch it from the rocks?",
+   "choices": [
+    {
+     "label": "Swim Through It",
+     "next": "c1",
+     "src": "L15845"
+    },
+    {
+     "label": "Watch From the Rocks",
+     "next": "c2",
+     "src": "L15846"
+    }
+   ],
+   "src": "L15842-15843"
+  },
+  "c1o1": {
+   "text": "Some weeks later, (subject) is pregnant, and the healers, listening, hear {#babies:one strong heartbeat|two heartbeats|three heartbeats}. \"The sea spirit's daughter,\" says the eldest healer, \"must have been in a generous mood.\" (friend) goes up to the waterfall every morning after that to say thank you, and to ask her, politely, not to be any more generous.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L15852"
+  },
+  "c1o2": {
+   "text": "Some weeks later, (subject) is pregnant with one baby. They name the baby's sleeping basket \"Rainbow,\" and (friend) paints it in every colour (subject.he/she) can find. When the baby comes, it laughs every time the sun hits the water.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L15855"
+  },
+  "c1": {
+   "text": "They wade in hand in hand and swim through the rainbow. For a moment the water around them glows every colour at once...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15849"
+  },
+  "c2o1": {
+   "text": "Behind the curtain of falling water, on a dry ledge, is a baby wrapped in a cloth that shimmers like spray. Nobody knows how it got there. (subject) and (friend) carry it home between them. The elders say the sea spirit's daughter must have decided they were too shy to swim, and sent the blessing out to them instead.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L15861"
+  },
+  "c2o2": {
+   "text": "The crying is a nest of baby birds on a ledge behind the waterfall, squawking for their mother. (subject) and (friend) laugh at themselves all the way home. They come back the next morning and the morning after, but the rainbow doesn't come back until next season.",
+   "src": "L15864"
+  },
+  "c2": {
+   "text": "They sit on the warm rocks and watch the rainbow until the sun climbs too high and it fades. Then, from behind the waterfall, they hear a baby crying...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15858"
+  }
+ }
+}

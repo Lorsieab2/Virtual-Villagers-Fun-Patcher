@@ -1,0 +1,225 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fertility Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s016_fertility_stone",
+  "source": "rewrites",
+  "lines": [
+   725,
+   769
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L725",
+  "ledger": [
+   {
+    "src": "L747",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): twins or triplets, 50:50"
+   },
+   {
+    "src": "L750",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: \"(name) now likes (name2)'s favourite job and (name2) now likes (name)'s favourite job (story only in VV1-VV5)\""
+   },
+   {
+    "src": "L726",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L727",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L735",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L744",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L732",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L733",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L736",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L745",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L738",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L741",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L747",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L750",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L753-769",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the edge of the jungle, half covered in moss, there is an old carved stone.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 45,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the jungle, half covered in moss, there is an old carved stone. Its face has been worn almost smooth by rain and hands, and lichen has grown into a little green smile across the front of it. The elders say that anyone who leaves a flower on it will be blessed with a baby. There are always flowers on it, fresh and wilted, in every colour.\n(subject) has always thought this was nonsense, and has said so, loudly, at several festivals.\nThis morning, walking past with (friend), (subject) stops. There's a fresh red flower sitting on top of the stone. (friend) is looking very hard at a nearby tree and whistling. \"Could (friend) have placed this flower?\" (subject) thinks. \"What should I do?\"",
+   "choices": [
+    {
+     "label": "Laugh It Off",
+     "next": "c1",
+     "src": "L732"
+    },
+    {
+     "label": "Leave a Flower Too",
+     "next": "c2",
+     "src": "L733"
+    }
+   ],
+   "src": "L728-730"
+  },
+  "c1o1": {
+   "text": "\"It's just a stone,\" (subject) says, every time it comes up, which is often. A few weeks later (subject) is feeling oddly tired, and odder still in the mornings, and the healers take one look at (subject.him/her) and smile. (subject) is pregnant. (friend) is over the moon. (subject) is thrilled too, though (subject.he/she) stops saying \"it's just a stone\" quite so loudly. The next time (subject.he/she) passes it, (subject.he/she) stops, looks around to make sure nobody is watching, and gives the mossy smile a little pat.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L739"
+  },
+  "c1o2": {
+   "text": "It really is just a stone, this time at least. The seasons go round and nothing changes. (friend) is a little disappointed, though (friend.he/she) pretends not to be. (subject) catches (friend.him/her) slipping off one morning with another flower, and doesn't tease (friend.him/her) about it this time. Instead (subject.he/she) walks along too, and the two of them sit by the stone in the green shade for a while without saying anything, which is nice.",
+   "src": "L742"
+  },
+  "c1": {
+   "text": "(subject) laughs out loud. \"You didn't!\" (friend) goes pink and says (friend.he/she) was just passing, and the flower just happened to be in (friend.his/her) hand. (subject) laughs all the way home, and teases (friend) about it for days...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L736"
+  },
+  "c2o1": {
+   "text": "Two flowers seem to do the trick, and then some. A few weeks later (subject) is pregnant. A few weeks after that, the healers press their ears to (subject.his/her) belly, look at each other, and say they think they can hear {#babies:one strong heartbeat|two heartbeats|two heartbeats, maybe even three}. (friend) has to sit down. (subject) laughs until (subject.he/she) cries. The whole village hears about it by nightfall, and the next morning the stone is buried in flowers.",
+   "src": "L748",
+   "children": [
+    {
+     "next": "c2o1_r1"
+    },
+    {
+     "next": "c2o1_r2"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The stone is unmoved. Nothing happens. But (subject) and (friend) have a lovely, slow, wandering walk home, holding hands, talking about everything, stopping to look at birds, and they agree that this was probably the point. From then on, each of them starts helping with the other's favourite job, just to spend more time together, and both of them find that they've come to like it.",
+   "src": "L751"
+  },
+  "c2": {
+   "text": "(subject) rolls (subject.his/her) eyes. Then, without a word, (subject.he/she) picks a white flower from the bush beside the path and sets it on the stone, right beside (friend)'s red one. \"Just so it's fair,\" (subject.he/she) says. The mossy face seems to smile a little wider...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L745"
+  },
+  "c2o1_r1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 2
+    }
+   ]
+  },
+  "c2o1_r2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 3
+    }
+   ]
+  }
+ }
+}

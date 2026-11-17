@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Old Friends Again",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s058_old_friends_again",
+  "source": "rewrites",
+  "lines": [
+   2752,
+   2796
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2752",
+  "ledger": [
+   {
+    "src": "L2753",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2754",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2762",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2771",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2759",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2760",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2763",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2772",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2765",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2768",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2774",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2777",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2780-2796",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Years ago, before life got busy, a villager and another villager were sweethearts.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25,
+   "max_age": 45,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Years ago, before life got busy, (subject) and (friend) were sweethearts. Everyone knew it. They were always together: at the fishing, at the fields, at every festival. And then, somehow, they drifted apart, the way people do, without ever really deciding to. Different work. Different friends. A quarrel that nobody can remember now.\nTonight is the harvest dance. The drums are going, torches are stuck in the sand all along the beach, and the air smells of roasted corn and frangipani. Everyone is dancing.\nAnd somehow, in the crowd, (subject) and (friend) end up standing next to each other. They both notice. Neither of them moves away. Should they dance together, like old times, or just talk?",
+   "choices": [
+    {
+     "label": "Dance Together",
+     "next": "c1",
+     "src": "L2759"
+    },
+    {
+     "label": "Just Talk",
+     "next": "c2",
+     "src": "L2760"
+    }
+   ],
+   "src": "L2755-2757"
+  },
+  "c1o1": {
+   "text": "They dance until the drummers' arms give out and the torches gutter and the fire burns down to coals. They dance as if all the years in between never happened. When they finally stop, out of breath and laughing, neither of them lets go. From that night on, they're together again, as if they'd never been apart, and the village smiles behind its hands. A few weeks later, walking on the beach at dawn, (subject) tells (friend) (subject.he/she) is pregnant with their baby. (friend) picks (subject.him/her) up and spins (subject.him/her) round right there in the surf.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2766"
+  },
+  "c1o2": {
+   "text": "They dance, and they talk between dances, and they laugh more than either of them has laughed in years. And somewhere in the middle of the night, sitting on the sand with their feet in the water, they both realise the same thing at the same time, and say it at the same time: they're better as friends. Very good friends. It's not sad. It's a relief, actually. From then on they dance together at every single festival, first on and last off, and never miss one.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L2769"
+  },
+  "c1": {
+   "text": "(friend) holds out a hand, a little awkwardly, the way (friend.he/she) used to all those years ago. (subject) looks at it, and laughs, and takes it. The drums pick up. They step out into the torchlight together...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2763"
+  },
+  "c2o1": {
+   "text": "They talk all night. About everything. About everything that's happened in all those years, the good and the hard. About the quarrel, which turns out to have been about a fish. They laugh about that until they cry. By the time the sun comes up over the sea, they've decided, without either of them really saying it, that they've wasted enough time. They move in together that week. A few weeks after that, (subject) is pregnant, and the whole village says it's about time.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2775"
+  },
+  "c2o2": {
+   "text": "They talk about the old days, and smile, and remember. It's lovely. It's warm. But it's the past, and they both know it, and neither of them wants to break that. When the drums finally stop, they stand up, and (friend) squeezes (subject)'s hand once, and they say goodnight, and go home to their own huts, smiling. They nod to each other at the well, after that, a little more warmly than before.",
+   "src": "L2778"
+  },
+  "c2": {
+   "text": "Neither of them is quite brave enough to dance. So instead, they drift away from the drums together, down to the quiet end of the beach, and sit on an upturned canoe, and (subject) says, \"So. How have you been?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2772"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "jumping",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "like": "jumping"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

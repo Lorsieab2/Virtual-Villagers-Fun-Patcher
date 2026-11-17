@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Brother Who Came Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b157_brother_came_back",
+  "source": "balance",
+  "lines": [
+   7241,
+   7283
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7241",
+  "ledger": [
+   {
+    "src": "L7242",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7243",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7251",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7260",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7248",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7249",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7252",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7261",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7254",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7257",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7263",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7269-7283",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Twenty years ago, a villager's older brother left the island in a canoe to see what was over the horizon, and never came back.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Twenty years ago, (name)'s older brother left the island in a canoe to see what was over the horizon, and never came back. The family mourned him. (Name) still keeps his fishing spear in the rafters.\nThis afternoon a canoe comes in round the point, and the man who steps out is grey-haired and weathered, with (name)'s own nose. Behind him in the canoe sit a tired woman, a tall teenage boy and a little girl, all staring at the village with wide eyes. \"I said I'd be back,\" he says, a little sheepishly. \"I didn't say when.\"\n(Name) doesn't know whether to hug him or hit him. Which should (he/she) do?",
+   "choices": [
+    {
+     "label": "Hug Him",
+     "next": "c1",
+     "src": "L7248"
+    },
+    {
+     "label": "Ask Where He's Been",
+     "next": "c2",
+     "src": "L7249"
+    }
+   ],
+   "src": "L7244-7246"
+  },
+  "c1o1": {
+   "text": "They all stay. The brother takes his old spear down out of the rafters and goes fishing the next morning as if he never left. His wife turns out to be a wonderful weaver. The teenage boy is shy and clever and is soon teaching the village children games from his mother's island. The little girl follows (name) everywhere. \"She says you look like Papa,\" the boy explains. \"But nicer.\"",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L7255"
+  },
+  "c1o2": {
+   "text": "The brother is restless after a few weeks. He can't stay anywhere long, he says, he never could. But his wife is tired of the sea and wants the children to grow up in one place. So she stays with them, and the brother goes, promising to come back. Maybe in twenty years. (Name) teaches the children everything (he/she) knows, and keeps their father's spear up in the rafters, just in case.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L7258"
+  },
+  "c1": {
+   "text": "(Name) grabs him and holds on, hard. He smells of salt and strange spices. His wife climbs out of the canoe, smiling uncertainly. The little girl hides behind her mother's legs...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7252"
+  },
+  "c2o1": {
+   "text": "He has been everywhere. Islands of fire, islands of ice, islands where the people build in stone and count the stars. By the time he finishes, the whole village has gathered round, and the researchers are writing things down as fast as they can. His family goes on to her island, but he stays, with his stories. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L7264"
+  },
+  "c2o2": {
+   "text": "He tells (name) everything, and (name) is still angry at the end of it. The brother nods. He says he understands. In the morning, he and his family are gone, back round the point, and there is a carved turtle on (name)'s doorstep. (Name) puts it in the rafters beside the old spear, and doesn't say a word about it to anyone.",
+   "src": "L7267"
+  },
+  "c2": {
+   "text": "(Name) folds (his/her) arms. \"Twenty years,\" (he/she) says. \"Twenty years, and not a word.\" The brother sits down on the sand and starts to tell (him/her). It takes until dark...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7261"
+  }
+ }
+}

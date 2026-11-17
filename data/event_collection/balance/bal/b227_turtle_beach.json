@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Turtle Beach",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b227_turtle_beach",
+  "source": "balance",
+  "lines": [
+   10559,
+   10602
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10559",
+  "ledger": [
+   {
+    "src": "L10560",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10561",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10569",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10578",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10566",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10567",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10570",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10579",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10572",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10575",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10581",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10587-10602",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Tonight it's a villager and another villager's turn.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year the turtles come up the beach at night to lay their eggs, and the village takes turns guarding the nests from the crabs and the birds. Tonight it's (subject) and (friend)'s turn. They are sitting in the dark with a covered torch, watching a great turtle dig and lay and cover, slowly, patiently, crying turtle tears.\nThe elders say that a couple who guard the turtles all night, and see the first hatchlings reach the sea, will be \"given a turn\" themselves. (subject) and (friend) have been hoping for a long time. But tonight a strange sound is coming from further along the beach: a baby crying.\nShould they stay with the nests, or go and find the baby?",
+   "choices": [
+    {
+     "label": "Stay with the Nests",
+     "next": "c1",
+     "src": "L10566"
+    },
+    {
+     "label": "Find the Baby",
+     "next": "c2",
+     "src": "L10567"
+    }
+   ],
+   "src": "L10562-10564"
+  },
+  "c1o1": {
+   "text": "Every hatchling reaches the water. As the last one goes in, the old turtle lifts its head out of the waves and looks at them. A month later, (subject) is pregnant. They go along the beach that morning to look for the crying they heard, and find only the tide line, and a little woven rattle in the sand, which they keep.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L10573"
+  },
+  "c1o2": {
+   "text": "The hatchlings reach the sea, and on the way home they find the crying baby's family camped further along the beach: travellers whose baby has colic and has kept them up for a week. (subject) and (friend) help walk the baby up and down till it sleeps. Soon after, (subject) is pregnant, and the two of them are much more patient people than they were.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L10576"
+  },
+  "c1": {
+   "text": "They stay. The crying goes on, far along the beach, and then stops. (subject) can't stop thinking about it. At dawn, the first hatchlings dig out of the sand and run for the sea...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10570"
+  },
+  "c2o1": {
+   "text": "A baby, wrapped in a turtle-shell pattern cloth, lying in a hollow in the sand where the turtles nest. Nobody is anywhere. (subject) picks the baby up and it stops crying at once. The elders say that in the old days, families who couldn't feed a child sometimes left it \"for the turtles,\" hoping someone kind would be watching. Someone was.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10582"
+  },
+  "c2o2": {
+   "text": "The crying turns out to be a young seal, stranded on the rocks and calling for its mother. They push it back into the sea. When they get back, the crabs have been at two of the nests. But most of the hatchlings reach the sea at dawn, and a month later (subject) is pregnant anyway. \"Close enough,\" says (friend).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L10585"
+  },
+  "c2": {
+   "text": "They leave the torch by the nests and run along the beach in the dark towards the crying. It gets louder, and closer, and then, round a rock, they find it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10579"
+  }
+ }
+}

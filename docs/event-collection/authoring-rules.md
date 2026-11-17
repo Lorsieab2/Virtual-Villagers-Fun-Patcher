@@ -549,6 +549,24 @@ review sheet). The shape is 15b's (the setup asks; each label leads to its own t
 - "The chief" stays the game word `{@chief}` / `{@Chief}` (a label in title case: collection_check compares a game word
   as the word it stands for); a title with "Chief" has a "Leader" title variant outside VV3. Nobody is cast as the chief.
 
+## 15i. More Island Events (mixer only) and heathen_ok roles (2026-11-16)
+
+The owner's "Additional Virtual Villagers Events By Lorsieab2.txt" (the nine events "VVFP More Island Events.dll"
+runs) is frozen byte for byte (`collection_lib.MIE`, source id `mie`, SHA-256 in `data/event_collection/MIE.sha256`);
+rows `_mie_rows` in `scripts/collection_manifest.py` (the header and The Cooking Contest's draft are notes rows);
+files `data/event_collection/mie/mie/<id>.json`, written by `scripts/go_events/gen_mie.py` (one hand-mapped function
+per event). Each has `collection.mixer_only: true`: it compiles and validates and gets its mixer versions, but its
+static form is in no manifest, the Credits list or the Game Mechanics index (the DLL runs the originals). The owner's
+odds are repeated children (the engine draws children equally); what the format cannot say is listed in
+`collection.approximations` (an authoring key) and printed by the generator.
+
+**heathen_ok** (the owner: "Heathens may be involved if needed for the event to make sense"): a New Believers villager
+role with `believers_only: false` must also say `"heathen_ok": true`, and a paragraph that names the role must say
+Isolan or Heathen. Only faith gain (+5..+35), joining the tribe, actions and minor harm (health -5..-30, sickness)
+may reach it; never kill, vanish, age, re-skill or less faith (`collection_check.heathen_ok_problems`). The engine's
+role flag (a real Heathen villager, never a Heathen role character or a sick one) is pending: `graph_for_engine`
+leaves the key out until it lands. In use: S027 The Isolan at the Fire and S070 The Isolan Healer.
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event
