@@ -861,6 +861,14 @@ class ExportRoundTrip(unittest.TestCase):
         walk([start])
         return out
 
+    def test_a_role_name_with_digits_survives_the_export(self):
+        # "Role helper2:" must parse back as the helper2 slot (Codex, #774), not be lost as an unknown line.
+        g = json.loads(json.dumps(self.MULTI).replace('"friend"', '"helper2"').replace("(friend)", "(helper2)"))
+        items = pe.parse_text(pe.pieces_file_text(g), "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        setup = next(i for i in items if i.piece["kind"] == pe.PIECE_KINDS["setup"])
+        self.assertIn("helper2", setup.piece["slots"])
+
     def test_every_path_keeps_every_effect_or_says_it_is_flavor(self):
         # For every path through the event, the effects along it (kind, target, every field) are the effects of the
         # matching exported outcome, or are kept as flavor and listed in the file -- never dropped silently.
@@ -921,6 +929,13 @@ class ExportRoundTrip(unittest.TestCase):
         puzzled = copy.deepcopy(self.MULTI)
         puzzled.setdefault("requirement", {})["puzzles"] = {"1": ["The Cave"]}
         cases.append((puzzled, "a puzzle that must be solved first"))
+        # An opening page before the first question, with its own text and food (Codex, #774): refused, named.
+        opened = copy.deepcopy(self.MULTI)
+        opened["nodes"]["intro"] = {"type": "popup", "text": "(visitor.name) arrives.",
+                                    "effects": [{"do": "food", "amount": 100, "scaled": True}],
+                                    "children": [{"next": "ask"}]}
+        opened["start"] = "intro"
+        cases.append((opened, "opens with page intro before its first question"))
         for g, words in cases:
             with self.subTest(words=words), self.assertRaises(ValueError) as refused:
                 pe.pieces_file_text(g)

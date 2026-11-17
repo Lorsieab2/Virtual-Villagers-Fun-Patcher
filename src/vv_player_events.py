@@ -1078,7 +1078,7 @@ _OUTCOME = re.compile(r"^(?:[*\-\u2022]\s*)?(?:outcome\s*[A-Za-z0-9]*|\(random o
                       r"(?:\s*\((?:weight|chance)\s*(\d+)\))?\s*:?\s*(.*)$", re.I)
 _TABLE = re.compile(r"^([A-Z][A-Z0-9]*-\d+[A-Z]?)\s*\|\s*([A-Z])(\d+)\s*\|\s*([^|]+?)\s*(?:\|\s*(.*))?$")
 _SEPARATOR = re.compile(r"^(?:[=#\-_*~]{4,}.*|#.*)$")
-_KEY = re.compile(r"^([A-Za-z][A-Za-z_ ()]*?)\s*:\s?(.*)$")
+_KEY = re.compile(r"^([A-Za-z][A-Za-z0-9_ ()]*?)\s*:\s?(.*)$")
 _BLOCK = re.compile(r"^(Page|Question|Random)\s+([A-Za-z0-9_]+)\s*:\s*$")
 
 
@@ -3419,6 +3419,9 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
     roles = norm.get("roles", {})
     speaks = set(norm.get("speaking_roles") or [])
     refusals = _export_refusals(norm, q_id)
+    if norm.get("start") != q_id:
+        # A piece set opens at its question: pages before it (their text and effects) have no piece form (Codex, #774).
+        refusals.append(f"the event opens with page {norm.get('start')} before its first question")
     out = ["# Mixer pieces written by the Custom Island Event Library from \"" + norm.get("title", "") + "\".",
            "# docs/player-events-format.md 6 explains every line.", ""]
     games = games_words(norm.get("games", [1, 2, 3, 4, 5]))
