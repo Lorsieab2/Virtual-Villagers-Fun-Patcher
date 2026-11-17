@@ -184,7 +184,7 @@
    "src": "L11193"
   },
   "c2o2": {
-   "text": "The trading takes so long, and the village is so friendly, that by nightfall the traders are talking about it among themselves. In the morning, the grandmother sails on with one canoe, and her son, his wife and the tall grandson stay with the other, to plant the new seeds and see them grow. \"Somebody has to,\" the grandmother says.",
+   "text": "The trading takes so long, and the village is so friendly, that by nightfall the traders are talking about it among themselves. In the morning, the grandmother sails on with one canoe, and {#made:only her son can stay, as the village has no room for more|only her son and his wife can stay, as the village has no room for more|her son, his wife and the tall grandson stay with the other}, to plant the new seeds and see them grow. \"Somebody has to,\" the grandmother says.",
    "effects": [
     {
      "do": "new_villager",
@@ -215,5 +215,12 @@
    ],
    "src": "L11190"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L11196",
+   "before": "and her son, his wife and the tall grandson stay with the other",
+   "after": "and {#made:only her son can stay, as the village has no room for more|only her son and his wife can stay, as the village has no room for more|her son, his wife and the tall grandson stay with the other}"
+  }
+ ]
 }

@@ -125,7 +125,7 @@
    "src": "L14419-14420"
   },
   "c1o1": {
-   "text": "A young (man/woman) on the raft catches the rope and wraps it around a pole, and (name) digs in (his/her) heels and pulls. The raft swings into the bank. On it are two exhausted adults and a baby wrapped in a waterproof bark cloth, sound asleep through the whole thing. Their hill village was swept away by the flood. They stay. The baby, it turns out, sleeps through anything.",
+   "text": "A young (man/woman) on the raft catches the rope and wraps it around a pole, and (name) digs in (his/her) heels and pulls. The raft swings into the bank. On it are two exhausted adults and a baby wrapped in a waterproof bark cloth, sound asleep through the whole thing. Their hill village was swept away by the flood. {#made:Only one of them can stay; the village has no room for more|They stay}. The baby, it turns out, sleeps through anything.",
    "effects": [
     {
      "do": "new_villager",
@@ -139,7 +139,7 @@
    "src": "L14429"
   },
   "c1o2": {
-   "text": "The rope is caught, but the current is so strong that it drags (name) off the bank and into the water. (He/She) hangs on, half-drowned, until the raft grounds itself on the sandbar. On it are a (man/woman), a teenager and a small child. The teenager jumps into the water and pulls (name) out. They all sit on the sandbar, coughing, and laugh about it later. The family stays.",
+   "text": "The rope is caught, but the current is so strong that it drags (name) off the bank and into the water. (He/She) hangs on, half-drowned, until the raft grounds itself on the sandbar. On it are a (man/woman), a teenager and a small child. The teenager jumps into the water and pulls (name) out. They all sit on the sandbar, coughing, and laugh about it later. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stays}.",
    "effects": [
     {
      "do": "new_villager",
@@ -177,7 +177,7 @@
    "src": "L14426"
   },
   "c2o1": {
-   "text": "Somebody on the raft grabs the end of the pole, and (name) swings the raft in against the sandbar like a fisher landing a big fish. Two adults and a baby climb off onto the sand, shaking. \"We saw your village from the hills,\" one of them says. \"We hoped we'd make it this far.\" They did. They stay.",
+   "text": "Somebody on the raft grabs the end of the pole, and (name) swings the raft in against the sandbar like a fisher landing a big fish. Two adults and a baby climb off onto the sand, shaking. \"We saw your village from the hills,\" one of them says. \"We hoped we'd make it this far.\" They did. {#made:Only one of them can stay; the village has no room for more|They stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -208,5 +208,22 @@
    ],
    "src": "L14435"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L14429",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L14432",
+   "before": "The family stays.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stays}."
+  },
+  {
+   "src": "L14438",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They stay}."
+  }
+ ]
 }

@@ -98,3 +98,30 @@ def test_more_island_events_odds():
     cave = json.loads((lib.MIE_DIR / "mie" / "mie_cave_explorers.json").read_text(encoding="utf-8"))
     run = [k["next"] for k in cave["nodes"]["run_left"]["children"]]
     assert run.count("make_up") == 16 and run.count("fall_out") == 2 and len(run) == 20   # 10 / 80 / 10
+
+
+def _made_and_babies(effects):
+    made = sum(2 if e.get("do") == "clone" and e.get("count") == 2 else 1
+               for e in effects if e.get("do") in ("new_villager", "clone"))
+    babies = max([e.get("babies", 1) if isinstance(e.get("babies", 1), int) else 2
+                  for e in effects if e.get("do") in ("pregnant", "nursing")] or [0])
+    return made, babies
+
+
+def test_pages_that_make_several_have_a_count_token():
+    """The owner's rule 13: a page that makes two or more villagers or babies -- only as many as the game's room
+    allows -- says so with a count token ({#made:..}, {#babies:..}), its words fitting any count (gen_go.py
+    COUNT_TOKENS); a branch with no text is told by the page before it."""
+    missing = []
+    for sid in lib.GO_SOURCES:
+        for path in (lib.COLLECTION_DIR / sid).glob("*/*.json"):
+            nodes = json.loads(path.read_text(encoding="utf-8")).get("nodes", {})
+            for nid, n in nodes.items():
+                made, babies = _made_and_babies(n.get("effects") or [])
+                if made < 2 and babies < 2:
+                    continue
+                text = n.get("text") or nodes.get(nid.split("_r")[0], {}).get("text", "")
+                want = "{#made:" if made >= 2 else "{#babies:"
+                if want not in text and "{#" not in text:
+                    missing.append(f"{path.stem} {nid}")
+    assert missing == []

@@ -131,7 +131,7 @@
    "src": "L14952-14953"
   },
   "c1o1": {
-   "text": "A month later a canoe comes in from the south, and (name)'s cousin wades ashore with a partner and a baby, thin and sunburnt and holding the carved shell. The two cousins recognise each other at once, somehow, after all those years. The village shares out the stores to feed three more, and nobody minds.",
+   "text": "A month later a canoe comes in from the south, and (name)'s cousin wades ashore with a partner and a baby, thin and sunburnt and holding the carved shell. The two cousins recognise each other at once, somehow, after all those years. {#made:The village has room for only one of them|The village shares out the stores to feed three more, and nobody minds}.",
    "effects": [
     {
      "do": "new_villager",
@@ -152,7 +152,7 @@
    "src": "L14962"
   },
   "c1o2": {
-   "text": "The canoe that comes brings the cousin and two children: a long-legged teenager who has paddled half the way, and a small child who has been seasick the whole time. The cousin's partner, (he/she) explains quietly, didn't survive the last bad harvest. (Name) takes them all in, and the teenager, who has never seen so much fish in (his/her) life, eats until (he/she) has to lie down.",
+   "text": "The canoe that comes brings the cousin and two children: a long-legged teenager who has paddled half the way, and a small child who has been seasick the whole time. The cousin's partner, (he/she) explains quietly, didn't survive the last bad harvest. (Name) takes {#made:in one of them, as the village has no room for more|in two of them, as the village has no room for more|them all in}, and the teenager, who has never seen so much fish in (his/her) life, eats until (he/she) has to lie down.",
    "effects": [
     {
      "do": "new_villager",
@@ -184,7 +184,7 @@
    "src": "L14959"
   },
   "c2o1": {
-   "text": "(Name) finds (his/her) cousin's village in a bad way, and brings the cousin, the cousin's partner and their baby home. On the long journey back, (name) does most of the steering, reading the stars, the swells and the birds, and by the time they land, (he/she) is a far better sailor than when (he/she) left.",
+   "text": "(Name) finds (his/her) cousin's village in a bad way, and brings {#made:the cousin home, as the village has no room for more|the cousin, the cousin's partner and their baby home}. On the long journey back, (name) does most of the steering, reading the stars, the swells and the birds, and by the time they land, (he/she) is a far better sailor than when (he/she) left.",
    "effects": [
     {
      "do": "new_villager",
@@ -222,5 +222,22 @@
    ],
    "src": "L14968"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L14962",
+   "before": "The village shares out the stores to feed three more, and nobody minds.",
+   "after": "{#made:The village has room for only one of them|The village shares out the stores to feed three more, and nobody minds}."
+  },
+  {
+   "src": "L14965",
+   "before": "takes them all in",
+   "after": "takes {#made:in one of them, as the village has no room for more|in two of them, as the village has no room for more|them all in}"
+  },
+  {
+   "src": "L14971",
+   "before": "brings the cousin, the cousin's partner and their baby home",
+   "after": "brings {#made:the cousin home, as the village has no room for more|the cousin, the cousin's partner and their baby home}"
+  }
+ ]
 }

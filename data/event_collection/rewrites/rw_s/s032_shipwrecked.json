@@ -137,7 +137,7 @@
    ]
   },
   "c1o1": {
-   "text": "The three of them are carried up the beach and wrapped in every blanket the village owns. The cooks bring warm soup, and then more soup, and then mashed fruit for the little one, and the village keeps feeding them until they finally stop shivering and start to smile. They were fishing, the adult says, and the storm took them, and they've been drifting for four days. When they've rested, the elders offer them a hut. The adult looks at the teenager. The teenager looks at the child, who is already playing with the village children in the sand. They decide to stay.",
+   "text": "The three of them are carried up the beach and wrapped in every blanket the village owns. The cooks bring warm soup, and then more soup, and then mashed fruit for the little one, and the village keeps feeding them until they finally stop shivering and start to smile. They were fishing, the adult says, and the storm took them, and they've been drifting for four days. When they've rested, the elders offer them a hut. The adult looks at the teenager. The teenager looks at the child, who is already playing with the village children in the sand. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -208,7 +208,7 @@
    "src": "L1521"
   },
   "c2o2": {
-   "text": "They wave from the boat, and eat, and then, to everyone's surprise, they start paddling. Not out to sea: straight for the shore, as hard as they can, wrecked float and all. They wash up on the beach in a tangle of rope and wet cloth. \"We could smell the cooking,\" the child explains, very seriously, as the villagers help them out. The teenager, it turns out, had only been helping them out at sea, and swims off round the point to (his/her) own people. The adult and the child stay.",
+   "text": "They wave from the boat, and eat, and then, to everyone's surprise, they start paddling. Not out to sea: straight for the shore, as hard as they can, wrecked float and all. They wash up on the beach in a tangle of rope and wet cloth. \"We could smell the cooking,\" the child explains, very seriously, as the villagers help them out. The teenager, it turns out, had only been helping them out at sea, and swims off round the point to (his/her) own people. {#made:Only the adult can stay; the village has no room for more|The adult and the child stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -242,5 +242,17 @@
     }
    ]
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L1512",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  },
+  {
+   "src": "L1524",
+   "before": "The adult and the child stay.",
+   "after": "{#made:Only the adult can stay; the village has no room for more|The adult and the child stay}."
+  }
+ ]
 }

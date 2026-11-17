@@ -135,7 +135,7 @@
    "src": "L10325-10327"
   },
   "c1o1": {
-   "text": "The family climbs out of the boat laughing and crying. The grandparents decide to sail on to a cousin's island, but the parents, their teenage daughter and their little son stay, and teach the whole village their songs, and learn the village's. The dog stays too, and barks at the waves every morning.",
+   "text": "The family climbs out of the boat laughing and crying. The grandparents decide to sail on to a cousin's island, but {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the parents, their teenage daughter and their little son stay}, and teach the whole village their songs, and learn the village's. The dog stays too, and barks at the waves every morning.",
    "effects": [
     {
      "do": "new_villager",
@@ -199,7 +199,7 @@
    "src": "L10345"
   },
   "c2o2": {
-   "text": "At the end of the speech, the {@chief}, who is famous for having no voice at all, clears (his/her) throat and sings the chorus, terribly. The old man laughs until he has to sit down. The family sails on in the end, except for a young couple with a baby, who say any place where the {@chief} sings like that is good enough for them.",
+   "text": "At the end of the speech, the {@chief}, who is famous for having no voice at all, clears (his/her) throat and sings the chorus, terribly. The old man laughs until he has to sit down. The family sails on in the end, except for a young couple with a baby, who say any place where the {@chief} sings like that is {#made:good enough for them, though the village has room for only one of them|good enough for them, though the village has room for only two of them|good enough for them}.",
    "effects": [
     {
      "do": "new_villager",
@@ -231,5 +231,17 @@
    ],
    "src": "L10342"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10336",
+   "before": "but the parents, their teenage daughter and their little son stay",
+   "after": "but {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the parents, their teenage daughter and their little son stay}"
+  },
+  {
+   "src": "L10348",
+   "before": "good enough for them.",
+   "after": "{#made:good enough for them, though the village has room for only one of them|good enough for them, though the village has room for only two of them|good enough for them}."
+  }
+ ]
 }

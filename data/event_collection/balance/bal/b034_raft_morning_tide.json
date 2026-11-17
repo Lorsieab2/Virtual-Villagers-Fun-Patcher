@@ -183,7 +183,7 @@
    "src": "L1549"
   },
   "c2o2": {
-   "text": "That afternoon, a second raft comes ashore further down the beach, carrying the traveller's partner, who has been searching the sea for them for two days. The reunion on the sand makes half the village cry. Once they've rested, the family decides that they've had quite enough of the sea. They decide to stay.",
+   "text": "That afternoon, a second raft comes ashore further down the beach, carrying the traveller's partner, who has been searching the sea for them for two days. The reunion on the sand makes half the village cry. Once they've rested, the family decides that they've had quite enough of the sea. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -215,5 +215,12 @@
    ],
    "src": "L1546"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L1552",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
 }

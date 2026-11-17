@@ -141,7 +141,7 @@
    "src": "L6251"
   },
   "c1o2": {
-   "text": "(Name) grabs, misses, and the bird flutters off the roof, splitting into two in mid-air, each half turning into a perfect (name) before it lands. Now there are three of (name) standing outside one hut, looking at each other in horror and then, slowly, starting to laugh in exactly the same way. The two copies take the names (made1) and (made2), and argue for a week about who gets the hut.",
+   "text": "(Name) grabs, misses, and the bird flutters off the roof, {#made:turning into a perfect (name) in mid-air before it lands|splitting into two in mid-air, each half turning into a perfect (name) before it lands}. Now there are {#made:two|three} of (name) standing outside one hut, looking at each other in horror and then, slowly, starting to laugh in exactly the same way. {#made:The copy takes the name (made1), and they argue|The two copies take the names (made1) and (made2), and argue} for a week about who gets the hut.",
    "effects": [
     {
      "do": "clone",
@@ -235,5 +235,22 @@
     }
    ]
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L6254",
+   "before": "splitting into two in mid-air, each half turning into a perfect (name) before it lands",
+   "after": "{#made:turning into a perfect (name) in mid-air before it lands|splitting into two in mid-air, each half turning into a perfect (name) before it lands}"
+  },
+  {
+   "src": "L6254",
+   "before": "Now there are three of (name)",
+   "after": "Now there are {#made:two|three} of (name)"
+  },
+  {
+   "src": "L6254",
+   "before": "The two copies take the names (new name) and (new name 2), and argue",
+   "after": "{#made:The copy takes the name (new name), and they argue|The two copies take the names (new name) and (new name 2), and argue}"
+  }
+ ]
 }

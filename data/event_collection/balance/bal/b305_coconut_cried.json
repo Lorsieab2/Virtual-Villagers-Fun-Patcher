@@ -184,7 +184,7 @@
    "src": "L14169"
   },
   "c2o2": {
-   "text": "On the way home (subject) meets a couple stumbling along the beach, soaked and bruised, calling out. Their canoe broke up on the reef in the storm, and the coconut cradle was torn from their arms. When (subject) opens (subject.his/her) wrap and shows them, they both sit down in the sand. They stay in the village. They carve (subject) a coconut cup to say thank you.",
+   "text": "On the way home (subject) meets a couple stumbling along the beach, soaked and bruised, calling out. Their canoe broke up on the reef in the storm, and the coconut cradle was torn from their arms. When (subject) opens (subject.his/her) wrap and shows them, they both sit down in the sand. {#made:Only one of them can stay in the village; there is no room for more|They stay in the village}. They carve (subject) a coconut cup to say thank you.",
    "effects": [
     {
      "do": "new_villager",
@@ -211,5 +211,12 @@
    ],
    "src": "L14166"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L14172",
+   "before": "They stay in the village.",
+   "after": "{#made:Only one of them can stay in the village; there is no room for more|They stay in the village}."
+  }
+ ]
 }

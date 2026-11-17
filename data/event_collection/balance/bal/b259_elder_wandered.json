@@ -129,7 +129,7 @@
    "src": "L12085-12086"
   },
   "c1o1": {
-   "text": "(friend) follows the crack to a small campfire in a clearing, and there is (subject), sitting by it, wrapped in a blanket and eating roasted taro. Beside (subject.him/her) are a (subject.man/woman), a teenager and a small child, who have been living rough in the hills since their own home was lost to a landslide. They found (subject) wandering and took (subject.him/her) in. All five of them walk back to the village together in the torchlight, and the family stays.",
+   "text": "(friend) follows the crack to a small campfire in a clearing, and there is (subject), sitting by it, wrapped in a blanket and eating roasted taro. Beside (subject.him/her) are a (subject.man/woman), a teenager and a small child, who have been living rough in the hills since their own home was lost to a landslide. They found (subject) wandering and took (subject.him/her) in. All five of them walk back to the village together in the torchlight, and {#made:the village has room for only one of them|the village has room for only two of them|the family stays}.",
    "effects": [
     {
      "do": "new_villager",
@@ -214,5 +214,12 @@
    ],
    "src": "L12101"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L12095",
+   "before": "and the family stays.",
+   "after": "and {#made:the village has room for only one of them|the village has room for only two of them|the family stays}."
+  }
+ ]
 }

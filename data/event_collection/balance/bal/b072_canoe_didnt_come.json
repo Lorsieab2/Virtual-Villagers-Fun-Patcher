@@ -138,7 +138,7 @@
    "src": "L3264"
   },
   "c1o2": {
-   "text": "Both of them are there, and so are three strangers: a parent, a teenager and a small child, whose own canoe was wrecked in the same storm. (subject) and (friend) pulled them out of the water and have kept them alive for two days on rainwater and raw shellfish. Everyone comes home. The strangers decide to stay.",
+   "text": "Both of them are there, and so are three strangers: a parent, a teenager and a small child, whose own canoe was wrecked in the same storm. (subject) and (friend) pulled them out of the water and have kept them alive for two days on rainwater and raw shellfish. Everyone comes home. {#made:Only one of the strangers can stay; the village has no room for more|Only two of the strangers can stay; the village has no room for more|The strangers decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -198,5 +198,12 @@
    ],
    "src": "L3270"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3267",
+   "before": "The strangers decide to stay.",
+   "after": "{#made:Only one of the strangers can stay; the village has no room for more|Only two of the strangers can stay; the village has no room for more|The strangers decide to stay}."
+  }
+ ]
 }

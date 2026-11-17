@@ -125,7 +125,7 @@
    "src": "L11312-11314"
   },
   "c1o1": {
-   "text": "(Name) reaches the canoe and finds a young couple, sunburnt and cracked-lipped, with a baby tucked in a dry basket between them. They have been at sea for nine days, since a storm blew them off course. (Name) takes the bow line in (his/her) teeth and guides them through the gap in the reef. On the beach the baby wakes up, looks around at all the strangers, and laughs. The couple decide on the spot to stay.",
+   "text": "(Name) reaches the canoe and finds a young couple, sunburnt and cracked-lipped, with a baby tucked in a dry basket between them. They have been at sea for nine days, since a storm blew them off course. (Name) takes the bow line in (his/her) teeth and guides them through the gap in the reef. On the beach the baby wakes up, looks around at all the strangers, and laughs. {#made:Only one of them can stay; the village has no room for more|The couple decide on the spot to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -139,7 +139,7 @@
    "src": "L11323"
   },
   "c1o2": {
-   "text": "A wave throws (name) against the reef on the way out, and the coral opens a long cut along (his/her) leg. (He/She) keeps going anyway. In the canoe are a weary (man/woman), a teenager who has been bailing water for two days straight, and a small child asleep under a mat. (Name) brings them in, bleeding the whole way, and has to be helped up the beach. The teenager stays by (his/her) side until the healers come.",
+   "text": "A wave throws (name) against the reef on the way out, and the coral opens a long cut along (his/her) leg. (He/She) keeps going anyway. In the canoe are a weary (man/woman), a teenager who has been bailing water for two days straight, and a small child asleep under a mat. (Name) brings them {#made:in, though the village has room for only one of them|in, though the village has room for only two of them|in}, bleeding the whole way, and has to be helped up the beach. The teenager stays by (his/her) side until the healers come.",
    "effects": [
     {
      "do": "new_villager",
@@ -177,7 +177,7 @@
    "src": "L11320"
   },
   "c2o1": {
-   "text": "The paddle stops waving. The canoe turns, slowly, and starts working its way towards the smoke. They come through the gap in the reef just as the tide drops, scraping bottom, and the whole village wades out to pull them in. A young couple climb out with a baby in a dry basket. \"We followed your smoke,\" they say, and they never leave.",
+   "text": "The paddle stops waving. The canoe turns, slowly, and starts working its way towards the smoke. They come through the gap in the reef just as the tide drops, scraping bottom, and the whole village wades out to pull them in. A young couple climb out with a baby in a dry basket. \"We followed your smoke,\" {#made:they say; only one of them can stay, as the village has no room for more|they say, and they never leave}.",
    "effects": [
     {
      "do": "new_villager",
@@ -208,5 +208,22 @@
    ],
    "src": "L11329"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L11323",
+   "before": "The couple decide on the spot to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|The couple decide on the spot to stay}."
+  },
+  {
+   "src": "L11326",
+   "before": "brings them in,",
+   "after": "brings them {#made:in, though the village has room for only one of them|in, though the village has room for only two of them|in},"
+  },
+  {
+   "src": "L11332",
+   "before": "they say, and they never leave.",
+   "after": "{#made:they say; only one of them can stay, as the village has no room for more|they say, and they never leave}."
+  }
+ ]
 }

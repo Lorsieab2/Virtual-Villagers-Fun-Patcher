@@ -159,7 +159,7 @@
    "src": "L2219"
   },
   "c2o1": {
-   "text": "The canoe slides up onto the sand, and it's quite solid, and in it are two very tired, very confused adults with a baby, who say they've been lost in the mist for days and couldn't see the shore. Whether they came from behind the mist or just got lost in it, nobody ever finds out, not even them. They decide to stay.",
+   "text": "The canoe slides up onto the sand, and it's quite solid, and in it are two very tired, very confused adults with a baby, who say they've been lost in the mist for days and couldn't see the shore. Whether they came from behind the mist or just got lost in it, nobody ever finds out, not even them. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -195,5 +195,12 @@
    ],
    "src": "L2228"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2231",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
 }

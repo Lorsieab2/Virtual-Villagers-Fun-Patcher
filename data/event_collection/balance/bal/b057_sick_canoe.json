@@ -124,7 +124,7 @@
    "src": "L2573-2575"
   },
   "c1o1": {
-   "text": "The cough was only a cough. Within a week the parent is helping in the gardens, the teenager is out with the fishers and the youngest has made friends with every child in the village. Nobody else gets sick. (healer) breathes out for the first time in a week. They decide to stay.",
+   "text": "The cough was only a cough. Within a week the parent is helping in the gardens, the teenager is out with the fishers and the youngest has made friends with every child in the village. Nobody else gets sick. (healer) breathes out for the first time in a week. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -175,7 +175,7 @@
    "src": "L2581"
   },
   "c2o1": {
-   "text": "On the tenth day, (healer) walks down the beach and checks them all again, and they're well. The baby who had been hidden under the shelter the whole time is passed round the village that evening like a prize. They decide to stay, and are very glad, they say, to sleep under a proper roof.",
+   "text": "On the tenth day, (healer) walks down the beach and checks them all again, and they're well. The baby who had been hidden under the shelter the whole time is passed round the village that evening like a prize. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay, and are very glad, they say, to sleep under a proper roof}.",
    "effects": [
     {
      "do": "new_villager",
@@ -226,5 +226,17 @@
     }
    ]
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2584",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  },
+  {
+   "src": "L2593",
+   "before": "They decide to stay, and are very glad, they say, to sleep under a proper roof.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay, and are very glad, they say, to sleep under a proper roof}."
+  }
+ ]
 }

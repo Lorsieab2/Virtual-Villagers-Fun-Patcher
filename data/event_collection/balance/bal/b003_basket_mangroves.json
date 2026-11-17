@@ -167,7 +167,7 @@
    "src": "L127"
   },
   "c2o1": {
-   "text": "Just before dark, a canoe comes slipping back up the channel. Two exhausted people are in it, soaked to the skin, and when they see the basket they start crying before the canoe touches the mud. Their island had a sickness, and they had left the baby somewhere sheltered while they went back for their things, and then the tide turned and they got lost in the channels. (subject) walks them all back to the village. They decide to stay.",
+   "text": "Just before dark, a canoe comes slipping back up the channel. Two exhausted people are in it, soaked to the skin, and when they see the basket they start crying before the canoe touches the mud. Their island had a sickness, and they had left the baby somewhere sheltered while they went back for their things, and then the tide turned and they got lost in the channels. (subject) walks them all back to the village. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -203,5 +203,12 @@
    ],
    "src": "L136"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L139",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
 }
