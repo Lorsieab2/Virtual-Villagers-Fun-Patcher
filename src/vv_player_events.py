@@ -382,6 +382,7 @@ class Problem:
     file: str
     line: int
     text: str
+    kind: str = "problem"          # "flavor": kept as story text only; "note": reported, nothing left out
 
     def __str__(self) -> str:
         return f"{self.file}, line {self.line}: {self.text}"
@@ -2400,7 +2401,9 @@ def finish_piece(it: Item, ln0: int, romance_is_error: bool = True) -> Item:
 
 
 def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | None = None) -> tuple[bytes, list]:
-    """The VPCB v1 file of the usable pieces (docs/event-collection/procedural-pieces.md 2) and the problems."""
+    """The VPCB v2 file of the usable pieces (docs/event-collection/procedural-pieces.md 2, 2.5a: 20-byte effects
+    with group selectors) and the problems (kind "flavor": an effect kept as story text only; kind "note": a role
+    constraint the file cannot hold, reported)."""
     problems: list[Problem] = []
     pieces = [it for it in items if it.kind == "piece" and not it.problems and game in it.piece["games"]]
     if not pieces:
@@ -2465,23 +2468,37 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
                 if any(e.get("any_birth_sex") for _ln, e in p["effects"] if e.get("role", "subject") == rid):
                     flags |= 32
             sex = {"male": 1, "female": 2}.get(role.get("sex", "any"), 0)
+            # A slot holds kind, sex, ages, special and flags only (procedural-pieces.md 2.4): a skill or a
+            # relation the role asks for cannot be kept, so any villager of its age and sex may be cast.  Reported;
+            # the piece is kept (the owner decides whether such pieces stay).
+            lost = []
+            if role.get("skill"):
+                sk = role["skill"]
+                lost.append(f"{'best at' if sk.get('pick') == 'highest' else 'skill'} {', '.join(sk.get('names', []))}"
+                            + (f" {sk['min']}+" if sk.get("min", 1) > 1 else ""))
+            for rel, other in (role.get("relation") or {}).items():
+                lost.append(f"{rel.replace('_', ' ')} {other}")
+            if lost:
+                problems.append(Problem(it.file, it.line, f"role {rid}: {'; '.join(lost)} cannot be kept in a mixer "
+                                        "piece, so any villager of its age and sex may be cast", kind="note"))
             slots_b += struct.pack("<IBBBBBBHI", s(rid), 1 if role.get("kind") == "stranger" else 0, sex,
                                    min(255, role.get("min_age", 0) or 0), min(255, role.get("max_age") or 0),
                                    special, flags, 0, 0)
             n_slot += 1
         for ln, e in p["effects"]:
             code, flags, a, b, st, bad = _effect_record(e, local, game)
+            try:
+                role_byte, sel, extra = _piece_effect_target(e, local)
+            except (KeyError, TypeError, ValueError) as exc:
+                bad = bad or f"{e['do']}: {exc} is missing or unknown"
             if bad:
-                problems.append(Problem(it.file, ln, bad))
+                # The owner (2026-11-16): an effect never leaves a piece out; one the pieces file cannot hold is kept
+                # as flavour -- the story text stays, with no effect in the game -- and the report says so.
+                problems.append(Problem(it.file, ln, bad, kind="flavor"))
                 continue
             deadly |= e["do"] in DEADLY
-            if e["do"] == "new_villager":
-                role_byte = local.get(e["copy_of"], 0xFF) if e.get("copy_of") else 0xFF   # its copy_of role, or none
-            elif e["do"] in ("food", "tech", "pay_award", "damage", "repair", "celebrate"):
-                role_byte = 0xFF
-            else:
-                role_byte = local.get(e.get("role", "subject"), 0xFF)
-            effects_b += struct.pack("<BBBBiiI", code, role_byte, flags, 0, a, b, s(st))
+            effects_b += struct.pack("<BBBBiiII", code, role_byte, flags, sel, a, b, s(st),
+                                     s(extra) if isinstance(extra, str) else extra)
             n_fx += 1
         for aid, w in p["links"]:
             if aid not in ids:
@@ -2533,7 +2550,7 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
     body[slots_at:links_at] = slots_b
     body[links_at:size] = links_b
     mask_all = 1 << (game - 1)
-    struct.pack_into("<4sHHIIBBHIIIIIIIIIII", body, 0, b"VPCB", 1, 64, size, 0, mask_all, 0, 0, len(pieces),
+    struct.pack_into("<4sHHIIBBHIIIIIIIIIII", body, 0, b"VPCB", 2, 64, size, 0, mask_all, 0, 0, len(pieces),
                      pieces_at, strings_at, len(strings), effects_at, n_fx, slots_at, n_slot, links_at, n_link, 0)
     crc = zlib.crc32(bytes(body)) & 0xFFFFFFFF
     struct.pack_into("<I", body, 12, crc)
@@ -2542,14 +2559,36 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
     return bytes(body), problems
 
 
+def _piece_slot(local: dict[str, int], name: str) -> int:
+    """A piece effect's villager as its record writes it (procedural-pieces.md 2.5a): the piece's own slot, or the
+    villagers the event made ($newest 0xFD, $previous 0xFC), kept as they are."""
+    return cie.NEW_ROLES[name] if name in cie.NEW_ROLES else local[name]
+
+
+def _piece_effect_target(e: dict, local: dict[str, int]) -> tuple[int, int, int | str]:
+    """(role byte, group selector, extra) of a piece's effect (VPCB v2, procedural-pieces.md 2.5a).  The extra is
+    a group's N, a skill name (a string, written into the strings by the caller) or change_age's cap; else 0."""
+    tg = e.get("target")
+    if tg:
+        if tg.get("all"):
+            return cie.TARGET_ROLE, cie.TARGET_ALL, 0
+        if "skill" in tg:
+            return cie.TARGET_ROLE, cie.TARGET_SKILL, str(tg["skill"])
+        return cie.TARGET_ROLE, cie.TARGET_RANDOM, int(tg["random"])
+    do = e["do"]
+    extra = int(e.get("max_age", 0) or 0) if do == "change_age" else 0
+    if do == "new_villager":
+        return (_piece_slot(local, e["copy_of"]) if e.get("copy_of") else 0xFF), 0, extra
+    if do in ("food", "tech", "pay_award", "damage", "repair", "celebrate"):
+        return 0xFF, 0, extra
+    return _piece_slot(local, e.get("role", "subject")), 0, extra
+
+
 def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int, int, int, str, str]:
     """(code, flags, a, b, string, problem) for a piece's effect, as the .cieg encodes it (cie-v6-binary.md 8)."""
     do = e["do"]
     if do not in cie.EFFECT_CODES:
         return 0, 0, 0, 0, "", f"{do} is not an effect"
-    if e.get("target") or any(str(e.get(k, "")).startswith("$") for k in ("role", "partner", "with", "copy_of")):
-        # The piece record (procedural-pieces.md 2.5) has no group target or "the newcomer" yet.
-        return 0, 0, 0, 0, "", f"{do}: a group or the newcomer is not in mixer pieces yet (write it in an event)"
     code = cie.EFFECT_CODES[do]
     flags = a = b = 0
     st = ""
@@ -2599,9 +2638,9 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             flags = cie.CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
         elif do in ("pregnant", "nursing"):
             flags = (cie.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cie.BABIES_FLAGS.get(e.get("babies"), 0)
-            a = local[e["partner"]] if e.get("partner") else 0xFF
+            a = _piece_slot(local, e["partner"]) if e.get("partner") else 0xFF
         elif do == "body_swap":
-            a = local[e["with"]]
+            a = _piece_slot(local, e["with"])
         elif do == "change_name":
             st = e.get("name", "")
         elif do == "clone":
@@ -2907,7 +2946,10 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
             out[f"manifest-{group}.txt"] = ("\n".join(rows) + "\n").encode("utf-8")
         if pieces:
             data, probs = compile_pieces(pieces, game, mult)
-            report.skipped += [str(p) for p in probs]
+            report.skipped += [str(p) for p in probs if p.kind == "problem"]
+            report.notes += [f"{p}: kept as flavor (the story text stays, with no effect in the game)"
+                             for p in probs if p.kind == "flavor"]
+            report.notes += [str(p) for p in probs if p.kind == "note"]
             if data:
                 out[f"pieces-{group}.pcb"] = data
                 report.pieces += len(pieces)
@@ -2928,7 +2970,8 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
     reference and a copy of the player's files into "...\\Player Events"."""
     source = source or game_folder(game, root)
     settings = settings or load_settings(game, root)
-    files_dir = game_folder_path / PATCHER_FILES
+    import patcher_files                              # a deep game folder: every path through \\?\ (no MAX_PATH)
+    files_dir = patcher_files.long_path(game_folder_path / PATCHER_FILES)
     coll = files_dir / COLLECTION_FOLDER
     report = InstallReport()
     if coll.is_dir():
@@ -2945,7 +2988,7 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
             tmp = coll / (name + ".tmp")
             tmp.write_bytes(data)
             os.replace(tmp, coll / name)
-            report.files.append(coll / name)
+            report.files.append(patcher_files.plain_path(coll / name))
     shown = install_references(game, files_dir, settings, root)
     if source.is_dir():
         for p in source.glob("*.txt"):

@@ -962,6 +962,9 @@
    "nodes": {
     "c2": [
      "F20"
+    ],
+    "d2": [
+     "F20"
     ]
    },
    "speaks": [
@@ -2701,12 +2704,16 @@
   },
   "vv4_v17_cooking": {
    "filters": [
-    "F03"
+    "F03",
+    "F20"
    ],
    "notes": [
     "Bereavement"
    ],
    "nodes": {
+    "a2": [
+     "F20"
+    ],
     "coda_c11": [
      "F03"
     ]

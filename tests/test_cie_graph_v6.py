@@ -1510,9 +1510,10 @@ class FormatGaps(unittest.TestCase):
         Between Life and Death and The Parent's Lesson included (G1)."""
         sys.path.insert(0, str(ROOT / "scripts"))
         import collection_check as cc
+        from build_event_collection_features import NOT_EVENTS
         shared = {"pools": cc.shared_pools()}
         files = sorted(p for p in (ROOT / "data" / "event_collection").rglob("*.json")
-                       if p.name not in ("manifest.json", "shared_pools.json") and "content_tags" not in p.parts)
+                       if p.name not in NOT_EVENTS and "content_tags" not in p.parts)
         self.assertGreaterEqual(len(files), 10)
         for p in files:
             g = cc.graph_for_engine(read(p))

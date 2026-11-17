@@ -287,6 +287,9 @@ class Case:
     mode: str = "collection_progression"
     present: tuple[str, ...] = ()
     test_build: bool = False
+    # Sites the companion installs as a group of their own, after the others ((va, length) per game): all of that
+    # group or none of it, never stopping the rest (the Golden Mushroom's finds record; its own tests cover it).
+    own_group: Callable[[int], list[tuple[int, int]]] = lambda g: []
 
     def dll_path(self) -> Path:
         if DLL_DIR:
@@ -296,6 +299,13 @@ class Case:
 
 def _startup(m: Machine, game: int) -> int:
     return m.export("VvfpStartup", game, 0)
+
+
+def _golden_record_site(game: int) -> list[tuple[int, int]]:
+    """The Golden Mushroom's finds record site: the row's last runtime detour (tests/test_golden_mushroom_art.py)."""
+    row = next(p for p in patcher.load_fun_patches() if p.id == f"vv{game}_super_secret_golden_mushroom")
+    last = row.raw["runtime_detours"][-1]
+    return [(int(last["va"], 16), len(last["stock_bytes"]) // 2)]
 
 
 def _with_origins(*rows: str):
@@ -320,7 +330,7 @@ CASES = [
          lambda g: [f"vv{g}_game_log"], _startup, reports=False),
     Case("Golden Mushroom", "assets/golden_mushroom/VVFP Golden Mushroom.dll", (1, 3, 4, 5),
          lambda g: [f"vv{g}_super_secret_golden_mushroom"],
-         lambda m, g: m.export(f"VvfpGoldenMushroomVv{g}")),
+         lambda m, g: m.export(f"VvfpGoldenMushroomVv{g}"), own_group=lambda g: _golden_record_site(g)),
     Case("Healers Study", "assets/healers_study/VVFP Healers Study.dll", (1, 2),
          lambda g: [f"vv{g}_healers_study_regardless_of_food"],
          lambda m, g: m.export("VvfpHealersStudyInstall", g)),
@@ -496,6 +506,19 @@ class AllOrNoneTests(unittest.TestCase):
             # The row with what it requires (Work First needs Fix Huts, ...).
             ids = with_requirements(game, case.rows(game))
             exe = render(game, ids, case.mode)
+            own = case.own_group(game)
+
+            def in_own(va: int, n: int = 1, own=own) -> bool:
+                return any(va < a + size and a < va + n for a, size in own)
+
+            def outside_own(image: bytes, base: bytes, own=own, m_base=None) -> bytes:
+                # The image with the separate group's bytes as in `base` (that group is checked on its own).
+                out = bytearray(image)
+                for a, size in own:
+                    o = a - (m_base or 0)
+                    out[o:o + size] = base[o:o + size]
+                return bytes(out)
+
             with self.subTest(companion=case.name, game=game):
                 # 1. The install goes in: every site, protections back, cache flushed.
                 m = self.machine(case, game, exe)
@@ -516,7 +539,7 @@ class AllOrNoneTests(unittest.TestCase):
                 in_image = range(m.exe_base, m.exe_base + m.exe_size)
                 late_unlocks = [(i, hex(a)) for i, a, new, before, old in m.protect_log
                                 if a in in_image and new == PAGE_EXECUTE_READWRITE
-                                and old != PAGE_EXECUTE_READWRITE and before > 0]
+                                and old != PAGE_EXECUTE_READWRITE and before > 0 and not in_own(a)]
                 self.assertEqual(late_unlocks, [],
                                  "a site was made writable after another was already written")
                 # Every call that can still refuse the install: each one made
@@ -530,16 +553,18 @@ class AllOrNoneTests(unittest.TestCase):
                     m.fail_protect = k
                     result = case.call(m, game)
                     with self.subTest(failing_virtualprotect=k):
-                        self.assertEqual(m.image_writes, [],
+                        self.assertEqual([w for w in m.image_writes if not in_own(*w)], [],
                                          "a site was written (even if put back) although the install failed")
-                        self.assertEqual(m.image(), stock, "the game's code is untouched")
+                        self.assertEqual(outside_own(m.image(), stock, m_base=m.exe_base), stock,
+                                         "the game's code is untouched")
                         if case.reports:
                             self.assertEqual(result, 0, "the install reports itself not installed")
                         self.check_clean(m, f"VirtualProtect #{k} refused")
                         # 3. Asked again: all of it or none of it, never part.
                         case.call(m, game)
-                        again = m.image()
-                        self.assertIn(again, (stock, installed), "a later call left the feature in part")
+                        again = outside_own(m.image(), stock, m_base=m.exe_base)
+                        self.assertIn(again, (stock, outside_own(installed, stock, m_base=m.exe_base)),
+                                      "a later call left the feature in part")
                         self.check_clean(m, "asked again")
         if not ran:
             self.skipTest(_skip_reason(case, case.games[0]) or "nothing to run")

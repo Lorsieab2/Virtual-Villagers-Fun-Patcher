@@ -168,7 +168,10 @@ class Tk(unittest.TestCase):
     def test_enter_and_leaving_the_box_commit(self) -> None:
         self.box.delete(0, "end")
         self.box.insert(0, "77")
-        self.box.event_generate("<Return>")
+        # A key goes to the widget that has the focus (another window may hold it while the suite runs).
+        self.box.focus_force()
+        self.root.update()
+        self.box.event_generate("<Return>", when="now")
         self.assertEqual(self.var.get(), 77)
         self.box.delete(0, "end")
         self.box.insert(0, "12")

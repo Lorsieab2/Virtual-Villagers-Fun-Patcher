@@ -432,7 +432,7 @@ class DocExamples(unittest.TestCase):
         data, probs = pe.compile_pieces(items, 1)
         self.assertFalse([str(p) for p in probs])
         magic, version, head, size, crc = struct.unpack_from("<4sHHII", data)
-        self.assertEqual((magic, version, head, size), (b"VPCB", 1, 64, len(data)))
+        self.assertEqual((magic, version, head, size), (b"VPCB", 2, 64, len(data)))   # v2: 20-byte effects
         self.assertEqual(crc, zlib.crc32(data[:12] + b"\0\0\0\0" + data[16:]) & 0xFFFFFFFF)
         count, pieces_at = struct.unpack_from("<II", data, 20)
         self.assertEqual(count, 3)
@@ -468,10 +468,10 @@ class PieceEffectRecords(unittest.TestCase):
         data, probs = pe.compile_pieces(items, 1)
         self.assertFalse([str(p) for p in probs])
         effects_at, n_fx = struct.unpack_from("<II", data, 36)
-        return [struct.unpack_from("<BBBBiiI", data, effects_at + 16 * k) for k in range(n_fx)]
+        return [struct.unpack_from("<BBBBiiII", data, effects_at + 20 * k) for k in range(n_fx)]
 
     def test_a_new_villager_keeps_its_sex_and_copies_nobody(self):
-        code, role, flags, _sel, a, b, _st = self.records()[0]
+        code, role, flags, _sel, a, b, _st, _extra = self.records()[0]
         self.assertEqual(code, cie.EFFECT_CODES["new_villager"])
         self.assertEqual((a, b), (cie.NEW_VILLAGER_AGES["adult"], cie.NEW_VILLAGER_SEX["female"]))
         self.assertEqual(role, 0xFF, "no copy_of: a new villager, not a lookalike of the piece's villager")
@@ -501,6 +501,59 @@ class PieceEffectRecords(unittest.TestCase):
             cie.EFFECT_CODES.update(saved)
         self.assertEqual(record[:5], (0, 0, 0, 0, ""))
         self.assertIn("not supported in mixer pieces", record[5])
+
+    GROUPS = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Wave\nRole a: villager\nText: (A) waves at a boat.\n\n"
+              "Piece: party\nKind: Outcome\nFamily: f\nAnswers: x\nLabel: Throw a Party\nRole a: villager\n"
+              "Text: (A) throws a party.\nEffect: EVERYONE: MOOD GOOD\nEffect: EVERY HEALER: SKILL + Healing some\n"
+              "Effect: 3 RANDOM VILLAGERS: ILLNESS\n")
+
+    def test_group_effects_are_written_with_their_selector(self):
+        items = pe.parse_text(self.GROUPS, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertFalse([str(p) for p in probs])
+        effects_at, n_fx = struct.unpack_from("<II", data, 36)
+        strings_at = struct.unpack_from("<I", data, 28)[0]
+        recs = [struct.unpack_from("<BBBBiiII", data, effects_at + 20 * k) for k in range(n_fx)]
+        self.assertEqual([(r[0], r[1], r[3]) for r in recs],
+                         [(cie.EFFECT_CODES["mood"], cie.TARGET_ROLE, cie.TARGET_ALL),
+                          (cie.EFFECT_CODES["skill"], cie.TARGET_ROLE, cie.TARGET_SKILL),
+                          (cie.EFFECT_CODES["sick"], cie.TARGET_ROLE, cie.TARGET_RANDOM)])
+        self.assertEqual(recs[2][7], 3, "3 random villagers: N in the extra")
+        skill_at = strings_at + recs[1][7]
+        self.assertEqual(data[skill_at:data.index(b"\0", skill_at)], b"Healing", "the skill's name in the extra")
+
+    def test_an_effect_the_file_cannot_hold_is_kept_as_flavor_and_the_piece_stays(self):
+        with tempfile.TemporaryDirectory() as d:
+            folder = Path(d)
+            (folder / "mine.txt").write_text(self.GROUPS, encoding="utf-8")
+            orig = pe._piece_effect_target
+
+            def failing(e, local):
+                if e["do"] == "sick":
+                    raise KeyError("a group the file cannot hold")
+                return orig(e, local)
+            pe._piece_effect_target = failing
+            try:
+                out, report = pe.compile_folder(1, folder, pe.Settings())
+            finally:
+                pe._piece_effect_target = orig
+        self.assertEqual(report.pieces, 2, "both pieces are kept")
+        self.assertTrue(any(name.startswith("pieces-") for name in out))
+        self.assertFalse(report.skipped, "nothing is Left out over an effect")
+        self.assertTrue(any("kept as flavor" in n for n in report.notes), report.notes)
+
+    def test_a_role_constraint_a_slot_cannot_hold_is_reported(self):
+        text = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Ask the Healer\nRole h: adult, skill Healing 50+\n"
+                "Role w: adult, spouse of h\nText: (H) and (W) talk.\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertTrue(data, "the piece is kept")
+        notes = [p.text for p in probs if p.kind == "note"]
+        self.assertTrue(any("role h" in n and "skill Healing 50+" in n for n in notes), notes)
+        self.assertTrue(any("role w" in n and "spouse of h" in n for n in notes), notes)
+        self.assertFalse([p for p in probs if p.kind == "problem"])
 
 
 class InstallAndRules(unittest.TestCase):

@@ -732,8 +732,11 @@ static int cg_count_token_in(const cg_graph *g, const char *s, int *which, const
             p = e;
             continue;
         }
+        /* The plain text set of a version 6 body (cg_text_ok): the Custom Island Event's characters, and " ; / & %
+           (cie-v6-binary.md 33). */
         if (*p == '\0' || *p == '{' || *p == ')' || *p == '\n' || *p == '.' || *p == '!' || *p == '?'
-            || !ce_text_char_ok(*p) || ++run > 160) {
+            || !(ce_text_char_ok(*p) || *p == '"' || *p == ';' || *p == '/' || *p == '&' || *p == '%')
+            || ++run > 160) {
             return 0;
         }
     }
@@ -1402,6 +1405,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_CHANGE_AGE:
                 ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
                      && (e[2] == CG_AGE_ADD ? (a >= -120 && b <= 120 && a <= b) : (a == 0 && b == 0));
+                break;
             case CGE_PRESENTATION:
                 /* 31: a = 1 the other sex's look, 0 the villager's own again. */
                 ok = (a == 0 || a == 1) && b == 0 && str == CG_NONE;

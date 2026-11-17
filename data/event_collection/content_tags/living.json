@@ -2064,9 +2064,21 @@
    }
   },
   "lvppl02_blue_cloth": {
-   "filters": [],
+   "filters": [
+    "F27"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "a1": [
+     "F27"
+    ],
+    "c1": [
+     "F27"
+    ],
+    "c2": [
+     "F27"
+    ]
+   }
   },
   "lvppl03_cloth_changed": {
    "filters": [
