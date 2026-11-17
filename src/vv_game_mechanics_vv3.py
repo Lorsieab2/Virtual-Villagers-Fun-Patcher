@@ -635,7 +635,17 @@ POTION_EFFECTS_LINE = (
     "better with 10 to 14 health, stinky breath, tasted soapy, crazy talk), 5 real-life minutes (light and springy, "
     "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
     "ocean) or not at all (the rest, such as curing sickness, which happen at once). The times are real time, the "
-    "same at every speed and counting while paused; saving ends every effect.")
+    "same at every speed. In the base game they also count while the game is paused, and every save (the 10-minute "
+    "autosave too) ends every effect.")
+FIX_VANILLA = "vv3_fix_vanilla_bugs"
+# VVFP Speed Change Timers.dll: the set_speed detour (from a pause) moves every villager effect end (+0xF50 list, +0x10)
+# on by the paused time; the autosave check 0x427DD0's jump to the save 0x427D90 (0x427DF3) runs with a flag that makes
+# the writer's call 0x45EF9C skip 0x455DD0.  The other saves: 0x41AEB5, 0x41B681, 0x41B95D, 0x41BA4D, 0x42840C.
+EFFECTS_FIX_LINE = (
+    "potion effects stop while the game is paused and go on when it runs again, so each lasts its full 10 or 5 "
+    "real-life minutes of play (real time while the game runs, the same at every speed); and only the 10-minute "
+    "autosave keeps them: every other save (quitting, leaving the village for the slot menu, starting a new "
+    "village, a menu's save) still ends them, and the save never holds them")
 HERBS_LINE = (
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.")
@@ -709,8 +719,8 @@ CANT_DRINK_LINE = (
     "potion: that villager already has the same potion's effect, or already has 4 effects. It has no timer of its "
     "own: it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, real time), and only "
     "for that villager and that effect, so other villagers can still drink it, and that villager other potions "
-    "while under 4 effects. Saving the game ends every villager's potion effects, so time away never carries one "
-    "over and a save holds none to count down.")
+    "while under 4 effects. Saving the game (in the base game every save, the autosave too) ends every villager's "
+    "potion effects, so time away never carries one over and a save holds none to count down.")
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int,
@@ -853,6 +863,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
     add("Other", POTION_EFFECTS_LINE, gm.RUNNING)
+    add("Other", gm.patch_words(village, FIX_VANILLA, EFFECTS_FIX_LINE), gm.RUNNING)
     add("Other", HERBS_LINE, gm.OWNER)
     add("Other", CANT_DRINK_LINE, gm.RUNNING)
     extra = ""
