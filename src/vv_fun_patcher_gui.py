@@ -167,6 +167,17 @@ ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game
 # Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
 # them; the main list leaves them out.
 ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes")
+# "More Island Events and Creator" (the owner, 2026-11-16): one row per game for every added island event, its
+# tick ticking (and unticking) these rows together; each keeps its own id, defaults and rules as a setting inside it,
+# so saved settings and installed games need no migration.  The event creator and the partner-carry setting sit
+# under it.
+MIE_CREATOR_NAME = "More Island Events and Creator"
+MIE_CREATOR_ROWS = ("more_island_events", "isola_grand_event_collection")
+MIE_CREATOR_NOTE = (
+    "Every island event the patcher adds, in one row: ticking it ticks More Island Events and the Isola Grand Event "
+    "Collection below (each can still be unticked on its own). Needs Story / Cheat Upgrades and Scrolling Popups; "
+    "ticking it ticks them. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row. Write your "
+    "own events with the Custom Island Event Library below.")
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -331,13 +342,15 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv%d_island_events_scale_with_population" % game for game in (1, 4, 5)]
     # Scrolling Popups (all five games; the owner, 2026-11-12): off by default, on in
-    # Owner's Defaults, which ticks it like every default-off patch it does not name; not in Classic VV Difficulty.
+    # Owner's Defaults, which ticks it like every default-off patch it does not name; Classic VV Difficulty ticks it
+    # for the Isola Grand Event Collection (the owner, 2026-11-16).
     + ["vv%d_scrolling_popups" % game for game in (1, 2, 3, 4, 5)]
     # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, off by default, on in
     # Owner's Defaults (and in Classic VV Difficulty where a game has it).
     + ["vv%d_more_island_events" % game for game in range(1, 6)]
-    # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
-    # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
+    # Isola Grand Event Collection (all five games): off by default; Owner's Defaults, Select All and Classic VV
+    # Difficulty tick it with More Island Events -- the whole "More Island Events and Creator" row (the owner,
+    # 2026-11-16).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
@@ -412,8 +425,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
-    # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
-    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # (The Isola Grand Event Collection is NOT here: the owner (2026-11-16), Select All ticks the whole "More Island
+    # Events and Creator" row, the collection too.)
     # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
     # only, the filters off everywhere.
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
@@ -1897,14 +1910,30 @@ class App(tk.Tk):
         box.pack(fill="x", pady=(8, 0))
         order = {tail: k for k, tail in enumerate(ISLAND_EVENT_SECTION_ROWS)}
         island_rows = sorted(island_rows, key=lambda r: order.get(r[0].id.split("_", 1)[1], len(order)))
+        joined = [r[0].id for r in island_rows if r[0].id.split("_", 1)[1] in MIE_CREATOR_ROWS]
+        if joined:
+            self._build_mie_creator(box, game_name, joined, requirement_font)
         if island_rows:
             listing = VirtualList(
                 box, island_rows,
                 lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
             )
-            listing.pack(fill="x")
-            if any(r[0].id.endswith("_more_island_events") for r in island_rows):
-                self._build_partner_carry(box)
+            listing.pack(fill="x", padx=(20 if joined else 0, 0))
+        if joined:
+            inner = ttk.Frame(box)
+            inner.pack(fill="x", padx=(20, 0))
+            if any(i.endswith("_more_island_events") for i in joined):
+                self._build_partner_carry(inner)
+            # The event creator (the owner, 2026-11-16: under "More Island Events and Creator").
+            creator = ttk.Frame(inner)
+            creator.pack(fill="x", pady=(6, 0))
+            # this game's library (Codex, #775): its own events and save folder, not the first game's
+            build = self._build_of_game(int(joined[0][2]))
+            library = ttk.Button(creator, text="Custom Island Event Library...",
+                                 command=lambda b=build: vv_cie_library_window.open_cie_library(self, b))
+            library.pack(side="left")
+            self._mie_creator_libraries = getattr(self, "_mie_creator_libraries", []) + [(build, library)]
+            self._help_button(creator, "custom_island_event_library").pack(side="left", padx=(2, 0))
         if not filters:
             return
         head = ttk.Frame(box)
@@ -1927,6 +1956,45 @@ class App(tk.Tk):
                               justify="left")
             words.pack(side="left", anchor="n")
             words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+
+    def _build_of_game(self, number: int):
+        """A build of game `number` (1-5), for the tools that open on one game; None when there is none."""
+        for build in self.builds:
+            try:
+                if vv_tribe_rename.game_for_title(build.title).number == number:
+                    return build
+            except vv_tribe_rename.RenameError:
+                continue
+        return None
+
+    def _build_mie_creator(self, box, game_name: str, joined: list[str], requirement_font) -> None:
+        """The game's "More Island Events and Creator" row: one tick for every added island event -- ticked while
+        any of its rows is, and ticking or unticking it ticks or unticks them all (their prerequisites follow as
+        for any tick).  Its rows below keep their own ticks, defaults and rules."""
+        master = tk.BooleanVar(value=any(self.fun_patch_vars[i].get() for i in joined))
+
+        def follow(*_args) -> None:
+            value = any(self.fun_patch_vars[i].get() for i in joined)
+            if master.get() != value:
+                master.set(value)
+
+        def ticked() -> None:
+            value = master.get()               # read once: each row set below moves the tick (follow)
+            for i in joined:
+                self.fun_patch_vars[i].set(value)
+            self._fun_patch_changed()
+
+        for i in joined:
+            self.fun_patch_vars[i].trace_add("write", follow)
+        head = ttk.Frame(box)
+        head.pack(fill="x", pady=(2, 2))
+        ttk.Checkbutton(head, text=f"{MIE_CREATOR_NAME} ({game_name})", variable=master,
+                        command=ticked).pack(side="left")
+        self._help_button(head, "more_island_events_and_creator").pack(side="left", padx=(4, 0))
+        ttk.Label(box, text=MIE_CREATOR_NOTE, wraplength=620, justify="left",
+                  font=requirement_font).pack(anchor="w", pady=(0, 4))
+        # each game's row: its tick, what a click on it does, and the rows it ticks
+        self._mie_creator_rows = getattr(self, "_mie_creator_rows", []) + [(master, ticked, tuple(joined))]
 
     def _build_partner_carry(self, box) -> None:
         """"A man may carry the baby by chance" (the owner, 2026-11-16: "Or the player sets it!"): with More Island
@@ -2438,14 +2506,8 @@ class App(tk.Tk):
             command=lambda: vv_stew_recipes_window.open_stew_recipes(self, None),
         ).pack(side="left")
         self._help_button(stew_tools, "stew_recipes").pack(side="left", padx=(2, 0))
-        # Custom Island Event Library (the owner, 2026-11-12: the branching editor lives in the patcher): write,
-        # check and keep branching Custom Island Events in a game's save folder, for the game's picker.
-        ttk.Button(
-            stew_tools,
-            text="Custom Island Event Library...",
-            command=lambda: vv_cie_library_window.open_cie_library(self, None),
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(stew_tools, "custom_island_event_library").pack(side="left", padx=(2, 0))
+        # The Custom Island Event Library sits under each game's "More Island Events and Creator" row (the owner,
+        # 2026-11-16).
         slot_tools = ttk.Frame(box)
         slot_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(

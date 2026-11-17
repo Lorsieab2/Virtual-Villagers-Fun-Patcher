@@ -215,7 +215,8 @@ class TheRows(unittest.TestCase):
             self.assertNotIn(row_id(game), patcher.ALTERNATIVE_FUN_PATCH_IDS)
             classic = self.rows.get(f"vv{game}_classic_vv_difficulty")
             if classic is not None:
-                self.assertNotIn(row_id(game), classic.get("dependencies", []))
+                # the owner (2026-11-16): Classic ticks the Isola Grand Event Collection, which needs this row
+                self.assertIn(row_id(game), classic.get("dependencies", []))
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),

@@ -434,7 +434,8 @@ def description(game: int, count: int, living_count: int = 0) -> str:
         + (f"The Living Event Engine adds {living_count} situations, each shown as one of its owner-written "
            "variants with the villagers' names (each category counts as one event in the draw). "
            if living_count else "")
-        + "Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. "
+        + "Off by default; Owner's Defaults, Select All and Classic VV Difficulty (The Tree of Life, New Believers) "
+        "tick it, with More Island Events (the \"More Island Events and Creator\" row). "
         "**Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** "
         "**Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** "
         "**Unverified in play: the events have not been seen in a running game** (emulated)."

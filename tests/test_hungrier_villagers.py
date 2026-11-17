@@ -189,9 +189,12 @@ class Registration(unittest.TestCase):
         # Island Events Scale With Population (the owner, 2026-11-12) is a member in both games.
         pieces = {"vv4": {"vv4_harder_fishing_unlock", "vv4_collectible_spawn_like_vv3", "vv4_sickness_like_vv3",
                           "vv4_yellow_fruit_trees_limited", "vv4_difficulty_settings",
-                          "vv4_island_events_scale_with_population", "vv4_more_island_events"},
+                          "vv4_island_events_scale_with_population", "vv4_more_island_events",
+                          # the owner (2026-11-16): the whole "More Island Events and Creator" row
+                          "vv4_isola_grand_event_collection", "vv4_scrolling_popups"},
                   "vv5": {"vv5_faith_loss_doubled_gains_halved", "vv5_sickness_like_vv3", "vv5_difficulty_settings",
-                          "vv5_island_events_scale_with_population", "vv5_more_island_events"}}
+                          "vv5_island_events_scale_with_population", "vv5_more_island_events",
+                          "vv5_isola_grand_event_collection", "vv5_scrolling_popups"}}
         for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS:
             game = patch_id[:3]
             row = public[patch_id]

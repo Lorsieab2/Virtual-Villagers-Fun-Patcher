@@ -60,8 +60,11 @@ class TheRows(unittest.TestCase):
             with self.subTest(game=game):
                 self.assertIn(rid(game), gui.DEFAULT_OFF_FUN_PATCH_IDS)              # off by default
                 self.assertNotIn(rid(game), gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)    # Owner's Defaults ticks it
-                self.assertIn(rid(game), gui.SELECT_ALL_OFF_FUN_PATCH_IDS)           # off in Select All
-                self.assertNotIn(rid(game), classic)                                 # not Classic VV Difficulty
+                # the owner (2026-11-16): Select All and Classic VV Difficulty tick the whole "More Island Events
+                # and Creator" row, the collection too
+                self.assertNotIn(rid(game), gui.SELECT_ALL_OFF_FUN_PATCH_IDS)
+                if game in (4, 5):
+                    self.assertIn(rid(game), classic)
 
     def test_needs_story_cheat_upgrades_in_bold(self) -> None:
         for game in GAMES:

@@ -228,7 +228,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
         "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
-        "and Island Events Scale With Population (like The Lost Children) and More Island Events.",
+        "and Island Events Scale With Population (like The Lost Children), More Island Events, the Isola Grand Event Collection and Scrolling Popups.",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
@@ -1283,6 +1283,7 @@
   },
   "controls": {
     "partner_carry_percent": {"title": "A man may carry the baby by chance", "guide": ["In a couple's pregnancy of a new island event that allows it, how often the man carries the baby instead: 0 to 100 percent, 10 unless moved.", "Drag the slider or type the number. 0: never by chance; an event's own reason, or a choice the player makes, still can.", "He must be 18 or older and not expecting already; otherwise the woman carries as usual. Owner's Defaults: 10. Not yet tested in play."]},
+    "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "The settings below it and the Custom Island Event Library belong to it."]},
     "island_event_content_filters": {
       "title": "Content Filters",
       "guide": [
