@@ -153,7 +153,7 @@ class Helpers(unittest.TestCase):
         # Each part by its plain-words name, never its id (the owner: code labels are never UI).
         self.assertTrue(any("A deadly ending  (shared: shown above)" in words for words in links), links)
         buttons = [words for _i, _p, words, kind, _t in rows if kind == "choice"]
-        self.assertEqual(buttons, ["Button A: Go investigate!", "Button B: Stay on the safe path"])
+        self.assertEqual(buttons, ["Button A: Go Investigate!", "Button B: Stay on the Safe Path"])
         self.assertTrue(any(words.startswith("2 in 4: Finds a pile of dirt: nothing but") for _i, _p, words, _k, _t
                             in rows))
         self.assertTrue(any(words.startswith("1 in 3: if the friend takes part: A8 Saved by a friend")

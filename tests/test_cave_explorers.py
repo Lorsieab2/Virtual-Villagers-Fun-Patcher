@@ -129,9 +129,9 @@ class TheWords(unittest.TestCase):
                       cave.fill("RETURN_FOOD", names, award=5))
         self.assertEqual([cave.english(k, "") for k in ("LABEL_EXPLORE", "LABEL_DONT", "LABEL_PROCEED", "LABEL_STAY",
                                                          "LABEL_LEFT", "LABEL_RIGHT", "LABEL_RETURN", "LABEL_KEEP")],
-                         ["Explore the Cave", "Don't explore", "Proceed Further", "Stay Here",
-                          "Run towards the left path", "Run towards the right path", "You're right, I'll return them.",
-                          "Curses schmurses. I'm keeping them."])
+                         ["Explore the Cave", "Don't Explore", "Proceed Further", "Stay Here",
+                          "Run Towards the Left Path", "Run Towards the Right Path", "You're Right, I'll Return Them.",
+                          "Curses Schmurses. I'm Keeping Them."])
 
 
 class TheOdds(unittest.TestCase):
@@ -361,7 +361,7 @@ class Who(unittest.TestCase):
         v.play_cave(cave_rolls(pair=1), [1])
         state = v.cave_state()
         self.assertEqual(state[:4], [1, 0, 0, 1])             # name1 Ben, name2 Ana
-        self.assertEqual(v.asked[0], ("Explore the Cave", "Don't explore"))
+        self.assertEqual(v.asked[0], ("Explore the Cave", "Don't Explore"))
         # Both possible, nothing due: the stock roller's own encounter, never one of ours.
         v = self.village()
         v.villager(2, "Cal", False, years=40)
@@ -391,7 +391,7 @@ class EveryPath(unittest.TestCase):
         v = self.village()
         before = v.stores()
         text = joined(v.play_cave(cave_rolls(), [1]))
-        self.assertEqual(v.asked, [("Explore the Cave", "Don't explore")])
+        self.assertEqual(v.asked, [("Explore the Cave", "Don't Explore")])
         self.assertTrue(v.closed_at_end)
         self.assert_untouched(v, before)
         self.assertIn(cave.fill("INTRO", {"a": "Ana", "b": "Ben"}, {"a": "f", "b": "m"}), text)
@@ -407,7 +407,7 @@ class EveryPath(unittest.TestCase):
                 v = self.village()
                 before = v.stores()
                 text = joined(v.play_cave(cave_rolls(scream=False, finder=1, find=find, find_award=draw), [0, 0]))
-                self.assertEqual(v.asked, [("Explore the Cave", "Don't explore"), ("Proceed Further", "Stay Here")])
+                self.assertEqual(v.asked, [("Explore the Cave", "Don't Explore"), ("Proceed Further", "Stay Here")])
                 self.assertTrue(v.closed_at_end)
                 state = v.cave_state()
                 award = state[11]
@@ -441,7 +441,7 @@ class EveryPath(unittest.TestCase):
                         before = v.stores()
                         text = joined(v.play_cave(cave_rolls(screamer=screamer, wrong=wrong, end=end, faller=1),
                                                   [0, 0, side]))
-                        self.assertEqual(v.asked[2], ("Run towards the left path", "Run towards the right path"))
+                        self.assertEqual(v.asked[2], ("Run Towards the Left Path", "Run Towards the Right Path"))
                         self.assertTrue(v.closed_at_end)
                         s = "Ana" if screamer == 0 else "Ben"
                         o = "Ben" if screamer == 0 else "Ana"
@@ -466,7 +466,7 @@ class EveryPath(unittest.TestCase):
                 v = self.village()
                 before = v.stores()
                 text = joined(v.play_cave(cave_rolls(return_food=food, return_award=draw), [0, 1, 0]))
-                self.assertEqual(v.asked[2], ("You're right, I'll return them.", "Curses schmurses. I'm keeping them."))
+                self.assertEqual(v.asked[2], ("You're Right, I'll Return Them.", "Curses Schmurses. I'm Keeping Them."))
                 kind = "food" if food else "tech"
                 lo, hi = adv.award_range(1, kind)
                 award = v.cave_state()[13]
@@ -503,13 +503,13 @@ class EveryPath(unittest.TestCase):
         v = self.village()
         v.play_cave(cave_rolls(), [0, 1, 1])
         a, b, _ok = v.buttons
-        self.assertEqual([t for _, t in v.labels], ["Proceed Further", "Stay Here", "You're right, I'll return them.",
-                                                    "Curses schmurses. I'm keeping them."])
+        self.assertEqual([t for _, t in v.labels], ["Proceed Further", "Stay Here", "You're Right, I'll Return Them.",
+                                                    "Curses Schmurses. I'm Keeping Them."])
         left, top, right, bottom = CaveVillage.RECT
         width, height = right - left, bottom - top
-        w = 100 + 2 * len("Curses schmurses. I'm keeping them.")
+        w = 100 + 2 * len("Curses Schmurses. I'm Keeping Them.")
         self.assertIn((b, width // 2 - w // 2, height - 2 * 20), v.moves)
-        w = 100 + 2 * len("You're right, I'll return them.")
+        w = 100 + 2 * len("You're Right, I'll Return Them.")
         self.assertIn((a, width // 2 - w // 2, height - 20 // 2 - 3 * 20), v.moves)
 
     def test_one_answer_a_click(self) -> None:

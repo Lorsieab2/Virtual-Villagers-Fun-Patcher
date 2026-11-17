@@ -65257,7 +65257,7 @@
   },
   {
    "stem": "vvfp.more_island_events/adv_text.LABEL_A",
-   "english": "Go investigate!",
+   "english": "Go Investigate!",
    "games": [
     "vv1",
     "vv2",
@@ -65272,7 +65272,7 @@
   },
   {
    "stem": "vvfp.more_island_events/adv_text.LABEL_B",
-   "english": "Stay on the safe path",
+   "english": "Stay on the Safe Path",
    "games": [
     "vv1",
     "vv2",
@@ -66138,7 +66138,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_DONT",
-   "english": "Don't explore",
+   "english": "Don't Explore",
    "games": [
     "vv1"
    ],
@@ -66402,7 +66402,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_LEFT",
-   "english": "Run towards the left path",
+   "english": "Run Towards the Left Path",
    "games": [
     "vv1"
    ],
@@ -66413,7 +66413,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_RIGHT",
-   "english": "Run towards the right path",
+   "english": "Run Towards the Right Path",
    "games": [
     "vv1"
    ],
@@ -66545,7 +66545,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_RETURN",
-   "english": "You're right, I'll return them.",
+   "english": "You're Right, I'll Return Them.",
    "games": [
     "vv1"
    ],
@@ -66556,7 +66556,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_KEEP",
-   "english": "Curses schmurses. I'm keeping them.",
+   "english": "Curses Schmurses. I'm Keeping Them.",
    "games": [
     "vv1"
    ],
@@ -66732,7 +66732,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.LABEL_PLAN",
-   "english": "Go with the plan",
+   "english": "Go with the Plan",
    "games": [
     "vv2"
    ],
@@ -66743,7 +66743,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.LABEL_ADVICE",
-   "english": "Follow the scientists' advice",
+   "english": "Follow the Scientists' Advice",
    "games": [
     "vv2"
    ],
@@ -66908,7 +66908,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_SPIRITUAL",
-   "english": "Consult the spiritual leaders",
+   "english": "Consult the Spiritual Leaders",
    "games": [
     "vv3"
    ],
@@ -66919,7 +66919,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_MAGICIANS",
-   "english": "Ask the magicians for advice",
+   "english": "Ask the Magicians for Advice",
    "games": [
     "vv3"
    ],
@@ -66930,7 +66930,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_NATURALISTS",
-   "english": "Call the naturalists to a discussion",
+   "english": "Call the Naturalists to a Discussion",
    "games": [
     "vv3"
    ],
@@ -66941,7 +66941,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_SCIENTISTS",
-   "english": "Talk with the scientists and healers",
+   "english": "Talk with the Scientists and Healers",
    "games": [
     "vv3"
    ],
@@ -67205,7 +67205,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dive_text.LABEL_DEEPER",
-   "english": "Swim deeper",
+   "english": "Swim Deeper",
    "games": [
     "vv3"
    ],
@@ -67216,7 +67216,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dive_text.LABEL_NOT",
-   "english": "Better not",
+   "english": "Better Not",
    "games": [
     "vv3"
    ],
@@ -67566,7 +67566,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.LABEL_SWIM",
-   "english": "Swim towards the dolphins",
+   "english": "Swim Towards the Dolphins",
    "games": [
     "vv4"
    ],
@@ -67577,7 +67577,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.LABEL_BACK",
-   "english": "Hang back",
+   "english": "Hang Back",
    "games": [
     "vv4"
    ],
@@ -67720,7 +67720,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_WAIT",
-   "english": "Wait for their parents to come",
+   "english": "Wait for Their Parents to Come",
    "games": [
     "vv4"
    ],
@@ -67731,7 +67731,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_CRY",
-   "english": "Cry for help",
+   "english": "Cry for Help",
    "games": [
     "vv4"
    ],
@@ -67742,7 +67742,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_CLEARING",
-   "english": "Walk towards the clearing",
+   "english": "Walk Towards the Clearing",
    "games": [
     "vv4"
    ],
@@ -67753,7 +67753,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_FOREST",
-   "english": "Walk towards the forest",
+   "english": "Walk Towards the Forest",
    "games": [
     "vv4"
    ],
@@ -70379,20 +70379,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_collection.sc_read_manifest.s0",
    "english": "A collection manifest is larger than its 1 MB limit: it was skipped.",
    "games": [
@@ -70992,6 +70978,20 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
   }
  ]
