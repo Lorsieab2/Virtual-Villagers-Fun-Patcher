@@ -3423,8 +3423,15 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
         game = GAMES[gn]
         worst = worst_v6(title_case(title), g, game, None)                # section 20
         if scroll_caps() and len(worst) <= LONG_LINE_BYTES:
-            continue        # with Scrolling Popups a long title wraps (one_popup.h); A New Home's and The Lost
-            #               Children's text leads with it and its rest follows the picture's gap (cg_title_wrap)
+            # With Scrolling Popups a long title wraps (one_popup.h; A New Home's and The Lost Children's text leads
+            # with it, its rest after the picture's gap, cg_title_wrap): only its length is free -- a single word
+            # wider than the title box still cannot wrap.
+            if gn in TITLE_BOX_PX:
+                wide, word = widest_word(worst, lambda w: title_px(gn, w))
+                if wide > TITLE_BOX_PX[gn]:
+                    out.append(f"{game.name}: {what} has a word ({word[:24]!r}) {wide} pixels wide with the longest "
+                               f"names; its popup's title box shows {TITLE_BOX_PX[gn]}")
+            continue
         if title_fits(gn, worst) or title_fits(gn, worst_v6(title_case(title), g, game, None, pronoun_names=True)):
             continue
         if scroll_caps():
@@ -3496,6 +3503,17 @@ def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game")
         if n > most:
             best, most = t, n
     return best
+
+
+def widest_word(text: str, px) -> tuple[int, str]:
+    """The widest of `text`'s words (parted by spaces and line breaks) by `px(word)`, and that word."""
+    best, word = 0, ""
+    for w in text.replace("\n", " ").split(" "):
+        if w:
+            n = px(w)
+            if n > best:
+                best, word = n, w
+    return best, word
 
 
 def _without_scrolling() -> str:
@@ -3584,6 +3602,13 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
                         if len(label) > LONG_LINE_BYTES:
                             problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters "
                                             f"with the longest names; at most {LONG_LINE_BYTES}")
+                            continue
+                        # Only its length is free: a single word wider than the screen cannot wrap.
+                        wide, word = widest_word(label, lambda w: label_px(gn, w))
+                        if wide > label_max_px(gn):
+                            problems.append(f"{game.name}: the label {c['label']!r} has a word ({word[:24]!r}) that "
+                                            f"runs off the screen with the longest names ({wide} of "
+                                            f"{label_max_px(gn)} pixels)")
                         continue
                     if not label_fits(gn, label):
                         # Section 15: the engine shows the names as pronouns when they do not fit.

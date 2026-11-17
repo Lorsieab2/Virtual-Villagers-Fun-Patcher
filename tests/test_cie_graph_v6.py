@@ -1142,16 +1142,19 @@ class EngineFollowups(unittest.TestCase):
             h = cg.walk(g, cg.contexts(g, [gn])[0])
             self.assertIn(f"now likes {longest}.", h[0].popups[0].worst)
             self.assertIn("W" * game.name_room + " feels less sure of", h[0].popups[0].worst)
-        # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes).
+        # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes
+        # without Scrolling Popups; with it the length is practically unlimited, so the lines are counted against
+        # the paged popup).
         w = copy.deepcopy(AUTO)
         w["games"] = [3]
         w["nodes"]["p"]["text"] = "(Name) wakes up feeling odd. " + "It is a very odd morning. " * 70
         plain = copy.deepcopy(w)
         for n in plain["nodes"].values():
             n.pop("auto_text")
-        self.assertEqual(cg.validate(plain, True)[1], [])
-        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, True)[1]),
-                        cg.validate(w, True)[1])
+        self.assertEqual([p for p in cg.validate(plain, False)[1] if "bytes" in p], [])
+        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, False)[1]),
+                        cg.validate(w, False)[1])
+        self.assertEqual(cg.validate(w, True)[1], [], "with Scrolling Popups: no length cap")
 
     def test_random_preference(self):
         g = cg.load(copy.deepcopy(AUTO), True)
@@ -1571,7 +1574,12 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         self.assertEqual(t.problems_of(d, True), [])
         # (In sentence case, 19, that label fits; one word in capitals inside ordinary text stays in capitals.)
         d["nodes"]["q"]["choices"][0]["label"] = "Tell (NAME1) to stop WWWWWWWWWWWWWWWWWWWWWWWW"
-        self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, True)))
+        self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, False)))
+        # With Scrolling Popups a choice's row grows to its lines (one_popup.h): that label wraps and passes; a
+        # single word wider than the screen still runs off it.
+        self.assertEqual(t.problems_of(d, True), [])
+        d["nodes"]["q"]["choices"][0]["label"] = "Tell (NAME1) to stop " + "W" * 80
+        self.assertTrue(any("has a word" in p and "runs off the screen" in p for p in t.problems_of(d, True)))
 
     def test_no_roles(self):
         for scrolling in (False, True):
@@ -1616,7 +1624,12 @@ class Fit(unittest.TestCase):
     def test_longest_pool_item_is_measured(self):
         d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x" * 1500]}})
         d["nodes"]["p"]["text"] = "{X.1} {X.2}"
-        self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, True)))
+        self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, False)))
+        # With Scrolling Popups the longest item still counts, against the sanity cap.
+        self.assertFalse(any("longer than" in p for p in t.problems_of(d, True)))
+        d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x " * 30000]}})
+        d["nodes"]["p"]["text"] = "{X.1} {X.2}"
+        self.assertTrue(any(f"longer than {cg.LONG_TEXT_MAX}" in p for p in t.problems_of(d, True)))
 
 
 class NodeTitles(unittest.TestCase):
