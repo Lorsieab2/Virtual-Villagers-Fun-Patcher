@@ -137,6 +137,9 @@ class ContentTests(unittest.TestCase):
             # The guide uses the short form of the two long names.
             short = {"Manual Drop-Breeding overrides Birth Control": "Manual Drop-Breeding",
                      "256 Villagers (Experimental)": "256 Villagers"}.get(name, name)
+            # Both Island Events Scale rows, named together within the guide's 1,250 characters.
+            if "_island_events_scale_with_" in patch_id:
+                short = "both Island Events Scale patches"
             with self.subTest(default_off=patch_id):
                 self.assertIn(short, default)
         owners = " ".join(how.guide("owners_defaults").lines)

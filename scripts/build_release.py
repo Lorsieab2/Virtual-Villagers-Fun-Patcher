@@ -322,6 +322,8 @@ FILES = [
     "data/vv5_hungrier_villagers_feature.json",
     "data/vv4_science_collectibles_complete_feature.json",
     "data/vv5_science_collectibles_complete_feature.json",
+    "data/vv3_one_time_collectibles_again_feature.json",
+    "data/vv4_one_time_collectibles_again_feature.json",
     "data/vv4_classic_vv_difficulty_feature.json",
     "data/vv4_collectible_spawn_like_vv3_feature.json",
     "data/vv4_harder_fishing_unlock_feature.json",
