@@ -3413,7 +3413,14 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
         return lines
 
     def effect_lines(n: dict) -> list[str]:
-        return [f"Effect: {_plain_of(e)}" for e in n.get("effects", []) if _plain_of(e)]
+        # Every effect the plain words hold exactly (it reads back to the same piece effect); any other is kept as
+        # flavor -- the text stays, the effect is left out -- and the file says so (the owner's rule).
+        out = []
+        for e in n.get("effects", []):
+            words = _plain_of(e)
+            out.append(f"Effect: {words}" if words else
+                       f"# kept as flavor (no plain words hold it exactly): {json.dumps(e, sort_keys=True)}")
+        return out
 
     text = q["text"]
     out += [f"Piece: {stem}_setup", "Kind: Setup", "Mood: social", f"Family: {family}", f"Applies to: {games}",
@@ -3454,47 +3461,181 @@ def _text_piece_lines(text: str) -> list[str]:
     return [f"Text: {first}"] + [f"| {line}" for line in rest]
 
 
-def _plain_of(e: dict) -> str:
-    """An effect in the plain words (best effort; "" when it has none)."""
-    who = e.get("role")
-    tail = f" {who}" if who and who != "subject" else ""
+class _Names(dict):
+    """A slot map that answers every role with its own name: an effect's compiled record with names for slots."""
+
+    def __missing__(self, key):
+        return key
+
+
+def _piece_signature(e: dict) -> tuple:
+    """What a piece compiled from this effect holds in every game (procedural-pieces.md 2.5a), with role names for
+    slots: the record's code, flags, values and string, and its role, group selector and extra.  A food or tech
+    effect with each game's own range ("per_game") is compared by those ranges."""
+    out = []
+    for game in range(1, 6):
+        x = copy.deepcopy(e)
+        if x["do"] in ("food", "tech") and "per_game" in x:
+            lo, hi = (x["per_game"].get(str(game)) or x["per_game"].get(game) or [x["amount"], x.get("max", 0)])
+            x["amount"], x["max"] = lo, hi
+            x.pop("per_game")
+        rec = _effect_record(x, _Names(), game)
+        if x["do"] in ("food", "tech") and rec[3] == 0:
+            rec = rec[:3] + (rec[2],) + rec[4:]           # one amount: its range is that amount alone
+        try:
+            target = _piece_effect_target(x, _Names())
+        except (KeyError, TypeError, ValueError):
+            target = None
+        out.append((rec, target))
+    return tuple(out)
+
+
+_GROUP_WORDS = {v: k for k, v in reversed(list(GROUP_SKILLS.items()))}     # Healing -> healer, ...
+
+
+def _plain_words(e: dict) -> str:
+    """An effect in the plain words the importer reads back (plain_effect); "" when the words have no form for it."""
+    tg = e.get("target")
+    if tg:
+        prefix = "EVERYONE: " if tg.get("all") else \
+            f"EVERY {_GROUP_WORDS[tg['skill']].upper()}: " if tg.get("skill") in _GROUP_WORDS else \
+            f"{tg['random']} RANDOM VILLAGERS: " if tg.get("random") else None
+        inner = {k: v for k, v in e.items() if k != "target"}
+        words = _plain_words(inner) if prefix else ""
+        return prefix + words if words else ""
+
+    def who(r) -> str:
+        return {None: "villager", "subject": "villager", "$newest": "newcomer",
+                "$previous": "previous newcomer"}.get(r, r)
+    r = e.get("role")
+    for_who = f" FOR {who(r)}" if r not in (None, "subject") else ""
     do = e["do"]
     if do in ("food", "tech"):
-        if "per_game" in e:
-            lo, hi = next(iter(e["per_game"].values()))
-            return f"{do.upper()} {'LOSS' if lo < 0 else 'GAIN'} {abs(lo)} TO {abs(hi)}"
-        return f"{do.upper()} {'LOSS' if e['amount'] < 0 else 'GAIN'} {abs(e['amount'])}"
+        verb = "AWARD" if e.get("defer") else None
+        per = e.get("per_game")
+        if per:
+            for size in ("small", "normal", "large", "huge"):
+                for loss in (False, True):
+                    try:
+                        same = all(list(cie.size_range(do, size, g) if not loss else
+                                        [-cie.size_range(do, size, g)[1], -cie.size_range(do, size, g)[0]])
+                                   == list(per.get(str(g)) or per.get(g) or []) for g in range(1, 6))
+                    except (KeyError, ValueError, TypeError):
+                        same = False
+                    if same:
+                        return f"{do.upper()} {verb or ('LOSS' if loss else 'GAIN')} {size}"
+            return ""
+        lo, hi = e["amount"], e.get("max") or e["amount"]
+        if lo < 0:
+            return f"{do.upper()} LOSS {abs(hi)}" + (f" TO {abs(lo)}" if hi != lo else "")
+        return f"{do.upper()} GAIN {lo}" + (f" TO {hi}" if hi != lo else "")
+    if do == "pay_award":
+        return "PAY AWARD"
     if do == "skill":
         if "set" in e:
-            return f"SKILL SET {e['skills'][0]} {e['set']}" + (f" FOR {who}" if tail else "")
-        size = next((k for k, v in cie.SKILL_SIZES.items() if v == (abs(e['min']), abs(e['max']))), None)
-        words = {"small": "a little", "normal": "some", "large": "a lot", "huge": "hugely"}.get(size or "", "some")
-        return f"SKILL {'-' if e['min'] < 0 else '+'} {e['skills'][0]} {words}" + (f" FOR {who}" if tail else "")
+            return f"SKILL SET {e['skills'][0]} {e['set']}{for_who}" if len(e.get("skills") or []) == 1 else ""
+        span = tuple(sorted((abs(e["min"]), abs(e["max"]))))
+        size = next((k for k, v in cie.SKILL_SIZES.items() if tuple(v) == span), None)
+        if size is None or not (e.get("best") or len(e.get("skills") or []) == 1):
+            return ""
+        words = {"small": "a little", "normal": "some", "large": "a lot", "huge": "hugely"}[size]
+        name = "BEST" if e.get("best") else e["skills"][0]
+        return f"SKILL {'-' if e['min'] < 0 else '+'} {name} {words}{for_who}"
     if do == "preference":
-        return f"{'DISLIKE' if e['list'] == 'dislikes' else 'LIKE'} {'-' if e.get('remove') else '+'} " \
-               f"{e['preference']}" + (f" FOR {who}" if tail else "")
-    simple = {"kill": "DEATH", "vanish": "DISAPPEARS", "die_unrecovered": "LOST FOREVER", "sick": "ILLNESS",
-              "baby_lost": "PREGNANCY LOSS", "birth_then_die": "BIRTH THEN DEATH", "deliver_early": "EARLY BIRTH",
-              "old_look": "OLD LOOK", "sex_change": "SEX CHANGE", "lose_name": "LOSE NAME",
-              "change_name": "CHANGE NAME", "clone": "CLONE OF"}
-    if do == "clone" and e.get("count") == 2:
-        return "TWO CLONES OF" + (tail or " villager")
-    if do in simple:
-        return simple[do] + (tail or " villager")
+        word = e.get("preference")
+        return f"{'DISLIKE' if e.get('list') == 'dislikes' else 'LIKE'} {'-' if e.get('remove') else '+'} " \
+               f"{word}{for_who}"
+    if do == "health":
+        return f"HEAL {who(r)}" if e.get("min", e.get("value")) == cie.HEALTH_MAX else ""
     if do == "health_change":
-        return f"HEALTH{tail or ' villager'} {e['min']:+d} TO {e['max']:+d}"
+        return f"HEALTH {who(r)} {e['min']:+d} TO {e['max']:+d}"
+    if do == "kill":
+        return f"DEATH {who(r)}" + (f" CAUSE \"{e['cause']}\"" if e.get("cause") else "")
+    if do == "birth_then_die":
+        return f"BIRTH THEN DEATH {who(r)}" + (f" CAUSE \"{e['cause']}\"" if e.get("cause") else "")
+    simple = {"vanish": "DISAPPEARS", "die_unrecovered": "LOST FOREVER", "sick": "ILLNESS",
+              "baby_lost": "PREGNANCY LOSS", "deliver_early": "EARLY BIRTH", "old_look": "OLD LOOK",
+              "sex_change": "SEX CHANGE", "lose_name": "LOSE NAME", "cure": "CURE", "young_look": "YOUNG LOOK"}
+    if do in simple:
+        return f"{simple[do]} {who(r)}"
+    if do == "change_name":
+        return f"CHANGE NAME {who(r)}" + (f" TO {e['name']}" if e.get("name") else "")
+    if do == "clone":
+        return ("TWO CLONES OF " if e.get("count") == 2 else "CLONE OF ") + who(r)
+    if do == "body_swap":
+        return f"BODY SWAP {who(r)} WITH {who(e.get('with'))}"
+    if do == "change_age":
+        if "to" in e:
+            return f"CHANGE AGE {who(r)} TO {e['to']}"
+        lo, hi = (e["years"], e["years"]) if isinstance(e["years"], int) else e["years"]
+        if lo < 0 <= hi or hi < 0 < lo:
+            return ""
+        a, b = sorted((abs(lo), abs(hi)))
+        cap = e.get("max_age")
+        return (f"CHANGE AGE {who(r)} {'YOUNGER' if lo < 0 else 'OLDER'} {a}" + (f" TO {b}" if b != a else "")
+                + " YEARS" + (f" (NEVER PAST {cap})" if cap else ""))
     if do == "mood":
-        return f"MOOD {e['mood'].upper()}{tail}"
-    if do == "change_name" and e.get("name"):
-        return f"CHANGE NAME{tail or ' villager'} TO {e['name']}"
+        return f"MOOD {e['mood'].upper()} {who(r)}"
     if do == "celebrate":
-        return "CELEBRATE"
+        w = e.get("who", "all")
+        return "CELEBRATE" if w in (None, "all") else f"CELEBRATE {who(w)}"
+    if do == "action":
+        return f"ACTION {who(r)} \"{e['action']}\""
+    if do == "damage":
+        size = next((k for k, v in cie.DAMAGE_SIZES.items() if tuple(v) == (e.get("min"), e.get("max"))), None)
+        if size is None:
+            return ""
+        st = e.get("structures")
+        return f"DAMAGE ({size})" + ("" if st in (None, cie.DAMAGE_ANY) else f" ON {', '.join(st)}")
+    if do == "repair":
+        return "REPAIR" if e.get("structures") in (None, cie.DAMAGE_ANY) else ""
+    if do == "status":
+        return f"BECOMES HEATHEN {who(r)}" if e.get("status") == "heathen" else ""
+    if do == "trait":
+        return f"STORY MUTE {who(r)}" if e.get("trait") == "mute" else ""
+    if do == "presentation":
+        return f"{'OTHER' if e.get('on', True) else 'OWN'} PRESENTATION {who(r)}"
+    if do == "appearance":
+        head, body = e.get("head"), e.get("body")
+        part = {("random", "random"): "both", ("random", None): "head", (None, "random"): "body"}.get((head, body))
+        return f"NEW LOOK ({part}) {who(r)}" if part else ""
+    if do in ("pregnant", "nursing"):
+        mods = (" (ANY BIRTH SEX)" if e.get("any_birth_sex") else "") + \
+            {"roll": " (TWINS OR TRIPLETS)", 2: " (TWINS)", 3: " (TRIPLETS)"}.get(e.get("babies"), "")
+        return f"{do.upper()} {who(r)}" + (f" WITH {who(e['partner'])}" if e.get("partner") else "") + mods
     if do == "new_villager":
         if e.get("copy_of"):
             age = e.get("age")
-            return f"DUPLICATE OF {e['copy_of']}" + (f" ({age})" if age else "")
-        # its age, its sex and a child of the newcomers, as plain_effect reads them back
+            return f"DUPLICATE OF {who(e['copy_of'])}" + (f" ({age})" if age else "")
         sex = {"male": " male", "female": " female"}.get(e.get("sex") or "", "")
         return (f"NEW VILLAGER ({e.get('age') or 'any'}{sex})"
                 + (" CHILD OF THE NEWCOMERS" if e.get("child_of_newest") else ""))
     return ""
+
+
+def _plain_of(e: dict) -> str:
+    """An effect in the plain words, only when the words read back to the same piece effect in every game
+    (_piece_signature); "" otherwise -- the caller keeps it as flavor and says so, never changes it."""
+    words = _plain_words(e)
+    if not words:
+        return ""
+    back = plain_effect(words)
+    if isinstance(back, str) or len(back.effects) != 1:
+        return ""
+    got = dict(back.effects[0])
+    for key in ("copy_of", "with", "who"):
+        if got.get(key) == "@default":
+            got[key] = "subject"
+    if got.get("role") is None and "target" not in got and got["do"] not in ("food", "tech", "pay_award", "damage",
+                                                                              "repair", "celebrate", "new_villager"):
+        got["role"] = "subject"
+    want = dict(e)
+    if want.get("role") is None and "target" not in want and want["do"] not in ("food", "tech", "pay_award",
+                                                                                 "damage", "repair", "celebrate",
+                                                                                 "new_villager"):
+        want["role"] = "subject"
+    try:
+        same = _piece_signature(got) == _piece_signature(want)
+    except (KeyError, TypeError, ValueError):
+        same = False
+    return words if same else ""

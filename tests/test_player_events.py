@@ -4,6 +4,7 @@ compile into the collection's own files, the AI prompt, and the round trip of th
 Run alone: python -m pytest -p no:xdist tests/test_player_events.py"""
 from __future__ import annotations
 
+import copy
 import json
 import re
 import struct
@@ -622,6 +623,96 @@ class PieceEffectRecords(unittest.TestCase):
                 back = pe.plain_effect(pe._plain_of(e))
                 self.assertNotIsInstance(back, str, back)
                 self.assertEqual({k: v for k, v in back.effects[0].items() if v is not None}, e)
+
+
+class ExportRoundTrip(unittest.TestCase):
+    """The library's "export as mixer pieces" (pieces_file_text): every effect kind the pieces file holds, with every
+    target and field the plain words can say, comes back as the same piece effect in every game; an effect the words
+    cannot hold exactly is kept as flavor and the file says so -- never written as something else (Codex, #774)."""
+
+    EXACT = [
+        {"do": "food", "size": "normal", "scaled": True}, {"do": "food", "size": "small", "loss": True, "scaled": True},
+        {"do": "food", "size": "large", "defer": True, "scaled": True}, {"do": "food", "amount": 200, "max": 800,
+                                                                         "scaled": True},
+        {"do": "food", "amount": 500, "scaled": True}, {"do": "food", "amount": -300, "max": -100, "scaled": True},
+        {"do": "tech", "size": "huge", "scaled": True}, {"do": "tech", "amount": 50, "max": 90, "scaled": True},
+        {"do": "skill", "role": "subject", "skills": ["Healing"], "size": "small"},
+        {"do": "skill", "role": "friend", "skills": ["Farming"], "size": "large", "loss": True},
+        {"do": "skill", "role": "subject", "skills": ["Building"], "set": 100},
+        {"do": "skill", "role": "friend", "best": True, "size": "normal"},
+        {"do": "preference", "role": "subject", "like": "fishing"},
+        {"do": "preference", "role": "friend", "dislike": "running", "remove": True},
+        {"do": "preference", "role": "subject", "like": "random"},
+        {"do": "health", "role": "friend", "value": 100},
+        {"do": "health_change", "role": "subject", "min": -40, "max": -20},
+        {"do": "sick", "role": "friend"}, {"do": "kill", "role": "friend", "cause": "a fall"},
+        {"do": "vanish", "role": "friend"}, {"do": "die_unrecovered", "role": "friend"},
+        {"do": "old_look", "role": "subject"}, {"do": "young_look", "role": "friend"}, {"do": "cure", "role": "friend"},
+        {"do": "sex_change", "role": "friend"}, {"do": "lose_name", "role": "friend"},
+        {"do": "change_name", "role": "subject"}, {"do": "change_name", "role": "friend", "name": "Kai"},
+        {"do": "clone", "role": "subject"}, {"do": "clone", "role": "friend", "count": 2},
+        {"do": "body_swap", "role": "subject", "with": "friend"},
+        {"do": "change_age", "role": "friend", "to": "elder"},
+        {"do": "change_age", "role": "subject", "years": [3, 5]},
+        {"do": "change_age", "role": "friend", "years": [-10, -2], "max_age": 60},
+        {"do": "mood", "role": "subject", "mood": "good"}, {"do": "mood", "role": "friend", "mood": "bad"},
+        {"do": "celebrate", "who": "all"}, {"do": "celebrate", "who": "friend"},
+        {"do": "damage", "size": "normal", "structures": "any"}, {"do": "repair", "structures": "any"},
+        {"do": "presentation", "role": "friend", "on": True}, {"do": "presentation", "role": "subject", "on": False},
+        {"do": "appearance", "role": "friend", "head": "random"},
+        {"do": "appearance", "role": "subject", "head": "random", "body": "random"},
+        {"do": "new_villager", "age": "adult", "sex": "female"},
+        {"do": "new_villager", "age": "child", "child_of_newest": True},
+        {"do": "new_villager", "copy_of": "friend", "age": "child"},
+        {"do": "mood", "target": {"all": True}, "mood": "good"},
+        {"do": "skill", "target": {"skill": "Healing"}, "skills": ["Healing"], "size": "normal"},
+        {"do": "sick", "target": {"random": 3}},
+    ]
+    FLAVOR = [
+        {"do": "skill", "role": "subject", "skills": ["Healing"], "min": 3, "max": 7},       # no size word for 3-7
+        {"do": "food", "amount": 200, "max": 800, "scaled": False},                       # unscaled: no words for it
+    ]
+
+    def graph(self, effects):
+        return {"format": "vvfp-cie-graph", "version": 6, "title": "Round Trip", "games": [1, 2, 3, 4, 5],
+                "roles": {"subject": {"kind": "villager", "min_age": 18},
+                          "friend": {"kind": "villager", "min_age": 18, "protected": "allow"}},
+                "start": "ask",
+                "nodes": {"ask": {"type": "question", "text": "(subject) meets (friend) at the shore.",
+                                  "choices": [{"label": "Talk", "next": "out"}, {"label": "Leave", "next": "out"}]},
+                          "out": {"type": "popup", "text": "Something changes.", "effects": effects,
+                                  "children": []}}}
+
+    def test_every_effect_round_trips_or_is_kept_as_flavor(self):
+        g = self.graph(copy.deepcopy(self.EXACT + self.FLAVOR))
+        norm, _ = cie.normalize(copy.deepcopy(g), pe._shared_pools())
+        want = [pe._piece_signature(e if e.get("role") or "target" in e or e["do"] in (
+            "food", "tech", "pay_award", "damage", "repair", "celebrate", "new_villager") else dict(e, role="subject"))
+                for e in norm["nodes"]["out"]["effects"]]
+        text = pe.pieces_file_text(g)
+        items = pe.parse_text(text, "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        outcomes = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]]
+        self.assertEqual(text.count("# kept as flavor"), len(self.FLAVOR) * len(outcomes), text)
+        outcome = outcomes[0]
+        got = [pe._piece_signature(e) for _ln, e in outcome.piece["effects"]]
+        self.assertEqual(got, want[:len(self.EXACT)], "every exact effect, in its order, the same piece effect")
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                data, probs = pe.compile_pieces(items, game)
+                self.assertFalse([str(p) for p in probs if p.kind != "note"])
+                self.assertEqual(struct.unpack_from("<I", data, 40)[0], len(self.EXACT) * len(outcomes),
+                                 "every effect written")
+
+    def test_each_kind_alone(self):
+        for e in self.EXACT:
+            with self.subTest(effect=e):
+                norm, _ = cie.normalize(self.graph([copy.deepcopy(e)]), pe._shared_pools())
+                self.assertTrue(pe._plain_of(norm["nodes"]["out"]["effects"][0]), "plain words that read back the same")
+        for e in self.FLAVOR:
+            with self.subTest(effect=e):
+                norm, _ = cie.normalize(self.graph([copy.deepcopy(e)]), pe._shared_pools())
+                self.assertEqual(pe._plain_of(norm["nodes"]["out"]["effects"][0]), "", "kept as flavor")
 
 
 class InstallAndRules(unittest.TestCase):
