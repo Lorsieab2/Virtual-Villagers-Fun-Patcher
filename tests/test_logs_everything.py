@@ -122,7 +122,8 @@ class GenderPresentationIsLogged(unittest.TestCase):
                 self.assertTrue(log.calls[1][4].endswith(gp_lines("Other sex's look", "Own look")), log.calls[1][4])
                 self.assertEqual(g.set(1, 0), 1, "Bo kept as he is")
                 self.assertEqual(len(log.calls), 2, "...nothing changed: no record")
-        self.assertGreater(ran, 0, "needs the stock executables")
+        if not ran:
+            self.skipTest("needs the stock executables")   # CI has none; the conftest guard counts the skip
 
     def test_a_refused_villager_and_a_failed_write_log_nothing(self):
         if not tgp.have(1):
@@ -176,7 +177,8 @@ class HeadLookIsLogged(unittest.TestCase):
                 g.later()
                 self.assertEqual(g.p.export("VvfpHeadLookSetMany", game, records, looks, 2), 0)
                 self.assertEqual(len(log.calls), 3, "refused: no record")
-        self.assertGreater(ran, 0, "needs the stock executables")
+        if not ran:
+            self.skipTest("needs the stock executables")   # CI has none; the conftest guard counts the skip
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -253,7 +255,8 @@ class EngineLogLines(unittest.TestCase):
                 self.assertEqual(r.p.export("VvfpStoryTraitsOf", r.n, r.v.record(1)) & 1, 1,
                                  "the rosters' answer: Bea is mute")
                 self.assertEqual(r.p.export("VvfpStoryTraitsOf", r.n, r.v.record(2)), 0, "Cal is not")
-        self.assertGreater(ran, 0, "needs the stock executables")
+        if not ran:
+            self.skipTest("needs the stock executables")   # CI has none; the conftest guard counts the skip
 
     def test_a_lost_name_is_a_name_changed_record(self):
         ran = 0
@@ -283,7 +286,8 @@ class EngineLogLines(unittest.TestCase):
                     self.assertEqual((c[0], c[2], c[3], c[6]), (int(game[2]), r.v.record(0), 1, 1))
                     self.assertTrue(c[4].startswith("  Old name: Ana\n  Age: 600\n"), c[4])
                     self.assertIn("  Changed by: A Changed Day (island event)\n", c[4])
-        self.assertGreater(ran, 0, "needs the stock executables")
+        if not ran:
+            self.skipTest("needs the stock executables")   # CI has none; the conftest guard counts the skip
 
     def test_the_partner_carries_line_and_its_conception(self):
         ran = 0
@@ -335,7 +339,8 @@ class EngineLogLines(unittest.TestCase):
                 self.assertIn("  Bo, who is male, carries the babies (the partner carries instead of Ana).\n", entry)
                 self.assertEqual(calls, [("carried", r.n, r.v.record(1), r.v.record(0), 1)],
                                  "the Conception goes to WriteParentageRecordCarried, the carrier as the mother")
-        self.assertGreater(ran, 0, "needs the stock executables")
+        if not ran:
+            self.skipTest("needs the stock executables")   # CI has none; the conftest guard counts the skip
 
 
 # ---------------------------------------------------------------------------------------------------------------
