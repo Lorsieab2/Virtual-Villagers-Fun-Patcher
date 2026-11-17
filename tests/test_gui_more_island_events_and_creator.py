@@ -47,6 +47,21 @@ for master, ticked, joined in getattr(app, "_mie_creator_rows", []):
     v[game + "_isola_grand_event_collection"].set(False)
     app._fun_patch_changed()
     out["rows"].append(row)
+# each game's Custom Island Event Library button opens that game's library (Codex, #775)
+import vv_save_backup
+out["libraries"] = []
+for build, button in getattr(app, "_mie_creator_libraries", []):
+    before = set(app.winfo_children())
+    button.invoke()
+    app.update()
+    window = next(w for w in app.winfo_children() if w not in before and hasattr(w, "cie"))
+    lib = window.cie
+    title = build.title if build is not None else None
+    expected = vv_save_backup.find_save_folders(title, lib.documents) if title and lib.documents else []
+    out["libraries"].append({"title": title, "game": lib.game(),
+                             "shown": lib.titles[max(0, lib.game_box.current())],
+                             "folders": [str(f) for f in lib.folders], "expected": [str(f) for f in expected]})
+    window.destroy()
 app.destroy()
 print(json.dumps(out))
 """
@@ -85,6 +100,15 @@ class MoreIslandEventsAndCreator(unittest.TestCase):
                 self.assertFalse(any(row["off"].values()), row["off"])
                 self.assertFalse(row["master_off"])
                 self.assertTrue(row["one_ticked"], "ticked while either of its rows is")
+
+    def test_each_games_library_button_opens_its_own_game(self):
+        libraries = self.out["libraries"]
+        self.assertEqual(sorted(lib["game"] for lib in libraries), [1, 2, 3, 4, 5], "one button per game, each its own")
+        for lib in libraries:
+            with self.subTest(game=lib["game"]):
+                self.assertIsNotNone(lib["title"])
+                self.assertEqual(lib["shown"], lib["title"], "the library opens at the button's game")
+                self.assertEqual(lib["folders"], lib["expected"], "that game's own save folders")
 
     def test_the_guide_and_the_creator(self):
         guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))["controls"]

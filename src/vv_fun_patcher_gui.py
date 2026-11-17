@@ -1927,8 +1927,12 @@ class App(tk.Tk):
             # The event creator (the owner, 2026-11-16: under "More Island Events and Creator").
             creator = ttk.Frame(inner)
             creator.pack(fill="x", pady=(6, 0))
-            ttk.Button(creator, text="Custom Island Event Library...",
-                       command=lambda: vv_cie_library_window.open_cie_library(self, None)).pack(side="left")
+            # this game's library (Codex, #775): its own events and save folder, not the first game's
+            build = self._build_of_game(int(joined[0][2]))
+            library = ttk.Button(creator, text="Custom Island Event Library...",
+                                 command=lambda b=build: vv_cie_library_window.open_cie_library(self, b))
+            library.pack(side="left")
+            self._mie_creator_libraries = getattr(self, "_mie_creator_libraries", []) + [(build, library)]
             self._help_button(creator, "custom_island_event_library").pack(side="left", padx=(2, 0))
         if not filters:
             return
@@ -1952,6 +1956,16 @@ class App(tk.Tk):
                               justify="left")
             words.pack(side="left", anchor="n")
             words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+
+    def _build_of_game(self, number: int):
+        """A build of game `number` (1-5), for the tools that open on one game; None when there is none."""
+        for build in self.builds:
+            try:
+                if vv_tribe_rename.game_for_title(build.title).number == number:
+                    return build
+            except vv_tribe_rename.RenameError:
+                continue
+        return None
 
     def _build_mie_creator(self, box, game_name: str, joined: list[str], requirement_font) -> None:
         """The game's "More Island Events and Creator" row: one tick for every added island event -- ticked while
