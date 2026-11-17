@@ -54,6 +54,13 @@ def big(p, name: str, *args: int) -> int:
     return p.call(p.exports[name], list(args), limit=STEPS)
 
 
+def tick(story) -> None:
+    """The companion's tick (test_story_queued_purchases.tick) with room for copying the long records."""
+    story.proc.tick += 300
+    story.proc.export("VvfpStoryProbeSetTick", story.proc.tick)
+    big(story.proc, "VvfpStoryInstall", story.n)
+
+
 def story_text(chars: int, end: str = "THE VERY LAST WORDS.") -> str:
     body = (WORDS * (chars // len(WORDS) + 1))[:chars - len(end) - 2]
     return body.rsplit(" ", 1)[0] + " " + end
@@ -221,7 +228,7 @@ class TheQueueFile(unittest.TestCase):
                     again = q.fresh(game)
                     again.proc.export("VvfpStoryProbeChoiceCap", 1)
                     q.session(again, data, q.LATE)
-                    q.tick(again)
+                    tick(again)
                     s = q.state(again)
                     self.assertEqual((s["custom"], s["question"]), (1, int(kind == "question")),
                                      "the event queued before the upgrade is put back")
@@ -237,7 +244,7 @@ class TheQueueFile(unittest.TestCase):
                                          "Wade out into the old tide now")
                         self.assertEqual(p.cstring(big(p, "VvfpStoryProbeChoiceLabel", again.n, 1)),
                                          "Stay on the warm dry beach")
-                        q.tick(again)
+                        tick(again)
                         now = q.queue_file(again)
                         self.assertEqual(struct.unpack_from("<I", now, 4)[0], 2, "rewritten as version 2")
                         self.assertEqual(q.have(now, again) & (SQ_CUSTOM | SQ_ASKED), SQ_CUSTOM | SQ_ASKED)
@@ -257,7 +264,7 @@ class TheQueueFile(unittest.TestCase):
                 p.write(at, packed)
                 p.write(EVENT_BUF, Event(game=story.n, title="The Long Tide", text=story_text(9000)).pack())
                 self.assertEqual(p.export("VvfpStoryProbeSetChoice", story.n, EVENT_BUF, at, p.tick), 1)
-                q.tick(story)
+                tick(story)
                 data = q.queue_file(story)
                 self.assertEqual(struct.unpack_from("<I", data, 4)[0], 2)
                 p.export("VvfpStoryProbeQueueSaved")
@@ -265,7 +272,7 @@ class TheQueueFile(unittest.TestCase):
                 again.proc.export("VvfpStoryProbeChoiceCap", 1)
                 again.proc.export("VvfpStoryProbeGraphScroll", 1)
                 q.session(again, data, q.LATE)
-                q.tick(again)
+                tick(again)
                 self.assertEqual(q.state(again)["question"], 1)
                 buf = again.proc.alloc(BIG)
                 self.assertEqual(big(again.proc, "VvfpStoryProbeChoiceBegin", again.n, buf, BIG), 1)
@@ -286,7 +293,7 @@ class TheQueueFile(unittest.TestCase):
                 again = q.fresh(game)
                 again.proc.export("VvfpStoryProbeChoiceCap", 1)
                 q.session(again, bad, q.LATE)
-                q.tick(again)
+                tick(again)
                 self.assertEqual(q.state(again)["custom"], 0, "nothing put back from it")
 
 
