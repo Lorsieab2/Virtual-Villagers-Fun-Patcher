@@ -410,6 +410,7 @@ LOOK_KEEP = -2                # ... not changed
 PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
+NODE_NEW_PAGE = 2             # cie-v6-binary.md 19a: a popup node that starts the event's one popup afresh
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
@@ -1280,7 +1281,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
+                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text", "new_page"} if v6 else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1415,6 +1416,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                     problems.append(f"{where}: auto_text is only on a popup node")
                 elif auto:
                     nodes[nid]["auto_text"] = True
+            fresh = n.get("new_page")
+            if fresh is not None:
+                # 19a: with Scrolling Popups, a popup that starts the event's one popup afresh (a scroll page of its
+                # own, as after a question), so no popup's text passes what the game's popup holds.
+                if not isinstance(fresh, bool):
+                    problems.append(f"{where}: new_page is true or false")
+                elif fresh and (t != "popup" or n.get("popup", "new") != "new"):
+                    problems.append(f"{where}: new_page is only on a popup node that opens a new popup")
+                elif fresh:
+                    nodes[nid]["new_page"] = True
     g["nodes"] = nodes
     if v6:
         _normalize_v6_extras(data, g, problems, shared_pools)
@@ -2603,6 +2614,7 @@ class Popup:
     titles: list[str] = field(default_factory=list)   # the titles in force on it ("" = the event's), in order
     chosen: str = ""                    # a question's: the choice this history takes, as its row shows it at its
                                         # widest (one_popup puts it first in the answer's text)
+    new_page: bool = False              # 19a: its first node starts the event's one popup afresh
 
 
 @dataclass
@@ -2809,7 +2821,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         node = nodes[nid]
         path = path + (nid,)
         popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen) for p in popups]
+                        p.chosen, p.new_page) for p in popups]
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -2923,7 +2935,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 # 14: a page shown in the question's own popup keeps that popup's title.
                 in_question = after and (not v6 or popups[-1].answers <= MAX_ANSWERS_V4)
                 titles = [title] + ([ntitle] if ntitle else []) if in_question else [ntitle or title]
-                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles))
+                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles,
+                                    new_page=bool(node.get("new_page"))))
         title = ntitle or title
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
@@ -3296,7 +3309,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
     after it (story_graph.inc cg_op_lead; "Honesty\n\n..."): in `worst`, which the bytes are checked on."""
     out: list[Popup] = []
     for pop in popups:
-        if out and out[-1].layout != "question":
+        if out and out[-1].layout != "question" and not pop.new_page:
             last = out[-1]
             last.text = last.text + ONE_POPUP_JOIN + pop.text if last.text else pop.text
             last.worst = last.worst + ONE_POPUP_JOIN + pop.worst if last.worst else pop.worst
@@ -3313,7 +3326,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
         if out and out[-1].chosen:
             worst = out[-1].chosen + ONE_POPUP_JOIN + worst if worst else out[-1].chosen
         out.append(Popup(pop.layout, pop.text, worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
-                         list(pop.titles), pop.chosen))
+                         list(pop.titles), pop.chosen, pop.new_page))
     return out
 
 
@@ -3750,7 +3763,8 @@ def _compile_v6(g: dict) -> bytes:
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, NODE_AUTO_TEXT if n.get("auto_text") else 0,
+                            1 if n["join"] == "paragraph" else 0,
+                            (NODE_AUTO_TEXT if n.get("auto_text") else 0) | (NODE_NEW_PAGE if n.get("new_page") else 0),
                             s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
@@ -3987,6 +4001,8 @@ def _decompile_v6(data: bytes) -> dict:
             nodes[nid]["title"] = s(ntitle)
         if nflags & NODE_AUTO_TEXT:
             nodes[nid]["auto_text"] = True
+        if nflags & NODE_NEW_PAGE:
+            nodes[nid]["new_page"] = True
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:
         _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
