@@ -2963,7 +2963,17 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
                 ident = ID_PREFIX + ident
             ident = re.sub(r"[^a-z0-9_]", "_", ident)[:cap]
             if ident in used_ids:
-                again = f"{group}_{k:03d}"
+                # The next free number of this file's own ids: never one an earlier event (its Id or its
+                # number) already took, so no event's file or manifest row is ever overwritten.
+                n, stem = k, re.sub(r"[^a-z0-9_]", "_", group)
+
+                def numbered(n: int) -> str:
+                    suffix = f"_{n:03d}"
+                    return stem[:cap - len(suffix)] + suffix     # the number always kept whole
+                again = numbered(n)
+                while again in used_ids:
+                    n += 1
+                    again = numbered(n)
                 report.notes.append(f"{label}: its Id {ident} is already used, so it is {again}")
                 ident = again
             used_ids.add(ident)

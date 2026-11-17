@@ -965,6 +965,27 @@ class ExportRoundTrip(unittest.TestCase):
 
 
 class InstallAndRules(unittest.TestCase):
+    def test_an_id_and_a_later_number_never_share_a_file(self):
+        # Codex P2 (#774): in foo.txt the first event's Id pl_foo_002 is the second event's own number; both once
+        # compiled as pl_foo_002, the second .cieg over the first, and the report said both were installed.
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            first = SIMPLE.replace("Applies to: VV1, VV3\n", "Applies to: VV1, VV3\nId: pl_foo_002\n")
+            second = SIMPLE.replace("The Coconut That Would Not Open", "The Second Coconut")
+            third = SIMPLE.replace("The Coconut That Would Not Open", "The Third Coconut").replace(
+                "Applies to: VV1, VV3\n", "Applies to: VV1, VV3\nId: pl_foo_002\n")
+            (folder / "foo.txt").write_text(first + "\n" + second + "\n" + third, encoding="utf-8")
+            out, report = pe.compile_folder(1, folder, pe.Settings())
+        self.assertEqual(pe.group_name("foo", set())[0], "pl_foo")
+        ciegs = sorted(n for n in out if n.endswith(".cieg"))
+        self.assertEqual(len(ciegs), 3, ciegs)
+        self.assertEqual(len(report.installed), 3)
+        rows = [line.split("\t")[0] for line in out["manifest-pl_foo.txt"].decode().splitlines()
+                if not line.startswith("#")]
+        self.assertEqual(sorted(f"{r}.cieg" for r in rows), ciegs, "each row its own file")
+        self.assertIn("pl_foo_002.cieg", ciegs)
+        self.assertEqual(sum("already used" in n for n in report.notes), 2, report.notes)
+
     def test_install_writes_only_its_own_files_and_reports_bad_items(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "Player Events"
