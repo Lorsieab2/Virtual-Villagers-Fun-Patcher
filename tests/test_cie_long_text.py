@@ -25,7 +25,14 @@ import vv_cie_graph as cg  # noqa: E402
 from test_story_custom_island_event import GAMES, HAVE_EMULATOR, emulated, have_stock  # noqa: E402
 
 if HAVE_EMULATOR:
-    from test_story_cie_graph_runtime import IDLE, Run
+    from test_story_cie_graph_runtime import CIEG_BUF, IDLE, Run
+
+STEPS = 2_000_000_000                     # a 20,000-character text takes more instructions than a short one's 2 million
+
+
+def big(p, name: str, *args: int) -> int:
+    """An export called with room for the long texts' instructions."""
+    return p.call(p.exports[name], list(args), limit=STEPS)
 
 WORDS = ("The tide rolled in over the black sand while the elders told the story of the first canoe and the "
          "children listened with wide eyes, asking again and again what the island looked like before the "
@@ -113,7 +120,9 @@ class Engine(unittest.TestCase):
         r.rolls([0] * 60)
         r.log(1)
         r.p.export("VvfpStoryProbeGraphScroll", scroll)
-        return r, r.queue(data)
+        r.p.write(CIEG_BUF, data)
+        at = big(r.p, "VvfpStoryProbeGraphQueue", r.n, CIEG_BUF, len(data), 0)
+        return r, None if at == 0 else r.p.cstring(at)
 
     def test_the_whole_text_every_label_and_the_title_are_shown_never_cut(self):
         g = cg.load(long_graph(), scrolling=True)
@@ -128,19 +137,19 @@ class Engine(unittest.TestCase):
                 p = r.p
                 buf = p.alloc(self.BIG)
                 if not r.state()["armed"]:
-                    assert p.export("VvfpStoryProbeGraphArmNext", r.n) == 1
+                    assert big(p, "VvfpStoryProbeGraphArmNext", r.n) == 1
                 p.write(buf, b"\0")
-                assert p.export("VvfpStoryProbeChoiceBegin", r.n, buf, self.BIG) == 1
+                assert big(p, "VvfpStoryProbeChoiceBegin", r.n, buf, self.BIG) == 1
                 text = p.cstring(buf, self.BIG)
                 self.assertGreater(len(text), 20000, "the whole text, not a field's 2,000 bytes")
                 self.assertIn("THE VERY LAST WORDS", " ".join(text.upper().split()))
-                n = p.export("VvfpStoryProbeOnePopupRows", r.n)
+                n = big(p, "VvfpStoryProbeOnePopupRows", r.n)
                 self.assertEqual(n, 4)
                 for k in range(n):
-                    shown = p.cstring(p.export("VvfpStoryProbeChoiceLabel", r.n, k), 8000)
+                    shown = p.cstring(big(p, "VvfpStoryProbeChoiceLabel", r.n, k), 8000)
                     self.assertGreater(len(shown), 250, "a long label whole")
                     self.assertTrue(shown.endswith(label(300, k)[-30:]), shown[-60:])
-                title = p.cstring(p.export("VvfpStoryProbeGraphTitle", 0), 8000)
+                title = p.cstring(big(p, "VvfpStoryProbeGraphTitle", 0), 8000)
                 if game in ("vv3", "vv4", "vv5"):
                     self.assertEqual(title, TITLE, "the title whole (Scrolling Popups wraps it)")
                 else:
@@ -149,12 +158,12 @@ class Engine(unittest.TestCase):
                     self.assertTrue(TITLE.startswith(title) and title, title)
                     self.assertIn(" ".join(TITLE.split()[-6:]), " ".join(text.split()))
                 p.write(buf, b"\0")
-                assert p.export("VvfpStoryProbeChoiceResolve", r.n, 3, buf, self.BIG) == 1
+                assert big(p, "VvfpStoryProbeChoiceResolve", r.n, 3, buf, self.BIG) == 1
                 outcome = " ".join(p.cstring(buf, self.BIG).split())
                 self.assertGreater(len(outcome), 10000)
                 self.assertIn(label(300, 3)[-30:], outcome, "the choice picked starts the answer, whole")
                 p.write(buf, b"\0")
-                self.assertEqual(p.export("VvfpStoryProbeOnePopupOk", r.n, buf, self.BIG), 0, "OK ends it")
+                self.assertEqual(big(p, "VvfpStoryProbeOnePopupOk", r.n, buf, self.BIG), 0, "OK ends it")
                 _n_filed, _now, filed = r.log()
                 self.assertIn(label(300, 3)[-30:], " ".join(filed.split()),
                               "the log's Choice line holds the whole label")
@@ -189,20 +198,20 @@ class Engine(unittest.TestCase):
             whole = story(20000).encode()
             src, field = p.alloc(len(whole) + 16), p.alloc(2100)
             p.write(src, whole + b"\0")
-            held = p.export("VvfpStoryProbeLongPut", src, field, 2000)
+            held = big(p, "VvfpStoryProbeLongPut", src, field, 2000)
             self.assertLess(held, 2000 - 15, "a little short of the field: the game's own copy keeps every byte")
             shown = p.read(field, held + 1)
             self.assertEqual(shown, whole[:held] + b"\0", "the start, as written")
             self.assertIn(whole[held:held + 1], (b" ", b"\n"), "cut at a space")
-            at = p.export("VvfpPopupWholeText", field)
+            at = big(p, "VvfpPopupWholeText", field)
             self.assertNotEqual(at, 0)
             self.assertEqual(p.cstring(at, len(whole) + 8).encode(), whole, "the whole text for that start")
             p.write(field + 10, b"X")                        # the field changed: not that text's start any more
-            self.assertEqual(p.export("VvfpPopupWholeText", field), 0)
+            self.assertEqual(big(p, "VvfpPopupWholeText", field), 0)
             short = b"A short text."
             p.write(src, short + b"\0")
-            self.assertEqual(p.export("VvfpStoryProbeLongPut", src, field, 2000), len(short))
-            self.assertEqual(p.export("VvfpPopupWholeText", field), 0, "a text that fits: the field is whole")
+            self.assertEqual(big(p, "VvfpStoryProbeLongPut", src, field, 2000), len(short))
+            self.assertEqual(big(p, "VvfpPopupWholeText", field), 0, "a text that fits: the field is whole")
             break
 
 

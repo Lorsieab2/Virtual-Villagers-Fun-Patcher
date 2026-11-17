@@ -474,13 +474,23 @@ class Process:
             out += pair
         return out.decode("utf-16-le")
 
-    def cstring(self, va: int, limit: int = 2048) -> str:
+    def cstring(self, va: int, limit: int = 0x400000) -> str:
+        """The NUL-ended string at `va` (as Windows' own string routines read it: no length cap of their own; the
+        practically unlimited island-event texts are 100,000 bytes and more), read a page at a time."""
         out = bytearray()
-        while len(out) < limit and self.mapped(va + len(out), 1):
-            byte = self.read(va + len(out), 1)
-            if byte == b"\0":
+        while len(out) < limit:
+            at = va + len(out)
+            if not self.mapped(at, 1):
                 break
-            out += byte
+            chunk = min(0x1000 - (at & 0xFFF), limit - len(out))
+            if not self.mapped(at, chunk):
+                chunk = 1
+            data = self.read(at, chunk)
+            end = data.find(b"\0")
+            if end >= 0:
+                out += data[:end]
+                break
+            out += data
         return out.decode("latin-1")
 
     # ---- running -------------------------------------------------------

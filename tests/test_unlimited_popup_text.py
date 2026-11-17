@@ -139,7 +139,7 @@ class Unlimited(unittest.TestCase):
                 text_h = rows["y"] - (v["box_y"] - v["sy"]) - (rows["h"] // 2 * 0)
                 expected = self.whole_height(d, game, whole, v["content_w"])
                 field_h = self.whole_height(d, game, field, v["content_w"])
-                self.assertGreater(expected, 2 * field_h)
+                self.assertGreater(expected, field_h + 1000, "the whole text is far taller than its start")
                 self.assertGreaterEqual(text_h, expected, (text_h, expected, field_h))
                 # Scrolled to the end: the last row is reachable and clicks pick it.
                 self.to_bottom(d)
@@ -236,6 +236,7 @@ class Unlimited(unittest.TestCase):
         surface drawn at the row's own corner)."""
         rows = d.view_rows()
         picture = {b[0] for b in blits if (b[3][0], b[3][1]) == (rows["x"], top)}
+        picture |= d.panel_surfaces() | d.art_surfaces()          # the panel's tiles, the scrollbars
         return [b for b in blits if top <= b[3][1] < top + height and b[0] not in picture
                 and b[1][2] < rows["w"] // 4]
 
@@ -292,7 +293,7 @@ class Unlimited(unittest.TestCase):
                 self.assertTrue(all(rows["x"] <= b[3][0] and b[3][0] + b[1][2] <= rows["x"] + rows["w"]
                                     for b in glyphs), "every line inside its row")
                 self.assertGreaterEqual(max(b[3][1] for b in glyphs) - min(b[3][1] for b in glyphs),
-                                        (lines - 1) * (one // 2), "its lines one below the other")
+                                        (lines - 1) * (d.view()["line"] - 4), "its lines one below the other")
                 self.check_rows(d, labels, one)
 
     def test_b_four_choices_of_about_300_characters(self):

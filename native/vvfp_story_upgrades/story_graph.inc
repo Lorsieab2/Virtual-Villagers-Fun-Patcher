@@ -371,6 +371,15 @@ static unsigned int cg_crc32(const unsigned char *data, unsigned int size, unsig
 
 static char cg_why[160];
 
+/* `text` is at most `max` bytes; longer than `paged` marks the graph as needing Scrolling Popups (long_text). */
+static int cg_len_ok(const cg_graph *g, const char *text, int paged, int max) {
+    int n = lstrlenA(text);
+    if (n > paged) {
+        ((cg_graph *)g)->long_text = 1;
+    }
+    return n <= max;
+}
+
 static int cg_bad(const char *why) {
     lstrcpynA(cg_why, why, sizeof cg_why);
     return 0;
@@ -1008,15 +1017,6 @@ static int cg_pools_ok(const cg_graph *g) {
 /* Read `data` (`size` bytes) as a .cieg into `g` (which points into `data`): 1, or 0 with the reason in cg_why. */
 /* A title the game can show (the event's, or -- version 6 -- a node's popup title, docs/event-collection/
    cie-v6-binary.md 14): ce_text_char_ok's characters (version 6: and quotes, G6), one line, under CE_TITLE_BYTES. */
-/* `text` is at most `max` bytes; longer than `paged` marks the graph as needing Scrolling Popups (long_text). */
-static int cg_len_ok(const cg_graph *g, const char *text, int paged, int max) {
-    int n = lstrlenA(text);
-    if (n > paged) {
-        ((cg_graph *)g)->long_text = 1;
-    }
-    return n <= max;
-}
-
 static int cg_title_ok(const cg_graph *g, const char *title) {
     const char *t;
     for (t = title; *t != '\0'; ++t) {
