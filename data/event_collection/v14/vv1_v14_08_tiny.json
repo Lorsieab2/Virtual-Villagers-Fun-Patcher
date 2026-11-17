@@ -41,7 +41,7 @@
   "scene": {
    "name": "The Tiny Conductor",
    "src": "L7702-7704",
-   "text": "The Golden Child teaches three groups of children different parts of a song. The first attempt is an awful tangle of noise. He giggles, adjusts their entrances, and tries again. The second performance is beautiful.",
+   "text": "The Golden Child teaches three groups of children different parts of a song. The first attempt is an awful tangle of noise. (child.He/She) giggles, adjusts their entrances, and tries again. The second performance is beautiful.",
    "effects": [
     {
      "do": "tech",

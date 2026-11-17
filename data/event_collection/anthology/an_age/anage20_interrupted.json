@@ -89,7 +89,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "apprentice": {
@@ -102,11 +101,11 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(mother), a nursing mother, is teaching a craft when her baby needs feeding, and (apprentice), an apprentice, assumes the lesson must end.",
+   "text": "(mother), a nursing (mother.mother/father), is teaching a craft when (mother.his/her) baby needs feeding, and (apprentice), an apprentice, assumes the lesson must end.",
    "src": "L30431",
    "choices": [
     {
-     "label": "Ask the Teacher What She Prefers",
+     "label": "Ask the Teacher What (mother.He/She) Prefers",
      "next": "a",
      "src": "L30432"
     },
@@ -141,12 +140,12 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "She continues explaining while feeding, and (apprentice) learns the technique.",
+   "text": "(mother.He/She) continues explaining while feeding, and (apprentice) learns the technique.",
    "src": "L30433"
   },
   "a2": {
    "name": "Outcome A2",
-   "text": "She chooses a break and resumes when ready.",
+   "text": "(mother.He/She) chooses a break and resumes when ready.",
    "src": "L30434"
   },
   "b": {
@@ -185,7 +184,7 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "The lesson continues smoothly without replacing her authority.",
+   "text": "The lesson continues smoothly without replacing (mother.his/her) authority.",
    "src": "L30439"
   },
   "c2": {
@@ -207,7 +206,7 @@
   },
   "d1": {
    "name": "Outcome D1",
-   "text": "The group returns at a time that works better for her.",
+   "text": "The group returns at a time that works better for (mother.him/her).",
    "src": "L30442"
   },
   "d2": {

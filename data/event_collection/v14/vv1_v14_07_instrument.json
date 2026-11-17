@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Instrument That Never Existed",
    "src": "L7695-7698",
-   "text": "The boy binds hollow reeds, a gourd, shells and stretched fibers into an instrument no musician recognizes. Its strange voice makes an elder remember a half-forgotten lullaby. The boy is delighted by the sound, but even more delighted that the elder begins singing.",
+   "text": "The (child.boy/girl) binds hollow reeds, a gourd, shells and stretched fibers into an instrument no musician recognizes. Its strange voice makes an elder remember a half-forgotten lullaby. The (child.boy/girl) is delighted by the sound, but even more delighted that the elder begins singing.",
    "effects": [
     {
      "do": "tech",

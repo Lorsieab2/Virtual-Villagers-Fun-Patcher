@@ -30,7 +30,7 @@
     "why": "the rest of the scene's outcome instruction"
    }
   ],
-  "description": "The scholars summon the Golden Child to a long council meeting, but his friends are playing outside."
+  "description": "The scholars summon the Golden Child to a long council meeting, but the child's friends are playing outside."
  },
  "requirement": {
   "min_eligible": 1
@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Wise Child",
    "src": "L7816-7819",
-   "text": "Impressed scholars summon the Golden Child to a long council meeting. He listens politely, answers a difficult question, and then spots his friends playing outside. 'Can I go now?' he asks. Before they finish replying, he is running toward the game.",
+   "text": "Impressed scholars summon the Golden Child to a long council meeting. (child.He/She) listens politely, answers a difficult question, and then spots (child.his/her) friends playing outside. 'Can I go now?' (child.he/she) asks. Before they finish replying, (child.he/she) is running toward the game.",
    "text_only": [
     {
      "src": "L7819-7820",

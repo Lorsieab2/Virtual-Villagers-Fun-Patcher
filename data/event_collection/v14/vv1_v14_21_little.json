@@ -42,7 +42,7 @@
   "scene": {
    "name": "The Little Peacemaker",
    "src": "L7791-7794",
-   "text": "Two children refuse to speak after a quarrel. The Golden Child asks each to explain what hurt without interruption. They apologize and return to their game. Asked where he learned such diplomacy, he says, 'I just wanted us to play together.'",
+   "text": "Two children refuse to speak after a quarrel. The Golden Child asks each to explain what hurt without interruption. They apologize and return to their game. Asked where (child.he/she) learned such diplomacy, (child.he/she) says, 'I just wanted us to play together.'",
    "text_only": [
     {
      "src": "L7794",

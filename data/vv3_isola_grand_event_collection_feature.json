@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/vv3/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "D6CE1E9A3DF3081328904E9B191CCCF5AEB7E20A6C90E471F4C8F863B3F12982"
+      "sha256": "E51ED81AAA337FE16BCC57B7C5695DE426492EAB6AB2FF0E85D6AE1819D9FFBF"
     },
     {
       "source": "assets/event_collection/Credits.txt",
@@ -34,7 +34,7 @@
     {
       "source": "assets/event_collection/vv3/living.pak",
       "destination": "Island Event Collection/living.pak",
-      "sha256": "4C6FFBD459B9B828843C996C010C75979DDA91EE0F26B9EE2C3362052B33B2EB"
+      "sha256": "B9A6918F5ED760C20FE191CD1776CEB9A7A03ACDBEE2163B6E442E58713C862C"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -289,7 +289,7 @@
     {
       "source": "assets/event_collection/all_beautification.cieg",
       "destination": "Island Event Collection/all_beautification.cieg",
-      "sha256": "0C44C3466F351F133F13D84499D92C0FF593741DF2F8AE6111F9741DD51242E9"
+      "sha256": "2749DA21BEB07F7DC56E4FD7340753639824D419FA164D550360498D288092C9"
     },
     {
       "source": "assets/event_collection/all_conundrums.cieg",
@@ -299,12 +299,12 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "240E02421EA531F853955ACA01FD1958EC7BD286758B46AD1451C289EFE5F81C"
+      "sha256": "057F83A2E47BC390365ECAC95B6668E789E108AA665288F43C00086F74EAC80B"
     },
     {
       "source": "assets/event_collection/all_everybodys_winner.cieg",
       "destination": "Island Event Collection/all_everybodys_winner.cieg",
-      "sha256": "EB78AB1FB60D6978B110CCFACEC8A23D63D2ACF2ACE80C0FF231107DB7D33A8E"
+      "sha256": "8F307AEF885D31B8CBAF777D272389477DA9BB814AEFCABD5E8DB267671D5C17"
     },
     {
       "source": "assets/event_collection/all_great_appointment.cieg",
@@ -344,7 +344,7 @@
     {
       "source": "assets/event_collection/all_scholasticon.cieg",
       "destination": "Island Event Collection/all_scholasticon.cieg",
-      "sha256": "95EE7013B21EC8F97D620E84C64ED0F95089582DD11D0862D955AE821BA3F49D"
+      "sha256": "AA9B9F986B69C8EBA59DF654A1AAD6CB8AB0E276F4C08EA57D4022FDBE408AA1"
     },
     {
       "source": "assets/event_collection/all_secret_of_life.cieg",
@@ -354,7 +354,7 @@
     {
       "source": "assets/event_collection/all_storytelling.cieg",
       "destination": "Island Event Collection/all_storytelling.cieg",
-      "sha256": "E40CDF770A48609E60FD1870FE4F46D54FCB5BCB99CF35A4D8CE5095943635F5"
+      "sha256": "C19A435B7ECA43CBE63F33D16379AEA70FE2D1B8FB1C389A568B51D320AF3AF6"
     },
     {
       "source": "assets/event_collection/all_strange_statue.cieg",
@@ -409,7 +409,7 @@
     {
       "source": "assets/event_collection/all_v18_08_poets.cieg",
       "destination": "Island Event Collection/all_v18_08_poets.cieg",
-      "sha256": "861C08ED7E0211AD346621A6F4FFB74DD0EA086A9C9E913E5DBCE180DEB8F28F"
+      "sha256": "E9CFCDE993B56BFB5B2CD405D20635310C2D90D33060717D7139399EB6FF66FF"
     },
     {
       "source": "assets/event_collection/all_v18_09_trivia.cieg",
@@ -504,7 +504,7 @@
     {
       "source": "assets/event_collection/all_v20_r1_should_not.cieg",
       "destination": "Island Event Collection/all_v20_r1_should_not.cieg",
-      "sha256": "8B9B69D8820221B9B9D412EDBA803434D3B680D0C6A2E1CEAFF48FA840B7D5E0"
+      "sha256": "3C81A0D7578CA07F1D4D4BDB2AED02D69BFBA3E0F25E973FBE1CBEB12598E986"
     },
     {
       "source": "assets/event_collection/all_v20_r2_relic_trial.cieg",
@@ -519,7 +519,7 @@
     {
       "source": "assets/event_collection/all_v20_r4_relic.cieg",
       "destination": "Island Event Collection/all_v20_r4_relic.cieg",
-      "sha256": "EC3BAF84F970D4C0F53784246C239166E495E1158EF969085A01F4C750F4850B"
+      "sha256": "BD672EF3EBCF3D1FE80DD21C4FBBF90A67CAA5F0657EDD4BD34B2686CC2A9BD5"
     },
     {
       "source": "assets/event_collection/all_v21_c1_potters.cieg",
@@ -939,7 +939,7 @@
     {
       "source": "assets/event_collection/anage11_unpopular.cieg",
       "destination": "Island Event Collection/anage11_unpopular.cieg",
-      "sha256": "724076AFD0711D213CB36F2877A7FEB1B07BF0A1CD5BA19E4C2E3AE1CE9DF1F1"
+      "sha256": "586FC79689FE8EDB6FBBC94A4E19C38A99006024598587886AEF830D224CB372"
     },
     {
       "source": "assets/event_collection/anage12_festival.cieg",
@@ -979,32 +979,32 @@
     {
       "source": "assets/event_collection/anage19_feeding_corner.cieg",
       "destination": "Island Event Collection/anage19_feeding_corner.cieg",
-      "sha256": "AF86A0F4240E1CDB83038DDC5DF92C698D9A4D1E49AC79096874CC4F3F0B5390"
+      "sha256": "AFB68C03D90CF22172C41D5C38DA04264CA76637994F437A5076ECD921D0A99E"
     },
     {
       "source": "assets/event_collection/anage20_interrupted.cieg",
       "destination": "Island Event Collection/anage20_interrupted.cieg",
-      "sha256": "39F5B9526D26C08968AABC3312FCA0CFAC0CD620E07A662FC4D820C75C4FDA69"
+      "sha256": "87F0F6DAC9A5D0C7C0DECDCA24118CBF01C2673BFD5631C2C7EBDDCBE182D346"
     },
     {
       "source": "assets/event_collection/anage21_unwanted.cieg",
       "destination": "Island Event Collection/anage21_unwanted.cieg",
-      "sha256": "4B815949D7F89D9D6B79E5E9E4D8A282070B8B81D51BCCA6C456BCD1FB604295"
+      "sha256": "90AAE572618F49C261F6668A33568ADACA714E61F794F1D78F9891369AEDA369"
     },
     {
       "source": "assets/event_collection/anage22_festival.cieg",
       "destination": "Island Event Collection/anage22_festival.cieg",
-      "sha256": "92248C358B296BBD49ECB5EB55BF24361A16EB83926B0AD4071FF322954F78BE"
+      "sha256": "81091B6432E9A66A5FD98CF0F7259235440F0F8CE13CBAE8DC107DF1C0F8A17A"
     },
     {
       "source": "assets/event_collection/anage23_return.cieg",
       "destination": "Island Event Collection/anage23_return.cieg",
-      "sha256": "BAD6ED529190877B692286B0461F545EB37C404A300BF9FB9BA6B07302B01496"
+      "sha256": "49E0670345F27DF9FDF03EC998FA005A6FADF30EE50C4A5617C1CB0F0D2F217B"
     },
     {
       "source": "assets/event_collection/anage24_parent_more.cieg",
       "destination": "Island Event Collection/anage24_parent_more.cieg",
-      "sha256": "28ED2EE6F022B28BD2E929BBD955677045CC663CF68DDCAD992987E90A878240"
+      "sha256": "16A1D443D3BF98ADB6D99FA70D1B447DB4991A1AEEF1B2AB864C8C4F68C100CC"
     },
     {
       "source": "assets/event_collection/anage25_elder_sees.cieg",
@@ -1414,7 +1414,7 @@
     {
       "source": "assets/event_collection/anexp23_chief_cousin.cieg",
       "destination": "Island Event Collection/anexp23_chief_cousin.cieg",
-      "sha256": "30D8BA807624A8CF0719FF58966F4FC767EAF0A278BAC818111B397979BD882A"
+      "sha256": "1BE0B967C920AAB60ACAB30B5E03DAC205291800555F381AA1B4D837169D1DFD"
     },
     {
       "source": "assets/event_collection/anexp24_council_seat.cieg",
@@ -1499,12 +1499,12 @@
     {
       "source": "assets/event_collection/anexp40_baby_meeting.cieg",
       "destination": "Island Event Collection/anexp40_baby_meeting.cieg",
-      "sha256": "D90E2413100EBBB0A729C37906106CA922F6828A97FE66F99140FE43F92F7060"
+      "sha256": "B4193E428CF71AE083B9F2CF78BEEF67AA2F946E3C533BCE17043F03D8EB026B"
     },
     {
       "source": "assets/event_collection/anexp41_painted.cieg",
       "destination": "Island Event Collection/anexp41_painted.cieg",
-      "sha256": "E782A38736FF50D8896EBFF2EA6EE354CFACBD86BACF419291B15FC408EFACEC"
+      "sha256": "ED4E739A19AF15F799E6ABFE4E28D60C4F779E3C453FFBFEE837CCF06D8DF9EB"
     },
     {
       "source": "assets/event_collection/anexp42_noble_family.cieg",
@@ -1554,7 +1554,7 @@
     {
       "source": "assets/event_collection/anexp51_chief_clothes.cieg",
       "destination": "Island Event Collection/anexp51_chief_clothes.cieg",
-      "sha256": "9E771BBA0A737D4D9B12C8AFEFD4349A9F155D25E51F29A2D8F86D9E96866BFE"
+      "sha256": "811B0F7E9976FCFC5F42FDCA8B8087230851FB64FF2BC5B48291AD9F5C078236"
     },
     {
       "source": "assets/event_collection/anexp52_legend_every.cieg",
@@ -1659,7 +1659,7 @@
     {
       "source": "assets/event_collection/anexp72_costume_crown.cieg",
       "destination": "Island Event Collection/anexp72_costume_crown.cieg",
-      "sha256": "CBD15EB2518F13BA19D33623CDF1CBD260F4EFC6FD6416C8CB78A024CD1FBCDC"
+      "sha256": "9419613F455396C4549D735DA8FBC211C53011A98F9F0A55CA187DA1A5C50A8D"
     },
     {
       "source": "assets/event_collection/anexp73_silent.cieg",
@@ -1874,7 +1874,7 @@
     {
       "source": "assets/event_collection/anfau17_crab_temper.cieg",
       "destination": "Island Event Collection/anfau17_crab_temper.cieg",
-      "sha256": "48A82345F57C69F222DFA7C2C461B1BD543F4525987884F643C8EC6423BBD503"
+      "sha256": "AD51C552F827612871C0233D9CE8F13DFD1E97B2BECE8C1DD30AD4F16F8FD592"
     },
     {
       "source": "assets/event_collection/anfau18_scale_feather.cieg",
@@ -1964,7 +1964,7 @@
     {
       "source": "assets/event_collection/anhs11_chief_nobody.cieg",
       "destination": "Island Event Collection/anhs11_chief_nobody.cieg",
-      "sha256": "FBA14EC6A5FAE6AE33BFC47AF150ABA409A447E0E3B849F4E2ABE1E9C34DFA0B"
+      "sha256": "E0479B6EEFCB625829F75406A5E96191EFD8263C3FE686735589823AF4199091"
     },
     {
       "source": "assets/event_collection/anhs12_whose_word_law.cieg",
@@ -1979,7 +1979,7 @@
     {
       "source": "assets/event_collection/anhs14_what_order.cieg",
       "destination": "Island Event Collection/anhs14_what_order.cieg",
-      "sha256": "1A8AFBC1D592E776C8A461D067775979829B61DC4C1DC7E16F137807194E5DCC"
+      "sha256": "07D2FA109361DB415FE1657B739958EDD25E76905660E70BC2307B7B9A90D0A4"
     },
     {
       "source": "assets/event_collection/anhs15_rule_reason.cieg",
@@ -2094,7 +2094,7 @@
     {
       "source": "assets/event_collection/anhs37_child_questions.cieg",
       "destination": "Island Event Collection/anhs37_child_questions.cieg",
-      "sha256": "04FDEEBEF203EB58BFA773D8971798E2ECC01212086D608ED009D47DC24D0887"
+      "sha256": "5C993BAE687BB7721E5426A849B6808F09CC4E5821A25C0B4F355BD4A0795D6E"
     },
     {
       "source": "assets/event_collection/anhs38_argument_over.cieg",
@@ -2124,7 +2124,7 @@
     {
       "source": "assets/event_collection/anjoy01_newborn.cieg",
       "destination": "Island Event Collection/anjoy01_newborn.cieg",
-      "sha256": "CF1BEC25104056978D4A0FACBFCDEB1DDD127CA64411E0E4412196C0A618C493"
+      "sha256": "364D5180689C7486BC420D85DA5AE5F88344C9618634D7B1253E6700CA04FA8E"
     },
     {
       "source": "assets/event_collection/anjoy02_first_word.cieg",
@@ -2334,7 +2334,7 @@
     {
       "source": "assets/event_collection/anjus05_when_chief.cieg",
       "destination": "Island Event Collection/anjus05_when_chief.cieg",
-      "sha256": "458133D133B0519063CAB912CB3DE37CD4F19E7B2325A3D85F8ADD69CD9E98FF"
+      "sha256": "83A429D9C41EBE2B84661DFE7292B2F57D4FB80A28DDA6EEC97F9298DBD7D1D6"
     },
     {
       "source": "assets/event_collection/anjus06_punishment.cieg",
@@ -2384,7 +2384,7 @@
     {
       "source": "assets/event_collection/anjus15_smoke_beyond.cieg",
       "destination": "Island Event Collection/anjus15_smoke_beyond.cieg",
-      "sha256": "0392E35430DF4733DF29ADC0346B285202E2F44B1D723A7D159085796DDF8817"
+      "sha256": "9C974FE9A4071E0DC77D19D3AAEFEC167BE42EAE7CF84913F6507DDBE398AE6C"
     },
     {
       "source": "assets/event_collection/anjus16_story.cieg",
@@ -2409,7 +2409,7 @@
     {
       "source": "assets/event_collection/anjus20_missing_scout.cieg",
       "destination": "Island Event Collection/anjus20_missing_scout.cieg",
-      "sha256": "FB3A144E7607AC265A489B9707B40578D08D8658290B4335087F983312257A51"
+      "sha256": "EA3908471507EF5841CF32E9CEDB60D961B936F1FB99F7634C22F41E1C75C548"
     },
     {
       "source": "assets/event_collection/anjus21_memory_war.cieg",
@@ -2449,7 +2449,7 @@
     {
       "source": "assets/event_collection/anjus28_rule_hurt.cieg",
       "destination": "Island Event Collection/anjus28_rule_hurt.cieg",
-      "sha256": "334020733CB36764949562C36420E4C7E0BFB357CE31CF4C09729866211187D0"
+      "sha256": "AFC0122F2496343520B01E4C848EED0104473FB9A9DB904E95870FAF2CEAF244"
     },
     {
       "source": "assets/event_collection/anjus29_refused.cieg",
@@ -2464,7 +2464,7 @@
     {
       "source": "assets/event_collection/anjus31_courage_defend.cieg",
       "destination": "Island Event Collection/anjus31_courage_defend.cieg",
-      "sha256": "8CAD34A45267CD150ADF8EF66487D0179544B431427C550AA173A61F4D7CBBBC"
+      "sha256": "09513D7577FB0D017F9E920A02913729828B34174A5E9D4153CAEE96C12E9837"
     },
     {
       "source": "assets/event_collection/anjus32_what_we_carry.cieg",
@@ -4854,7 +4854,7 @@
     {
       "source": "assets/event_collection/c5dn057_baby_favorite.cieg",
       "destination": "Island Event Collection/c5dn057_baby_favorite.cieg",
-      "sha256": "407E3FD3D9BBCD8C1D64A364A68E3669298C692ACC3B5DA94A52D47174EDD340"
+      "sha256": "BA029BBD92B1E78E61F8082CF1498C625E49530560BFF3DF81D3A20F38F9673A"
     },
     {
       "source": "assets/event_collection/c5dn058_elder.cieg",
@@ -5169,7 +5169,7 @@
     {
       "source": "assets/event_collection/c5ev060_how_did_we_get.cieg",
       "destination": "Island Event Collection/c5ev060_how_did_we_get.cieg",
-      "sha256": "32260A4FB298D6FD56A1C11D7DF9D5FD47C5357A7C63A9CC15C83F4BB03AC864"
+      "sha256": "11D3A0D9C9ED7CC69DB81C1D6E33AA60051A5E2DC336C3CF4E9630B39A1E3BB4"
     },
     {
       "source": "assets/event_collection/cat001_shark.cieg",
@@ -7854,7 +7854,7 @@
     {
       "source": "assets/event_collection/fwk053_nursing_mother.cieg",
       "destination": "Island Event Collection/fwk053_nursing_mother.cieg",
-      "sha256": "BE283318F3F55F90027EC273CA2F680ADFBCF232930B33112184D1D64347AF45"
+      "sha256": "F15A59290D3C1643BBDC925A817CC343633BA14872DC22BC2A4B63E12772DB8B"
     },
     {
       "source": "assets/event_collection/fwk054_rival_invite.cieg",
@@ -10974,22 +10974,22 @@
     {
       "source": "assets/event_collection/lbl037_baby_laugh.cieg",
       "destination": "Island Event Collection/lbl037_baby_laugh.cieg",
-      "sha256": "7430A8286A289CA46BCAD401545F7294B5657C9DB9B804DE64418B1660EE70BE"
+      "sha256": "1E2E4B2CD18398AFB20C0498BE1A21327F36D0A7AC25C4BA903D2DE79AD289D3"
     },
     {
       "source": "assets/event_collection/lbl038_sleepless.cieg",
       "destination": "Island Event Collection/lbl038_sleepless.cieg",
-      "sha256": "1945070F8D322D12ECE14DA00FA3E26799587F7E5CB3FB624A0B919207B4886F"
+      "sha256": "4008464804E5A85477544483FB3D910300E8BE3C8B8DF927793A59EAE0DF4B05"
     },
     {
       "source": "assets/event_collection/lbl039_tiny_grip.cieg",
       "destination": "Island Event Collection/lbl039_tiny_grip.cieg",
-      "sha256": "3C5C4457AA214F183DF479C0075173DEB85018D8548299E38AA5A8427C205366"
+      "sha256": "6D873C74026D74FF808B43CDC24B4C6FE944807B68DEA16DED78E2312AA52A43"
     },
     {
       "source": "assets/event_collection/lbl040_wrong_cradle.cieg",
       "destination": "Island Event Collection/lbl040_wrong_cradle.cieg",
-      "sha256": "0480F239FB0CE6B456E0375DB754DF5427249AE96071A929DEA5E17FCA1C5FD9"
+      "sha256": "22F1B7ECC0A83CF7D52DEAAC3138E26F4050871E535E29779F6ADD4A0992C8F1"
     },
     {
       "source": "assets/event_collection/lbl041_first_steps.cieg",
@@ -11009,12 +11009,12 @@
     {
       "source": "assets/event_collection/lbl044_sudden_fever.cieg",
       "destination": "Island Event Collection/lbl044_sudden_fever.cieg",
-      "sha256": "E8B6437AA301E815B5550E73A17AE6A4C46A23F3FC50245D110FA5832FB67579"
+      "sha256": "6C269C61E4F2AEE90467D56962035718150ECAEFD570DF4DC9DB8C9BE9392558"
     },
     {
       "source": "assets/event_collection/lbl045_curious_hands.cieg",
       "destination": "Island Event Collection/lbl045_curious_hands.cieg",
-      "sha256": "88D553F118F957F491D62F81FB47B9EBE7F71E3E324ED77FFB3C3CB87D571C81"
+      "sha256": "4E0DB039D2581918F090D2E3E6FC1D0C29EBBA7C6ED15C743380CB364FB47103"
     },
     {
       "source": "assets/event_collection/lbl046_many_caregivers.cieg",
@@ -11894,7 +11894,7 @@
     {
       "source": "assets/event_collection/lvauth01_chief_did.cieg",
       "destination": "Island Event Collection/lvauth01_chief_did.cieg",
-      "sha256": "52D9F95768DD339235A6B8E357C9E245325DF2B9538AA3F8E1CFB1010FB1D198"
+      "sha256": "9F3214CC815F7D153185E85C9652FBD943563B8E096C648625CA98B8D4EE4DFA"
     },
     {
       "source": "assets/event_collection/lvauth02_rookie.cieg",
@@ -11909,12 +11909,12 @@
     {
       "source": "assets/event_collection/lvauth04_chief_sacred.cieg",
       "destination": "Island Event Collection/lvauth04_chief_sacred.cieg",
-      "sha256": "B0CD0F1BD369C4D8F6A9F9B025608A367A3F0FDF3A3FBC8E4A311DA6107F3EE6"
+      "sha256": "D490BF66BD270AA1037A4330CDF1BE09DF8D4B1EA428CE3CE19B20DCCE422919"
     },
     {
       "source": "assets/event_collection/lvauth05_leader.cieg",
       "destination": "Island Event Collection/lvauth05_leader.cieg",
-      "sha256": "8EA107D9BEE30988C9A0EFD786E231AA2247BB096F3EA065174C1878E72A2638"
+      "sha256": "63D7F92C7B5604F3E1DA41EDDF2289F44E782CC5D37F8AD0F6E3169338A30CDB"
     },
     {
       "source": "assets/event_collection/lvauth06_master_healer.cieg",
@@ -11924,7 +11924,7 @@
     {
       "source": "assets/event_collection/lvauth07_chief_could.cieg",
       "destination": "Island Event Collection/lvauth07_chief_could.cieg",
-      "sha256": "4D6F3476C733B9CCE5B76FC70EA725FCEDA94D6FD53634A506210F1DC715DCAD"
+      "sha256": "84712B11201FCBF85F8065BDE398E2CE7000ADFAE9A3B83138023FF6AC23AB30"
     },
     {
       "source": "assets/event_collection/lvauth08_apprentice.cieg",
@@ -11934,22 +11934,22 @@
     {
       "source": "assets/event_collection/lvauth09_villager.cieg",
       "destination": "Island Event Collection/lvauth09_villager.cieg",
-      "sha256": "8025AA4CB82B678D03510BD98AA83C25F5DBAA1D44259316C96F8F6625959441"
+      "sha256": "22C65F690FA46F1DD694713F66504BEA43F816ADC394A733C3795F00CB056E1F"
     },
     {
       "source": "assets/event_collection/lvauth10_chief_son.cieg",
       "destination": "Island Event Collection/lvauth10_chief_son.cieg",
-      "sha256": "FF20FDF4403DCBF4704C2E676BBCA8DB68A5FD962A5BC73565E2BB5F5EA409BD"
+      "sha256": "AEDBD01DFBED37955A2A8D319F5E53536D65C81703AF0AC07E95CABAC9EB824D"
     },
     {
       "source": "assets/event_collection/lvauth11_leader.cieg",
       "destination": "Island Event Collection/lvauth11_leader.cieg",
-      "sha256": "1C6923E0997130BEA50D23142566398FAF8AD99C710C78C23A6114A0F57EAD97"
+      "sha256": "399A5BB0BF16D989C469F55749BE1B53DF0621A0326A10FC1FD37964FF0EFDBE"
     },
     {
       "source": "assets/event_collection/lvauth12_chief_rain.cieg",
       "destination": "Island Event Collection/lvauth12_chief_rain.cieg",
-      "sha256": "A9345D460FD684EC3EB08253A51F10F9F039C3D5D8639625F8AED72C48EF0ED1"
+      "sha256": "8C4C2C537DE7DD8F59542528B1A3EE89F6F87D62888BFC6FCB463A47B230A939"
     },
     {
       "source": "assets/event_collection/lvauth13_animal_keeper.cieg",
@@ -11959,7 +11959,7 @@
     {
       "source": "assets/event_collection/lvauth14_young.cieg",
       "destination": "Island Event Collection/lvauth14_young.cieg",
-      "sha256": "0656B3C0F468654FB596ACE5E00E5D0A3C82D0330AEE40605EF59D98CFC2D758"
+      "sha256": "A5EFF6B37C3165B4D984BF7E3DB9C557ABC2EDA32E18E1AD120781A19241AF18"
     },
     {
       "source": "assets/event_collection/lvauth15_scientist.cieg",
@@ -11969,17 +11969,17 @@
     {
       "source": "assets/event_collection/lvauth16_healer_asked.cieg",
       "destination": "Island Event Collection/lvauth16_healer_asked.cieg",
-      "sha256": "B743A0DAA5CE45678EB272057359768B5CC3ECDBB0D351CD47443FC1FF33ABA0"
+      "sha256": "AEDD7A06331E22F541477CC07DBD6B769B0F0280370A7312572E06B8294D5A48"
     },
     {
       "source": "assets/event_collection/lvauth19_chief.cieg",
       "destination": "Island Event Collection/lvauth19_chief.cieg",
-      "sha256": "D41942BCE5E1FB69EEDAC4415BF32C53E4BD0CD3AEC7D4C8D368C858A1A53225"
+      "sha256": "5DB0A1923EEDDAD9E2D118103647049376721CC6045F9445ACE3ECBBE43B5B47"
     },
     {
       "source": "assets/event_collection/lvauth20_elder_lesson.cieg",
       "destination": "Island Event Collection/lvauth20_elder_lesson.cieg",
-      "sha256": "33A13C717F1E43134993E246CE33F4AC2050D1913D83DCB67CD1C79CF26E9447"
+      "sha256": "3FDA15491F15B0AA93AE419296452354422EF2770B09310E72AEB7DEF8B9E91F"
     },
     {
       "source": "assets/event_collection/lvauth21_master_feared.cieg",
@@ -11989,17 +11989,17 @@
     {
       "source": "assets/event_collection/lvauth22_chief_false.cieg",
       "destination": "Island Event Collection/lvauth22_chief_false.cieg",
-      "sha256": "4A3D42C7C886069BDFF43B6CC38AFA4D88EEA29EC5BB2ADF85AA36DDFB038472"
+      "sha256": "6E213C9B0C08B9D0572E7DCB4BAD047D4818586C0272EFB489AED4974453AF2A"
     },
     {
       "source": "assets/event_collection/lvauth23_rookie_rescue.cieg",
       "destination": "Island Event Collection/lvauth23_rookie_rescue.cieg",
-      "sha256": "F066DEF506412D37D9505A5D7344D7974891091616D7B00804799E0E71414ADB"
+      "sha256": "2DB0C3C256A4FACE44F79639D8117C4A9F52451B3EE75B4E4F7AA4658CDC83F7"
     },
     {
       "source": "assets/event_collection/lvauth24_council.cieg",
       "destination": "Island Event Collection/lvauth24_council.cieg",
-      "sha256": "3A7AF1330D7F1F74CC1A5BABC9E6818BF4F188D45F3FCF59E7283818956F46B9"
+      "sha256": "B697192F86733E787F591CBB7609ECA56D3B3C967D3CD99B2A498E6AEDECAD26"
     },
     {
       "source": "assets/event_collection/lvauth25_teacher.cieg",
@@ -12009,7 +12009,7 @@
     {
       "source": "assets/event_collection/lvauth26_chief_wanted.cieg",
       "destination": "Island Event Collection/lvauth26_chief_wanted.cieg",
-      "sha256": "A0D41BFCD3874C0304E9ECDDBF6ABCB99FDEB084E1A96CB7E22B5ED1DD770AF7"
+      "sha256": "BEA521B39B9A6E934DB1B72A190ACEBE3AB274133109872A00C46F339388D7CA"
     },
     {
       "source": "assets/event_collection/lvauth27_spiritual.cieg",
@@ -12019,7 +12019,7 @@
     {
       "source": "assets/event_collection/lvauth28_chief_claimed.cieg",
       "destination": "Island Event Collection/lvauth28_chief_claimed.cieg",
-      "sha256": "4D5A44EEA0879E12A64F519C9B8F68C3E8562C99C62675B79DBCCE992E9A5934"
+      "sha256": "E106AC64FCFA29BD46BB431DBF04F5AA19163FDFE9B1DC2E50E9B237A898EC16"
     },
     {
       "source": "assets/event_collection/lvauth29_apprentice.cieg",
@@ -12029,7 +12029,7 @@
     {
       "source": "assets/event_collection/lvauth30_leader_spoke.cieg",
       "destination": "Island Event Collection/lvauth30_leader_spoke.cieg",
-      "sha256": "1AAD9CBC6F0ED8D660F731ACFCEADB8C575F544DDAF7771D5FEBEBB35FC44687"
+      "sha256": "B64DA8BEC8C34D43C4A43C877DE30FBF95B66E65DBD84CD2F635FAEA5C03A231"
     },
     {
       "source": "assets/event_collection/lvcir01_child_beneath.cieg",
@@ -14019,7 +14019,7 @@
     {
       "source": "assets/event_collection/sss053_baby_beads.cieg",
       "destination": "Island Event Collection/sss053_baby_beads.cieg",
-      "sha256": "ED2C50DCFF216ACEA2DE259F47BE07284ACAAA3A52DD29D4BF9C9E8BD5549141"
+      "sha256": "FA003F72FEAB9B0A57A1FE0D8581D1602F8AFB5F2FFEA1F5CF91BC37A61E4937"
     },
     {
       "source": "assets/event_collection/sss054_elder_second.cieg",
@@ -15372,24 +15372,24 @@
       "sha256": "C7BEBEB3768F14D13B7E31D7F8C6946053468A9D7B11ECA327348E250E9637BD"
     },
     {
-      "source": "assets/event_collection/vv3_chief_and_the_pearl.cieg",
-      "destination": "Island Event Collection/vv3_chief_and_the_pearl.cieg",
-      "sha256": "B476ADA505E2FE1BEDF1B178A807CE8719A90E7EBA9B0488AF1E80A02614419C"
+      "source": "assets/event_collection/vv3_chief_and_pearl.cieg",
+      "destination": "Island Event Collection/vv3_chief_and_pearl.cieg",
+      "sha256": "823FAD8E3E5C62EE7EC7453F463E94AC0CEDB95C7C61EE15C6D327D946F81449"
     },
     {
-      "source": "assets/event_collection/vv3_chiefs_impossible_question.cieg",
-      "destination": "Island Event Collection/vv3_chiefs_impossible_question.cieg",
-      "sha256": "F79044B567037C29F089757E3DC521A785B59BD0AD37D02481067FCE5F4E7628"
+      "source": "assets/event_collection/vv3_chiefs_impossible.cieg",
+      "destination": "Island Event Collection/vv3_chiefs_impossible.cieg",
+      "sha256": "90E03E93250F5A337C79B5745A0A034668774B0DC2B899E3C82C7772AEB6DA69"
     },
     {
-      "source": "assets/event_collection/vv3_chiefs_monumental_speech.cieg",
-      "destination": "Island Event Collection/vv3_chiefs_monumental_speech.cieg",
-      "sha256": "0D69663E21CE42577847BBBC938E7704EC7AE17FC310F2C57003FB23CE20BD97"
+      "source": "assets/event_collection/vv3_chiefs_monumental.cieg",
+      "destination": "Island Event Collection/vv3_chiefs_monumental.cieg",
+      "sha256": "9EE1FAD3FE479EA36A109BDB6F7AC546AB8445E04419BEE66D24D3A9248CF0F6"
     },
     {
-      "source": "assets/event_collection/vv3_child_who_claimed_to_be.cieg",
-      "destination": "Island Event Collection/vv3_child_who_claimed_to_be.cieg",
-      "sha256": "DE1A8321D28C9A66507FC9B6F5DD12EA6C7F2C2E5F43134DDB723F2631EEEB06"
+      "source": "assets/event_collection/vv3_child_who_claimed.cieg",
+      "destination": "Island Event Collection/vv3_child_who_claimed.cieg",
+      "sha256": "3839DB98FAA68F62A5D36FAAC00C2203A0334D81B0FDAF0779D3E8781814C522"
     },
     {
       "source": "assets/event_collection/vv3_duel_terrible_inventors.cieg",
@@ -15449,7 +15449,7 @@
     {
       "source": "assets/event_collection/vv3_v17_sculpture.cieg",
       "destination": "Island Event Collection/vv3_v17_sculpture.cieg",
-      "sha256": "7D763464BE5F04EE13FF3D4F03B0EFA8F8C1063A07D2B12D22100CC5CFE645E7"
+      "sha256": "F263F1DFD1D9967F37CB0B8B1DEDCE48297E640B63F9F3D079814E99B985215A"
     },
     {
       "source": "assets/event_collection/vv3_v17_story.cieg",

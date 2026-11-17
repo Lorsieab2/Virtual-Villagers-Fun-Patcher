@@ -60,7 +60,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   }
  },
@@ -69,7 +68,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(mother), a nursing mother, brings her infant to a planning meeting and worries about interrupting.",
+   "text": "(mother), a nursing (mother.mother/father), brings (mother.his/her) infant to a planning meeting and worries about interrupting.",
    "src": "L31874",
    "choices": [
     {
@@ -83,12 +82,12 @@
      "src": "L31878"
     },
     {
-     "label": "Listen to Her Proposal",
+     "label": "Listen to (mother.His/Her) Proposal",
      "next": "c",
      "src": "L31881"
     },
     {
-     "label": "Respect Her Choice",
+     "label": "Respect (mother.His/Her) Choice",
      "next": "d",
      "src": "L31884"
     }
@@ -152,7 +151,7 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "Her practical idea changes the plan.",
+   "text": "(mother.His/Her) practical idea changes the plan.",
    "src": "L31882"
   },
   "c2": {
@@ -174,12 +173,12 @@
   },
   "d1": {
    "name": "Outcome D1",
-   "text": "She stays for the whole discussion.",
+   "text": "(mother.He/She) stays for the whole discussion.",
    "src": "L31885"
   },
   "d2": {
    "name": "Outcome D2",
-   "text": "She leaves early without losing her voice in the decision.",
+   "text": "(mother.He/She) leaves early without losing (mother.his/her) voice in the decision.",
    "src": "L31886"
   }
  }

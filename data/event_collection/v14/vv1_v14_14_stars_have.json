@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Stars Have Names",
    "src": "L7746-7749",
-   "text": "The Golden Child lies on his back and points out how stars shift through the seasons. He identifies a faint wandering light that the adults had mistaken for an ordinary star. The researchers begin observing it, while the boy invents a funny name for it.",
+   "text": "The Golden Child lies on (child.his/her) back and points out how stars shift through the seasons. (child.He/She) identifies a faint wandering light that the adults had mistaken for an ordinary star. The researchers begin observing it, while the (child.boy/girl) invents a funny name for it.",
    "effects": [
     {
      "do": "tech",

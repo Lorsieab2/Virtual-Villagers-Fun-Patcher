@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Little Inventor's Disaster",
    "src": "L7803-7806",
-   "text": "The Golden Child unveils a contraption of vines, shells, reeds and balanced stones. It works for three glorious seconds and collapses into a heap. He studies the wreckage and announces, 'I think I know what went wrong!' The builders groan as he starts again.",
+   "text": "The Golden Child unveils a contraption of vines, shells, reeds and balanced stones. It works for three glorious seconds and collapses into a heap. (child.He/She) studies the wreckage and announces, 'I think I know what went wrong!' The builders groan as (child.he/she) starts again.",
    "effects": [
     {
      "do": "tech",

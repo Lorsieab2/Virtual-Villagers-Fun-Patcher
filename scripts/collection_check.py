@@ -302,7 +302,16 @@ def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = No
         elif kind == "esc":
             parts.append(re.escape(s))
         elif kind == "ph":
-            parts.append(PH_RE)
+            # a pronoun or role-sex word placeholder may also stand for either of its own words written bare in the
+            # source ("(child.he/she)" for "he"): its male form is the source's word (the owner, 2026-11-16: the
+            # Golden Child's and a carrier's words follow the villager)
+            pair = s.rsplit(".", 1)[-1]
+            if pair.lower() in PRONOUN_WORDS:
+                bare = [rf"(?<![A-Za-z])[{w[0].upper()}{w[0].lower()}]{re.escape(w[1:])}(?![A-Za-z])"
+                        for w in pair.split("/")]
+                parts.append("(?:" + PH_RE + "|" + "|".join(bare) + ")")
+            else:
+                parts.append(PH_RE)
         elif kind == "brace":
             if s.lower() == "@tribe":
                 # G5: the built-in tribe or village name stands for one source parenthesis group ("(tribe name)")
@@ -554,10 +563,15 @@ def ledger_maps(doc: dict, rep: Report):
     return cuts, whole, fixes
 
 
+_PAIR_WORDS = sorted({w for p in PRONOUN_WORDS for w in p.split("/")}, key=len, reverse=True)
+
+
 def _ph_blind(text: str) -> str:
     """A label with each placeholder emptied: a token stands for its source group ("(friend.he/she)" for
-    "(he/she)"), so only the words around it are compared for title case."""
-    return re.sub(r"\([^()]*\)", "()", text)
+    "(he/she)") or for one of its own words written bare ("her"), so only the words around it are compared for title
+    case."""
+    text = re.sub(r"\([^()]*\)", "()", text)
+    return re.sub(r"(?<![A-Za-z])(?:" + "|".join(_PAIR_WORDS) + r")(?![A-Za-z])", "()", text, flags=re.I)
 
 
 def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> None:
@@ -816,7 +830,9 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
         if rid not in roles or roles[rid].get("kind", "villager") != "villager":
             rep.add("d TOKENS", f"cast_only {rid!r} is not a villager role")
     for rid in roles:
-        if rid not in used_roles and not roles[rid].get("special") and rid not in cast_only:
+        # a special villager's role, or one that prefers one (cie-v6-binary.md 35: the chief's title words name it)
+        if rid not in used_roles and not roles[rid].get("special") and not roles[rid].get("prefer") \
+                and rid not in cast_only:
             rep.add("d TOKENS", f"role {rid} is declared but never used")
     # bank sizes against the manifest
     if row is not None:

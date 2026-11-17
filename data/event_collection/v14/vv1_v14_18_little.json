@@ -42,7 +42,7 @@
   "scene": {
    "name": "The Little Architect",
    "src": "L7773-7776",
-   "text": "The Golden Child builds a miniature village from mud and twigs. A master builder notices drainage channels, strong foundations and paths wide enough for carrying baskets. The boy is busy making tiny beds for his imaginary residents.",
+   "text": "The Golden Child builds a miniature village from mud and twigs. A master builder notices drainage channels, strong foundations and paths wide enough for carrying baskets. The (child.boy/girl) is busy making tiny beds for (child.his/her) imaginary residents.",
    "effects": [
     {
      "do": "tech",

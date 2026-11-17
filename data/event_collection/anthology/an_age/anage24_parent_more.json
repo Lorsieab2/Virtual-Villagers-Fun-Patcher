@@ -61,7 +61,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "caregiver": {
@@ -74,16 +73,16 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(mother), a nursing mother, misses the music, research, and friendships that mattered to her before her baby arrived.",
+   "text": "(mother), a nursing (mother.mother/father), misses the music, research, and friendships that mattered to (mother.him/her) before (mother.his/her) baby arrived.",
    "src": "L30495",
    "choices": [
     {
-     "label": "Make Space for Her Favorite Hobby",
+     "label": "Make Space for (mother.His/Her) Favorite Hobby",
      "next": "a",
      "src": "L30496"
     },
     {
-     "label": "Invite Her into a Research Discussion",
+     "label": "Invite (mother.Him/Her) into a Research Discussion",
      "next": "b",
      "src": "L30499"
     },
@@ -93,7 +92,7 @@
      "src": "L30502"
     },
     {
-     "label": "Ask How She Wants to Be Known",
+     "label": "Ask How (mother.He/She) Wants to Be Known",
      "next": "d",
      "src": "L30505"
     }
@@ -113,12 +112,12 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "She joins a brief evening song circle and feels like herself again.",
+   "text": "(mother.He/She) joins a brief evening song circle and feels like (mother.himself/herself) again.",
    "src": "L30497"
   },
   "a2": {
    "name": "Outcome A2",
-   "text": "She discovers her tastes have changed and tries something new.",
+   "text": "(mother.He/She) discovers (mother.his/her) tastes have changed and tries something new.",
    "src": "L30498"
   },
   "b": {
@@ -135,12 +134,12 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "She contributes an observation that advances the group's question.",
+   "text": "(mother.He/She) contributes an observation that advances the group's question.",
    "src": "L30500"
   },
   "b2": {
    "name": "Outcome B2",
-   "text": "She enjoys listening without needing to prove anything.",
+   "text": "(mother.He/She) enjoys listening without needing to prove anything.",
    "src": "L30501"
   },
   "c": {
@@ -157,12 +156,12 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "(caregiver), a trusted caregiver, gives her a little uninterrupted time.",
+   "text": "(caregiver), a trusted caregiver, gives (mother.him/her) a little uninterrupted time.",
    "src": "L30503"
   },
   "c2": {
    "name": "Outcome C2",
-   "text": "She chooses to keep her baby nearby and still participates.",
+   "text": "(mother.He/She) chooses to keep (mother.his/her) baby nearby and still participates.",
    "src": "L30504"
   },
   "d": {
@@ -179,12 +178,12 @@
   },
   "d1": {
    "name": "Outcome D1",
-   "text": "Friends remember to ask about her work as well as her baby.",
+   "text": "Friends remember to ask about (mother.his/her) work as well as (mother.his/her) baby.",
    "src": "L30506"
   },
   "d2": {
    "name": "Outcome D2",
-   "text": "She says parenthood is central to her right now, and they respect that too.",
+   "text": "(mother.He/She) says parenthood is central to (mother.him/her) right now, and they respect that too.",
    "src": "L30507"
   }
  }

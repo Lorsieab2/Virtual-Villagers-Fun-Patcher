@@ -41,7 +41,7 @@
   "scene": {
    "name": "The Golden Child's First Debate",
    "src": "L7766-7769",
-   "text": "A researcher asks why anyone should study what they do not understand. The Golden Child replies, 'If we only learned things we already knew, we would never learn anything new.' The researcher laughs and invites him to the next discussion. The boy asks whether there will be snacks.",
+   "text": "A researcher asks why anyone should study what they do not understand. The Golden Child replies, 'If we only learned things we already knew, we would never learn anything new.' The researcher laughs and invites (child.him/her) to the next discussion. The (child.boy/girl) asks whether there will be snacks.",
    "effects": [
     {
      "do": "tech",
