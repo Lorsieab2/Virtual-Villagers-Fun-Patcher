@@ -704,11 +704,15 @@ class ExportRoundTrip(unittest.TestCase):
                 "nodes": {"ask": {"type": "question",
                                   "text": "(subject) meets (friend), (lost), (gone) and (away) at the shore.",
                                   "choices": [{"label": "Talk", "next": "out"}, {"label": "Leave", "next": "out"}]},
-                          "out": {"type": "popup", "text": "Something changes.", "effects": effects,
+                          "out": {"type": "popup", "text": "Something changes.\n\nIt stays changed.", "effects": effects,
                                   "children": []}}}
 
-    def test_every_effect_round_trips_or_is_kept_as_flavor(self):
-        g = self.graph(copy.deepcopy(self.EXACT + self.FLAVOR))
+    def test_every_effect_round_trips_or_the_export_is_refused(self):
+        for e in self.FLAVOR:
+            with self.subTest(effect=e), self.assertRaises(ValueError) as refused:
+                pe.pieces_file_text(self.graph(copy.deepcopy(self.EXACT + [e])))
+            self.assertIn("no exact plain words", str(refused.exception))
+        g = self.graph(copy.deepcopy(self.EXACT))
         norm, _ = cie.normalize(copy.deepcopy(g), pe._shared_pools())
         want = [pe._piece_signature(e if e.get("role") or "target" in e or e["do"] in (
             "food", "tech", "pay_award", "damage", "repair", "celebrate", "new_villager") else dict(e, role="subject"))
@@ -717,7 +721,7 @@ class ExportRoundTrip(unittest.TestCase):
         items = pe.parse_text(text, "export.txt")
         self.assertFalse([str(p) for i in items for p in i.problems])
         outcomes = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]]
-        self.assertEqual(text.count("# kept as flavor"), len(self.FLAVOR) * len(outcomes), text)
+        self.assertNotIn("# kept as flavor", text)
         outcome = outcomes[0]
         got = [pe._piece_signature(e) for _ln, e in outcome.piece["effects"]]
         self.assertEqual(got, want[:len(self.EXACT)], "every exact effect, in its order, the same piece effect")
@@ -819,10 +823,9 @@ class ExportRoundTrip(unittest.TestCase):
              "nodes": {
                  "ask": {"type": "question", "text": "(subject) and (friend) meet (visitor.name) and (lost).",
                          "choices": [{"label": "Trade", "next": "p1"}, {"label": "Gamble", "next": "br"},
-                                     {"label": "Ask Around", "next": "q2"}]},
+                                     {"label": "Rest", "next": "p5"}]},
                  "p1": {"type": "popup", "text": "(visitor.name) trades.",
-                        "effects": [{"do": "food", "amount": 100, "scaled": True},
-                                    {"do": "skill", "role": "subject", "skills": ["Healing"], "min": 3, "max": 7}],
+                        "effects": [{"do": "food", "amount": 100, "scaled": True}],
                         "children": [{"next": "p2"}]},
                  "p2": {"type": "popup", "text": "The trade goes on.",
                         "effects": [{"do": "tech", "amount": 200, "scaled": True}], "children": [{"next": "p2b"}]},
@@ -836,12 +839,10 @@ class ExportRoundTrip(unittest.TestCase):
                                                                               "mood": "good"}]},
                  "p4": {"type": "popup", "text": "Luck fails.", "effects": [{"do": "kill", "role": "lost",
                                                                               "cause": "a fall"}]},
-                 "q2": {"type": "question", "text": "(friend) asks around.",
-                        "choices": [{"label": "Rest", "next": "p5"}, {"label": "Push On", "next": "p6"}]},
-                 "p5": {"type": "popup", "text": "(friend) rests.", "effects": [{"do": "sick", "role": "friend"},
-                                                                          {"do": "food", "size": "small", "scaled": True}]},
-                 "p6": {"type": "popup", "text": "(friend) pushes on.",
-                        "effects": [{"do": "celebrate", "who": "friend"}]}}}
+                 "p5": {"type": "popup", "text": "(friend) rests.\n\nThe day is quiet.",
+                        "effects": [{"do": "sick", "role": "friend"},
+                                    {"do": "food", "size": "small", "scaled": True},
+                                    {"do": "celebrate", "who": "friend"}]}}}
 
     @staticmethod
     def graph_paths(nodes, start):
@@ -889,12 +890,37 @@ class ExportRoundTrip(unittest.TestCase):
                 flavored += len(effects) - len(kept)
                 want.append(sorted(sig(e) for e in kept))
         self.assertEqual(got, sorted(want))
-        self.assertEqual(len(outcomes), 6, "Trade (one path of three pages), Gamble (3), Ask Around (2)")
-        self.assertEqual(text.count("# kept as flavor"), flavored)
-        self.assertEqual(flavored, 1, "the 3-7 skill range, on the Trade path")
+        self.assertEqual(len(outcomes), 5, "Trade (one path of three pages), Gamble (3), Rest (1)")
+        self.assertEqual(flavored, 0)
+        self.assertNotIn("# kept as flavor", text)
+        rest = next(o for o in outcomes if o.piece["links"][0][0].endswith("_a3")).piece
+        approach = next(i for i in items if i.piece["id"].endswith("_a3")).piece
+        self.assertEqual((approach["text"], rest["text"]), ("(friend) rests.", "The day is quiet."),
+                         "a one-page answer's text split between its approach and outcome, never shown twice")
         trade = next(o for o in outcomes if o.piece["links"][0][0].endswith("_a1"))
         self.assertEqual([e["do"] for _ln, e in trade.piece["effects"]], ["food", "tech", "mood"],
                          "the answer's own first page's food, then the later pages' effects")
+
+    def test_what_pieces_cannot_carry_is_refused_by_name(self):
+        # The export carries an event exactly or refuses it, naming the feature (Codex, #774): the event itself is
+        # never changed, and a player's own files keep the owner's "kept as flavor" rule.
+        cases = []
+        pooled = copy.deepcopy(self.MULTI)
+        pooled["pools"] = {"gift": {"items": ["a shell", "a feather"]}}
+        pooled["nodes"]["p1"]["text"] = "(visitor.name) trades {gift}."
+        cases.append((pooled, "uses a text pool or pick ({gift})"))
+        second = copy.deepcopy(self.MULTI)
+        second["nodes"]["p5"] = {"type": "question", "text": "(friend) asks around.",
+                                 "choices": [{"label": "Rest", "next": "p3"}, {"label": "Push On", "next": "p7"}]}
+        cases.append((second, "is a second question"))
+        flat = copy.deepcopy(self.MULTI)
+        flat["nodes"]["p5"]["text"] = "(friend) rests."
+        cases.append((flat, "has one page of one paragraph"))
+        for g, words in cases:
+            with self.subTest(words=words), self.assertRaises(ValueError) as refused:
+                pe.pieces_file_text(g)
+            self.assertIn(words, str(refused.exception))
+            self.assertIn("The event itself is unchanged", str(refused.exception))
 
     def test_every_outcomes_overall_chance_survives(self):
         # Nested random branches: each final outcome's overall chance (the product of its shares at every fork),
@@ -937,7 +963,7 @@ class ExportRoundTrip(unittest.TestCase):
              "nodes": {"ask": {"type": "question",
                                "text": "(subject), (wife), (healer) and (chief) meet (visitor.name).",
                                "choices": [{"label": "Greet", "next": "a"}, {"label": "Wait", "next": "a"}]},
-                       "a": {"type": "popup", "text": "They talk."}}}
+                       "a": {"type": "popup", "text": "They talk.\n\nThey part."}}}
         roles = cie.normalize(copy.deepcopy(g), pe._shared_pools())[0]["roles"]
         text = pe.pieces_file_text(g)
         self.assertNotIn("# role", text, "every requirement held")
@@ -1218,9 +1244,12 @@ class LibraryExport(unittest.TestCase):
         got, probs2 = cie.validate({k: v for k, v in it.graph.items()})
         self.assertEqual(probs, probs2)
         self.assertEqual(cie.compile_graph(got), cie.compile_graph(want))
-        pieces = pe.parse_text(pe.pieces_file_text(norm), "p.txt")
-        self.assertTrue(any(p.piece["kind"] == 1 for p in pieces))
-        self.assertTrue(any(p.piece["kind"] == 2 for p in pieces))
+        # Its variants and its roles' protections have no piece form: the export refuses, naming them (the event
+        # itself is unchanged), never writes something else.
+        with self.assertRaises(ValueError) as refused:
+            pe.pieces_file_text(norm)
+        self.assertIn("text variants", str(refused.exception))
+        self.assertIn("unchanged", str(refused.exception))
 
 
 class BuiltInEventsRoundTrip(unittest.TestCase):

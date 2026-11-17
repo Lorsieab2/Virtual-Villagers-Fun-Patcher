@@ -3418,6 +3418,7 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
     q = nodes[q_id]
     roles = norm.get("roles", {})
     speaks = set(norm.get("speaking_roles") or [])
+    refusals = _export_refusals(norm, q_id)
     out = ["# Mixer pieces written by the Custom Island Event Library from \"" + norm.get("title", "") + "\".",
            "# docs/player-events-format.md 6 explains every line.", ""]
     games = games_words(norm.get("games", [1, 2, 3, 4, 5]))
@@ -3456,25 +3457,79 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
     for k, c in enumerate(q["choices"], 1):
         aid = f"{stem}_a{k}"
         first = nodes.get(c["next"], {})
+        paths = _answer_paths(nodes, c["next"])
+        first_text = first.get("text") or c["label"]
+        single = all(len(path) == 1 for path, _p, _n in paths)
+        if single:
+            # One page: the composer shows the approach, then the outcome as the next paragraph, so the page's
+            # paragraphs are split between them -- never the whole page twice.
+            paras = [x for x in first_text.split("\n\n") if x.strip()]
+            if len(paras) < 2:
+                refusals.append(f"the answer \"{c['label']}\" has one page of one paragraph (an approach and an "
+                                "outcome each need their own text)")
+                paras = [first_text, first_text]
+            first_text, single_rest = paras[0], "\n\n".join(paras[1:])
         out += [f"Piece: {aid}", "Kind: Approach", f"Family: {family}", f"Applies to: {games}",
                 f"Label: {to_title_case(cie.title_case(c['label']))}"] + role_lines() + \
-            _text_piece_lines(first.get("text") or c["label"]) + [""]
+            _text_piece_lines(first_text) + [""]
         # Every path an answer can take, page by page to its end: through a random branch (its weights), a later
         # question (each of its answers) and a page that leads on.  Its outcome holds ALL the effects of its pages,
         # the answer's own first page included, in order, and the text of the pages after that first one.
-        paths = _answer_paths(nodes, c["next"])
         weights = _link_weights([p for _path, p, _notes in paths])
         if [Fraction(w, sum(weights)) for w in weights] != [p for _path, p, _notes in paths]:
             out.append(f"# {aid}: its outcomes' chances are rounded to whole link weights (at most 1000)")
         for j, ((path, _p, notes), w) in enumerate(zip(paths, weights), 1):
-            later = path[1:] or path
-            text = "\n\n".join(nodes[nid].get("text", "") for nid in later if nodes[nid].get("text"))
+            later = path[1:]
+            text = single_rest if single else \
+                "\n\n".join(nodes[nid].get("text", "") for nid in later if nodes[nid].get("text"))
             effects = [e for nid in path for e in nodes[nid].get("effects", [])]
             out += [f"Piece: {aid}_o{j}", "Kind: Outcome", f"Applies to: {games}",
                     f"Answers: {aid} ({w})"] + role_lines() + _text_piece_lines(text) + \
                 effect_lines(effects) + [f"# {n}" for n in notes] + [""]
     out[3:3] = role_notes + ([""] if role_notes else [])
+    # Export only what the pieces carry exactly (the event itself is never changed): anything kept as flavor, a
+    # role requirement, a rounded chance or a path note is a refusal naming it.
+    for line in out:
+        if line.startswith("# kept as flavor"):
+            refusals.append("an effect has no exact plain words: " + line.split(": ", 1)[1])
+        elif line.startswith("# role "):
+            refusals.append(line[2:])
+        elif line.startswith("# ") and ("chances are rounded" in line or "becomes a draw" in line
+                                        or "condition is not kept" in line):
+            refusals.append(line[2:])
+    if refusals:
+        raise ValueError("it cannot be exported as mixer pieces exactly -- " + "; ".join(dict.fromkeys(refusals))
+                         + ". The event itself is unchanged.")
     return "\n".join(out) + "\n"
+
+
+def _export_refusals(norm: dict, q_id: str) -> list[str]:
+    """What an event uses that mixer pieces cannot carry exactly (pieces_file_text refuses to export it)."""
+    out: list[str] = []
+    nodes = norm.get("nodes", {})
+    texts = [(nid, n.get("text") or "") for nid, n in nodes.items()] + \
+        [(nid, ch.get("label") or "") for nid, n in nodes.items() for ch in n.get("choices") or []]
+    for nid, text in texts:
+        m = re.search(r"\{(?!#)([^}]*)\}", text)
+        if m:
+            out.append(f"page {nid} uses a text pool or pick ({{{m.group(1)}}})")
+    for nid, n in nodes.items():
+        if n.get("variants"):
+            out.append(f"page {nid} has text variants")
+        if n.get("title"):
+            out.append(f"page {nid} has a title of its own")
+        if any(ch.get("if") is not None for ch in n.get("choices") or []):
+            out.append(f"page {nid} has an answer with a condition")
+        if nid != q_id and n.get("type") == "question":
+            out.append(f"page {nid} is a second question (a piece answers only the first)")
+    req = norm.get("requirement") or {}
+    if req.get("if") is not None:
+        out.append("the event has a condition on when it can happen")
+    for key, words in (("title_variants", "title variants"), ("include_pools", "shared text pools"),
+                       ("pools", "text pools")):
+        if norm.get(key):
+            out.append(f"the event uses {words}")
+    return out
 
 
 _PATHS_MAX = 64
