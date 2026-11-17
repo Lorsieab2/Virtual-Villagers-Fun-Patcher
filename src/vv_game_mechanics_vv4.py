@@ -134,10 +134,11 @@ CANT_EAT_LINE = (
 FIX_VANILLA = "vv4_fix_vanilla_bugs"
 EFFECTS_FIX_LINE = (
     "saving no longer ends a villager's effects, so each lasts its full time: the clean body and the Purify Tree's "
-    "glow their 4 minutes, the sticky gunk its 3 and a stew's wait its 10 (the save is written exactly as before), "
+    "glow their 4 real-life minutes, the sticky gunk its 3 and a stew's wait its 10 (real time, the same at every "
+    "speed; the save is written exactly as before), "
     "and a bath in the rain makes a villager clean as it does in fine weather")
 STEW_WAIT_FIX_LINE = ("saving no longer ends a villager's stew effects, so the healing and sick stews' wait lasts its "
-                      "full 10 minutes")
+                      "full 10 real-life minutes (real time, the same at every speed)")
 # The soapy pond: "Adding soap to the pond" (action 0x96, 0x43A430) ends with step 0x2E (0x4698D0, 0x43A4CD) turning
 # world state 0x1A on through 0x46D530, whose table gives 0x1A 60 seconds of the game clock 0x4D6F18 (0x46D54E);
 # 0x46D7F0 turns it off when the game clock reaches that.  Nothing else sets or clears 0x1A.  A villager dropped on

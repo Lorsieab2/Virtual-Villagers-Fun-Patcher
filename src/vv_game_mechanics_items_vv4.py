@@ -289,7 +289,7 @@ def _puzzles() -> list[Entry]:
             "of the game's clock."),
             VERIFIED_E,
             (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),
-             (patch(FIX_VANILLA) + ": saving no longer ends them, so each lasts its full 4 minutes; a bath in the "
+             (patch(FIX_VANILLA) + ": saving no longer ends them, so each lasts its full 4 real-life minutes; a bath in the "
               "rain makes the villager clean as in fine weather; and the pond stays soapy for 4 minutes of the game's "
               "clock.", VERIFIED_E))),
         Entry(PUZZLE, "Decorating the Tree", (
@@ -422,7 +422,7 @@ def _items() -> list[Entry]:
             "can't eat more stew so soon.\" It lasts until that effect ends (real time, the same at every speed: 10 real-life minutes for the healing "
             "and soapy stews), for that villager and that stew only. The save does not keep it; in the base game "
             "saving (the 10-minute autosave too) also ends every villager's stew effects at once."), VERIFIED_E,
-            ((patch(FIX_VANILLA) + ": saving no longer ends them, so the wait lasts its full 10 minutes.",
+            ((patch(FIX_VANILLA) + ": saving no longer ends them, so the wait lasts its full 10 real-life minutes (real time, the same at every speed).",
               VERIFIED_E),)),
     ]
     out += [Entry(ITEM, name, f"{recipe}: {does}.", ok) for name, recipe, does, ok in STEWS]
