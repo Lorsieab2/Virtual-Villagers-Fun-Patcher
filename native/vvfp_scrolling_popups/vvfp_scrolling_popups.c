@@ -564,6 +564,36 @@ typedef void (__fastcall *sp_text_draw_fn)(void *holder, void *edx, const char *
 static void sp_draw_fitted(void *holder, int *clip, const int *old, const struct sp_picture *p, int frame, int x,
                            int y, int w, int h, int capx, int capy);
 static int g_rows_top[OP_MAX_ROWS], g_rows_hgt[OP_MAX_ROWS], g_rows_lines[OP_MAX_ROWS];
+static void sp_clip_to(int *clip, const int *old, int l, int t, int r, int b);
+
+/* A row's picture made `h` tall (its whole width at x): its top and bottom `cap` pixels kept, its middle repeated
+   as often as the height needs (never a fixed count of pieces: a label of thousands of characters makes a row
+   thousands of pixels tall), each piece only where it shows inside `box`. */
+static void sp_draw_tall(void *holder, int *clip, const int *box, const struct sp_picture *p, int frame, int x, int y,
+                         int h, int cap) {
+    int step = p->th - 2 * cap, m, bottom = y + h - cap;
+    if (cap <= 0 || step <= 0 || h <= 2 * cap) {
+        sp_draw_fitted(holder, clip, box, p, frame, x, y, p->tw, h, 0, cap);
+        return;
+    }
+    if (y + cap > box[1] && y < box[3]) {
+        sp_clip_to(clip, box, x, y, x + p->tw, y + cap);
+        sp_frame_at(holder, p, x - p->tx, y - p->ty, frame);                  /* the top */
+    }
+    for (m = y + cap; m < bottom; m += step) {
+        int hi = m + step < bottom ? m + step : bottom;
+        if (hi <= box[1] || m >= box[3]) {
+            continue;                                                          /* not in sight */
+        }
+        sp_clip_to(clip, box, x, m, x + p->tw, hi);
+        sp_frame_at(holder, p, x - p->tx, m - cap - p->ty, frame);            /* the middle, again */
+    }
+    if (y + h > box[1] && bottom < box[3]) {
+        sp_clip_to(clip, box, x, bottom, x + p->tw, y + h);
+        sp_frame_at(holder, p, x - p->tx, y + h - p->th - p->ty, frame);      /* the bottom */
+    }
+    clip[0] = box[0]; clip[1] = box[1]; clip[2] = box[2]; clip[3] = box[3];
+}
 
 /* One line of a label, centred on its row (sp_wrap's callback). */
 typedef struct sp_label_line {
@@ -606,7 +636,7 @@ static void sp_draw_rows(void *holder, int x, int y0, int cw) {
         if (rh == g_row.h) {
             sp_frame_at(holder, &g_row, rx, ry, frame);
         } else {
-            sp_draw_fitted(holder, clip, box, &g_row, frame, rx, ry, g_row.w, rh, 0, g_row.h / 3);
+            sp_draw_tall(holder, clip, box, &g_row, frame, rx, ry, rh, g_row.h / 3);
         }
         line.holder = holder;
         line.rx = rx;

@@ -201,6 +201,8 @@ POPUP_TEXT_MAX = 1990         # a popup's text, bytes (the later games build the
 # texts are longer than them where the popups do not scroll: story_graph.inc cg_refusal).
 LONG_TEXT_MAX = 100000        # a node's text and a popup's text, bytes, with scrolling
 LONG_LINE_BYTES = 4095        # a title or a label, bytes, with scrolling (CE_LONG_LINE_BYTES 4096, NUL included)
+MAX_FILE_BYTES = 0x1000000    # a compiled .cieg the game reads (story_graph.inc CG_MAX_FILE, 16 MiB)
+DISPLAY_BYTES = 0x100000      # every popup's words of one run, the engine keeps them (story_graph.inc CG_DISPLAY_BYTES)
 _SCROLL_CAPS: "contextvars.ContextVar[bool]" = contextvars.ContextVar("vv_cie_scroll_caps", default=False)
 
 
@@ -3358,6 +3360,14 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     done: set[tuple] = set()
     for p in paths:
         game = GAMES[p.ctx.game]
+        total = sum(len(pop.worst.encode("ascii", "replace")) + 1
+                    for pop in (one_popup(p.popups) if scrolling else p.popups))
+        if total > DISPLAY_BYTES:
+            nodes = "+".join(n for pop in p.popups for n in pop.nodes)
+            why = (f"{game.name}: the popups of one run ({nodes[:120]}) hold {total:,} bytes with the longest names; "
+                   f"the game keeps at most {DISPLAY_BYTES:,} for one event")
+            if why not in problems:
+                problems.append(why)
         for pop in (one_popup(p.popups) if scrolling else p.popups):
             key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
@@ -3645,6 +3655,12 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
     for ctx in contexts(g):
         paths = walk(g, ctx, problems)
         problems.extend(x for x in fit_problems(g, paths, scrolling) if x not in problems)
+    if not problems:
+        # The file the game reads: at most MAX_FILE_BYTES (the library's scan refuses a larger one).
+        size = len(compile_graph(g))
+        if size > MAX_FILE_BYTES:
+            problems.append(f"the event's file would be {size:,} bytes; the game reads at most {MAX_FILE_BYTES:,} "
+                            "(shorten some texts or split the event)")
     return g, problems
 
 

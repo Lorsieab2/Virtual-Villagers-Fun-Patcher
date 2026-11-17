@@ -325,6 +325,36 @@ class Unlimited(unittest.TestCase):
                 self.assertFalse(d.click(d.view_rows()["x"] + 5, last[0] + last[1] // 2))
                 self.assertEqual(d.picks, [3])
 
+    def test_b_a_very_tall_row_is_drawn_to_its_bottom(self):
+        """A label of thousands of characters makes a row hundreds of pixels tall: its picture is drawn over its
+        whole height (Codex on #776: a fixed count of pieces left all but its first ~286 pixels blank)."""
+        words = (b"Ask the elder of the eastern shore to carry the woven basket of fruit along the long path past "
+                 b"the singing stones and the old fishing nets ")
+        tall = (words * 20)[:2500].rsplit(b" ", 1)[0]
+        for game in NAMES:
+            with self.subTest(game=game):
+                d, _op = self.open(game, [b"Leave", tall], b"Well?", long=False)
+                blits = d.draw()
+                rows = d.view_rows()
+                first_top = d.row_list()[0][0]
+                picture = {b[0] for b in blits if (b[3][0], b[3][1]) == (rows["x"], first_top)}
+                self.assertTrue(picture, "the one-line row's picture")
+                blits = self.to_bottom(d)
+                v = d.view()
+                top, height, lines = d.row_list()[1]
+                self.assertGreater(height, 600, (height, lines))
+                bottom = top + height
+                self.assertLessEqual(bottom, v["box_y"] + v["box_h"], "scrolled to its bottom")
+                band = (max(top + 300, bottom - 140, v["box_y"]), bottom - 20)
+                self.assertLess(band[0], band[1])
+                pieces = [b for b in blits if b[0] in picture and b[3][0] == rows["x"]
+                          and band[0] - 40 <= b[3][1] < band[1]]
+                covered = set()
+                for b in pieces:
+                    covered.update(range(b[3][1], b[3][1] + b[1][3]))
+                self.assertTrue(all(y in covered for y in range(*band)),
+                                f"the picture behind every line of its lower part: {band} {sorted(covered)[:5]}")
+
 
 if __name__ == "__main__":
     unittest.main()

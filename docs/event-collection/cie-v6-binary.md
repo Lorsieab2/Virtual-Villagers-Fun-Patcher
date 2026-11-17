@@ -503,7 +503,7 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   Events log keeps ONE entry (a "Choice:" line for each answer). Island Events Seen counts the event once.
 - **Bytes (practically unlimited, the owner 2026-11-16).** A text may hold up to `CE_LONG_TEXT_MAX` = 100,000
   bytes at its widest (Python `LONG_TEXT_MAX`), a title or a choice's label up to 4,095 (`CE_LONG_LINE_BYTES` 4,096
-  with the NUL; Python `LONG_LINE_BYTES`) -- sanity caps sized to the file (`CG_MAX_FILE` 1 MiB). The dialog's own
+  with the NUL; Python `LONG_LINE_BYTES`) -- sanity caps sized to the file (`CG_MAX_FILE` 16 MiB, read into memory as large as the file; `validate` checks the compiled size, Python `MAX_FILE_BYTES`, and one run's words against `CG_DISPLAY_BYTES` 1 MiB, `DISPLAY_BYTES`). The dialog's own
   field holds 2,000 bytes in the later games and 9,999 in A New Home and The Lost Children: a longer text is put
   there as its start (`one_popup.h op_long_text_put`: a little short of the field, at a space) and Scrolling Popups
   draws the WHOLE text (`VvfpPopupWholeText`); a label longer than `op_rows.labels` holds is handed over whole

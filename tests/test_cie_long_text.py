@@ -109,6 +109,39 @@ class Validator(unittest.TestCase):
         _g, problems = cg.validate(g, scrolling=False)
         self.assertTrue(any("runs off the screen" in p or "at most" in p for p in problems), problems)
 
+    def test_the_file_and_the_runs_words_are_checked_against_what_the_game_holds(self):
+        """Codex on #776: a graph of many long texts could compile past the game's file cap and be refused by the
+        library's scan though the editor said valid; and one run's words must fit the engine's store."""
+        self.assertEqual(cg.MAX_FILE_BYTES, 0x1000000, "story_graph.inc CG_MAX_FILE")
+        g = pool_graph(12, 90000)
+        _g, problems = cg.validate(g, scrolling=True)
+        self.assertEqual(problems, [], "a 1 MB file passes: 16 MB is the cap")
+        size = len(cg.compile_graph(cg.load(g, scrolling=True)))
+        self.assertGreater(size, 0x100000)
+        keep = cg.MAX_FILE_BYTES
+        try:
+            cg.MAX_FILE_BYTES = size - 1
+            _g, problems = cg.validate(g, scrolling=True)
+            self.assertTrue(any("the game reads at most" in p for p in problems), problems)
+        finally:
+            cg.MAX_FILE_BYTES = keep
+        keep = cg.DISPLAY_BYTES
+        try:
+            cg.DISPLAY_BYTES = 40000
+            _g, problems = cg.validate(long_graph(30000, 2, 20, "Short"), scrolling=True)
+            self.assertTrue(any("the game keeps at most" in p for p in problems), problems)
+        finally:
+            cg.DISPLAY_BYTES = keep
+        self.assertEqual(cg.validate(long_graph(30000, 2, 20, "Short"), scrolling=True)[1], [])
+
+
+def pool_graph(items: int, chars: int) -> dict:
+    """One page drawing one of `items` texts of `chars` characters: a file of items x chars bytes, one run's words
+    one item's."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Many Tales", "games": [1, 2, 3, 4, 5], "roles": {},
+            "pools": {"Tale": {"items": [f"Tale {k + 1}: " + story(chars) for k in range(items)]}},
+            "start": "p", "nodes": {"p": {"text": "{Tale}"}}}
+
 
 @emulated
 class Engine(unittest.TestCase):
@@ -167,6 +200,25 @@ class Engine(unittest.TestCase):
                 _n_filed, _now, filed = r.log()
                 self.assertIn(label(300, 3)[-30:], " ".join(filed.split()),
                               "the log's Choice line holds the whole label")
+
+    def test_a_file_larger_than_a_megabyte_is_read_and_queued(self):
+        """CG_MAX_FILE 16 MiB: the run's graph is held in memory as large as the file (cg_grow)."""
+        data = cg.compile_graph(cg.load(pool_graph(12, 90000), scrolling=True))
+        self.assertGreater(len(data), 0x100000)
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            r = Run(game)
+            r.reset()
+            r.rolls([0] * 60)
+            r.p.export("VvfpStoryProbeGraphScroll", 1)
+            buf = r.p.alloc(len(data) + 16)
+            r.p.write(buf, data)
+            at = big(r.p, "VvfpStoryProbeGraphQueue", r.n, buf, len(data), 0)
+            self.assertEqual(at, 0, r.p.cstring(at) if at else "")
+            at = big(r.p, "VvfpStoryProbeGraphCheck", buf, len(data))
+            self.assertEqual(at, 0, r.p.cstring(at) if at else "")
+            break
 
     def test_without_scrolling_popups_the_event_is_refused_saying_why(self):
         data = cg.compile_graph(cg.load(long_graph(), scrolling=True))

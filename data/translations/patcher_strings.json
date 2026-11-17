@@ -70981,6 +70981,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_graph.cg_refusal.s13",
+   "english": "\"%s\" has text longer than this game's popups hold without the Scrolling Popups patch. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -70995,8 +71009,8 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_refusal.s13",
-   "english": "\"%s\" has text longer than this game's popups hold without the Scrolling Popups patch. Nothing has been queued.",
+   "stem": "vvfp.story/story_graph.cg_load.s44",
+   "english": "it is larger than this game can read (16 MB)",
    "games": [
     "vv1",
     "vv2",
@@ -71006,7 +71020,21 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_refusal.s0",
+   "english": "the event can not be read",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

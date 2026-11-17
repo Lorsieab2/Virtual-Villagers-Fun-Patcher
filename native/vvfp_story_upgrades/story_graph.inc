@@ -126,8 +126,9 @@
 #define CG_LABEL_V6 96                  /* a version 6 label, NUL included (95 bytes) */
 #define CG_V4_ANSWERS 4                 /* the answers a run file version 3 kept */
 #define CG_NONE 0xFFFFu
-#define CG_MAX_FILE 0x100000u               /* a .cieg (1 MiB): the sanity cap every text is sized to (story_custom.h
-                                              CE_LONG_TEXT_MAX) */
+#define CG_MAX_FILE 0x1000000u              /* a player's .cieg (16 MiB): the sanity cap; read into memory of its own,
+                                              as large as the file (cg_grow), never a buffer this size */
+#define CG_SHIPPED_FILE 0x100000u           /* the collection's and the procedural events' own graphs (1 MiB) */
 #define CG_MAX_ROLES 16
 #define CG_MAX_NODES 1000
 #define CG_MAX_PATH 128
@@ -1106,7 +1107,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     g->header_bytes = cg_u16(h + 6);
     g->role_bytes = g->version >= 6 ? 16u : 8u;
     if (size > CG_MAX_FILE) {
-        return cg_bad("it is larger than this game can read (128 KB)");
+        return cg_bad("it is larger than this game can read (16 MB)");
     }
     if (cg_crc32(data, size, 12) != cg_u32(h + 12)) {
         return cg_bad("the file is damaged (its checksum does not match)");
@@ -1655,7 +1656,33 @@ static char cg_labels[CG_MAX_ANSWERS][CE_LONG_LINE_BYTES];   /* the asked questi
 static const char *cg_label(int button) {
     return button >= 0 && button < CG_MAX_ANSWERS ? cg_labels[button] : "";
 }
-static unsigned char cg_bytes[CG_MAX_FILE];
+/* A buffer as large as a file needs (at most CG_MAX_FILE), grown in the process heap: NULL when it cannot be. */
+static unsigned char *cg_grow(unsigned char **buf, unsigned int *cap, unsigned int need) {
+    unsigned int n;
+    void *p;
+    if (need > CG_MAX_FILE) {
+        return NULL;
+    }
+    if (*buf != NULL && need <= *cap) {
+        return *buf;
+    }
+    n = need < 0x10000u ? 0x10000u : (need + 0xFFFFu) & ~0xFFFFu;
+    p = *buf != NULL ? HeapReAlloc(GetProcessHeap(), 0, *buf, n) : HeapAlloc(GetProcessHeap(), 0, n);
+    if (p == NULL) {
+        return NULL;
+    }
+    *buf = (unsigned char *)p;
+    *cap = n;
+    return *buf;
+}
+
+static unsigned char *cg_bytes;            /* the run's graph (cg_g.d points into it) */
+static unsigned int cg_bytes_cap;
+
+/* cg_bytes able to hold `size` bytes (cg_g is loaded again from it after every copy). */
+static int cg_bytes_room(unsigned int size) {
+    return cg_grow(&cg_bytes, &cg_bytes_cap, size) != NULL;
+}
 static unsigned int cg_bytes_size;
 
 /* The choices of question `node` (two before format version 4, two to four from it, two to seven from 6). */
@@ -8549,7 +8576,8 @@ typedef struct {
 } cg_file_head;
 
 static cg_file_head cg_head;
-static unsigned char cg_read_buf[CG_MAX_FILE];
+static unsigned char *cg_read_buf;
+static unsigned int cg_read_cap;
 static cg_state cg_read_state;
 
 /* The state's bytes a run file of the header's version holds: version 4 the whole state, version 3 everything before
@@ -8596,7 +8624,7 @@ static int cg_file_state_ok(void) {
 }
 
 #ifdef VVFP_TEST
-static unsigned char cg_test_file[sizeof(cg_file_head) + sizeof(cg_state) + CG_MAX_FILE];
+static unsigned char cg_test_file[sizeof(cg_file_head) + sizeof(cg_state) + CG_SHIPPED_FILE];
 static unsigned int cg_test_size;
 
 static int cg_file_read(int game, int slot) {
@@ -8609,7 +8637,9 @@ static int cg_file_read(int game, int slot) {
     memcpy(&cg_head, cg_test_file, sizeof cg_head);
     state = cg_file_state_bytes();
     memset(&cg_read_state, 0, sizeof cg_read_state);
-    if (state == 0u || cg_head.graph_bytes > CG_MAX_FILE || cg_test_size != sizeof cg_head + state + cg_head.graph_bytes) {
+    if (state == 0u || cg_head.graph_bytes > CG_SHIPPED_FILE
+        || cg_test_size != sizeof cg_head + state + cg_head.graph_bytes
+        || cg_grow(&cg_read_buf, &cg_read_cap, cg_head.graph_bytes ? cg_head.graph_bytes : 1u) == NULL) {
         return 0;
     }
     memcpy(&cg_read_state, cg_test_file + sizeof cg_head, state);
@@ -8621,6 +8651,9 @@ static int cg_file_read(int game, int slot) {
 static int cg_file_write(int game, int slot) {
     (void)game;
     (void)slot;
+    if (cg_bytes_size > CG_SHIPPED_FILE) {
+        return 0;
+    }
     memcpy(cg_test_file, &cg_head, sizeof cg_head);
     memcpy(cg_test_file + sizeof cg_head, &cg, sizeof cg);
     memcpy(cg_test_file + sizeof cg_head + sizeof cg, cg_bytes, cg_bytes_size);
@@ -8650,6 +8683,7 @@ static int cg_file_read(int game, int slot) {
     ok = ReadFile(h, &cg_head, sizeof cg_head, &got, NULL) && got == sizeof cg_head && cg_file_state_bytes() != 0u
         && ReadFile(h, &cg_read_state, cg_file_state_bytes(), &more, NULL) && more == cg_file_state_bytes()
         && cg_head.graph_bytes <= CG_MAX_FILE
+        && cg_grow(&cg_read_buf, &cg_read_cap, cg_head.graph_bytes ? cg_head.graph_bytes : 1u) != NULL
         && ReadFile(h, cg_read_buf, cg_head.graph_bytes, &graph, NULL) && graph == cg_head.graph_bytes;
     CloseHandle(h);
     if (ok) {
@@ -8707,6 +8741,9 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
         return;
     }
     cg_file_upgrade(&cg_read_state);
+    if (!cg_bytes_room(cg_head.graph_bytes)) {
+        return;
+    }
     memcpy(cg_bytes, cg_read_buf, cg_head.graph_bytes);
     cg_bytes_size = cg_head.graph_bytes;
     cg_g = check;                      /* checked above: the same bytes, now in the run's own buffer */
@@ -8880,7 +8917,8 @@ static int cg_lib_room(void) {
 }
 
 static cg_graph cg_lib_graph;
-static unsigned char cg_lib_bytes[CG_MAX_FILE];
+static unsigned char *cg_lib_bytes;
+static unsigned int cg_lib_cap;
 
 static int cg_read_whole(const char *path, unsigned char *buf, unsigned int cap, unsigned int *size) {
     HANDLE h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -8891,6 +8929,22 @@ static int cg_read_whole(const char *path, unsigned char *buf, unsigned int cap,
     }
     length = GetFileSize(h, &high);
     ok = high == 0 && length != INVALID_FILE_SIZE && length <= cap && ReadFile(h, buf, length, &got, NULL) && got == length;
+    CloseHandle(h);
+    *size = got;
+    return ok;
+}
+
+/* A file read whole into *buf, grown to its size (at most CG_MAX_FILE). */
+static int cg_read_grow(const char *path, unsigned char **buf, unsigned int *cap, unsigned int *size) {
+    HANDLE h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD got = 0, high = 0, length;
+    BOOL ok;
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    length = GetFileSize(h, &high);
+    ok = high == 0 && length != INVALID_FILE_SIZE && length <= CG_MAX_FILE
+         && cg_grow(buf, cap, length ? length : 1u) != NULL && ReadFile(h, *buf, length, &got, NULL) && got == length;
     CloseHandle(h);
     *size = got;
     return ok;
@@ -8954,7 +9008,7 @@ static void cg_library_scan(int game) {
             cg_library_note(found.cFileName, "its .json is newer: save it again in the patcher");
             continue;
         }
-        if (!cg_read_whole(path, cg_lib_bytes, sizeof cg_lib_bytes, &size) || !cg_load(&cg_lib_graph, cg_lib_bytes, size)) {
+        if (!cg_read_grow(path, &cg_lib_bytes, &cg_lib_cap, &size) || !cg_load(&cg_lib_graph, cg_lib_bytes, size)) {
             cg_library_note(found.cFileName, cg_why[0] != '\0' ? cg_why : "it cannot be read");
             cg_why[0] = '\0';
             continue;
@@ -9048,7 +9102,7 @@ static int cg_library_purchase(int game, HWND owner) {
             ui_message(owner, prompt);
             return 0;
         }
-    } else if (!cg_read_whole(cg_lib.path[cg_lib.chosen], cg_bytes, sizeof cg_bytes, &size)
+    } else if (!cg_read_grow(cg_lib.path[cg_lib.chosen], &cg_bytes, &cg_bytes_cap, &size)
         || !cg_load(&cg_g, cg_bytes, size)) {
         wsprintfA(prompt, "That event can not be used: %s. Nothing has been queued.", cg_why);
         ui_message(owner, prompt);
@@ -9120,6 +9174,10 @@ static int cg_queue_origin(int game, const unsigned char *file, unsigned size, i
         return 0;
     }
     if (file != cg_bytes) {
+        if (!cg_bytes_room(size)) {
+            lstrcpynA(cg_queue_why, "The event file can not be read.", sizeof cg_queue_why);
+            return 0;
+        }
         memcpy(cg_bytes, file, size);
     }
     cg_bytes_size = size;
@@ -9168,6 +9226,9 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
         return "too large";
     }
     install_state[game] = 1;
+    if (!cg_bytes_room(size)) {
+        return "too large";
+    }
     memcpy(cg_bytes, data, size);
     cg_bytes_size = size;
     if (!cg_load(&cg_g, cg_bytes, size)) {
@@ -9333,8 +9394,9 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFacts(int unicode, int s
 /* Read `data` as a .cieg: NULL when it passes, else why not. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphCheck(const unsigned char *data, unsigned int size) {
     static cg_graph g;
-    static unsigned char copy[CG_MAX_FILE];
-    if (size > CG_MAX_FILE) {
+    static unsigned char *copy;
+    static unsigned int copy_cap;
+    if (size > CG_MAX_FILE || cg_grow(&copy, &copy_cap, size ? size : 1u) == NULL) {
         return "too large";
     }
     memcpy(copy, data, size);
