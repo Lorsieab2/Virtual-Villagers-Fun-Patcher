@@ -529,6 +529,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     magic = next(flag for name, flag, _hours in PUZZLES if name == "The Magic Plant of Life")
     out.extend(death.facts(village, medicine=level[3], speed_value=speed_value, base=epoch,
                            magic_fruit=data[magic + 4] != 0))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 

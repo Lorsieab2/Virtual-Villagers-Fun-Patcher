@@ -782,6 +782,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     ctx_ref.append(ctx)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 

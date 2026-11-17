@@ -701,6 +701,73 @@ def feature_name(feature: str) -> str:
 _NAMES: dict[str, str] | None = None
 
 
+# The 0.1x-10x sliders (src/vv_fun_patcher.py RUNTIME_SLIDERS; the owner, 2026-11-17): where each one's line goes,
+# its row suffix, its number's file beside its companion, and what N does in plain words.
+SLIDER_LINES = (
+    ("Mushrooms", "_collectible_frequency", "VVFP Collectible Frequency.txt",
+     "mushrooms{collectibles} appear on their own {n} times as often as in the normal game: each of the game's "
+     "appearance rolls passes {n} times as often (every time, once that reaches it)"),
+    ("Food sources", "_food_gain", "VVFP Food Gain.txt",
+     "each food source gives {n} times its normal food (on average: the rest of a whole food is a chance); what the "
+     "source itself loses, island events, rewards and purchases are the game's own"),
+    ("Tech points and effects", "_tech_gain", "VVFP Tech Gain.txt",
+     "research brings {n} times its normal tech points (on average: the rest of a whole point is a chance), with "
+     "every research bonus counted first; island events, duplicate collectibles and rewards are the game's own"),
+    ("Tech points and effects", "_skill_success", "VVFP Skill Success.txt",
+     "each skill check at work passes {n} times as often as in the normal game (every time, once that reaches it); "
+     "what a pass gives is the game's own"),
+    ("Nursing and pregnancy", "_age_speed", "VVFP Age Speed.txt",
+     "villagers' age clock runs {n} times as fast: growing up, old age, pregnancy, nursing, eating, health and "
+     "sickness all come {n} times as soon in real time (the ages are the game's own); the countdowns on this page "
+     "count at the normal speed"),
+)
+
+
+def slider_number(village: "Village", file_name: str) -> int | float | None:
+    """The N a 0.1x-10x slider's file holds (beside its companion, in the patcher's folder next to the game's exe),
+    read as the companion reads it (native/shared/multiplier_choice.h): 0.1 to 10 in tenths, 1 with no number; an
+    int when whole; None when the exe is not known or the file cannot be read."""
+    exe = getattr(village, "exe", None)
+    if exe is None:
+        return None
+    try:
+        raw = (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / file_name).read_bytes()[:15]
+    except OSError:
+        return None
+    text = raw.decode("ascii", "replace").lstrip(" \t")
+    digits = ""
+    for ch in text:
+        if not ("0" <= ch <= "9"):
+            break
+        digits += ch
+    rest = text[len(digits):]
+    tenth = rest[1] if rest[:1] == "." and rest[1:2].isdigit() and rest[1:2].isascii() else ""
+    if not digits and not tenth:
+        return 1
+    tenths = max(1, min(100, int(digits[:6] or "0") * 10 + int(tenth or "0")))
+    return tenths // 10 if tenths % 10 == 0 else tenths / 10
+
+
+def slider_facts(village: "Village") -> list[Fact]:
+    """One line for each 0.1x-10x slider whose row is in the game: the number it is set to, then what it does."""
+    out = []
+    for group, suffix, file_name, words in SLIDER_LINES:
+        feature = f"vv{village.game}{suffix}"
+        if not village.has(feature):
+            continue
+        n = slider_number(village, file_name)
+        collectibles = "" if village.game == 1 else " and collectibles"
+        if n is None:
+            effect = (words.format(n="N", collectibles=collectibles)
+                      + ", N the number set on its slider (0.1 to 10)")
+        elif n == 1:
+            effect = "its slider is at 1, so the game is the normal game here"
+        else:
+            effect = words.format(n=n, collectibles=collectibles)
+        out.append(Fact(group, patch_words(village, feature, effect)))
+    return out
+
+
 def feature_ids(prefix: str) -> list[str]:
     """Every patch id the patcher knows that starts with `prefix` (for example "vv3_")."""
     feature_name("")

@@ -586,6 +586,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "The patcher's fruit-tree timers file is there but has no schedule for this save: the save's own "
             "refill times are shown, as the game uses them."), gm.SAVE))
     out.extend(_village(village, buf, epoch, clock, nature, sources))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 

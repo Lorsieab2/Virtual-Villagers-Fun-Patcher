@@ -472,6 +472,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(life.sections(_context(village, data, speed_value, regrow_at, event_at, dam, scared, allowance)))
     out.extend(death.facts(village, medicine=_i32(data, LEVELS + 8 * MEDICINE_LEVEL), speed_value=speed_value,
                            base=struct.unpack_from("<I", data, 4)[0]))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 
