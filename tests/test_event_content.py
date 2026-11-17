@@ -264,6 +264,69 @@ if rt is not None:
                     self.assertIsNone(run.queue(cg.compile_graph(talk)))
                     self.assertNotEqual(run.state()["records"][0], 1, "Bea is story-mute: never the one who speaks")
 
+        @staticmethod
+        def _talking(run):
+            prefs = cg.GAMES[run.n].preferences
+            return prefs.index("talking") if "talking" in prefs else None
+
+        def _talk(self):
+            talk = graph(SpeakingAndTraits.TALK, roles={"friend": {"kind": "villager"},
+                                                       "subject": {"kind": "villager"}},
+                         start="s")
+            talk, _plan = content.inject(talk, {}, {"speaks": ["friend"]})
+            return talk
+
+        def test_a_villager_who_dislikes_talking_never_takes_a_speaking_role(self):
+            """The owner (2026-11-17): "dislike talking if it exists = mute", however the villager came by it --
+            here a dislike set on the record, no trait file.  A New Home has no such word."""
+            talk = self._talk()
+            for game in GAMES:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    run = rt.Run(game)
+                    run.rolls([1] + [0] * 40)
+                    run.force([], graph=talk)
+                    self.assertIsNone(run.queue(cg.compile_graph(talk)))
+                    self.assertEqual(run.state()["records"][0], 1, "without the dislike Bea is the one who speaks")
+                    word = self._talking(run)
+                    run = rt.Run(game)
+                    L = run.v.L
+                    for k in range(L["slots"]):
+                        run.p.put32(run.v.record(1) + L["dislikes"] + 4 * k, 0xFFFFFFFF)
+                    run.p.put32(run.v.record(1) + L["dislikes"], 56 if word is None else word)
+                    run.rolls([1] + [0] * 40)
+                    run.force([], graph=talk)
+                    self.assertIsNone(run.queue(cg.compile_graph(talk)))
+                    if word is None:
+                        self.assertEqual(run.state()["records"][0], 1, "A New Home: no talking dislike, Bea speaks")
+                    else:
+                        self.assertEqual(word, 56)
+                        self.assertNotEqual(run.state()["records"][0], 1, "Bea dislikes talking: never the one who "
+                                                                          "speaks")
+
+        def test_the_quiet_hands_also_gives_the_talking_dislike(self):
+            quiet = graph({"s": {"text": "(Name) folds (his/her) hands and says nothing.", "children": []}})
+            quiet, _plan = content.inject(quiet, {}, {"traits": [{"role": "subject", "trait": "mute"}]})
+            for game in GAMES:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    run = rt.Run(game)
+                    before = run.v.prefs(1, "dislikes")
+                    run.rolls([1] + [0] * 40)
+                    run.force([], graph=quiet)
+                    self.assertIsNone(run.queue(cg.compile_graph(quiet)))
+                    run.play()
+                    self.assertEqual(run.state()["records"][0], 1, "Bea was cast")
+                    word = self._talking(run)
+                    after = run.v.prefs(1, "dislikes")
+                    if word is None:
+                        self.assertEqual(after, before, "A New Home has no talking dislike: the trait only")
+                    else:
+                        self.assertIn(word, after, "the mute villager now dislikes talking")
+                        self.assertNotIn(word, run.v.prefs(1, "likes"))
+
 
 if __name__ == "__main__":
     unittest.main()
