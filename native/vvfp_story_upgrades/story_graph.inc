@@ -4933,7 +4933,9 @@ static const char *cg_renames_fill(const char *text, int k) {
 
 /* 35: role `role`'s words are about to change on the display being made: the pages up to it keep the old ones. */
 static void cg_late_note(int role) {
-    if (role >= 0 && role < CG_MAX_ROLES) {
+    /* The FIRST change on a display keeps the words the page began with: a sex_change and then a presentation on
+       the same page must not overwrite them with the in-between value (Codex, #787). */
+    if (role >= 0 && role < CG_MAX_ROLES && cg_late_at[role] != cg_display_now + 1) {
         cg_late_was[role] = cg.female[role];
         cg_late_at[role] = cg_display_now + 1;
     }

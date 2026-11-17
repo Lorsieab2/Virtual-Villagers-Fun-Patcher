@@ -306,6 +306,23 @@ class Engine(unittest.TestCase):
                     self.assertRegex(pages[0], rf"\b{before}\b")
                     self.assertRegex(pages[1], rf"(?<![A-Za-z]){after}\b")
 
+    def test_two_word_changes_on_one_page_keep_its_first_words(self):
+        # A sex_change then a presentation on the same page: the page making them still reads with the words it
+        # began with, never the in-between ones (Codex, #787).
+        graph = copy.deepcopy(SEX_GRAPH)
+        graph["nodes"]["p"]["effects"].append({"do": "presentation", "role": "subject", "on": True})
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for sex, before in (("f", "she is glad"), ("m", "he is glad")):
+                with self.subTest(game=game, sex=sex):
+                    # Gender Presentation installed (the test build's stand-in), so the presentation effect applies
+                    r, pages = self.run_graph(game, [(0, sex, 30, "Ari", 0, False)], graph, [0] * 40,
+                                              lambda r: r.p.export("VvfpStoryProbeGraphPresentation", 1, 0, 0))
+                    self.assertGreaterEqual(r.p.export("VvfpStoryProbeGraphPresentation", -2, 0, 0), 1,
+                                            "the presentation effect ran")
+                    self.assertRegex(pages[0], rf"(?<![A-Za-z]){before}\b")
+
     def test_a_quit_before_the_save_reads_the_page_again_with_its_first_words(self):
         """Codex on #787: the page that changes the sex is shown, the player quits without saving; the run comes
         back at that page against the older save and reads it with the words it first had."""
