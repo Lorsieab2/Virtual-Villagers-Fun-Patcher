@@ -543,13 +543,13 @@ def plan_kept(folder: Path, slot: int, people: list[Block], current: dict, kind_
     blocks_of = getattr(current, "blocks", {})
     for identity, now in current.items():
         value = now.value(label)
-        if not value:
-            continue
         if len({b.value(label) for b in blocks_of.get(identity, [now])}) > 1:
             kind.notes.append(f"Two or more villagers named {identity[0]} (head {identity[1]}, body {identity[2]}) "
                               f"are on the latest Village Population page with a different \"{label}\" line, so "
                               "which one an older record of that name and looks is can not be told; nothing is "
                               "added to those records.")
+            continue
+        if not value:
             continue
         older = [b for b in people if _now_of(b, current, persons) == identity and b.date
                  and not is_population(b.path) and b.value(label) is None]

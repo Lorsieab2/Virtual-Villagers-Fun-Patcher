@@ -82,8 +82,7 @@ class WriteVillageRecord:
             self.calls.append((q.arg(0), q.arg(1), q.arg(2), q.arg(3), before, q.arg(5), q.arg(6)))
             return 1, 28
         p.stub(export, write)
-        self.hook(export)
-        for at in stubs.values():
+        for at in stubs.values():           # each stub hooked once (WriteVillageRecord's among them)
             self.hook(at)
 
     def hook(self, va):
