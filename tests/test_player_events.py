@@ -806,7 +806,10 @@ class ExportRoundTrip(unittest.TestCase):
                         "effects": [{"do": "tech", "amount": 200, "scaled": True}], "children": [{"next": "p2b"}]},
                  "p2b": {"type": "popup", "text": "It ends.", "effects": [{"do": "mood", "role": "friend",
                                                                             "mood": "good"}]},
-                 "br": {"type": "branch", "children": [{"next": "p3", "weight": 3}, {"next": "p4", "weight": 1}]},
+                 "br": {"type": "branch", "children": [{"next": "p3", "weight": 3}, {"next": "br2", "weight": 1}]},
+                 "br2": {"type": "branch", "children": [{"next": "p4", "weight": 1}, {"next": "p7", "weight": 2}]},
+                 "p7": {"type": "popup", "text": "Luck wavers.", "effects": [{"do": "mood", "role": "friend",
+                                                                                "mood": "bad"}]},
                  "p3": {"type": "popup", "text": "Luck holds.", "effects": [{"do": "mood", "role": "subject",
                                                                               "mood": "good"}]},
                  "p4": {"type": "popup", "text": "Luck fails.", "effects": [{"do": "kill", "role": "lost",
@@ -864,12 +867,69 @@ class ExportRoundTrip(unittest.TestCase):
                 flavored += len(effects) - len(kept)
                 want.append(sorted(sig(e) for e in kept))
         self.assertEqual(got, sorted(want))
-        self.assertEqual(len(outcomes), 5, "Trade (one path of three pages), Gamble (2), Ask Around (2)")
+        self.assertEqual(len(outcomes), 6, "Trade (one path of three pages), Gamble (3), Ask Around (2)")
         self.assertEqual(text.count("# kept as flavor"), flavored)
         self.assertEqual(flavored, 1, "the 3-7 skill range, on the Trade path")
         trade = next(o for o in outcomes if o.piece["links"][0][0].endswith("_a1"))
         self.assertEqual([e["do"] for _ln, e in trade.piece["effects"]], ["food", "tech", "mood"],
                          "the answer's own first page's food, then the later pages' effects")
+
+    def test_every_outcomes_overall_chance_survives(self):
+        # Nested random branches: each final outcome's overall chance (the product of its shares at every fork),
+        # computed here on its own, is its Answers weight's share among the approach's outcomes.
+        from fractions import Fraction
+        g = copy.deepcopy(self.MULTI)
+        nodes = cie.normalize(copy.deepcopy(g), pe._shared_pools())[0]["nodes"]
+        items = pe.parse_text(pe.pieces_file_text(g), "export.txt")
+        gamble = [i for i in items if i.piece["kind"] == pe.PIECE_KINDS["outcome"]
+                  and i.piece["links"][0][0].endswith("_a2")]
+
+        def chances(nid, share):
+            kids = nodes[nid].get("children") or []
+            if not kids:
+                return {nid: share}
+            total = sum(k.get("weight", 1) for k in kids)
+            out = {}
+            for k in kids:
+                out.update(chances(k["next"], share * Fraction(k.get("weight", 1), total)))
+            return out
+        want = chances("br", Fraction(1))
+        self.assertEqual(want, {"p3": Fraction(3, 4), "p4": Fraction(1, 12), "p7": Fraction(2, 12)})
+        total = sum(i.piece["links"][0][1] for i in gamble)
+        got = {}
+        for i in gamble:
+            end = next(nid for nid in want if nodes[nid]["text"] in i.piece["text"])
+            got[end] = Fraction(i.piece["links"][0][1], total)
+        self.assertEqual(got, want)
+
+    def test_every_roles_requirements_survive(self):
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "Roles", "games": [3],
+             "roles": {"subject": {"kind": "villager", "sex": "male", "min_age": 20, "max_age": 40},
+                       "chief": {"kind": "villager", "special": "tribal_chief", "protected": "allow"},
+                       "healer": {"kind": "villager", "min_age": 18, "optional": True,
+                                  "skill": {"names": ["Healing"], "min": 30, "pick": "highest"}},
+                       "wife": {"kind": "villager", "sex": "female", "min_age": 18,
+                                "relation": {"spouse_of": "subject"}},
+                       "visitor": {"kind": "stranger", "sex": "female", "named": True}},
+             "start": "ask",
+             "nodes": {"ask": {"type": "question",
+                               "text": "(subject), (wife), (healer) and (chief) meet (visitor.name).",
+                               "choices": [{"label": "Greet", "next": "a"}, {"label": "Wait", "next": "a"}]},
+                       "a": {"type": "popup", "text": "They talk."}}}
+        roles = cie.normalize(copy.deepcopy(g), pe._shared_pools())[0]["roles"]
+        text = pe.pieces_file_text(g)
+        self.assertNotIn("# role", text, "every requirement held")
+        for it in pe.parse_text(text, "export.txt"):
+            for rid, r in roles.items():
+                slot = it.piece["slots"][rid][0]
+                with self.subTest(piece=it.piece["id"], role=rid):
+                    for key, value in r.items():
+                        if key == "sex" and value in ("any", "random") and slot.get(key) in (None, "any", "random"):
+                            continue
+                        if (key, value) in (("optional", False), ("protected", "auto")) and slot.get(key) is None:
+                            continue                     # the defaults, which the words leave unwritten
+                        self.assertEqual(slot.get(key), value, key)
+        self.assertIn("tribal chief", text)
 
     def test_each_kind_alone(self):
         for e in self.EXACT:

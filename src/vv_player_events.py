@@ -24,6 +24,7 @@ the patcher's "Player Events" folder.
 from __future__ import annotations
 
 import copy
+import math
 import json
 import os
 import random
@@ -31,6 +32,7 @@ import re
 import shutil
 import struct
 import zlib
+from fractions import Fraction
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
@@ -3395,32 +3397,27 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
         raise ValueError("the event has no question to make approaches from")
     q = nodes[q_id]
     roles = norm.get("roles", {})
+    speaks = set(norm.get("speaking_roles") or [])
     out = ["# Mixer pieces written by the Custom Island Event Library from \"" + norm.get("title", "") + "\".",
            "# docs/player-events-format.md 6 explains every line.", ""]
     games = games_words(norm.get("games", [1, 2, 3, 4, 5]))
 
+    role_notes: list[str] = []
+
     def role_lines() -> list[str]:
+        # Every role with all its requirements in the plain role words (_role_words), each read back to the same
+        # requirements; one the words cannot hold is named in the file (role_notes), never changed silently.
         lines = []
         for rid, r in roles.items():
-            if r.get("kind") == "stranger":
-                # a stranger the text names or calls by a pronoun: the piece casts one too (plain_role)
-                words = ["named stranger" if r.get("named") else "stranger"]
-                if r.get("sex") in ("male", "female"):
-                    words.append(r["sex"])
-                lines.append(f"Role {rid}: {', '.join(words)}")
+            if r.get("kind") not in ("villager", "stranger"):
+                if f"# role {rid} not kept" not in "".join(role_notes):
+                    role_notes.append(f"# role {rid} not kept (a {r.get('kind')} role has no piece form): "
+                                      f"{json.dumps(r, sort_keys=True)}")
                 continue
-            if r.get("kind") != "villager":
-                continue
-            words = []
-            if r.get("sex") in ("male", "female"):
-                words.append(r["sex"])
-            if r.get("max_age"):
-                words.append(f"{r.get('min_age', 0)} to {r['max_age']}")
-            elif r.get("min_age") is not None:
-                words.append(f"{r['min_age']}+")
-            if r.get("optional"):
-                words.append("optional")
+            words, lost = _role_words(r, rid in speaks)
             lines.append(f"Role {rid}: {', '.join(words) or 'villager'}")
+            if lost and not any(n.startswith(f"# role {rid}:") for n in role_notes):
+                role_notes.append(f"# role {rid}: {', '.join(lost)} not kept in the plain role words")
         return lines
 
     def effect_lines(effects: list[dict]) -> list[str]:
@@ -3445,38 +3442,134 @@ def pieces_file_text(g: dict, family: str | None = None) -> str:
         # Every path an answer can take, page by page to its end: through a random branch (its weights), a later
         # question (each of its answers) and a page that leads on.  Its outcome holds ALL the effects of its pages,
         # the answer's own first page included, in order, and the text of the pages after that first one.
-        for j, (path, w) in enumerate(_answer_paths(nodes, c["next"]), 1):
+        paths = _answer_paths(nodes, c["next"])
+        weights = _link_weights([p for _path, p, _notes in paths])
+        if [Fraction(w, sum(weights)) for w in weights] != [p for _path, p, _notes in paths]:
+            out.append(f"# {aid}: its outcomes' chances are rounded to whole link weights (at most 1000)")
+        for j, ((path, _p, notes), w) in enumerate(zip(paths, weights), 1):
             later = path[1:] or path
             text = "\n\n".join(nodes[nid].get("text", "") for nid in later if nodes[nid].get("text"))
             effects = [e for nid in path for e in nodes[nid].get("effects", [])]
             out += [f"Piece: {aid}_o{j}", "Kind: Outcome", f"Applies to: {games}",
-                    f"Answers: {aid} ({min(1000, max(1, w))})"] + role_lines() + _text_piece_lines(text) + \
-                effect_lines(effects) + [""]
+                    f"Answers: {aid} ({w})"] + role_lines() + _text_piece_lines(text) + \
+                effect_lines(effects) + [f"# {n}" for n in notes] + [""]
+    out[3:3] = role_notes + ([""] if role_notes else [])
     return "\n".join(out) + "\n"
 
 
 _PATHS_MAX = 64
 
 
-def _answer_paths(nodes: dict, start: str) -> list[tuple[list[str], int]]:
-    """Every path from an answer's first page to an end, as (its node ids, its weight): a random branch forks by its
-    children's weights, a later question by each of its answers, a page with one way on goes on; a page already on
-    the path (a loop) ends it.  At most _PATHS_MAX paths."""
-    out: list[tuple[list[str], int]] = []
-    todo: list[tuple[list[str], int]] = [([start], 1)] if start in nodes else []
+def _answer_paths(nodes: dict, start: str) -> list[tuple[list[str], Fraction, list[str]]]:
+    """Every path from an answer's first page to an end, as (its node ids, its overall chance, notes): a random
+    branch forks by its children's weights (each child's share of its siblings'), a later question by each of its
+    answers (the player's choice becomes an equal draw: noted), a page with one way on goes on; a page already on
+    the path (a loop) ends it, and a condition on a way on is noted (pieces have none).  At most _PATHS_MAX paths."""
+    out: list[tuple[list[str], Fraction, list[str]]] = []
+    todo: list[tuple[list[str], Fraction, list[str]]] = [([start], Fraction(1), [])] if start in nodes else []
     while todo and len(out) < _PATHS_MAX:
-        path, w = todo.pop(0)
-        n = nodes[path[-1]]
-        nexts = [(ch.get("next"), ch.get("weight", 1) or 1) for ch in n.get("children") or []]
-        if n.get("type") == "question":                # a later question: each of its answers
-            nexts = [(ch.get("next"), 1) for ch in n.get("choices") or []]
-        nexts = [(x, wt) for x, wt in nexts if x in nodes and x not in path]
+        path, chance, notes = todo.pop(0)
+        nid = path[-1]
+        n = nodes[nid]
+        if n.get("type") == "question":
+            nexts = [(ch.get("next"), 1, None) for ch in n.get("choices") or []]
+        else:
+            nexts = [(ch.get("next"), ch.get("weight", 1) or 1, ch.get("if")) for ch in n.get("children") or []]
+        nexts = [x for x in nexts if x[0] in nodes and x[0] not in path]
         if not nexts:
-            out.append((path, w))
+            out.append((path, chance, notes))
             continue
-        for x, wt in nexts:
-            todo.append((path + [x], w * wt if len(nexts) > 1 else w))
+        total = sum(w for _x, w, _c in nexts)
+        for x, w, cond in nexts:
+            more = list(notes)
+            if n.get("type") == "question" and len(nexts) > 1:
+                more.append(f"{nid}: the player's answer becomes a draw among its {len(nexts)} answers")
+            if cond is not None:
+                more.append(f"{nid} -> {x}: its condition is not kept {json.dumps(cond, sort_keys=True)}")
+            todo.append((path + [x], chance * Fraction(w, total), more))
     return out
+
+
+def _link_weights(chances: list[Fraction]) -> list[int]:
+    """Whole link weights (1..1000) in the same ratio as the chances, exactly when that fits, else rounded."""
+    if not chances:
+        return []
+    lcm = 1
+    for c in chances:
+        lcm = lcm * c.denominator // math.gcd(lcm, c.denominator)
+    exact = [int(c * lcm) for c in chances]
+    g = 0
+    for x in exact:
+        g = math.gcd(g, x)
+    exact = [x // g for x in exact]
+    if max(exact) <= 1000:
+        return exact
+    top = max(chances)
+    return [max(1, round(1000 * c / top)) for c in chances]
+
+
+def _role_words(r: dict, speaks: bool = False) -> tuple[list[str], list[str]]:
+    """A role's plain role words (plain_role) and the requirements they could not hold (read back and compared)."""
+    words: list[str] = []
+    if r.get("kind") == "stranger":
+        if r.get("new_name_for"):
+            words.append(f"new name for {r['new_name_for']} {r.get('sex', 'same')} sex "
+                         f"{r.get('last_name', 'same')} last name")
+        else:
+            words.append("named stranger" if r.get("named") else "stranger")
+            if r.get("sex") in ("male", "female"):
+                words.append(r["sex"])
+    else:
+        if r.get("sex") in ("male", "female"):
+            words.append(r["sex"])
+        if r.get("max_age") is not None:
+            words.append(f"{r.get('min_age', 0)} to {r['max_age']}")
+        elif r.get("min_age") is not None:
+            words.append(f"{r['min_age']}+")
+        if r.get("optional"):
+            words.append("optional")
+        special = {"golden_child": "golden child", "tribal_chief": "tribal chief",
+                   "nursing_parent": "nursing parent"}.get(r.get("special") or "")
+        if special:
+            words.append(special)
+        if r.get("believers_only") is True:
+            words.append("believers only")
+        elif r.get("believers_only") is False:
+            words.append("any faith")
+        if r.get("protected") == "allow":
+            words.append("protected allowed")
+        elif r.get("protected") == "exclude":
+            words.append("never protected")
+        sk = r.get("skill")
+        if sk and len(sk.get("names") or []) == 1:
+            words.append(f"{'best at' if sk.get('pick') == 'highest' else 'skill'} {sk['names'][0].lower()}"
+                         + (f" {sk['min']}+" if sk.get("min", 1) > 1 else ""))
+        for rel, other in (r.get("relation") or {}).items():
+            back = {v: k for k, v in reversed(list(_RELATIONS.items()))}.get(rel)
+            if back:
+                words.append(f"{back} {other}")
+        gap = r.get("max_age_gap")
+        if gap:
+            words.append(f"within {gap['years']} years of {gap['role']}")
+    if speaks:
+        words.append("speaks")
+    back, _extras, problems = plain_role(", ".join(words))
+    lost = [] if not problems else ["(" + "; ".join(problems) + ")"]
+    keys = set(r) | set(back)
+    for k in sorted(keys):
+        a, b = r.get(k), back.get(k)
+        if k == "sex" and {a, b} <= {None, "any", "random"}:
+            continue
+        if k == "kind" or a == b:
+            continue
+        if k == "min_age" and a in (None, 0) and b in (None, 0):
+            continue
+        if (k, a, b) in (("optional", False, None), ("optional", None, False), ("protected", "auto", None),
+                         ("protected", None, "auto")):
+            continue                                   # the defaults, written or not
+        lost.append(f"{k} {json.dumps(a, sort_keys=True)}")
+    return words, lost
+
 
 
 def _text_piece_lines(text: str) -> list[str]:
