@@ -200,6 +200,7 @@ static int hl_slot_now(void) {
 #define HL_FILE_NAME "Gender Presentation - Save 0.dat"
 #define HL_FILE_SLOT_AT (sizeof "Gender Presentation - Save " - 1)
 #include "../vvfp_head_look/head_look_store.inc"
+#include "../shared/look_change_log.h"     /* a change written to the Births and Conceptions log */
 
 /* A special villager the choice never reaches: the Golden Child, The Secret City's Tribal Chief and stand-in, New
    Believers' story villagers (native/shared/sex_change.h, the same rule as a sex change). */
@@ -623,11 +624,23 @@ int __stdcall VvfpGenderPresentationGet(int game, const void *record) {
 }
 
 int __stdcall VvfpGenderPresentationSet(int game, const void *record, int on) {
+    int was;
     if (game != g_game || g_game == 0 || record == NULL || (on != 0 && on != 1)
         || gp_special((const unsigned char *)record)) {
         return 0;
     }
-    return hl_set((const unsigned char *)record, (hl_get((const unsigned char *)record) & ~GP_ON) | on);
+    was = hl_get((const unsigned char *)record);
+    if (!hl_set((const unsigned char *)record, (was & ~GP_ON) | on)) {
+        return 0;
+    }
+    if (((was & GP_ON) != 0) != (on != 0)) {
+        /* The change in the Births and Conceptions log (native/shared/look_change_log.h), whoever made it: Change
+           Appearance's checkbox or the Custom Island Event's presentation effect (the owner, 2026-11-17). */
+        (void)vv_look_log(game, (const unsigned char *)record, VV_LOOK_LOG_PRESENTATION,
+                          was & GP_ON ? VV_LOOK_LOG_PRESENTATION_OTHER : VV_LOOK_LOG_PRESENTATION_OWN,
+                          on ? VV_LOOK_LOG_PRESENTATION_OTHER : VV_LOOK_LOG_PRESENTATION_OWN);
+    }
+    return 1;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

@@ -61,9 +61,26 @@ int main(void) {
         /* The change's own record: the four look lines, then the sex lines. */
         note_appearance_logged(g, rec, "  Old head: 5\n  Old body: 6\n  New head: 5\n  New body: 6\n"
                                        "  Old sex: Female\n  New sex: Male\n");
-        sprintf(what, "game %d: the change's own record is read as an Appearance changed record", game);
-        check(look_notes[1].game == game && look_notes[1].oh == 5 && look_notes[1].nb == 6
-              && look_notes[1].sex == g->sex_male && strcmp(look_notes[1].name, "Lani") == 0, what);
+        sprintf(what, "game %d: the change's own record changes no look: no transition note (Codex, #784)", game);
+        check(look_notes[1].game == 0, what);
+        /* A -> A (a gender presentation or head look record), A -> B, B -> C: the chain A -> C is found, the
+           self-loop never taken (Codex, #784: it was taken first, the A -> C missed, a second record written). */
+        memset(look_notes, 0, sizeof look_notes);
+        look_note_next = 0;
+        *(int *)(rec + g->sex) = g->sex_female;
+        look_notes[0].game = game;                         /* a self-loop note an older build may have kept */
+        strcpy(look_notes[0].name, "Lani");
+        look_notes[0].sex = g->sex_female;
+        look_notes[0].oh = look_notes[0].nh = 1;
+        look_notes[0].ob = look_notes[0].nb = 1;
+        look_note_next = 1;
+        note_appearance_logged(g, rec, "  Old head: 1\n  Old body: 1\n  New head: 1\n  New body: 1\n"
+                                       "  Old gender presentation: Own look\n  New gender presentation: Other sex's look\n");
+        note_appearance_logged(g, rec, "  Old head: 1\n  Old body: 1\n  New head: 2\n  New body: 2\n");
+        note_appearance_logged(g, rec, "  Old head: 2\n  Old body: 2\n  New head: 3\n  New body: 3\n");
+        sprintf(what, "game %d: A -> A, A -> B, B -> C: A -> C is already logged, the self-loop skipped", game);
+        check(look_note_next == 3 && AppearanceAlreadyLogged(game, rec, 1, 1, 3, 3) == 1
+              && AppearanceAlreadyLogged(game, rec, 1, 1, 4, 4) == 0, what);
     }
     check(VvfpVillagerSexChanged(9, 1, rec, was) == 0 && VvfpVillagerSexChanged(GAME_VV3, 1, NULL, was) == 0,
           "no game, no record: nothing");
