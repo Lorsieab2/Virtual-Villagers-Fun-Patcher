@@ -2598,7 +2598,11 @@ def _piece_effect_target(e: dict, local: dict[str, int]) -> tuple[int, int, int 
     extra = int(e.get("max_age", 0) or 0) if do == "change_age" else 0
     if do == "new_villager":
         return (_piece_slot(local, e["copy_of"]) if e.get("copy_of") else 0xFF), 0, extra
-    if do in ("food", "tech", "pay_award", "damage", "repair", "celebrate"):
+    if do == "celebrate":
+        # vv_cie_graph.effect_role: everyone (0xFF, the whole village dances) only for who "all"; else that villager
+        who = e.get("who", "all")
+        return (0xFF if who in (None, "all") else _piece_slot(local, who)), 0, extra
+    if do in ("food", "tech", "pay_award", "damage", "repair"):
         return 0xFF, 0, extra
     return _piece_slot(local, e.get("role", "subject")), 0, extra
 

@@ -640,13 +640,13 @@ class ExportRoundTrip(unittest.TestCase):
         {"do": "skill", "role": "friend", "skills": ["Farming"], "size": "large", "loss": True},
         {"do": "skill", "role": "subject", "skills": ["Building"], "set": 100},
         {"do": "skill", "role": "friend", "best": True, "size": "normal"},
-        {"do": "preference", "role": "subject", "like": "fishing"},
-        {"do": "preference", "role": "friend", "dislike": "running", "remove": True},
+        {"do": "preference", "role": "subject", "like": "dancing"},
+        {"do": "preference", "role": "friend", "dislike": "rocks", "remove": True},
         {"do": "preference", "role": "subject", "like": "random"},
         {"do": "health", "role": "friend", "value": 100},
         {"do": "health_change", "role": "subject", "min": -40, "max": -20},
-        {"do": "sick", "role": "friend"}, {"do": "kill", "role": "friend", "cause": "a fall"},
-        {"do": "vanish", "role": "friend"}, {"do": "die_unrecovered", "role": "friend"},
+        {"do": "sick", "role": "friend"}, {"do": "kill", "role": "lost", "cause": "a fall"},
+        {"do": "vanish", "role": "gone"}, {"do": "die_unrecovered", "role": "away"},
         {"do": "old_look", "role": "subject"}, {"do": "young_look", "role": "friend"}, {"do": "cure", "role": "friend"},
         {"do": "sex_change", "role": "friend"}, {"do": "lose_name", "role": "friend"},
         {"do": "change_name", "role": "subject"}, {"do": "change_name", "role": "friend", "name": "Kai"},
@@ -676,9 +676,11 @@ class ExportRoundTrip(unittest.TestCase):
     def graph(self, effects):
         return {"format": "vvfp-cie-graph", "version": 6, "title": "Round Trip", "games": [1, 2, 3, 4, 5],
                 "roles": {"subject": {"kind": "villager", "min_age": 18},
-                          "friend": {"kind": "villager", "min_age": 18, "protected": "allow"}},
+                          "friend": {"kind": "villager", "min_age": 18, "protected": "allow"},
+                          **{k: {"kind": "villager", "min_age": 18, "protected": "allow"} for k in ("lost", "gone", "away")}},
                 "start": "ask",
-                "nodes": {"ask": {"type": "question", "text": "(subject) meets (friend) at the shore.",
+                "nodes": {"ask": {"type": "question",
+                                  "text": "(subject) meets (friend), (lost), (gone) and (away) at the shore.",
                                   "choices": [{"label": "Talk", "next": "out"}, {"label": "Leave", "next": "out"}]},
                           "out": {"type": "popup", "text": "Something changes.", "effects": effects,
                                   "children": []}}}
@@ -703,6 +705,88 @@ class ExportRoundTrip(unittest.TestCase):
                 self.assertFalse([str(p) for p in probs if p.kind != "note"])
                 self.assertEqual(struct.unpack_from("<I", data, 40)[0], len(self.EXACT) * len(outcomes),
                                  "every effect written")
+
+    @staticmethod
+    def event_records(g: dict, game: int) -> list[tuple]:
+        """The ordinary event compiler's effect records for `g` (vv_cie_graph.compile_graph), each as names and values:
+        (code, role, flags, selector, a, b, string, extra) with role indexes as role names, strings as their text and
+        a food / tech effect's own range for `game` (its per-game string read)."""
+        packed: list[tuple] = []
+        real = cie._EFFECT
+
+        class Spy:
+            size = real.size
+
+            def pack(self, *v):
+                packed.append(v)
+                return real.pack(*v)
+        cie._EFFECT = Spy()
+        try:
+            blob = cie.compile_graph(cie.load(copy.deepcopy(g), scrolling=True))
+        finally:
+            cie._EFFECT = real
+        u16 = lambda at: struct.unpack_from("<H", blob, at)[0]  # noqa: E731
+        u32 = lambda at: struct.unpack_from("<I", blob, at)[0]  # noqa: E731
+        n_role, n_string, o_role, o_string = u16(26), u16(38), u32(44), u32(72)
+
+        def s(i):
+            if i == 0xFFFF:
+                return ""
+            at = o_string + 4 * n_string + u32(o_string + 4 * i)
+            return blob[at:blob.index(b"\0", at)].decode()
+        names = [s(u16(o_role + 16 * i + 4)) for i in range(n_role)]
+        out = []
+        for code, role, flags, sel, a, b, st, last in packed:
+            text = s(st)
+            if code in (cie.EFFECT_CODES["food"], cie.EFFECT_CODES["tech"]) and text:
+                a, b = cie.per_game_parse(text).get(game, cie.per_game_parse(text).get(str(game), (a, b)))
+                text = ""
+            if code in (cie.EFFECT_CODES[k] for k in ("pregnant", "nursing", "body_swap")) and a < n_role:
+                a = names[a]
+            out.append((code, names[role] if role < n_role else role, flags, sel, a, b or a, text,
+                        s(last) if sel == cie.TARGET_SKILL else last))
+        return out
+
+    @staticmethod
+    def piece_records(data: bytes, piece_index: int) -> list[tuple]:
+        """The same tuple for every effect of piece `piece_index` in a VPCB v2 file (slot indexes as slot names)."""
+        pieces_at, strings_at = struct.unpack_from("<II", data, 24)
+        effects_at, slots_at = struct.unpack_from("<I", data, 36)[0], struct.unpack_from("<I", data, 44)[0]
+
+        def s(off):
+            if off == 0xFFFFFFFF:
+                return ""
+            at = strings_at + off
+            return data[at:data.index(b"\0", at)].decode()
+        rec = pieces_at + 64 * piece_index
+        first_slot, n_slot = struct.unpack_from("<I", data, rec + 40)[0], struct.unpack_from("<H", data, rec + 44)[0]
+        first_fx, n_fx = struct.unpack_from("<I", data, rec + 48)[0], struct.unpack_from("<H", data, rec + 52)[0]
+        names = [s(struct.unpack_from("<I", data, slots_at + 16 * (first_slot + k))[0]) for k in range(n_slot)]
+        out = []
+        for k in range(n_fx):
+            code, role, flags, sel, a, b, st, extra = struct.unpack_from("<BBBBiiII", data, effects_at + 20 * (first_fx + k))
+            if code in (cie.EFFECT_CODES[x] for x in ("pregnant", "nursing", "body_swap")) and a < n_slot:
+                a = names[a]
+            out.append((code, names[role] if role < n_slot else role, flags, sel, a, b or a, s(st),
+                        s(extra) if sel == cie.TARGET_SKILL else extra))
+        return out
+
+    def test_the_pieces_hold_what_the_event_compiler_writes(self):
+        # Exported, imported and compiled as pieces, every exact effect is the ordinary compiler's own record for the
+        # same event, field by field, in every game (the encoder and the exporter checked at once).
+        g = self.graph(copy.deepcopy(self.EXACT))
+        items = pe.parse_text(pe.pieces_file_text(g), "export.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        pieces = [i for i in items if not i.problems]
+        first_outcome = next(k for k, i in enumerate(pieces) if i.piece["kind"] == pe.PIECE_KINDS["outcome"])
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                data, _ = pe.compile_pieces(items, game)
+                want = self.event_records(g, game)
+                got = self.piece_records(data, first_outcome)
+                self.assertEqual(len(got), len(self.EXACT))
+                for e, w, h in zip(self.EXACT, want, got):
+                    self.assertEqual(h, w, e)
 
     def test_each_kind_alone(self):
         for e in self.EXACT:
