@@ -62,6 +62,11 @@
    "functions": ["cg_entry_start", "cg_log_end", "cg_log_write", "cg_resolve"]
   },
   {
+   "reason": "The partner-carry setting's key in the installed patches' list (\"# partner_carry_percent=\"): a line of a file the patcher writes and the engine reads back, never shown.",
+   "files": ["native/vvfp_story_upgrades/story_graph.inc"],
+   "functions": ["cg_partner_carry_percent"]
+  },
+  {
    "reason": "The translation file format's own words (plural rule names, header names, game titles to check the @game row): compared with the file, never shown.",
    "files": ["native/vvfp_translations/*"]
   },
