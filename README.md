@@ -2349,8 +2349,8 @@ records themselves, and nothing is spent when there is none:
   the original game made the Golden Child in a record past the end of the
   table, where nobody could see him, and spent the mother's pregnancy.
 - A New Home's Mysterious Face, The Lost Children's Strange Request, Savage
-  Child and Silver Mirror, and The Secret City's Mysterious Vial and Crystal
-  of Reflections are offered only with room. The Crystal checks before it
+  Child and Silver Mirror, and The Secret City's amber Mysterious Vial and
+  Crystal of Reflections are offered only with room. The Crystal checks before it
   changes anyone's likes.
 - New Believers' Reanimate is refused, with nothing spent, when no record is
   free, and the gray message bar says "There's no room in your village to
