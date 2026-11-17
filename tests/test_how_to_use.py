@@ -43,6 +43,9 @@ CONTROLS = {
     "check_logs_automatically", "check_for_updates", "family_tree_maker", "village_matchmaker",
     "game_mechanics", "stew_recipes", "custom_island_event_library", "copy_player_slot", "picture_studio", "translations", "unicode_font", "unicode_font_tool", "game_text", "tech_cost_multiplier", "meal_multiplier", "sickness_multiplier",
     "louder_flutes_multiplier", "island_frequency_multiplier",
+    # The 0.1x-10x sliders (the owner, 2026-11-17), made by one loop over RUNTIME_SLIDERS.
+    "collectible_frequency_multiplier", "food_gain_multiplier", "tech_gain_multiplier",
+    "skill_success_multiplier", "age_speed_multiplier",
     "island_event_content_filters",  # the Island Events section's filters (the owner, 2026-11-15)
 }
 
@@ -129,6 +132,9 @@ class ContentTests(unittest.TestCase):
         # The island event controls are named together in the selection guides.
         names = {patch.id: ("island event controls"
                             if re.search(r"_island_event_(filter_f|content_notes)|_island_events_any_time", patch.id)
+                            # The five 0.1x-10x sliders' rows, named together (the owner, 2026-11-17).
+                            else "the 0.1-10x sliders"
+                            if any(patch.id.endswith(s.row_suffix) for s in vfp.RUNTIME_SLIDERS)
                             else patch.name)
                  for patch in vfp.load_public_fun_patches()}
         default = " ".join(how.guide("default_patches").lines)
@@ -137,6 +143,9 @@ class ContentTests(unittest.TestCase):
             # The guide uses the short form of the two long names.
             short = {"Manual Drop-Breeding overrides Birth Control": "Manual Drop-Breeding",
                      "256 Villagers (Experimental)": "256 Villagers"}.get(name, name)
+            # Both Island Events Scale rows, named together within the guide's 1,250 characters.
+            if "_island_events_scale_with_" in patch_id:
+                short = "both Island Events Scale patches"
             with self.subTest(default_off=patch_id):
                 self.assertIn(short, default)
         owners = " ".join(how.guide("owners_defaults").lines)
@@ -157,7 +166,11 @@ class GuiSourceTests(unittest.TestCase):
     SOURCE = GUI.read_text(encoding="utf-8")
 
     def test_every_control_is_wired_to_a_question_mark(self) -> None:
-        for key in CONTROLS:
+        runtime = {f"{slider.key}_multiplier" for slider in vfp.RUNTIME_SLIDERS}
+        # The 0.1x-10x sliders' "?" come from one loop, each with its own key.
+        self.assertIn('fun_settings, slider.name + ":", variable, RUNTIME_SLIDER_RANGE, f"{slider.key}_multiplier")',
+                      self.SOURCE)
+        for key in CONTROLS - runtime:
             with self.subTest(control=key):
                 self.assertRegex(self.SOURCE, r'_help_button\(\s*\w+, "%s"\)' % re.escape(key)
                                  + "|" + r'\(\d+, "%s"\)' % re.escape(key)

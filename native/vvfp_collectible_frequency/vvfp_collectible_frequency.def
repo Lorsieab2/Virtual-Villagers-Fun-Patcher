@@ -1,0 +1,5 @@
+LIBRARY "VVFP Collectible Frequency"
+EXPORTS
+    VvfpStartup
+    VvfpCollectibleFrequencyInstalled
+    VvfpCollectibleFrequencyTenths

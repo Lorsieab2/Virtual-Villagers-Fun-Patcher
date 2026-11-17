@@ -1273,6 +1273,52 @@
         "The Cause of Death patch also needs this one to write its logs.",
         "Tick Write Village Statistics to Text File (or the Cause of Death patch) too, so each log is headed with the village's name."
       ]
+    },
+    {
+      "ids": ["vv1_collectible_frequency", "vv2_collectible_frequency", "vv3_collectible_frequency", "vv4_collectible_frequency", "vv5_collectible_frequency"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Mushrooms and collectibles appear on their own more or less often.",
+        "0.1 to 10 times as often, set with the Collectible and Mushroom Frequency slider (1 unless you move it; 1 is the normal game).",
+        "A New Home has mushrooms only. Exploration, fog, Wind Flutes and heavy weather still count, multiplied.",
+        "What appears, how many lie out at once and for how long are the game's own. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_food_gain", "vv2_food_gain", "vv3_food_gain", "vv4_food_gain", "vv5_food_gain"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Each food source gives more or less food each time.",
+        "0.1 to 10 times its normal food, set with the Food Gained per Food Source slider (1 unless you move it; 1 is the normal game).",
+        "Picking, harvesting, fishing, crabs, honey, noni and mushrooms count; island events, rewards, purchases and cheats do not.",
+        "Farming levels and Food Mastery still count. What the bush or tree itself loses is the game's own. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_tech_gain", "vv2_tech_gain", "vv3_tech_gain", "vv4_tech_gain", "vv5_tech_gain"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Research brings more or fewer tech points.",
+        "0.1 to 10 times the normal points, set with the Tech Point Gain Rate slider (1 unless you move it; 1 is the normal game).",
+        "The Science level and every research bonus still count. Island events, duplicate collectibles, rewards and cheats do not change.",
+        "Works together with 0.1-100x Tech Cost and the Tech Point Doubler. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_skill_success", "vv2_skill_success", "vv3_skill_success", "vv4_skill_success", "vv5_skill_success"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Skill practice at work succeeds more or less often.",
+        "0.1 to 10 times as often (always, once that reaches it), set with the Skill Practice Success Chance slider (1 unless you move it).",
+        "The villager's skill still counts, and what a success gives is the game's own.",
+        "Learning Skills Never Fails still makes every try succeed. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_age_speed", "vv2_age_speed", "vv3_age_speed", "vv4_age_speed", "vv5_age_speed"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Villagers' ages go up faster or slower.",
+        "0.1 to 10 times as fast, set with the Age and Nursing Timer Speed slider (1 unless you move it; 1 is the normal game).",
+        "Growing up, becoming an elder, old age, pregnancy and nursing all follow it together, and so do eating, health and sickness.",
+        "So at 2 villagers also eat twice as often. Work, food regrowth and island events keep the normal speed. The Golden Child stays 5.",
+        "Not yet tested in play."
+      ]
     }
   ],
   "modes": {
@@ -1310,7 +1356,7 @@
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-100x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation",
-        "and More Frequent Island Events are not ticked either.",
+        "More Frequent Island Events and the 0.1-10x sliders are not ticked either.",
         "The island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either; it does not change the population mode."
       ]
     },
@@ -1323,7 +1369,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full, More Frequent Island Events,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points and the island event controls.",
+        "both Island Events Scale patches, the 0.1-10x sliders and the island event controls.",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },
@@ -1712,6 +1758,51 @@
       "guide": [
         "Opens the patcher's GitHub page, where the newest version is listed.",
         "Your version is shown just above the link."
+      ]
+    },
+    "collectible_frequency_multiplier": {
+      "title": "Collectible and Mushroom Frequency",
+      "guide": [
+        "How many times as often mushrooms and collectibles appear on their own with the Collectible and Mushroom Frequency patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "1 is the normal game, below 1 less. Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with Collectible and Mushroom Frequency ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "food_gain_multiplier": {
+      "title": "Food Gained per Food Source",
+      "guide": [
+        "How many times its normal food each food source gives with the Food Gained per Food Source patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "1 is the normal game, below 1 less. Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with Food Gained per Food Source ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "tech_gain_multiplier": {
+      "title": "Tech Point Gain Rate",
+      "guide": [
+        "How many times its normal tech points research brings with the Tech Point Gain Rate patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "1 is the normal game, below 1 less. Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with Tech Point Gain Rate ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "skill_success_multiplier": {
+      "title": "Skill Practice Success Chance",
+      "guide": [
+        "How many times as often skill practice at work succeeds with the Skill Practice Success Chance patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "1 is the normal game, below 1 less. Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with Skill Practice Success Chance ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "age_speed_multiplier": {
+      "title": "Age and Nursing Timer Speed",
+      "guide": [
+        "How many times as fast villagers' ages go up with the Age and Nursing Timer Speed patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "1 is the normal game, below 1 less. Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with Age and Nursing Timer Speed ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
       ]
     }
   }

@@ -17,6 +17,14 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* Hungrier Villagers (all five games): a meal multiplier whose 2 x N is not whole food (0.1x, 0.3x, 1.7x ...)
        takes 2 x N food on average (the patcher window's slider, read from VVFP Meal Scale.txt beside it). */
     "VVFP Meal Scale.dll",
+    /* The 0.1x-10x sliders (all five games; the owner, 2026-11-17), each reading its number from the .txt of
+       its own name beside it (native/shared/slider_scale.h): Collectible and Mushroom Frequency, Food Gained per
+       Food Source, Tech Point Gain Rate, Skill Practice Success Chance, Age and Nursing Timer Speed. */
+    "VVFP Collectible Frequency.dll",
+    "VVFP Food Gain.dll",
+    "VVFP Tech Gain.dll",
+    "VVFP Skill Success.dll",
+    "VVFP Age Speed.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

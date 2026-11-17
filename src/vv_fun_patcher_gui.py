@@ -76,12 +76,16 @@ from vv_fun_patcher import (
     LOUDER_FLUTES_MULTIPLIER_RANGE,
     ISLAND_FREQUENCY_MULTIPLIER_DEFAULT,
     ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+    RUNTIME_SLIDER_DEFAULT,
+    RUNTIME_SLIDER_RANGE,
+    RUNTIME_SLIDERS,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     multiplier_text,
     parse_multiplier,
     set_louder_flutes_multiplier,
     set_island_frequency_multiplier,
+    set_runtime_slider_multiplier,
     set_unicode_font_face,
     set_unicode_font_file,
     unicode_font_file,
@@ -259,6 +263,11 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
+# The rows of the 0.1x-10x sliders (all five games) and One-Time Collectibles Appear Again (The Secret City, The
+# Tree of Life): the owner, 2026-11-17.
+NEW_SLIDER_ROW_IDS = ([f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in range(1, 6)]
+                      + ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"])
+
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
@@ -356,6 +365,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # More Frequent Island Events (all five games; the owner, 2026-11-15: new v1.35.97 patches are on in Owner's
     # Defaults, off everywhere else) -- off here and in Select All.
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # The 0.1x-10x sliders' rows and One-Time Collectibles Appear Again (the owner, 2026-11-17; new v1.35.97
+    # patches are on in Owner's Defaults, off everywhere else) -- off here and in Select All.
+    + NEW_SLIDER_ROW_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -432,6 +444,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # The 0.1x-10x sliders' rows and One-Time Collectibles Appear Again: likewise (the owner, 2026-11-17).
+    + NEW_SLIDER_ROW_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -539,6 +553,11 @@ def saved_island_frequency_multiplier(settings: dict):
     """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 2)."""
     return saved_multiplier(settings, "island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_RANGE,
                             ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+
+def saved_runtime_slider_multiplier(settings: dict, key: str):
+    """A 0.1x-10x slider's number a settings file holds (saved_multiplier, "<key>_multiplier"; default 1)."""
+    return saved_multiplier(settings, f"{key}_multiplier", RUNTIME_SLIDER_RANGE, RUNTIME_SLIDER_DEFAULT)
 
 
 def typed_multiplier(text: str, multipliers):
@@ -1546,6 +1565,10 @@ class App(tk.Tk):
             # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 unless moved;
             # written beside its companion.
             self.island_frequency_var = tk.DoubleVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+            # The 0.1x-10x sliders (all five games; the owner, 2026-11-17): 1 unless moved; each written beside its
+            # companion.
+            self.runtime_slider_vars = {slider.key: tk.DoubleVar(value=RUNTIME_SLIDER_DEFAULT)
+                                        for slider in RUNTIME_SLIDERS}
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -1872,6 +1895,13 @@ class App(tk.Tk):
             "island_frequency_multiplier")
         self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())
         self._island_frequency_changed()    # the saved number, loaded before the window was built
+        self.runtime_slider_boxes = {}
+        for slider in RUNTIME_SLIDERS:
+            variable = self.runtime_slider_vars[slider.key]
+            self.runtime_slider_boxes[slider.key] = self._multiplier_slider(
+                fun_settings, slider.name + ":", variable, RUNTIME_SLIDER_RANGE, f"{slider.key}_multiplier")
+            variable.trace_add("write", lambda *_args, key=slider.key: self._runtime_slider_changed(key))
+            self._runtime_slider_changed(slider.key)    # the saved number, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -2830,6 +2860,9 @@ class App(tk.Tk):
         # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+        # The 0.1x-10x sliders at 1, the normal game (their rows are ticked there; the owner, 2026-11-17).
+        for variable in getattr(self, "runtime_slider_vars", {}).values():
+            variable.set(RUNTIME_SLIDER_DEFAULT)
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -2998,6 +3031,8 @@ class App(tk.Tk):
             self.louder_flutes_var.set(saved_louder_flutes_multiplier(data))
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(saved_island_frequency_multiplier(data))
+        for key, variable in getattr(self, "runtime_slider_vars", {}).items():
+            variable.set(saved_runtime_slider_multiplier(data, key))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -3050,6 +3085,7 @@ class App(tk.Tk):
             "island_frequency_multiplier": (App._island_frequency_multiplier(self)
                                             if hasattr(self, "island_frequency_var")
                                             else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT),
+            **{f"{slider.key}_multiplier": App._runtime_slider_number(self, slider.key) for slider in RUNTIME_SLIDERS},
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -3096,6 +3132,15 @@ class App(tk.Tk):
         """The More Frequent Island Events slider's number, kept within 0.1 to 100."""
         return App._slider_number(getattr(self, "island_frequency_var", None), ISLAND_FREQUENCY_MULTIPLIER_RANGE,
                                   ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+    def _runtime_slider_number(self, key: str):
+        """A 0.1x-10x slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "runtime_slider_vars", {}).get(key), RUNTIME_SLIDER_RANGE,
+                                  RUNTIME_SLIDER_DEFAULT)
+
+    def _runtime_slider_changed(self, key: str) -> None:
+        """A 0.1x-10x slider moved: the next patch writes its number beside its companion."""
+        set_runtime_slider_multiplier(key, App._runtime_slider_number(self, key))
 
     def _island_frequency_changed(self) -> None:
         """The More Frequent Island Events slider moved: the next patch writes its number beside the companion."""

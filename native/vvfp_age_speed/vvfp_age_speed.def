@@ -1,0 +1,5 @@
+LIBRARY "VVFP Age Speed"
+EXPORTS
+    VvfpStartup
+    VvfpAgeSpeedInstalled
+    VvfpAgeSpeedTenths
