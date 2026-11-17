@@ -323,6 +323,43 @@ class Engine(unittest.TestCase):
                                             "the presentation effect ran")
                     self.assertRegex(pages[0], rf"(?<![A-Za-z]){before}\b")
 
+    def test_a_loaded_run_never_takes_another_runs_words(self):
+        """Codex on #787: a run that changed a role's words leaves no trace on the next run loaded in the same
+        process (another save slot's, or the same village's after a reload)."""
+        wave = {"format": "vvfp-cie-graph", "version": 6, "title": "A Wave", "games": [1, 2, 3, 4, 5],
+                "roles": {"subject": {"kind": "villager", "min_age": 25}},
+                "start": "p", "nodes": {"p": {"text": "(Name) looks up; (subject.he/she) waves."}}}
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                # 1) a run that changes Ari's sex on its first page, played to the end in this process
+                r = V6(game, [(0, "f", 30, "Ari", 0, False)])
+                r.rolls([0] * 40)
+                r.p.export("VvfpStoryProbeQueueSession", 0, 0, 1, 0)
+                self.assertIsNone(r.queue6(compiled(SEX_GRAPH)))
+                r.walk_through()
+                self.assertEqual(r.state()["female"][0], 0, "Ari is now male")
+                self.assertGreater(r.p.export("VvfpStoryProbeGraphLateAt", 0), 0, "the change was noted")
+                # 2) another run, queued for the same (now male) Ari in a fresh process, saved to its file
+                q = V6(game, [(0, "m", 30, "Ari", 0, False)])
+                q.rolls([0] * 40)
+                q.p.export("VvfpStoryProbeQueueSession", 0, 0, 1, 0)
+                self.assertIsNone(q.queue6(compiled(wave)))
+                q.tick()
+                file = q.graph_file()
+                # 3) that run loaded into the first process: its page reads with his words, not the old run's
+                r.p.export("VvfpStoryProbeQueueSession", 0, 0, r.p.tick + 10_000, 0)
+                buf = r.p.alloc(len(file) + 16)
+                r.p.write(buf, file)
+                r.p.export("VvfpStoryProbeGraphSession", buf, len(file))
+                r.tick()
+                self.assertEqual(r.p.export("VvfpStoryProbeGraphLateAt", 0), 0,
+                                 "a loaded run starts with no other run's word-change notes")
+                pages = [norm(t) for _k, t, _l in r.walk_through()]
+                self.assertTrue(pages, "the loaded run is shown")
+                self.assertRegex(pages[0], r"(?<![A-Za-z])he waves\b")
+
     def test_a_quit_before_the_save_reads_the_page_again_with_its_first_words(self):
         """Codex on #787: the page that changes the sex is shown, the player quits without saving; the run comes
         back at that page against the older save and reads it with the words it first had."""

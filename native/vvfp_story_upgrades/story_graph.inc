@@ -8888,6 +8888,14 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     cg_g = check;                      /* checked above: the same bytes, now in the run's own buffer */
     cg_g.d = cg_bytes;
     cg = cg_read_state;
+    {
+        /* 35: the word-change notes belong to the run that made them (process-wide, not saved): a run loaded from
+           a file starts with none, so another save slot's run never lends its words here (Codex, #787). */
+        int r;
+        for (r = 0; r < CG_MAX_ROLES; ++r) {
+            cg_late_at[r] = 0;
+        }
+    }
     cg_choose_title(game);             /* 18: the title variant in force, as when it was queued */
     cg_village = story_village_now(game);
     cg_display_armed = 0;
@@ -9394,6 +9402,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
 /* The birth sex as the test build sees it: `born_male` -1 the real rule, else bit i: record i was born male. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) {
     test_graph_born_male = born_male;
+}
+
+/* The word-change note of role `role` (35): 1 + the display that changed its words, 0 none (test build only). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphLateAt(int role) {
+    return role >= 0 && role < CG_MAX_ROLES ? cg_late_at[role] : -1;
 }
 
 /* The gender presentation the words see (35): `mask` -1 the real one, else bit i: record i drawn with the other
