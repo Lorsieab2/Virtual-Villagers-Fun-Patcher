@@ -71035,6 +71035,202 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_text_cap_refusal.s0",
+   "english": "The %s is longer than %d characters. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_text_cap_refusal.s1",
+   "english": "The %s is longer than %d characters: without the Scrolling Popups patch that is all the island event panel holds. Shorten it, or install Scrolling Popups: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_refusal.s4",
+   "english": "The title must fit on one line. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_refusal.s5",
+   "english": "The title must fit on one line and the description must fit the island event panel. Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s4",
+   "english": "A button label is %d characters at most.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s5",
+   "english": "A word in that button label is wider than the screen in this game. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s6",
+   "english": "A button label is %d characters at most in this game without the Scrolling Popups patch (with it, labels can be practically unlimited).",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_result_refusal.s3",
+   "english": "result text",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_result_refusal.s4",
+   "english": "The result text must fit the island event panel. Shorten it, or install the Scrolling Popups patch: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_choice_refusal.s5",
+   "english": "The title must fit on one line and the question must fit the island event panel. Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_update_counts.s3",
+   "english": "%d words, %d characters - the popup scrolls (Scrolling Popups): no line limit",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_update_counts.s4",
+   "english": " - too long without Scrolling Popups",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_choices_dialog.s3",
+   "english": "With Scrolling Popups a label can be practically unlimited: it wraps in its own row. A chance is 1-100: each outcome's share is its chance out of the button's total.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_choices_dialog.s4",
+   "english": "A label is up to %d characters in %s without the Scrolling Popups patch (with it, practically unlimited). A chance is 1-100: each outcome's share is its chance out of the button's total.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number); %2 = text (person when it is a villager's name)"
   }
  ]
 }
