@@ -2207,7 +2207,8 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early",
+              "apostasy"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX
@@ -2582,6 +2583,9 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
     leaves: list = []
     for c in _all_conds(g):
         _cond_leaves(c, leaves)
+    req_if = (g.get("requirement") or {}).get("if")
+    if req_if is not None:
+        _cond_leaves(req_if, leaves)   # the requirement's own facts (min_population ...): its contexts exist too
     free = sorted({f"harmable:{a}" for op, a in leaves if op == "harmable" and a in bound
                    and g["roles"].get(a, {}).get("kind") == "villager" and f"harmable:{a}" not in base}
                   | {f"special_present:{a}" for op, a in leaves if op == "special_present"}
@@ -4518,6 +4522,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     seg = segment(lg["start"], path, picks)
     answers = list(answers)
     qi = 0
+    chosen: dict[int, int] = {}        # each question's place on the path -> the choice picked
     while True:
         path += seg["nodes"]
         path_texts += seg["texts"]
@@ -4533,6 +4538,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         qi += 1
         if pick not in segs:
             raise ValueError(f"answer {pick} is not shown at {path[-1]}")
+        chosen[len(path) - 1] = pick
         seg = segs[pick]
 
     # The popups, joined as walk() joins them, then read as the player reads them.
@@ -4577,7 +4583,10 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         seen = seen + (nid,)
         if at > 0 and lg["nodes"][path[at - 1]]["type"] == "question":
             q = lg["nodes"][path[at - 1]]
-            label = next((c["label"] for c in q["choices"] if c["next"] == nid), None)
+            # the choice picked (several may lead to the same node: its own label)
+            picked = chosen.get(at - 1)
+            label = (q["choices"][picked]["label"] if picked is not None and picked < len(q["choices"])
+                     else next((c["label"] for c in q["choices"] if c["next"] == nid), None))
             choice_title = label if label is not None and not n.get("title") else None
             before = title
         if n["type"] == "branch":

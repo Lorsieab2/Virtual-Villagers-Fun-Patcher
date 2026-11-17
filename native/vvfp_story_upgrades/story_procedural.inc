@@ -566,6 +566,7 @@ static int pc_harmful(const unsigned char *e) {
     switch (e[0]) {
     case CGE_KILL: case CGE_VANISH: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST: case CGE_BIRTH_THEN_DIE:
     case CGE_DELIVER_EARLY: case CGE_SICK:
+    case CGE_APOSTASY:                 /* a believer made a Heathen, as cg_effect_harmful (Codex, #771) */
         return 1;
     case CGE_HEALTH: return b < 100;
     case CGE_HEALTH_CHANGE: case CGE_SKILL: case CGE_MOOD: return a < 0;
@@ -1417,6 +1418,11 @@ static int pc_library_load(int game, const char *path) {
 /* ---- Test build only ---------------------------------------------------------------------------------------- */
 
 /* The one pieces file the index and the composer use (NULL: the folder's own). */
+/* Whether a piece's effect `e` (its 20 bytes) counts as harmful: the harm guard's and the protected flag's test. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeProceduralHarmful(const unsigned char *e) {
+    return pc_harmful(e);
+}
+
 __declspec(dllexport) void __stdcall VvfpStoryProbeProceduralFile(const unsigned char *data, unsigned int size) {
     pc_test_file = data;
     pc_test_size = size;

@@ -161,6 +161,7 @@ EXPORTS
     VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
     VvfpStoryProbeCollectionPopulation=_VvfpStoryProbeCollectionPopulation@8
     VvfpStoryProbeProceduralFile=_VvfpStoryProbeProceduralFile@8
+    VvfpStoryProbeProceduralHarmful=_VvfpStoryProbeProceduralHarmful@4
     VvfpStoryProbeProceduralCompose=_VvfpStoryProbeProceduralCompose@24
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4

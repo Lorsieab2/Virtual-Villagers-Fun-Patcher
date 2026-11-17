@@ -2982,7 +2982,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_SPEAKS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -3328,8 +3328,14 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
    bound to read). */
 /* One of the likes (or `dislike`: the dislikes) the villager in `role` holds, drawn with the game's own random
    routine; -1 when the list is empty. */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike);
+
 static int cg_held_preference(const ce_adapter *a, int role, int dislike) {
-    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    return cg_held_preference_of(a, role >= 0 ? cg_villager(a, role) : NULL, dislike);
+}
+
+/* A random like (or dislike) this villager holds, to take away; -1 when the list is empty (no roll then). */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike) {
     const int *list;
     int held[64], n = 0, slot;
     if (r == NULL) {
@@ -6030,6 +6036,11 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
             continue;
         }
         ce_copy_name(who, CE_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM) && (e[2] & CG_PREF_REMOVE)) {
+            /* a random like or dislike each member holds, taken away (none held: nothing for them) */
+            cg_effect_on(a, game, e, cg_held_preference_of(a, rec, (e[2] & 4u) != 0), vb, r, -1, rec, pick[i], who);
+            continue;
+        }
         if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
             /* a random like or dislike each: the roll, then the word chosen from this villager */
             int k = ce_random_below(a, a->pref_count);
@@ -6054,6 +6065,12 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                          int role, unsigned char *record, int index, const char *name) {
     ce_result one;
     ce_change *c;
+    if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record) && !cg_heathen_effect_ok(e)) {
+        /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
+           only, as the load checks a Heathen's own role (Codex, #771). */
+        ce_refuse(r, CE_WHY_OTHER);
+        return;
+    }
     if ((role < 0 || (cg_role_at(&cg_g, role)[1] & CG_ROLE_PROTECTED)) && cg_effect_harmful(a, game, e)
         && cg_protected(a, game, record)) {
         /* The hard guard's last word (the walk's guard took the branch out unless they became protected since):
@@ -6846,6 +6863,8 @@ static unsigned short cg_page_title(const cg_popup *p, const cg_pages *pages, in
    path node `from` (the node after a question), as a title (its string index + 1); 0 none.  Always the label, never
    the event's title instead: one wider than the title area wraps, its rest the page's first line (cg_display_title,
    cg_display: "should not be a problem with the scrollbars"). */
+static int cg_layout_choice = -1;     /* the choice cg_take_answer lays out the pages of (-1: none known) */
+
 static unsigned short cg_choice_title(const cg_history *h, int from) {
     static char worst[CE_LONG_LINE_BYTES * 4];
     const unsigned char *q;
@@ -6859,6 +6878,12 @@ static unsigned short cg_choice_title(const cg_history *h, int from) {
     }
     first = (int)cg_u16(q + 12);
     count = (int)cg_u16(q + 14);
+    if (cg_layout_choice >= 0 && cg_layout_choice < count) {
+        /* the choice the player picked (several choices may lead to the same node: its own label, Codex P2) */
+        unsigned int label = cg_u16(cg_child_at(&cg_g, first + cg_layout_choice) + 8);
+        (void)worst;
+        return label != CG_NONE ? (unsigned short)(label + 1u) : 0;
+    }
     for (k = 0; k < count; ++k) {
         const unsigned char *c = cg_child_at(&cg_g, first + k);
         unsigned int label = cg_u16(c + 8);
@@ -6923,6 +6948,19 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         }
         w.pages = &pages;
         w.scroll = cg_scrolls();
+        if (!w.scroll) {
+            /* A title wider than its area shows its rest as the page's first lines (cg_display): those lines kept
+               free on every page, so the text is paged around them, never cut (Codex, #771). */
+            static char probe[CG_LABEL_V6 * 4];
+            ce_layout bare = *w.first;
+            bare.with_title = 0;
+            lstrcpynA(probe, widest, (int)sizeof probe);
+            cg_title_wrap(probe);
+            if (cg_title_rest[0] != '\0') {
+                w.reserve += ce_lines_used_in(&bare, "", cg_title_rest);
+            }
+            cg_title_rest[0] = '\0';
+        }
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
             int d, kind = CGD_PAGE;
@@ -7523,7 +7561,9 @@ static int cg_take_answer(const ce_adapter *a, int game, int choice) {
     cg.path.fx = cg.q_fx[qi];
     cg.pick_count = cg.q_picks[qi];
     cg_path_add(cg_seg(qi, choice), cg.seg_picks[qi][choice], cg.seg_pick_count[qi][choice]);
+    cg_layout_choice = choice;
     cg_layout_from(a, game, cg.q_path[qi], 1);
+    cg_layout_choice = -1;
     return 1;
 }
 
