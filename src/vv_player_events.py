@@ -2338,6 +2338,13 @@ def _parse_piece(block: list[tuple[int, str]], file: str) -> Item:
                 for rid, facts in pe.roles.items():
                     p["slots"].setdefault(rid or "subject", ({"kind": "villager", **(
                         {"min_age": facts["min_age"]} if "min_age" in facts else {})}, ""))
+                for e in pe.effects:
+                    # "the villager" (DUPLICATE OF villager, SWAP BODIES WITH villager, ...): the piece's own main
+                    # slot, as an event's main role.
+                    for key2 in ("copy_of", "with", "who"):
+                        if e.get(key2) == "@default":
+                            e[key2] = "subject"
+                            p["slots"].setdefault("subject", ({"kind": "villager"}, ""))
                 p["effects"] += [(ln, e) for e in pe.effects]
         elif k in ("answers",):
             for part in split_list(v):
@@ -2534,8 +2541,13 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
             if any(filt >> (int(f[1:]) - 1) & 1 for f in fs):
                 notes |= 1 << k
         weight = p["weight"] * (multiplier or {}).get(p["id"], 1)
-        tags = sum(1 << tag_bits[t] for t in p["tags"] if t in tag_bits)
-        never = sum(1 << tag_bits[t] for t in p["never"] if t in tag_bits)
+        # Bits OR'ed, never added: a tag written twice, or two words for one bit ("lesser"), must not carry into
+        # another bit (a minor piece losing its minor bit could meet romance).
+        tags = never = 0
+        for t in p["tags"]:
+            tags |= 1 << tag_bits[t] if t in tag_bits else 0
+        for t in p["never"]:
+            never |= 1 << tag_bits[t] if t in tag_bits else 0
         mask = sum(1 << (g - 1) for g in p["games"])
         recs += struct.pack("<IBBBBIIIIIIIIIHHIHHIHH", s(p["id"]), p["kind"], p["mood"],
                             (1 if deadly else 0) | (2 if believers else 0), mask, topic, fam, filt, notes, never, tags,
@@ -3478,5 +3490,11 @@ def _plain_of(e: dict) -> str:
     if do == "celebrate":
         return "CELEBRATE"
     if do == "new_villager":
-        return f"NEW VILLAGER ({e.get('age', 'any')})" if not e.get("copy_of") else f"DUPLICATE OF {e['copy_of']}"
+        if e.get("copy_of"):
+            age = e.get("age")
+            return f"DUPLICATE OF {e['copy_of']}" + (f" ({age})" if age else "")
+        # its age, its sex and a child of the newcomers, as plain_effect reads them back
+        sex = {"male": " male", "female": " female"}.get(e.get("sex") or "", "")
+        return (f"NEW VILLAGER ({e.get('age') or 'any'}{sex})"
+                + (" CHILD OF THE NEWCOMERS" if e.get("child_of_newest") else ""))
     return ""

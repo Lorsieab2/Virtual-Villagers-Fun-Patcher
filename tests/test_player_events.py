@@ -584,6 +584,45 @@ class PieceEffectRecords(unittest.TestCase):
         self.assertEqual(links({"party": pe.THEME_FAVOUR}), [plain[0] * pe.THEME_FAVOUR])
         self.assertEqual(links({"x": pe.THEME_FAVOUR}), plain, "an approach's own multiplier is not its answers'")
 
+    def test_tag_bits_are_ored_so_a_minor_keeps_its_block(self):
+        # A child's piece is tagged minor (and never romance) by finish_piece; "Tags: minor, minor" and both
+        # words for one bit ("lesser") once added the bit twice and carried it into the next one.
+        text = ("Piece: kid\nKind: Flavour\nRole k: child\nTags: minor, minor, lesser, "
+                "portraying anyone as lesser\nText: (K) builds a sandcastle.\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, _ = pe.compile_pieces(items, 1)
+        pieces_at = struct.unpack_from("<I", data, 24)[0]
+        never, tags = struct.unpack_from("<II", data, pieces_at + 24)
+        bits = pe.BLOCK_TAGS
+        low = (1 << 5) - 1
+        self.assertEqual(tags & low, (1 << bits["minor"]) | (1 << bits["lesser"]), "minor and lesser, each once")
+        self.assertTrue(never & (1 << bits["romance"]), "a minor's piece never meets romance")
+
+    def test_duplicate_of_the_villager_is_the_pieces_main_slot(self):
+        text = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Wave\nRole a: villager\nText: (A) waves at a boat.\n\n"
+                "Piece: twin\nKind: Outcome\nFamily: f\nAnswers: x\nLabel: Meet a Double\nRole a: villager\n"
+                "Text: (A) meets someone who looks the same.\nEffect: DUPLICATE OF villager\n")
+        items = pe.parse_text(text, "p.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertFalse([str(p) for p in probs], "not kept as flavor: its villager is the piece's main slot")
+        effects_at, n_fx = struct.unpack_from("<II", data, 36)
+        code, role, *_ = struct.unpack_from("<BBBBiiII", data, effects_at)
+        self.assertEqual((n_fx, code), (1, cie.EFFECT_CODES["new_villager"]))
+        twin = next(i for i in items if i.piece["id"] == "twin").piece
+        self.assertEqual(role, list(twin["slots"]).index("subject"), "copy_of the piece's main slot")
+
+    def test_exported_new_villagers_keep_their_sex_and_parents(self):
+        for e in ({"do": "new_villager", "age": "adult", "sex": "female"},
+                  {"do": "new_villager", "age": "child", "child_of_newest": True},
+                  {"do": "new_villager", "sex": "male"},
+                  {"do": "new_villager", "age": "teen", "sex": "male", "child_of_newest": True}):
+            with self.subTest(effect=e):
+                back = pe.plain_effect(pe._plain_of(e))
+                self.assertNotIsInstance(back, str, back)
+                self.assertEqual({k: v for k, v in back.effects[0].items() if v is not None}, e)
+
 
 class InstallAndRules(unittest.TestCase):
     def test_install_writes_only_its_own_files_and_reports_bad_items(self):
