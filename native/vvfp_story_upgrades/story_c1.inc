@@ -962,7 +962,9 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
         TC2(0x428470u, event, type, magnitude);
         return;
     }
-    if (ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+    if (ce_deliver(1, su_long_text, (int)sizeof su_long_text)) {
+        /* the dialog's field holds the text's start when it is longer (Scrolling Popups draws the whole) */
+        su_put_long((char *)event + 0x277F, 0x270F);
         return;
     }
     /* A pick of an island event: the event is chosen (the case roll) and

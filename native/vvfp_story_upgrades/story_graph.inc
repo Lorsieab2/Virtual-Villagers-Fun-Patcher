@@ -146,7 +146,9 @@
 #define CG_MAX_DISPLAYS 96
 #define CG_CAUSE_BYTES 64
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
-#define CG_ENTRY_BYTES 8192
+#define CG_ENTRY_BYTES 0x20000             /* the run's Island Events log entry: 16 questions' choices of up to
+                                              CE_LONG_LINE_BYTES each and every change (run file 5; 4 kept 8,192) */
+#define CG_ENTRY_BYTES_V4 8192
 #define CG_MAX_QUESTIONS 16             /* questions on one history (src/vv_cie_graph.py MAX_QUESTIONS_PER_RUN) */
 #define CG_MAX_ANSWERS 7                /* a question's answers: version 6 two to seven, 4 and 5 two to four, before
                                            exactly two */
@@ -8559,7 +8561,9 @@ static void cg_tick(int game) {
                                               question's buttons, the origin and the cast; 5: the displays' words
                                               in CG_DISPLAY_BYTES (practically unlimited text), not 49,152 */
 /* Versions 2 to 4 kept CG_DISPLAY_BYTES_V4 bytes of displays: every field after them sits that much nearer. */
-#define CG_FILE_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
+#define CG_DISPLAY_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
+#define CG_ENTRY_GROWTH ((unsigned int)(CG_ENTRY_BYTES - CG_ENTRY_BYTES_V4))
+#define CG_FILE_GROWTH (CG_DISPLAY_GROWTH + CG_ENTRY_GROWTH)
 #define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more) - CG_FILE_GROWTH)   /* a version 2 file's state
                                                                                            bytes */
 #define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6) - CG_FILE_GROWTH)     /* a version 3 file's */
@@ -8590,18 +8594,23 @@ static unsigned int cg_file_state_bytes(void) {
          : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
 }
 
-/* A state read from a file before version 5: its fields after the displays' words moved to their places now (the
-   words' room grew by CG_FILE_GROWTH), the room between them empty. */
+/* A state read from a file before version 5: its fields moved to their places now -- the displays' words grew by
+   CG_DISPLAY_GROWTH and the log entry by CG_ENTRY_GROWTH -- the room they gained empty. */
 static void cg_file_widen(cg_state *st) {
     unsigned char *b = (unsigned char *)st;
-    unsigned int at = (unsigned int)offsetof(cg_state, displays) + CG_DISPLAY_BYTES_V4;
-    unsigned int to = (unsigned int)offsetof(cg_state, display_kind);
+    unsigned int words = (unsigned int)offsetof(cg_state, displays), kind = (unsigned int)offsetof(cg_state, display_kind);
+    unsigned int entry = (unsigned int)offsetof(cg_state, entry), after = entry + CG_ENTRY_BYTES;
     unsigned int bytes = cg_file_state_bytes();
-    if (cg_head.version >= CG_FILE_VERSION || bytes <= at || to != at + CG_FILE_GROWTH) {
+    unsigned int old_after = after - CG_FILE_GROWTH, old_kind = kind - CG_DISPLAY_GROWTH;
+    if (cg_head.version >= CG_FILE_VERSION || bytes < old_after || kind != words + CG_DISPLAY_BYTES
+        || (unsigned int)offsetof(cg_state, seg_more) != after) {
         return;
     }
-    memmove(b + to, b + at, bytes - at);
-    memset(b + at, 0, CG_FILE_GROWTH);
+    /* from the far end: what follows the entry, then the displays' kinds up to the old entry's end */
+    memmove(b + after, b + old_after, bytes - old_after);
+    memmove(b + kind, b + old_kind, (entry + CG_ENTRY_BYTES_V4) - kind);
+    memset(b + words + CG_DISPLAY_BYTES_V4, 0, CG_DISPLAY_GROWTH);
+    memset(b + entry + CG_ENTRY_BYTES_V4, 0, CG_ENTRY_GROWTH);
 }
 
 /* A run read from an older file: what it lacks as a run of its own version had it (no alias drawn, every choice
@@ -9326,6 +9335,9 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
     out[5] = (int)CG_DISPLAY_BYTES_V4;
     out[6] = (int)offsetof(cg_state, seg_v6);
     out[7] = (int)CG_FILE_V4_STATE;
+    out[8] = (int)offsetof(cg_state, entry);           /* [8] the log entry's start, [9] its bytes, [10] version 4's */
+    out[9] = (int)CG_ENTRY_BYTES;
+    out[10] = (int)CG_ENTRY_BYTES_V4;
 }
 
 /* cg_queue_origin as story_collection.inc calls it: 1 queued, else 0 with the reason copied to `why` (200 bytes). */

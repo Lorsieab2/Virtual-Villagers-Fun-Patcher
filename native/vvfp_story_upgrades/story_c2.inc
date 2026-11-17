@@ -1020,7 +1020,9 @@ static const ce_adapter C2_ADAPTER = {
 static void __fastcall c2_choose(void *event, void *unused_edx, int kind, int magnitude) {
     (void)unused_edx;
     if (magnitude != VV2_BARREL_MAGNITUDE
-        && ce_deliver(2, (char *)event + 0x277F, 9000)) {
+        && ce_deliver(2, su_long_text, (int)sizeof su_long_text)) {
+        /* the dialog's field holds the text's start when it is longer (Scrolling Popups draws the whole) */
+        su_put_long((char *)event + 0x277F, 9000);
         return;
     }
     TC2(0x434570u, event, kind, magnitude);

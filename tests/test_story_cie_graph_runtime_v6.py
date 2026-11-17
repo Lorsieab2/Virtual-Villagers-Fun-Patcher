@@ -493,14 +493,19 @@ class ResumeAndFile(unittest.TestCase):
         r.tick()
         file = bytearray(r.graph_file())
         r.p.export("VvfpStoryProbeGraphFileLayout", LAYOUT_BUF)
-        v3, head, whole, words_at, words, words_v4, v3_end, v4 = struct.unpack("<8i", r.p.read(LAYOUT_BUF, 32))
+        (v3, head, whole, words_at, words, words_v4, v3_end, v4, entry_at, entry, entry_v4) = struct.unpack(
+            "<11i", r.p.read(LAYOUT_BUF, 44))
+        growth = (words - words_v4) + (entry - entry_v4)
         self.assertEqual(struct.unpack_from("<I", file, 4)[0], 5, "written as version 5")
-        self.assertEqual(v3, v3_end - (words - words_v4))
-        self.assertEqual(v4, whole - (words - words_v4))
+        self.assertEqual(v3, v3_end - growth)
+        self.assertEqual(v4, whole - growth)
         state = bytes(file[head:head + whole])
-        # Versions 2 to 4 kept 49,152 bytes of displays' words: the state as such a file holds it.
+        # Versions 2 to 4 kept 49,152 bytes of displays' words and 8,192 of the log entry: the state as such a file
+        # holds it.
         self.assertTrue(all(b == 0 for b in state[words_at + words_v4:words_at + words]), "the words fit the old room")
-        narrow = state[:words_at + words_v4] + state[words_at + words:]
+        self.assertTrue(all(b == 0 for b in state[entry_at + entry_v4:entry_at + entry]), "the entry fits the old room")
+        narrow = (state[:words_at + words_v4] + state[words_at + words:entry_at + entry_v4]
+                  + state[entry_at + entry:])
         for version, size in ((3, v3), (4, v4)):
             with self.subTest(version=version):
                 old = bytearray(bytes(file[:head]) + narrow[:size] + bytes(file[head + whole:]))

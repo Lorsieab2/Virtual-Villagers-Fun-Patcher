@@ -220,6 +220,39 @@ class Engine(unittest.TestCase):
             self.assertEqual(at, 0, r.p.cstring(at) if at else "")
             break
 
+    def test_three_long_choices_all_reach_the_log(self):
+        """Codex on #776: the run's log entry holds every Choice line of long labels (CG_ENTRY_BYTES grew)."""
+        long = [label(3100, k) for k in range(3)]
+        nodes = {}
+        for q in range(3):
+            nodes[f"q{q}"] = {"type": "question", "text": f"Question {q + 1}?", "choices": [
+                {"label": long[q], "next": f"a{q}"}, {"label": "No", "next": f"a{q}"}]}
+            nodes[f"a{q}"] = {"text": f"Answer {q + 1}.", **({"children": [{"next": f"q{q + 1}"}]} if q < 2 else {})}
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "Three Long Choices", "games": [1, 2, 3, 4, 5],
+             "roles": {}, "start": "q0", "nodes": nodes}
+        data = cg.compile_graph(cg.load(g, scrolling=True))
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r, why = self.start(game, data)
+                self.assertIsNone(why)
+                p = r.p
+                buf = p.alloc(self.BIG)
+                if not r.state()["armed"]:
+                    assert big(p, "VvfpStoryProbeGraphArmNext", r.n) == 1
+                p.write(buf, b"\0")
+                assert big(p, "VvfpStoryProbeChoiceBegin", r.n, buf, self.BIG) == 1
+                for _q in range(3):
+                    p.write(buf, b"\0")
+                    assert big(p, "VvfpStoryProbeChoiceResolve", r.n, 0, buf, self.BIG) == 1
+                p.write(buf, b"\0")
+                self.assertEqual(big(p, "VvfpStoryProbeOnePopupOk", r.n, buf, self.BIG), 0)
+                _n, _now, filed = r.log()
+                flat = " ".join(filed.split())
+                for k in range(3):
+                    self.assertIn(long[k][-40:], flat, f"choice {k + 1} logged whole")
+
     def test_without_scrolling_popups_the_event_is_refused_saying_why(self):
         data = cg.compile_graph(cg.load(long_graph(), scrolling=True))
         for game in GAMES:
