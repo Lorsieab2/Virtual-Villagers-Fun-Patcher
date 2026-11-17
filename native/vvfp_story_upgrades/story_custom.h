@@ -19,7 +19,7 @@
 #define CE_KEEP (-1000000)
 
 #define CE_TITLE_BYTES 48           /* the event's own title */
-#define CE_TEXT_BYTES 600           /* the event's description */
+#define CE_TEXT_BYTES 600           /* the event's description WITHOUT Scrolling Popups (the old cap, NUL included) */
 /* PRACTICALLY UNLIMITED TEXT (the owner, 2026-11-16: "With the scrollbar patch active, Custom Island Events should
    have a practically unlimited character and word count for any text").  With Scrolling Popups a library event's
    texts are limited only by these sanity caps, sized to the file (story_graph.inc CG_MAX_FILE); the dialog's own
@@ -27,6 +27,13 @@
 #define CE_LONG_TEXT_MAX 100000     /* a popup's text, and a node's, in bytes */
 #define CE_LONG_LINE_BYTES 4096     /* a title or a choice's label, NUL included */
 #define CE_LONG_BUF (CE_LONG_TEXT_MAX + 8192)   /* a popup's text as composed (its title line, the gap, the refusals) */
+/* The simple editor's own events (the owner, 2026-11-17: "the simple in-game event editor's text, its button labels
+   ... practically unlimited, like PR #776 did for library events"): an event's description / question / result text
+   and a button's label are kept in fields this large, so with Scrolling Popups they are limited only by the same
+   sanity caps as a library event's; without it the old caps (CE_TEXT_BYTES, CE_BUTTON_BYTES) stay and the editor says
+   why.  Growing them changed the queue file's layout: story_queue.inc reads its version 1 too (ce_event_v1). */
+#define CE_TEXT_STORE CE_LONG_TEXT_MAX      /* ce_event.text, NUL included */
+#define CE_LABEL_STORE CE_LONG_LINE_BYTES   /* ce_choice.labels[b], NUL included */
 #define CE_NAME_BYTES 28            /* a villager name: the longest game field (A New Home's
                                        0x1C, NUL included); each game takes its own */
 #define CE_SKILLS 6
@@ -219,7 +226,7 @@ typedef struct {
 typedef struct {
     int game;
     char title[CE_TITLE_BYTES];
-    char text[CE_TEXT_BYTES];
+    char text[CE_TEXT_STORE];
     int food_op;
     int food_amount;
     int tech_op;
@@ -250,7 +257,7 @@ typedef struct {
    title is unused) is applied exactly as a plain custom event is.  Kept in
    static storage only: a ce_choice is about half a megabyte. */
 #define CE_MAX_OUTCOMES 4
-#define CE_BUTTON_BYTES 40              /* a button label, NUL included (New Believers: 38) */
+#define CE_BUTTON_BYTES 40              /* a button label WITHOUT Scrolling Popups, NUL included (New Believers: 38) */
 #define CE_MAX_CHANCE 100               /* chances are weights 1..CE_MAX_CHANCE */
 #define CE_LABEL_DEFAULT_WIDTH 12       /* a label's characters when the adapter sets none */
 
@@ -261,7 +268,7 @@ typedef struct {
 
 typedef struct {
     int enabled;                         /* 1 = the event asks the question */
-    char labels[2][CE_BUTTON_BYTES];
+    char labels[2][CE_LABEL_STORE];
     int outcome_count[2];                /* 1..CE_MAX_OUTCOMES each */
     ce_outcome outcomes[2][CE_MAX_OUTCOMES];
     /* The villager in the popup's picture: record index + 1 (0 = a random

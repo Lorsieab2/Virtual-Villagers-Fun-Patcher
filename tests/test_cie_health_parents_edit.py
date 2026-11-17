@@ -271,7 +271,7 @@ class EditTests(unittest.TestCase):
                                 father_name="Joey", father_head=2, father_body=2).pack())
         self.assertEqual(p.export("VvfpStoryProbeReplace", EVENT_BUF, 0, SCRATCH, 0x22), 1)
         self.assertEqual(p.export("VvfpStoryProbeReplace", EVENT_BUF, 3, SCRATCH, 0x22), 0, "no entry 3")
-        at = 4 + 48 + 600 + 4 * 7 + 8 * Event.SPAWN_SIZE
+        at = 4 + 48 + Event.TEXT_BYTES + 4 * 7 + 8 * Event.SPAWN_SIZE
         self.assertEqual(struct.unpack("<i", p.read(EVENT_BUF + at, 4))[0], 3, "still three entries")
 
         def entry(k):

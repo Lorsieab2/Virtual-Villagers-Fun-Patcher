@@ -58,7 +58,7 @@ except ImportError:  # pragma: no cover - environment dependent
     HAVE_CAPSTONE = False
 
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
-CHOICE_BUF = EVENT_BUF + 0x2C000 if HAVE_EMULATOR else 0
+CHOICE_BUF = EVENT_BUF + 0x48000 if HAVE_EMULATOR else 0
 
 # (the count call, the count routine, where it skips to, the routine between
 #  the draw and the age check, the register it is kept in, the resume point)

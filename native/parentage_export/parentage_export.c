@@ -1755,7 +1755,7 @@ static void scan_memo_keep(int kind, int arg, const wchar_t *path, const WIN32_F
 static int count_family_records_read(const wchar_t *path, int family, int *read) {
     FILE *file = _wfopen(path, L"rb");
     int count = 0;
-    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
+    char line[8192];   /* a log line: a Likes list can run to hundreds of characters, a Custom Island Event's own cause words to 4,095 */
     const char *marker = family_marker(family);
     size_t marker_length = strlen(marker);
 
@@ -2011,7 +2011,7 @@ static int highest_log_number(const wchar_t *stem,
    after the family's marker ("Death 7", "Conception 12"): 0 and 0 for an absent folder. */
 static void folder_numbers(const wchar_t *folder, const wchar_t *stem, int family, int *count, int *highest) {
     wchar_t path[MAX_LOG_PATH];
-    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
+    char line[8192];   /* a log line: a Likes list can run to hundreds of characters, a Custom Island Event's own cause words to 4,095 */
     const char *marker = family_marker(family);
     size_t marker_length = strlen(marker);
     int ceiling, number;
@@ -2727,7 +2727,9 @@ static int is_record_slot(
 
 /* One rendered record: 13 short lines, a skills block of at most 512, and up to four
    likes / dislikes lists of PREFERENCE_TEXT_MAX each (a Conception names both parents'). */
-#define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX)
+/* (+ 4096: a Death record's "Cause of death:" may be a Custom Island Event's own words, up to 4,095 characters with
+   Scrolling Popups -- the owner, 2026-11-17; "VVFP Cause of Death.dll" cod_cie_words.inc CW_WORDS.) */
+#define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX + 4096)
 
 /* The game's own current save slot (its save manager's field; see game_slot_now below), and
    whether that save manager can be read at all. */
@@ -3163,7 +3165,7 @@ static int count_running_records(const struct game_layout *g, int births) {
     wchar_t folders[VV_LOG_READ_MAX][MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     const wchar_t *stem = family_stem(g, LOG_BIRTHS);
-    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
+    char line[8192];   /* a log line: a Likes list can run to hundreds of characters, a Custom Island Event's own cause words to 4,095 */
     int ceiling;
     int number;
     int best = 0;
