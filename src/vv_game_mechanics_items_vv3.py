@@ -237,7 +237,7 @@ def _techs() -> list[Entry]:
             "faction for your tribe, you cannot change it.\", and once one is above 0 clicking the other only says "
             "\"You have already chosen your faction!\" -- a stock village has one faction for good."), VERIFIED_C,
             ((patch("vv3_both_factions") + ": the second faction can be bought too, at its Tech screen price (its normal "
-              "price, times the multiplier with \"2-100x Tech Cost\"); buying "
+              "price, times the multiplier with \"0.1-100x Tech Cost\"); buying "
               "level 1 of either asks \"With the power of the Fun Patcher, you can now embrace both Nature and Magic "
               "Factions. Use this gift wisely.\", and every level of both works at once. The save keeps the first "
               "faction; the second is kept in the patcher's per-save file (Virtual Villagers 3 Second Faction - Save "

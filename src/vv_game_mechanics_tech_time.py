@@ -38,8 +38,8 @@ matching docs/hidden-gates-all-five-games.md (Research sections) and src/vv_game
     +0x17D54 appear nowhere in the chooser, the skill test, the payout or the tech adders VV1 0x41D120, VV2
     0x426290, VV3 0x427130, VV4 0x41E300, VV5 0x4237B0), and the prices are fixed tables (VV1 0x435AF8, VV2
     0x44380A, VV3 0x427020, VV4 0x41E220, VV5 0x4236D0).
-  * The patcher's 2-100x Tech Cost (vv<N>_tech_cost_multiplier, off by default; scripts/build_tech_cost_multiplier_features.py)
-    multiplies every price in those places by the player's whole number 2 to 100, so the Tech screen, its refusal and
+  * The patcher's 0.1-100x Tech Cost (vv<N>_tech_cost_multiplier, off by default; scripts/build_tech_cost_multiplier_features.py)
+    multiplies every price in those places by the player's number 0.1 to 100 (a whole tech point, never below 1), so the Tech screen, its refusal and
     its charge all use N x the table here.  N is read back from the game's executable (its first price site, divided
     by the stock price there; read_multiplier): with it in the game every price and time below is worked out from
     the multiplied price, the stock one named first.
@@ -56,7 +56,9 @@ RESEARCH_SHOWN = 50            # the Research skill the page's figures are for (
 TOP = 3                        # every technology's top level
 FIRE = 0.1                     # the fire's +1 on rand(100) < 10
 WORK_AGE = 280                 # age units (14 years): who gets job turns
-MULTIPLIERS = range(2, 101)    # 2-100x Tech Cost: every technology level costs N x its stock price, N 2 to 100
+# 0.1-100x Tech Cost: every technology level costs N x its stock price, N 0.1 to 100 in tenths (the owner, 2026-11-17:
+# every slider goes less as well as more), each price rounded to a whole tech point, never below 1.
+MULTIPLIER_TENTHS = range(1, 1001)
 
 
 def multiplier_feature(game: int) -> str:
@@ -121,7 +123,7 @@ def difficulty_line(game: int) -> str:
     # Believers 0x46A3C0, 0x46B270, 0x46DB7B, 0x4237B0, prices 0x4236D0.
     return ("Difficulty (Easy, Medium or Hard) changes none of these times: the job choice, the Research test, the "
             "payout and the adding of the points never read it, and the prices are fixed (the game's price table; x N "
-            "with \"2-100x Tech Cost\"). It changes how much the villagers eat (Food estimates).")
+            "with \"0.1-100x Tech Cost\"). It changes how much the villagers eat (Food estimates).")
 
 
 # The job turn's low-food test: The Secret City 0x45BF00, The Tree of Life 0x465750, New Believers 0x46E985.
@@ -176,15 +178,24 @@ def stock_price(game: int, name: str, level: int) -> int:
     return next(two if level == 2 else three for _, n, two, three in items.TECHS if n == name)
 
 
-def price(game: int, name: str, level: int, factor: int = 1) -> int:
-    """The tech points level `level` of `name` costs: `factor` x the stock price (2-100x Tech Cost's multiplier)."""
-    return stock_price(game, name, level) * factor
+def scaled_price(stock: int, factor) -> int:
+    """A stock price at x `factor` as the patcher writes it (vv_fun_patcher.tech_cost_price): rounded to a whole tech
+    point, halves up, never below 1."""
+    if isinstance(factor, int):
+        return stock * factor
+    return max(1, (stock * round(factor * 10) + 5) // 10)
 
 
-def multiplier_in_bytes(game: int, data: bytes) -> int | None:
-    """The 2-100x Tech Cost multiplier an executable's bytes hold: k when every one of the row's price sites
-    (data/vv<N>_tech_cost_multiplier_feature.json) holds its stock value x k, for one whole k from 2 to 100;
-    otherwise None (the row is not in these bytes, or they are not one consistent build)."""
+def price(game: int, name: str, level: int, factor=1) -> int:
+    """The tech points level `level` of `name` costs: `factor` x the stock price (0.1-100x Tech Cost's multiplier)."""
+    return scaled_price(stock_price(game, name, level), factor)
+
+
+def multiplier_in_bytes(game: int, data: bytes) -> int | float | None:
+    """The 0.1-100x Tech Cost multiplier an executable's bytes hold: k when every one of the row's price sites
+    (data/vv<N>_tech_cost_multiplier_feature.json) holds its stock value x k as the patcher writes it (scaled_price),
+    for one k from 0.1 to 100 in tenths (an int when whole); otherwise None (the row is not in these bytes, or they
+    are not one consistent build)."""
     import json
     from pathlib import Path
     try:
@@ -197,14 +208,18 @@ def multiplier_in_bytes(game: int, data: bytes) -> int | None:
         return None
     if not values or any(stock <= 0 for _, stock in values):
         return None
-    factors = {value // stock if value % stock == 0 else 0 for value, stock in values}
-    if len(factors) != 1 or next(iter(factors)) not in MULTIPLIERS:
+    value, stock = max(values, key=lambda pair: pair[1])
+    tenths = round(value * 10 / stock)
+    if tenths not in MULTIPLIER_TENTHS:
         return None
-    return next(iter(factors))
+    factor = tenths // 10 if tenths % 10 == 0 else tenths / 10
+    if any(scaled_price(stock, factor) != value for value, stock in values):
+        return None
+    return factor
 
 
-def read_multiplier(village) -> int | None:
-    """2-100x Tech Cost's multiplier in the game's executable (multiplier_in_bytes).  None when the row is not known
+def read_multiplier(village) -> int | float | None:
+    """0.1-100x Tech Cost's multiplier in the game's executable (multiplier_in_bytes).  None when the row is not known
     to be in the game, or the executable is not found or cannot be read or holds no consistent multiplier."""
     game = village.game
     exe = getattr(village, "exe", None)
@@ -222,9 +237,10 @@ def patcher_line(village) -> str:
     or not known."""
     game = village.game
     name = gm.feature_name(multiplier_feature(game))
-    head = (f"With the patcher (\"{name}\", off by default): every technology level costs 2 to 100 times its normal "
-            "price, the whole number the player picks on the patcher window's slider (3 unless moved); the Tech "
-            "screen shows the multiplied price, refuses a purchase with fewer points and takes exactly that many.")
+    head = (f"With the patcher (\"{name}\", off by default): every technology level costs 0.1 to 100 times its "
+            "normal price, the number the player picks on the patcher window's slider (3 unless moved; 1 is the normal "
+            "price, below 1 cheaper, each price a whole tech point and never below 1); the Tech screen shows that "
+            "price, refuses a purchase with fewer points and takes exactly that many.")
     has = village.has(multiplier_feature(game))
     if has is None:
         return head + " Whether the game has it could not be told."
@@ -251,9 +267,9 @@ def every_level(game: int) -> list[tuple[str, int]]:
     return [(name, level) for name in names for level in range(lowest.get(name, 2), TOP + 1)]
 
 
-def cost_words(game: int, points: int, stock: int, factor: int) -> str:
-    """A price as the page says it: with 2-100x Tech Cost in the game (factor 2 to 100), the stock price first, then
-    the multiplied one."""
+def cost_words(game: int, points: int, stock: int, factor) -> str:
+    """A price as the page says it: with 0.1-100x Tech Cost in the game (factor 0.1 to 100, not 1), the stock price
+    first, then the multiplied one."""
     if factor == 1:
         return f"{points:,} tech points"
     return (f"{stock:,} tech points normally, {points:,} with \"{gm.feature_name(multiplier_feature(game))}\" "
@@ -261,14 +277,14 @@ def cost_words(game: int, points: int, stock: int, factor: int) -> str:
 
 
 def unread_words(game: int, stock: int) -> str:
-    """A price when 2-100x Tech Cost is in the game but its multiplier could not be read."""
-    return (f"{stock:,} tech points normally, {MULTIPLIERS[0] * stock:,} to {MULTIPLIERS[-1] * stock:,} with "
+    """A price when 0.1-100x Tech Cost is in the game but its multiplier could not be read."""
+    return (f"{stock:,} tech points normally, {scaled_price(stock, 0.1):,} to {scaled_price(stock, 100):,} with "
             f"\"{gm.feature_name(multiplier_feature(game))}\" (its multiplier could not be read from the game's "
             "executable)")
 
 
 def multiplied_item_facts(village, facts: list) -> list:
-    """The Technologies entries with 2-100x Tech Cost in the game: each level's price is the stock one, then the
+    """The Technologies entries with 0.1-100x Tech Cost in the game: each level's price is the stock one, then the
     multiplied one.  Every game's entry bullet starts "<technology> level <n>" and names its price "<price> tech
     points" (tests/test_tech_cost_multiplier.py checks that every level is found)."""
     game = village.game
@@ -292,7 +308,8 @@ def multiplied_item_facts(village, facts: list) -> list:
                 continue
             out[k] = dataclasses.replace(fact, text=fact.text.replace(
                 f"{stock:,} tech points",
-                cost_words(game, factor * stock, stock, factor) if factor else unread_words(game, stock), 1))
+                cost_words(game, scaled_price(stock, factor), stock, factor) if factor else unread_words(game, stock),
+                1))
             break
     return out
 
@@ -506,20 +523,20 @@ def lines(ctx, everyone) -> list[gm.Fact]:
 
     # How it is worked out.
     add(rule.rule, gm.CODE)
-    if multiplied and factor > 1:
+    if multiplied and factor != 1:
         add(gm.patch_words(village, multiplier_feature(game), f"every technology level costs {factor} times its "
                            "normal price, the multiplier read from the game's executable (the Tech screen shows it, "
                            "refuses a purchase with fewer points and takes it), so the points still needed and every "
-                           "time above are worked out from the multiplied prices"), gm.CODE)
+                           "time above are worked out from those prices"), gm.CODE)
     elif multiplied:
-        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 100 times its normal "
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 0.1 to 100 times its normal "
                            "price, but the multiplier could not be read from the game's executable, so the points "
                            "still needed and the times above are for the normal prices: with the patch each is "
-                           "larger"), gm.CODE)
+                           "larger, or smaller below 1"), gm.CODE)
     elif unknown:
-        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 100 times its normal "
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 0.1 to 100 times its normal "
                            "price, so the points still needed and the times above, worked out from the normal "
-                           "prices, would each be larger"), gm.CODE)
+                           "prices, would each be larger (or smaller below 1)"), gm.CODE)
     if rule.fire:
         fired = per_unit(game, levels, RESEARCH_SHOWN, lab, True, never) if now else 0.0
         if fired:

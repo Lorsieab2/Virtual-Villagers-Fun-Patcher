@@ -145,6 +145,11 @@ FILES = [
     "assets/island_frequency/VVFP Island Frequency.dll",
     # No Safeguards for Island Events (and Additional Events too) (all five games): the game's own events' companion.
     "assets/no_safeguards/VVFP No Safeguards.dll",
+    # The third word of companions (native/shared/startup_companions_3.h) and its record, and Hungrier Villagers'
+    # meal companion for a multiplier that is not whole food (the owner, 2026-11-17: every slider goes less as well).
+    "assets/more_companions/VVFP More Companions.dll",
+    "data/more_companions_companion.json",
+    "assets/meal_scale/VVFP Meal Scale.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -304,7 +309,7 @@ FILES = [
     "data/vv3_push_overview_clouds_feature.json",
     # Heathens Keep Their Masks When Converted (New Believers).
     "data/vv5_heathens_keep_masks_feature.json",
-    # 2-100x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
+    # 0.1-100x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",
     "data/vv3_tech_cost_multiplier_feature.json",

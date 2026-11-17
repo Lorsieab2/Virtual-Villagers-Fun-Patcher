@@ -1,4 +1,4 @@
-"""2-100x Tech Cost (all five games; ids vv1_tech_cost_multiplier .. vv5_tech_cost_multiplier), off by default.
+"""0.1-100x Tech Cost (all five games; ids vv1_tech_cost_multiplier .. vv5_tech_cost_multiplier), off by default.
 
 The owner (2026-11-06): "Default OFF: "Triple Tech Cost" = triples all technologies so they have 3x the normal cost.
 makes the game super hard." and "7 should be default off for everything. players who want it must explicitly choose
@@ -87,7 +87,7 @@ _RENDERED: dict[tuple[int, str, int], bytes] = {}
 
 
 def rendered(game: int, ids: tuple[str, ...], multiplier: int = 3) -> bytes:
-    """The patcher's render of `ids`, with 2-100x Tech Cost's multiplier written as a published build has it."""
+    """The patcher's render of `ids`, with 0.1-100x Tech Cost's multiplier written as a published build has it."""
     key = (game, ",".join(ids), multiplier)
     if key not in _RENDERED:
         data, applied = patcher.render_patched_bytes(
@@ -350,11 +350,11 @@ class ManifestTests(unittest.TestCase):
         for game in GAMES:
             with self.subTest(game=game):
                 m = manifest(game)
-                self.assertEqual((m["id"], m["game_id"], m["name"]), (IDS[game], f"vv{game}", "2-100x Tech Cost"))
+                self.assertEqual((m["id"], m["game_id"], m["name"]), (IDS[game], f"vv{game}", "0.1-100x Tech Cost"))
                 self.assertTrue(m["description"].endswith(
-                    "The higher you set it, the harder the game. **Needs no other patch.**"))
-                self.assertIn("2 to 100 times its normal price", m["description"])
-                self.assertEqual(m["tech_cost_multiplier"], {"default": 3, "minimum": 2, "maximum": 100})
+                    "The higher you set it, the harder the game; the lower, the easier. **Needs no other patch.**"))
+                self.assertIn("0.1 to 100 times its normal price", m["description"])
+                self.assertEqual(m["tech_cost_multiplier"], {"default": 3, "minimum": 0.1, "maximum": 100})
                 self.assertEqual(m["companion_files"], [])
 
     def test_every_edit_is_a_price_times_three_in_place(self):
@@ -531,7 +531,7 @@ class RegistrationTests(unittest.TestCase):
         for game in GAMES:
             with self.subTest(game=game):
                 row = public[IDS[game]]
-                self.assertEqual(row.name, "2-100x Tech Cost")
+                self.assertEqual(row.name, "0.1-100x Tech Cost")
                 # The Tree of Life and New Believers: Classic VV Difficulty needs it (the owner, 2026-11-07).
                 self.assertEqual(patcher.patch_requirement_text(row, list(public.values())),
                                  "Requires no other patch to be ticked."
@@ -539,7 +539,7 @@ class RegistrationTests(unittest.TestCase):
                                     if game in (4, 5) else ""))
                 self.assertIn(f'"data/vv{game}_tech_cost_multiplier_feature.json"', release)
                 self.assertIn(f"- Patch ID: `{IDS[game]}`", readme)
-                self.assertIn(f"#### 2-100x Tech Cost (`{IDS[game]}`)", doc)
+                self.assertIn(f"#### 0.1-100x Tech Cost (`{IDS[game]}`)", doc)
 
     def test_only_its_own_row_ticks_it(self):
         """The owner: "7 should be default off for everything. players who want it must explicitly choose it."
@@ -598,14 +598,37 @@ class PublishTests(unittest.TestCase):
         patcher.apply_tech_cost_multiplier(data, "vv4", 10, applied)
         self.assertEqual(bytes(data), before)
 
-    def test_only_whole_numbers_2_to_100(self):
-        for bad in (1, 101, 0, -3, 2.5, "3", True, None):
+    def test_only_tenths_from_a_tenth_to_100(self):
+        for bad in (101, 0, -3, 0.05, 2.55, 100.1, "3", True, None):
             with self.subTest(value=bad):
                 with self.assertRaises(patcher.PatcherError):
                     patcher.validate_tech_cost_multiplier(bad)
-        for good in range(2, 101):
+        for good in [*range(1, 101), 0.1, 0.5, 2.5, 99.9]:
             self.assertEqual(patcher.validate_tech_cost_multiplier(good), good)
         self.assertEqual(patcher.TECH_COST_MULTIPLIER_DEFAULT, 3)
+
+    def test_below_one_every_price_is_cheaper_whole_and_never_free(self):
+        """The owner (2026-11-17): the slider goes less as well as more.  x 0.5 halves each price (halves up), x 0.1
+        is a tenth, and no price is ever 0 (a free technology would be a cheat)."""
+        self.assertEqual(patcher.tech_cost_price(5_000, 0.5), 2_500)
+        self.assertEqual(patcher.tech_cost_price(2_500, 0.1), 250)
+        self.assertEqual(patcher.tech_cost_price(5, 0.1), 1)          # 0.5 rounds up
+        self.assertEqual(patcher.tech_cost_price(4, 0.1), 1)          # 0.4 would be 0: never free
+        self.assertEqual(patcher.tech_cost_price(250_000, 100), 25_000_000)
+        self.assertEqual(patcher.tech_cost_price(6_000, 1), 6_000)
+        for game in GAMES:
+            stock_bytes(game)
+            for n in (0.1, 0.5, 1, 1.7):
+                with self.subTest(game=game, n=n):
+                    data, applied = patcher.render_patched_bytes(
+                        stock_path(game), BUILDS[game], patcher.DEFAULT_PATCH_MODE, [IDS[game]])
+                    patcher.apply_tech_cost_multiplier(data, f"vv{game}", n, applied)
+                    for site in manifest(game)["patches"]:
+                        o = int(site["offset"], 16)
+                        stock = struct.unpack("<i", bytes.fromhex(site["before"]))[0]
+                        self.assertEqual(struct.unpack_from("<i", data, o)[0], patcher.tech_cost_price(stock, n))
+                        self.assertGreaterEqual(struct.unpack_from("<i", data, o)[0], 1)
+                    self.assertEqual(patcher.tech_cost_multiplier_applied(applied), n)
 
     def test_a_site_that_is_not_the_rendered_price_is_refused(self):
         stock_bytes(5)
@@ -635,14 +658,16 @@ class PublishTests(unittest.TestCase):
         self.assertIn("at x 7", text)
         self.assertNotIn("at x 3", text)
 
-    def test_the_command_line_takes_2_to_100(self):
+    def test_the_command_line_takes_a_tenth_to_100(self):
         import argparse
         parser = argparse.ArgumentParser()
         patcher._add_check_logs_arg(parser)
         self.assertEqual(parser.parse_args([]).tech_cost_multiplier, 3)
         self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "10"]).tech_cost_multiplier, 10)
         self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "100"]).tech_cost_multiplier, 100)
-        for bad in ("1", "101"):
+        self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "0.5"]).tech_cost_multiplier, 0.5)
+        self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "1"]).tech_cost_multiplier, 1)
+        for bad in ("0", "101", "0.05", "x"):
             with self.subTest(value=bad), self.assertRaises(SystemExit):
                 parser.parse_args(["--tech-cost-multiplier", bad])
 
@@ -673,7 +698,7 @@ class WrittenLogTests(unittest.TestCase):
                 self.assertEqual(struct.unpack("<i", bytes.fromhex(r["after"]))[0], 5 * old)
                 self.assertIn(f" -> {5 * old:,} at x 5", r["purpose"])
             report = next(Path(output).parent.rglob("VVFP Transparency Log.txt")).read_text(encoding="utf-8")
-            self.assertIn("  Multiplier: x5 (the 2-100x Tech Cost slider): every technology price is its normal "
+            self.assertIn("  Multiplier: x5 (the 0.1-100x Tech Cost slider): every technology price is its normal "
                           "price times this.", report)
             self.assertNotIn("at x 3", report)
             exe = Path(output).read_bytes()
@@ -692,7 +717,8 @@ class WrittenLogTests(unittest.TestCase):
 
 class ExeWithoutLogTests(unittest.TestCase):
     """With no patch log beside it, the Game Mechanics page reads the patch list from the exe's bytes: a build at
-    any multiplier is recognised (every price site the stock value x one k from 2 to 100)."""
+    any multiplier but 1 is recognised (every price site the stock value x one k from 0.1 to 100, as the patcher
+    writes it); at 1 the bytes are the normal game's."""
 
     def test_every_multiplier_is_seen_in_the_bytes(self):
         import vv_game_mechanics as gm
@@ -700,7 +726,7 @@ class ExeWithoutLogTests(unittest.TestCase):
         import tempfile
         for game in GAMES:
             stock_bytes(game)
-            for n in (2, 5, 10, 100):
+            for n in (2, 5, 10, 100, 0.1, 0.5, 1.7):
                 with self.subTest(game=game, n=n):
                     data = rendered(game, (IDS[game],), n)
                     self.assertEqual(tt.multiplier_in_bytes(game, data), n)
@@ -709,7 +735,12 @@ class ExeWithoutLogTests(unittest.TestCase):
                         exe.write_bytes(data)
                         self.assertIn(IDS[game], gm._from_exe(exe, game))
             with self.subTest(game=game, n="stock"):
-                self.assertIsNone(tt.multiplier_in_bytes(game, stock_bytes(game)))
+                # The stock bytes are x 1: the multiplier reads as 1, and the row is not claimed from the bytes.
+                self.assertEqual(tt.multiplier_in_bytes(game, stock_bytes(game)), 1)
+                with tempfile.TemporaryDirectory() as temp:
+                    exe = Path(temp) / "game.exe"
+                    exe.write_bytes(stock_bytes(game))
+                    self.assertNotIn(IDS[game], gm._from_exe(exe, game))
             with self.subTest(game=game, n="mixed"):
                 mixed = bytearray(rendered(game, (IDS[game],), 5))
                 site = manifest(game)["patches"][-1]
@@ -757,10 +788,10 @@ class RenderedPageTests(unittest.TestCase):
             stock_bytes(game)
             texts = self.page(game, rendered(game, (IDS[game],), 5))
             with self.subTest(game=game):
-                self.assertTrue(any(t.startswith("With the patcher (\"2-100x Tech Cost\", off by default)")
+                self.assertTrue(any(t.startswith("With the patcher (\"0.1-100x Tech Cost\", off by default)")
                                     and t.endswith("It is in this game at x5.") for t in texts))
                 for (name, level), price in stock_table(game).items():
-                    want = f"{price:,} tech points normally, {5 * price:,} with \"2-100x Tech Cost\" (x5)"
+                    want = f"{price:,} tech points normally, {5 * price:,} with \"0.1-100x Tech Cost\" (x5)"
                     self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in texts),
                                     (name, level))
                 self.assertTrue(any("costs 5 times its normal price, the multiplier read from the game's executable"
@@ -774,7 +805,7 @@ class RenderedPageTests(unittest.TestCase):
         for game in GAMES:
             texts = self.page(game, stock_bytes(game), logged=[])
             with self.subTest(game=game):
-                self.assertTrue(any(t.startswith("With the patcher (\"2-100x Tech Cost\"")
+                self.assertTrue(any(t.startswith("With the patcher (\"0.1-100x Tech Cost\"")
                                     and t.endswith("It is not in this game.") for t in texts))
                 self.assertFalse(any(" tech points normally, " in t for t in texts))
 
@@ -783,47 +814,47 @@ class RenderedPageTests(unittest.TestCase):
         for game in GAMES:
             with self.subTest(game=game, page="save, no game found"):
                 texts = self.page(game, None)
-                self.assertTrue(any(t.startswith("With the patcher (\"2-100x Tech Cost\"")
+                self.assertTrue(any(t.startswith("With the patcher (\"0.1-100x Tech Cost\"")
                                     and t.endswith("Whether the game has it could not be told.") for t in texts))
                 self.assertFalse(any(" tech points normally, " in t for t in texts))
-                self.assertTrue(any("2-100x Tech Cost" in t and "could not be told" in t
+                self.assertTrue(any("0.1-100x Tech Cost" in t and "could not be told" in t
                                     and "would each be larger" in t for t in texts))
             with self.subTest(game=game, page="general"):
                 texts = [f.text for f in gm.general(game, now=self.NOW)]
-                self.assertTrue(any(t.startswith("With the patcher (\"2-100x Tech Cost\"")
+                self.assertTrue(any(t.startswith("With the patcher (\"0.1-100x Tech Cost\"")
                                     and t.endswith("Whether the game has it could not be told.") for t in texts))
                 self.assertFalse(any(" tech points normally, " in t for t in texts))
 
     def test_the_difficulty_line_names_the_multiplier(self):
         import vv_game_mechanics_tech_time as tt
         for game in GAMES:
-            self.assertIn("; x N with \"2-100x Tech Cost\")", tt.difficulty_line(game))
+            self.assertIn("; x N with \"0.1-100x Tech Cost\")", tt.difficulty_line(game))
 
 
 class SliderTests(unittest.TestCase):
-    """The patcher window's 2-100x Tech Cost slider: whole numbers 2 to 100, 3 unless moved, saved and restored with
-    the settings, and handed to every dry run and build."""
+    """The patcher window's 0.1-100x Tech Cost slider: 0.1 to 100 in tenths, 3 unless moved, saved and restored with
+    the settings, and handed to every dry run and build (tests/test_multiplier_sliders_gui.py checks the track and the
+    box)."""
 
     def gui_source(self) -> str:
         return (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
 
-    def test_the_slider_is_2_to_100_whole_numbers(self):
+    def test_the_slider_is_a_tenth_to_100(self):
         source = self.gui_source()
-        body = source[source.index("self.tech_cost_scale = tk.Scale("):]
+        body = source[source.index("self.tech_cost_scale, self.tech_cost_box = self._multiplier_slider("):]
         body = body[:body.index(")\n")]
-        self.assertIn("variable=self.tech_cost_var", body)
-        self.assertIn("from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1", body)
-        self.assertEqual((patcher.TECH_COST_MULTIPLIER_RANGE[0], patcher.TECH_COST_MULTIPLIER_RANGE[-1]), (2, 100))
-        self.assertIn("self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)", source)
-        self.assertIn('self._help_button(tech_cost_group, "tech_cost_multiplier")', source)
+        self.assertIn("self.tech_cost_var, TECH_COST_MULTIPLIER_RANGE", body)
+        self.assertIn('"tech_cost_multiplier"', body)
+        self.assertEqual((patcher.TECH_COST_MULTIPLIER_RANGE[0], patcher.TECH_COST_MULTIPLIER_RANGE[-1]), (0.1, 100))
+        self.assertIn("self.tech_cost_var = tk.DoubleVar(value=TECH_COST_MULTIPLIER_DEFAULT)", source)
 
     def test_it_is_saved_and_restored(self):
         source = self.gui_source()
         self.assertIn('"tech_cost_multiplier": (App._tech_cost_multiplier(self) if hasattr(self, "tech_cost_var")',
                       source)
         self.assertIn("            self.tech_cost_var.set(saved_tech_cost_multiplier(data))", source)
-        for saved, restored in ((2, 2), (10, 10), (100, 100), (7, 7), (1, 3), (101, 3), ("5", 3), (5.0, 3), (True, 3),
-                                (None, 3)):
+        for saved, restored in ((2, 2), (10, 10), (100, 100), (7, 7), (1, 1), (0.5, 0.5), (0, 0.1), (101, 100),
+                                ("5", 3), (5.0, 5), (True, 3), (None, 3)):
             with self.subTest(saved=saved):
                 self.assertEqual(gui.saved_tech_cost_multiplier({"tech_cost_multiplier": saved}), restored)
         self.assertEqual(gui.saved_tech_cost_multiplier({}), 3)
@@ -834,20 +865,6 @@ class SliderTests(unittest.TestCase):
                          source.count("check_logs_automatically=check_logs,"))
         self.assertEqual(source.count("tech_cost_multiplier=tech_cost,"), 6)
 
-    def test_the_slider_works_in_tk(self):
-        import tkinter as tk
-        try:
-            root = tk.Tk()
-        except tk.TclError as exc:  # pragma: no cover - no display
-            raise unittest.SkipTest(f"no Tk display ({exc})")
-        try:
-            var = tk.IntVar(value=patcher.TECH_COST_MULTIPLIER_DEFAULT)
-            scale = tk.Scale(root, variable=var, orient="horizontal", from_=2, to=100, resolution=1)
-            for wanted, shown in ((0, 2), (5, 5), (100, 100), (999, 100)):
-                scale.set(wanted)
-                self.assertEqual(var.get(), shown)
-        finally:
-            root.destroy()
 
 
 class GameMechanicsTests(unittest.TestCase):
@@ -881,8 +898,11 @@ class GameMechanicsTests(unittest.TestCase):
             for n in (2, 3, 10):
                 with self.subTest(game=game, n=n):
                     self.assertEqual(tt.read_multiplier(self.Village(game, True, self.exe(game, n))), n)
+            with self.subTest(game=game, n=0.5):
+                self.assertEqual(tt.read_multiplier(self.Village(game, True, self.exe(game, 0.5))), 0.5)
+            with self.subTest(game=game, case="stock bytes: x 1"):
+                self.assertEqual(tt.read_multiplier(self.Village(game, True, self.exe(game, None))), 1)
             with self.subTest(game=game, case="unreadable"):
-                self.assertIsNone(tt.read_multiplier(self.Village(game, True, self.exe(game, None))))
                 self.assertIsNone(tt.read_multiplier(self.Village(game, True, None)))
                 self.assertIsNone(tt.read_multiplier(self.Village(game, False, self.exe(game, 4))))
 
@@ -890,23 +910,37 @@ class GameMechanicsTests(unittest.TestCase):
         import vv_game_mechanics_tech_time as tt
         for game in GAMES:
             facts = self.facts(game)
-            line = lambda fact: fact.text.startswith('With the patcher ("2-100x Tech Cost"')  # noqa: E731
+            line = lambda fact: fact.text.startswith('With the patcher ("0.1-100x Tech Cost"')  # noqa: E731
             for has in (False, None):
                 out = tt.multiplied_item_facts(self.Village(game, has, self.exe(game, 4)), facts)
                 self.assertEqual([f for f in out if not line(f)], facts)       # only the Tech screen's patch line
                 self.assertEqual(sum(1 for f in out if line(f)), 1)
-            for n in (2, 3, 10, None):
-                exe = self.exe(game, n)
+            for n in (2, 3, 10, 0.5, "mixed"):
+                if n == "mixed":
+                    mixed = bytearray(rendered(game, (IDS[game],), 5))
+                    site = manifest(game)["patches"][-1]
+                    struct.pack_into("<i", mixed, int(site["offset"], 16),
+                                     4 * struct.unpack("<i", bytes.fromhex(site["before"]))[0])
+                    exe = self.exe(game, None)
+                    exe.write_bytes(bytes(mixed))
+                else:
+                    exe = self.exe(game, n)
                 out = [f for f in tt.multiplied_item_facts(self.Village(game, True, exe), facts) if not line(f)]
                 changed = [b.text for a, b in zip(facts, out) if a.text != b.text]
                 with self.subTest(game=game, n=n):
                     self.assertEqual(len(changed), len(stock_table(game)))
                     for (name, level), price in stock_table(game).items():
-                        want = (f"{price:,} tech points normally, {n * price:,} with \"2-100x Tech Cost\" (x{n})"
-                                if n else f"{price:,} tech points normally, {2 * price:,} to {100 * price:,} with "
-                                          "\"2-100x Tech Cost\" (its multiplier could not be read")
+                        want = (f"{price:,} tech points normally, {patcher.tech_cost_price(price, n):,} with "
+                                f"\"0.1-100x Tech Cost\" (x{n})"
+                                if n != "mixed" else f"{price:,} tech points normally, "
+                                f"{patcher.tech_cost_price(price, 0.1):,} to {100 * price:,} with "
+                                "\"0.1-100x Tech Cost\" (its multiplier could not be read")
                         self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in changed),
                                         (name, level))
+            with self.subTest(game=game, n="stock bytes: x 1, the normal prices"):
+                out = [f for f in tt.multiplied_item_facts(self.Village(game, True, self.exe(game, None)), facts)
+                       if not line(f)]
+                self.assertEqual(out, facts)
 
     def test_the_catch_up_times_use_the_multiplied_prices(self):
         import vv_game_mechanics_tech_time as tt

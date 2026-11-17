@@ -78,11 +78,14 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
     /* More Frequent Island Events (all five games): the game's own island events N times as often (the patcher
-       window's slider, read from the file VVFP Island Frequency.txt beside it). */
+       window's slider, read from VVFP Island Frequency.txt beside it). */
     "VVFP Island Frequency.dll",
     /* No Safeguards for Island Events (and Additional Events too) (all five games): the game's own island events
        without their conditions, except what an event needs (its villagers, its puzzle) and what keeps it safe. */
     "VVFP No Safeguards.dll",
+    /* The third word (native/shared/startup_companions_3.h): started for a build that ships any third-word
+       companion, it starts the ones the build names in VVFP More Companions.txt beside it. */
+    "VVFP More Companions.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -1,10 +1,11 @@
 /* VVFP Island Frequency -- "More Frequent Island Events" (all five games).
 
    WHAT (the owner, 2026-11-15).  The game's own island events come N times as often, N the patcher window's slider
-   (2 to 100, 2 unless moved), read from "VVFP Island Frequency.txt" in the patcher's folder: each wait the game
-   draws after an event -- 12 to 23 whole real-life hours in A New Home, 10 to 19 in The Lost Children, 8 to 15 in
-   The Secret City, The Tree of Life and New Believers -- is divided by N (rounded down to the second) as the game
-   writes it into its island timer.  The first event's 15 minutes (The Tree of Life, New Believers: the new
+   (2 unless moved; the owner, 2026-11-17: 0.1 to 100 in tenths, below 1 they come less often), read from "VVFP
+   Island Frequency.txt" in the patcher's folder (native/shared/multiplier_choice.h): each wait the game draws after
+   an event -- 12 to 23 whole real-life hours in A New Home, 10 to 19 in The Lost Children, 8 to 15 in The Secret
+   City, The Tree of Life and New Believers -- is divided by N (x 10 / tenths, rounded down to the second) as the game
+   writes it into its island timer: at 0.1 the longest wait is 230 hours, 828,000 seconds, far inside the timer.  The first event's 15 minutes (The Tree of Life, New Believers: the new
    village's 0x384 seconds) and the 30 minutes while a village has seen no event (the trigger's `add [timer],
    0x708`) are the stock ones, and so is which event comes and every rule for it.
 
@@ -19,7 +20,7 @@
 
    Those are every such draw in each executable (each game's only other `imul ..., 0xE10` is the C runtime's time
    conversion).  After every site's stock nine bytes are checked (native/shared/install_sites.h: all of them, or
-   none), each becomes `call site_stub` and four nops; the stub puts (rand + K) x 3600 / N in eax and goes on after
+   none), each becomes `call site_stub` and four nops; the stub puts (rand + K) x 36000 / tenths in eax and goes on after
    the nine bytes, every other register as the game left it.  The flags are not kept: the instruction after each
    site sets them anew (an add) or does not read them, exactly as after the stock imul.
 
@@ -29,15 +30,16 @@
    is already the shortened one.  The two never share a byte.
 
    SAFETY.  Nothing is written to a save, a villager record or a file; no text is shown.  The setting file is only
-   read (its first 15 bytes): above 100 is 100, below 2 is 2, no number or no file is 2.  No debug output. */
+   read (its first 15 bytes): above 100 is 100, below 0.1 is 0.1, no number or no file is 2.  No debug output. */
 #include <windows.h>
 #include "../shared/install_sites.h"
 #include "../shared/patcher_files.h"
+#include "../shared/multiplier_choice.h"
 
 #define IF_CHOICE_FILE "VVFP Island Frequency.txt"
-#define IF_DEFAULT 2u                    /* the slider's default */
-#define IF_MINIMUM 2u
-#define IF_MAXIMUM 100u
+#define IF_DEFAULT 20u                   /* the slider's default, 2, in tenths */
+#define IF_MINIMUM 1u                    /* 0.1 */
+#define IF_MAXIMUM 1000u                 /* 100 */
 #define IF_SITE_BYTES 9                  /* add eax, K (83 C0 K); imul eax, eax, 0xE10 (69 C0 10 0E 00 00) */
 #define IF_MAX_SITES 3
 
@@ -58,45 +60,12 @@ static const if_game IF_GAMES[] = {
 
 static unsigned char g_expect[IF_SITE_BYTES];
 static unsigned int g_hours;
-static unsigned int g_divisor = IF_DEFAULT;
+static unsigned int g_tenths = IF_DEFAULT;
 static int g_installed;
 
-/* The slider's number from the setting file: 2 to 100, else 2 (no number, no file). */
-static unsigned int read_divisor(void) {
-    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
-    char text[16];
-    DWORD got = 0, i;
-    HANDLE file;
-    unsigned int value = 0;
-    int digits = 0;
-    if (vvfp_patcher_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, IF_CHOICE_FILE) == 0) {
-        return IF_DEFAULT;
-    }
-    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        return IF_DEFAULT;
-    }
-    if (!ReadFile(file, text, (DWORD)(sizeof text - 1), &got, NULL)) {
-        got = 0;
-    }
-    CloseHandle(file);
-    for (i = 0; i < got && (text[i] == ' ' || text[i] == '\t'); ++i) {
-    }
-    for (; i < got && text[i] >= '0' && text[i] <= '9'; ++i) {
-        if (value < 1000u) {
-            value = value * 10u + (unsigned int)(text[i] - '0');
-        }
-        ++digits;
-    }
-    if (digits == 0) {
-        return IF_DEFAULT;
-    }
-    return value < IF_MINIMUM ? IF_MINIMUM : (value > IF_MAXIMUM ? IF_MAXIMUM : value);
-}
-
-/* The wait in seconds: (the game's roll + K) whole hours, divided by N. */
+/* The wait in seconds: (the game's roll + K) whole hours, divided by N (x 10 / tenths). */
 static unsigned int __cdecl shortened(unsigned int roll) {
-    return (roll + g_hours) * 3600u / g_divisor;
+    return (roll + g_hours) * 36000u / g_tenths;
 }
 
 /* Every site's call comes here: [esp] the site + 5; eax the game's roll. */
@@ -119,9 +88,9 @@ int __stdcall VvfpIslandFrequencyInstalled(void) {
     return g_installed;
 }
 
-/* N, the number read at start (for the tests' emulation). */
+/* N in tenths, the number read at start (for the tests' emulation): 20 is 2, 5 is 0.5. */
 int __stdcall VvfpIslandFrequencyDivisor(void) {
-    return (int)g_divisor;
+    return (int)g_tenths;
 }
 
 /* Called once by VVFP Startup.dll before WinMain. */
@@ -154,7 +123,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         vvfp_site_branch(&w[i], g->va[i], IF_SITE_BYTES, g_expect, 0xE8, (const void *)site_stub);
     }
     g_hours = g->hours;
-    g_divisor = read_divisor();
+    g_tenths = vvfp_read_tenths(IF_CHOICE_FILE, IF_DEFAULT, IF_MINIMUM, IF_MAXIMUM);
     if (vvfp_install_sites(w, g->count)) {
         g_installed = 1;
     }

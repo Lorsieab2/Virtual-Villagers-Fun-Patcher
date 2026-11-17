@@ -73,7 +73,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned when Children's Graves Say Apprentice (vv3_apprentice_graves) joined the catalog: rendering the full
     # catalog without that row gives exactly the previous pins in every mode; with it, 77-78 bytes differ, every one
     # inside its own grave-dialog edits (0x1E939..0x1E995) or the PE CheckSum (0x160..0x163); the length is unchanged.
-    # Re-pinned again when 2-100x Tech Cost (vv3_tech_cost_multiplier) joined the catalog too: its only bytes are the
+    # Re-pinned again when 0.1-100x Tech Cost (vv3_tech_cost_multiplier) joined the catalog too: its only bytes are the
     # 16 price-table dwords (0xA8194..0xA81E3) and the PE CheckSum (0x160..0x163); the length is unchanged.
     # Re-pinned for the v1.35.91 in-place update (#708, #709): verified by rendering the full catalog with and
     # without the two new cloud rows -- in every mode only the PE CheckSum (0x160..0x162) and the Disable Clouds
@@ -250,7 +250,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     # Re-pinned once more for Checked Skill Preferences are listed as Jobs on Graves (vv3_preferred_job_graves): without
-    # it the render equals the 2-100x Tech Cost pins; with it 80-81 bytes differ, all in its writer block
+    # it the render equals the 0.1-100x Tech Cost pins; with it 80-81 bytes differ, all in its writer block
     # (0x5504E..0x550AC) or the PE CheckSum.
     # Re-pinned for Hungrier Villagers (vv3_hungrier_villagers): without it the render equals the pins above; with
     # it exactly 3 bytes differ in every mode, the meal immediates 0x60081 and 0x600C5 and the PE CheckSum byte 0x161.
