@@ -197,6 +197,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                "vv_game_mechanics_nursery",
                "vv_game_mechanics_tech_time",
+               # No Safeguards (v1.35.97): the game's own events without their safeguards, on the page.
+               "vv_game_mechanics_no_safeguards",
                # More Island Events (the owner, 2026-11-12): the Aspiring Adventurer's text and its page entry.
                "vv_aspiring_adventurer", "vv_game_mechanics_adventurer",
                # ...and The Cave Explorers' (A New Home).
@@ -221,6 +223,9 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_stew_recipes_window", "vv_stew_recipes",
                # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
                "vv_cie_library_window", "vv_cie_graph",
+               # Player Events (v1.35.97): its section in the window, the player's event files, the island
+               # events' content tags and the owner's layout of an event.
+               "vv_player_events_ui", "vv_player_events", "vv_event_content", "vv_owner_layout",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
@@ -300,6 +305,12 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_save_backup",        # a backup first, when an answer settles a custom title (v1.35.71)
                               "vv_answered_questions"}),   # the tree's "the same villager?" answers (v1.35.80 update)
             ("vv_reconcile_view", {"vv_reconcile"}),
+            # Player Events (v1.35.97): the section reads and writes the player's event files; they are checked
+            # with the event format, the content tags and the owner's layout, all standard library only.
+            ("vv_player_events_ui", {"vv_player_events"}),
+            ("vv_player_events", {"vv_cie_graph", "vv_event_content", "vv_owner_layout"}),
+            ("vv_event_content", set()),
+            ("vv_owner_layout", {"vv_cie_graph"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Answered questions (the owner, v1.35.80): kept in the Log Decisions file; the village header
             # and the questions they are matched with (function-level imports).
@@ -462,7 +473,11 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
             # and each game's events.
             ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life",
-                                          "vv_game_mechanics_collection"}),
+                                          "vv_game_mechanics_collection",
+                                          # More Frequent Island Events' N, read from the patcher's folder
+                                          # (function-level), and No Safeguards' lines (function-level).
+                                          "patcher_files", "vv_game_mechanics_no_safeguards"}),
+            ("vv_game_mechanics_no_safeguards", {"vv_game_mechanics"}),
             ("vv_game_mechanics_collection", {"vv_game_mechanics", "vv_game_mechanics_adventurer"}),
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
                                                   # More Island Events' The Aspiring Adventurer
