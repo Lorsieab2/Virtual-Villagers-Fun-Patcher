@@ -319,10 +319,19 @@ static int story_parentage_ticked(int game) {
     return memcmp((const void *)(uintptr_t)sites[game], stock[game], 5) != 0;
 }
 
+/* A branching event's couple pregnancy in which the PARTNER carries (story_graph.inc cg_life_effect: the effect
+   allows it, flags bit 3, and the player's setting drew it): set around that one conception, so its record says so
+   ("WriteParentageRecordCarried": "  Note: The partner carries ...").  0 for every other conception. */
+static int story_partner_carries;
+
+typedef int (__stdcall *write_parentage_carried_fn)(int game, const void *records, const void *mother,
+                                                    const void *father, int partner_carries);
+
 static int story_log_conception(int game, const void *records, const void *mother,
                                 const void *father) {
     static int state;                 /* 0 = not tried, 1 = resolved, -1 = unavailable */
     static write_parentage_fn write_record;
+    static write_parentage_carried_fn write_carried;
     if (!story_parentage_ticked(game)) {
         return 0;
     }
@@ -332,6 +341,8 @@ static int story_log_conception(int game, const void *records, const void *mothe
         if (module != NULL) {
             write_record = (write_parentage_fn)GetProcAddress(module,
                                                               "WriteParentageRecordWithFather");
+            write_carried = (write_parentage_carried_fn)(void *)GetProcAddress(module,
+                                                                                "WriteParentageRecordCarried");
             if (write_record != NULL) {
                 state = 1;
             }
@@ -339,6 +350,9 @@ static int story_log_conception(int game, const void *records, const void *mothe
     }
     if (state != 1) {
         return 0;
+    }
+    if (story_partner_carries && write_carried != NULL) {
+        return write_carried(game, records, mother, father, 1);
     }
     return write_record(game, records, mother, father);
 }

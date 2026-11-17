@@ -1095,6 +1095,57 @@ static const char *custom_title_of(int index) {
     return NULL;
 }
 
+/* What the patcher keeps for a villager OUTSIDE the save, in both rosters (the owner, 2026-11-17: "the logs need
+   to keep track of sex and gender presentation changes, males carrying babies, and everything"), each line only
+   when it says something -- as the Mask and Custom title lines are:
+
+     "  Sex at birth: Female"                 a villager whose sex was changed ("VVFP Gender Presentation.dll"
+                                              VvfpBornFemale: the birth sex it keeps, else the Sex Changes log's)
+     "  Gender presentation: Other sex's look" drawn with the other sex's look (VvfpGenderPresentationGet)
+     "  Head look: Young" / "Old"             the head look Change Appearance or an event chose ("VVFP Head
+                                              Look.dll" VvfpHeadLookGet; Auto prints nothing)
+     "  Story traits: mute"                   an island event's story trait ("VVFP Story Upgrades.dll"
+                                              VvfpStoryTraitsOf, bit 0 mute)
+
+   Each companion is asked only when it is already in the game (GetModuleHandleA never loads one).  0 when a line
+   could not be written. */
+typedef int (__stdcall *kept_value_fn)(int game, const void *record);
+
+static kept_value_fn kept_value_export(const char *dll, const char *name) {
+    HMODULE module = GetModuleHandleA(dll);
+    return module != NULL ? (kept_value_fn)(void *)GetProcAddress(module, name) : NULL;
+}
+
+static int write_kept_values(FILE *file, const struct game_layout *g, const unsigned char *record, int game_id) {
+    kept_value_fn born = kept_value_export("VVFP Gender Presentation.dll", "VvfpBornFemale");
+    kept_value_fn presentation = kept_value_export("VVFP Gender Presentation.dll", "VvfpGenderPresentationGet");
+    kept_value_fn head_look = kept_value_export("VVFP Head Look.dll", "VvfpHeadLookGet");
+    kept_value_fn traits = kept_value_export("VVFP Story Upgrades.dll", "VvfpStoryTraitsOf");
+    int sex = *(const int *)(record + g->sex);
+    if (born != NULL && (sex == g->sex_male || sex == g->sex_female)) {
+        int female = born(game_id, record) == 1;
+        if (female != (sex == g->sex_female)
+            && fprintf(file, "  Sex at birth: %s\n", female ? "Female" : "Male") < 0) {
+            return 0;
+        }
+    }
+    if (presentation != NULL && presentation(game_id, record) == 1
+        && fprintf(file, "  Gender presentation: Other sex's look\n") < 0) {
+        return 0;
+    }
+    if (head_look != NULL) {
+        int look = head_look(game_id, record);
+        if ((look == 1 || look == 2) && fprintf(file, "  Head look: %s\n", look == 1 ? "Young" : "Old") < 0) {
+            return 0;
+        }
+    }
+    if (traits != NULL && (traits(game_id, record) & 1) != 0
+        && fprintf(file, "  Story traits: mute\n") < 0) {
+        return 0;
+    }
+    return 1;
+}
+
 /* `with_pregnancy` is 0 for the Village History log and 1 for the
    Village Population roster.
 
@@ -1152,6 +1203,9 @@ static int write_villager(
        believer (and Repair's Village Elders backfill can leave them out). */
     if (game_id == GAME_VV5
         && fprintf(file, "  Faction: %s\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer") < 0) {
+        return 0;
+    }
+    if (!write_kept_values(file, g, record, game_id)) {
         return 0;
     }
     if (fprintf(file, "  Head: %d\n", *(const int *)(record + g->head)) < 0) {

@@ -378,15 +378,25 @@ static int rs_has_trait(int game, const unsigned char *record, unsigned int trai
     return row != 0 && (rs_traits[row - 1] & trait) != 0;
 }
 
-/* A trait effect made for the villager in record `index`: they keep `trait` from now on (the file follows them). */
-static void rs_set_trait(int game, int index, unsigned int trait) {
+/* A trait effect made for the villager in record `index`: they keep `trait` from now on (the file follows them).
+   1 when they did not have it before (the Island Events log's line), 0 otherwise. */
+static int rs_set_trait(int game, int index, unsigned int trait) {
     int row;
     if (trait == 0 || !rs_sync(game) || index < 0 || index >= rs_slots() || rs_roster[index] == 0) {
-        return;
+        return 0;
     }
     row = rs_row_of(index);
     if (row != 0 && (rs_traits[row - 1] & trait) != trait) {
         rs_traits[row - 1] |= trait;
         (void)rs_publish();
+        return 1;
     }
+    return 0;
+}
+
+/* The story traits the villager in `record` (a live record of `game`) keeps (bit 0 "mute"), 0 none: the Village
+   History and Village Population rosters print them ("VVFP Population Export.dll", "  Story traits: mute"). */
+__declspec(dllexport) int __stdcall VvfpStoryTraitsOf(int game, const void *record) {
+    int row = game >= 1 && game <= 5 ? rs_row_of_record(game, (const unsigned char *)record) : 0;
+    return row != 0 ? (int)rs_traits[row - 1] : 0;
 }

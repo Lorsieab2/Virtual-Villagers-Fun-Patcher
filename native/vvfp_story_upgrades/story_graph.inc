@@ -1410,6 +1410,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_CHANGE_AGE:
                 ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
                      && (e[2] == CG_AGE_ADD ? (a >= -120 && b <= 120 && a <= b) : (a == 0 && b == 0));
+                break;
             case CGE_PRESENTATION:
                 /* 31: a = 1 the other sex's look, 0 the villager's own again. */
                 ok = (a == 0 || a == 1) && b == 0 && str == CG_NONE;
@@ -1962,7 +1963,7 @@ static int cg_ns_cast(int game) {
 }
 
 /* story_traits.inc: the new island events' story traits. */
-static void rs_set_trait(int game, int index, unsigned int trait);
+static int rs_set_trait(int game, int index, unsigned int trait);
 static int rs_has_trait(int game, const unsigned char *record, unsigned int trait);
 
 /* The roles a conversion names (a Heathen becomes a believer: a status effect with value 0, the faith change the
@@ -5186,7 +5187,9 @@ static void cg_celebrate_all(const ce_adapter *a, int game, ce_result *r) {
 
 /* The lines a page's effects add to the event's ONE log entry beyond the companion's comparison (a damaged
    structure, as The Rumblings writes it). */
-static char cg_extra_lines[512];
+/* What the comparison of the villagers cannot say, for the page's log lines: room for a whole group's (every
+   villager's "<name>'s head look is now Old.", a group cure ...), within the entry's own CG_ENTRY_BYTES. */
+static char cg_extra_lines[4096];
 
 #ifdef VVFP_TEST
 static int test_graph_structures = -1;  /* the finished structures (bit k), -1 = as the game says */
@@ -5408,6 +5411,54 @@ static void cg_renamed_record(const ce_adapter *a, const unsigned char *record, 
         lstrcpynA(cg_renames[cg_rename_count].now, now, CG_NAME_BYTES);
         cg_renames[cg_rename_count++].display = cg_display_now;
     }
+}
+
+/* A NAME THE EVENT CHANGED (lose_name, change_name, body_swap), in the Births and Conceptions log as every other
+   rename is -- A New Home's parentage companion's and Last Names' "Name changed" record ("VVFP Parentage
+   Export.dll" WriteVillageRecord, kind 10: held until the next save), so the Family Tree Maker, Repair Saves & Logs
+   and the readers that follow a villager through "Name changed" records know the renamed villager is the same one
+   (the owner, 2026-11-17: the logs keep track of everything):
+       Name changed
+         Name: <the name now>
+         Old name: <the name before>
+         Age: <game units>
+         Changed by: <the event's title> (island event)
+         Head / Body / Likes / Dislikes
+   Nothing when the name did not change or the log is not part of the game.  A New Home with its parentage companion
+   ("VVFP VV1 Parentage.dll", Show Parents) in the game: nothing here either -- that companion writes the same record
+   for every name that changes in play, this one included, and it would be in the log twice. */
+typedef int (__stdcall *cg_write_record_fn)(int, int, const void *, int, const char *, const char *, int);
+#ifdef VVFP_TEST
+static int test_graph_name_changes;     /* the records handed over */
+#endif
+
+static void cg_log_name_change(const ce_adapter *a, int game, const unsigned char *record, const char *was) {
+    static cg_write_record_fn write_record;
+    static int looked;
+    char now[CG_NAME_BYTES], title[CG_LABEL_V6 * 4], before[CG_NAME_BYTES + CG_LABEL_V6 * 4 + 96];
+    if (record == NULL || was == NULL) {
+        return;
+    }
+    ce_copy_name(now, CG_NAME_BYTES, record + a->off_name, a->name_bytes);
+    if (lstrcmpA(was, now) == 0 || (game == 1 && GetModuleHandleA("VVFP VV1 Parentage.dll") != NULL)) {
+        return;
+    }
+    if (!looked) {
+        HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        looked = 1;
+        write_record = module != NULL ? (cg_write_record_fn)(void *)GetProcAddress(module, "WriteVillageRecord")
+                                      : NULL;
+    }
+#ifdef VVFP_TEST
+    ++test_graph_name_changes;
+#endif
+    if (write_record == NULL) {
+        return;
+    }
+    cg_title_logged(title, sizeof title);
+    wsprintfA(before, "  Old name: %s\n  Age: %d\n  Changed by: %s (island event)\n", was, ce_age(a, record),
+              title[0] ? title : "an island event");
+    (void)write_record(game, 10, record, 1, before, NULL, 1);
 }
 
 static void cg_newest_reset(void) {
@@ -5694,6 +5745,34 @@ static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *rec
     return 0;
 }
 
+/* A conception the event made whose carrier is not a woman, or in which the partner carries (flags bit 3, the
+   player's setting drew it): one line in the Island Events log entry (the comparison of the records says only
+   "Nursing no -> yes" and the expected father), as the Births and Conceptions log's Conception names the carrier as
+   the Mother and the partner as the Father (the owner, 2026-11-17: the logs keep track of males carrying babies):
+       "  Tane, who is male, carries the babies (the partner carries instead of Mere)."
+   `partner` the partner's record index (-1 none); `nursing` 1 for effect 29 (born at once: "nurses the babies"). */
+static void cg_carrier_line(const ce_adapter *a, const unsigned char *record, int partner, int swapped, int nursing) {
+    char who[CE_NAME_BYTES], mate[CE_NAME_BYTES], what[CE_NAME_BYTES + 96];
+    const unsigned char *other = partner >= 0 ? a->record(partner) : NULL;
+    const char *verb = nursing ? "nurses" : "carries";
+    int male = ce_sex(a, record) != STORY_SEX_FEMALE;
+    if (!male && !swapped) {
+        return;
+    }
+    ce_copy_name(who, CE_NAME_BYTES, record + a->off_name, a->name_bytes);
+    mate[0] = '\0';
+    if (other != NULL) {
+        ce_copy_name(mate, CE_NAME_BYTES, other + a->off_name, a->name_bytes);
+    }
+    if (swapped && mate[0] != '\0') {
+        wsprintfA(what, "%s %s the babies (the partner carries instead of %s).", male ? ", who is male," : "", verb,
+                  mate);
+    } else {
+        wsprintfA(what, "%s %s the babies.", male ? ", who is male," : "", verb);
+    }
+    cg_extra_add(who, what);
+}
+
 /* Effect 34: the age (the game's age units, 20 a year) set or moved, with the processed age (the catch-up's cursor,
    ce_birth_layout's second field) moved with it, so the catch-up neither replays the years nor makes them up; a
    carrier's conception mark moves with it too (the delivery stays as far off).  Never below 0; A New Home's Golden
@@ -5753,7 +5832,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
     }
     switch (e[0]) {
     case CGE_PREGNANT: case CGE_NURSING: {
-        int partner = -1, early = 0, other = (int)cg_u32(e + 4), litter = 1;
+        int partner = -1, early = 0, other = (int)cg_u32(e + 4), litter = 1, swapped = 0;
         if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
             || *(const int *)(record + a->off_pregnant) != 0
             || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, record, index))) {
@@ -5770,6 +5849,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
                     partner = index;
                     index = at;
                     record = mate;
+                    swapped = 1;
                 }
             }
         }
@@ -5784,12 +5864,16 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
             }
         }
         {
-            int babies = a->conceive(index, litter, partner, r);
+            int babies;
+            story_partner_carries = swapped;   /* the conception's record says the partner carries */
+            babies = a->conceive(index, litter, partner, r);
+            story_partner_carries = 0;
             cg_count_add(0, babies);   /* 33: the babies actually on their way */
             if (babies <= 0) {
                 return;                /* no room (the game's own predicate): nothing */
             }
         }
+        cg_carrier_line(a, record, partner, swapped, e[0] == CGE_NURSING);
         if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
             (void)a->deliver(index, &early);   /* born at once: nursing a newborn (the deliver_early path) */
         }
@@ -5865,6 +5949,8 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         cg_tell_renamed(game, 2, recs, olds);
         cg_renamed_record(a, record, names[0]);
         cg_renamed_record(a, other, names[1]);
+        cg_log_name_change(a, game, record, names[0]);
+        cg_log_name_change(a, game, other, names[1]);
         return;
     }
     case CGE_CHANGE_NAME: {
@@ -5881,6 +5967,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         olds[0] = was;
         cg_tell_renamed(game, 1, recs, olds);
         cg_renamed_record(a, record, was);
+        cg_log_name_change(a, game, record, was);
         ce_copy_name(cg_renamed_now, CG_NAME_BYTES, record + a->off_name, a->name_bytes);   /* (renamed) */
         return;
     }
@@ -5899,6 +5986,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         olds[0] = was;
         cg_tell_renamed(game, 1, recs, olds);
         cg_renamed_record(a, record, was);
+        cg_log_name_change(a, game, record, was);
         return;
     }
     default:
@@ -6167,7 +6255,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
             ce_refuse(r, CE_WHY_OTHER);
             return;
         }
-        cg_extra_add(cg.name[role], on ? " is now drawn with the other sex's look." : " is drawn with their own look again.");
+        cg_extra_add(name, on ? " is now drawn with the other sex's look." : " is drawn with their own look again.");
         return;
     }
     if (e[0] == CGE_OLD_LOOK) {
@@ -6436,10 +6524,14 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         cg_life_effect(a, game, e, r);
         return;
     case CGE_TRAIT:
-        /* 32: the villager keeps the story trait (story_traits.inc's file follows them), whatever is ticked. */
+        /* 32: the villager keeps the story trait (story_traits.inc's file follows them), whatever is ticked; the
+           Island Events log says so (the comparison of the records cannot: the trait is kept beside the save). */
         index = -1;
-        if (cg_target(a, e[1], &index) != NULL) {   /* a role, or a villager this event made */
-            rs_set_trait(game, index, cg_u32(e + 4));
+        record = cg_target(a, e[1], &index);   /* a role, or a villager this event made */
+        if (record != NULL && rs_set_trait(game, index, cg_u32(e + 4))) {
+            char who[CE_NAME_BYTES];
+            ce_copy_name(who, CE_NAME_BYTES, record + a->off_name, a->name_bytes);
+            cg_extra_add(who, " now has the story trait mute.");
         }
         return;
     case CGE_CELEBRATE:
