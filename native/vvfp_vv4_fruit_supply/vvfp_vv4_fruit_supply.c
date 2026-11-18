@@ -77,23 +77,31 @@
    has strings and no object), so this companion puts its own object there, once, at install (Pick Island Event
    and the presenter find it there).
 
-   ITS CHANCE (the owner, 2026-11-17: at 0 food it came up a lot; it must have the same chance as the other
-   rescue events, and a new event never changes the stock events' odds nor crowds out a rescue event).  Left to the
-   selector's own draw, slot 19 was one more equal entry: every stock event's share fell from 1/n to 1/(n+1) and,
-   its condition being the berry event's, "A Closer Look" came up twice as often as any other event.  So the draw
-   (0x4180A5, `push edi / call rand`, the site SELECT_SITE) is this companion's, made the stock way:
-     1. slot 19 is taken out of the collected list, and the stock rand(n) picks among the rest -- the stock draw,
-        each stock event's share exactly the stock game's 1/n (n the stock events possible now);
-     2. when the pick is not a rescue event (RESCUE_SLOTS: The Mysterious Footprints (food gained) 7, A Closer Look
-        (Blackberries) 12, Daredevil Barrel...of Babies! 25) and the village's two opening events are past (the
-        Island Events Seen count 0x4D6E04, raised at 0x43FBD6 before the selector, above 2), one more roll
-        rand(n - r) (r the rescue events among the n) gives the breadfruit on 0 -- so it comes (n - r)/n x 1/(n - r)
-        = 1/n of the time: exactly one rescue event's share, the berry event's (1/n, as in the stock game); every
-        rescue event keeps its stock share, and the share is taken from the other events only.
-   Without slot 19 in the list (the Cooking Pit not restored, no one alive) the draw is the stock one, the same
-   single rand(n).  The stock rescue rule (0x4180AF..0x4180F2) then runs as before and can still force slot 25;
-   the 8-15 h timer and the Island Events Seen count are the scheduler's; the per-slot "shown" byte 0x4CC9F4+19 is
-   never read.  The object is a copy of A Closer Look's (vtable 0x48C84C, RTTI locator included) with:
+   ITS CHANCE (the owner, 2026-11-17).  The stock game makes no island event more likely when food is low (its
+   only rescue rule is the population one, 0x4180A5..0x4180F2, which forces the Barrel, slot 25), so this is an
+   ordinary new event and the owner's rule for new events holds: the stock events' odds never change, it never
+   crowds out a rescue event, it comes from a separate roll, rare but seen within about a week.  (Left in the
+   selector's own draw, slot 19 was one more equal entry: every stock event fell from 1/n to 1/(n+1).)  So:
+     THE DRAW.  The selector's draw (0x4180A5, `push edi / call rand`, SELECT_SITE) is this companion's, made the
+        stock way: slot 19 is taken out of the collected list and the stock rand(n) picks among the rest -- each
+        stock event exactly the stock game's 1/n.  Without slot 19 in the list it is the same single rand(n).  The
+        stock rescue rule then runs as before.
+     THE ROLL.  At that same natural island event, when slot 19 was in the list (its condition held) and the
+        village's two opening events are past (the Island Events Seen count 0x4D6E04, raised at 0x43FBD6 before
+        the selector, at least 2), rand(100) < BF_PERCENT makes the breadfruit due at now + (next - now) x
+        (300 + rand(401)) / 1000 -- 30% to 70% of the way to the game's next natural event (the timer
+        [game + 0x170E0], already set for the next one) -- so it always falls between two natural events.
+     THE DELIVERY.  At the scheduler's own update (0x43FA32, TICK_SITE, just before its "is the natural event due"
+        test), once the due time has come: if the Island Events Seen count changed since the roll (another
+        island event came first -- the next natural one, a picked one, another village), it is dropped; while the
+        next natural event is 60 seconds away or less it waits (the natural one goes first, and then it is
+        dropped); else it is presented as the scheduler presents one chosen event, 0x418190(scheduler, 19) with
+        ecx the event manager 0x417F70 (the presenter the Origins Barrel uses): its own condition is asked again
+        there, then the dialog, then the result.  The natural timer and the Island Events Seen count are never
+        touched, so the natural events keep their times and their draw.  The due time is kept in memory only: a
+        game closed (or a village loaded) before it comes loses that one breadfruit, nothing else.
+   The per-slot "shown" byte 0x4CC9F4+19 is never read.  The object is a copy of A Closer Look's (vtable 0x48C84C,
+   RTTI locator included) with:
      +0x00  the teardown 0x417760 calls it with "delete" at exit: nothing (the object is this DLL's);
      +0x04  the condition: the Cooking Pit restored (0x438960(6) on 0x4D8BF8, the fruit's own test) and then
             the berry event's own condition 0x415E00 run on this object -- one living villager of any age
@@ -133,7 +141,8 @@
      0x48E8A0   4  CFruitwells vtable slot 4 (save)
      0x48E89C   4  CFruitwells vtable slot 3 (load)
      0x4CCA74   4  the island-event table's slot 19 (NULL): the event object
-     0x4180A5   6  the selector's push edi / call rand (rand(n), its pick): the draw above (ITS CHANCE)
+     0x4180A5   6  the selector's push edi / call rand (rand(n), its pick): THE DRAW and THE ROLL (ITS CHANCE)
+     0x43FA32   8  the scheduler's mov ecx, [esi+0x10] / call 0x403750 before its due test: THE DELIVERY
      0x4400AD   5  the village's mov ecx, 0x4CCB20 before the overlay list (the pictures)
      0x445426   5  the Overview Map's mov ecx, 0x4CCB20 before the overlay list (the pictures)
 
@@ -234,8 +243,17 @@
 #define SELECT_ON 0x4180AFu          /* after mov esi, [esp + eax*4 + 0x14]: esi the chosen slot */
 #define GAME_RAND 0x4036D0u          /* cdecl rand() % n */
 #define EVENTS_SEEN 0x4D6E04u        /* the Island Events Seen count, raised before the selector (0x43FBD6) */
-#define OPENING_EVENTS 2             /* a village's first two island events are never replaced */
-#define SITES 14
+#define OPENING_EVENTS 2             /* a village's first two island events come before any breadfruit */
+#define BF_PERCENT 20                /* THE ROLL: the chance at each natural event (the collection's VV4 rate) */
+#define BF_GAP 60                    /* seconds the breadfruit keeps clear of the next natural event */
+#define GAME_GLOBAL 0x4CB51Cu        /* the game object: the clock's this, the next-event time at +0x170E0 */
+#define NEXT_EVENT 0x170E0u
+#define CLOCK 0x403750u              /* thiscall(game): the game clock, seconds */
+#define TICK_SITE 0x43FA32u          /* the scheduler: mov ecx, [esi+0x10] / call 0x403750, then its due test */
+#define TICK_ON 0x43FA3Au
+#define EVENT_MANAGER 0x417F70u      /* the event manager (the scheduler's ecx for 0x418000) */
+#define PRESENT_ONE 0x418190u        /* stdcall(scheduler, slot), ecx the event manager: one event presented */
+#define SITES 15
 
 static const unsigned char CREDIT_STOCK[12] = { 0x6A, 0x03, 0xB9, 0xD0, 0x6D, 0x4D, 0x00, 0xE8, 0xA8, 0x93, 0xFB, 0xFF };
 static const unsigned char OFFER_STOCK[11] = { 0xC7, 0x44, 0xBC, 0x1C, 0x02, 0x00, 0x00, 0x00, 0x83, 0xC7, 0x01 };
@@ -249,6 +267,10 @@ static const unsigned char LIST_STOCK[5] = { 0xB9, 0x20, 0xCB, 0x4C, 0x00 };    
 static const unsigned char SELECT_STOCK[6] = { 0x57, 0xE8, 0x25, 0xB6, 0xFE, 0xFF };   /* push edi / call 0x4036D0 */
 /* ...and the pick after it, where the stub resumes: mov esi, [esp + eax*4 + 0x14] / push 0x64. */
 static const unsigned char SELECT_PICK_STOCK[6] = { 0x8B, 0x74, 0x84, 0x14, 0x6A, 0x64 };
+static const unsigned char TICK_STOCK[8] = { 0x8B, 0x4E, 0x10, 0xE8, 0x16, 0x3D, 0xFC, 0xFF };   /* ... call 0x403750 */
+/* The scheduler's presentation of a natural event, whose context the delivery shares: push esi / call 0x417F70 /
+   mov ecx, eax / call 0x418000 (0x43FBDD). */
+static const unsigned char SCHEDULER_STOCK[8] = { 0x56, 0xE8, 0x8D, 0x83, 0xFD, 0xFF, 0x8B, 0xC8 };
 /* The other bytes the stubs rely on: the credit's call of the food writer resolves to 0x41D920, the bonus's too,
    the unit site's call to 0x46AD50 (checked through the bytes above), and the empty way out of the task gate. */
 static const unsigned char TASK_EMPTY_STOCK[7] = { 0x8B, 0x96, 0x88, 0x1B, 0x00, 0x00, 0x5F };
@@ -787,68 +809,134 @@ static int ev_build(void) {
 #define EVENT_SLOT 19
 #define MAX_SLOTS 49                 /* the selector's slots 1..49 */
 
-/* The stock rescue events, never replaced: food for a starving village and the population rescue's barrel. */
-static const int RESCUE_SLOTS[] = {
-    7,                               /* The Mysterious Footprints (food gained), +300 food */
-    12,                              /* A Closer Look (Blackberries), +350 berries */
-    25,                              /* Daredevil Barrel...of Babies!, the stock rescue rule's event */
-};
-
 typedef int (__cdecl *rand_fn)(int n);
+typedef unsigned int (__fastcall *clock_fn)(void *game, void *unused);
+
+static int g_due_set;                /* a breadfruit is due (THE ROLL) */
+static unsigned int g_due;           /* ...at this game-clock second */
+static int g_due_seen;               /* ...while the Island Events Seen count is still this */
 
 static int game_rand(int n) {
     return ((rand_fn)(UINT_PTR)GAME_RAND)(n);
 }
 
-static int is_rescue(int slot) {
-    int i;
-    for (i = 0; i < (int)(sizeof RESCUE_SLOTS / sizeof RESCUE_SLOTS[0]); ++i) {
-        if (RESCUE_SLOTS[i] == slot) {
-            return 1;
-        }
-    }
-    return 0;
+static void *game_object(void) {
+    return *(void *const *)(UINT_PTR)GAME_GLOBAL;
 }
 
-/* The draw over the `n` collected slots in `list`: the chosen slot, or -1 when nothing was drawn here (no slot 19 in
-   the list, or a list this code does not know): then the caller makes the stock draw. */
-static int draw_event(int n, const int *list) {
+static unsigned int game_clock(void *game) {
+    return ((clock_fn)(UINT_PTR)CLOCK)(game, NULL);
+}
+
+static int events_seen(void) {
+    return *(const int *)(UINT_PTR)EVENTS_SEEN;
+}
+
+/* THE DRAW over the `n` collected slots in `list`: the stock draw over the stock events (slot 19 left out), or -1
+   when slot 19 is not in the list or the list is not one this code knows -- then the caller makes the stock draw
+   over the list as it is.  *ours: slot 19 was in the list (its condition held). */
+static int draw_event(int n, const int *list, int *ours) {
     int stock[MAX_SLOTS];
-    int m = 0, rescues = 0, ours = 0, i, pick;
+    int m = 0, i;
+    *ours = 0;
     if (n <= 0 || n > MAX_SLOTS) {
         return -1;
     }
     for (i = 0; i < n; ++i) {
         if (list[i] == EVENT_SLOT) {
-            ours = 1;
+            *ours = 1;
         } else {
             stock[m++] = list[i];
-            rescues += is_rescue(list[i]);
         }
     }
-    if (!ours || m == 0) {
+    if (!*ours || m == 0) {
         return -1;
     }
-    pick = stock[game_rand(m)];                                  /* the stock draw over the stock events */
-    if (!is_rescue(pick) && m > rescues && *(const int *)(UINT_PTR)EVENTS_SEEN > OPENING_EVENTS
-        && game_rand(m - rescues) == 0) {
-        pick = EVENT_SLOT;                                        /* 1 in m overall: one rescue event's share */
+    return stock[game_rand(m)];
+}
+
+/* THE ROLL, at a natural island event whose list held slot 19: the breadfruit made due between now and the next
+   natural event, BF_PERCENT of the time, once the two opening events are past. */
+static void roll_breadfruit(void) {
+    void *game = game_object();
+    unsigned int now, next;
+    if (game == NULL || events_seen() < OPENING_EVENTS || game_rand(100) >= BF_PERCENT) {
+        return;
     }
-    return pick;
+    now = game_clock(game);
+    next = *(const unsigned int *)((const unsigned char *)game + NEXT_EVENT);
+    if (next <= now) {
+        return;
+    }
+    g_due = now + (unsigned int)(((unsigned long long)(next - now) * (unsigned int)(300 + game_rand(401))) / 1000u);
+    g_due_seen = events_seen();
+    g_due_set = 1;
 }
 
 /* At SELECT_SITE: the slot the selector presents (its esi at SELECT_ON). */
 static int __cdecl on_select(int n, const int *list) {
-    int pick = -1;
+    int pick = -1, ours = 0;
     __try {
-        pick = draw_event(n, list);
+        pick = draw_event(n, list, &ours);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         pick = -1;
+        ours = 0;
     }
     if (pick < 0) {
         pick = list[game_rand(n)];                                /* the stock draw */
+        ours = 0;
+    }
+    if (ours) {
+        __try {
+            roll_breadfruit();
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            g_due_set = 0;
+        }
     }
     return pick;
+}
+
+/* THE DELIVERY, at the scheduler's update (TICK_SITE): 1 when the breadfruit is to be presented now (the due is
+   then cleared), else 0. */
+static int __cdecl on_tick(void) {
+    int present = 0;
+    __try {
+        void *game;
+        unsigned int now, next;
+        if (!g_due_set) {
+            return 0;
+        }
+        if (events_seen() != g_due_seen) {
+            g_due_set = 0;                                        /* another island event came first */
+            return 0;
+        }
+        game = game_object();
+        if (game == NULL) {
+            return 0;
+        }
+        now = game_clock(game);
+        next = *(const unsigned int *)((const unsigned char *)game + NEXT_EVENT);
+        if ((int)(now - g_due) < 0 || (int)(next - now) <= BF_GAP) {
+            return 0;                                             /* not yet, or the natural event goes first */
+        }
+        g_due_set = 0;
+        present = 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        g_due_set = 0;
+        present = 0;
+    }
+    return present;
+}
+
+/* 1 while a breadfruit is due, with its due second and the count it waits on (for the tests' emulation). */
+int __stdcall VvfpYellowFruitEventDue(unsigned int *due, int *seen) {
+    if (due != NULL) {
+        *due = g_due;
+    }
+    if (seen != NULL) {
+        *seen = g_due_seen;
+    }
+    return g_due_set;
 }
 
 /* ---- the save and the load -------------------------------------------------------------------------------- */
@@ -873,6 +961,7 @@ static int __fastcall on_load(void *self, void *unused, const void *in) {
     g_bound = 0;                     /* a village was loaded: its file is read at the next use */
     g_pending = 0;
     g_reference = NULL;
+    g_due_set = 0;                   /* a breadfruit due belonged to the village before */
     return r;
 }
 
@@ -1227,6 +1316,33 @@ __declspec(naked) static void select_stub(void) {
     }
 }
 
+static unsigned int g_clock = CLOCK;
+static unsigned int g_event_manager = EVENT_MANAGER;
+static unsigned int g_present_one = PRESENT_ONE;
+
+/* At TICK_SITE (esi = the scheduler, as at its own presentation 0x43FBDD): a due breadfruit presented as the
+   scheduler presents one event -- 0x418190(scheduler, 19), ecx the event manager -- then the stock mov ecx /
+   call 0x403750 and on to the natural event's due test. */
+__declspec(naked) static void tick_stub(void) {
+    __asm {
+        pushad
+        call on_tick
+        test eax, eax
+        jz none
+        call dword ptr [g_event_manager]
+        mov ecx, eax
+        push EVENT_SLOT
+        push esi
+        call dword ptr [g_present_one]
+    none:
+        popad
+        mov ecx, dword ptr [esi + 0x10]
+        call dword ptr [g_clock]
+        push TICK_ON
+        ret
+    }
+}
+
 /* ---- installing ------------------------------------------------------------------------------------------- */
 
 static unsigned int g_expect[3];
@@ -1290,6 +1406,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         || !holds(TASK_EMPTY, TASK_EMPTY_STOCK, sizeof TASK_EMPTY_STOCK)
         || !holds(DROP_DONE, DROP_DONE_STOCK, sizeof DROP_DONE_STOCK)
         || !holds(SELECT_SITE + 6u, SELECT_PICK_STOCK, sizeof SELECT_PICK_STOCK)
+        || !holds(0x43FBDDu, SCHEDULER_STOCK, sizeof SCHEDULER_STOCK)
         || !ev_build()) {
         return;
     }
@@ -1316,6 +1433,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_branch(&w[11], VILLAGE_SITE, sizeof LIST_STOCK, LIST_STOCK, 0xE9, (const void *)village_stub);
     vvfp_site_branch(&w[12], OVERVIEW_SITE, sizeof LIST_STOCK, LIST_STOCK, 0xE9, (const void *)overview_stub);
     vvfp_site_branch(&w[13], SELECT_SITE, sizeof SELECT_STOCK, SELECT_STOCK, 0xE9, (const void *)select_stub);
+    vvfp_site_branch(&w[14], TICK_SITE, sizeof TICK_STOCK, TICK_STOCK, 0xE9, (const void *)tick_stub);
     if (vvfp_install_sites(w, SITES)) {
         g_installed = 1;
     }

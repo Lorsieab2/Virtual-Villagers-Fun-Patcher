@@ -62,7 +62,7 @@ SKILL_ROLL = 0x462B1A           # rand(100) of the skill check (return address)
 BONUS_ROLL = 0x468AA1           # rand(100) of the Cooking Pit bonus
 GATE_ROLLS = (0x4634F4, 0x463503)
 SITES = {0x46456C: 12, 0x463A38: 11, 0x46364E: 7, 0x4359B8: 7, 0x43597A: 5, 0x468AAB: 12, 0x468AD6: 8,
-         0x42EAE7: 7, 0x4400AD: 5, 0x445426: 5, 0x4180A5: 6}
+         0x42EAE7: 7, 0x4400AD: 5, 0x445426: 5, 0x4180A5: 6, 0x43FA32: 8}
 ART = ROOT / "assets" / "fruit_supply"
 PICTURES = tuple(f"vvfp_fruit_tree_{n}.png" for n in range(6))     # PICTURES[n]: n fruits on each tree
 
@@ -684,22 +684,35 @@ class YellowBreadfruitEvent(unittest.TestCase):
 
 
 EVENTS_SEEN = 0x4D6E04              # the Island Events Seen count, raised before the selector runs (0x43FBD6)
+NEXT_EVENT = 0x170E0                # the game object's next natural event time (game-clock seconds)
 SELECT_START, SELECT_AFTER = 0x418041, 0x4180AF   # the selector's listing loop .. right after its pick (esi)
-RESCUES = (7, 12, 25)               # Footprints (food gained), A Closer Look (Blackberries), the Barrel
-# Fifteen stock events whose own condition holds (a stand-in "true" condition), three of them rescue events.
-STOCK_EVENTS = (2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 17, 20, 21, 25)
+TICK_SITE, TICK_ON = 0x43FA32, 0x43FA3A           # the scheduler: mov ecx, [esi+0x10] / call 0x403750 (the clock)
+EVENT_MANAGER, PRESENT_ONE = 0x417F70, 0x418190
+STOCK_EVENTS = (2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 17, 20, 21, 25)   # 15 events whose condition holds
+BF_PERCENT = 20
 
 
 class ScriptedRand:
-    """Stands in for the emulator's random generator: each rand(n) returns the next scripted value, 0 past the
-    script, and records its bound -- so every outcome of a draw can be walked, each with its exact chance."""
+    """Stands in for the emulator's random generator, so every outcome of a selection is walked with its exact
+    chance: each rand(n) returns the next scripted value (the first choice past the script).  `choices(n)` lists
+    the values walked and the chance each stands for: every value for the draw, and for the roll's rand(100) and
+    its rand(401) one value for each outcome that matters (armed or not; the earliest and the latest due)."""
 
     def __init__(self, prefix: list[int]):
         self.prefix, self.values, self.bounds = prefix, [], []
 
+    @staticmethod
+    def choices(n: int):
+        from fractions import Fraction
+        if n == 100:
+            return [(0, Fraction(BF_PERCENT, 100)), (99, Fraction(100 - BF_PERCENT, 100))]
+        if n == 401:
+            return [(0, Fraction(1, 2)), (400, Fraction(1, 2))]
+        return [(v, Fraction(1, n)) for v in range(n)]
+
     def randrange(self, n: int) -> int:
         k = len(self.values)
-        value = self.prefix[k] if k < len(self.prefix) else 0
+        value = self.prefix[k] if k < len(self.prefix) else self.choices(n)[0][0]
         self.values.append(value)
         self.bounds.append(n)
         return value
@@ -707,13 +720,17 @@ class ScriptedRand:
 
 @unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
 class BreadfruitChance(unittest.TestCase):
-    """A Closer Look (Yellow Breadfruit) is one rescue event among equals (the owner, 2026-11-17): the stock events
-    keep the stock game's draw, each rescue event its stock share, and the breadfruit gets exactly one rescue event's
-    share, taken from the other events only.  Every outcome of the selector's own code (its listing loop and the
-    pick, 0x418041..0x4180AF, through the companion's draw) is walked with its exact chance."""
+    """A Closer Look (Yellow Breadfruit) is an ordinary new event (the owner, 2026-11-17: the stock game boosts no
+    event when food is low, so its only rescue event is the Barrel): it never takes a share of the game's own draw,
+    every stock event keeps exactly the stock game's chance, and it comes from a separate roll -- BF_PERCENT of the
+    natural events (after the two opening ones) make it due between that event and the next natural one, where the
+    scheduler's own update presents it.  The selector's own code (its listing loop and pick, 0x418041..0x4180AF,
+    through the companion) is walked over every random outcome, so the chances are exact fractions."""
 
-    def village(self, *, patched: bool = True, dll: Path | None = None, solved=(6,), seen: int = 5) -> Tree:
-        t = Tree(patched=patched, solved=solved, dll=dll)
+    NOW, NEXT = 1000, 1000 + 36000      # the clock, and the next natural event 10 hours later
+
+    def village(self, *, patched: bool = True, solved=(6,), seen: int = 5) -> Tree:
+        t = Tree(patched=patched, solved=solved)
         t.villager()
         v = t.v
         code, vtable = fe.HEAP + 0xE0000, fe.HEAP + 0xE0010
@@ -725,63 +742,150 @@ class BreadfruitChance(unittest.TestCase):
             v.w32(obj, vtable)
             v.w32(EVENT_TABLE + 4 * slot, obj)
         v.w32(EVENTS_SEEN, seen)
+        v.t = self.NOW
+        v.w32(fe.GAME + NEXT_EVENT, self.NEXT)
         # The two calls between the loop and the draw (their objects are not built here): nothing to do.
         for va, pop in ((0x412F90, 8), (0x448E10, 4)):
             v.uc.hook_add(UC_HOOK_CODE, lambda *_a, pop=pop: v._ret(0, pop), begin=va, end=va)
         return t
 
-    def shares(self, t: Tree) -> tuple[dict, set]:
-        """{slot: exact chance} over every outcome of one selection, and the rand bounds seen."""
-        from fractions import Fraction
+    def due(self, t: Tree) -> tuple[int, int] | None:
+        """The companion's due breadfruit: (due second, the count it waits on) or None."""
+        out = fe.HEAP + 0xE1000
+        if not t.v.process.export("VvfpYellowFruitEventDue", out, out + 4):
+            return None
+        return t.v.r32(out) & 0xFFFFFFFF, t.v.r32(out + 4)
+
+    def select(self, t: Tree, prefix: list[int]) -> tuple[int, ScriptedRand]:
         v = t.v
-        out: dict[int, Fraction] = {}
-        bounds_seen: set[tuple[int, ...]] = set()
+        script = ScriptedRand(prefix)
+        v.rng = script
+        v.uc.reg_write(UC_X86_REG_ESP, v.stack + 0x100000)
+        v.uc.emu_start(SELECT_START, SELECT_AFTER, count=5_000_000)
+        self.assertEqual(v.uc.reg_read(UC_X86_REG_EIP), SELECT_AFTER)
+        return v.uc.reg_read(UC_X86_REG_ESI), script
+
+    def outcomes(self, t: Tree):
+        """Every outcome of one natural selection: (chance, slot drawn, the breadfruit due or None, rand bounds)."""
+        from fractions import Fraction
         todo: list[list[int]] = [[]]
         while todo:
             prefix = todo.pop()
-            script = ScriptedRand(prefix)
-            v.rng = script
-            v.uc.reg_write(UC_X86_REG_ESP, v.stack + 0x100000)
-            v.uc.emu_start(SELECT_START, SELECT_AFTER, count=5_000_000)
-            self.assertEqual(v.uc.reg_read(UC_X86_REG_EIP), SELECT_AFTER)
-            slot = v.uc.reg_read(UC_X86_REG_ESI)
+            if t.patched:
+                t.load()                                            # a load clears a due breadfruit
+            slot, script = self.select(t, prefix)
             chance = Fraction(1)
-            for b in script.bounds:
-                chance /= b
-            out[slot] = out.get(slot, Fraction(0)) + chance
-            bounds_seen.add(tuple(script.bounds))
+            for n, value in zip(script.bounds, script.values):
+                chance *= dict(ScriptedRand.choices(n))[value]
+            yield chance, slot, (self.due(t) if t.patched else None), tuple(script.bounds)
             for i in range(len(prefix), len(script.bounds)):
-                for value in range(1, script.bounds[i]):
+                for value, _ in ScriptedRand.choices(script.bounds[i])[1:]:
                     todo.append(script.values[:i] + [value])
-        self.assertEqual(sum(out.values()), 1)
-        return out, bounds_seen
 
-    def test_one_rescue_event_among_equals(self) -> None:
+    def shares(self, t: Tree) -> dict:
         from fractions import Fraction
-        stock, stock_bounds = self.shares(self.village(patched=False))
-        n = len(STOCK_EVENTS)
-        self.assertEqual(stock, {s: Fraction(1, n) for s in STOCK_EVENTS})    # the stock game: 1 in 15 each
-        self.assertEqual(stock_bounds, {(n,)})
-        ours, _ = self.shares(self.village())
-        self.assertEqual(ours[EVENT_SLOT], Fraction(1, n))                      # the breadfruit: 1 in 15...
-        for slot in RESCUES:
-            self.assertEqual(ours[slot], stock[slot], slot)                     # ...as each rescue event, unchanged
-        self.assertEqual(ours[12], stock[12])                                   # the berry event: the stock share
-        others = [s for s in STOCK_EVENTS if s not in RESCUES]
-        for slot in others:                                                     # the share comes from these only
-            self.assertEqual(ours[slot], Fraction(1, n) * (1 - Fraction(1, len(others))), slot)
-        self.assertEqual(set(ours), set(STOCK_EVENTS) | {EVENT_SLOT})
+        out: dict[int, Fraction] = {}
+        for chance, slot, _, _ in self.outcomes(t):
+            out[slot] = out.get(slot, Fraction(0)) + chance
+        self.assertEqual(sum(out.values()), 1)
+        return out
 
-    def test_without_the_event_the_draw_is_the_stock_one(self) -> None:
+    def test_the_stock_draw_is_untouched(self) -> None:
+        from fractions import Fraction
+        n = len(STOCK_EVENTS)
         stock = self.shares(self.village(patched=False))
-        for label, t in (("the Cooking Pit not restored", self.village(solved=())),
-                         ("the first opening event", self.village(seen=1)),
-                         ("the second opening event", self.village(seen=2))):
+        self.assertEqual(stock, {s: Fraction(1, n) for s in STOCK_EVENTS})    # the stock game: 1 in 15 each
+        for label, t in (("with the breadfruit possible", self.village()),
+                         ("the Cooking Pit not restored", self.village(solved=())),
+                         ("an opening event", self.village(seen=1))):
             with self.subTest(label):
-                ours = self.shares(t)
-                self.assertEqual(ours[0], stock[0])                             # the stock shares; no breadfruit
-                if label.startswith("the Cooking"):
-                    self.assertEqual(ours[1], stock[1])                         # and the same single rand(15)
+                self.assertEqual(self.shares(t), stock)                          # never slot 19, every share stock
+
+    def test_the_separate_roll(self) -> None:
+        from fractions import Fraction
+        for label, t, chance in (("after the opening events", self.village(), Fraction(BF_PERCENT, 100)),
+                                 ("the second event", self.village(seen=2), Fraction(BF_PERCENT, 100)),
+                                 ("the first event", self.village(seen=1), Fraction(0)),
+                                 ("the Cooking Pit not restored", self.village(solved=()), Fraction(0))):
+            with self.subTest(label):
+                armed, dues = Fraction(0), set()
+                for p, _, due, bounds in self.outcomes(t):
+                    if due is not None:
+                        armed += p
+                        dues.add(due[0])
+                        self.assertEqual(due[1], t.v.r32(EVENTS_SEEN))
+                    if chance == 0:
+                        self.assertNotIn(100, bounds)                   # no roll drawn
+                self.assertEqual(armed, chance)
+                if chance:                                  # 30% .. 70% of the way to the next natural event
+                    gap = self.NEXT - self.NOW
+                    self.assertEqual(dues, {self.NOW + gap * 300 // 1000, self.NOW + gap * 700 // 1000})
+
+    def tick(self, t: Tree) -> tuple[int, int]:
+        """The scheduler's update through the delivery site, esi its object: (the clock it returns, esp change)."""
+        from unicorn.x86_const import UC_X86_REG_EAX
+        v = t.v
+        scheduler = fe.HEAP + 0xE2000
+        v.w32(scheduler + 0x10, fe.GAME)
+        sp = v.stack + 0x100000
+        v.uc.reg_write(UC_X86_REG_ESP, sp)
+        v.uc.reg_write(UC_X86_REG_ESI, scheduler)
+        v.uc.emu_start(TICK_SITE, TICK_ON, count=5_000_000)
+        self.assertEqual(v.uc.reg_read(UC_X86_REG_EIP), TICK_ON)
+        self.assertEqual(v.uc.reg_read(UC_X86_REG_ESI), scheduler)
+        return v.uc.reg_read(UC_X86_REG_EAX), v.uc.reg_read(UC_X86_REG_ESP) - sp
+
+    def armed_village(self) -> tuple[Tree, list, int]:
+        t = self.village()
+        t.load()
+        self.select(t, [0, 0, 0])                               # the draw, the roll armed, the earliest due
+        due = self.due(t)
+        self.assertIsNotNone(due)
+        presented: list[tuple[int, int, int]] = []
+        v = t.v
+        manager = fe.HEAP + 0xE3000
+
+        def present():
+            sp = v.uc.reg_read(UC_X86_REG_ESP)
+            presented.append((v.uc.reg_read(UC_X86_REG_ECX), v.r32(sp + 4) & 0xFFFFFFFF, v.r32(sp + 8)))
+            v._ret(0, 8)
+        v.uc.hook_add(UC_HOOK_CODE, lambda *_: v._ret(manager, 0), begin=EVENT_MANAGER, end=EVENT_MANAGER)
+        v.uc.hook_add(UC_HOOK_CODE, lambda *_: present(), begin=PRESENT_ONE, end=PRESENT_ONE)
+        return t, presented, due[0]
+
+    def test_it_is_presented_when_due_as_the_scheduler_presents_one_event(self) -> None:
+        t, presented, due = self.armed_village()
+        t.v.t = due - 1
+        self.assertEqual(self.tick(t), (due - 1, 0))                # the stock clock call, the stack as it was
+        self.assertEqual(presented, [])
+        t.v.t = due
+        self.assertEqual(self.tick(t), (due, 0))
+        self.assertEqual(presented, [(fe.HEAP + 0xE3000, fe.HEAP + 0xE2000, EVENT_SLOT)])
+        self.assertIsNone(self.due(t))                              # once
+        self.tick(t)
+        self.assertEqual(len(presented), 1)
+        self.assertEqual(t.v.r32(fe.GAME + NEXT_EVENT), self.NEXT)  # the natural timer untouched
+        self.assertEqual(t.v.r32(EVENTS_SEEN), 5)                   # and the Island Events Seen count
+
+    def test_the_natural_event_goes_first(self) -> None:
+        t, presented, due = self.armed_village()
+        t.v.t = due
+        t.v.w32(fe.GAME + NEXT_EVENT, due + 60)                     # the natural event a minute away: it waits
+        self.tick(t)
+        self.assertEqual(presented, [])
+        self.assertIsNotNone(self.due(t))
+        t.v.w32(EVENTS_SEEN, 6)                                     # the natural event came: the breadfruit is gone
+        t.v.w32(fe.GAME + NEXT_EVENT, due + 40000)
+        self.tick(t)
+        self.assertEqual(presented, [])
+        self.assertIsNone(self.due(t))
+
+    def test_the_stock_tick_without_a_due_breadfruit(self) -> None:
+        t = self.village()
+        presented: list = []
+        t.v.uc.hook_add(UC_HOOK_CODE, lambda *_: presented.append(1), begin=PRESENT_ONE, end=PRESENT_ONE)
+        self.assertEqual(self.tick(t), (self.NOW, 0))
+        self.assertEqual(presented, [])
 
 
 MAP_TILES = 0x705510            # the map object: 16 tiles {image, x, y} (0x46FCE0 fills them, 0x46FE10 draws them)

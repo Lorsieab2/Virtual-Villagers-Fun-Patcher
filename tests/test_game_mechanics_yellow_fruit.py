@@ -160,16 +160,16 @@ class YellowBreadfruitEvent(unittest.TestCase):
         page = self.events(frozenset({vv4.YELLOW_FRUIT}))
         self.assertIn("A Closer Look (Blackberries) -- needs a living villager of any age", page)
         self.assertIn("A Closer Look (Yellow Breadfruit) -- needs the Cooking Pit restored and a living villager of "
-                      "any age, and comes only after the village's first two island events; it is one rescue event "
-                      "among equals: exactly as likely as A Closer Look (Blackberries)", page)
+                      "any age; never takes a share of the game's own draw: after each island event from the "
+                      "village's second on there is a 20% chance it comes on its own before the next one", page)
         self.assertIn("added by \"Yellow Fruit Trees are No Longer Unlimited\"", page)
-        self.assertIn("A Closer Look (Yellow Breadfruit) takes its place 1 time in", page)
+        self.assertIn("the game's events are drawn exactly as above, each with the game's own chance", page)
         self.assertIn("The Cooking Pit's yellow fruit tree gains 350 fruit, up to its 1,000, and the villager walks "
                       "to the tree", page)
         stock = self.events(frozenset())
         self.assertIn("A Closer Look (Blackberries)", stock)
         self.assertNotIn("Yellow Breadfruit", stock)
-        self.assertNotIn("rescue event among equals", stock)
+        self.assertNotIn("comes on its own", stock)
 
 
 if __name__ == "__main__":
