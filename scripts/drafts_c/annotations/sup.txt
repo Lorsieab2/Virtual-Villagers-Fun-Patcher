@@ -1,0 +1,71 @@
+SUP-01
+DESC: Two villagers each claim the best cutting tool: race at the blackberry bushes, or let an elder judge.
+ROLES: name1=18+ name2=18+ name3=55+
+REVIEW: ok
+
+SUP-02
+DESC: A child drops flower petals into the soap pot: make a whole sweet batch, or keep the one bar as a gift.
+ROLES: name1=6-13 name2=18+ name3=55+/f
+FIX S: 1=1
+REVIEW: ok
+
+SUP-03
+DESC: A bar of soap slips into the stream: chase it downstream, or let the stream have it.
+ROLES: name1=18+ name2=5-12
+FIX S: 1=1
+REVIEW: ok
+
+SUP-04
+DESC: A villager keeps dropping yellow fruit: make a sack from a bolt of cloth, or carry them the old way.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+SUP-05
+DESC: A bolt of strange blue cloth washes ashore: dry it and store it, or give it back to the sea.
+ROLES: name1=18+
+REVIEW: ok
+
+SUP-06
+DESC: A pile of fish bones after a big catch: sharpen the best into cutting tools, or let the children make wind chimes.
+ROLES: name1=18+ name2=6-13
+REVIEW: ok
+
+SUP-07
+DESC: The soap keeps going missing from the store: set a watch, or ask around.
+ROLES: name1=18+ name2=18+ name3=5-11
+REVIEW: ok
+
+SUP-08
+DESC: The canoe's sail is torn: patch it with a bolt of cloth, or weave a mat sail instead.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+SUP-09
+DESC: A teen's first bolt of cloth is lumpy: store it with the rest, or unpick it and try again.
+ROLES: name1=14-17 name2=55+
+REVIEW: ok
+
+SUP-10
+DESC: Two cutting tools lie among the roots of the great tree: take them with thanks, or leave them for their owner.
+ROLES: name1=18+
+REVIEW: ok
+
+SUP-11
+DESC: Three soap makers each add a secret to the pot: use the mixed batch, or start over with one cook.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: ok
+
+SUP-12
+DESC: The basket of cutting tools falls into the stream: dive for them, or ask the children to help.
+ROLES: name1=18+ name2=7-13
+REVIEW: ok
+
+SUP-13
+DESC: Washing day at the pond and only a few bars of soap: share one bar, or give everyone their own.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+SUP-14
+DESC: The weavers have too much cloth and the pickers too few cutting tools: make a trade, or keep things as they are.
+ROLES: name1=18+ name2=18+
+REVIEW: ok

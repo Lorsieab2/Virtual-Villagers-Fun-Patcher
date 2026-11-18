@@ -181,6 +181,13 @@ village's two opening island events too (the visitor in A New Home and The Lost
 Children); they still come after it, unchanged. One Custom Island Event is queued
 at a time: the next can be bought once the last has come (within seconds).
 
+In The Tree of Life, an island event whose story gives or takes cutting tools,
+bars of soap or cloth bolts (a sack is a cloth bolt) really changes them:
+cutting tools and cloth stay between 0 and 6 (0 and 99 with "Up to 99 Cutting
+Tools/Soap/Cloth"), soap between 0 and 99, never below 0. Until the village has
+invented the item (The Cutting Tool, Soap Invented, Cloth Invented), the words
+are only part of the story.
+
 BACK UP SAVES
 
 The patcher can copy your modded games' saves for you, in all five games.

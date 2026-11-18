@@ -17,6 +17,9 @@ GROUP C ADDS (the owner and the drafts' own notes, 2026-11-15):
   dropped and any fitting villager is cast.
 - A heading's "(VV5 only)" makes the row New Believers only (collection_manifest.DRAFTS_C_VV5_TAG); BLF-26/27's Isolan
   is a named stranger (authoring-rules.md 15: Isolans are never cast).
+- Tree of Life Supplies (SUP, the owner's request of 2026-11-17): every heading is "(VV4 only)" (The Tree of Life only,
+  collection_manifest.DRAFTS_C_VV4_TAG); an "[effect: the village gains / loses N cutting tools / bars of soap /
+  cloth bolts]" is the "supply" effect (cie-v6-binary.md 32), and one bracket may hold several effects ("; ").
 - The owner's orders as group B: text verbatim; things need not exist in the game to appear in the text; a person
   named only by a role word is a cast villager shown by name (a ledger "sensitivity" entry each).
 
@@ -82,7 +85,27 @@ EFFECTS = {
 EFFECT_RE = re.compile(r"\s*\[effect: ([^\]]+)\]")
 
 
+# Tree of Life Supplies (draft_sup): "the village gains 2 cutting tools", "loses 1 bar of soap", "gains 1 cloth bolt"
+# -- the "supply" effect (docs/event-collection/cie-v6-binary.md 32; a sack is a cloth bolt).
+SUPPLY_RE = re.compile(r"the village (gains|loses) (\d+)(?: to (\d+))? (cutting tools?|bars? of soap|cloth bolts?)")
+SUPPLY_WORDS = {"cutting tool": "cutting_tools", "bar of soap": "soap", "cloth bolt": "cloth"}
+
+
+def _supply(m: re.Match) -> dict:
+    lo = int(m.group(2))
+    hi = int(m.group(3)) if m.group(3) else lo
+    noun = re.sub(r"^(cutting tool|bar|cloth bolt)s?", r"\1", m.group(4))
+    item = SUPPLY_WORDS[noun]
+    return ({"do": "supply", "item": item, "min": lo, "max": hi} if m.group(1) == "gains"
+            else {"do": "supply", "item": item, "min": -hi, "max": -lo})
+
+
 def effect_for(code: str, what: str, ann: dict) -> list[dict]:
+    if "; " in what:                   # several effects in one bracket (draft_sup)
+        return [e for part in what.split("; ") for e in effect_for(code, part, ann)]
+    m = SUPPLY_RE.fullmatch(what)
+    if m:
+        return [_supply(m)]
     if what in EFFECTS:
         return [dict(e) for e in EFFECTS[what]]
     if what == "small skill gain for (name1)":
@@ -147,6 +170,9 @@ def build(ev: P.Event, ann: dict) -> tuple[dict, list[str], list[dict]]:
     if row["games"] == [5]:
         ledger.append({"src": L(row["lines"][0]), "kind": "note",
                        "why": "the heading's \"(VV5 only)\": the event is New Believers only"})
+    elif row["games"] == [4]:
+        ledger.append({"src": L(row["lines"][0]), "kind": "note",
+                       "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"})
     grammar, gfix_rows, nodes_fx, texts = [], [], {}, {}
     for k, n in ev.parts.items():
         s = P.raw(sid, n)

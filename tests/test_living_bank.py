@@ -277,6 +277,12 @@ class EffectTest(unittest.TestCase):
                 self.assertEqual(len(a["outcomes"]), 2)
                 for o in a["outcomes"]:
                     for e in o["effects"]:
+                        if e["do"] == "supply":
+                            # The owner, 2026-11-17: an outcome's words about The Tree of Life's cloth make it
+                            # (scripts/living_bank_build.py SUPPLY): exactly these two, one cloth bolt each way.
+                            self.assertIn((o["id"], e["item"], e["min"], e["max"]),
+                                          {("mc_isl_05_b1", "cloth", 1, 1), ("mc_dis_14_d2", "cloth", -1, -1)})
+                            continue
                         self.assertIn(e["do"], self.ALLOWED, o["id"])
                         if "role" in e:
                             self.assertEqual(e["role"], "subject")

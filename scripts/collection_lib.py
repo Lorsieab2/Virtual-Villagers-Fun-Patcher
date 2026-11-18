@@ -127,6 +127,9 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     "draft_div": ("Disability and Diversity", 612, "dr_div", "DIV"),
     "draft_his": ("History and Collective Memory", 614, "dr_his", "HIS"),
     "draft_lif": ("Pondering How Life Has Gone", 596, "dr_lif", "LIF"),
+    # The owner's request of 2026-11-17 (The Tree of Life's cutting tools, soap and cloth; the "supply" effect,
+    # docs/event-collection/cie-v6-binary.md 32): every event "(VV4 only)".
+    "draft_sup": ("Tree of Life Supplies", 180, "dr_sup", "SUP"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",

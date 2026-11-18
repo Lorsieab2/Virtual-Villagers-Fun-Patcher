@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bundle on the Tide",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup05_bundle_tide",
+  "source": "draft_sup",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L56",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L62",
+    "kind": "instruction",
+    "text": "[effect: the village gains 1 cloth bolt]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A bolt of strange blue cloth washes ashore: dry it and store it, or give it back to the sea.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At dawn, (name1) finds a bundle on the beach, wrapped tight and tied with a cord of some fiber (he/she) doesn't recognize. Inside is a bolt of cloth, perfectly dry, patterned with little waves in a blue nobody on Isola knows how to make. Where it came from, nobody can say. Some say the sea gives back what it takes. Some say there are other shores.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Dry It and Store It",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Give It Back to the Sea",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) carries it to the store, where everyone comes to look at the blue waves. The weavers argue for days about how the color was made. Nobody works it out. The cloth is strong, and before long it is just one more bolt on the pile, except that people still stop to touch it.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": 1,
+     "max": 1,
+     "src": "L62"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "It feels to (name1) like something someone is missing. (He/she) wraps it up again, carries it out past the breakers, and lets the current take it. That night, the wind turns warm and the sea goes very calm. (name1) doesn't know if that means anything. (He/she) sleeps well anyway.",
+   "src": "L65"
+  }
+ }
+}

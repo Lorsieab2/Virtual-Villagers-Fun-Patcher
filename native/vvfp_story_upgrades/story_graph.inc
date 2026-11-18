@@ -172,7 +172,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 31: the gender presentation, set (a = 1) or cleared (a = 0) */
        CGE_PRESENTATION = 23,
        /* cie-v6-binary.md 30 */
-       CGE_DELIVER_EARLY = 24 };
+       CGE_DELIVER_EARLY = 24,
+       /* cie-v6-binary.md 32: The Tree of Life's cutting tools, soap and cloth bolts */
+       CGE_SUPPLY = 25 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -1031,7 +1033,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                        || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
-                                         || e[0] == CGE_DELIVER_EARLY));
+                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_SUPPLY));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1093,6 +1095,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_DAMAGE:
                 ok = e[1] == CG_ROLE_ALIAS_ALL && a >= 1 && b >= a && b <= 100 && str != CG_NONE
                      && cg_str_ok(g, str, 0);
+                break;
+            case CGE_SUPPLY:
+                /* 32: the village's; a..b a gain (1..99) or a loss (-99..-1); the supply's word. */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a <= b && ((a >= 1 && b <= 99) || (a >= -99 && b <= -1))
+                     && str != CG_NONE && cg_str_ok(g, str, 0) && c4_supply_item(cg_s(g, str)) >= 0;
                 break;
             default: break;
             }
@@ -2960,7 +2967,7 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = lo + ce_random_below(a, hi - lo + 1);   /* version 6: a loss too (lo..hi below 0) */
         break;
     }
-    case CGE_HEALTH_CHANGE: case CGE_DAMAGE:
+    case CGE_HEALTH_CHANGE: case CGE_DAMAGE: case CGE_SUPPLY:
         va = lo + ce_random_below(a, hi - lo + 1);
         break;
     case CGE_DELIVER_EARLY:
@@ -4480,6 +4487,7 @@ static char cg_extra_lines[512];
 #ifdef VVFP_TEST
 static int test_graph_structures = -1;  /* the finished structures (bit k), -1 = as the game says */
 static int test_graph_damaged[SD_MAX_STRUCTURES];   /* each structure's loss the test build recorded */
+static int test_graph_supply_cap = -1;  /* "VVFP VV4 Supply Cap.dll" (32): -1 as it is, 0 none, 1 installed */
 #endif
 
 #ifdef VVFP_TEST
@@ -4628,6 +4636,40 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
     }
 }
 
+/* cie-v6-binary.md 32: "supply": The Tree of Life's cutting tools, bars of soap or cloth bolts (story_c4.inc
+   C4_SUPPLY_*) changed by `delta` (the walk's roll), kept within 0..6 (99 with Up to 99 Cutting Tools/Soap/Cloth;
+   soap always 99) and never below 0.  Nothing in another game, and nothing before the supply's own puzzle is solved
+   (the event's words are then story only).  The change has one line in the event's log entry. */
+static void cg_supply(int game, const unsigned char *e, int delta) {
+    int item = c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))), big, before = 0, after = 0;
+    int *count;
+    char line[96];
+    if (game != 4 || item < 0 || delta == 0 || !cg_puzzle_solved(game, C4_SUPPLY_PUZZLES[item])) {
+        return;
+    }
+    big = c4_supply_cap_installed();
+#ifdef VVFP_TEST
+    if (test_graph_supply_cap >= 0) {
+        big = test_graph_supply_cap;
+    }
+#endif
+    count = (int *)(uintptr_t)C4_SUPPLY_AT[item];
+    __try {
+        before = *count;
+        after = c4_supply_after(before, delta, c4_supply_cap(item, big));
+        *count = after;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return;
+    }
+    if (after == before) {
+        return;
+    }
+    wsprintfA(line, "  %s: %d -> %d\n", C4_SUPPLY_NAMES[item], before, after);
+    if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
+        lstrcatA(cg_extra_lines, line);
+    }
+}
+
 /* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
 static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
                       int *award, ce_result *r) {
@@ -4651,6 +4693,9 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         return;
     case CGE_DAMAGE:
         cg_damage(a, game, e, va);
+        return;
+    case CGE_SUPPLY:
+        cg_supply(game, e, va);
         return;
     case CGE_CELEBRATE:
         if (e[1] == CG_ROLE_ALIAS_ALL) {
@@ -7553,6 +7598,11 @@ __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeInstalledPatches(int 
 /* The puzzles solved for the graph's checks (bit = the adapter's puzzle index; -1 = as the game says). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphPuzzles(int solved) {
     test_graph_puzzles = solved;
+}
+
+/* "VVFP VV4 Supply Cap.dll" as the "supply" effect sees it (cie-v6-binary.md 32): -1 the real check, 0 none, 1 in. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
+    test_graph_supply_cap = mode;
 }
 
 /* The run: out[0] phase, [1] display_next, [2] display_count, [3] display armed, [4] choice, [5] bound roles,

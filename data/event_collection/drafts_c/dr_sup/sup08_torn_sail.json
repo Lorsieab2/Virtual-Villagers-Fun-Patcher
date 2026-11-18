@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Torn Sail",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup08_torn_sail",
+  "source": "draft_sup",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L92",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L98",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 cloth bolt]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The canoe's sail is torn: patch it with a bolt of cloth, or weave a mat sail instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gust has torn the sail of the little fishing canoe from top to bottom. (subject) wants it out on the water by tomorrow; the fish are running. (friend) points out that the store has cloth, and that the weavers have been saving it for something important.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Patch It With a Bolt of Cloth",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Weave a Mat Sail Instead",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) decides fish are important. The new patch is bright and stiff and doesn't match anything, and the canoe looks like it is wearing borrowed clothes. It sails beautifully. The weavers sigh and start another bolt.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": -1,
+     "max": -1,
+     "src": "L98"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) shows (subject) how the old ones were made: palm leaves, split and woven tight. It takes three days and a great deal of patience (subject) didn't know (subject.he/she) had. The fish wait. The mat sail is heavier than cloth, but (subject) is very proud of it, and the cloth stays in the store.",
+   "src": "L101"
+  }
+ }
+}
