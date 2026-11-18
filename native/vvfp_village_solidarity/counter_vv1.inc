@@ -56,10 +56,18 @@ static const unsigned char SOL12_HEIGHT_STOCK[16] = { 0x56, 0x8B, 0x71, 0x04, 0x
 /* The site's stock bytes (the same in both games): mov ecx, [esi+0x124]. */
 static const unsigned char SOL12_SITE_STOCK[6] = { 0x8B, 0x8E, 0x24, 0x01, 0x00, 0x00 };
 
+/* A routine another companion may have hooked at its start (Render Unicode with In-Game Fonts, started before this
+   one, puts a jump over the first bytes of the text and width routines): its stock bytes, or a jump in their
+   place, which still answers as the stock routine does (UTF-8 measured and drawn as the game's own text). */
+static int sol12_stock_or_hooked(unsigned int va, const unsigned char *stock, int length) {
+    static const unsigned char JMP[1] = { 0xE9 };
+    return vvfp_site_holds(va, stock, length) || vvfp_site_holds(va, JMP, 1);
+}
+
 static int sol12_routines_stock(const sol12_game *g) {
-    return vvfp_site_holds(g->text_centred, SOL12_TEXT_STOCK, sizeof SOL12_TEXT_STOCK)
-        && vvfp_site_holds(g->text_width, SOL12_WIDTH_STOCK, sizeof SOL12_WIDTH_STOCK)
-        && vvfp_site_holds(g->line_height, SOL12_HEIGHT_STOCK, sizeof SOL12_HEIGHT_STOCK);
+    return sol12_stock_or_hooked(g->text_centred, SOL12_TEXT_STOCK, sizeof SOL12_TEXT_STOCK)
+        && sol12_stock_or_hooked(g->text_width, SOL12_WIDTH_STOCK, sizeof SOL12_WIDTH_STOCK)
+        && sol12_stock_or_hooked(g->line_height, SOL12_HEIGHT_STOCK, sizeof SOL12_HEIGHT_STOCK);
 }
 
 static int sol12_fits(const sol12_game *g, void *font, const char *line) {

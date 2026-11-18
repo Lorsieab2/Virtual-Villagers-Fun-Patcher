@@ -519,6 +519,20 @@ int __stdcall VvfpVillageScoreFactor(int game, int score_id, int favour) {
     return score < 0 ? 1000 : vs_factor(score, favour, g_strength);
 }
 
+/* Start Over (VVFP Save Reset.dll's ResetDeletedTribe, before it deletes the slot's folder): the score held for
+   `slot` is forgotten, so the new village made there reads its own (missing: 50) and never gets the old one back. */
+void __stdcall VvfpVillageScoreReset(int game, int slot) {
+    if (g_game == 0 || game != g_game) {
+        return;
+    }
+    EnterCriticalSection(&g_lock);
+    if (slot == g_slot || g_gate.key == slot) {
+        g_slot = 0;
+        memset(&g_gate, 0, sizeof g_gate);
+    }
+    LeaveCriticalSection(&g_lock);
+}
+
 /* The row's strength in tenths (10 = 1x); 0 when not started for `game`. */
 int __stdcall VvfpVillageScoreStrength(int game) {
     return g_game != 0 && game == g_game ? g_strength : 0;

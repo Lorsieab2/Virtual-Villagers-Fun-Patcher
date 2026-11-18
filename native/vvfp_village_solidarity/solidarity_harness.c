@@ -135,6 +135,11 @@ int main(void) {
     VvfpVillageScoreProbeStart(4, 0, 10);
     CHECK(VvfpVillageScoreGet(4, 0) == -1 && VvfpVillageScoreFactor(4, 0, VS_FAVOUR_LOW) == 1000,
           "no village: nothing, factor 1000");
+    VvfpVillageScoreProbeStart(4, 2, 10);
+    CHECK(VvfpVillageScoreTag(4, 0, VS_TAG_RAISE, "Before Start Over") == 5, "the old village at 5");
+    VvfpVillageScoreReset(4, 2);           /* Start Over: told first, then the folder is deleted */
+    DeleteFileA(path);
+    CHECK(VvfpVillageScoreGet(4, 0) == 50, "after Start Over the new village starts at 50, not the old score");
     write_text(path, "not a scores file\r\n");
     VvfpVillageScoreProbeStart(4, 2, 10);
     CHECK(VvfpVillageScoreGet(4, 0) == 50 && count_aside(path) == 1, "an unreadable file: set aside, back to 50");
