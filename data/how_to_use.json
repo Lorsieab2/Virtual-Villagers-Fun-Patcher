@@ -367,6 +367,16 @@
       ]
     },
     {
+      "ids": ["vv1_village_solidarity", "vv2_village_solidarity", "vv3_village_solidarity", "vv4_village_solidarity", "vv5_village_solidarity"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. Needs Story / Cheat Upgrades.",
+        "Each village has a Village Solidarity score, 0 to 100, starting at 50. The Tech screen and Game Mechanics show it.",
+        "The new island events raise it by 5 (songs, fair resolutions, help, welcomes, happy and trusting endings) or lower it by 5 (quarrels left alone, unfairness, fear).",
+        "It only changes odds: above 50 the new cooperative and celebration events and endings are more likely, below 50 the repair and apology ones.",
+        "At the normal strength each point away from 50 adds 2% to their own chance. The game's own island events, work, skills and health never change.",
+        "The strength slider beside the patch settings sets 0.1x to 10x. Start Over clears the score."
+      ]
+    },    {
       "ids": ["vv1_children_play", "vv2_children_play", "vv3_children_play", "vv4_children_play", "vv5_children_play"],
       "guide": [
         "On by default. Children play tag and build sandcastles on the beach, each 1 pick in 15 when a child picks something to play; the usual choices keep their odds.",
@@ -1232,7 +1242,7 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "2-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection and Change Sex and Gender Presentation are not ticked either.",
+        "2-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation and Village Solidarity are not ticked either.",
         "It does not change the population mode."
       ]
     },
@@ -1241,8 +1251,8 @@
       "guide": [
         "Ticks all but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
-        "Change Sex and Gender Presentation, 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
-        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
+        "Change Sex and Gender Presentation, Village Solidarity, 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved,",
+        "Classic VV Difficulty, Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
         "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
@@ -1298,7 +1308,8 @@
       "title": "Village Solidarity strength",
       "guide": [
         "How strongly the Village Solidarity score changes the odds of the new events and their endings: 0.1x to 10x in steps of 0.1, 1x (the normal strength) unless you move it.",
-        "At 1x each point the score is away from 50 adds 2% to a favoured event's or ending's own chance, so a score of 0 or 100 doubles it; at 2x it adds 4% a point, at 0.5x 1%. Nothing is ever forced and nothing else is made less likely.",
+        "At 1x each point away from 50 adds 2% to a favoured event's or ending's own chance (double at 0 or 100); at 2x 4% a point, at 0.5x 1%.",
+        "Nothing is ever forced and nothing else is made less likely.",
         "It is written into each game the next time you patch with Village Solidarity ticked; patch again after changing it. It does nothing while Village Solidarity is not ticked."
       ]
     },
