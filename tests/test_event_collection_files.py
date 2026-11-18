@@ -368,6 +368,44 @@ class FrozenAnthology(unittest.TestCase):
         self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
 
 
+class FrozenCritic(unittest.TestCase):
+    """The owner's "(Name1)'s Harshest Critic" (2026-11-16, Expanded v3), frozen byte for byte: one event in six files
+    (its route families), one series, the setup and shared pools as add-on rows (authoring-rules.md 15i)."""
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        sid = lib.CRITIC_ID
+        self.assertEqual(lib.recorded_sha256(sid), "a4445778c71f7e23c01c476258e6d002f785ef7d37d058e2b9d34f0018993149")
+        self.assertEqual(lib.source_sha256(sid), lib.recorded_sha256(sid))
+        self.assertEqual(lib.source_sha256(lib.CRITIC_CREDIT_ID), lib.recorded_sha256(lib.CRITIC_CREDIT_ID))
+        self.assertEqual(lib.CRITIC.read_bytes().count(b"\n"), lib.CRITIC_LINES)
+        self.assertEqual(lib.CRITIC_CREDIT.read_text(encoding="utf-8"), "Created by Lorsieab2, Claude and ChatGPT.\n")
+        self.assertEqual(data[sid]["uncovered_lines"], [])
+        self.assertEqual(data[sid]["overlaps"], [])
+        rows = [r for r in data["rows"] if r["source"] == sid]
+        self.assertEqual(sum(r["kind"] == "event" for r in rows), 6)
+        self.assertEqual(sum(r["kind"] == "addon" for r in rows), 6)
+        self.assertEqual({r["series"] for r in rows}, {"hc_critic"})
+        files = [p for p in cc.collection_files() if lib.CRITIC_DIR in p.parents]
+        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows if r["kind"] == "event"))
+        routes = 0
+        for p in files:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
+            self.assertEqual(doc["title"], "(Name1)'s Harshest Critic")
+            self.assertEqual(doc["collection"]["credit"], "Created by Lorsieab2, Claude and ChatGPT.")
+            self.assertIn("hc_setup", doc["collection"]["addons"])
+            self.assertIn("hc_variant2", doc["collection"]["addons"])
+            for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):
+                self.assertEqual(lib.title_case_label(c["label"]), c["label"], p.name)
+            routes += len(doc["nodes"]["routes"]["children"])
+            # Variant 2: the mentor's kind word after a fail or a stumble
+            self.assertTrue(any(n.get("text") == "{V2}" for n in doc["nodes"].values()), p.name)
+            # every group's question copies: four each, labels from the owner's lists
+            self.assertEqual(sum(1 for n in doc["nodes"].values() if n.get("type") == "question"), 24)
+        self.assertEqual(routes, 112)
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

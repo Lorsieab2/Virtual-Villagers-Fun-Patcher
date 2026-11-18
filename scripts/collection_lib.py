@@ -182,6 +182,23 @@ ANTHOLOGY_SECTIONS = {   # section: the volume's name (one series each)
     "an_fauna": "Animals of Fur, Feathers, Scales, Claws and Hooves",
 }
 SOURCES[ANTHOLOGY_ID] = (ANTHOLOGY, ANTHOLOGY_HASH_FILE, ANTHOLOGY_LINES)
+
+# The owner's "(Name1)'s Harshest Critic" (2026-11-16, Expanded v3: the owner's notes, expanded with ChatGPT and
+# Claude), frozen byte for byte (CRLF line ends kept): one event built as a series of six collection files (its route
+# families), each with the shared setup and pools as add-on rows -- the Cooking Contest's layout (a random-pool
+# mad-lib).  data/event_collection/critic/hc/<id>.json, "source": "critic", built by scripts/critic/gen_critic.py.
+# Its credit line (the owner's wording, 2026-11-17) is a one-line file of its own, "critic_credit".
+CRITIC = ROOT / "docs" / "more-island-events" / \
+    "(Name1)'s Harshest Critic - Expanded v3 (Unintended Victories + your ideas).txt"
+CRITIC_HASH_FILE = COLLECTION_DIR / "CRITIC.sha256"
+CRITIC_LINES = 2218
+CRITIC_ID = "critic"
+CRITIC_DIR = COLLECTION_DIR / "critic"
+CRITIC_CREDIT = ROOT / "docs" / "more-island-events" / "(Name1)'s Harshest Critic - Credit.txt"
+CRITIC_CREDIT_HASH_FILE = COLLECTION_DIR / "CRITIC_CREDIT.sha256"
+CRITIC_CREDIT_ID = "critic_credit"
+SOURCES[CRITIC_ID] = (CRITIC, CRITIC_HASH_FILE, CRITIC_LINES)
+SOURCES[CRITIC_CREDIT_ID] = (CRITIC_CREDIT, CRITIC_CREDIT_HASH_FILE, 1)
 _ACTIVE = [SOURCE_ID]
 
 
@@ -356,9 +373,25 @@ COMPANION_STRUCTURAL = [
 ]
 
 
+# "(Name1)'s Harshest Critic"'s own markers (scripts/critic/gen_critic.py): the "[new]" / "[added]" / "[owner]" tags
+# that say who wrote a line, a "Choice A:" label prefix, a pool line's skill tag "(Farming)" at its end, a branch's
+# label ("pass:", "fail:", ...) and a pool line's profession prefix ("Farming:", "Building/Research:", "Any:").  Each
+# is a label on the owner's words, never words of the scene.
+_CRITIC_SKILLS = r"(?:Farming|Building|Research|Healing|Parenting|Devotion|Any|any)"
+CRITIC_STRUCTURAL = [
+    re.compile(r"\[(?:new|added|owner)\]\s*"),
+    re.compile(r"^\s*Choice [A-D]:\s*"),
+    re.compile(r"\s*\((?:Farming|Building|Research|Healing|Parenting|Devotion)\)\s*$"),
+    re.compile(r"^\s*(?:pass|fail|vindicated|mistaken|discovered|concealed|unseen success|discovered success|"
+               r"failure):\s+"),
+    re.compile(r"^\s*" + _CRITIC_SKILLS + r"(?:/" + _CRITIC_SKILLS + r")*(?: \(VV5\))?:\s+(?=\S)"),
+]
+
+
 def structural_markers() -> list[re.Pattern]:
     """The structural markers of the active source."""
-    return STRUCTURAL_INLINE + (COMPANION_STRUCTURAL if active_source() == COMPANION_ID else [])
+    return STRUCTURAL_INLINE + (COMPANION_STRUCTURAL if active_source() == COMPANION_ID else []) \
+        + (CRITIC_STRUCTURAL if active_source() == CRITIC_ID else [])
 
 
 def strip_structural(text: str) -> str:

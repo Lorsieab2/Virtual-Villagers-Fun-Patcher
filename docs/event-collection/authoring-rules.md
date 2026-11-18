@@ -549,6 +549,42 @@ review sheet). The shape is 15b's (the setup asks; each label leads to its own t
 - "The chief" stays the game word `{@chief}` / `{@Chief}` (a label in title case: collection_check compares a game word
   as the word it stands for); a title with "Chief" has a "Leader" title variant outside VV3. Nobody is cast as the chief.
 
+## 15i. (Name1)'s Harshest Critic (the owner's event, 2026-11-16, Expanded v3)
+
+The owner's random-pool event, frozen byte for byte (`collection_lib.CRITIC`, source id `critic`, SHA-256 in
+`data/event_collection/CRITIC.sha256`, the owner's CRLF ends kept, `-text`), laid out as The Cooking Contest is: a
+setup with letter slots (A the profession, B the task, T the difficulty, C the privilege, C2, D, E), four choices,
+a first popup per choice and 112 routes (R1-R112), each equally likely; Variant 2 (the critic is the student
+him/herself) is the mentor's kind word after a fail or a stumble, half the time. Its 112 routes are more text than one
+`.cieg` holds (`CG_MAX_FILE`), so it ships as six files, one per route family (R1-R23, R24-R41, R42-R57, R58-R73,
+R74-R95, R96-R112), ONE series (`hc_critic`, one draw in the rare roll); the setup and the shared pools are add-on rows
+(`collection_manifest.CRITIC_ROWS`) each file lists in `collection.addons`. Files:
+`data/event_collection/critic/hc/<id>.json`, built by `scripts/critic/gen_critic.py` (`--review` prints each
+pronoun's owner; `OWNERS` fixes the ones the nearest name gets wrong).
+
+- Every "(a / b / c)" list is a pool of its own (`p<line>_<k>`), each item the owner's words; a slot word with no list
+  ("(a faraway village)", "(healing)") is a one-item pool; "(somehow)" and the other asides are literal
+  parentheses. "(number)" is a pool of the number words the file itself uses (two, three, five, seven, nine, twelve,
+  forty); "(crop)" is taro or fruit; "(thing)" the owner's job words; "(recipient)" the L125 list.
+- The skill group is drawn first (a branch to `g_farm` ... `g_dev`, equally likely), and every profession, task,
+  difficulty, privilege, punishment, flavor, quote and disaster line of a group carries `{"visited": "g_<group>"}`;
+  the "any profession" tasks are not Devotion's (the owner's "draw task B from Devotion only"). A skill reward is a
+  branch over the groups: Devotion is VV5's Devotion or Research / Parenting (the owner's Devotion rule; VV1-VV4 skip
+  Devotion), and a potion maker's or poultice maker's is Research or Healing (the owner's potion rule).
+- Choice labels: the owner's 21 alternatives per choice; 24 copies of the question (4 per group, branch nodes
+  `c_<group><k>` before each) each show one set (the first three sets twice). "C2 ... sometimes": two of each group's
+  four copies show it. Copy 1 and 2 show the professions whose "a (A)" and "(A)s" read right, copy 3 the others
+  ("an alchemist", "keepers of ..."), copy 4 the potion and poultice makers (Research, Healing) or as copy 3; copy 2's
+  task is a named master challenge (`TASKN`), the only copy whose difficulty may be a named master's.
+- **Never a `drew` condition here.** Each `drew` is one more run-time fact, and the checks walk every combination of
+  run-time facts (`vv_cie_graph.contexts`): a draft with a `drew` per profession and task (about 70) asked for 2^70
+  contexts and ran the PC out of memory. Every condition is `visited` (a fact of the path); `gen_critic.bounded`
+  refuses a `drew`, more than 32 contexts, or a file the engine cannot read (`CG_MAX_FILE`, 128 KB).
+- Content filters, no text changed: the G quotes aimed at the person ("YOU DONKEY!", "the brain of a coconut", ...)
+  are left out in Variant 2 (the owner: "avoid having the mentor mock (name1) as a person"); a proposal or a marriage
+  (K Devotion, Q) only when (name1) is 18 or older; "a (A)" and "(A)s" lines only on copies 1 and 2.
+- The credit is the owner's own line (2026-11-17), frozen as its own one-line file (`critic_credit`).
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

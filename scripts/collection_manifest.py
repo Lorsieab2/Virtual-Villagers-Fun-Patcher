@@ -1239,6 +1239,49 @@ def _anthology_rows() -> None:
 
 _anthology_rows()
 
+
+# ---- "(Name1)'s Harshest Critic" (collection_lib.CRITIC; its own line numbers) -----------------------------------------
+#
+# The owner's random-pool event (2026-11-16, Expanded v3), laid out as the Cooking Contest is: one event whose setup and
+# shared pools are add-on rows.  Its 112 routes are too much text for one .cieg (story_graph.inc CG_MAX_FILE), so the
+# event ships as six collection files, one per route family, ONE series ("hc_critic": one draw in the rare roll); each
+# file lists the add-on rows it shows (collection.addons).  Every line belongs to one row; the rows touch with no blank
+# line between them, so they carry one_line (no blank-line boundary check).  The credit is the owner's own line
+# (2026-11-17), its own one-line file.  Files: data/event_collection/critic/hc/<id>.json, built by
+# scripts/critic/gen_critic.py.
+
+CRIT = lib.CRITIC_ID
+CREDITS["hc"] = ("mixed", [(1, 1)], lib.CRITIC_CREDIT_ID)
+CRITIC_TITLE = "(Name1)'s Harshest Critic"
+# (id, kind, first line, last line, the row's title after the event's: the heading found at the row's top)
+CRITIC_ROWS = [
+    ("hc_setup", "addon", 1, 757, ""),
+    ("hc1_routes", "event", 758, 827, "Routes"),
+    ("hc_setup_devotion", "addon", 828, 862, "Devotion-Specific Punishments"),
+    ("hc_mentor_reactions", "addon", 863, 1154, "The Mentor's Reaction"),
+    ("hc_variant2", "addon", 1155, 1208, "Variant 2: The Harshest Critic Is (Name1)"),
+    ("hc_named_master", "addon", 1209, 1293, "Additional Mad-Lib Module"),
+    ("hc2_pleas", "event", 1294, 1373, "Additional Outcome Routes"),
+    ("hc3_disasters", "event", 1374, 1613, "Catastrophic Examination Disasters"),
+    ("hc_comic_pools", "addon", 1614, 1784, "Expansion: The Big Bang"),
+    ("hc4_noises", "event", 1785, 1856, "Explosions, Noises, Odors, and Corpsing"),
+    ("hc5_victories", "event", 1857, 2033, "Unintended Victories"),
+    ("hc6_sabotage", "event", 2034, 2218, "The Sabotage Twist"),
+]
+
+
+def _critic_rows() -> None:
+    with lib.use_source(CRIT):
+        for rid, kind, a, b, what in CRITIC_ROWS:
+            while not lib.line(b).strip():      # a row ends on its last line with words (the blank before the next)
+                b -= 1
+            title = f"{CRITIC_TITLE}: {what}" if what else CRITIC_TITLE
+            R(rid, title, ALL, a, b, kind, "hc", "hc", 4 if rid == "hc_setup" else 0, series="hc_critic",
+              source=CRIT, one_line=True, choice_re=(r"^Choice [A-D]: " if rid == "hc_setup" else NEVER))
+
+
+_critic_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1606,6 +1649,8 @@ def build() -> dict:
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_D_SERIES[sid],)) for sid in lib.DRAFTS_D},
         # The Animals anthology's newest volumes (collection_lib.ANTHOLOGY): rows with "source" "anthology"
         "anthology": anthology,
+        # "(Name1)'s Harshest Critic" (collection_lib.CRITIC): rows with "source" "critic"
+        "critic": whole_file(lib.CRITIC_ID, lib.CRITIC, ("hc_critic",)),
         "rows": rows,
     }
 
@@ -1633,7 +1678,7 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology"):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology", "critic"):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

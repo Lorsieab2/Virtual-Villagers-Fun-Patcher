@@ -386,3 +386,13 @@ smallest fix that reads the same is listed here.
 
 The six MC headings (Living L25161 and the five after it) use `&`, which no game's title can show. The event
 title writes it `and`: "ISLAND BUSINESSES & MARKETS" is shown "Island Businesses and Markets".
+
+### (Name1)'s Harshest Critic (2026-11-17; source `critic`)
+
+The owner's route R1 says the student gets the privilege "(C-result)": the privilege drawn for the setup's "(C)", in a
+form for the result. The pools hold one form only (a phrase such as "getting promoted to head chef"), so the result
+reads it after a lead-in. Rows start with `critic`.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| critic L762 | `(Name1) (C-result).` | `The reward: (C-result).` | hc1_routes | the privilege pool holds one form (a `-ing` phrase); "(Name1) getting promoted ..." is not a sentence |
