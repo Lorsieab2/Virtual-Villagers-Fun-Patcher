@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knowledge That Was Taken",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg23_knowledge_taken",
+  "source": "draft_lcg",
+  "lines": [
+   316,
+   327
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L316",
+  "ledger": [
+   {
+    "src": "L317",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L323",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L323",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L327",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A visitor claims a villager's fish trap design as their own: confront them publicly, or quietly prove whose it is.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) invented a new fish trap that catches twice as much. A visitor who saw it last season has been telling other islands that (other.he/she) invented it. (friend) heard it from a trader. (subject) is hurt and angry. What should (subject) do?",
+   "src": "L319",
+   "choices": [
+    {
+     "label": "Confront the Visitor",
+     "next": "o1",
+     "src": "L321"
+    },
+    {
+     "label": "Quietly Prove It",
+     "next": "o2",
+     "src": "L325"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "When the visitor next comes, (subject) asks (other.him/her), in front of everyone, to explain how the trap works. The visitor gets it wrong. The village laughs. The visitor leaves red-faced, and the traders start calling it (subject)'s trap.",
+   "src": "L323",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L323"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) builds an even better trap and sends it to the other islands with a trader, as a gift, with (subject.his/her) mark carved on it. Before long, everyone knows whose trap it is. (subject) never says a word against the visitor.",
+   "src": "L327",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L327"
+    }
+   ]
+  }
+ }
+}

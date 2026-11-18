@@ -10349,6 +10349,206 @@
    "harm": [],
    "section": "dr_lcf"
   },
+  "lcg01_weather_readers": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg02_shared_stores": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg03_traveling_song": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg04_path_water": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg05_terraces_three": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg06_weaver": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg07_mountain_council": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg08_forest_medicine": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg09_young_keeper": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg10_navigator_doubt": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg11_gift_cannot": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg12_canoe_belongs": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg13_children_two": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg14_seed_keepers": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg15_river_belongs": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg16_garden_many": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg17_footprint": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg18_words_our": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg19_village_would": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg20_map_drawn": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg21_agreement_nobody": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg22_right_refuse": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg23_knowledge_taken": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg24_woman_led": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg25_caregivers": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg26_council_mistake": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg27_young_woman": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg28_gathering": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg29_song_many_forms": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg30_apprentice": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg31_two_songs": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg32_visitor_wanted": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg33_feast_homes": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg34_counting_knots": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg35_peace_delegation": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg36_song_returning": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg37_stolen_fishing": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg38_young_historian": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg39_children_asked": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg40_young_advocates": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg41_village_own": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg42_house_many_hands": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg43_meeting_place": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg44_song_about": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg45_fishers_welcome": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg46_dance_clumsy": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg47_song": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg48_recipe_nobody": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg49_ancestors_were": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
+  "lcg50_game_became": {
+   "harm": [],
+   "section": "dr_lcg"
+  },
   "lif01_only_until": {
    "harm": [],
    "section": "dr_lif"

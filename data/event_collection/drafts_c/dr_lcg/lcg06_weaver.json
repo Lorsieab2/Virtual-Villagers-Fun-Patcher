@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weaver's Permission",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg06_weaver",
+  "source": "draft_lcg",
+  "lines": [
+   78,
+   89
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L78",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a weaver and an adult)"
+   },
+   {
+    "src": "L85",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L85",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A trader wants to copy a family's special weaving pattern and sell it without credit: allow it with terms, or refuse.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s family has woven the same pattern for six generations: little waves inside diamonds, each wave a family story. A trader from another island wants to copy it on cloth to sell, and does not plan to say where it came from. (friend) thinks the trade would bring the village good tools. It is (subject)'s family's decision. What should (subject) do?",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Allow It, With Terms",
+     "next": "o1",
+     "src": "L83"
+    },
+    {
+     "label": "Refuse",
+     "next": "o2",
+     "src": "L87"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) agrees, on terms: only one of the patterns, the trader must say it comes from Isola, and the family gets tools for every bolt sold. The trader grumbles and agrees. The other patterns stay in the family.",
+   "src": "L85",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L85"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) refuses. Some patterns are not for sale. The trader is annoyed and leaves. (friend) is disappointed about the tools. (subject)'s grandmother pats (subject) on the cheek and says nothing at all, which in her family means a great deal.",
+   "src": "L89"
+  }
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village's Own Questions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg41_village_own",
+  "source": "draft_lcg",
+  "lines": [
+   568,
+   579
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L569",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a child)"
+   },
+   {
+    "src": "L575",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L575",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants the researchers to study its own problems: let villagers choose, or let researchers choose.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The researchers have spent a year studying the color of the sunset. (friend) and the other children have drawn a picture of the village they want, with safe paths and a well that does not run dry, and have given it to (subject), a researcher. Maybe the village should decide what gets studied. What should (subject) do?",
+   "src": "L571",
+   "choices": [
+    {
+     "label": "Let the Village Choose",
+     "next": "o1",
+     "src": "L573"
+    },
+    {
+     "label": "Let the Researchers Choose",
+     "next": "o2",
+     "src": "L577"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks the gathering what problems most need solving. The answer is the well. The researchers study the well for a season, and find a better place to dig. (friend) says (friend.his/her) picture was right.",
+   "src": "L575",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L575"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L575"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) keeps studying sunsets. The village is unimpressed. But one evening, the sunset shows a storm coming two days early, and everyone is very glad of the researchers. (subject) then studies the well anyway.",
+   "src": "L579"
+  }
+ }
+}

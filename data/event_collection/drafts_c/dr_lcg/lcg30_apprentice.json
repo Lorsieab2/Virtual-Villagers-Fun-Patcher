@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Needed a Different Lesson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg30_apprentice",
+  "source": "draft_lcg",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen)"
+   },
+   {
+    "src": "L421",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1); small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An apprentice learns nothing from talk but everything from watching: change the teaching, or ask them to try harder.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has explained net-mending to (friend) twelve times, and (friend) still cannot do it. But yesterday, (subject) noticed (friend) watching a fisher mend a net from across the beach, and then mending one perfectly. (subject) has always taught by talking. What should (subject) do?",
+   "src": "L417",
+   "choices": [
+    {
+     "label": "Change the Teaching",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Ask (friend) to Try Harder",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stops talking and starts showing: slowly, knot by knot, with (friend) watching. (friend) learns in a day. (subject) is astonished, and a little embarrassed, and from then on teaches every apprentice both ways.",
+   "src": "L421",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L421"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L421"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend) to listen more carefully. (friend) tries, and fails, and gets quieter and quieter. Then another apprentice simply shows (friend), and (friend) gets it at once. (subject) sees, and thinks about it for a long time.",
+   "src": "L425"
+  }
+ }
+}

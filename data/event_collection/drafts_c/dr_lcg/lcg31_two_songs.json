@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Songs, One Welcome",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg31_two_songs",
+  "source": "draft_lcg",
+  "lines": [
+   428,
+   439
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L435",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Visiting families and villagers each sing their own welcome songs: write a shared song, or keep both songs separate.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Families from another island are visiting for a season, and at the welcome feast, both sides sang their own welcome songs. (subject) wants to write a new song together. (friend) says the visitors should not be expected to give up anything: a welcome should not ask for something back. What should happen?",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Write a Shared Song",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Keep Both Songs",
+     "next": "o2",
+     "src": "L437"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The visitors are delighted to help. The shared song has their drums and Isola's harmonies. They sing it on the night they leave, and both sides cry. Neither side's own song was changed.",
+   "src": "L435"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps its welcome simple: its own song, freely given. The visitors sing theirs. Nothing is asked of anyone. By the end of the season, the children have learned both, and sing them back to back.",
+   "src": "L439"
+  }
+ }
+}
