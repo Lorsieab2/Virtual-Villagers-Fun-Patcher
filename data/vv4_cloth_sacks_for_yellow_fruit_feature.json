@@ -29,7 +29,7 @@
     {
       "source": "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll",
       "destination": "VVFP VV4 Cloth Sacks.dll",
-      "sha256": "477BE07C29776F14E009FD1596863FBC4284D54D3EE8445365B96A0DFC148102"
+      "sha256": "4DF73F0DD8F3E1D3A83D4CE24633C4B921266282CC1EF4C9B910A40C3D0C229C"
     },
     {
       "source": "assets/cloth_sacks/vvfp_sack_empty.png",
@@ -53,7 +53,7 @@
       "va": "0x46E460",
       "stock_bytes": "83EC08568B742410",
       "written_bytes": "E9XXXXXXXX909090",
-      "routine": "the drop dispatcher 0x46E460 (a villager dropped: its place 0x45ED00, the map's area there 0x46C410, that area's handler): an adult (+0x1B8C >= 0x118), not expecting (+0x1C4C), under the finished Clothing Hut's awning (puzzle 0x16; the hut's place, its object 0x4D82D8 +0x28/+0x2C, plus x -26..70, y 40..134) with the Cooking Pit restored (puzzle 6) starts the sack trip, or gets a refusal; anything else goes on to the stock dispatcher",
+      "routine": "the drop dispatcher 0x46E460 (a villager dropped: its place 0x45ED00, the map's area there 0x46C410, that area's handler): an adult (+0x1B8C >= 0x118), not expecting (+0x1C4C), under the finished Clothing Hut's awning (puzzle 0x16; the hut's place, its object 0x4D82D8 +0x28/+0x2C, plus x -26..70, and y 40..134 or any point the game itself hands to the hut there: its own drop area under the drop point, 0x46C410 = 0x12, built from the hut picture by 0x42FD20 -> 0x46CC50) with the Cooking Pit restored (puzzle 6) starts the sack trip, or gets a refusal; anything else goes on to the stock dispatcher",
       "installed_by": "VVFP VV4 Cloth Sacks.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     },
     {

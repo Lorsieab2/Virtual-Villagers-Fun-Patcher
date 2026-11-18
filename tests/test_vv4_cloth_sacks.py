@@ -394,6 +394,53 @@ class SackTripTests(unittest.TestCase):
         h.v.w32(r + REC_ITEM, 0x36)
         self.assertEqual(picture()[0], "0xcafe0024")                          # the trip over: the game's own
 
+    def test_the_sack_spot_always_wins_over_the_new_clothes_question(self) -> None:
+        """Owner, live (v3): "sometimes I drop them on the right spot for sackmaking and it still gives the buying
+        clothes prompt".  The game's own drop area of the finished hut is the hut picture's opaque shape (0x42FD20 ->
+        0x46CC50 builds it from the sprite, 8-pixel map cells marked area 0x12), which on the left reaches y 12..150
+        from the hut's place; the sack's box was only y 40..134 and x -10..54, so a drop on the awning's roof, low
+        down, or just right of the box went to the hut's handler 0x46F600 and its question.  Now, in the sack's
+        columns (x -26..70), every drop the game would hand to the hut makes a sack.  The hut's cells are marked here
+        the game's own way (0x46C450) from the hut picture, the hut's handler registered as the game registers it
+        (0x46E5E0 at 0x46FA94), and drops are made across the whole box and the hut's shape in those columns."""
+        from PIL import Image
+        art = ROOT / "research" / "game-images" / "Virtual Villagers - The Tree of Life" / "Images" / "clothinghut_states.png"
+        if not art.is_file():
+            self.skipTest("the game's pictures (research/game-images) are needed")
+        alpha = Image.open(art).crop((200, 200, 400, 400)).getchannel("A")      # the finished hut
+        cells = {((400 + x) // 8, (1600 + y) // 8) for y in range(200) for x in range(200) if alpha.getpixel((x, y))}
+
+        def village(patched: bool) -> Hut:
+            h = Hut(patched=patched, cloth=99)
+            for cx, cy in cells:
+                h.v.call(0x46C450, fe.MAP, cx * 8, cy * 8, 0x12, 0)
+            h.v.call(0x46E5E0, 0, 0x12, 0x46F600, 5, 0)                      # cdecl registrar
+            h.v.w32(0x4D6F88, 10_000)                                       # tech points for new clothes
+            h.v.w32(fe.GAME + 0x1719C, -1)
+            return h
+
+        def prompt(h: Hut, at) -> tuple[bool, bool]:
+            h.v.w32(fe.GAME + 0x171A0, -1)
+            r = h.villager(at=at, index=1)
+            h.v.w32(r + 0x1C90, 77)
+            for i in range(80):                                             # an empty queue for each drop
+                h.v.w32(r + i * 0x58, 0)
+            for lock in range(5, 9):                                        # the pit's spots free again
+                h.v.w8(0x704E38 + 0x14 * lock, 0)
+            h.drop(r)
+            return h.v.r32(fe.GAME + 0x171A0) == 77, (0x13, EV_CREDIT) in h.queue(r)
+
+        h = village(True)
+        points = [(400 + x, 1600 + y) for x in range(-26, 71, 6) for y in range(40, 135, 6)]
+        points += [(cx * 8 + 4, cy * 8 + 4) for cx, cy in cells if -26 <= cx * 8 + 4 - 400 <= 70]
+        for at in points:
+            asked, sack = prompt(h, at)
+            self.assertFalse(asked, at)
+            self.assertTrue(sack, at)
+        self.assertEqual(prompt(h, (400 + 150, 1600 + 90)), (True, False))   # the rest of the hut: the question
+        stock = village(False)
+        self.assertEqual(prompt(stock, (400 + 20, 1600 + 20)), (True, False))  # the stock game asks there
+
     def test_making_the_sack_is_silent(self) -> None:
         # Owner, live (v2): no researching sounds.  0x469CD0 queues step type 0x19, a sound at the villager (the
         # Researching action's 1 and 0x67); the making queues none, only the working-pose waits (type 0x0A).

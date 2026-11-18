@@ -115,6 +115,9 @@
 #define SPOT_TAKEN 0x46D880u         /* thiscall(lock): the lock taken */
 #define DO_ACTION 0x45DEC0u
 #define POSITION 0x45ED00u           /* thiscall(villager; out): its place */
+#define MAP 0x6C4658u
+#define AREA_AT 0x46C410u            /* thiscall(map; x, y): the drop area there (the drop dispatcher's) */
+#define HUT_AREA 0x12               /* the Clothing Hut's (its handler 0x46F600, registered at 0x46FA8E) */
 #define FOOD_STORE 0x4D6DD0u
 #define FOOD_ADD 0x41D920u           /* thiscall(food): Food Mastery inside */
 #define TIPS 0x4DACE0u
@@ -236,6 +239,7 @@ typedef int (__fastcall *use_fn)(void *self, void *unused, int n);
 typedef char (__fastcall *taken_fn)(void *self, void *unused, int lock);
 typedef char (__fastcall *do_action_fn)(void *self, void *unused, int action, void *block);
 typedef int *(__fastcall *position_fn)(void *self, void *unused, int *out);
+typedef int (__fastcall *area_fn)(void *self, void *unused, int x, int y);
 typedef void (__fastcall *food_fn)(void *self, void *unused, int food);
 typedef void (__fastcall *tip_fn)(void *self, void *unused, int id, int a, int b);
 typedef void (__fastcall *step1_fn)(void *self, void *unused, int arg);
@@ -427,8 +431,16 @@ static int under_awning(unsigned char *villager) {
         y = ((const int *)(UINT_PTR)HUT_STOCK_PLACE)[1];
     }
     place = ((position_fn)(UINT_PTR)POSITION)(villager, NULL, out);
-    return place[0] >= x + SACK_BOX_LEFT && place[0] < x + SACK_BOX_RIGHT
-           && place[1] >= y + SACK_BOX_TOP && place[1] < y + SACK_BOX_BOTTOM;
+    if (place[0] < x + SACK_BOX_LEFT || place[0] >= x + SACK_BOX_RIGHT) {
+        return 0;
+    }
+    /* Inside the box, or anywhere in these columns that the game itself would hand to the Clothing Hut (its area
+       under the drop point, 0x46C410 as the drop dispatcher looks it up): the owner, 2026-11-18, live -- "sometimes
+       I drop them on the right spot for sackmaking and it still gives the buying clothes prompt": the hut's own
+       area (set when it is built) reaches above and below the box, so a drop there went to the hut's handler and
+       its new-clothes question.  In the sack's columns the sack always wins. */
+    return (place[1] >= y + SACK_BOX_TOP && place[1] < y + SACK_BOX_BOTTOM)
+           || ((area_fn)(UINT_PTR)AREA_AT)((void *)(UINT_PTR)MAP, NULL, place[0], place[1]) == HUT_AREA;
 }
 
 /* A villager dropped: 1 handled here (the sack trip or a refusal), 0 the stock drop. */

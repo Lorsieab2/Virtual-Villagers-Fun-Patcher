@@ -50,7 +50,7 @@ SITES = (
     (0x46E460, "83EC08568B742410",
      "the drop dispatcher 0x46E460 (a villager dropped: its place 0x45ED00, the map's area there 0x46C410, that "
      "area's handler): an adult (+0x1B8C >= 0x118), not expecting (+0x1C4C), under the finished Clothing Hut's "
-     "awning (puzzle 0x16; the hut's place, its object 0x4D82D8 +0x28/+0x2C, plus x -26..70, y 40..134) with the "
+     "awning (puzzle 0x16; the hut's place, its object 0x4D82D8 +0x28/+0x2C, plus x -26..70, and y 40..134 or any point the game itself hands to the hut there: its own drop area under the drop point, 0x46C410 = 0x12, built from the hut picture by 0x42FD20 -> 0x46CC50) with the "
      "Cooking Pit restored (puzzle 6) starts the sack trip, or gets a refusal; anything else goes on to the stock "
      "dispatcher"),
     (0x4642F0, "8B44240483EC18",
