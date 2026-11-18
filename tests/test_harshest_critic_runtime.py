@@ -7,6 +7,7 @@ choices and the routes: every run is queued, walked to its end, and each text th
 executables (GitHub CI has neither)."""
 from __future__ import annotations
 
+import functools
 import random
 import re
 import sys
@@ -43,6 +44,9 @@ class HarshestCriticRuns(unittest.TestCase):
                     with self.subTest(file=fid, game=game, run=k):
                         rnd = random.Random(f"{fid}:{game}:{k}")
                         r = V6(game, people)
+                        # the emulator's 2,000,000-instruction budget per call is too few for loading a
+                        # 100-KB .cieg (its CRC and checks): a bigger budget, still bounded
+                        r.p.call = functools.partial(type(r.p).call, r.p, limit=100_000_000)
                         r.rolls([rnd.randrange(1 << 15) for _ in range(256)])
                         r.p.export("VvfpStoryProbeGraphScroll", 1)
                         why = r.queue6(data)

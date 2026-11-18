@@ -542,6 +542,118 @@
   "description": "Someone has sabotaged an apprentice's work before a strict mentor's impossible task. Who did it?",
   "label_case": "title"
  },
+ "grammar_fixes": [
+  {
+   "src": "L2063",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2068",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2071",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2074",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2077",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2080",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2083",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2086",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2089",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2092",
+   "before": "(SA)",
+   "after": "(SA)."
+  },
+  {
+   "src": "L2068",
+   "before": "(SC)",
+   "after": "(SC)."
+  },
+  {
+   "src": "L2071",
+   "before": "(SC)",
+   "after": "(SC)."
+  },
+  {
+   "src": "L2074",
+   "before": "(SC)",
+   "after": "(SC)."
+  },
+  {
+   "src": "L2077",
+   "before": "(SC)",
+   "after": "(SC)."
+  },
+  {
+   "src": "L2080",
+   "before": "(SC)",
+   "after": "(SC)."
+  },
+  {
+   "src": "L2095",
+   "before": "(SC)",
+   "after": "(SC)."
+  },
+  {
+   "src": "L2203",
+   "before": "(SP)",
+   "after": "(SP)."
+  },
+  {
+   "src": "L2206",
+   "before": "(SP)",
+   "after": "(SP)."
+  },
+  {
+   "src": "L2209",
+   "before": "(SP)",
+   "after": "(SP)."
+  },
+  {
+   "src": "L2212",
+   "before": "(SP)",
+   "after": "(SP)."
+  },
+  {
+   "src": "L2215",
+   "before": "(SP)",
+   "after": "(SP)."
+  },
+  {
+   "src": "L2218",
+   "before": "(SP)",
+   "after": "(SP)."
+  }
+ ],
  "words": {
   "chief": {
    "3": "the Chief",
@@ -2015,7 +2127,7 @@
    ]
   },
   "r96": {
-   "text": "{SA} {SB} (Subject) realizes something is wrong just before the judging and has only moments to fix it.",
+   "text": "{SA}. {SB} (Subject) realizes something is wrong just before the judging and has only moments to fix it.",
    "src": "L2063",
    "children": [
     {
@@ -2067,7 +2179,7 @@
    ]
   },
   "r97": {
-   "text": "{SA} {SB} After the disaster, (mentor) calmly admits that (mentor.he/she) did it. {SCM} (Subject) stares, speechless. (Mentor) shrugs. \"Things will go wrong when it matters most. Now you know you can survive it.\"",
+   "text": "{SA}. {SB} After the disaster, (mentor) calmly admits that (mentor.he/she) did it. {SCM}. (Subject) stares, speechless. (Mentor) shrugs. \"Things will go wrong when it matters most. Now you know you can survive it.\"",
    "src": "L2068",
    "children": [
     {
@@ -2105,7 +2217,7 @@
    ]
   },
   "r98": {
-   "text": "{SA} {SB} The clues lead straight to (rival). {SCR} (Mentor) is far more furious with (rival) than with (subject), and makes (rival) redo (subject)'s work alongside (subject.him/her) until it is perfect.",
+   "text": "{SA}. {SB} The clues lead straight to (rival). {SCR}. (Mentor) is far more furious with (rival) than with (subject), and makes (rival) redo (subject)'s work alongside (subject.him/her) until it is perfect.",
    "src": "L2071",
    "children": [
     {
@@ -2373,7 +2485,7 @@
    ]
   },
   "r99": {
-   "text": "{SA} {SB} (Rival) confesses. {SCR} Instead of shouting, (subject) asks (rival) to help fix it. By sunset the two of them are laughing about the whole thing, and the fixed work is better than the original.",
+   "text": "{SA}. {SB} (Rival) confesses. {SCR}. Instead of shouting, (subject) asks (rival) to help fix it. By sunset the two of them are laughing about the whole thing, and the fixed work is better than the original.",
    "src": "L2074",
    "effects": [
     {
@@ -2396,7 +2508,7 @@
    "join": "paragraph"
   },
   "r100": {
-   "text": "{SA} {SB} A child points out that the official has {p2077_0} all over (official.his/her) hands. {SCO} The other officials are scandalized. The task is judged again, fairly, and (subject) does much better the second time.",
+   "text": "{SA}. {SB} A child points out that the official has {p2077_0} all over (official.his/her) hands. {SCO}. The other officials are scandalized. The task is judged again, fairly, and (subject) does much better the second time.",
    "src": "L2077",
    "effects": [
     {
@@ -2419,7 +2531,7 @@
    "join": "paragraph"
   },
   "r101": {
-   "text": "{SA} {SB} The clues point in a direction (subject) didn't expect: at (subject.himself/herself). {SCS} (Subject) confesses to (mentor), red-faced. (Mentor) is quiet for a long time, then sits down beside (subject.him/her). \"Being afraid of failing is not the same as failing. Do it again. Properly. I'll be here.\"",
+   "text": "{SA}. {SB} The clues point in a direction (subject) didn't expect: at (subject.himself/herself). {SCS}. (Subject) confesses to (mentor), red-faced. (Mentor) is quiet for a long time, then sits down beside (subject.him/her). \"Being afraid of failing is not the same as failing. Do it again. Properly. I'll be here.\"",
    "src": "L2080",
    "effects": [
     {
@@ -2437,7 +2549,7 @@
    "join": "paragraph"
   },
   "r102": {
-   "text": "{SA} {SB} Every villager has an alibi, the parrot refuses to say anything else, and the only footprints lead into the sea. The work is redone and passes. To this day, nobody knows who did it, though everyone has a theory.",
+   "text": "{SA}. {SB} Every villager has an alibi, the parrot refuses to say anything else, and the only footprints lead into the sea. The work is redone and passes. To this day, nobody knows who did it, though everyone has a theory.",
    "src": "L2083",
    "children": [
     {
@@ -2629,7 +2741,7 @@
    ]
   },
   "r103": {
-   "text": "{SA} To everyone's astonishment, the sabotaged work turns out better than the original would have. (Mentor) looks at it, then at the saboteur, then at (subject). \"Well,\" (mentor) says. \"Nobody tell anyone how this happened.\"",
+   "text": "{SA}. To everyone's astonishment, the sabotaged work turns out better than the original would have. (Mentor) looks at it, then at the saboteur, then at (subject). \"Well,\" (mentor) says. \"Nobody tell anyone how this happened.\"",
    "src": "L2086",
    "effects": [
     {
@@ -2652,7 +2764,7 @@
    "join": "paragraph"
   },
   "r104": {
-   "text": "{SA} {SB} Everyone blames the village goat. The goat looks guilty, as goats always do. (Subject) knows the goat is innocent and says so. The real saboteur, hearing this, confesses on the spot, too ashamed to let a goat take the blame.",
+   "text": "{SA}. {SB} Everyone blames the village goat. The goat looks guilty, as goats always do. (Subject) knows the goat is innocent and says so. The real saboteur, hearing this, confesses on the spot, too ashamed to let a goat take the blame.",
    "src": "L2089",
    "effects": [
     {
@@ -2670,7 +2782,7 @@
    "join": "paragraph"
   },
   "r105": {
-   "text": "{SA} It turns out two different people sabotaged the work on the same night, each without knowing about the other, and the second sabotage accidentally undid the first. The work is exactly as (subject) left it. The two saboteurs are made to apologize, then to clean the fish-gutting pit together.",
+   "text": "{SA}. It turns out two different people sabotaged the work on the same night, each without knowing about the other, and the second sabotage accidentally undid the first. The work is exactly as (subject) left it. The two saboteurs are made to apologize, then to clean the fish-gutting pit together.",
    "src": "L2092",
    "effects": [
     {
@@ -2726,7 +2838,7 @@
    ]
   },
   "r106m": {
-   "text": "(Subject) returns early and catches {SM} in the act. Everyone freezes. {SCM}",
+   "text": "(Subject) returns early and catches {SM} in the act. Everyone freezes. {SCM}.",
    "src": "L2095",
    "children": [
     {
@@ -2770,7 +2882,7 @@
    ]
   },
   "r106r": {
-   "text": "(Subject) returns early and catches {SR} in the act. Everyone freezes. {SCR}",
+   "text": "(Subject) returns early and catches {SR} in the act. Everyone freezes. {SCR}.",
    "src": "L2095",
    "children": [
     {
@@ -2814,7 +2926,7 @@
    ]
   },
   "r106o": {
-   "text": "(Subject) returns early and catches {SO} in the act. Everyone freezes. {SCO}",
+   "text": "(Subject) returns early and catches {SO} in the act. Everyone freezes. {SCO}.",
    "src": "L2095",
    "children": [
     {
@@ -2842,7 +2954,7 @@
    ]
   },
   "r107": {
-   "text": "{SP} (Subject) stares at it in disbelief. (Mentor) doesn't even look surprised. \"ALWAYS EXPECT THE UNEXPECTED!\" (mentor) barks, and makes (subject) carry on anyway.",
+   "text": "{SP}. (Subject) stares at it in disbelief. (Mentor) doesn't even look surprised. \"ALWAYS EXPECT THE UNEXPECTED!\" (mentor) barks, and makes (subject) carry on anyway.",
    "src": "L2203",
    "effects": [
     {
@@ -2865,7 +2977,7 @@
    "join": "paragraph"
   },
   "r108": {
-   "text": "{SPC} (Subject) sets a trap of (subject.his/her) own: a line of shells that rattle if anyone walks past at night. Just before dawn, the shells rattle. It is (prankster), holding a fresh batch of candles. (Prankster) bows. \"You got me.\"",
+   "text": "{SPC}. (Subject) sets a trap of (subject.his/her) own: a line of shells that rattle if anyone walks past at night. Just before dawn, the shells rattle. It is (prankster), holding a fresh batch of candles. (Prankster) bows. \"You got me.\"",
    "src": "L2206",
    "children": [
     {
@@ -2876,7 +2988,7 @@
    "join": "paragraph"
   },
   "r109": {
-   "text": "{SP} (Subject) waits up all night to catch the prankster and sees nothing. In the morning, the prank has happened again anyway, and there is a little drawing of a sleeping (subject) on the workbench.",
+   "text": "{SP}. (Subject) waits up all night to catch the prankster and sees nothing. In the morning, the prank has happened again anyway, and there is a little drawing of a sleeping (subject) on the workbench.",
    "src": "L2209",
    "children": [
     {
@@ -2887,7 +2999,7 @@
    "join": "paragraph"
   },
   "r110c": {
-   "text": "{SPC0} Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the candles that won't go out keep the ceremony lit through the rain. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
+   "text": "{SPC0}. Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the candles that won't go out keep the ceremony lit through the rain. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
    "src": "L2212",
    "effects": [
     {
@@ -2916,7 +3028,7 @@
    ]
   },
   "r110k": {
-   "text": "{SPK0} Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the extra coconuts feed the judges. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
+   "text": "{SPK0}. Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the extra coconuts feed the judges. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
    "src": "L2212",
    "effects": [
     {
@@ -2945,7 +3057,7 @@
    ]
   },
   "r110t": {
-   "text": "{SPT0} Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the tied-together tools stop one from falling into the sea. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
+   "text": "{SPT0}. Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the tied-together tools stop one from falling into the sea. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
    "src": "L2212",
    "effects": [
     {
@@ -2988,7 +3100,7 @@
    ]
   },
   "r111": {
-   "text": "{SP} After weeks of pranks, (subject) finally catches the prankster. It is (mentor). (Mentor) shrugs. \"You never know what will happen on the day. ALWAYS EXPECT THE UNEXPECTED!\" (Subject) is not sure whether to be furious or impressed. (subject.He/She) decides on both.",
+   "text": "{SP}. After weeks of pranks, (subject) finally catches the prankster. It is (mentor). (Mentor) shrugs. \"You never know what will happen on the day. ALWAYS EXPECT THE UNEXPECTED!\" (Subject) is not sure whether to be furious or impressed. (subject.He/She) decides on both.",
    "src": "L2215",
    "effects": [
     {
@@ -3011,7 +3123,7 @@
    "join": "paragraph"
   },
   "r112": {
-   "text": "{SPC} (Subject) decides that two can play this game. By the end of the week, half the village is pranking the other half, the candles are still relighting themselves, and nobody can remember who started it. The task is finished three days late. It is very good.",
+   "text": "{SPC}. (Subject) decides that two can play this game. By the end of the week, half the village is pranking the other half, the candles are still relighting themselves, and nobody can remember who started it. The task is finished three days late. It is very good.",
    "src": "L2218",
    "effects": [
     {
@@ -4743,7 +4855,7 @@
      "src": "L552"
     },
     {
-     "text": "getting (subject.his/her) own workshop / kitchen / hut",
+     "text": "getting (subject.his/her) own {p553_0}",
      "src": "L553"
     },
     {
@@ -6609,168 +6721,168 @@
   "SA": {
    "items": [
     {
-     "text": "the salt has been swapped for sand",
+     "text": "The salt has been swapped for sand",
      "src": "L2041",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the stew has been stirred with a sweaty sandal",
+     "text": "The stew has been stirred with a sweaty sandal",
      "src": "L2041",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the seeds were boiled the night before",
+     "text": "The seeds were boiled the night before",
      "src": "L2041",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the fish basket has been filled with seaweed and one very angry crab",
+     "text": "The fish basket has been filled with seaweed and one very angry crab",
      "src": "L2041",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the chisels have all been blunted",
+     "text": "The chisels have all been blunted",
      "src": "L2042",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "one supporting pole has been sawn almost through",
+     "text": "One supporting pole has been sawn almost through",
      "src": "L2042",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the clay was watered down overnight",
+     "text": "The clay was watered down overnight",
      "src": "L2042",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the measuring cord has been knotted shorter",
+     "text": "The measuring cord has been knotted shorter",
      "src": "L2042",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the star chart's stars have been moved with charcoal",
+     "text": "The star chart's stars have been moved with charcoal",
      "src": "L2043",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "two pages of the scroll are swapped",
+     "text": "Two pages of the scroll are swapped",
      "src": "L2043",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the potion jars have been relabelled",
+     "text": "The potion jars have been relabelled",
      "src": "L2043",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "someone has put a lizard in the experiment",
+     "text": "Someone has put a lizard in the experiment",
      "src": "L2043",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the bandages have been knotted together",
+     "text": "The bandages have been knotted together",
      "src": "L2044",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the herbs have been swapped for lookalikes that only make people sneeze",
+     "text": "The herbs have been swapped for lookalikes that only make people sneeze",
      "src": "L2044",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the remedy bowl has a hidden crack",
+     "text": "The remedy bowl has a hidden crack",
      "src": "L2044",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the healer's notes have been rubbed out",
+     "text": "The healer's notes have been rubbed out",
      "src": "L2044",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "someone has told the children the lesson is cancelled",
+     "text": "Someone has told the children the lesson is cancelled",
      "src": "L2045",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the lesson props have been hidden",
+     "text": "The lesson props have been hidden",
      "src": "L2045",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the children have been given sweet fruit right before nap time",
+     "text": "The children have been given sweet fruit right before nap time",
      "src": "L2045",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the toddlers were taught a rude song the night before",
+     "text": "The toddlers were taught a rude song the night before",
      "src": "L2045",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the ceremonial drum has been loosened",
+     "text": "The ceremonial drum has been loosened",
      "src": "L2046",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the sacred chant has been copied with lines missing",
+     "text": "The sacred chant has been copied with lines missing",
      "src": "L2046",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the offering bowl has been swapped for a cooking pot",
+     "text": "The offering bowl has been swapped for a cooking pot",
      "src": "L2046",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the ritual candles were soaked in water",
+     "text": "The ritual candles were soaked in water",
      "src": "L2046",
      "if": {
       "visited": "g_dev"
@@ -6809,7 +6921,7 @@
   "SCM": {
    "items": [
     {
-     "text": "it was a test, to see how (subject) handles things going wrong",
+     "text": "It was a test, to see how (subject) handles things going wrong",
      "src": "L2057"
     },
     {
@@ -6825,15 +6937,15 @@
   "SCO": {
    "items": [
     {
-     "text": "the official had bet a basket of fruit that (subject) would fail",
+     "text": "The official had bet a basket of fruit that (subject) would fail",
      "src": "L2059"
     },
     {
-     "text": "the official wanted the task done the old way",
+     "text": "The official wanted the task done the old way",
      "src": "L2059"
     },
     {
-     "text": "the official didn't sabotage anything on purpose, just sat on it",
+     "text": "The official didn't sabotage anything on purpose, just sat on it",
      "src": "L2059"
     }
    ]
@@ -6841,7 +6953,7 @@
   "SCR": {
    "items": [
     {
-     "text": "jealousy, because (subject) got the task (rival) wanted",
+     "text": "Jealousy, because (subject) got the task (rival) wanted",
      "src": "L2058"
     },
     {
@@ -6889,356 +7001,356 @@
   "SP": {
    "items": [
     {
-     "text": "the candles light themselves again every time someone blows them out",
+     "text": "The candles light themselves again every time someone blows them out",
      "src": "L2105"
     },
     {
-     "text": "the candles light even after being soaked in the lagoon",
+     "text": "The candles light even after being soaked in the lagoon",
      "src": "L2106"
     },
     {
-     "text": "the sacred drum plays one extra beat after everyone stops",
+     "text": "The sacred drum plays one extra beat after everyone stops",
      "src": "L2107",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the ceremonial masks have all been turned to face the wall, and turn back again when nobody is looking",
+     "text": "The ceremonial masks have all been turned to face the wall, and turn back again when nobody is looking",
      "src": "L2108",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the offering bowl refills itself with pebbles shaped exactly like fruit",
+     "text": "The offering bowl refills itself with pebbles shaped exactly like fruit",
      "src": "L2109",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "every coconut in the basket has a little face drawn on it, and they all look disappointed",
+     "text": "Every coconut in the basket has a little face drawn on it, and they all look disappointed",
      "src": "L2110",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the stew pot has been filled with stew that is sweet on top and salty on the bottom",
+     "text": "The stew pot has been filled with stew that is sweet on top and salty on the bottom",
      "src": "L2111",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the fish in the drying racks have all been rearranged to spell (subject)'s name",
+     "text": "The fish in the drying racks have all been rearranged to spell (subject)'s name",
      "src": "L2112",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the seeds sprout overnight into a tiny garden in the shape of a rude gesture",
+     "text": "The seeds sprout overnight into a tiny garden in the shape of a rude gesture",
      "src": "L2113",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "every tool has been tied to the next one with a single long vine",
+     "text": "Every tool has been tied to the next one with a single long vine",
      "src": "L2114",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the statue has been given a seaweed wig, and it suits it",
+     "text": "The statue has been given a seaweed wig, and it suits it",
      "src": "L2115",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the hut door now opens from the wrong side",
+     "text": "The hut door now opens from the wrong side",
      "src": "L2116",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "a second, smaller, very badly made copy of (subject)'s work has appeared next to it, labelled 'better'",
+     "text": "A second, smaller, very badly made copy of (subject)'s work has appeared next to it, labelled 'better'",
      "src": "L2117",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the star chart has a new constellation in it, shaped like (mentor)'s face",
+     "text": "The star chart has a new constellation in it, shaped like (mentor)'s face",
      "src": "L2118",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "every scroll has been rolled up backwards, very tightly, and tied in a bow",
+     "text": "Every scroll has been rolled up backwards, very tightly, and tied in a bow",
      "src": "L2119",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the potion bubbles out a tiny tune whenever anyone gets close",
+     "text": "The potion bubbles out a tiny tune whenever anyone gets close",
      "src": "L2120",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the counting stones have been replaced with identical stones that are slightly heavier",
+     "text": "The counting stones have been replaced with identical stones that are slightly heavier",
      "src": "L2121",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "every bandage has been knotted into the shape of a tiny bird",
+     "text": "Every bandage has been knotted into the shape of a tiny bird",
      "src": "L2122",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the remedies have all been perfectly labelled with each other's names",
+     "text": "The remedies have all been perfectly labelled with each other's names",
      "src": "L2123",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the healing hut's sleeping mat squeaks like a frog every time someone lies down",
+     "text": "The healing hut's sleeping mat squeaks like a frog every time someone lies down",
      "src": "L2124",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the children have all been taught to answer every question with 'Ask the goat'",
+     "text": "The children have all been taught to answer every question with 'Ask the goat'",
      "src": "L2125",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the lesson drawings have been redrawn so every person in them has a pig's nose",
+     "text": "The lesson drawings have been redrawn so every person in them has a pig's nose",
      "src": "L2126",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the nap mats have been filled with crackling dry leaves",
+     "text": "The nap mats have been filled with crackling dry leaves",
      "src": "L2127",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "everything (subject) owns has been moved exactly one step to the left",
+     "text": "Everything (subject) owns has been moved exactly one step to the left",
      "src": "L2128"
     },
     {
-     "text": "a trail of flower petals leads from (subject)'s work to (mentor)'s hut, with a note: 'Guess who'",
+     "text": "A trail of flower petals leads from (subject)'s work to (mentor)'s hut, with a note: 'Guess who'",
      "src": "L2129"
     },
     {
-     "text": "every time (subject) turns around, there is one more coconut on the workbench",
+     "text": "Every time (subject) turns around, there is one more coconut on the workbench",
      "src": "L2130"
     },
     {
-     "text": "the sacred fire burns in a different colour every time someone looks away",
+     "text": "The sacred fire burns in a different colour every time someone looks away",
      "src": "L2131",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the prayer beads have been restrung in a pattern that spells out a joke",
+     "text": "The prayer beads have been restrung in a pattern that spells out a joke",
      "src": "L2132",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "a small stone idol appears on the shrine overnight, wearing a tiny leaf hat",
+     "text": "A small stone idol appears on the shrine overnight, wearing a tiny leaf hat",
      "src": "L2133",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the temple bell has been stuffed with feathers and now goes 'fwump'",
+     "text": "The temple bell has been stuffed with feathers and now goes 'fwump'",
      "src": "L2134",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the incense smells exactly like (mentor)'s cooking",
+     "text": "The incense smells exactly like (mentor)'s cooking",
      "src": "L2135",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "every taro in the field has been pulled up, turned around and replanted facing the other way",
+     "text": "Every taro in the field has been pulled up, turned around and replanted facing the other way",
      "src": "L2136",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the cooking fire has been lit under an empty pot with a note saying 'nearly done'",
+     "text": "The cooking fire has been lit under an empty pot with a note saying 'nearly done'",
      "src": "L2137",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "a single banana hangs from every tree in the village, all at exactly the same height",
+     "text": "A single banana hangs from every tree in the village, all at exactly the same height",
      "src": "L2138",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the fishing nets have been tied into one enormous hammock, with a very comfortable pig in it",
+     "text": "The fishing nets have been tied into one enormous hammock, with a very comfortable pig in it",
      "src": "L2139",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the berries in the basket have been sorted perfectly by colour, from red to nearly-red",
+     "text": "The berries in the basket have been sorted perfectly by colour, from red to nearly-red",
      "src": "L2140",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "every brick in the new wall has been turned so the thumbprints face outward, all smiling",
+     "text": "Every brick in the new wall has been turned so the thumbprints face outward, all smiling",
      "src": "L2141",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the canoe has been carried up a tree and wedged between two branches",
+     "text": "The canoe has been carried up a tree and wedged between two branches",
      "src": "L2142",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the hut has a second door now, which opens onto a solid wall",
+     "text": "The hut has a second door now, which opens onto a solid wall",
      "src": "L2143",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "every carving in the village has been given matching seashell earrings",
+     "text": "Every carving in the village has been given matching seashell earrings",
      "src": "L2144",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the ladder has had one rung moved so it is always the wrong one",
+     "text": "The ladder has had one rung moved so it is always the wrong one",
      "src": "L2145",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the sundial's shadow has been painted on, permanently pointing at lunchtime",
+     "text": "The sundial's shadow has been painted on, permanently pointing at lunchtime",
      "src": "L2146",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "every page of the scroll ends in the middle of a sentence, and the next page starts with 'just kidding'",
+     "text": "Every page of the scroll ends in the middle of a sentence, and the next page starts with 'just kidding'",
      "src": "L2147",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the measuring sticks have all been shortened by exactly one fingernail",
+     "text": "The measuring sticks have all been shortened by exactly one fingernail",
      "src": "L2148",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "a crab has been placed in charge of the experiment, with a tiny sign saying 'head scholar'",
+     "text": "A crab has been placed in charge of the experiment, with a tiny sign saying 'head scholar'",
      "src": "L2149",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the map of the island now includes a second, imaginary island called (subject)'s Folly",
+     "text": "The map of the island now includes a second, imaginary island called (subject)'s Folly",
      "src": "L2150",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the medicine pouches have been filled with sweets, and every child in the village suddenly claims to be very, very ill",
+     "text": "The medicine pouches have been filled with sweets, and every child in the village suddenly claims to be very, very ill",
      "src": "L2151",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the healer's mortar and pestle have been swapped for a coconut and a very small stick",
+     "text": "The healer's mortar and pestle have been swapped for a coconut and a very small stick",
      "src": "L2152",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "every patient's sickbed has been turned to face the latrines",
+     "text": "Every patient's sickbed has been turned to face the latrines",
      "src": "L2153",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the splints have been carved to look like little fish",
+     "text": "The splints have been carved to look like little fish",
      "src": "L2154",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "someone has taught the healing hut's parrot to say 'Next!' in (mentor)'s voice",
+     "text": "Someone has taught the healing hut's parrot to say 'Next!' in (mentor)'s voice",
      "src": "L2155",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "every child's sandals have been swapped with another child's, so nobody's fit",
+     "text": "Every child's sandals have been swapped with another child's, so nobody's fit",
      "src": "L2156",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the learning circle's stones have been rearranged into a perfect spiral that nobody can find the middle of",
+     "text": "The learning circle's stones have been rearranged into a perfect spiral that nobody can find the middle of",
      "src": "L2157",
      "if": {
       "visited": "g_par"
@@ -7249,15 +7361,15 @@
      "src": "L2158"
     },
     {
-     "text": "a whoopee cushion made from a dried pufferfish is hidden on the judges' seats \\(yes, it's spiky\\)",
+     "text": "A whoopee cushion made from a dried pufferfish is hidden on the judges' seats \\(yes, it's spiky\\)",
      "src": "L2159"
     },
     {
-     "text": "a banana peel is left exactly where (subject) will step, at exactly the wrong moment",
+     "text": "A banana peel is left exactly where (subject) will step, at exactly the wrong moment",
      "src": "L2160"
     },
     {
-     "text": "the scalpel has been swapped for the bluntest scalpel ever made",
+     "text": "The scalpel has been swapped for the bluntest scalpel ever made",
      "src": "L2161",
      "if": {
       "visited": "g_heal"
@@ -7268,7 +7380,7 @@
      "src": "L2162"
     },
     {
-     "text": "the stones for the work have been swapped for hematite, which cracks the moment it's struck",
+     "text": "The stones for the work have been swapped for hematite, which cracks the moment it's struck",
      "src": "L2163",
      "if": {
       "any": [
@@ -7282,7 +7394,7 @@
      }
     },
     {
-     "text": "the salt has been swapped for sugar, or the sugar for salt",
+     "text": "The salt has been swapped for sugar, or the sugar for salt",
      "src": "L2164",
      "if": {
       "any": [
@@ -7299,11 +7411,11 @@
      }
     },
     {
-     "text": "the floral powder has been replaced with sneezing powder",
+     "text": "The floral powder has been replaced with sneezing powder",
      "src": "L2165"
     },
     {
-     "text": "the potion cauldron has been laced with something that turns every brew the colour of poop",
+     "text": "The potion cauldron has been laced with something that turns every brew the colour of poop",
      "src": "L2166",
      "if": {
       "any": [
@@ -7317,7 +7429,7 @@
      }
     },
     {
-     "text": "the potion cauldron has been laced with something that turns every brew as green as the sick patient's face",
+     "text": "The potion cauldron has been laced with something that turns every brew as green as the sick patient's face",
      "src": "L2167",
      "if": {
       "any": [
@@ -7331,31 +7443,31 @@
      }
     },
     {
-     "text": "someone has hidden a fart spray made from skunk musk under the judges' table",
+     "text": "Someone has hidden a fart spray made from skunk musk under the judges' table",
      "src": "L2168"
     },
     {
-     "text": "a bucket of water is balanced on top of the door, waiting for (mentor)",
+     "text": "A bucket of water is balanced on top of the door, waiting for (mentor)",
      "src": "L2169"
     },
     {
-     "text": "the judges' seats have been smeared with tree sap, and nobody can stand up for the verdict",
+     "text": "The judges' seats have been smeared with tree sap, and nobody can stand up for the verdict",
      "src": "L2170"
     },
     {
-     "text": "every tool has been painted to look exactly like every other tool",
+     "text": "Every tool has been painted to look exactly like every other tool",
      "src": "L2171"
     },
     {
-     "text": "a fake spider made of coconut hair dangles on a string just above (subject)'s head",
+     "text": "A fake spider made of coconut hair dangles on a string just above (subject)'s head",
      "src": "L2172"
     },
     {
-     "text": "a {p2173_0} is hiding inside the work and jumps out at the big reveal",
+     "text": "A {p2173_0} is hiding inside the work and jumps out at the big reveal",
      "src": "L2173"
     },
     {
-     "text": "the drum that signals the start of the judging has been swapped for one that honks like a goose",
+     "text": "The drum that signals the start of the judging has been swapped for one that honks like a goose",
      "src": "L2174"
     },
     {
@@ -7363,166 +7475,166 @@
      "src": "L2175"
     },
     {
-     "text": "the 'finished' sign has been hung on the work before (subject) has even started",
+     "text": "The 'finished' sign has been hung on the work before (subject) has even started",
      "src": "L2176"
     },
     {
-     "text": "everyone in the audience has been given a slice of very sour fruit, and their faces are all puckered at the big moment",
+     "text": "Everyone in the audience has been given a slice of very sour fruit, and their faces are all puckered at the big moment",
      "src": "L2177"
     },
     {
-     "text": "an echoing shell has been hidden in the rafters, so every word (mentor) says is repeated a second later in a silly voice",
+     "text": "An echoing shell has been hidden in the rafters, so every word (mentor) says is repeated a second later in a silly voice",
      "src": "L2178"
     },
     {
-     "text": "the chili peppers have been swapped for even hotter chili peppers, and the judges have been told they're sweet",
+     "text": "The chili peppers have been swapped for even hotter chili peppers, and the judges have been told they're sweet",
      "src": "L2179",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the fish have been stuffed with more fish, which are stuffed with more fish",
+     "text": "The fish have been stuffed with more fish, which are stuffed with more fish",
      "src": "L2180",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the coconut milk has been swapped for soapy water, and the stew is now foaming",
+     "text": "The coconut milk has been swapped for soapy water, and the stew is now foaming",
      "src": "L2181",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "every egg in the basket has been hard-boiled the night before",
+     "text": "Every egg in the basket has been hard-boiled the night before",
      "src": "L2182",
      "if": {
       "visited": "g_farm"
      }
     },
     {
-     "text": "the measuring cord has been swapped for one made of stretchy vine",
+     "text": "The measuring cord has been swapped for one made of stretchy vine",
      "src": "L2183",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the glue has been swapped for honey, and the bees have found the work",
+     "text": "The glue has been swapped for honey, and the bees have found the work",
      "src": "L2184",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "every nail-peg has been carved from soft cheese-fruit",
+     "text": "Every nail-peg has been carved from soft cheese-fruit",
      "src": "L2185",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the hammer's head has been tied on with a single thread",
+     "text": "The hammer's head has been tied on with a single thread",
      "src": "L2186",
      "if": {
       "visited": "g_build"
      }
     },
     {
-     "text": "the ink has been swapped for ink that disappears after a few moments",
+     "text": "The ink has been swapped for ink that disappears after a few moments",
      "src": "L2187",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the magnifying crystal has been smeared with fish oil",
+     "text": "The magnifying crystal has been smeared with fish oil",
      "src": "L2188",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the scale has been weighted with a pebble hidden underneath",
+     "text": "The scale has been weighted with a pebble hidden underneath",
      "src": "L2189",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the stargazing tube has a tiny painted moon stuck to the end of it",
+     "text": "The stargazing tube has a tiny painted moon stuck to the end of it",
      "src": "L2190",
      "if": {
       "visited": "g_res"
      }
     },
     {
-     "text": "the bandages have been dyed in stripes, and they won't come clean",
+     "text": "The bandages have been dyed in stripes, and they won't come clean",
      "src": "L2191",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the soothing balm has been swapped for one that tingles very, very much",
+     "text": "The soothing balm has been swapped for one that tingles very, very much",
      "src": "L2192",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the healer's tweezers have been bent so they only grab the air",
+     "text": "The healer's tweezers have been bent so they only grab the air",
      "src": "L2193",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "the bitter medicine has been made even more bitter, and the patient's face says so",
+     "text": "The bitter medicine has been made even more bitter, and the patient's face says so",
      "src": "L2194",
      "if": {
       "visited": "g_heal"
      }
     },
     {
-     "text": "every child has been secretly given a drum",
+     "text": "Every child has been secretly given a drum",
      "src": "L2195",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the nap blankets have been sprinkled with itching leaves",
+     "text": "The nap blankets have been sprinkled with itching leaves",
      "src": "L2196",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the children have been told today's lesson is 'how to make a lot of noise'",
+     "text": "The children have been told today's lesson is 'how to make a lot of noise'",
      "src": "L2197",
      "if": {
       "visited": "g_par"
      }
     },
     {
-     "text": "the ceremonial smoke has been swapped for smoke that smells like burnt fish",
+     "text": "The ceremonial smoke has been swapped for smoke that smells like burnt fish",
      "src": "L2198",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the holy water has been swapped for coconut water, and someone has drunk half of it",
+     "text": "The holy water has been swapped for coconut water, and someone has drunk half of it",
      "src": "L2199",
      "if": {
       "visited": "g_dev"
      }
     },
     {
-     "text": "the ritual robe has been shrunk in the wash",
+     "text": "The ritual robe has been shrunk in the wash",
      "src": "L2200",
      "if": {
       "visited": "g_dev"
@@ -7533,11 +7645,11 @@
   "SPC": {
    "items": [
     {
-     "text": "the candles light themselves again every time someone blows them out",
+     "text": "The candles light themselves again every time someone blows them out",
      "src": "L2105"
     },
     {
-     "text": "the candles light even after being soaked in the lagoon",
+     "text": "The candles light even after being soaked in the lagoon",
      "src": "L2106"
     }
    ]
@@ -7545,11 +7657,11 @@
   "SPC0": {
    "items": [
     {
-     "text": "the candles light themselves again every time someone blows them out",
+     "text": "The candles light themselves again every time someone blows them out",
      "src": "L2105"
     },
     {
-     "text": "the candles light even after being soaked in the lagoon",
+     "text": "The candles light even after being soaked in the lagoon",
      "src": "L2106"
     }
    ]
@@ -7557,7 +7669,7 @@
   "SPK0": {
    "items": [
     {
-     "text": "every time (subject) turns around, there is one more coconut on the workbench",
+     "text": "Every time (subject) turns around, there is one more coconut on the workbench",
      "src": "L2130"
     }
    ]
@@ -7565,7 +7677,7 @@
   "SPT0": {
    "items": [
     {
-     "text": "every tool has been tied to the next one with a single long vine",
+     "text": "Every tool has been tied to the next one with a single long vine",
      "src": "L2114"
     }
    ]
@@ -10965,6 +11077,22 @@
     {
      "text": "school",
      "src": "L546"
+    }
+   ]
+  },
+  "p553_0": {
+   "items": [
+    {
+     "text": "workshop",
+     "src": "L553"
+    },
+    {
+     "text": "kitchen",
+     "src": "L553"
+    },
+    {
+     "text": "hut",
+     "src": "L553"
     }
    ]
   },

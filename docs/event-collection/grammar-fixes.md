@@ -396,3 +396,25 @@ reads it after a lead-in. Rows start with `critic`.
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
 | critic L762 | `(Name1) (C-result).` | `The reward: (C-result).` | hc1_routes | the privilege pool holds one form (a `-ing` phrase); "(Name1) getting promoted ..." is not a sentence |
+| critic L2063 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2068 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2071 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2074 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2077 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2080 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2083 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2086 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2089 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2092 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2068 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2071 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2074 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2077 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2080 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2095 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2203 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2206 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2209 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2212 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2215 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2218 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |

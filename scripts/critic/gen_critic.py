@@ -55,6 +55,22 @@ NOTE_LINES = {2, 3, 4, 6, 7, 8, 9, 10, 11, 1070, 1080, 1103, 1156, 1157, 1211, 1
 GRAMMAR = [   # docs/event-collection/grammar-fixes.md rows "| critic L<n> |"
     {"src": "L762", "before": "(Name1) (C-result).", "after": "The reward: (C-result)."},
 ]
+# The sabotage pools' lines are fragments ("the salt has been swapped for sand"): each is shown as a sentence of its
+# own, its first letter a capital (a list item that starts a sentence) and a full stop after its slot.
+SENTENCE_SLOTS = {"(SA)": [2063, 2068, 2071, 2074, 2077, 2080, 2083, 2086, 2089, 2092],
+                  "(SC)": [2068, 2071, 2074, 2077, 2080, 2095],
+                  "(SP)": [2203, 2206, 2209, 2212, 2215, 2218]}
+for _slot, _lines in SENTENCE_SLOTS.items():
+    GRAMMAR += [{"src": f"L{n}", "before": _slot, "after": _slot + "."} for n in _lines]
+FILE_GRAMMAR = {"hc1_routes": ["L762"], "hc6_sabotage": sorted({f"L{n}" for v in SENTENCE_SLOTS.values() for n in v},
+                                                               key=lambda s: int(s[1:]))}
+
+
+def sentence_start(items: list[dict]) -> list[dict]:
+    for i in items:
+        if i["text"][:1].isalpha():
+            i["text"] = i["text"][0].upper() + i["text"][1:]
+    return items
 
 
 def raw(n: int) -> str:
@@ -67,8 +83,14 @@ def raw(n: int) -> str:
     return s
 
 
+BARE = {553: "workshop / kitchen / hut"}   # a slash list with no parentheses: a pool all the same (its bare form)
+
+
 def clean(n: int) -> str:
-    return re.sub(r"\s+", " ", lib.strip_structural(raw(n))).strip()
+    s = re.sub(r"\s+", " ", lib.strip_structural(raw(n))).strip()
+    if n in BARE:
+        s = s.replace(BARE[n], f"({BARE[n]})")
+    return s
 
 
 def fmt(lines: list[int]) -> str:
@@ -760,11 +782,11 @@ def sabotage_pools(b: Builder) -> None:
     for n, gs in ((2041, ["farm"]), (2042, ["build"]), (2043, ["res"]), (2044, ["heal"]), (2045, ["par"]),
                   (2046, ["dev"])):
         sa += b.items([(n, n)], visited(gs[0]), split=True, name2="rival")
-    b.pool("SA", sa)
+    b.pool("SA", sentence_start(sa))
     b.pool("SB", b.items([(2049, 2054)], name2="rival"))
     for name, n, default in (("SCM", 2057, "mentor"), ("SCR", 2058, "rival"), ("SCO", 2059, "official"),
                              ("SCS", 2060, "subject")):
-        b.pool(name, b.items([(n, n)], split=True, default=default, name2="rival"))
+        b.pool(name, sentence_start(b.items([(n, n)], split=True, default=default, name2="rival")))
     # the prank, by the profession its prefix names ("Any" for all)
     sp = []
     for n in range(2105, 2201):
@@ -778,7 +800,7 @@ def sabotage_pools(b: Builder) -> None:
         cond = None if "any" in names else ({"any": [visited(gs[x]) for x in names]} if len(names) > 1
                                             else visited(gs[names[0]]))
         sp += b.items([(n, n)], cond, name2="rival")
-    b.pool("SP", sp)
+    b.pool("SP", sentence_start(sp))
     b.pool("SPC", [item(i["text"], i["src"]) for i in sp if int(i["src"][1:]) in (2105, 2106)])
 
 
@@ -967,7 +989,7 @@ def build_file(fid: str, rows: dict, review: bool) -> tuple[dict, Builder]:
         "collection": {"id": fid, "source": SRC, "lines": row["lines"], "section": "hc", "credit": "",
                        "draw_weight": 1, "series": "hc_critic", "title_src": "L1", "ledger": ledger,
                        "addons": addons, "description": desc, "label_case": "title"},
-        "grammar_fixes": [dict(f) for f in GRAMMAR] if fid == "hc1_routes" else [],
+        "grammar_fixes": [dict(f) for f in GRAMMAR if f["src"] in FILE_GRAMMAR.get(fid, [])],
         "words": WORDS,
         "requirement": {"min_eligible": 2},
         "roles": roles,

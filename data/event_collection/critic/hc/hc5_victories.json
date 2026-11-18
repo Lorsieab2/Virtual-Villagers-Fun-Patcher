@@ -5292,7 +5292,7 @@
      "src": "L552"
     },
     {
-     "text": "getting (subject.his/her) own workshop / kitchen / hut",
+     "text": "getting (subject.his/her) own {p553_0}",
      "src": "L553"
     },
     {
@@ -11018,6 +11018,22 @@
     {
      "text": "school",
      "src": "L546"
+    }
+   ]
+  },
+  "p553_0": {
+   "items": [
+    {
+     "text": "workshop",
+     "src": "L553"
+    },
+    {
+     "text": "kitchen",
+     "src": "L553"
+    },
+    {
+     "text": "hut",
+     "src": "L553"
     }
    ]
   },

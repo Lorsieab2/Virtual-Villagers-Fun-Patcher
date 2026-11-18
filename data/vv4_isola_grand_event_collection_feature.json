@@ -7894,32 +7894,32 @@
     {
       "source": "assets/event_collection/hc1_routes.cieg",
       "destination": "Island Event Collection/hc1_routes.cieg",
-      "sha256": "2DE2F5882F4AF79FE551776F64AD0A74692FF2FFD510695FDAAF9140F26687AB"
+      "sha256": "7974B1B2250BB020B572771312C81D20088B493FB5EBA39CEE9C95373DC8656F"
     },
     {
       "source": "assets/event_collection/hc2_pleas.cieg",
       "destination": "Island Event Collection/hc2_pleas.cieg",
-      "sha256": "BB22FBF0A357B916C3011B62E4A5C44E8118DE7D720A3B06F7D5F120B93C0337"
+      "sha256": "2DC9A7A66126B84D439FE577049E746444B53BD0713D28B04E176BC941E10E06"
     },
     {
       "source": "assets/event_collection/hc3_disasters.cieg",
       "destination": "Island Event Collection/hc3_disasters.cieg",
-      "sha256": "96EB41D52E58BA7EF8F7C9B5F1873BD53212675EB5A47362F3523D3EB75F897D"
+      "sha256": "2937E322F8B969089CBCF7B19391D660423D6E77034B7C7F15FD2A8E0A6A39AB"
     },
     {
       "source": "assets/event_collection/hc4_noises.cieg",
       "destination": "Island Event Collection/hc4_noises.cieg",
-      "sha256": "FE6FB5AB03CC3F3748AEA06231C29EE2A87075344807C8AFE5192B5B19DFC4C8"
+      "sha256": "3C5E6C5E779404F455FBA2649E2B02FB4B1A5917CACB6C26686A8CB8BCCD6D3F"
     },
     {
       "source": "assets/event_collection/hc5_victories.cieg",
       "destination": "Island Event Collection/hc5_victories.cieg",
-      "sha256": "8956D1BC6EA8548871F9A25FE4D175CD45646506CDFF27AD039E3EF5A383D9E3"
+      "sha256": "36F459682A82C68A906090A4D8CFB146B4DBA6434A274706E270598B6FCA6917"
     },
     {
       "source": "assets/event_collection/hc6_sabotage.cieg",
       "destination": "Island Event Collection/hc6_sabotage.cieg",
-      "sha256": "912C5E22D8757AE40380FC90F6141D93367DD9176BDD0DD214CAB40CFEAF638A"
+      "sha256": "9374556D9BBC2B6DB70B5425ACE6BAB3D4D9D6CBE79A1BCE17650EB7B8D80A29"
     },
     {
       "source": "assets/event_collection/hea01_count_four_count.cieg",
