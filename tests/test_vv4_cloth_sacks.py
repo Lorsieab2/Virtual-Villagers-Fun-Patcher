@@ -34,6 +34,7 @@ try:
     from unicorn.x86_const import UC_X86_REG_ESP
 
     import farmers_emulation_vv4 as fe
+    from story_emulator import API_STUBS
 
     HAVE_EMULATOR = fe.STOCK.is_file() and fe.CMAP.is_file()
 except ImportError:  # pragma: no cover - environment dependent
@@ -56,8 +57,7 @@ AWNING = (425, 1712)             # under the awning: the hut's place (400, 1600)
 EV_MADE, EV_FULL, EV_CREDIT = 0x75, 0x76, 0x77
 FOOD_MASTERY = 4                 # the technology index (0x41E1C0)
 SOLVED = (6, 0x16)               # the Cooking Pit restored, the Clothing Hut finished (no nets, no berries)
-API_STUBS = 0x0F000000
-FAKE = 0x0F00F000                # the stand-in fruit supply's exports, in the API stub page
+FAKE_OFFSET = 0xF000             # the stand-in fruit supply's exports, at the end of the API stub page
 
 
 @functools.lru_cache(maxsize=None)
@@ -77,6 +77,24 @@ def render(mode: str) -> bytes:
     return bytes(data)
 
 
+class _Rolls(dict):
+    """farmers_emulation_vv4's forced rand(n) answers by return address, plus every rand the companion (mapped at
+    0x10000000) draws answered by the hut's dll_rand when it is set."""
+
+    def __init__(self, hut: "Hut"):
+        super().__init__()
+        self.hut = hut
+
+    def _ours(self, caller: int) -> bool:
+        return self.hut.dll_rand is not None and 0x10000000 <= caller < 0x11000000
+
+    def __contains__(self, caller) -> bool:
+        return self._ours(caller) or dict.__contains__(self, caller)
+
+    def __getitem__(self, caller):
+        return self.hut.dll_rand if self._ours(caller) else dict.__getitem__(self, caller)
+
+
 class Hut:
     """A Tree of Life village with the Clothing Hut finished and the Cooking Pit restored."""
 
@@ -93,15 +111,7 @@ class Hut:
             if tree is not None:
                 self._fake_fruit_supply()
             p.export("VvfpStartup", 4, 0)
-            stock_rand = self.v._rand
-
-            def rand() -> None:          # a rand(n) the companion draws can be forced (dll_rand)
-                caller = struct.unpack("<I", self.v.uc.mem_read(self.v.uc.reg_read(UC_X86_REG_ESP), 4))[0]
-                if self.dll_rand is not None and 0x10000000 <= caller < 0x11000000:
-                    self.v._ret(self.dll_rand, 0)
-                else:
-                    stock_rand()
-            self.v._rand = rand
+            self.v.by_caller = _Rolls(self)      # a rand(n) the companion draws can be forced (dll_rand)
         self.v.w32(HUT_X, 400)
         self.v.w32(HUT_Y, 1600)
         self.v.w32(CLOTH, cloth)
@@ -113,7 +123,8 @@ class Hut:
     def _fake_fruit_supply(self) -> None:
         """"VVFP VV4 Fruit Supply.dll" stood in for: its VvfpYellowFruitLeft / VvfpYellowFruitTake on `tree`."""
         p = self.v.process
-        p.mu.mem_write(FAKE, b"\xC3" * 0x20)
+        fake = API_STUBS + FAKE_OFFSET
+        p.mu.mem_write(fake, b"\xC3" * 0x20)
 
         def left(_p):
             return self.tree, 0
@@ -124,8 +135,8 @@ class Hut:
             self.tree -= n
             self.taken.append(n)
             return n, 4
-        p.stubs[FAKE] = left
-        p.stubs[FAKE + 0x10] = take
+        p.stubs[fake] = left
+        p.stubs[fake + 0x10] = take
 
         def module(pp):
             if pp.arg(0) == 0:
@@ -134,7 +145,7 @@ class Hut:
 
         def proc(pp):
             name = pp.cstring(pp.arg(1))
-            return {"VvfpYellowFruitLeft": FAKE, "VvfpYellowFruitTake": FAKE + 0x10}.get(name, 0), 8
+            return {"VvfpYellowFruitLeft": fake, "VvfpYellowFruitTake": fake + 0x10}.get(name, 0), 8
         p.api_handlers["GetModuleHandleW"] = module
         p.api_handlers["GetProcAddress"] = proc
 
@@ -265,17 +276,22 @@ class SackTripTests(unittest.TestCase):
             with self.subTest(level=level):
                 sack = Hut(levels=tuple(levels))
                 r = sack.villager()
+                before = sack.v.food()
                 sack.drop(r)
                 sack.run()
                 # The stock game's cutting tool on the blackberries, the model: one tool, 30 berries.
                 harvest = Hut(patched=False, levels=tuple(levels), berries=1000)
                 harvest.v.w32(TOOLS, 3)
                 h = harvest.villager(at=(1568, 1124))
+                stock_before = harvest.v.food()
                 harvest.v.call(HARVEST_DROP, 0, 0, h)
                 self.assertEqual(harvest.v.r32(TOOLS), 2)
                 harvest.run()
-                self.assertEqual(harvest.credits(), [expected])
-                self.assertEqual(sack.credits(), [expected])
+                # Both ask the food writer for 30; Food Mastery multiplies inside it, the same for both.
+                self.assertEqual(harvest.credits(), [30])
+                self.assertEqual(sack.credits(), [30])
+                self.assertEqual(harvest.v.food() - stock_before, expected)
+                self.assertEqual(sack.v.food() - before, expected)
 
     def test_with_the_limited_tree_a_sack_takes_its_fruit_from_it(self) -> None:
         for tree, paid in ((1000, 30), (10, 10)):
@@ -375,7 +391,7 @@ class SackTripTests(unittest.TestCase):
             drawn.clear()
             h.v.call(CARRY_DRAW, mgr, r, 100, 200)
             sprite, x, y, frame, scale = drawn[0]
-            mark = h.v.r32(sprite + 0x30) if sprite >= fe.HEAP else 0
+            mark = h.v.r32(sprite + 0x30) if fe.HEAP <= sprite < fe.HEAP + 0x100000 else 0
             return {0x51AC0000 + 65: "empty", 0x51AC0000 + 87: "full"}.get(mark, hex(sprite)), x, y, frame, scale
         h.v.w32(r + REC_ITEM, 0x35)
         self.assertEqual(picture(), ("0xcafe0024", 100, 200, 0x35, 1.0))   # cloth, not on a trip: the game's own
