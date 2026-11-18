@@ -116,6 +116,8 @@ FILES = [
     "assets/keep_carried/VVFP Keep Carried.dll",
     # Fix Vanilla Bugs (The Lost Children ... New Believers): a word wider than its box no longer hangs the layout.
     "assets/long_words/VVFP Long Words.dll",
+    # Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water.
+    "assets/vv4_frogs/VVFP VV4 Frogs.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.
