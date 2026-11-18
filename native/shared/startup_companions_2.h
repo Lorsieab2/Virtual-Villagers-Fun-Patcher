@@ -62,6 +62,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP VV4 Cloth Sacks.dll",
     /* Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the cap of 6 raised to 99; the stacks drawn as 6. */
     "VVFP VV4 Supply Cap.dll",
+    /* No Tool Harvest from Empty Sources (The Tree of Life): no cutting tool (or cloth sack) used on an empty
+       source. */
+    "VVFP VV4 Empty Sources.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

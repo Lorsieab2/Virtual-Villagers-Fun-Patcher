@@ -2162,6 +2162,18 @@ The wind flutes that play in fog once you have found a Wind Flute (every 60 to 8
 - Evidence status: implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own action table, step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
+#### No Tool Harvest from Empty Sources (`vv4_no_tool_harvest_from_empty_sources`)
+
+A cutting tool is no longer used up on a blackberry bush that has no berries left: a villager dropped to harvest it with a cutting tool refuses, as at an empty bush ("There is not enough to harvest.", the game's own words), and keeps the tool. With 1 berry or more the harvest works exactly as before (it brings what is left, at most 30). **With "Cloth Sacks for Yellow Fruit" ticked too, the same goes for the cloth sacks: a sack is not made for a yellow fruit tree with no fruit left (which happens only with "Yellow Fruit Trees are No Longer Unlimited"; otherwise the tree never runs out), and no cloth is used. Without Cloth Sacks this patch does the cutting tool alone.** **Needs no other patch.** **On by default.** **Unverified in play: the effect has not been tested live.** The companion is "VVFP VV4 Empty Sources.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The cutting-tool harvest's drop (0x46E7E0, map area 0x31): after its own 'no tool' check, with 0 berries the villager gets action 0x3F with text 0xA7 ("There is not enough to harvest.", the empty bush's refusal at 0x46F881) and no tool is used (0x4369F0 is not called); with 1 or more, unchanged. Cloth Sacks for Yellow Fruit ("VVFP VV4 Cloth Sacks.dll") asks whether "VVFP VV4 Empty Sources.dll" is loaded (GetModuleHandleW); when it is and the yellow fruit tree holds 0 fruit (VvfpYellowFruitLeft of "VVFP VV4 Fruit Supply.dll"), a drop at the hut gets the same refusal (action 0x3F, text 0xA7) after the 'no cloth' check and before any cloth is used.
+- Explicit non-changes/exclusions: At 1 or more berries or fruit the tool and the sack take what is left, as before (job event 14 and the sack's event: at most 30). Picking, the fruit trips and every other drop are the game's own. The pruning puzzle's use of a tool at the same spot (0x46E84C, puzzle 0xC) is not changed. No executable byte is patched: the companion writes one jump at run time after verifying the site and the code it returns to; nothing is written to the save.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; emulated (an empty bush refused with the tool kept, 1 berry harvested as before, the stock game using the tool; an empty limited tree refused at the hut with the cloth kept, with and without the companion) in tests/test_vv4_empty_sources.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Optional Text changes (`vv4_optional_text_changes`)
 
 Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.

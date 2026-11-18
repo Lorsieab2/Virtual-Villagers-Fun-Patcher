@@ -26,6 +26,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 - **Cloth Sacks for Yellow Fruit** (The Tree of Life, on by default): drop an adult on the left side of the finished Clothing Hut, under its awning, and they make a sack from one cloth bolt, gather yellow fruit in it and bring 30 food to the food bin (before Food Mastery), working like the cutting tool on the blackberries; only villagers you drop make sacks, farmers never do on their own. Art by Lorsieab2.
 - **Up to 99 Cutting Tools/Soap/Cloth** (The Tree of Life, off by default, on in Owner's Defaults): cutting tools and cloth bolts can be stored up to 99 instead of 6; the stacks still show at most 6.
+- **No Tool Harvest from Empty Sources** (The Tree of Life, on by default): no cutting tool is used up on an empty blackberry bush, and with Cloth Sacks no sack on an empty yellow fruit tree.
 
 ## What's new in v1.35.96
 
@@ -1423,6 +1424,12 @@ The Clothing Hut's extra cloth bolts get a use, for the yellow fruit only. Drop 
 Cutting tools and cloth bolts can be stored up to 99 instead of 6. They are still made 3 at a time and every use takes one; the normal game also put the count back to 6 at each use, which no longer happens. Soap was never limited to 6, so it is unchanged. The stacked pictures look exactly as with 6 (at most 6 cutting tools, 6 bolts at the Clothing Hut, 3 bars of soap); pointing at them shows the real count. The count is the game's own, saved as before. The companion is "VVFP VV4 Supply Cap.dll", started by VVFP Startup.dll. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **The in-game effect is not yet verified by a live test.**
 
 - Patch ID: `vv4_up_to_99_supplies`
+
+**No Tool Harvest from Empty Sources** (The Tree of Life)
+
+A cutting tool is no longer used up on a blackberry bush with no berries: the villager refuses with the game's own "There is not enough to harvest." and keeps the tool. With 1 berry or more the harvest works as before. **With "Cloth Sacks for Yellow Fruit" ticked too, no sack is made for a yellow fruit tree with no fruit left (only possible with "Yellow Fruit Trees are No Longer Unlimited") and no cloth is used; without Cloth Sacks it does the cutting tool alone.** The companion is "VVFP VV4 Empty Sources.dll", started by VVFP Startup.dll. **Needs no other patch.** On by default. **The in-game effect is not yet verified by a live test.**
+
+- Patch ID: `vv4_no_tool_harvest_from_empty_sources`
 
 **Island Events Scale With Population (like The Lost Children)** (A New Home, The Tree of Life, New Believers)
 

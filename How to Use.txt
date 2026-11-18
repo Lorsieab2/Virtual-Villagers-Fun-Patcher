@@ -645,6 +645,15 @@ takes one. Soap was never limited to 6. The stacked pictures still show at
 most 6 (soap at most 3 bars); point at them to see the real count. Not yet
 tested in a running game.
 
+NO TOOL HARVEST FROM EMPTY SOURCES (THE TREE OF LIFE)
+
+On by default. A villager dropped to harvest blackberries with a cutting tool
+refuses when the bush has no berries ("There is not enough to harvest.") and
+keeps the tool. With Cloth Sacks for Yellow Fruit, no sack is made for an
+empty yellow fruit tree (only with Yellow Fruit Trees are No Longer
+Unlimited) and no cloth is used. With 1 or more, everything works as
+before. Not yet tested in a running game.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

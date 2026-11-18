@@ -343,6 +343,13 @@
       ]
     },
     {
+      "ids": ["vv4_no_tool_harvest_from_empty_sources"],
+      "guide": [
+        "On by default. A villager dropped to harvest blackberries with a cutting tool refuses when the bush has no berries (\"There is not enough to harvest.\") and keeps the tool.",
+        "With Cloth Sacks for Yellow Fruit, no sack is made for an empty yellow fruit tree (only with Yellow Fruit Trees are No Longer Unlimited) and no cloth is used. With 1 or more, everything works as before. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",

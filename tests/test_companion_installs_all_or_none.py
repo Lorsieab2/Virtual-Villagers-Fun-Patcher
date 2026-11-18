@@ -396,6 +396,10 @@ CASES = [
     Case("Supply Cap", "assets/supply_cap/VVFP VV4 Supply Cap.dll", (4,),
          lambda g: [f"vv{g}_up_to_99_supplies"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpSupplyCapInstalled"))[1]),
+    # No Tool Harvest from Empty Sources (The Tree of Life): the cutting-tool harvest's tool use.
+    Case("Empty Sources", "assets/empty_sources/VVFP VV4 Empty Sources.dll", (4,),
+         lambda g: [f"vv{g}_no_tool_harvest_from_empty_sources"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpEmptySourcesInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),

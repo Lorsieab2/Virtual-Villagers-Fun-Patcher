@@ -155,6 +155,8 @@
 /* Actions and texts. */
 #define ACT_FRUIT 0x64               /* the tree's start 0x4343A0 */
 #define ACT_REFUSE 0x1A
+#define ACT_REFUSE_TEXT 0x3F
+#define TXT_NOT_ENOUGH 0xA7          /* eSayNotEnoughToHarvest, the empty bush's own */
 #define TXT_NEED_CLOTH 0x136         /* eSayNeedCloth "They need cloth for this!" */
 #define TXT_PIT_FULL 0x13C           /* the tree's own: every spot taken */
 #define TXT_TO_BIN 0x240             /* eSayCarryFruitStore "Carrying fruit to the food bin" */
@@ -455,6 +457,10 @@ static int __cdecl on_drop(unsigned char *villager) {
         handled = 1;
         if (!cloth_on_hand()) {
             act(villager, ACT_REFUSE, TXT_NEED_CLOTH, 0);
+        } else if (fruit_left() == 0 && GetModuleHandleW(L"VVFP VV4 Empty Sources.dll") != NULL) {
+            /* No Tool Harvest from Empty Sources (its own row and companion): an empty limited tree refuses as the
+               empty bush does (action 0x3F, text 0xA7 "There is not enough to harvest."), no cloth used. */
+            act(villager, ACT_REFUSE_TEXT, TXT_NOT_ENOUGH, -1);
         } else if (!spot_free()) {
             *(int *)(villager + REC_TASK) = 0;
             act(villager, ACT_REFUSE, TXT_PIT_FULL, 0);

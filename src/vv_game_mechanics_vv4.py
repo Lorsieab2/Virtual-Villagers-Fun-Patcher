@@ -70,6 +70,9 @@ CLOTH_SACKS = "vv4_cloth_sacks_for_yellow_fruit"
 # Up to 99 Cutting Tools/Soap/Cloth ("VVFP VV4 Supply Cap.dll"): the tools' and cloth's cap of 6 (0x43142F, 0x4368E2 and the
 # use-up's clamp 0x436A09) is 99; soap is never capped in the stock game.
 SUPPLY_CAP = "vv4_up_to_99_supplies"
+# No Tool Harvest from Empty Sources ("VVFP VV4 Empty Sources.dll"): the harvest's tool use 0x46E86F refuses at 0
+# berries (action 0x3F, text 0xA7); Cloth Sacks refuses an empty limited tree the same way when it is loaded.
+EMPTY_SOURCES = "vv4_no_tool_harvest_from_empty_sources"
 SACK_FRUIT = 30
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
@@ -388,6 +391,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Food sources", gm.patch_words(village, SUPPLY_CAP, "up to 99 cutting tools and 99 cloth bolts can be "
                                            "stored instead of 6 (still made 3 at a time; soap was never "
                                            "limited)"), gm.CODE)
+    if village.has(EMPTY_SOURCES) is not False:
+        add("Food sources", gm.patch_words(village, EMPTY_SOURCES, "a villager dropped to harvest the "
+                                           "blackberries with a cutting tool refuses when the bush is empty "
+                                           "and keeps the tool (with Cloth Sacks, the same for a sack and an "
+                                           "empty yellow fruit tree)"), gm.CODE)
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
     fruit_at = fruit_next_at = None
