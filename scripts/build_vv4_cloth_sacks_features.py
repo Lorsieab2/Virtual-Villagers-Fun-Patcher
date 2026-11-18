@@ -141,7 +141,7 @@ def row(dll_sha: str) -> dict:
             "Hut's awning, the Cooking Pit restored: no cloth ([0x4D8ACC] = 0): action 0x1A with text 0x136 (\"They "
             f"need cloth for this!\"); the fruit left is not checked (the tool does not check the berries); the pit's four spot locks (5..8 at 0x705148, 0x46D880) all taken: the task cleared and "
             "action 0x1A with text 0x13C (the tree's start 0x4343A0's own refusal); otherwise one cloth bolt is "
-            "used (0x4369F0(1) on 0x4D8AC8, the cutting tools' own routine) and the sack trip is queued. With No Tool Harvest from Empty Sources (vv4_no_tool_harvest_from_empty_sources: \"VVFP VV4 Empty Sources.dll\" loaded) and the limited tree at 0 fruit, after the cloth check: action 0x3F with text 0xA7, no cloth used.",
+            "used (0x4369F0(1) on 0x4D8AC8, the cutting tools' own routine) and the sack trip is queued. With Fix Vanilla Bugs (vv4_fix_vanilla_bugs, its \"VVFP VV4 Empty Sources.dll\" loaded) and the limited tree at 0 fruit, after the cloth check: action 0x3F with text 0xA7, no cloth used.",
             "The sack trip, with the game's own step builders: the fruit trip's pit-spot claim (its first step, type "
             "0x2E, lock 5..8) copied to the front and run at once, so the spot is the villager's from the drop, as "
             "a stock trip claims its spot at once; a caption step (0x468CF0) \"Making a sack out of "

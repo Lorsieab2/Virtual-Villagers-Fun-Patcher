@@ -1,4 +1,4 @@
-/* VVFP VV4 Empty Sources -- "No Tool Harvest from Empty Sources", The Tree of Life.
+/* VVFP VV4 Empty Sources -- Fix Vanilla Bugs (The Tree of Life): no tool harvest from an empty bush.
 
    THE OWNER (2026-11-18): a cutting tool or a cloth sack is never used up on a food source that has no food left.
 

@@ -343,13 +343,6 @@
       ]
     },
     {
-      "ids": ["vv4_no_tool_harvest_from_empty_sources"],
-      "guide": [
-        "On by default. A villager dropped to harvest blackberries with a cutting tool refuses when the bush has no berries (\"There is not enough to harvest.\") and keeps the tool.",
-        "With Cloth Sacks for Yellow Fruit, no sack is made for an empty yellow fruit tree (only with Yellow Fruit Trees are No Longer Unlimited) and no cloth is used. With 1 or more, everything works as before. Not yet tested in play."
-      ]
-    },
-    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
@@ -452,6 +445,7 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
+        "A cutting tool is no longer used up on an empty blackberry bush: the villager refuses and keeps it (with Cloth Sacks, the same for a sack and an empty yellow fruit tree).",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },

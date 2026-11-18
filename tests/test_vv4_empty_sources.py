@@ -1,4 +1,5 @@
-"""No Tool Harvest from Empty Sources (The Tree of Life): "VVFP VV4 Empty Sources.dll", and Cloth Sacks asking for it.
+"""Fix Vanilla Bugs (The Tree of Life): no tool harvest from an empty bush, "VVFP VV4 Empty Sources.dll", and Cloth Sacks
+asking for it.
 
 The shipped DLLs run beside The Tree of Life's own code in unicorn (tests/farmers_emulation_vv4.py; the companion
 mapped through tests/story_emulator.py's Process).  The cutting-tool harvest's drop 0x46E7E0, its harvest (action
@@ -17,7 +18,10 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tests"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import build_vv4_empty_sources_feature as builder  # noqa: E402
+import hashlib  # noqa: E402
+
+DLL = ROOT / "assets" / "empty_sources" / "VVFP VV4 Empty Sources.dll"
+FVB = "vv4_fix_vanilla_bugs"
 
 try:
     import farmers_emulation_vv4 as fe
@@ -34,7 +38,7 @@ SKILL_ROLL = 0x462B1A
 
 def harvest(patched: bool, berries: int) -> tuple[int, int, list[int]]:
     """A villager dropped to harvest with a cutting tool: (tools left, its action, food credited)."""
-    v = fe.Village(berries=berries, dll=builder.DLL if patched else None)
+    v = fe.Village(berries=berries, dll=DLL if patched else None)
     if patched:
         v.process.export("VvfpStartup", 4, 0)
         assert v.process.export("VvfpEmptySourcesInstalled") == 1
@@ -88,14 +92,15 @@ class EmptyTreeTests(unittest.TestCase):
 
 
 class RowTests(unittest.TestCase):
-    def test_the_row_is_the_builders_and_on_by_default(self) -> None:
-        path = ROOT / "data" / f"{builder.ID}_feature.json"
-        row = json.loads(path.read_text(encoding="utf-8"))
-        self.assertEqual(row, builder.row(builder.sha(builder.DLL)))
-        self.assertIn("**On by default.**", row["description"])
-        import vv_fun_patcher_gui as gui
-        self.assertNotIn(builder.ID, gui.DEFAULT_OFF_FUN_PATCH_IDS)
-        self.assertNotIn(builder.ID, gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+    def test_fix_vanilla_bugs_ships_and_pins_the_companion(self) -> None:
+        # The owner (2026-11-18): a Fix Vanilla Bugs fix, not a patch of its own (Fix Vanilla Bugs is on by default).
+        builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        row = next(p for p in builds["fun_patches"] if p["id"] == FVB)
+        files = {f["destination"]: f["sha256"] for f in row["companion_files"]}
+        self.assertEqual(files["VVFP VV4 Empty Sources.dll"], hashlib.sha256(DLL.read_bytes()).hexdigest().upper())
+        self.assertIn("0x46E86F", [d["va"] for d in row["runtime_detours"]])
+        self.assertIn("Cloth Sacks for Yellow Fruit", row["description"])
+        self.assertFalse((ROOT / "data" / "vv4_no_tool_harvest_from_empty_sources_feature.json").exists())
 
 
 if __name__ == "__main__":

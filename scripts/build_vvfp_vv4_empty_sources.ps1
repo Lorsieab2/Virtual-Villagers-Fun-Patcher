@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
-# Builds "VVFP VV4 Empty Sources.dll" (No Tool Harvest from Empty Sources, The Tree of Life) from
-# native\vvfp_vv4_empty_sources.  32-bit, static CRT, like every other companion.  Re-run
-# scripts\build_vv4_empty_sources_feature.py afterwards: the row pins the DLL by SHA-256.
+# Builds "VVFP VV4 Empty Sources.dll" (Fix Vanilla Bugs, The Tree of Life: no tool harvest from an empty bush) from
+# native\vvfp_vv4_empty_sources.  32-bit, static CRT, like every other companion.  Afterwards
+# re-pin it by SHA-256 in data/builds.json (the vv4_fix_vanilla_bugs row's companion_files).
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vvfp_vv4_empty_sources"

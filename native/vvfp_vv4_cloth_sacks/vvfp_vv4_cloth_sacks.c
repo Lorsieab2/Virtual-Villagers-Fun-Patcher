@@ -458,7 +458,7 @@ static int __cdecl on_drop(unsigned char *villager) {
         if (!cloth_on_hand()) {
             act(villager, ACT_REFUSE, TXT_NEED_CLOTH, 0);
         } else if (fruit_left() == 0 && GetModuleHandleW(L"VVFP VV4 Empty Sources.dll") != NULL) {
-            /* No Tool Harvest from Empty Sources (its own row and companion): an empty limited tree refuses as the
+            /* Fix Vanilla Bugs (its "VVFP VV4 Empty Sources.dll"): an empty limited tree refuses as the
                empty bush does (action 0x3F, text 0xA7 "There is not enough to harvest."), no cloth used. */
             act(villager, ACT_REFUSE_TEXT, TXT_NOT_ENOUGH, -1);
         } else if (!spot_free()) {

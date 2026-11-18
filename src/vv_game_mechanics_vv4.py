@@ -70,9 +70,9 @@ CLOTH_SACKS = "vv4_cloth_sacks_for_yellow_fruit"
 # Up to 99 Cutting Tools/Soap/Cloth ("VVFP VV4 Supply Cap.dll"): the tools' and cloth's cap of 6 (0x43142F, 0x4368E2 and the
 # use-up's clamp 0x436A09) is 99; soap is never capped in the stock game.
 SUPPLY_CAP = "vv4_up_to_99_supplies"
-# No Tool Harvest from Empty Sources ("VVFP VV4 Empty Sources.dll"): the harvest's tool use 0x46E86F refuses at 0
+# Fix Vanilla Bugs' no tool harvest from an empty bush ("VVFP VV4 Empty Sources.dll"): the harvest's tool use 0x46E86F refuses at 0
 # berries (action 0x3F, text 0xA7); Cloth Sacks refuses an empty limited tree the same way when it is loaded.
-EMPTY_SOURCES = "vv4_no_tool_harvest_from_empty_sources"
+EMPTY_SOURCES = "vv4_fix_vanilla_bugs"
 SACK_FRUIT = 30
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the

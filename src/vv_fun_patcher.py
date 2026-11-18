@@ -343,11 +343,7 @@ CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_f
                              # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life; the owner, 2026-11-17; off by
                              # default, on in Owner's Defaults): companion only, "VVFP VV4 Supply Cap.dll";
                              # scripts/build_vv4_supply_cap_feature.py.
-                             ROOT / "data" / "vv4_up_to_99_supplies_feature.json",
-                             # No Tool Harvest from Empty Sources (The Tree of Life; the owner, 2026-11-18; on by
-                             # default): companion only, "VVFP VV4 Empty Sources.dll";
-                             # scripts/build_vv4_empty_sources_feature.py.
-                             ROOT / "data" / "vv4_no_tool_harvest_from_empty_sources_feature.json")
+                             ROOT / "data" / "vv4_up_to_99_supplies_feature.json")
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -12851,7 +12847,7 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP VV4 Cloth Sacks.dll",
     # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the cap of 6 raised to 99; the stacks drawn as 6.
     "VVFP VV4 Supply Cap.dll",
-    # No Tool Harvest from Empty Sources (The Tree of Life): no cutting tool (or cloth sack) used on an empty source.
+    # Fix Vanilla Bugs (The Tree of Life): no cutting tool (or, with Cloth Sacks, cloth sack) used on an empty source.
     "VVFP VV4 Empty Sources.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
