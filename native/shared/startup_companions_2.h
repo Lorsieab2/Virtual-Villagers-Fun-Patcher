@@ -77,6 +77,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
+    /* Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water. */
+    "VVFP VV4 Frogs.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

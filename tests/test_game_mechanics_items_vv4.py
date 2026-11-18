@@ -41,7 +41,7 @@ PINS = (
     ("puzzle", "Boiling Water", "U", ""),
     ("puzzle", "Soap Invented", "U", ""),
     ("puzzle", "The Butterflies", "U", ""),
-    ("puzzle", "The Frog Rescue", "U", ""),
+    ("puzzle", "The Frog Rescue", "U", "CC"),         # where the frogs leap (tests/test_vv4_frogs.py)
     ("puzzle", "The Cooking Pit", "C", "C"),          # the fruit task's bonus: DEAD (2026-11-10)
     ("puzzle", "Cloth Invented", "U", "CCOE"),
     ("puzzle", "The Nursery School", "U", ""),

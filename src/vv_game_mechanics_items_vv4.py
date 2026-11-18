@@ -223,7 +223,18 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step: soap made in the pot (pulpy vines x3 in salt water); the soap bars made count on "
             "hand."), UNCONFIRMED),
         Entry(PUZZLE, "The Butterflies", "solved in 1 step; solving it needs The Stream solved.", UNCONFIRMED),
-        Entry(PUZZLE, "The Frog Rescue", "solved after 5 steps.", UNCONFIRMED),
+        Entry(PUZZLE, "The Frog Rescue", "solved after 5 steps.", UNCONFIRMED,
+              # The world refresh 0x46D090, its frog block 0x46D3BF..0x46D4C5 (puzzle 5 solved, the stream's flow
+              # 0x4396E0 above 0); "VVFP VV4 Frogs.dll" (tests/test_vv4_frogs.py).
+              (("Solved, while the stream flows, frogs leap on the river round the island: one frog, then two "
+                "50-in-100 chances of another (1 to 3 at a time). The game puts them only in two small spots on the "
+                "right of the river's bottom stretch.", VERIFIED_C),
+               (patch("vv4_fix_vanilla_bugs") + ": they leap anywhere on the river's blue water round the island "
+                "(the curve on the left, the whole bottom stretch and the pool under the waterfall by the ladder), "
+                "never on grass, the tree or the ladder, as often as in the game. While the stream runs low (its "
+                "debris above 75%) no whole leap fits on the thin river, so each leap goes where it fits it best, "
+                "partly over its rocky edge as in the game.",
+                VERIFIED_C))),
         Entry(PUZZLE, "The Cooking Pit", (
             "solved in 1 step. Solved, farmers are offered the fruit (\"Attempting to retrieve fruit\": stomping or "
             "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each villager "
