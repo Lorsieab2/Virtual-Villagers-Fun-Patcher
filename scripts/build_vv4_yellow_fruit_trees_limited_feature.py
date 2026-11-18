@@ -83,7 +83,14 @@ SITES = (
     (0x445426, "B920CB4C00",
      "the Overview Map draw 0x4453C0, before the map's overlay list (mov ecx, 0x4CCB20 / call 0x41C5B0, its left, "
      "top and scale pushed): the fruit trees' picture where the list puts a picture of (0, 1664), then the stock mov"),
+    (0x4180A5, "57E825B6FEFF",
+     "the island-event selector 0x418000's draw (push edi / call rand 0x4036D0, rand(n) over the collected slots): "
+     "the companion's draw -- slot 19 taken out of the list and the stock rand(n) over the rest; then, when the pick "
+     "is not a rescue event (slots 7, 12, 25) and the village's two opening events are past, rand(n - r) == 0 gives "
+     "slot 19 -- and on at 0x4180AF with esi the slot and the stock push edi on the stack"),
 )
+RESCUE_SLOTS = ((7, "The Mysterious Footprints (food gained)"), (12, "A Closer Look (Blackberries)"),
+                (25, "Daredevil Barrel...of Babies!"))
 VTABLE = 0x48E890
 EVENT_SLOT_VA = 0x4CCA74       # the island-event table 0x4CCA28's slot 19, NULL in the stock game
 EVENT_GAIN = 350               # fruit the event adds (the berry event's +350, 0x414B38); the owner gave no amount
@@ -164,8 +171,11 @@ def description() -> str:
         "A Custom Island Event (Story / Cheat Upgrades) that refills the food sources fills the tree to 1,000 "
         "too; no island event of the game's own refills it. The patch also adds one island event, \"A Closer "
         f"Look\" about the breadfruit: a farmer finds leftover fruit and the tree gains {EVENT_GAIN} fruit (to at "
-        "most 1,000). It can happen once the Cooking Pit is restored and someone lives in the village, with an "
-        "equal chance among the island events that can happen then; without this patch it does not exist. In "
+        "most 1,000). It can happen once the Cooking Pit is restored and someone lives in the village, after the "
+        "village's first two island events, as one rescue event among equals: exactly as often as each of the game's "
+        "rescue events (A Closer Look about the blackberries, The Mysterious Footprints that bring food, Daredevil "
+        "Barrel...of Babies!), whose chances stay the game's own; its share comes from the other events only. "
+        "Without this patch it does not exist. In "
         "Pick Island Event the two are \"A Closer Look (Blackberries)\" and \"A Closer Look (Yellow "
         "Breadfruit)\". The count is kept beside the save, in "
         f"{SIDECAR}, written when the game saves; the save itself is never changed, so without this patch the "
@@ -237,9 +247,19 @@ def row(dll_sha: str) -> dict:
             "village was just loaded); the 40-unit count runs on; the file is written at the next save, with it.",
             "One more island event, A Closer Look (Yellow Breadfruit): the companion's own object in the event "
             "table's slot 19 (0x4CCA74, NULL in the stock game: the builder 0x416FF0 never writes it), which the "
-            "selector 0x418000 collects like any other slot (1..49, NULL skipped at 0x418057; one of the possible "
-            "ones by rand(n), 0x4180A6), so the 8-15 h timer, the Island Events Seen count and the rescue rule "
-            "(slot 25) are unchanged. The object copies A Closer Look's vtable 0x48C84C (title id 0x342) with its "
+            "selector 0x418000's loop collects when its condition holds (1..49, NULL skipped at 0x418057). Its "
+            "chance (the owner, 2026-11-17: the same as each rescue event's, and a new event never changes the "
+            "stock events' odds): the selector's draw at 0x4180A5 is the companion's -- slot 19 is taken out of the "
+            "collected list and the stock rand(n) picks among the n stock events left, each 1/n as in the stock "
+            "game; when that pick is not a rescue event (" + ", ".join(f"slot {s} {t}" for s, t in RESCUE_SLOTS)
+            + ") and the Island Events Seen count 0x4D6E04 (raised at 0x43FBD6 before the selector) is above 2, "
+            "one more rand(n - r) (r the rescue events among the n) gives slot 19 on 0. So the breadfruit comes 1/n "
+            "of the time, one rescue event's share; each rescue event keeps its stock 1/n; each other event gives "
+            "up 1/(n - r) of its share. Without slot 19 in the list (Cooking Pit not restored, no one alive) the "
+            "draw is the stock single rand(n). Before this (v1.35.96), slot 19 was one more entry of the stock "
+            "draw: every event 1/(n + 1), and A Closer Look, the berry event's title and condition, twice as often "
+            "as any other event. The 8-15 h timer, the Island Events Seen count and the stock rescue rule "
+            "(0x4180AF..0x4180F2, slot 25) are unchanged. The object copies A Closer Look's vtable 0x48C84C (title id 0x342) with its "
             "own condition (the Cooking Pit restored, 0x438960(6), then the berry event's 0x415E00: a living "
             "villager of any age, 0x4679B0(-1,-1,-1,1,1,-1,0,0,0)), text id 0x2E7 (an id with no string entry "
             "that no code pushes; its index slot 0x4DEA20+4*id points at the companion's text, by key "
@@ -290,7 +310,7 @@ def row(dll_sha: str) -> dict:
             "touches the tree: of the 49 event classes' results (vtable slots 11 and 12) and the routines they "
             "call, only A Closer Look (0x414B38, the blackberries +350) refills a food source, and it stays "
             "berries only (the owner, 2026-11-08).",
-            "No executable byte is patched: the companion writes its 10 jumps, 2 vtable slots and the event "
+            "No executable byte is patched: the companion writes its 11 jumps, 2 vtable slots and the event "
             "table's empty slot 19 at run time, only "
             "after verifying every stock value, all or none; a different build installs nothing.",
             "The save is never written, so removing the patch leaves the tree unlimited as in the stock game; the "
@@ -302,7 +322,8 @@ def row(dll_sha: str) -> dict:
         ],
         "evidence_status": ("implemented from exact-build disassembly; emulated stock and patched (trips, refusal, "
                             "dispatcher, task gate, stew, catch-up bonus, refill, file, Start Over, the pictures' "
-                            "draws in the village and on the Overview Map) in "
+                            "draws in the village and on the Overview Map, the breadfruit event's exact share of the "
+                            "selector's draw against the stock game's) in "
                             "tests/test_vv4_yellow_fruit_trees_limited.py; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/fruit_supply/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},

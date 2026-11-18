@@ -74,11 +74,26 @@
    selector 0x418000 collects every slot 1..49 of the event table 0x4CCA28 that holds an object whose condition
    (vtable +0x04) holds, and picks one of them uniformly (rand(n), 0x4180A6); a NULL slot is skipped
    (0x418057).  Slot 19 is NULL in the stock game (the table builder 0x416FF0 never writes it: The Salty Air
-   has strings and no object), so this companion puts its own object there, once, at install: the event then
-   takes an equal share like any other slot whose condition holds, and nothing else changes -- the 8-15 h timer
-   and the Island Events Seen count are the scheduler's (before and after the selector), the rescue rule
-   (0x4180A5..0x4180F2) still forces slot 25, and the per-slot "shown" byte 0x4CC9F4+19 is never read.  The
-   object is a copy of A Closer Look's (vtable 0x48C84C, RTTI locator included) with:
+   has strings and no object), so this companion puts its own object there, once, at install (Pick Island Event
+   and the presenter find it there).
+
+   ITS CHANCE (the owner, 2026-11-17: at 0 food it came up a lot; it must have the same chance as the other
+   rescue events, and a new event never changes the stock events' odds nor crowds out a rescue event).  Left to the
+   selector's own draw, slot 19 was one more equal entry: every stock event's share fell from 1/n to 1/(n+1) and,
+   its condition being the berry event's, "A Closer Look" came up twice as often as any other event.  So the draw
+   (0x4180A5, `push edi / call rand`, the site SELECT_SITE) is this companion's, made the stock way:
+     1. slot 19 is taken out of the collected list, and the stock rand(n) picks among the rest -- the stock draw,
+        each stock event's share exactly the stock game's 1/n (n the stock events possible now);
+     2. when the pick is not a rescue event (RESCUE_SLOTS: The Mysterious Footprints (food gained) 7, A Closer Look
+        (Blackberries) 12, Daredevil Barrel...of Babies! 25) and the village's two opening events are past (the
+        Island Events Seen count 0x4D6E04, raised at 0x43FBD6 before the selector, above 2), one more roll
+        rand(n - r) (r the rescue events among the n) gives the breadfruit on 0 -- so it comes (n - r)/n x 1/(n - r)
+        = 1/n of the time: exactly one rescue event's share, the berry event's (1/n, as in the stock game); every
+        rescue event keeps its stock share, and the share is taken from the other events only.
+   Without slot 19 in the list (the Cooking Pit not restored, no one alive) the draw is the stock one, the same
+   single rand(n).  The stock rescue rule (0x4180AF..0x4180F2) then runs as before and can still force slot 25;
+   the 8-15 h timer and the Island Events Seen count are the scheduler's; the per-slot "shown" byte 0x4CC9F4+19 is
+   never read.  The object is a copy of A Closer Look's (vtable 0x48C84C, RTTI locator included) with:
      +0x00  the teardown 0x417760 calls it with "delete" at exit: nothing (the object is this DLL's);
      +0x04  the condition: the Cooking Pit restored (0x438960(6) on 0x4D8BF8, the fruit's own test) and then
             the berry event's own condition 0x415E00 run on this object -- one living villager of any age
@@ -118,6 +133,7 @@
      0x48E8A0   4  CFruitwells vtable slot 4 (save)
      0x48E89C   4  CFruitwells vtable slot 3 (load)
      0x4CCA74   4  the island-event table's slot 19 (NULL): the event object
+     0x4180A5   6  the selector's push edi / call rand (rand(n), its pick): the draw above (ITS CHANCE)
      0x4400AD   5  the village's mov ecx, 0x4CCB20 before the overlay list (the pictures)
      0x445426   5  the Overview Map's mov ecx, 0x4CCB20 before the overlay list (the pictures)
 
@@ -214,7 +230,12 @@
 #define VILLAGE_ON 0x4400B2u
 #define OVERVIEW_SITE 0x445426u      /* the Overview Map draw 0x4453C0: mov ecx, 0x4CCB20 before the list */
 #define OVERVIEW_ON 0x44542Bu
-#define SITES 13
+#define SELECT_SITE 0x4180A5u        /* the selector 0x418000: push edi (the count) / call rand 0x4036D0 */
+#define SELECT_ON 0x4180AFu          /* after mov esi, [esp + eax*4 + 0x14]: esi the chosen slot */
+#define GAME_RAND 0x4036D0u          /* cdecl rand() % n */
+#define EVENTS_SEEN 0x4D6E04u        /* the Island Events Seen count, raised before the selector (0x43FBD6) */
+#define OPENING_EVENTS 2             /* a village's first two island events are never replaced */
+#define SITES 14
 
 static const unsigned char CREDIT_STOCK[12] = { 0x6A, 0x03, 0xB9, 0xD0, 0x6D, 0x4D, 0x00, 0xE8, 0xA8, 0x93, 0xFB, 0xFF };
 static const unsigned char OFFER_STOCK[11] = { 0xC7, 0x44, 0xBC, 0x1C, 0x02, 0x00, 0x00, 0x00, 0x83, 0xC7, 0x01 };
@@ -225,6 +246,9 @@ static const unsigned char BONUS_STOCK[12] = { 0x6A, 0x05, 0xB9, 0xD0, 0x6D, 0x4
 static const unsigned char UNIT_STOCK[8] = { 0x8D, 0x4E, 0x20, 0xE8, 0x72, 0x22, 0x00, 0x00 };
 static const unsigned char STEW_STOCK[7] = { 0xC6, 0x86, 0x1F, 0x0B, 0x00, 0x00, 0x01 };
 static const unsigned char LIST_STOCK[5] = { 0xB9, 0x20, 0xCB, 0x4C, 0x00 };    /* mov ecx, 0x4CCB20 */
+static const unsigned char SELECT_STOCK[6] = { 0x57, 0xE8, 0x25, 0xB6, 0xFE, 0xFF };   /* push edi / call 0x4036D0 */
+/* ...and the pick after it, where the stub resumes: mov esi, [esp + eax*4 + 0x14] / push 0x64. */
+static const unsigned char SELECT_PICK_STOCK[6] = { 0x8B, 0x74, 0x84, 0x14, 0x6A, 0x64 };
 /* The other bytes the stubs rely on: the credit's call of the food writer resolves to 0x41D920, the bonus's too,
    the unit site's call to 0x46AD50 (checked through the bytes above), and the empty way out of the task gate. */
 static const unsigned char TASK_EMPTY_STOCK[7] = { 0x8B, 0x96, 0x88, 0x1B, 0x00, 0x00, 0x5F };
@@ -758,6 +782,75 @@ static int ev_build(void) {
     return 1;
 }
 
+/* ---- the event's chance (ITS CHANCE above) ------------------------------------------------------------------ */
+
+#define EVENT_SLOT 19
+#define MAX_SLOTS 49                 /* the selector's slots 1..49 */
+
+/* The stock rescue events, never replaced: food for a starving village and the population rescue's barrel. */
+static const int RESCUE_SLOTS[] = {
+    7,                               /* The Mysterious Footprints (food gained), +300 food */
+    12,                              /* A Closer Look (Blackberries), +350 berries */
+    25,                              /* Daredevil Barrel...of Babies!, the stock rescue rule's event */
+};
+
+typedef int (__cdecl *rand_fn)(int n);
+
+static int game_rand(int n) {
+    return ((rand_fn)(UINT_PTR)GAME_RAND)(n);
+}
+
+static int is_rescue(int slot) {
+    int i;
+    for (i = 0; i < (int)(sizeof RESCUE_SLOTS / sizeof RESCUE_SLOTS[0]); ++i) {
+        if (RESCUE_SLOTS[i] == slot) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The draw over the `n` collected slots in `list`: the chosen slot, or -1 when nothing was drawn here (no slot 19 in
+   the list, or a list this code does not know): then the caller makes the stock draw. */
+static int draw_event(int n, const int *list) {
+    int stock[MAX_SLOTS];
+    int m = 0, rescues = 0, ours = 0, i, pick;
+    if (n <= 0 || n > MAX_SLOTS) {
+        return -1;
+    }
+    for (i = 0; i < n; ++i) {
+        if (list[i] == EVENT_SLOT) {
+            ours = 1;
+        } else {
+            stock[m++] = list[i];
+            rescues += is_rescue(list[i]);
+        }
+    }
+    if (!ours || m == 0) {
+        return -1;
+    }
+    pick = stock[game_rand(m)];                                  /* the stock draw over the stock events */
+    if (!is_rescue(pick) && m > rescues && *(const int *)(UINT_PTR)EVENTS_SEEN > OPENING_EVENTS
+        && game_rand(m - rescues) == 0) {
+        pick = EVENT_SLOT;                                        /* 1 in m overall: one rescue event's share */
+    }
+    return pick;
+}
+
+/* At SELECT_SITE: the slot the selector presents (its esi at SELECT_ON). */
+static int __cdecl on_select(int n, const int *list) {
+    int pick = -1;
+    __try {
+        pick = draw_event(n, list);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        pick = -1;
+    }
+    if (pick < 0) {
+        pick = list[game_rand(n)];                                /* the stock draw */
+    }
+    return pick;
+}
+
 /* ---- the save and the load -------------------------------------------------------------------------------- */
 
 typedef int (__fastcall *save_fn)(void *self, void *unused, void *out, unsigned int size);
@@ -1116,6 +1209,24 @@ __declspec(naked) static void overview_stub(void) {
     }
 }
 
+/* At SELECT_SITE (edi = the count, the collected slots at [esp + 0x10]): esi = on_select's slot, then on after the
+   stock pick with the stock push edi on the stack (0x4180B6's add esp, 8 pops it with rand(100)'s argument). */
+__declspec(naked) static void select_stub(void) {
+    __asm {
+        pushad
+        lea eax, [esp + 32 + 0x10]
+        push eax
+        push edi
+        call on_select
+        add esp, 8
+        mov dword ptr [esp + 4], eax
+        popad
+        push edi
+        push SELECT_ON
+        ret
+    }
+}
+
 /* ---- installing ------------------------------------------------------------------------------------------- */
 
 static unsigned int g_expect[3];
@@ -1178,6 +1289,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_installed || game != FS_GAME
         || !holds(TASK_EMPTY, TASK_EMPTY_STOCK, sizeof TASK_EMPTY_STOCK)
         || !holds(DROP_DONE, DROP_DONE_STOCK, sizeof DROP_DONE_STOCK)
+        || !holds(SELECT_SITE + 6u, SELECT_PICK_STOCK, sizeof SELECT_PICK_STOCK)
         || !ev_build()) {
         return;
     }
@@ -1203,6 +1315,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
                     (const unsigned char *)&g_ours[2]);
     vvfp_site_branch(&w[11], VILLAGE_SITE, sizeof LIST_STOCK, LIST_STOCK, 0xE9, (const void *)village_stub);
     vvfp_site_branch(&w[12], OVERVIEW_SITE, sizeof LIST_STOCK, LIST_STOCK, 0xE9, (const void *)overview_stub);
+    vvfp_site_branch(&w[13], SELECT_SITE, sizeof SELECT_STOCK, SELECT_STOCK, 0xE9, (const void *)select_stub);
     if (vvfp_install_sites(w, SITES)) {
         g_installed = 1;
     }

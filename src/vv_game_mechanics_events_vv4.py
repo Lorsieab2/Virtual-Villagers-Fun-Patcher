@@ -64,6 +64,13 @@ RULES = (
     Line("A loss of food or tech points takes no more than there is. Health and skills stop at 0 and 100."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
          "and, where the game rolls, the outcome.", only_with=STORY),
+    # VVFP VV4 Fruit Supply.dll's draw at 0x4180A5 (THE EVENT / ITS CHANCE in its source).
+    Line("With \"Yellow Fruit Trees are No Longer Unlimited\": the game's events are drawn exactly as above; then, "
+         "when the event drawn is not a rescue event (A Closer Look about the blackberries, The Mysterious Footprints "
+         "that bring food, Daredevil Barrel...of Babies!) and the village has had its first two island events, A "
+         "Closer Look (Yellow Breadfruit) takes its place 1 time in (the events listed minus the rescue events among "
+         "them) -- so it comes exactly as often as each rescue event, and every rescue event keeps the game's own "
+         "chance.", only_with=YELLOW_FRUIT),
 )
 
 # Each event's result routine, in the order of its lines (the two-choice events: the first button, then the second).
@@ -97,8 +104,13 @@ EVENTS = (
         "The blackberry bushes gain 350 berries.",)),
     # The patch's own event (VVFP VV4 Fruit Supply.dll): its object in the event table's empty slot 19, the berry
     # event's title, the owner's text (id 0x2E7), the berry event's condition 0x415E00 after the Cooking Pit test.
+    # Its chance: the companion's draw at 0x4180A5 (slot 19 out of the stock rand(n); then rand(n - r) == 0 on a
+    # pick that is not a rescue event, slots 7, 12, 25, once the Island Events Seen count 0x4D6E04 is above 2).
     Event("A Closer Look (Yellow Breadfruit)",
-          f"needs the Cooking Pit restored and {ANY}; added by \"Yellow Fruit Trees are No Longer Unlimited\" "
+          f"needs the Cooking Pit restored and {ANY}, and comes only after the village's first two island events; "
+          "it is one rescue event among equals: exactly as likely as A Closer Look (Blackberries), The Mysterious "
+          "Footprints (food gained) and Daredevil Barrel...of Babies!, which keep the game's own chances, its share "
+          "taken from the other events only; added by \"Yellow Fruit Trees are No Longer Unlimited\" "
           "(without it the event does not exist)", (
               f"The Cooking Pit's yellow fruit tree gains {YELLOW_FRUIT_EVENT_GAIN} fruit, up to its 1,000, and the "
               "villager walks to the tree (as the blackberry event's farmer goes to the bushes).",),

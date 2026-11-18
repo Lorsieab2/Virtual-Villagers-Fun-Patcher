@@ -62,7 +62,7 @@ SKILL_ROLL = 0x462B1A           # rand(100) of the skill check (return address)
 BONUS_ROLL = 0x468AA1           # rand(100) of the Cooking Pit bonus
 GATE_ROLLS = (0x4634F4, 0x463503)
 SITES = {0x46456C: 12, 0x463A38: 11, 0x46364E: 7, 0x4359B8: 7, 0x43597A: 5, 0x468AAB: 12, 0x468AD6: 8,
-         0x42EAE7: 7, 0x4400AD: 5, 0x445426: 5}
+         0x42EAE7: 7, 0x4400AD: 5, 0x445426: 5, 0x4180A5: 6}
 ART = ROOT / "assets" / "fruit_supply"
 PICTURES = tuple(f"vvfp_fruit_tree_{n}.png" for n in range(6))     # PICTURES[n]: n fruits on each tree
 
@@ -115,8 +115,8 @@ class Tree:
     """A Tree of Life village, the Cooking Pit restored, no bush and no nets: the fruit is the only farming."""
 
     def __init__(self, patched: bool = True, *, exe: bytes | None = None, files: dict | None = None,
-                 seed: int = 3, slot: int = 1, solved=(6,)):
-        self.v = fe.Village(seed=seed, berries=0, solved=solved, exe=exe, dll=DLL if patched else None)
+                 seed: int = 3, slot: int = 1, solved=(6,), dll: Path | None = None):
+        self.v = fe.Village(seed=seed, berries=0, solved=solved, exe=exe, dll=(dll or DLL) if patched else None)
         self.patched = patched
         self.files = None
         if patched:
@@ -681,6 +681,107 @@ class YellowBreadfruitEvent(unittest.TestCase):
         t = Tree()
         self.assertEqual(t.v.call(self.method(t, 0), self.obj(t), 1) & 0xFFFFFFFF, self.obj(t))
         self.assertNotEqual(self.obj(t), 0)
+
+
+EVENTS_SEEN = 0x4D6E04              # the Island Events Seen count, raised before the selector runs (0x43FBD6)
+SELECT_START, SELECT_AFTER = 0x418041, 0x4180AF   # the selector's listing loop .. right after its pick (esi)
+RESCUES = (7, 12, 25)               # Footprints (food gained), A Closer Look (Blackberries), the Barrel
+# Fifteen stock events whose own condition holds (a stand-in "true" condition), three of them rescue events.
+STOCK_EVENTS = (2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 17, 20, 21, 25)
+
+
+class ScriptedRand:
+    """Stands in for the emulator's random generator: each rand(n) returns the next scripted value, 0 past the
+    script, and records its bound -- so every outcome of a draw can be walked, each with its exact chance."""
+
+    def __init__(self, prefix: list[int]):
+        self.prefix, self.values, self.bounds = prefix, [], []
+
+    def randrange(self, n: int) -> int:
+        k = len(self.values)
+        value = self.prefix[k] if k < len(self.prefix) else 0
+        self.values.append(value)
+        self.bounds.append(n)
+        return value
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
+class BreadfruitChance(unittest.TestCase):
+    """A Closer Look (Yellow Breadfruit) is one rescue event among equals (the owner, 2026-11-17): the stock events
+    keep the stock game's draw, each rescue event its stock share, and the breadfruit gets exactly one rescue event's
+    share, taken from the other events only.  Every outcome of the selector's own code (its listing loop and the
+    pick, 0x418041..0x4180AF, through the companion's draw) is walked with its exact chance."""
+
+    def village(self, *, patched: bool = True, dll: Path | None = None, solved=(6,), seen: int = 5) -> Tree:
+        t = Tree(patched=patched, solved=solved, dll=dll)
+        t.villager()
+        v = t.v
+        code, vtable = fe.HEAP + 0xE0000, fe.HEAP + 0xE0010
+        v.uc.mem_write(code, b"\xB0\x01\xC3")                       # mov al, 1; ret: the condition holds
+        for k in range(16):
+            v.w32(vtable + 4 * k, code)
+        for i, slot in enumerate(STOCK_EVENTS):
+            obj = fe.HEAP + 0xE0100 + 16 * i
+            v.w32(obj, vtable)
+            v.w32(EVENT_TABLE + 4 * slot, obj)
+        v.w32(EVENTS_SEEN, seen)
+        # The two calls between the loop and the draw (their objects are not built here): nothing to do.
+        for va, pop in ((0x412F90, 8), (0x448E10, 4)):
+            v.uc.hook_add(UC_HOOK_CODE, lambda *_a, pop=pop: v._ret(0, pop), begin=va, end=va)
+        return t
+
+    def shares(self, t: Tree) -> tuple[dict, set]:
+        """{slot: exact chance} over every outcome of one selection, and the rand bounds seen."""
+        from fractions import Fraction
+        v = t.v
+        out: dict[int, Fraction] = {}
+        bounds_seen: set[tuple[int, ...]] = set()
+        todo: list[list[int]] = [[]]
+        while todo:
+            prefix = todo.pop()
+            script = ScriptedRand(prefix)
+            v.rng = script
+            v.uc.reg_write(UC_X86_REG_ESP, v.stack + 0x100000)
+            v.uc.emu_start(SELECT_START, SELECT_AFTER, count=5_000_000)
+            self.assertEqual(v.uc.reg_read(UC_X86_REG_EIP), SELECT_AFTER)
+            slot = v.uc.reg_read(UC_X86_REG_ESI)
+            chance = Fraction(1)
+            for b in script.bounds:
+                chance /= b
+            out[slot] = out.get(slot, Fraction(0)) + chance
+            bounds_seen.add(tuple(script.bounds))
+            for i in range(len(prefix), len(script.bounds)):
+                for value in range(1, script.bounds[i]):
+                    todo.append(script.values[:i] + [value])
+        self.assertEqual(sum(out.values()), 1)
+        return out, bounds_seen
+
+    def test_one_rescue_event_among_equals(self) -> None:
+        from fractions import Fraction
+        stock, stock_bounds = self.shares(self.village(patched=False))
+        n = len(STOCK_EVENTS)
+        self.assertEqual(stock, {s: Fraction(1, n) for s in STOCK_EVENTS})    # the stock game: 1 in 15 each
+        self.assertEqual(stock_bounds, {(n,)})
+        ours, _ = self.shares(self.village())
+        self.assertEqual(ours[EVENT_SLOT], Fraction(1, n))                      # the breadfruit: 1 in 15...
+        for slot in RESCUES:
+            self.assertEqual(ours[slot], stock[slot], slot)                     # ...as each rescue event, unchanged
+        self.assertEqual(ours[12], stock[12])                                   # the berry event: the stock share
+        others = [s for s in STOCK_EVENTS if s not in RESCUES]
+        for slot in others:                                                     # the share comes from these only
+            self.assertEqual(ours[slot], Fraction(1, n) * (1 - Fraction(1, len(others))), slot)
+        self.assertEqual(set(ours), set(STOCK_EVENTS) | {EVENT_SLOT})
+
+    def test_without_the_event_the_draw_is_the_stock_one(self) -> None:
+        stock = self.shares(self.village(patched=False))
+        for label, t in (("the Cooking Pit not restored", self.village(solved=())),
+                         ("the first opening event", self.village(seen=1)),
+                         ("the second opening event", self.village(seen=2))):
+            with self.subTest(label):
+                ours = self.shares(t)
+                self.assertEqual(ours[0], stock[0])                             # the stock shares; no breadfruit
+                if label.startswith("the Cooking"):
+                    self.assertEqual(ours[1], stock[1])                         # and the same single rand(15)
 
 
 MAP_TILES = 0x705510            # the map object: 16 tiles {image, x, y} (0x46FCE0 fills them, 0x46FE10 draws them)
