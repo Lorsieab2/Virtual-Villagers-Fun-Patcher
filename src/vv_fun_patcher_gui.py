@@ -259,6 +259,9 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
+# One-Time Collectibles Appear Again (The Secret City, The Tree of Life).
+ONE_TIME_COLLECTIBLES_IDS = ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"]
+
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
@@ -356,6 +359,8 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # More Frequent Island Events (all five games; the owner, 2026-11-15: new v1.35.97 patches are on in Owner's
     # Defaults, off everywhere else) -- off here and in Select All.
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # One-Time Collectibles Appear Again (The Secret City, The Tree of Life; the owner, 2026-11-17): likewise.
+    + ONE_TIME_COLLECTIBLES_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -432,6 +437,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # One-Time Collectibles Appear Again: likewise (the owner, 2026-11-17).
+    + ONE_TIME_COLLECTIBLES_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

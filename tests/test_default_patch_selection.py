@@ -173,6 +173,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_gender_presentation")
                   # More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults only).
                   or p.endswith("_more_frequent_island_events")
+                  # One-Time Collectibles Appear Again (the owner, 2026-11-17: on in Owner's Defaults only).
+                  or p.endswith("_one_time_collectibles_again")
                   # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
                   # Defaults only; the 28 content filters and No Safeguards for Island Events off everywhere.
                   or p.endswith("_island_event_content_notes")
@@ -387,6 +389,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
         # ...and More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_more_frequent_island_events" for n in range(1, 6)}
+        # ...and One-Time Collectibles Appear Again (the owner, 2026-11-17: likewise).
+        held_back |= {"vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"}
         # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults
         # only), the 28 content filters and No Safeguards for Island Events (off everywhere).
         held_back |= {f"vv{n}_island_event_content_notes" for n in range(1, 6)}
