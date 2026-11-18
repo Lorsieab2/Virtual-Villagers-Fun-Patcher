@@ -521,27 +521,13 @@ int __stdcall VvfpVillageScoreGet(int game, int score_id) {
     return score;
 }
 
-/* An event reached a page tagged `tag` (1 raise, 2 lower, 3 neutral) for score `score_id`: the score moved (raise
-   and lower by the same step, kept within 0..100), written and logged with `event_title` (may be NULL).  The new
-   score, or -1 when nothing could be done (not started, no village, its file blocked). */
-int __stdcall VvfpVillageScoreTag(int game, int score_id, int tag, const char *event_title) {
+/* Score `score_id` moved by `tag` and the move logged with `event_title`, in memory (the caller holds the lock, the
+   village loaded, and publishes).  The new score; *moved 1 when it changed. */
+static int vs_move_locked(int score_id, int tag, const char *event_title, int *moved) {
     char line[320], stamp[32], title[96];
-    int before, after;
-    if (g_game == 0 || game != g_game || score_id < 0 || score_id >= VS_COUNT || tag < VS_TAG_RAISE
-        || tag > VS_TAG_NEUTRAL) {
-        return -1;
-    }
-    EnterCriticalSection(&g_lock);
-    if (!vs_load()) {
-        LeaveCriticalSection(&g_lock);
-        return -1;
-    }
-    before = g_score[score_id];
-    after = vs_moved(before, tag);
+    int before = g_score[score_id], after = vs_moved(before, tag);
     g_score[score_id] = after;
-    if (after != before) {
-        (void)vs_publish();
-    }
+    *moved = after != before;
     lstrcpynA(title, event_title != NULL && event_title[0] != '\0' ? event_title : "An island event", sizeof title);
     vs_stamp(stamp);
     if (tag == VS_TAG_NEUTRAL) {
@@ -554,17 +540,39 @@ int __stdcall VvfpVillageScoreTag(int game, int score_id, int tag, const char *e
                   after > before ? after - before : before - after, before, after);
     }
     vs_log(g_slot, score_id, line);
+    return after;
+}
+
+/* An event reached a page tagged `tag` (1 raise, 2 lower, 3 neutral) for score `score_id`: the score moved (raise
+   and lower by the same step, kept within 0..100), written and logged with `event_title` (may be NULL).  The new
+   score, or -1 when nothing could be done (not started, no village, its file blocked). */
+int __stdcall VvfpVillageScoreTag(int game, int score_id, int tag, const char *event_title) {
+    int after, moved;
+    if (g_game == 0 || game != g_game || score_id < 0 || score_id >= VS_COUNT || tag < VS_TAG_RAISE
+        || tag > VS_TAG_NEUTRAL) {
+        return -1;
+    }
+    EnterCriticalSection(&g_lock);
+    if (!vs_load()) {
+        LeaveCriticalSection(&g_lock);
+        return -1;
+    }
+    after = vs_move_locked(score_id, tag, event_title, &moved);
+    if (moved) {
+        (void)vs_publish();
+    }
     LeaveCriticalSection(&g_lock);
     return after;
 }
 
 /* VvfpVillageScoreTag EXACTLY ONCE for the page `when` (its event's purchase time, two dwords) and `pos` (its place
    in the run) name: a page already counted (shown again after a restart, the save it was killed before lacking it)
-   changes nothing and returns the score as it is.  -1 as VvfpVillageScoreTag. */
+   changes nothing and returns the score as it is.  The page's key and the new score are written together, in one
+   replacement of the file, so neither is ever on disk without the other.  -1 as VvfpVillageScoreTag. */
 int __stdcall VvfpVillageScoreTagOnce(int game, int score_id, int tag, const char *event_title, unsigned int when_lo,
                                       unsigned int when_hi, unsigned int pos) {
     unsigned __int64 when = (unsigned __int64)when_hi << 32 | when_lo;
-    int k, score;
+    int k, score, moved;
     if (g_game == 0 || game != g_game || score_id < 0 || score_id >= VS_COUNT || tag < VS_TAG_RAISE
         || tag > VS_TAG_NEUTRAL) {
         return -1;
@@ -588,11 +596,11 @@ int __stdcall VvfpVillageScoreTagOnce(int game, int score_id, int tag, const cha
     g_applied[g_applied_count].when = when;
     g_applied[g_applied_count].pos = pos;
     ++g_applied_count;
-    (void)vs_publish();                 /* the key kept, even for a move that changes nothing */
+    score = vs_move_locked(score_id, tag, event_title, &moved);
+    (void)vs_publish();                 /* the key and the score, one atomic replacement */
     LeaveCriticalSection(&g_lock);
-    return VvfpVillageScoreTag(game, score_id, tag, event_title);
+    return score;
 }
-
 /* The factor, per mille (1000 = unchanged), for an event or ending favoured by `favour` (1 a high score: cooperative
    and celebration events, cooperative endings; 2 a low score: repair, peace and apology events, tense endings), at
    the village's score `score_id` and the row's strength.  1000 when this companion was not started for `game`, there
