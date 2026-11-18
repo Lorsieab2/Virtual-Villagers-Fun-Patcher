@@ -1,0 +1,758 @@
+NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)
+From the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.
+Written in the style of the owner's own events. The owner waived the review ("I'm sure the draft events are fine"); every event passed the Isola rules and the final 15-point review, logged in the notes.
+(name1) to (name4) fill in with villagers' names; (he/she), (him/her), (his/her) follow the villager.
+All Isola rules apply. All five games unless noted. Isola's traditions are its own: no real people is named; each event's concept numbers and real-world inspiration are only in the notes. A [Solidarity: raise/lower/neutral] tag marks how an ending feels for the village (a planned counter; no effect yet).
+
+==========================================================================
+LCH-01. The Story Told About Us
+(picks an elder and an adult)
+
+Storytellers from another island have been performing a tale about Isola in which the villagers are mysterious, silent people who live in trees and speak to fish. (name2) heard it at their festival and came home furious. (name1) thinks the storytellers simply do not know any better. What should the village do?
+
+Invite Them to See:
+
+The village invites the storytellers for a week. They see the gardens, the arguments, the terrible singing, the babies, the jokes. They go home and change the story. Now the Isolans in it are loud, funny and very bad at sitting still. (name2) says that is closer. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+Correct It at Their Festival:
+
+(name2) paddles to the next festival and tells the real story, right after theirs. The audience is confused by two completely different Isolas. Some believe one, some the other. The storytellers are not pleased. [Solidarity: neutral]
+
+==========================================================================
+LCH-02. The Archive With a Lock
+(picks a researcher and an elder)
+
+(name1) wants to record every tradition on bark and mark every important place on a map, so nothing is ever lost. (name2) says some places and some songs are private: if they are written down, anyone can find them. What should the researchers do?
+
+Record What Families Allow:
+
+(name1) asks each family. Some places go on the map; some are marked only as a small circle meaning private. The record has holes in it. The holes are on purpose. [effect: small Research skill for (name1); small tech gain] [Solidarity: raise]
+
+Keep Some Things Spoken:
+
+(name1) records only the public things. The rest stays in memory, passed mouth to ear. (name2) teaches (name1) one of the private songs, just one, to keep in (his/her) head and never write down. [Solidarity: raise]
+
+==========================================================================
+LCH-03. The History Written by Children
+(picks two children)
+
+(name1) and (name2) have spent a season asking every grown-up what life was like when they were young: what they ate, what they played, what they were scared of. They have also drawn the village they want when they grow up. It has a slide down the hill. What should they do with it all?
+
+Show the Elders:
+
+The children present it all at the gathering. The elders learn things about each other they never knew. The slide down the hill is built, briefly, until someone ends up in the stream. [effect: small tech gain] [Solidarity: raise]
+
+Keep Collecting:
+
+The children keep going for another year, until they have a story from every hut. Then they give it to the oldest villager, who reads it all in one night and says it is the best history of Isola ever made. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCH-04. The Song That Belongs to Someone
+(picks two musicians)
+
+(name2)'s family once taught (name1) a beautiful song, in private, at a funeral. (name1) has been singing it on the beach, and now a visiting performer wants to buy the right to sing it on other islands. (name1) is excited. (name2) is not. What should (name1) do?
+
+Ask the Family:
+
+(name1) asks (name2)'s family. They say the song is not for sale, and not for the beach either. (name1) is embarrassed and agrees. The family later teaches (him/her) another song, one that can be sung anywhere. [Solidarity: raise]
+
+Perform It Anyway:
+
+(name1) sells the song to the visitor. The visitor sings it on six islands. (name2)'s family hears about it and stops speaking to (name1) for a long time. The tools from the sale are very good. (name1) does not enjoy them. [effect: small tech gain] [Solidarity: lower]
+
+==========================================================================
+LCH-05. The Stolen Design
+(picks a carver and an adult)
+
+(name1) carves turtles in a style nobody else on the island uses: a spiral on the back, a smile on the face. A merchant has been selling copies on other islands. (name2), who leads the village's carvers, thinks all the carvers should do something. What should they do?
+
+Demand Payment:
+
+The carvers confront the merchant when (he/she) next visits. The merchant tries to laugh it off, then sees the crowd, and agrees to pay (name1) in good stone tools for every turtle sold. (name1) does not want the tools as much as the apology. (He/she) gets both. [effect: small tech gain] [Solidarity: raise]
+
+Mark Every Carving:
+
+The carvers agree that every piece made on Isola will carry the maker's mark. The merchant's copies have no marks, and before long, buyers on other islands ask for the marked ones. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCH-06. The Secret of the Medicine Garden
+(picks a healer and an elder)
+
+A visitor has offered (name1) a canoe full of goods for the secret of the medicine garden: which plant cures which ailment. (name1) thinks the knowledge could help sick people on other islands. (name2), who taught (him/her), says the knowledge belongs to the village, not to one healer. What should (name1) do?
+
+Share It With Conditions:
+
+(name1) brings it to the village. They agree to share some of it, on condition that the visitor teaches the healers what (his/her) island knows in return. The visitor agrees. Both islands' healers learn something. [effect: small Healing skill for (name1); small tech gain] [Solidarity: raise]
+
+Keep It in the Village:
+
+(name1) refuses. The visitor leaves disappointed. (name2) is proud of (him/her). Months later, a sick child from the visitor's island is brought to Isola for treatment, and (name1) treats (him/her) without asking for anything. [effect: small Healing skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCH-07. The Research the Village Asked For
+(picks a researcher and an adult)
+
+(name1), a researcher, has been taking cuttings from (name2)'s family garden for a study, without asking, because (he/she) thought nobody would mind. (name2) minds. And the village would rather (name1) studied why the spring is failing than why the flowers are blue. What should (name1) do?
+
+Apologize and Set Rules:
+
+(name1) apologizes to (name2) and the village agrees on rules: ask first, share what you find, and study what the village needs. (name1)'s next study is the spring. It turns out to be a blocked channel under a fallen tree. [effect: small Research skill for (name1); small tech gain] [Solidarity: raise]
+
+Argue It Was for Everyone:
+
+(name1) argues that knowledge helps everyone. (name2) says that is not the point: it was (his/her) garden. The gathering sides with (name2). (name1) returns the cuttings, and is sulky for a while, and then asks permission next time. [Solidarity: neutral]
+
+==========================================================================
+LCH-08. The Forest's Witnesses
+(picks an elder and a researcher)
+
+(name2) has been measuring the forest for three years and says it is healthy. (name1) has walked through it for sixty years and says it is quieter than it used to be: fewer birds, fewer frogs, the old fig trees dying from the top. Who is right?
+
+Trust the Memories:
+
+(name2) goes into the forest with (name1) and listens instead of measuring. (He/she) hears what (name1) means: the silence. The next season, (name2) counts the birds too. The count is lower than (he/she) expected. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Trust the Records:
+
+The village trusts the records. The forest seems fine. Five years later, the young researchers find (name1)'s warnings in the old bark records and wish someone had listened. [Solidarity: lower]
+
+==========================================================================
+LCH-09. The Results Belong to Everyone
+(picks a researcher and a farmer)
+
+The researchers have found out that ash from the cooking fires makes the taro grow bigger. (name1) has explained it at great length to the other researchers. (name2), a farmer, only heard about it by accident, and wonders why nobody told the farmers. What should happen?
+
+Hold a Public Telling:
+
+(name1) explains it at the gathering, very badly at first, then better when (name2) starts asking questions. By the end, every farmer knows. The taro grows bigger. (name1) learns to explain things simply. [effect: small tech gain; small Farming skill for (name2)] [Solidarity: raise]
+
+Learn It by Doing:
+
+(name1) goes to the gardens and spreads ash with the farmers, showing as (he/she) goes. It takes all season. The farmers teach (name1) a dozen things about soil in return. [effect: small Research skill for (name1); small Farming skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCH-10. The Woman Who Refused to Be Interrupted
+(picks an adult woman and an adult)
+
+(name1) has tried three times at the gathering to explain her plan for the fish drying racks, and three times someone has talked over her. (name2) has noticed. So have several others. What should happen?
+
+Others Insist She Finish:
+
+(name2) stands up and says, loudly, that (name1) has not finished. The next person who interrupts gets glared at by half the gathering. (name1) finishes. Her plan is good. It is adopted. She thanks (name2) afterwards, and says next time she will not wait for help. [Solidarity: raise]
+
+She Says It Elsewhere:
+
+(name1) walks out and builds a drying rack her own way by the beach. It works better than any other. Within a month, everyone is copying it. Nobody interrupts her at the next gathering. [effect: small Building skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCH-11. The Care Circle
+(picks two adults)
+
+(name2) has been looking after (his/her) sick father alone for months and is exhausted. (name1) has an idea: a care circle, where families take turns bringing food, fetching water and sitting with the sick, so nobody carries it alone. Some families are already stretched thin. What should the village do?
+
+Organize the Circle:
+
+(name1) sets up the circle. Every family takes a day. (name2) sleeps through a night for the first time in months. The circle costs the village food and time. Nobody regrets it. [effect: small food loss; small Parenting skill for (name1)] [Solidarity: raise]
+
+Help as Always:
+
+The village helps as it always has: whoever notices, helps. Some weeks (name2) gets lots of help, some weeks none. (name1) brings soup every day anyway. [Solidarity: neutral]
+
+==========================================================================
+LCH-12. The Elder's Public Challenge
+(picks an elder woman and an adult)
+
+At the gathering, (name1), one of the oldest women in the village, has stood up and asked why only the chief's family may fish the best reef. Nobody has asked that out loud in fifty years. The chief looks uncomfortable. (name2) is sitting near her. What should happen?
+
+Support Her:
+
+(name2) stands up beside her. Then another villager does, and another. The chief agrees the custom is old and unfair, and opens the reef to every family in turn. (name1) sits down looking very satisfied. [Solidarity: raise]
+
+Ask Her to Wait:
+
+(name2) suggests raising it at the next gathering, after the chief has had time to think. (name1) agrees, sharply. At the next gathering, the chief opens the reef. (name1) says she would have preferred the first time. [Solidarity: neutral]
+
+==========================================================================
+LCH-13. The Girls Who Wanted to Build
+(picks a teen girl and an adult)
+
+(name1) and several other girls want to learn how to raise the big roof beams, but the builders only teach that to three apprentices, all chosen by the builders' own families. (name2), a builder, thinks that is unfair, but the other builders disagree. What should (name2) do?
+
+Open the Lessons:
+
+(name2) opens the lessons to anyone who wants to come. The other builders grumble. Twelve young villagers turn up, (name1) at the front. She is the first to raise a beam on her own. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+A New Apprenticeship:
+
+(name2) starts a second apprenticeship of (his/her) own, for anyone. It takes longer for (name1) to learn, without the best tools. But she does. Eventually, the builders merge the two, because (name2)'s apprentices are better. [effect: small Building skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCH-14. The Patient's Voice
+(picks two healers)
+
+(name1), the eldest midwife, has called the healers together. Too often, (he/she) says, the healers simply do things to people without telling them why. (name2) says sometimes there is no time to explain. What should the healers decide?
+
+Make It the Rule:
+
+The healers agree: explain, ask, and only skip it when someone's life depends on it. The patients are surprised to be asked. Some of them say no, which takes getting used to. Most say yes, and seem less frightened. [effect: small Healing skill for (name2)] [Solidarity: raise]
+
+Trust Each Healer:
+
+The healers leave it to each one's judgment. (name1) explains everything, slowly. (name2) explains when there is time. The patients learn which healer to ask for. [effect: small Healing skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCH-15. The Youth Declaration
+(picks two teens)
+
+(name1) and (name2) have written a declaration about the Isola they want to inherit: clean streams, full reefs, a say in the gathering, and fewer rules about bedtimes. They will read it at the full moon. The question is what to ask the adults for at the end. What should they ask?
+
+Ask for Promises:
+
+The adults promise everything. Some promises are kept. Some are quietly forgotten. The teens write them all down and read the list out again a year later, to great embarrassment. Several more promises are kept after that. [Solidarity: neutral]
+
+Ask for One Thing Now:
+
+The teens ask for one thing, now: a seat at the gathering. The adults are caught off guard and agree. At the next gathering, (name1) takes the seat and starts with the stream. [Solidarity: raise]
+
+==========================================================================
+LCH-16. The Language of the Nursery
+(picks a parent and a child)
+
+(name1) has realized the little ones only know a handful of the old words. (He/she) wants to teach them, but lessons bore (name2) to tears. (name2) will only learn things inside games or songs. What should (name1) do?
+
+Teach Them in Songs:
+
+(name1) writes silly songs using the old words: the word for crab, the word for wave, the word for grandmother's grumpy face. (name2) sings them all day. Soon the other children are singing them too, and teaching their parents. [effect: small Parenting skill for (name1); small tech gain] [Solidarity: raise]
+
+Teach Them in Games:
+
+(name1) changes the children's hiding game so you have to shout the old word for where you are hiding. (name2) learns twenty words in a week, mostly for very good hiding places. [effect: small Parenting skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCH-17. The Festival Designed by Children
+(picks two children and an adult)
+
+This year, the village has agreed to let (name1), (name2) and the other children plan the festival. Their plan includes a race backwards, a feast of only sweet things, and a new tradition where everyone must wear a fish on their head. (name3) is supposed to oversee it. What should (name3) do?
+
+Let Them Do Everything:
+
+(name3) lets them. The festival is chaos. Everyone wears a fish on their head. The feast gives everyone a stomach ache. The backwards race has eleven collisions. It is the best festival in years, and the fish hat becomes a tradition. [effect: everyone celebrates; small food loss] [Solidarity: raise]
+
+Help a Little:
+
+(name3) quietly adds some real food and turns the fish hats into fish-shaped hats made of leaves. The children are slightly annoyed. The festival is fun and much less smelly. [effect: everyone celebrates] [Solidarity: raise]
+
+==========================================================================
+LCH-18. The Apprentice Who Questioned Everything
+(picks a teen and a builder)
+
+(name1) has been watching the builders tie roof thatch, and has asked (name2) why they use the old slow knot when a faster one would do. (name2) has been tying it that way for twenty years and does not know why. What should (name2) do?
+
+Try the New Way:
+
+They thatch one roof with the fast knot. It is done in half the time. The first big storm pulls it apart. (name2) remembers: the old knot holds in wind. (name1) is disappointed, then fascinated, and starts looking for a knot that is fast and strong. [effect: small Building skill for (name1)] [Solidarity: neutral]
+
+Find Out Why:
+
+(name2) asks the oldest builder, who explains: the slow knot holds in storms. (name1) asks why. Nobody knows. (name1) spends a month testing knots in the wind, and finds a knot that is nearly as strong and nearly as fast. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCH-19. The Children Who Protected the Reef
+(picks a child and a fisher)
+
+(name1) and the other children have found the place where the baby fish hide: the shallow pools behind the reef, full of tiny silver fish and spiral shells. The adults collect shells there and set traps. (name1) wants it to stop. (name2) says the traps there feed four families. What should happen?
+
+Rest the Area:
+
+The village rests the breeding pools for a year. The four families eat less. The children guard the pools like warriors. The next year, the reef is crowded with young fish. (name2) admits it was worth it. [effect: small food loss] [Solidarity: raise]
+
+Use It Carefully:
+
+The traps stay, but only half as many, and no shell collecting. The children are not satisfied, and keep checking. The pools hold steady. The children keep a careful count, and plan to ask again next year. [Solidarity: neutral]
+
+==========================================================================
+LCH-20. The Names of the Mountains
+(picks an elder and a child)
+
+(name1) has noticed that the children call the mountain "the big hill", the way visitors do, and do not know its real name. Or the words for half the tools in the village. (name2) has offered to help collect the old words. Where should they start?
+
+Start With Places:
+
+They walk the island naming every place: the mountain, the bay, the rock that looks like a sleeping dog. (name2) learns sixty names in a month and corrects everyone constantly. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Start With Ordinary Things:
+
+They go hut to hut collecting words for spoons, baskets, feelings and the noise a pot makes boiling over. Some words only one old person remembers. They get them just in time. [effect: small tech gain] [Solidarity: raise]
+
+==========================================================================
+LCH-21. The Byname
+(picks an adult and an elder)
+
+(name1) has asked the village to call (him/her) by a byname (he/she) has chosen for (him/her)self: Sunfisher. (He/she) says it fits who (he/she) is now. (name2), (his/her) grandparent, gave (him/her) (his/her) name and is a little hurt. What should (name2) do?
+
+Honor It:
+
+(name2) calls (him/her) Sunfisher at the very next meal, a little stiffly. By the end of the season, it comes naturally. (name1) still answers to both. (He/she) says the name (name2) gave (him/her) is the one (he/she) keeps closest. [Solidarity: raise]
+
+Ask Why:
+
+(name2) asks, gently, why. (name1) explains, or explains part of it. (name2) listens, and accepts it, and does not ask for more. From then on, (he/she) calls (him/her) Sunfisher. [Solidarity: raise]
+
+==========================================================================
+LCH-22. The Interpreter's Burden
+(picks two adults)
+
+(name1) grew up speaking both Isola's language and the language of the island across the bay, and today (he/she) must translate between the two villages' elders over a fishing dispute. One elder from across the bay has just said something very rude. (name2), from the village, is waiting for the translation. What should (name1) do?
+
+Translate Exactly:
+
+(name1) translates it exactly. (name2) goes red. There is shouting. Then, slowly, the two sides get to what they actually mean, and the dispute is settled by sunset. Honesty, it turns out, is faster. [effect: small Research skill for (name1)] [Solidarity: neutral]
+
+Soften the Words:
+
+(name1) softens it into something polite. The talks go smoothly, and an agreement is made. Later, (name2) learns what was really said, and is uncomfortable that (name1) chose for (him/her). (name1) says (he/she) only kept the peace. [Solidarity: neutral]
+
+==========================================================================
+LCH-23. The Seeds That Came Home
+(picks two farmers)
+
+A traveler has come back from a far island with a bag of speckled beans: the same beans Isola grew long ago, lost in a blight. (name1) wants to plant every one of them at once. (name2) wants to share some at the great seed exchange first, so the beans grow in many gardens in case one fails. What should they do?
+
+Plant Them All Now:
+
+(name1) plants them all in the best garden. They grow beautifully. Then the pigs get in. (name2) has secretly saved a handful. They start again, and this time share them around. [effect: small Farming skill for (name1)] [Solidarity: neutral]
+
+Share at the Exchange:
+
+The beans go to twenty gardens. Some fail. Most grow. Within two years, the speckled beans are back in every family's pot, and the old bean song is sung again at harvest. [effect: small food gain] [Solidarity: raise]
+
+==========================================================================
+LCH-24. The Food We Choose to Grow
+(picks two farmers)
+
+Traders have promised to buy every basket of sweet yellow root the village can grow, and pay well, if the village plants nothing else. (name1) says the village could be rich. (name2) says one crop means one blight away from hunger. The village wants its leaders to ask every family before deciding. What should the village choose?
+
+Try the One Crop:
+
+The village plants half its gardens with sweet yellow root. The traders pay well. Then a blight hits the root. The other half of the gardens feed everyone, barely. (name1) agrees that half was the right amount. [effect: small tech gain; small food loss] [Solidarity: neutral]
+
+Keep the Mix:
+
+The village keeps its many crops. The traders leave disappointed. The village is not rich. It is fed, every season, whatever the weather. [Solidarity: raise]
+
+==========================================================================
+LCH-25. The Feast of Remembered Foods
+(picks an elder and a cook)
+
+(name1) remembers dishes nobody makes anymore: seaweed cakes, smoked eel in leaves, a pudding made of roots that takes three days. (name2), a young cook, wants to learn them all. What should they do?
+
+Cook Them All for a Feast:
+
+They spend a week cooking. The feast is extraordinary and very strange. The eel is a triumph. The root pudding is a disaster. The village eats everything anyway, and asks for the eel again. [effect: small food loss; everyone celebrates] [Solidarity: raise]
+
+One at a Time:
+
+(name1) teaches (name2) one dish a moon. By the end of the year, (name2) can make all of them, and has improved the root pudding, which (name1) refuses to admit. [effect: small Farming skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCH-26. The Boundary Nobody Agreed To
+(picks two adults)
+
+(name1) found carved posts driven into the ground all around the eastern forest, and a trader's mark on each. The trader says the forest is (his/her) now, because nobody had marked it. (name2) says the village has never needed to mark what has always been theirs. What should the village do?
+
+Pull Up the Markers Together:
+
+The whole village goes into the forest and pulls up every post, singing. The posts are stacked on the beach for the trader to collect. The trader does, and does not come back. [Solidarity: raise]
+
+Meet and Refuse:
+
+The village meets the trader and refuses, calmly and firmly, while the warriors stand quietly behind. The trader leaves the posts. The village uses them as firewood that winter. [Solidarity: raise]
+
+==========================================================================
+LCH-27. The River's Guardians
+(picks two adults)
+
+The river is muddier than it was, and the hills above it have been cut for timber. (name1) wants a group of guardians to watch the river and decide how much timber may be cut each season. (name2) says every family should look after its own part. What should the village do?
+
+Form the Guardians:
+
+The river guardians are chosen and set rules: cut one tree, plant two. Some families grumble about being told what to do. In two years, the river runs clearer. [effect: small Farming skill for (name1)] [Solidarity: raise]
+
+Every Family Its Own Part:
+
+Every family looks after its own stretch. Some do it well, some do not. The river is clean in places and muddy in others. (name2) starts to think a few rules might help after all. [Solidarity: neutral]
+
+==========================================================================
+LCH-28. The Gathering Against Destruction
+(picks two adults)
+
+Some villagers want to drain the marsh to make new gardens. (name1) says the marsh is where half the island's birds nest. (name2) says the village needs more land. What should (name1) do?
+
+Gather and Sing:
+
+(name1) and many others gather at the marsh's edge, singing the birds' song and telling stories of the marsh. The plan is put aside. The village is still short of land, and (name2) is still looking for some. [Solidarity: raise]
+
+Offer Another Plan:
+
+(name1) finds an old overgrown field on the hill that could be cleared instead. It is harder work than draining the marsh. The village agrees, grumbling. The birds never know how close it was. [effect: small Farming skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCH-29. The Gift With Conditions
+(picks an elder and an adult)
+
+Visitors from a powerful island have brought the village wonderful gifts: tools, cloth and dried fruit. In return, they would like a seat at the village gathering. (name1) says hospitality is free, but the gathering is not for sale. (name2) says one seat is a small price. What should the village answer?
+
+Welcome Them, Refuse the Gift:
+
+(name1) thanks the visitors warmly, feeds them and sends them home with the gifts. The gathering stays the village's own. The visitors are puzzled, and come back the next year without gifts, just to visit. [Solidarity: raise]
+
+Accept With Care:
+
+The village accepts, on the condition that the visitors' seat can speak but never decide. The visitors agree. Over the years, they push and push, and the village holds the line. It is tiring. The tools are good. [effect: small tech gain] [Solidarity: neutral]
+
+==========================================================================
+LCH-30. The Festival of Many Shores
+(picks two musicians)
+
+For the first time, five islands have gathered on Isola for a festival: games, food, and talks about sharing the fishing grounds fairly. (name1) wants the musicians of all five islands to compose one song for the closing night. (name2) wants each island to perform its own. What should the festival do?
+
+Compose One Song:
+
+The five islands' musicians argue for three days and produce a song with five verses, each in its own island's style. It is a strange, wonderful song. The fishing agreement is signed the same night. [effect: everyone celebrates; small food loss] [Solidarity: raise]
+
+Each Its Own:
+
+Each island performs its own song, in turn, until dawn. Nobody's song is changed. The fishing agreement takes another day, but is signed. The children of five islands go home singing each other's songs. [effect: small food loss] [Solidarity: raise]
+
+==========================================================================
+LCH-31. The Day of Many Hands
+(picks two adults)
+
+Three days of heavy rain have damaged half the huts in the village. (name1) wants the whole village to work together and fix every hut in one long day, singing. (name2) says some families have no roof at all and should come first. What should the village do?
+
+One Long Day:
+
+The whole village works from dawn to dusk, hut to hut, singing the rebuilding song. By sunset every hut has a roof. Everyone is exhausted and covered in mud. It is a good day. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+The Worst First:
+
+The village fixes the roofless huts first. It takes a week to get to everyone. Some families with leaky roofs wait and grumble. The roofless families sleep dry from the first night. [effect: small Building skill for (name2)] [Solidarity: neutral]
+
+==========================================================================
+LCH-32. The Harvest for the Hungry
+(picks two farmers)
+
+Some families had a terrible season: sickness, a lost canoe, a garden washed away. (name1) wants every farmer to set aside part of the harvest for them. (name2) has had a poor year too, and would rather give what (he/she) can, when (he/she) can. What should the farmers do?
+
+Set It Aside:
+
+Every farmer sets aside a share. It is left in the meeting hut, and families in need take it at night, so nobody has to be seen taking. Nobody goes hungry. (name2) gives less than the rest and nobody asks why. [effect: small food loss] [Solidarity: raise]
+
+Each Farmer Decides:
+
+Each farmer gives what they choose. Some give a lot. Some give nothing. Two families have a very hard month. (name1) gives most of (his/her) own harvest away, and goes hungry (him/her)self for a while. [effect: small food loss] [Solidarity: neutral]
+
+==========================================================================
+LCH-33. The Village Tool Basket
+(picks two adults)
+
+(name1) has noticed that every family has one good adze, one good knife, one good digging stick, and uses them twice a month. (He/she) wants one big shared tool basket, with rules for borrowing. (name2) says nobody will clean anything and the tools will vanish. What should the village do?
+
+Share With Rules:
+
+The shared basket is set up, with a keeper and rules: return it clean, return it by dark. In the first month, three tools vanish and one is returned covered in fish. After that, people get the hang of it. Everyone has better tools than before. [effect: small Building skill for (name1); small Farming skill for (name2)] [Solidarity: raise]
+
+Keep Tools in Families:
+
+Families keep their own tools. Nothing vanishes. Families with good tools do well; families without borrow quietly from friends. (name1) starts lending (his/her) own to anyone who asks. [Solidarity: neutral]
+
+==========================================================================
+LCH-34. The Song of Working Together
+(picks two builders)
+
+The new hearth stone is enormous, and it has to be moved from the beach to the meeting hut. (name1) wants everyone to pull on ropes to a work song, all together. (name2) has worked out a system of log rollers that might make it easy. What should they try?
+
+The Work Song:
+
+Forty villagers pull on ropes to (name1)'s song. The stone moves a stride with every chorus. It takes all day. Everyone's hands are raw and everyone is singing. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+The Rollers:
+
+(name2)'s rollers work beautifully, and the stone glides up the beach. Then the slope begins, and it glides back down. In the end, they use the rollers and the song. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCH-35. The Bridge for Everyone
+(picks two adults)
+
+The only way across the stream is a line of slippery stepping stones. (name1), who uses a crutch, has stopped crossing to the far gardens. So have several elders and all the smallest children. (name2) knows how to build. What should (name2) build?
+
+A Wide Bridge:
+
+(name2) and a dozen helpers build a wide, flat bridge with rails on both sides. It takes a month. (name1) is the first across. Everyone uses it, even people who used to hop the stones for fun. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+A Rail by the Stones:
+
+(name2) builds a rope rail along the stones, quickly. It helps a little. (name1) can cross on dry days. On wet days, (he/she) still cannot. (name2) starts on the bridge the next season. [effect: small Building skill for (name2)] [Solidarity: neutral]
+
+==========================================================================
+LCH-36. The Healer's Mistake
+(picks a healer and an adult)
+
+(name1), the village's most respected healer, gave (name2) a bitter root for a stomach ache, mixed up with a different root. (name2) was sick for three days. (name2) is better now. (name1) is shaken. What should (name1) do?
+
+Admit It Publicly:
+
+(name1) tells the gathering what happened and how (he/she) will make sure it never happens again: roots kept apart, labeled with carved sticks. Some people trust (him/her) less. More people trust (him/her) more. (name2) says it took courage. [effect: small Healing skill for (name1)] [Solidarity: raise]
+
+Quietly Change the Practice:
+
+(name1) apologizes to (name2) privately and quietly reorganizes the healing hut. Nobody else knows. (name2) is satisfied. (name1) still wakes at night thinking about it. [effect: small Healing skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCH-37. The Family That Needed Silence
+(picks two adults)
+
+(name2)'s grandmother is very ill, and the family has been sitting with her day and night. (name1) and the neighbors want to gather and sing outside the hut, to comfort them. (name1) is not sure the family wants that. What should (name1) do?
+
+Sing Softly:
+
+The neighbors sing very softly at sunset. The family opens the door to listen. The grandmother hears it too, and smiles. Afterwards (name2) says it was lovely, and asks if, next time, they could also bring water. [Solidarity: raise]
+
+Ask What They Need:
+
+(name1) asks (name2). (name2) says the family would like quiet, and someone to fetch water and cook. The neighbors do exactly that, silently, for two weeks. It is not a song. It is better. [Solidarity: raise]
+
+==========================================================================
+LCH-38. The Roof Built for the Rain
+(picks two builders)
+
+The last storm tore the roofs off five huts. (name1) wants every new roof built steeper, so the rain runs off and the wind cannot grab it. (name2) says steep roofs make the huts unbearably hot in summer, and wants wide eaves and gaps to let the air through. What should they build?
+
+Steep Roofs:
+
+The new roofs are steep. They survive the next storm. In summer, the huts are like ovens, and people sleep outside. (name1) adds a few small gaps under the eaves, quietly. [effect: small Building skill for (name1)] [Solidarity: neutral]
+
+Wide and Cool:
+
+The new roofs are wide, with gaps for the breeze. The huts are cool all summer. The next storm lifts one roof. (name2) ties the gaps shut in storm season. Both of them learn something. [effect: small Building skill for (name2); small Research skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCH-39. The Village's Water Channels
+(picks a farmer and a builder)
+
+(name1) wants water channels from the stream to the dry gardens. (name2), who builds, says a straight channel would be fastest. (name1) says water does not like straight lines, and the channel should follow the land. What should they dig?
+
+Follow the Slope:
+
+The channel winds across the hillside like a snake. It takes twice as long to dig. The water flows smoothly into every garden. (name2) admits the water seems to like it. [effect: small Farming skill for (name1); small Building skill for (name2)] [Solidarity: raise]
+
+Straight and Fast:
+
+The straight channel is dug in a week. The water rushes down it, overflows at the bend and floods the bean garden. They fix it. It ends up winding after all. [effect: small food loss] [Solidarity: neutral]
+
+==========================================================================
+LCH-40. The Canoe Makers' Experiment
+(picks two canoe builders)
+
+(name1) has built three small test canoes with different hulls: one narrow, one wide, one with a strange curve. (name2) wants to measure them carefully in calm water. (name1) wants to race them. What should they do?
+
+Race Them:
+
+They race. The narrow one wins, the wide one comes second, and the curved one goes round in circles to great applause. They learn a lot. Mostly that the curve was a mistake. [effect: small Building skill for (name1); everyone celebrates] [Solidarity: raise]
+
+Test Them Carefully:
+
+They test each canoe in calm water with the same load, counting paddle strokes. It takes days. The curved one turns out to be the most stable in a swell. Nobody would have guessed. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCH-41. The Festival of Makers
+(picks a weaver and a potter)
+
+(name1) has woven a new pattern celebrating the year the village rebuilt after the storm. (name2), a potter, wants a festival just for makers, where everyone shows their work and swaps techniques. Others say it can wait for the harvest feast. What should they do?
+
+A Festival of Makers:
+
+The festival is a great success. Sculptors, potters, weavers and carvers show off and steal each other's tricks. (name1)'s pattern is the talk of the day. A child shows a very lumpy pot and is cheered just as loudly. [effect: small Building skill for (name1); everyone celebrates] [Solidarity: raise]
+
+At the Harvest Feast:
+
+(name1) hangs the new pattern at the harvest feast. People admire it between mouthfuls. It is nice. (name2) still thinks the makers deserve their own day, and starts planning it for next year. [Solidarity: neutral]
+
+==========================================================================
+LCH-42. The Painting That Told the Truth
+(picks an artist and an elder)
+
+(name1) has painted the long wall of the meeting hut with the story of the year of the great hunger, long ago: the empty gardens, the families who left, the ones who stayed. It is beautiful and very sad. (name2) says the meeting hut should have happy pictures. What should the village do?
+
+Keep the Painting:
+
+The painting stays. People stop in front of it, quiet. Children ask what happened, and are told. Some elders cry in front of it. Some are glad it is finally said. (name2) comes to like it, slowly. [effect: small tech gain] [Solidarity: neutral]
+
+Ask for Something Celebratory:
+
+(name1) paints over part of it with the year of the great harvest that followed. The hunger is still there, at one end, smaller. The two stories sit side by side. (name1) thinks that is a lie of balance. (name2) thinks it is hope. [Solidarity: neutral]
+
+==========================================================================
+LCH-43. The Craft That Nearly Vanished
+(picks an elder and a teen)
+
+(name1) is the last person who knows how to carve the old festival masks, and (his/her) hands are getting stiff. (name2) wants to learn, but also wants to carve masks about (his/her) own life, which (name1) says are not proper masks. What should they do?
+
+Learn the Old Masks:
+
+(name2) learns the old way, every cut and curve. It takes two years. (name1) is fierce and patient. At the festival, (name2)'s first old mask is worn, and nobody can tell it was not carved by (name1). [effect: small Building skill for (name2)] [Solidarity: raise]
+
+Both Old and New:
+
+(name2) learns the old masks and carves new ones too: a mask of (his/her) grandmother, a mask of a storm, a mask of the little sister who cries a lot. (name1) is doubtful. At the festival, the new masks are worn beside the old. Nobody minds. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCH-44. The Stars Above Our Homes
+(picks a researcher and a navigator)
+
+(name1) counts the seasons by the stars, (name2) the navigator counts them by the swells and winds, and the farmers count them by the flowers. They often disagree by a week or two. (name1) wants to combine all three into one calendar, carved in a pattern like a woven basket. What should they do?
+
+Combine Them:
+
+They work for a season, comparing notes every night. The calendar they carve is complicated and very beautiful, a spiral of stars, waves and flowers. It is more accurate than any of the three alone. Only four people can read it. [effect: small Research skill for (name1); small tech gain] [Solidarity: raise]
+
+Keep Separate Calendars:
+
+They keep their own ways. The farmers plant by the flowers, the navigators sail by the swells. When all three agree, the village knows something big is coming. That happens twice a year, and it is always right. [Solidarity: neutral]
+
+==========================================================================
+LCH-45. The Night of Quiet Reflection
+(picks two adults)
+
+(name1) has proposed a night of quiet once a moon, when everyone can do whatever gives their life meaning: pray, sit by the sea, remember the dead, look at the stars. (name2) has said (he/she) would rather just sleep. Some people are offended. What should (name1) do?
+
+Welcome Every Way:
+
+(name1) says sleeping counts. The night of quiet is held. Some pray, some sing softly, some sit together, and (name2) sleeps soundly. Everyone agrees it is the most peaceful night of the moon. [Solidarity: raise]
+
+Invite Them Anyway:
+
+(name1) asks (name2) to come and just sit. (name2) comes, and falls asleep on the beach, under the stars. (name1) puts a blanket over (him/her) and leaves (him/her) there. (name2) says it was the best sleep (he/she) has ever had. [Solidarity: raise]
+
+==========================================================================
+LCH-46. The Sacred Grove's Future
+(picks two adults)
+
+Some villagers want to cut the old grove for a new canoe house. (name1) wants it protected because spirits live there. (name2) wants it protected because the birds nest there and the soil holds the hill together. Their reasons are completely different. Their aim is the same. What should they do?
+
+Protect It Together:
+
+(name1) and (name2) stand together at the gathering, each giving their reasons. The village agrees: the grove stays. Afterwards they argue cheerfully about whose reason was better. The canoe house is built on the beach instead. [Solidarity: raise]
+
+Argue Over Why:
+
+They argue so much about whose reason is right that the gathering loses patience. The decision is delayed a month. The grove is still saved, in the end, by a vote. (name1) and (name2) are not on speaking terms for a week. [Solidarity: lower]
+
+==========================================================================
+LCH-47. The Great Coconut Debate
+(picks two adults)
+
+(name1) opens coconuts with a single blow of a rock. (name2) uses a sharpened stick and twelve careful taps. They have been arguing about the right way for an entire afternoon, and now half the village has joined in. What should settle it?
+
+Hold a Contest:
+
+A contest is held: ten coconuts each. (name1) smashes three into pieces. (name2) taps so carefully that (he/she) runs out of daylight. A grandmother wins, using her teeth, which nobody approves of. [effect: everyone celebrates] [Solidarity: raise]
+
+Let a Child Show Them:
+
+A small child walks over, drops a coconut on a pointed rock at exactly the right angle, and it splits perfectly in two. Silence. Then everyone tries it. Nobody can do it except the child. [Solidarity: raise]
+
+==========================================================================
+LCH-48. The Festival of Terrible Singing
+(picks two adults)
+
+(name1) has proposed a festival where everyone must sing, no matter how terrible their voice. (name2) has a famously awful voice and is horrified. The elders are worried about their ears. The children have already started planning a prank involving a giant fake fish. What should happen?
+
+Hold the Festival:
+
+The festival is glorious and dreadful. (name2) sings a solo that sends the birds out of the trees, and gets the biggest cheer of the night. The children's giant fish is upstaged by the elders, who arrive dressed as a whale. [effect: everyone celebrates] [Solidarity: raise]
+
+Spare the Elders:
+
+The festival is held on the far beach, far from the elders' huts. The elders come anyway, and hold a storytelling duel about who has heard the worst singing. The children's fish prank goes perfectly. [effect: everyone celebrates] [Solidarity: raise]
+
+==========================================================================
+LCH-49. The Family Seeking Shelter
+(picks two adults)
+
+A family whose island was battered by a great storm has arrived in a damaged canoe, with nothing but each other. They ask to camp near the village until they can go home. (name1) wants to bring them right into the village. (name2) thinks they might prefer a camp of their own, and some peace. What should the village do?
+
+Welcome Them In:
+
+The family is given space in the village and food from every hut. They are grateful and overwhelmed. Over a season, working side by side in the gardens, they become neighbors. When their island is rebuilt, half of them go home. Half stay. [effect: small food loss] [Solidarity: raise]
+
+Help Them Build a Camp:
+
+The village helps them build a camp by the far beach, with supplies and visits whenever they want them. The family keeps its own ways and its own fire. They come to the village feasts and go back to their camp. When they leave, they leave a carved post in thanks. [effect: small food loss] [Solidarity: raise]
+
+==========================================================================
+LCH-50. The Names We Carry
+(picks an elder and an adult)
+
+(name1) wants a memorial wall carved with the names of everyone the village has lost, across all the generations anyone can remember. (name2) says the village should also tell how it survived the bad years, and what it would do differently. What should the village do?
+
+Carve the Wall:
+
+The wall takes a year. Every family comes to add names. Some names have no family left to add them, and (name1) adds them. People come to the wall to sit. It is not a sad place. It is a full one. [effect: small Building skill for (name1)] [Solidarity: neutral]
+
+Tell the Story:
+
+(name2) and the elders hold a night of telling: the bad years, the hunger, the storms, what the village did right and what it did wrong. The young people listen closely. Some of it becomes the village's rules for bad years. [effect: small tech gain] [Solidarity: raise]
+
+==========================================================================
+NOTES FOR THE OWNER
+- LCH-01: Concepts V4-301, V4-303. Self-representation. Review: 15/15 pass (dignity; no outsider confirmed beyond visitors)
+- LCH-02: Concepts V4-302, V4-308. Review: 15/15 pass (family consent)
+- LCH-03: Concepts V4-304, V4-397. Review: 15/15 pass (children's voices valued)
+- LCH-04: Concepts V4-305, V4-309. Review: 15/15 pass (permission and acknowledgment)
+- LCH-05: Concepts V4-306, V4-310. Review: 15/15 pass (restitution; no violence)
+- LCH-06: Concept V4-307, D5-3. Review: 15/15 pass (community consent; both views reasonable)
+- LCH-07: Concepts V4-311, V4-312. Review: 15/15 pass (consent in research; accountability)
+- LCH-08: Concepts V4-313, V4-337. Review: 15/15 pass (both knowledges useful)
+- LCH-09: Concepts V4-314, V4-315. Review: 15/15 pass (knowledge shared)
+- LCH-10: Concept V4-316. Review: 15/15 pass (dignity; nobody humiliated)
+- LCH-11: Concepts V4-317, V4-353. Review: 15/15 pass (care; tiredness not neglect)
+- LCH-12: Concept V4-318. Review: 15/15 pass (reform debated; the chief not villainized)
+- LCH-13: Concepts V4-319, V4-348. Review: 15/15 pass (opportunity; no stereotypes)
+- LCH-14: Concepts V4-320, V4-351. Review: 15/15 pass (consent in care)
+- LCH-15: Concepts V4-321, V4-396, V4-400. Review: 15/15 pass (youth voice; adults accountable)
+- LCH-16: Concepts V4-322, V4-328. Review: 15/15 pass (joyful language revival)
+- LCH-17: Concepts V4-323, V4-398. Review: 15/15 pass (chaotic joy)
+- LCH-18: Concept V4-324. Review: 15/15 pass (questions welcome; the old way may have reasons)
+- LCH-19: Concepts V4-325, V4-332. Review: 15/15 pass (cost of conservation)
+- LCH-20: Concepts V4-326, V4-330. Review: 15/15 pass (language and place)
+- LCH-21: Concept V4-327, softened: a chosen byname used alongside the villager's name (the game shows the name; a full renaming needs the chosen-name role this format lacks). Review: 15/15 pass (identity respected; no forced explanation)
+- LCH-22: Concepts V4-329, V4-344. Review: 15/15 pass (honesty vs peace; both reasonable)
+- LCH-23: Concepts V4-331, V4-334. Review: 15/15 pass (seed sovereignty; joy)
+- LCH-24: Concepts V4-333, V4-391, V4-395. Review: 15/15 pass (community decides its future)
+- LCH-25: Concept V4-335. Review: 15/15 pass (culinary memory)
+- LCH-26: Concepts V4-336, V4-384, V4-394. Review: 15/15 pass (peaceful defense; practical protection)
+- LCH-27: Concepts V4-338, V4-340. Review: 15/15 pass (stewardship)
+- LCH-28: Concept V4-339. Review: 15/15 pass (peaceful action; tradeoffs)
+- LCH-29: Concepts V4-341, V4-343. Review: 15/15 pass (hospitality without surrender)
+- LCH-30: Concepts V4-342, V4-345, V4-392, V4-399. Review: 15/15 pass (shared and separate identities)
+- LCH-31: Concepts V4-346, V4-387, V4-390. Review: 15/15 pass (mutual aid)
+- LCH-32: Concept V4-347. Review: 15/15 pass (no shaming of those in need)
+- LCH-33: Concept V4-349. Review: 15/15 pass (practical sharing)
+- LCH-34: Concept V4-350. Review: 15/15 pass (joy in work)
+- LCH-35: Concepts V4-352, V4-360. Review: 15/15 pass (accessibility for all)
+- LCH-36: Concepts V4-354, V4-393. Review: 15/15 pass (mistakes owned, not shamed)
+- LCH-37: Concepts V4-355, V4-389. Review: 15/15 pass (the family's wishes first)
+- LCH-38: Concepts V4-356, V4-359. Review: 15/15 pass (experiment and learning)
+- LCH-39: Concept V4-357. Review: 15/15 pass (cooperation)
+- LCH-40: Concepts V4-358, V4-369. Review: 15/15 pass (experimentation; fun)
+- LCH-41: Concepts V4-361, V4-365. Review: 15/15 pass (pride in craft)
+- LCH-42: Concept V4-362, D5-1. Past harm implied only. Review: 15/15 pass (history not erased; nothing graphic)
+- LCH-43: Concepts V4-363, V4-364. Review: 15/15 pass (tradition and new expression)
+- LCH-44: Concepts V4-366, V4-367, V4-368, V4-370. Inspiration: Indigenous astronomy and counting systems (purpose only). Review: 15/15 pass (several knowledges combined)
+- LCH-45: Concepts V4-371, V4-372, V4-375. Review: 15/15 pass (freedom of belief and participation)
+- LCH-46: Concepts V4-373, V4-374. Review: 15/15 pass (shared action, different reasons)
+- LCH-47: Concepts V4-376, V4-379. Review: 15/15 pass (pure humor)
+- LCH-48: Concepts V4-377, V4-378, V4-380. Review: 15/15 pass (joy; no mockery)
+- LCH-49: Concepts V4-381, V4-382, V4-383, V4-385. Displaced people with dignity. Review: 15/15 pass (refugees with agency; no pity)
+- LCH-50: Concepts V4-386, V4-388. Review: 15/15 pass (remembrance; lessons without blame)

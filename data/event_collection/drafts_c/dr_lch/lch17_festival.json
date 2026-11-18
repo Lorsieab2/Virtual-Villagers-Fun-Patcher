@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Designed by Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch17_festival",
+  "source": "draft_lch",
+  "lines": [
+   232,
+   243
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children and an adult)"
+   },
+   {
+    "src": "L239",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The children are allowed to plan the festival themselves: let them do everything, or help a little.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This year, the village has agreed to let (subject), (friend) and the other children plan the festival. Their plan includes a race backwards, a feast of only sweet things, and a new tradition where everyone must wear a fish on their head. (third) is supposed to oversee it. What should (third) do?",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Let Them Do Everything",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Help a Little",
+     "next": "o2",
+     "src": "L241"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) lets them. The festival is chaos. Everyone wears a fish on their head. The feast gives everyone a stomach ache. The backwards race has eleven collisions. It is the best festival in years, and the fish hat becomes a tradition.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L239"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L239"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) quietly adds some real food and turns the fish hats into fish-shaped hats made of leaves. The children are slightly annoyed. The festival is fun and much less smelly.",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L243"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L243"
+    }
+   ]
+  }
+ }
+}

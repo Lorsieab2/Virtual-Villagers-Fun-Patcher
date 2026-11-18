@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song That Belongs to Someone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch04_song_belongs",
+  "source": "draft_lch",
+  "lines": [
+   50,
+   61
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two musicians)"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L61",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A visitor wants to buy a song another family taught a musician in private: ask the family, or sell it anyway.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend)'s family once taught (subject) a beautiful song, in private, at a funeral. (subject) has been singing it on the beach, and now a visiting performer wants to buy the right to sing it on other islands. (subject) is excited. (friend) is not. What should (subject) do?",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "Ask the Family",
+     "next": "o1",
+     "src": "L55"
+    },
+    {
+     "label": "Perform It Anyway",
+     "next": "o2",
+     "src": "L59"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks (friend)'s family. They say the song is not for sale, and not for the beach either. (subject) is embarrassed and agrees. The family later teaches (subject.him/her) another song, one that can be sung anywhere.",
+   "src": "L57"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sells the song to the visitor. The visitor sings it on six islands. (friend)'s family hears about it and stops speaking to (subject) for a long time. The tools from the sale are very good. (subject) does not enjoy them.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L61"
+    }
+   ]
+  }
+ }
+}

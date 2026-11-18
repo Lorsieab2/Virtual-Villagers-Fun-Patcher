@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Terrible Singing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch48_festival",
+  "source": "draft_lch",
+  "lines": [
+   666,
+   677
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L666",
+  "ledger": [
+   {
+    "src": "L667",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L673",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L673",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L677",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L677",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A festival where everyone sings, however badly: hold it, or fear the elders' ears.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has proposed a festival where everyone must sing, no matter how terrible their voice. (friend) has a famously awful voice and is horrified. The elders are worried about their ears. The children have already started planning a prank involving a giant fake fish. What should happen?",
+   "src": "L669",
+   "choices": [
+    {
+     "label": "Hold the Festival",
+     "next": "o1",
+     "src": "L671"
+    },
+    {
+     "label": "Spare the Elders",
+     "next": "o2",
+     "src": "L675"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The festival is glorious and dreadful. (friend) sings a solo that sends the birds out of the trees, and gets the biggest cheer of the night. The children's giant fish is upstaged by the elders, who arrive dressed as a whale.",
+   "src": "L673",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L673"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The festival is held on the far beach, far from the elders' huts. The elders come anyway, and hold a storytelling duel about who has heard the worst singing. The children's fish prank goes perfectly.",
+   "src": "L677",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L677"
+    }
+   ]
+  }
+ }
+}

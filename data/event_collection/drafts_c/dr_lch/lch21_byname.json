@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Byname",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch21_byname",
+  "source": "draft_lch",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager asks to be known by a byname they chose for themselves: honor it, or ask why.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has asked the village to call (subject.him/her) by a byname (subject.he/she) has chosen for (subject.him/her)self: Sunfisher. (subject.He/she) says it fits who (subject.he/she) is now. (friend), (subject.his/her) grandparent, gave (subject.him/her) (subject.his/her) name and is a little hurt. What should (friend) do?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Honor It",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "Ask Why",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) calls (subject.him/her) Sunfisher at the very next meal, a little stiffly. By the end of the season, it comes naturally. (subject) still answers to both. (subject.He/she) says the name (friend) gave (subject.him/her) is the one (subject.he/she) keeps closest.",
+   "src": "L295"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks, gently, why. (subject) explains, or explains part of it. (friend) listens, and accepts it, and does not ask for more. From then on, (friend.he/she) calls (subject.him/her) Sunfisher.",
+   "src": "L299"
+  }
+ }
+}
