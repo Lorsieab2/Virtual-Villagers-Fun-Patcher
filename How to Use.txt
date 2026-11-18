@@ -621,7 +621,7 @@ unlimited again. Not yet tested in a running game.
 
 CLOTH SACKS FOR YELLOW FRUIT (THE TREE OF LIFE)
 
-Off by default; Owner's Defaults ticks it. Once the Clothing Hut is finished
+On by default. Once the Clothing Hut is finished
 and the Cooking Pit is restored, drop an adult on the left side of the
 Clothing Hut, under its awning. The villager takes one cloth bolt, makes a
 sack ("Making a sack out of cloth"), carries the empty sack to the yellow

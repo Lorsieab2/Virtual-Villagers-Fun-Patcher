@@ -440,7 +440,7 @@ class RowTests(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text(encoding="utf-8")), builder.row(builder.sha(DLL)))
         row = json.loads((ROOT / "data" / f"{ID}_feature.json").read_text(encoding="utf-8"))
         self.assertIn("**Needs no other patch.**", row["description"])
-        self.assertIn("**Off by default; Owner's Defaults ticks it.**", row["description"])
+        self.assertIn("**On by default (and in Owner's Defaults).**", row["description"])
         self.assertEqual([f["destination"] for f in row["companion_files"]],
                          ["VVFP VV4 Cloth Sacks.dll", "Images/vvfp_sack_empty.png", "Images/vvfp_sack_yellow_fruit_raw.png",
                           "Images/vvfp_sack_yellow_fruit.png"])
@@ -450,10 +450,12 @@ class RowTests(unittest.TestCase):
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('"VVFP VV4 Cloth Sacks.dll"', header)
 
-    def test_off_by_default_and_on_in_owners_defaults(self) -> None:
+    def test_on_by_default_and_in_owners_defaults(self) -> None:
+        # The owner (2026-11-18): "Cloth Sacks for Yellow Fruit must be ON BY DEFAULT".
         import vv_fun_patcher_gui as gui
-        self.assertIn(ID, gui.DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertNotIn(ID, gui.DEFAULT_OFF_FUN_PATCH_IDS)
         self.assertNotIn(ID, gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertNotIn(ID, gui.SELECT_ALL_OFF_FUN_PATCH_IDS)
 
     def test_the_captions_fit_the_villagers_caption_field(self) -> None:
         source = (ROOT / "native" / "vvfp_vv4_cloth_sacks" / "vvfp_vv4_cloth_sacks.c").read_text(encoding="utf-8")

@@ -334,7 +334,7 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
 # them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_vv4_louder_wind_flutes_feature.py.
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
-# Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; off by default, on in Owner's Defaults): a
+# Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; on by default since 2026-11-18): a
 # villager dropped under the Clothing Hut's awning makes a sack from a cloth bolt and brings 30 yellow fruit to the
 # food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll", started by VVFP
 # Startup.dll from its second word;

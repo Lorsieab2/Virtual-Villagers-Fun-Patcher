@@ -4,8 +4,8 @@ The owner (2026-11-17): the Clothing Hut's extra cloth bolts get a use -- an adu
 Clothing Hut, under its awning, makes a sack from one bolt, gathers the yellow fruit in it and brings 30 fruit to
 the food bin, working "like the cutting tool on the blackberries in every respect".  Then: "farmers should never use cutting
 tools or sacks on their own" (only a villager the player drops makes a sack) and "if the cutting tools allow
-harvesting with less than 3 fruit, so should the sacks" (no fruit check at the drop).  Off by default, on in
-Owner's Defaults.
+harvesting with less than 3 fruit, so should the sacks" (no fruit check at the drop).  On by default (the owner,
+2026-11-18) and in Owner's Defaults.
 
 "VVFP VV4 Cloth Sacks.dll" (native/vvfp_vv4_cloth_sacks) does it at run time, started by VVFP Startup.dll from its
 second word; its source says what it changes and why.  tests/test_vv4_cloth_sacks.py proves it by emulation.
@@ -110,7 +110,7 @@ def description() -> str:
         "the villager refuses as at the tree (\"There is no more room in the cooking pit!\") and no cloth is used; "
         "the villager's place at the pit is kept from the drop, so the pit cannot fill up while the sack is made. Only a villager you drop at the hut makes a sack: farmers who "
         "decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are drawn with Lorsieab2's art, the size of the game's other carried items: the empty sack, the sack of shaken fruit carried to the Cooking Pit and the sack of cooked fruit carried to the food bin, all three at one scale and standing on one line, so the sack itself is the same size in every state. Nothing is written to the save or anywhere else. "
-        "**Needs no other patch.** **Off by default; Owner's Defaults ticks it.** **Unverified in play: the effect "
+        "**Needs no other patch.** **On by default (and in Owner's Defaults).** **Unverified in play: the effect "
         f"has not been tested live.** The companion is \"{DLL_NAME}\", started by VVFP Startup.dll; if the DLL "
         "cannot be loaded, the stock game runs."
     )

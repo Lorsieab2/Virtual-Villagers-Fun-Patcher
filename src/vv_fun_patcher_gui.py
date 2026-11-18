@@ -226,9 +226,6 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Yellow Breadfruit Refills Partially Every Time (The Tree of Life; the owner, 2026-11-11): off by default and
     # off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv4_yellow_fruit_refills_partially"]
-    # Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17): off by default, on in Owner's Defaults,
-    # which ticks it like every default-off patch it does not name.
-    + ["vv4_cloth_sacks_for_yellow_fruit"]
     # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life; the owner, 2026-11-17): off by default, on in Owner's
     # Defaults.
     + ["vv4_up_to_99_supplies"]
