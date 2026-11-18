@@ -91,7 +91,8 @@ class Emulated(unittest.TestCase):
                 with self.subTest(game=game, caller=hex(va)):
                     self.assertEqual(data[o], 0xE8)
                     self.assertEqual(va + 5 + struct.unpack_from("<i", data, o + 1)[0], SITES[game])
-                    self.assertEqual(data[o + 5:o + 8], b"\x84\xC0\x75")    # test al, al; jne skip
+                    self.assertEqual(data[o + 5:o + 7], b"\x84\xC0")    # test al, al; jne skip (short or near)
+                    self.assertTrue(data[o + 7] == 0x75 or data[o + 7:o + 9] == b"\x0F\x85")
 
 
 class Rows(unittest.TestCase):
@@ -131,7 +132,8 @@ class Rows(unittest.TestCase):
                 for p in feature.raw.get("patches", []):
                     start = int(p["offset"], 16) + 0x400000
                     with self.subTest(row=feature.id):
-                        self.assertTrue(start + len(p["after"]) // 2 <= va or va + 5 <= start)
+                        self.assertTrue(start + max(len(p.get("after", "")), len(p.get("before", ""))) // 2 <= va
+                                        or va + 5 <= start)
 
 
 if __name__ == "__main__":
