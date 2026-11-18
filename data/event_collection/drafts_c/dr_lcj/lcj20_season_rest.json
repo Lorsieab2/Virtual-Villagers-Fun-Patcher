@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Season of Rest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj20_season_rest",
+  "source": "draft_lcj",
+  "lines": [
+   278,
+   289
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L278",
+  "ledger": [
+   {
+    "src": "L279",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two farmers)"
+   },
+   {
+    "src": "L285",
+    "kind": "instruction",
+    "text": "[effect: small food loss; small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L289",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L289",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Farmers suggest letting tired soil rest a season despite a smaller harvest: rest it, or keep planting.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) says the old gardens are exhausted and should rest for a whole season under leaves and fish bones. (friend) says the village cannot afford a smaller harvest this year, with so many new babies. What should they do?",
+   "src": "L281",
+   "choices": [
+    {
+     "label": "Rest the Soil",
+     "next": "o1",
+     "src": "L283"
+    },
+    {
+     "label": "Keep Planting",
+     "next": "o2",
+     "src": "L287"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Half the gardens rest. It is a lean season. The next year, the rested gardens give twice as much. (friend) admits it, eventually, while eating very large taro.",
+   "src": "L285",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L285"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L285"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The gardens are planted again. The harvest is small and getting smaller. (subject) quietly rests one corner on (subject.his/her) own. Next year, everyone can see the difference.",
+   "src": "L289",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L289"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Journey Alone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj06_journey_alone",
+  "source": "draft_lcj",
+  "lines": [
+   78,
+   89
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L78",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen and a parent)"
+   },
+   {
+    "src": "L85",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen wants to walk alone to the far side of the island for the first time: let them go, or send someone to follow at a distance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 15,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 35
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to walk alone to (subject.his/her) cousins on the far side of the island: two days' walk, through the forest and over the ridge. (subject.He/she) is sixteen and knows the path. (friend), (subject.his/her) parent, is frightened. What should (friend) do?",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Let (subject) Go",
+     "next": "o1",
+     "src": "L83"
+    },
+    {
+     "label": "Follow at a Distance",
+     "next": "o2",
+     "src": "L87"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) packs food, says the path twice, and lets (subject) go. Two terrible days later, word comes back that (subject) arrived, sunburned and proud. (friend) sleeps for twelve hours.",
+   "src": "L85",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L85"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) secretly asks a fisher to follow (subject) at a distance. (subject) notices on the first morning, and is furious. They have a long talk when (subject.he/she) gets home, about trust. The next time, nobody follows.",
+   "src": "L89"
+  }
+ }
+}

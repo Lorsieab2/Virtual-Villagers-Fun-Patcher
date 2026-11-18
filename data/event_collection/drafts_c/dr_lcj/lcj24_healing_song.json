@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healing Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj24_healing_song",
+  "source": "draft_lcj",
+  "lines": [
+   334,
+   345
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L334",
+  "ledger": [
+   {
+    "src": "L335",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer and an adult)"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L345",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1); small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L345",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Neighbors want to sing outside the healing hut for a sick friend: let them, or ask them to tend the herb garden instead.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend)'s best friend is very sick in the healing hut, and (friend) and a dozen neighbors want to sing outside the door every evening. (subject), the healer, says the patient needs sleep, and that the herb garden badly needs tending. What should happen?",
+   "src": "L337",
+   "choices": [
+    {
+     "label": "Sing Softly Outside",
+     "next": "o1",
+     "src": "L339"
+    },
+    {
+     "label": "Tend the Herb Garden",
+     "next": "o2",
+     "src": "L343"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The neighbors sing very softly at sunset, for one song only. The patient smiles, then sleeps. (subject) admits it does no harm, and might do good.",
+   "src": "L341"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) and the neighbors tend the herb garden instead, every evening, singing as they weed. The herbs grow strong. Some of them go into the patient's medicine. (friend) says that is a song too.",
+   "src": "L345",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L345"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L345"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,257 @@
+LCJ-01
+DESC: An elder remembers an old word nobody else knows, and nobody agrees what it means: guess together, or ask the children to use it.
+ROLES: name1=55+ name2=6-13
+REVIEW: 15/15 pass (language play; joy)
+
+LCJ-02
+DESC: The children have invented a secret language of words and signs: let them keep it, or ask them to teach it.
+ROLES: name1=6-13 name2=6-13
+REVIEW: 15/15 pass (children's creativity)
+
+LCJ-03
+DESC: A villager who does not speak has a story for the gathering: let them tell it their way, or have a friend speak it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no pity; their own way)
+
+LCJ-04
+DESC: Relatives want to bring blessings, stories and practical gifts to a new adopted child: bring them all at once, or one at a time.
+ROLES: name1=18+ name2=55+
+FIX O1: 1=s
+REVIEW: 15/15 pass (adoption celebrated)
+
+LCJ-05
+DESC: The children hold their own meeting about play areas and chores: take their ideas seriously, or treat it as a game.
+ROLES: name1=8-13 name2=18+
+REVIEW: 15/15 pass (children heard)
+
+LCJ-06
+DESC: A teen wants to walk alone to the far side of the island for the first time: let them go, or send someone to follow at a distance.
+ROLES: name1=15-17 name2=35+
+FIX S: 3=1
+REVIEW: 15/15 pass (teen autonomy; parental worry respected)
+
+LCJ-07
+DESC: The village debates whether adulthood comes with age, a test, or personal choice: keep the age, or let each person show it.
+ROLES: name1=55+ name2=14-17
+REVIEW: 15/15 pass (traditions can change)
+
+LCJ-08
+DESC: Children revive an old stone game but change all the rules: let them, or teach the old rules.
+ROLES: name1=6-13 name2=6-13 name3=55+
+REVIEW: 15/15 pass (tradition evolves)
+
+LCJ-09
+DESC: A child has found a better way to catch crabs that the adults ignored: let the child show everyone, or test it first.
+ROLES: name1=6-13 name2=18+
+REVIEW: 15/15 pass (a child can be right)
+
+LCJ-10
+DESC: An old builder insists on climbing roofs despite a recent fall: let them keep working, or find a safer job together.
+ROLES: name1=60+ name2=18+
+FIX S: 2=1 3=1
+REVIEW: 15/15 pass (the elder's autonomy and safety)
+
+LCJ-11
+DESC: The village wants to celebrate an elder's long life: hold the celebration, or ask the elder about the future.
+ROLES: name1=70+ name2=18+
+FIX S: 1=1 2=1
+REVIEW: 15/15 pass (elders keep growing)
+
+LCJ-12
+DESC: An old net-maker finds a former student has a better knot: learn it, or keep their own way.
+ROLES: name1=55+ name2=18+
+FIX S: 1=2
+REVIEW: 15/15 pass (humility without humiliation)
+
+LCJ-13
+DESC: Old villagers who feel overlooked start their own evening circle: keep it to themselves, or invite the young.
+ROLES: name1=55+ name2=55+
+REVIEW: 15/15 pass (elders' belonging)
+
+LCJ-14
+DESC: A respected elder realizes their advice about the planting was wrong for years: admit it publicly, or quietly change the advice.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (elders can be wrong; dignity)
+
+LCJ-15
+DESC: Every household brings its favorite dish to the shared-labor festival and the arguments begin: judge the dishes, or just eat.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (joyful)
+
+LCJ-16
+DESC: A huge harvest must be divided among families with different needs: share equally, or by need.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fairness debated)
+
+LCJ-17
+DESC: A family has one breadfruit left and a hungry neighbor: eat it, save the seeds, or share it.
+ROLES: name1=18+ name2=6-13
+REVIEW: 15/15 pass (no choice shamed)
+
+LCJ-18
+DESC: Builders want timber from a grove that shelters birds and holds family memories: take a little, or leave it whole.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (tradeoffs)
+
+LCJ-19
+DESC: Children find rubbish piling up by the freshwater spring: organize a cleanup, or ask the adults to stop it at the source.
+ROLES: name1=6-13 name2=18+
+REVIEW: 15/15 pass (children act; adults accountable)
+
+LCJ-20
+DESC: Farmers suggest letting tired soil rest a season despite a smaller harvest: rest it, or keep planting.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (long-term vs short-term)
+
+LCJ-21
+DESC: The village debates how much to use now and how much to save for those not yet born: make a lasting rule, or decide each season.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (stewardship)
+
+LCJ-22
+DESC: Young healers want to make a promise about honesty and secrets: carve it in the hut, or let each speak their own.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (care ethics)
+
+LCJ-23
+DESC: A villager refuses the treatment a healer recommends: respect it, or try to persuade them.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (autonomy; no punishment)
+
+LCJ-24
+DESC: Neighbors want to sing outside the healing hut for a sick friend: let them, or ask them to tend the herb garden instead.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (both kinds of care)
+
+LCJ-25
+DESC: A family facing hardship will not ask for help: organize gifts openly, or leave them quietly.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (dignity of the family)
+
+LCJ-26
+DESC: A researcher's public demonstration goes completely wrong: laugh it off, or try again.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (failure without shame)
+
+LCJ-27
+DESC: Researchers and farmers both predict the weather and argue about whose way is better: compare their notes, or hold a contest.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (both knowledges)
+
+LCJ-28
+DESC: A researcher says what is learned in the research hut should be taught to everyone: open the hut, or teach outside.
+ROLES: name1=18+ name2=6-13
+REVIEW: 15/15 pass (knowledge shared)
+
+LCJ-29
+DESC: A promising invention proves useless: honor what was learned, or forget it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (failure valued)
+
+LCJ-30
+DESC: A weaver's new pattern tells the village's year: hang it in the meeting hut, or give it to the family who inspired it.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (shared art)
+
+LCJ-31
+DESC: A carver made a mask about their own life, and people think it belongs to an old ceremony: explain it, or let them believe.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (art's meaning belongs to its maker)
+
+LCJ-32
+DESC: A young sculptor wants to carve ordinary people instead of heroes for the village square: let them, or ask for a hero.
+ROLES: name1=18-25 name2=55+
+REVIEW: 15/15 pass (artistic freedom)
+
+LCJ-33
+DESC: A villager wears clothes that feel true to who they are, and a grandparent objects: support them, or ask for a compromise.
+ROLES: name1=18+ name2=55+
+FIX S: 3=1
+FIX O1: 2=2
+REVIEW: 15/15 pass (autonomy over self-expression; the relative not villainized)
+
+LCJ-34
+DESC: An artist built a giant carved arch that blocks the main path: keep it, or move it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (gentle humor about art)
+
+LCJ-35
+DESC: Visiting merchants offer rare shells for a season of fish, and some think it unfair: haggle hard, or ask the whole village first.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fair trade; community consent)
+
+LCJ-36
+DESC: Farmers, builders and fishers want a song about their work, but each wants the most verses: share evenly, or let the song decide.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (humor; all work valued)
+
+LCJ-37
+DESC: Apprentices say they only get the worst jobs: hear them out, or say that is how everyone learns.
+ROLES: name1=14-17 name2=18+
+REVIEW: 15/15 pass (fair treatment of apprentices)
+
+LCJ-38
+DESC: A trader took payment but never delivered the promised tools: demand repayment, or warn the other islands.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no violence; accountability)
+
+LCJ-39
+DESC: Travelers come home with new ideas that excite some and unsettle others: try the new ideas, or go slowly.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (change debated)
+
+LCJ-40
+DESC: At the talent show, one act is juggling coconuts while standing on a goat: allow it, or suggest a rock instead.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (humor; animal unharmed)
+
+LCJ-41
+DESC: A hat contest has broken out at the festival: judge the hats, or just wear them.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (pure joy)
+
+LCJ-42
+DESC: A newcomer does not laugh at the village's oldest joke: explain it, or tell a better one.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (gentle humor; newcomer not mocked)
+
+LCJ-43
+DESC: The village tries a whole day of rest, but someone still has to cook and care for the sick: take turns, or let volunteers do it.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=2
+REVIEW: 15/15 pass (rest valued; care work noticed)
+
+LCJ-44
+DESC: A navigator wants to teach the children to read the stars and swells: teach on the beach, or take them out on the water.
+ROLES: name1=18+ name2=6-13
+REVIEW: 15/15 pass (child safety; learning)
+
+LCJ-45
+DESC: Canoe builders from several villages meet to share techniques: share everything, or keep the village's own designs.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (exchange while keeping identity)
+
+LCJ-46
+DESC: The village must decide what visitors may join: hold a council until all agree, or let the elders decide.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (boundaries; consensus)
+
+LCJ-47
+DESC: The silver fish swim up the stream once a year: take as many as possible, or count them and take a share.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (stewardship; cost)
+
+LCJ-48
+DESC: An elder teaches the signs of dangerous water and the stories in the stars: learn the signs first, or the stories first.
+ROLES: name1=55+ name2=14-17
+REVIEW: 15/15 pass (safety knowledge)
+
+LCJ-49
+DESC: Families gather to repair the terraces and the water channels together, then celebrate: work first, or start with a song.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (shared labor; joy)
+
+LCJ-50
+DESC: Storytellers from four villages tell stories in their own languages: translate everything, or hear them as they are.
+ROLES: name1=55+ name2=6-13
+REVIEW: 15/15 pass (many languages respected)

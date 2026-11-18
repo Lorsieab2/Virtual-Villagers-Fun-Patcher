@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Breadfruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj17_last_breadfruit",
+  "source": "draft_lcj",
+  "lines": [
+   232,
+   247
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a parent and a child)"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L247",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L247",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family has one breadfruit left and a hungry neighbor: eat it, save the seeds, or share it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It has been a hungry season, and (subject)'s family has one ripe breadfruit left. (friend) is hungry. The old neighbor next door is hungrier. And the seeds could grow a tree, one day. What should they do?",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Eat It Together",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Plant the Seeds",
+     "next": "o2",
+     "src": "L241"
+    },
+    {
+     "label": "Share It With the Neighbor",
+     "next": "o3",
+     "src": "L245"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The family eats the breadfruit together, slowly. (friend) says it is the best thing (friend.he/she) has ever tasted. (subject) watches the neighbor's hut and feels guilty, and also fed.",
+   "src": "L239"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) eat the flesh and plant the seeds behind the hut. Most do not sprout. One does. Years later, (friend), grown, picks the first breadfruit from that tree and brings it to (subject).",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L243"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "They split it three ways with the old neighbor. Nobody is full. The neighbor cries. When the season turns, the neighbor's grown children bring (subject)'s family a whole basket of breadfruit, and say they heard.",
+   "src": "L247",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L247"
+    }
+   ]
+  }
+ }
+}

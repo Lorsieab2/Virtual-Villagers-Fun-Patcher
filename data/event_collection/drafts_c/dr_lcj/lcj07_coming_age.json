@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coming-Of-Age Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj07_coming_age",
+  "source": "draft_lcj",
+  "lines": [
+   92,
+   103
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen)"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village debates whether adulthood comes with age, a test, or personal choice: keep the age, or let each person show it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On Isola, you become an adult at eighteen, with a feast. (friend), who is sixteen and already leads a fishing canoe, has asked why an age should decide it. (subject) says the age is fair because it is the same for everyone. What should the village do?",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Keep the Age",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Each Shows It Their Own Way",
+     "next": "o2",
+     "src": "L101"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village keeps the age. (friend) is disappointed. (subject) promises (friend.him/her) the biggest coming-of-age feast the village has seen, in two years, and keeps the promise.",
+   "src": "L99"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps the feast at eighteen, but adds a new custom: a young person may ask, before then, to take on an adult's work, and be honored for it. (friend) is the first.",
+   "src": "L103"
+  }
+ }
+}
