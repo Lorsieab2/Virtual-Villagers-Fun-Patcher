@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Science Hut Argument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf47_science_hut",
+  "source": "draft_lcf",
+  "lines": [
+   652,
+   663
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L653",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L659",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L659",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L663",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The researchers want to study a lavastone: let them, or refuse because some consider it sacred.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), a researcher, has asked to study one of the elders' lavastones: weigh it, measure its glow, chip off a tiny piece. (friend), who believes lavastones are sacred, is appalled. The elders are split. What should they decide?",
+   "src": "L655",
+   "choices": [
+    {
+     "label": "Let the Researchers Study It",
+     "next": "o1",
+     "src": "L657"
+    },
+    {
+     "label": "Refuse",
+     "next": "o2",
+     "src": "L661"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) studies the stone carefully, without chipping it, and learns that it is warmer at dawn and coolest at dusk, and that it glows brighter near the sea. It does not explain anything. It makes everyone more curious. (friend) watches every measurement, suspicious.",
+   "src": "L659",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L659"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L659"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders refuse. (subject) is disappointed. (friend) is relieved. (subject) writes down everything people say about lavastones instead: the stories, the sightings, the healings. It becomes the most complete record on the island.",
+   "src": "L663",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L663"
+    }
+   ]
+  }
+ }
+}

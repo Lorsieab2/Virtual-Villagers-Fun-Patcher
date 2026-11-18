@@ -10149,6 +10149,206 @@
    "harm": [],
    "section": "dr_lce"
   },
+  "lcf01_stone_sky": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf02_stone_tideline": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf03_strengthened": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf04_last_resort": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf05_untrained_hand": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf06_master_burden": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf07_wishing_stone": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf08_fertile_field": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf09_lucky_stone": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf10_unlucky_stone": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf11_stone_crumbled": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf12_recharging_stone": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf13_stone_story": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf14_channeling": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf15_stone_trader": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf16_stolen_stone": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf17_overwhelmed": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf18_stone_pot": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf19_stone_spoke": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf20_stone_storm": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf21_two_schools": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf22_where_does_faith": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf23_are_people": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf24_spirit_watchers": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf25_atheist_ceremony": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf26_magic_debate": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf27_science_fishing": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf28_healer_two_ways": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf29_child_asks": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf30_borrowed_idea": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf31_school_none": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf32_lavastone_lesson": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf33_lavastone": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf34_fire_mountain": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf35_gift_curse": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf36_measuring_stars": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf37_sacred_spring": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf38_spirit_weather": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf39_stone_healed": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf40_master_lesson": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf41_village_without": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf42_stone_shard_foot": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf43_debate_four": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf44_lavastone_war": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf45_second_sight": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf46_stone_chose": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf47_science_hut": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf48_lucky_charm_shop": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf49_night_stones_all": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
+  "lcf50_stone_returned": {
+   "harm": [],
+   "section": "dr_lcf"
+  },
   "lif01_only_until": {
    "harm": [],
    "section": "dr_lif"

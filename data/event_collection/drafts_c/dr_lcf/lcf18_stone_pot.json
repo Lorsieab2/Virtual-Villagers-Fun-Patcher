@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone in the Pot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf18_stone_pot",
+  "source": "draft_lcf",
+  "lines": [
+   246,
+   257
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L246",
+  "ledger": [
+   {
+    "src": "L247",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two cooks)"
+   },
+   {
+    "src": "L253",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L253",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L257",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A cook dropped a lavastone chip into the feast stew by accident: serve it anyway, or throw the stew out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was cooking the feast stew when a tiny chip of lavastone fell from the pouch on (subject.his/her) belt into the pot. The stew is now glowing faintly orange and smells wonderful. (friend) says it might be dangerous. The feast starts in an hour, and there is nothing else to serve. What should they do?",
+   "src": "L249",
+   "choices": [
+    {
+     "label": "Serve It Anyway",
+     "next": "o1",
+     "src": "L251"
+    },
+    {
+     "label": "Throw It Out",
+     "next": "o2",
+     "src": "L255"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village eats the glowing stew. It is the best stew anyone has ever tasted. Everyone talks very fast for an hour, then sleeps very deeply. Three people have orange tongues for a day. Nobody is harmed. Everybody asks for the recipe.",
+   "src": "L253",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L253"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) pours the stew into a pit behind the cooking area. The feast is fruit and dried fish. The next morning, the plants around the pit have grown twice their size. (subject) stares at them for a long time.",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L257"
+    }
+   ]
+  }
+ }
+}

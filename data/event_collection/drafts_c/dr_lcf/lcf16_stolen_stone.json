@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf16_stolen_stone",
+  "source": "draft_lcf",
+  "lines": [
+   218,
+   229
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L225",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L229",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The elders' lavastone has gone missing: search the huts, or ask whoever took it to return it quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The elders' lavastone is gone from its place in the meeting hut. (subject) wants every hut searched. (friend) thinks whoever took it must have needed it badly, and wants the elders to ask, at the gathering, for it to be returned in secret, no questions asked. What should the village do?",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Search Every Hut",
+     "next": "o1",
+     "src": "L223"
+    },
+    {
+     "label": "Ask for It Back Quietly",
+     "next": "o2",
+     "src": "L227"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The huts are searched. It is miserable: everyone feels accused. The stone is found under the mat of a young parent whose baby has been sick. The parent weeps. The elders let the healers use the stone on the baby, and say nothing more about it.",
+   "src": "L225"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders ask. Two nights later, the stone is back in its place, wrapped in a clean cloth. Nobody ever knows who took it. A week later, a sick baby in the village is suddenly much better. Nobody says anything.",
+   "src": "L229"
+  }
+ }
+}

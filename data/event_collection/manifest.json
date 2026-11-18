@@ -693,6 +693,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "draft_lcf": {
+  "source": "docs/more-island-events/New Events - Living Culture VI (draft for owner).txt",
+  "source_sha256": "a8dddb7a3ab75bbcc455b966633e703156b3b4a864cfd77f0c6a66853651419f",
+  "counts": {
+   "rows": 52,
+   "events": 50,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 50,
+   "series": {
+    "dr_lcf": 50
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "draft_rm2": {
   "source": "docs/more-island-events/New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
   "source_sha256": "a162ecbec360f51ee9e9e9053bd17bbd2f97770f41ef3ad9b4d6d581b40e6acc",
@@ -104090,6 +104107,1864 @@
    "source": "draft_lce",
    "source_check": {
     "heading": "L694: LCE-50. The Village Divided",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_lcf_notes_intro",
+   "title": "Living Culture VI: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_lcf_notes_end",
+   "title": "Living Culture VI: notes for the owner",
+   "games": [],
+   "lines": [
+    708,
+    758
+   ],
+   "kind": "notes",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L708: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lcf01_stone_sky",
+   "title": "The Stone From the Sky",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    8,
+    19
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L8: LCF-01. The Stone From the Sky",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf02_stone_tideline",
+   "title": "The Stone on the Tideline",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22,
+    33
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L22: LCF-02. The Stone on the Tideline",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf03_strengthened",
+   "title": "The Strengthened Stew",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    36,
+    47
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L36: LCF-03. The Strengthened Stew",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf04_last_resort",
+   "title": "The Last Resort",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    50,
+    61
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L50: LCF-04. The Last Resort",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf05_untrained_hand",
+   "title": "The Untrained Hand",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    64,
+    75
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L64: LCF-05. The Untrained Hand",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf06_master_burden",
+   "title": "The Master's Burden",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    78,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L78: LCF-06. The Master's Burden",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf07_wishing_stone",
+   "title": "The Wishing Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    92,
+    103
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L92: LCF-07. The Wishing Stone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf08_fertile_field",
+   "title": "The Fertile Field",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    106,
+    117
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L106: LCF-08. The Fertile Field",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf09_lucky_stone",
+   "title": "The Lucky Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    120,
+    131
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L120: LCF-09. The Lucky Stone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf10_unlucky_stone",
+   "title": "The Unlucky Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    134,
+    145
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L134: LCF-10. The Unlucky Stone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf11_stone_crumbled",
+   "title": "The Stone That Crumbled",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    148,
+    159
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L148: LCF-11. The Stone That Crumbled",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf12_recharging_stone",
+   "title": "The Recharging Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    162,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L162: LCF-12. The Recharging Stone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf13_stone_story",
+   "title": "The Stone Story Night",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    176,
+    187
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L176: LCF-13. The Stone Story Night",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf14_channeling",
+   "title": "The Channeling",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    190,
+    201
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L190: LCF-14. The Channeling",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf15_stone_trader",
+   "title": "The Stone Trader",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    204,
+    215
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L204: LCF-15. The Stone Trader",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf16_stolen_stone",
+   "title": "The Stolen Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    218,
+    229
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L218: LCF-16. The Stolen Stone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf17_overwhelmed",
+   "title": "The Overwhelmed Elder",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    232,
+    243
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L232: LCF-17. The Overwhelmed Elder",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf18_stone_pot",
+   "title": "The Stone in the Pot",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    246,
+    257
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L246: LCF-18. The Stone in the Pot",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf19_stone_spoke",
+   "title": "The Stone That Spoke",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    260,
+    271
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L260: LCF-19. The Stone That Spoke",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf20_stone_storm",
+   "title": "The Stone and the Storm",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    274,
+    285
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L274: LCF-20. The Stone and the Storm",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf21_two_schools",
+   "title": "The Two Schools at the Stream",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    288,
+    299
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L288: LCF-21. The Two Schools at the Stream",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf22_where_does_faith",
+   "title": "Where Does Faith Fit",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    302,
+    313
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L302: LCF-22. Where Does Faith Fit",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf23_are_people",
+   "title": "Are People Entitled to the Land",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    316,
+    327
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L316: LCF-23. Are People Entitled to the Land",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf24_spirit_watchers",
+   "title": "The Spirit Watchers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    330,
+    341
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L330: LCF-24. The Spirit Watchers",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf25_atheist_ceremony",
+   "title": "The Atheist and the Ceremony",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    344,
+    355
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L344: LCF-25. The Atheist and the Ceremony",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf26_magic_debate",
+   "title": "The Magic Debate",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    358,
+    369
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L358: LCF-26. The Magic Debate",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf27_science_fishing",
+   "title": "The Science of Fishing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    372,
+    383
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L372: LCF-27. The Science of Fishing",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf28_healer_two_ways",
+   "title": "The Healer's Two Ways",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    386,
+    397
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L386: LCF-28. The Healer's Two Ways",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf29_child_asks",
+   "title": "The Child Who Asks Everything",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    400,
+    411
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L400: LCF-29. The Child Who Asks Everything",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf30_borrowed_idea",
+   "title": "The Borrowed Idea",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    414,
+    425
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L414: LCF-30. The Borrowed Idea",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf31_school_none",
+   "title": "The School of None",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    428,
+    439
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L428: LCF-31. The School of None",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf32_lavastone_lesson",
+   "title": "The Lavastone Lesson",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    442,
+    453
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L442: LCF-32. The Lavastone Lesson",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf33_lavastone",
+   "title": "The Lavastone Necklace",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    456,
+    467
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L456: LCF-33. The Lavastone Necklace",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf34_fire_mountain",
+   "title": "The Fire From the Mountain",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    470,
+    481
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L470: LCF-34. The Fire From the Mountain",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf35_gift_curse",
+   "title": "The Gift or the Curse",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    484,
+    495
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L484: LCF-35. The Gift or the Curse",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf36_measuring_stars",
+   "title": "The Measuring of the Stars",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    498,
+    509
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L498: LCF-36. The Measuring of the Stars",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf37_sacred_spring",
+   "title": "The Sacred Spring",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    512,
+    523
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L512: LCF-37. The Sacred Spring",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf38_spirit_weather",
+   "title": "The Spirit or the Weather",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    526,
+    537
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L526: LCF-38. The Spirit or the Weather",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf39_stone_healed",
+   "title": "The Stone That Healed the Garden",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    540,
+    551
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L540: LCF-39. The Stone That Healed the Garden",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf40_master_lesson",
+   "title": "The Master's Last Lesson",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    554,
+    565
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L554: LCF-40. The Master's Last Lesson",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf41_village_without",
+   "title": "The Village Without Magic",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    568,
+    579
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L568: LCF-41. The Village Without Magic",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf42_stone_shard_foot",
+   "title": "The Stone Shard in the Foot",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    582,
+    593
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L582: LCF-42. The Stone Shard in the Foot",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf43_debate_four",
+   "title": "The Debate of the Four Schools",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    596,
+    607
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L596: LCF-43. The Debate of the Four Schools",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf44_lavastone_war",
+   "title": "The Lavastone War Story",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    610,
+    621
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L610: LCF-44. The Lavastone War Story",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf45_second_sight",
+   "title": "The Second Sight",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    624,
+    635
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L624: LCF-45. The Second Sight",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf46_stone_chose",
+   "title": "The Stone That Chose",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    638,
+    649
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L638: LCF-46. The Stone That Chose",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf47_science_hut",
+   "title": "The Science Hut Argument",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    652,
+    663
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L652: LCF-47. The Science Hut Argument",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf48_lucky_charm_shop",
+   "title": "The Lucky Charm Shop",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    666,
+    677
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L666: LCF-48. The Lucky Charm Shop",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf49_night_stones_all",
+   "title": "The Night the Stones All Glowed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    680,
+    691
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L680: LCF-49. The Night the Stones All Glowed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcf50_stone_returned",
+   "title": "The Stone Returned to the Sea",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    694,
+    705
+   ],
+   "kind": "event",
+   "section": "dr_lcf",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcf",
+   "source": "draft_lcf",
+   "source_check": {
+    "heading": "L694: LCF-50. The Stone Returned to the Sea",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

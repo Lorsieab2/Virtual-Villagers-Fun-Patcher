@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Science of Fishing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf27_science_fishing",
+  "source": "draft_lcf",
+  "lines": [
+   372,
+   383
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L372",
+  "ledger": [
+   {
+    "src": "L373",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L379",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L379",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A researcher's new theory about the tides contradicts the old fishers: test the theory, or trust the old fishers.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been watching the tides for a year and has a theory: the fish come with the moon, not the wind, as the old fishers always said. (friend), who has fished for forty years, says (subject) has never caught a fish in (subject.his/her) life. Both of them might be right. What should the village do?",
+   "src": "L375",
+   "choices": [
+    {
+     "label": "Test the Theory",
+     "next": "o1",
+     "src": "L377"
+    },
+    {
+     "label": "Trust the Old Fishers",
+     "next": "o2",
+     "src": "L381"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "For a moon, half the canoes go out by the moon and half by the wind. The moon canoes do slightly better. The wind canoes do better in storms. Both (subject) and (friend) were partly right. They both find this deeply annoying.",
+   "src": "L379",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L379"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L379"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps fishing by the wind. (subject) keeps watching the moon on (subject.his/her) own, writing it all down on bark. Years later, a young fisher finds the bark and tries it. It works rather well.",
+   "src": "L383"
+  }
+ }
+}
