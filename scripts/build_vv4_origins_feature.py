@@ -349,6 +349,39 @@ MASK_SAVE_SLOT_CAVE_VA = 0x728FD0
 MASK_SAVE_SLOT_CAVE_FILE_OFFSET = 0xCCFD0
 MASK_SAVE_SLOT_FILE_OFFSET = 0xCCFCC
 MASK_SAVE_SLOT_LIMIT_VA = 0x729000
+# The owner's doubler scope (2026-11-17, the same rule in all five games):
+# FOOD is only food gathered from a food source; TECH is research-table work
+# (with the Lab Equipment bonus and the fire's point), collectible duplicates
+# and collection effects on tech gain.  Island events (direct calls,
+# tail-jumps and the ones a companion DLL runs), rewards (dialogs, the +250
+# object, the +80,000/+5,000 grant), purchases and cheats are never doubled.
+# The wrappers double only a call whose immediate return address is one of
+# these exact stock returns; every other caller stays native.  "Yellow Fruit
+# Trees are No Longer Unlimited" (VVFP VV4 Fruit Supply.dll) pays its fruit
+# through the same stock return addresses (it pushes them and jumps to the
+# writer).  Cloth Sacks (#794) calls the writer from its own DLL, so it is not
+# covered here: see docs/doubler-composition-audit.md for its hook point.
+TECH_DOUBLER_ELIGIBLE_RETURNS = (
+    0x464E5D,  # research
+    0x464E87,  # the Lab Equipment bonus
+    0x464EB0,  # the fire's extra point
+    0x41447C,  # a duplicate collectible
+    0x414498,  # a duplicate collectible
+    0x4144B4,  # a duplicate collectible
+)
+FOOD_DOUBLER_ELIGIBLE_RETURNS = (
+    0x464497,  # blackberry bush
+    0x464510,  # cutting-tool berries (the harvest)
+    0x464578,  # yellow breadfruit
+    0x4645B5,  # fish
+    0x464600,  # golden fish
+    0x464A4B,  # crab
+    0x436F1A,  # the Mossy Rocks crab
+    0x468AB7,  # the Cooking Pit's catch-up yellow fruit
+    0x414665,  # mushroom
+    0x464438,  # the fish job event the game inherited
+)
+
 # VV4 stores Origins doubler ownership in this process global (bit 0 = Tech
 # Doubler, bit 1 = Food Doubler). It is NOT part of the .ldw save, so it
 # leaks across a village switch unless the slot-capture hook clears it.
@@ -1409,17 +1442,9 @@ def main() -> None:
             ret
         """,
     )
-    tech_exclusions = (
-        0x41447C,
-        0x414498,
-        0x4144B4,
-        0x414A2D,
-        0x464E5D,
-        0x464E87,
-        0x464EB0,
-    )
     tech_checks = "\n".join(
-        f"cmp dword ptr [esp], 0x{return_va:X}\nje apply" for return_va in tech_exclusions
+        f"cmp dword ptr [esp], 0x{return_va:X}\nje eligible"
+        for return_va in TECH_DOUBLER_ELIGIBLE_RETURNS
     )
     put(
         tech_increment,
@@ -1430,6 +1455,8 @@ def main() -> None:
             test dword ptr [0x4D6E10], 1
             jz apply
             {tech_checks}
+            jmp apply
+        eligible:
             shl dword ptr [esp + 4], 1
         apply:
             push esi
@@ -1438,19 +1465,9 @@ def main() -> None:
             jmp 0x41E307
         """,
     )
-    food_exclusions = (
-        0x41494E,
-        0x4643EB,
-        0x464438,
-        0x464497,
-        0x464510,
-        0x464578,
-        0x4645B5,
-        0x464600,
-    )
     food_checks = "\n".join(
-        f"cmp dword ptr [esp + 8], 0x{return_va:X}\nje apply"
-        for return_va in food_exclusions
+        f"cmp dword ptr [esp + 8], 0x{return_va:X}\nje eligible"
+        for return_va in FOOD_DOUBLER_ELIGIBLE_RETURNS
     )
     put(
         food_increment,
@@ -1460,6 +1477,8 @@ def main() -> None:
             test dword ptr [0x4D6E10], 2
             jz apply
             {food_checks}
+            jmp apply
+        eligible:
             add esi, esi
         apply:
             test esi, esi
@@ -2497,7 +2516,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, Equal Division of Labor with and without Parenting, Clear All Skill Preferences, and Check Highest Skill with and without Parenting. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (the Tech Point Doubler doubles research tech points, with the Lab Equipment bonus and the fire's extra point, and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources, after Food Mastery: blackberry bushes, cutting-tool berries, yellow breadfruit, fish, golden fish, crabs and mushrooms; island events, rewards, purchases and cheats are never doubled), Full Heal/Cure All, Complete and Reset All Collections, Equal Division of Labor with and without Parenting, Clear All Skill Preferences, and Check Highest Skill with and without Parenting. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {
@@ -2579,36 +2598,57 @@ def main() -> None:
             },
             "positive_tech_writer": "0x41E300",
             "positive_food_writer": "0x41D920",
-            "collection_adjustment": "Food Mastery is applied inside sub_41D920: level 0/1=A, level 2=A+floor(A/2), level 3=2A. Collection call 0x414660 passes pre-mastery 6/35, so any eligible doubler must follow the native transform.",
+            "collection_adjustment": "Food Mastery is applied inside sub_41D920: level 0/1=A, level 2=A+floor(A/2), level 3=2A. Collection call 0x414660 passes pre-mastery 6/35; the Food Doubler (hooked at 0x41D94F) doubles the amount after Food Mastery.",
             "external_xref_inventory": {"tech": 21, "food": 23},
             "tail_jump_sites": ["0x4156F8", "0x415862", "0x41586F", "0x415A81", "0x415B46", "0x415D8C", "0x416722", "0x416735", "0x41520E"],
-            "ordinary_positive_sites": {
-                "tech": ["0x414477", "0x414493", "0x4144AF", "0x431A9B"],
-                "food": ["0x414660", "0x436F15"],
-            },
             "duplicate_collectibles": {
                 "function": "sub_414410",
                 "tech_returns": ["0x41447C", "0x414498", "0x4144B4"],
-                "behavior": "an already-completed collectible routes to the tech writer",
+                "behavior": "an already-completed collectible routes to the tech writer (doubled: in the owner's scope)",
+            },
+            "job_event_sources": {
+                "dispatcher": "sub_4642F0 (job events)",
+                "food": "berries 0x464492, cutting-tool harvest 0x46450B, yellow fruit 0x464573, fish 0x4645B0, golden fish 0x4645FB, crab 0x464A46, the inherited fish event 0x464433; Cooking Pit catch-up 0x468AB2",
+                "tech": "research 0x464E58, the Lab Equipment bonus 0x464E82, the fire's point 0x464EAB",
+                "note": "earlier evidence listed these as Island Event sites; they are the job events that pay gathering and research",
             },
             "island_event_positive_sites": {
-                "tech": ["0x414A28", "0x4156F8", "0x415862", "0x415A81", "0x415B46", "0x415D8C", "0x416722", "0x464E58", "0x464E82", "0x464EAB"],
-                "food": ["0x414949", "0x41520E", "0x4643E6", "0x464433", "0x464492", "0x46450B", "0x464573", "0x4645B0", "0x4645FB"],
+                "tech": ["0x414A28", "0x4156F8", "0x415862", "0x415A81", "0x415B46", "0x415D8C", "0x416722"],
+                "food": ["0x414949", "0x41520E"],
+            },
+            "reward_sites": {
+                "tech": ["0x431A9B (+250, object handler)", "0x440884 (+80,000)"],
+                "food": ["0x440893 (+5,000)"],
+            },
+            "deduction_sites": {"tech": ["0x43EAF3 (technology purchase)", "0x46436D (-5,000)"]},
+            "tech_eligible_returns": [f"0x{va:X}" for va in TECH_DOUBLER_ELIGIBLE_RETURNS],
+            "food_eligible_returns": [f"0x{va:X}" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS],
+            "companion_food_calls": {
+                "VVFP VV4 Fruit Supply.dll": "pushes the stock returns 0x464578 / 0x468AB7 and jumps to 0x41D920, so its fruit is doubled like the stock calls",
+                "VVFP VV4 Cloth Sacks.dll (#794, not merged)": "calls 0x41D920 from the DLL: not doubled; hook point in docs/doubler-composition-audit.md",
             },
             "tail_bypass_sites": {
                 "tech": ["0x4156F8", "0x415862", "0x41586F", "0x415A81", "0x415B46", "0x415D8C", "0x416722", "0x416735"],
                 "food": ["0x41520E"],
             },
-            "hook_status": "GO: positive writer wrappers run after native Food Mastery; duplicate collectibles, direct Island Event calls, and audited Island Event tail-jumps remain native; runtime/player confirmation pending",
+            "hook_status": "GO: exact-build static whitelist of the gathered food sources, research (with Lab Equipment and the fire) and duplicate collectibles; the Food Doubler runs after native Food Mastery; Island Event calls and tail-jumps, rewards and every other caller stay native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
                 "positive earned tech deltas only",
                 "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
+            "scope": {
+                "tech": ["research", "the Lab Equipment bonus", "the fire's extra point", "duplicate collectibles"],
+                "food": ["blackberry bush", "cutting-tool berries", "yellow breadfruit (with the Cooking Pit's catch-up fruit)", "fish", "golden fish", "crab (with the Mossy Rocks)", "mushrooms"],
+            },
+            "exclusions": [
+                "Island Event tech-point and food-point gain",
+                "Reward tech-point and food-point gain (dialogs, objects)",
+                "Purchases and cheats",
+            ],
             "food_mastery_status": "confirmed in exact-build disassembly; native transform documented in doubler evidence",
-            "status": "GO: positive writer wrappers double eligible positive deltas once after native adjustments; duplicate collectibles and audited Island Event paths remain native; runtime/player confirmation pending",
+            "status": "GO: exact-build static whitelist doubles each eligible positive delta once after native Food Mastery; every other caller stays native; runtime/player confirmation pending",
         },
         "doubler_purchase_status": {
             "new_purchase": "available at 500,000 tech points for each doubler",

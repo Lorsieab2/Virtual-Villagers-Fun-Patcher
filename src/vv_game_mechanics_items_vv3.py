@@ -582,11 +582,14 @@ def _patcher() -> list[Entry]:
         ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event, \"Another One of Those "
                              "Barrels\": 3 children of 10 years, each a boy or a girl half the time, with one skill "
                              "at 5 to 9; refused, with nothing taken, without room for all three.", UNCONFIRMED),
-        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive tech-point gain "
-                               "the villagers earn is doubled; island events and duplicate collectibles are not.",
-         UNCONFIRMED),
-        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive food gain is "
-                               "doubled; island events and duplicate collectibles are not.", UNCONFIRMED),
+        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the tech points research "
+                               "earns are doubled (with the chief's, Magic's, the potion's and the fire's extra "
+                               "points), and so are duplicate collectibles; island events, rewards, purchases and "
+                               "cheats are not.", UNCONFIRMED),
+        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the food gathered from food "
+                               "sources is doubled (fruit, honey, fish, crabs and mushrooms, with the chief's "
+                               "bonuses); island events, the chief's grant, other rewards, purchases and cheats are "
+                               "not.", UNCONFIRMED),
         ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked found (each complete "
                                      "collection raises the population limit by 5, all four by 25); nothing is "
                                      "taken when every piece is already found.", UNCONFIRMED),

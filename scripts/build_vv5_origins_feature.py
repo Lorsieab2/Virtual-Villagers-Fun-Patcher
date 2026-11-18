@@ -31,6 +31,32 @@ PAYLOAD_SIZE = 0x1000
 STRINGS_OFFSET = 0xD00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
+# The owner's doubler scope (2026-11-17, the same rule in all five games):
+# FOOD is only food gathered from a food source; TECH is research-table work
+# (with the second collectible set's bonus and the fire's point), collectible
+# duplicates and collection effects on tech gain.  Island events (direct calls,
+# tail-jumps and the ones a companion DLL runs), rewards, purchases and cheats
+# are never doubled.  The wrappers double only a call whose immediate return
+# address is one of these exact stock returns; every other caller stays native.
+TECH_DOUBLER_ELIGIBLE_RETURNS = (
+    0x46DE4D,  # research
+    0x46DE7C,  # the second collectible set's bonus
+    0x46DEA5,  # the fire's extra point
+    0x4147BE,  # a duplicate collectible
+    0x4147DD,  # a duplicate collectible
+    0x4147F9,  # a duplicate collectible
+)
+FOOD_DOUBLER_ELIGIBLE_RETURNS = (
+    0x46D000,  # noni
+    0x46D113,  # crops
+    0x46D7A1,  # lake fish
+    0x414970,  # mushroom
+    0x46CFA1,  # a food job event inherited from The Tree of Life
+    0x46D079,  # a food job event inherited from The Tree of Life
+    0x46D764,  # a food job event inherited from The Tree of Life
+    0x46D7DE,  # a food job event inherited from The Tree of Life
+    0x46DB25,  # a food job event inherited from The Tree of Life
+)
 TECH_BUTTON_EVENT = 13
 DETAIL_BUTTON_EVENT = 13  # native VV5 Detail constructor/handler event
 
@@ -180,6 +206,13 @@ def main() -> None:
             raise RuntimeError(f"{name} overlaps another payload routine")
         code[start:end] = payload
         occupied[start:end] = b"\1" * len(payload)
+        placed_sizes[name] = len(payload)
+
+    placed_sizes: dict[str, int] = {}
+
+    def placed(name: str) -> bytes:
+        start = entry[name] - PAYLOAD_VA
+        return bytes(code[start : start + placed_sizes[name]])
 
     put(
         "tech_handler",
@@ -357,10 +390,8 @@ def main() -> None:
     # carries no second, unreachable copy of the menus.
     put("tech_menu", "ret")
     put("detail_menu", "ret")
-    tech_wrapper_expected = bytes.fromhex(
-        "8B44240485C07E2BF70588D3510001000000741F"
-        "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
-        "D1642404568B7424080131E9780DC7FF"
+    tech_checks = "\n".join(
+        f"cmp dword ptr [esp], 0x{va:X}\n            je matched" for va in TECH_DOUBLER_ELIGIBLE_RETURNS
     )
     put(
         "tech_increment",
@@ -370,12 +401,8 @@ def main() -> None:
             jle native
             test dword ptr [0x51D388], 1
             jz native
-            cmp dword ptr [esp], 0x46DE4D
-            je matched
-            cmp dword ptr [esp], 0x46DE7C
-            je matched
-            cmp dword ptr [esp], 0x46DEA5
-            jne native
+            {tech_checks}
+            jmp native
         matched:
             shl dword ptr [esp + 4], 1
         native:
@@ -385,11 +412,9 @@ def main() -> None:
             jmp 0x4237B7
         """,
     )
-    tech_wrapper = bytes(code[entry["tech_increment"] - PAYLOAD_VA : entry["tech_increment"] - PAYLOAD_VA + len(tech_wrapper_expected)])
-    if tech_wrapper != tech_wrapper_expected:
-        raise RuntimeError(
-            "VV5 Tech Doubler wrapper bytes drifted from the exact stock whitelist"
-        )
+    food_checks = "\n".join(
+        f"cmp dword ptr [esp + 8], 0x{va:X}\n            je matched" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS
+    )
     put(
         "food_increment",
         f"""
@@ -397,8 +422,9 @@ def main() -> None:
             jle native
             test dword ptr [0x51D388], 2
             jz native
-            cmp dword ptr [esp + 8], 0x414970
-            jne native
+            {food_checks}
+            jmp native
+        matched:
             add esi, esi
         native:
             test esi, esi
@@ -588,11 +614,15 @@ def main() -> None:
                 "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
             },
             "positive_tech_writer": "0x4237B0",
-            "tech_positive_returns": ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            "tech_positive_returns": [f"0x{va:X}" for va in TECH_DOUBLER_ELIGIBLE_RETURNS],
+            "food_positive_returns": [f"0x{va:X}" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS],
+            "duplicate_collectibles": {
+                "tech_returns": ["0x4147BE", "0x4147DD", "0x4147F9"],
+                "behavior": "an already-completed collectible routes to the tech writer (doubled: in the owner's scope)",
+            },
             "tech_excluded_refund_return": "0x419EA3",
             "tech_exclusions": [
                 "all 16 Island Event outcomes",
-                "Duplicate Collectibles (returns 0x4147BE, 0x4147DD, and 0x4147F9)",
                 "all eight writer tail paths",
                 "technology purchase/spending/deduction paths",
                 "zero and negative deltas",
@@ -607,8 +637,8 @@ def main() -> None:
                 "collection_return": "0x414970",
                 "collection_base_to_native": {"6": [6, 9, 12], "35": [35, 52, 70]},
             },
-            "collection_adjustment": "Food-source return 0x414970 supplies the base delta; native Food Mastery completes before the Food Point Doubler doubles the final positive source delta once.",
-            "island_event_producers": ["Island Event, startup, consumption, and unknown callers remain native; unknown callers cannot match return 0x414970"],
+            "collection_adjustment": "Each eligible food-source return supplies the base delta; native Food Mastery completes before the Food Point Doubler doubles the final positive source delta once.",
+            "island_event_producers": ["Island Event, startup, consumption, reward and unknown callers remain native; they cannot match an eligible return"],
             "tech_writer_hook": {
                 "virtual_address": "0x4237B0",
                 "file_offset": "0x237B0",
@@ -616,12 +646,11 @@ def main() -> None:
                 "after": "E94BF23800",
                 "wrapper_virtual_address": "0x7B2A00",
                 "wrapper_file_offset": "0xDBA00",
-                "wrapper_bytes": "8B44240485C07E2BF70588D3510001000000741F813C244DDE46007412813C247CDE46007409813C24A5DE46007504D1642404568B7424080131E9780DC7FF",
+                "wrapper_bytes": placed("tech_increment").hex().upper(),
                 "ownership_address": "0x51D388",
                 "ownership_mask": "0x1",
-                "eligible_returns": ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
+                "eligible_returns": [f"0x{va:X}" for va in TECH_DOUBLER_ELIGIBLE_RETURNS],
                 "excluded_refund_return": "0x419EA3",
-                "branch_destinations": ["0x7B2A4A", "0x7B2A4E", "0x4237B7"]
             },
             "stock_hook": {
                 "virtual_address": "0x41EB6F",
@@ -630,20 +659,28 @@ def main() -> None:
                 "after": "E98C3F3900",
                 "wrapper_virtual_address": "0x7B2B00",
                 "wrapper_file_offset": "0xDBB00",
-                "wrapper_bytes": "85F67E18F70588D3510002000000740C817C240870494100750201F685F67E0656E94EC0C6FFE97CC0C6FF",
+                "wrapper_bytes": placed("food_increment").hex().upper(),
                 "ownership_address": "0x51D388",
                 "ownership_mask": "0x2",
-                "eligible_return": "0x414970",
+                "eligible_returns": [f"0x{va:X}" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS],
                 "branch_destinations": ["0x41EB74", "0x41EBA7"]
             },
-            "hook_status": "stock-layout implemented: exact Tech three-return and Food positive-whitelist wrappers; expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
+            "hook_status": "stock-layout implemented: exact Tech and Food positive-whitelist wrappers (research with the set bonus and the fire, duplicate collectibles; the gathered food sources); expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
         },
         "doubler_composition_contract": {
             "stacking": [
                 "positive earned tech deltas only",
                 "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
+            "scope": {
+                "tech": ["research", "the second collectible set's bonus", "the fire's extra point", "duplicate collectibles"],
+                "food": ["noni", "crops", "lake fish", "mushrooms", "the food job events inherited from The Tree of Life"],
+            },
+            "exclusions": [
+                "Island Event tech-point and food-point gain",
+                "Reward tech-point and food-point gain",
+                "Purchases and cheats",
+            ],
             "food_mastery_status": "confirmed in exact-build disassembly; technology ID 4 and separate level 1 to 2 / level 2 to 3 native transforms documented",
             "status": "stock-layout implemented: only eligible earned/source deltas are doubled once; native writers continue storage/statistics updates for the doubled amount; expanded-256 keeps both native writers and disables only new doubler purchases.",
         },

@@ -953,9 +953,8 @@ __declspec(naked) static void credit_stub(void) {
         jz none
         push 3
         mov ecx, FOOD_STORE
-        call dword ptr [g_food_add]
-        push CREDIT_ON
-        ret
+        push CREDIT_ON                  /* the stock call's own return: the Origins Food Doubler's whitelist sees it */
+        jmp dword ptr [g_food_add]
     none:
         push CREDIT_END
         ret
@@ -1052,9 +1051,8 @@ __declspec(naked) static void bonus_stub(void) {
         jz none
         push 5
         mov ecx, FOOD_STORE
-        call dword ptr [g_food_add]
-        push BONUS_ON
-        ret
+        push BONUS_ON                   /* the stock call's own return (see credit_stub) */
+        jmp dword ptr [g_food_add]
     none:
         push BONUS_NONE
         ret

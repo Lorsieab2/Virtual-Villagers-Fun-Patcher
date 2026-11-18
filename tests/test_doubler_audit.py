@@ -89,7 +89,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             self.assertIn(title, text)
         self.assertIn("STOP", text)
         self.assertIn("tail-jump", text)
-        self.assertIn("positive source", text)
+        self.assertIn("whitelist", text)
+        self.assertIn("gathered from a food source", text)
         self.assertIn("Food Mastery status by exact build", text)
         self.assertIn("VV1, VV2, and VV3 are code-confirmed absent", text)
         self.assertIn("code-confirmed for VV4 and VV5", text)
@@ -118,24 +119,22 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                     ["positive earned tech deltas only", "positive food-source deltas only"],
                 )
                 game = path.stem[2]
-                expected_exclusions = {
-                    "1": (
-                        "Golden Child tech-point gain",
-                        "Island Event tech-point gain",
-                        "Duplicate Collectibles tech-point gain",
-                        "Story/puzzle discovery tech-point and food-point gain (Whale, berries, mushroom, device-discovery choices)",
-                        "One-time milestone dialog tech-point and food-point gain",
-                    ),
-                    "2": (
-                        "Island Event tech-point gain",
-                        "Gong of Wonder tech-point gain",
-                        "Duplicate Collectibles tech-point gain",
-                    ),
-                    "3": ("Island Event tech-point gain", "Duplicate Collectibles tech-point gain"),
-                    "4": ("Island Event tech-point gain", "Duplicate Collectibles tech-point gain"),
-                    "5": ("Island Event tech-point gain", "Duplicate Collectibles tech-point gain"),
+                # The owner's scope (2026-11-17): island events, rewards, purchases and cheats are never
+                # doubled in any game; duplicate collectibles are doubled (Tech) wherever the game has them.
+                rewards = {
+                    "1": "Reward tech-point and food-point gain (story/puzzle discoveries, milestone dialogs, the Golden Child's act)",
+                    "2": "Reward tech-point and food-point gain (Gong of Wonder, Sack/Vial)",
+                    "3": "Reward tech-point and food-point gain (the chief's grant food, dialogs)",
+                    "4": "Reward tech-point and food-point gain (dialogs, objects)",
+                    "5": "Reward tech-point and food-point gain",
                 }[game]
-                self.assertEqual(tuple(contract["exclusions"]), expected_exclusions)
+                self.assertEqual(
+                    tuple(contract["exclusions"]),
+                    ("Island Event tech-point and food-point gain", rewards, "Purchases and cheats"),
+                )
+                self.assertIn("research", contract["scope"]["tech"])
+                if game != "1":  # A New Home has no collectibles
+                    self.assertIn("duplicate collectibles", contract["scope"]["tech"])
                 expected_food_status = {
                     "1": "confirmed absent",
                     "2": "confirmed absent",
@@ -250,7 +249,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertEqual(evidence["external_xref_inventory"], {"tech": 21, "food": 23})
         self.assertIn("0x4156F8", evidence["tail_jump_sites"])
         self.assertIn("0x41520E", evidence["tail_jump_sites"])
-        self.assertIn("0x414660", evidence["ordinary_positive_sites"]["food"])
+        self.assertIn("0x414665", evidence["food_eligible_returns"])      # the mushroom (call 0x414660)
+        self.assertIn("0x464E5D", evidence["tech_eligible_returns"])      # research (call 0x464E58)
         self.assertIn("GO", evidence["hook_status"])
         self.assertEqual(len(evidence["tail_bypass_sites"]["tech"]), 8)
         self.assertEqual(evidence["tail_bypass_sites"]["food"], ["0x41520E"])
@@ -267,21 +267,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         )
         self.assertIn("GO", evidence["hook_status"])
         self.assertEqual(
-            tuple(evidence["tech_blacklist_returns"]),
-            (
-                "0x4205AC",
-                "0x434351",
-                "0x44EA32",
-                "0x44ED52",
-                "0x44F202",
-                "0x463461",
-                "0x46346D",
-                "0x463479",
-            ),
+            tuple(evidence["tech_eligible_returns"]),
+            ("0x46373C", "0x4637C5", "0x46380E", "0x463461", "0x46346D", "0x463479"),
         )
         self.assertEqual(
-            tuple(evidence["food_blacklist_returns"]),
-            ("0x420AE9", "0x433FC6", "0x44E9C3", "0x44EDB9", "0x44F0D9"),
+            tuple(evidence["food_eligible_returns"]),
+            ("0x46319D", "0x46325E", "0x463317", "0x463369", "0x4633D2"),
         )
         inventory = evidence["direct_call_inventory"]
         self.assertEqual(len(inventory["tech"]), 17)
@@ -423,7 +414,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("17 tech and 13 food", AUDIT.read_text(encoding="utf-8"))
         self.assertIn("**GO (static exact-build proof; runtime pending)**", AUDIT.read_text(encoding="utf-8"))
 
-    def test_vv2_generated_wrappers_encode_every_exact_exclusion(self) -> None:
+    def test_vv2_generated_wrappers_encode_every_exact_eligible_return(self) -> None:
         manifest = json.loads(VV2_MANIFEST.read_text(encoding="utf-8"))
         payload = bytes.fromhex(
             next(item["after"] for item in manifest["patches"] if item["offset"] == "0x943A8")
@@ -431,41 +422,36 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         tech = payload[0x820:0x8A0]
         food = payload[0x8A0:0x960]
         for target, wrapper, label in (
-            (manifest["doubler_evidence"]["tech_blacklist_returns"], tech, "tech"),
-            (manifest["doubler_evidence"]["food_blacklist_returns"], food, "food"),
+            (manifest["doubler_evidence"]["tech_eligible_returns"], tech, "tech"),
+            (manifest["doubler_evidence"]["food_eligible_returns"], food, "food"),
         ):
             for return_va in target:
                 immediate = struct.pack("<I", int(return_va, 16))
                 needle = b"\x81\x7C\x24\x04" + immediate
-                self.assertIn(needle, wrapper, f"missing {label} exclusion {return_va}")
+                self.assertIn(needle, wrapper, f"missing {label} eligible return {return_va}")
+            for excluded in ("0x4205AC", "0x44EA32", "0x4385E6", "0x420AE9", "0x44E9C3", "0x438298"):
+                needle = b"\x81\x7C\x24\x04" + struct.pack("<I", int(excluded, 16))
+                self.assertNotIn(needle, wrapper, f"{label} wrapper names out-of-scope {excluded}")
             self.assertIn(b"\x8B\x44\x24\x08", wrapper)  # signed caller delta
             ownership = b"\xF7\x83\xE8\xEA\x02\x00\x01" if label == "tech" else b"\xF7\x83\xE8\xEA\x02\x00\x02"
             self.assertIn(ownership, wrapper)
 
     def test_vv2_doubler_reference_model_matrix(self) -> None:
-        tech_excluded = {
-            0x4205AC,
-            0x434351,
-            0x44EA32,
-            0x44ED52,
-            0x44F202,
-            0x463461,
-            0x46346D,
-            0x463479,
-        }
-        food_excluded = {0x420AE9, 0x433FC6, 0x44E9C3, 0x44EDB9, 0x44F0D9}
+        # The emulated wrappers themselves are checked in tests/test_doubler_scope.py.
+        tech_eligible = {0x46373C, 0x4637C5, 0x46380E, 0x463461, 0x46346D, 0x463479}
+        food_eligible = {0x46319D, 0x46325E, 0x463317, 0x463369, 0x4633D2}
 
-        def result(delta: int, caller: int, owned: bool, excluded: set[int]) -> int:
-            if delta <= 0 or not owned or caller in excluded:
+        def result(delta: int, caller: int, owned: bool, eligible: set[int]) -> int:
+            if delta <= 0 or not owned or caller not in eligible:
                 return delta
             return delta * 2
 
-        for excluded in (tech_excluded, food_excluded):
-            for caller in excluded | {0x4385E6, 0x4633D2}:
+        for eligible in (tech_eligible, food_eligible):
+            for caller in eligible | {0x4385E6, 0x4205AC, 0x10001234}:
                 for owned in (False, True):
                     for delta in (-1, 0, 1, 12345):
-                        expected = delta if (not owned or caller in excluded or delta <= 0) else delta * 2
-                        self.assertEqual(result(delta, caller, owned, excluded), expected)
+                        expected = delta * 2 if (owned and caller in eligible and delta > 0) else delta
+                        self.assertEqual(result(delta, caller, owned, eligible), expected)
 
     def test_project_transparency_and_release_include_audit_boundary(self) -> None:
         self.assertIn("docs/doubler-composition-audit.md", RELEASE.read_text(encoding="utf-8"))

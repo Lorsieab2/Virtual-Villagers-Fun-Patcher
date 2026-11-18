@@ -34,6 +34,36 @@ PAYLOAD_VA = IMAGE_BASE + PAYLOAD_FILE_OFFSET
 PAYLOAD_SIZE = 0xE80
 STRINGS_OFFSET = 0xC00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
+# The owner's doubler scope (2026-11-17, the same rule in all five games):
+# FOOD is only food gathered from a food source; TECH is research-table work
+# (with the chief's, Magic's, the potion's and the fire's points worked out at
+# the research table), collectible duplicates and collection effects on tech
+# gain.  Island events (direct calls, tail-jumps and the ones a companion DLL
+# runs), rewards (the chief's grant, dialogs), purchases and cheats are never
+# doubled.  The wrappers double only a call whose immediate return address is
+# one of these exact stock returns; every other caller stays native.
+TECH_DOUBLER_ELIGIBLE_RETURNS = (
+    0x459237,  # research at Science 0 or 4 and up
+    0x4593AF,  # research at Science 1 to 3
+    0x4593D5,  # the chief's quarter
+    0x4593F2,  # Magic's extra point
+    0x459410,  # the chief's third or the potion's extra point
+    0x45943A,  # the fire's extra point
+    0x42DF7E,  # a duplicate collectible
+)
+FOOD_DOUBLER_ELIGIBLE_RETURNS = (
+    0x434AF1,  # fruit
+    0x434B1A,  # the chief's fruit bonus
+    0x431C2F,  # honey
+    0x431C51,  # the chief's honey bonus
+    0x458EEA,  # fish
+    0x458FE6,  # crab
+    0x42E07E,  # mushroom
+    0x434C0B,  # the rain lift's fruit
+    0x434D84,  # the cliff top's fruit
+    0x434C7C,  # the rain lift's fruit at the food bin ("Fruit is Harvested at the Food Bin")
+)
+DOUBLER_TABLE_VA = PAYLOAD_VA + 0x1D0
 HEAL_CAVE_FILE_OFFSET = 0x7B664
 HEAL_CAVE_VA = IMAGE_BASE + HEAL_CAVE_FILE_OFFSET
 # Placed after the Cure/village-wide cave (HEAL_CAVE now runs to ~0x7B7F7 after
@@ -1491,21 +1521,38 @@ def main() -> None:
         """,
     )
 
+    # The doublers' whitelists (the owner's scope; see TECH/FOOD_DOUBLER_
+    # ELIGIBLE_RETURNS): one table of exact stock return addresses in the slack
+    # after the Villager Detail constructor, searched with `repne scasd`.
+    tables = b"".join(
+        struct.pack("<I", va)
+        for va in TECH_DOUBLER_ELIGIBLE_RETURNS + FOOD_DOUBLER_ELIGIBLE_RETURNS
+    )
+    table_start = DOUBLER_TABLE_VA - PAYLOAD_VA
+    if any(occupied[table_start : table_start + len(tables)]) or table_start + len(tables) > 0x220:
+        raise RuntimeError("VV3 doubler whitelist table does not fit its slack")
+    code[table_start : table_start + len(tables)] = tables
+    occupied[table_start : table_start + len(tables)] = b"\1" * len(tables)
+    food_table_va = DOUBLER_TABLE_VA + 4 * len(TECH_DOUBLER_ELIGIBLE_RETURNS)
+
     put(
         tech_increment,
-        """
+        f"""
             mov eax, dword ptr [esp + 4]
             test eax, eax
             jle apply
-            cmp dword ptr [esp], 0x42DF79
-            je apply
-            cmp dword ptr [esp], 0x458DB0
-            jb check_owned
-            cmp dword ptr [esp], 0x45943F
-            jb apply
-        check_owned:
-            test dword ptr [0x5824D0], 1
+            test byte ptr [0x5824D0], 1
             jz apply
+            push edi
+            push ecx
+            mov eax, dword ptr [esp + 8]
+            mov edi, 0x{DOUBLER_TABLE_VA:X}
+            push {len(TECH_DOUBLER_ELIGIBLE_RETURNS)}
+            pop ecx
+            repne scasd
+            pop ecx
+            pop edi
+            jne apply
             shl dword ptr [esp + 4], 1
         apply:
             mov eax, dword ptr [esp + 4]
@@ -1516,17 +1563,22 @@ def main() -> None:
 
     put(
         food_increment,
-        """
+        f"""
             mov eax, dword ptr [esp + 4]
             test eax, eax
             jle apply
-            cmp dword ptr [esp], 0x458DB0
-            jb check_owned
-            cmp dword ptr [esp], 0x45943F
-            jb apply
-        check_owned:
-            test dword ptr [0x5824D0], 2
+            test byte ptr [0x5824D0], 2
             jz apply
+            push edi
+            push ecx
+            mov eax, dword ptr [esp + 8]
+            mov edi, 0x{food_table_va:X}
+            push {len(FOOD_DOUBLER_ELIGIBLE_RETURNS)}
+            pop ecx
+            repne scasd
+            pop ecx
+            pop edi
+            jne apply
             shl dword ptr [esp + 4], 1
         apply:
             mov eax, dword ptr [esp + 4]
@@ -2689,7 +2741,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x97488", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. The Tribal Chief, who cannot hold a preference, is skipped. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Tribal Chief is skipped.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each: the Tech Point Doubler doubles research tech points (with the chief's, Magic's, the potion's and the fire's extra points) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (fruit, honey, fish, crabs and mushrooms, with the chief's bonuses). Island events, the chief's grant, other rewards, purchases and cheats are never doubled. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. The Tribal Chief, who cannot hold a preference, is skipped. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Tribal Chief is skipped.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -2732,29 +2784,40 @@ def main() -> None:
             "duplicate_collectibles": {
                 "dispatcher": "sub_42DEB0",
                 "tech_return": "0x42DF79",
-                "behavior": "an already-completed collectible routes to the tech writer",
+                "behavior": "an already-completed collectible routes to the tech writer (doubled: in the owner's scope)",
             },
-            "island_event_producers": {
-                "dispatcher": "0x458DB0-0x45943F",
-                "inventory": "complete positive/zero/negative/bypass inventory including tail calls; mixed-source writers have no source tag",
-                "final_delta": "sub_458DB0 emits base and bonus components through separate tech-writer calls; no single final-delta boundary is proved",
+            "job_event_dispatcher": {
+                "dispatcher": "sub_458DB0 (job events 24-43)",
+                "sources": "fish 0x458EE5, crab 0x458FE1 and research 0x459232-0x459435 are doubled; the food bowl's -1 (0x458E78), the -5000 tech (0x458E09) and the chief's grant food (event 43, 0x459068) stay native",
+                "final_delta": "sub_458DB0 emits base and bonus components through separate tech-writer calls; each research component is doubled once",
             },
+            "tech_eligible_returns": [f"0x{va:X}" for va in TECH_DOUBLER_ELIGIBLE_RETURNS],
+            "food_eligible_returns": [f"0x{va:X}" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS],
+            "whitelist_table": f"0x{DOUBLER_TABLE_VA:X}",
             "writer_inventory": {"food": {"rows": 33, "calls": 29, "e9_tails": 4}, "tech": {"rows": 16, "calls": 13, "e9_tails": 3}},
             "tail_sites": {"food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"], "tech": ["0x415D44", "0x41673E", "0x418452"]},
             "tail_bypass_sites": {
                 "food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"],
                 "tech": ["0x415D44", "0x41673E", "0x418452"],
             },
-            "hook_status": "GO: positive writer wrappers double eligible positive deltas once; duplicate collectibles and audited Island Event calls remain native; runtime/player confirmation pending",
+            "hook_status": "GO: exact-build static whitelist of the gathered food sources, research (with its chief, Magic, potion and fire points) and duplicate collectibles; Island Event calls and tail-jumps, rewards and every other caller stay native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
                 "positive earned tech deltas only",
                 "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
+            "scope": {
+                "tech": ["research", "the chief's, Magic's, the potion's and the fire's research points", "duplicate collectibles"],
+                "food": ["fruit (with the chief's bonus, the rain lift, the cliff top and the food bin)", "honey (with the chief's bonus)", "fish", "crab", "mushrooms"],
+            },
+            "exclusions": [
+                "Island Event tech-point and food-point gain",
+                "Reward tech-point and food-point gain (the chief's grant food, dialogs)",
+                "Purchases and cheats",
+            ],
             "food_mastery_status": "confirmed absent in the exact-build writer, strings, and bounded caller corpus",
-            "status": "GO: positive writer wrappers double eligible positive deltas once; duplicate collectibles and audited Island Event calls remain native; runtime/player confirmation pending",
+            "status": "GO: exact-build static whitelist doubles each eligible positive delta once; every other caller stays native; runtime/player confirmation pending",
         },
         "doubler_purchase_status": {
             "new_purchase": "available at 500,000 tech points for each doubler",
@@ -2786,7 +2849,7 @@ def main() -> None:
         },
     }
     MANIFEST_JSON.write_text(
-        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline=""
     )
     used = max(index for index, value in enumerate(code) if value) + 1
     print(f"code bytes used: {used:#x}/{STRINGS_OFFSET:#x}")
