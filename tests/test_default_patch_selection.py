@@ -170,7 +170,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
                   or p == "vv5_respecting_the_legacy_of_isola"
                   # Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults only).
-                  or p.endswith("_gender_presentation")})
+                  or p.endswith("_gender_presentation")
+                  # Every Island Event Can Happen (the owner, 2026-11-17: off by default, on in Owner's Defaults).
+                  or p.endswith("_every_island_event_can_happen")})
 
     def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
