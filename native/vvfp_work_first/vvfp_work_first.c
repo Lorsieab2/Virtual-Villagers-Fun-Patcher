@@ -1,5 +1,5 @@
-/* VVFP Work First -- Builders and Healers Work First, upgraded to skill
-   practice (all five games).
+/* VVFP Work First -- Villagers Work Their Own Job First (formerly Builders and
+   Healers Work First), upgraded to skill practice (all five games).
 
    An addendum to Builders Fix Huts When Idle.  The owner first asked for
    builders and healers to do their own work first, at any food level; the
@@ -15,11 +15,11 @@
    on the decision's roll (about three times in four, shared with Builders
    Fix Huts When Idle), this companion first asks the dispatcher for the
    villager's own selected job; if that starts something, the caller sees
-   "started".  If it starts nothing, a builder in The Secret City, The Tree of
-   Life and New Believers may do the game's own "Doing exercise" (Building
-   practice), and a healer in A New Home and The Lost Children whose village
-   has solved Herb Mastery may study one of the understood plants (Healing
-   practice); otherwise the caller's own request runs exactly as it would have.
+   "started".  If it starts nothing, a healer in A New Home and The Lost
+   Children whose village has solved Herb Mastery may study one of the
+   understood plants (Healing practice); otherwise the caller's own request
+   runs exactly as it would have.  A villager is never put first while their
+   skill in that job is 5 or less (see "Only above skill 5").
    Whatever the work does -- which project, which crop, which patient -- is
    the game's own dispatcher's choice.
 
@@ -41,11 +41,10 @@
    * Building: builders never START a project the player never dropped anyone
      on (the owner's rule); they may continue one in progress.
        - A New Home / The Lost Children: only while the builder has hut work
-         (as before), and never while the stock Building case could start a
-         population hut nobody has worked on (A New Home: hut 9 any time, huts
-         10/11 above 22/45 villagers; The Lost Children: hut 24), whose
-         progress is below 2 -- the village drawing routine marks a scaffold
-         with progress 1.
+         (as before).  No population hut is ever started by nobody's drop:
+         Builders Fix Huts When Idle's choices and new-hut test need a hut
+         worked on, and the stock hut start is checked here (see "No
+         population hut started by nobody's drop").
        - The Secret City / New Believers: always; their Building cases only
          continue projects above 0%.
        - The Tree of Life: always, except while the Building case would offer
@@ -58,13 +57,9 @@
      never double up.
    * Parenting: never.
 
-   THE FALLBACKS (only after the own job started nothing).
-   * Exercise (The Secret City, The Tree of Life, New Believers; the owner's
-     items 56, 77, 92): a builder whose Building work started nothing does the
-     game's own "Doing exercise" (do-action 0x96 / 0x47 / 0x4E), whose step
-     raises Building through the standard practice roll -- above 250 food only
-     (at 250 or less the village needs its farmers), and only when the
-     dispatch left the villager's current action unchanged.
+   THE FALLBACK (only after the own job started nothing).  "Doing exercise"
+   stays exactly the game's own leisure (the owner, 2026-11-18: "Villagers'
+   exercising frequency should stay stock").
    * Plants (A New Home, The Lost Children; the owner's items 15, 39-41):
      once Herb Mastery is solved (A New Home [state+0xA080], The Lost Children
      [state+0x2E788]) a healer whose Healing work started nothing studies a
@@ -77,14 +72,15 @@
      cactus: the Healing case started it and reports "nothing") is left alone.
 
    THE OTHER SITES (runtime detours, all-or-none with the dispatcher hook).
-   * The Tree of Life / New Believers, beginners (items 1, 2): the job picker
-     never sends a villager to a job whose skill is 5 or less (VV4 0x461E69,
-     VV5 0x46A594: cmp esi,5; jle fail).  For the villager's SELECTED job
-     (never Parenting), on the decision's roll, the gate lets the pick through
-     to the game's own roll, rand(100) < skill + 40.
-   * New Believers, "untrained" (item 3): every new villager starts with
+   * Only above skill 5 (the owner, 2026-11-18, replacing items 1 and 2): A
+     New Home's job picker gate (0x439C80, cmp esi, 1) becomes cmp esi, 5,
+     the other four games' rule, so in every game a villager goes to a job
+     on their own only above skill 5; and nothing here puts a villager's own
+     job first at skill 5 or less (see "Only above skill 5").
+   * The Tree of Life and New Believers, "untrained" (item 3; The Tree of
+     Life added by the owner on #807): every new villager starts with
      [record+0x1C54] = 1, and the dispatcher refuses every job while it is 1
-     (0x46C565).  For the scheduler's and catch-up's calls, a request for the
+     (VV4 0x4639D2, VV5 0x46C565).  For the scheduler's and catch-up's calls, a request for the
      villager's selected job (never Parenting) is dispatched with the mark
      lifted for that one call and put back afterwards (a refusal inside the
      call writes 0, which would otherwise train them for everything).
@@ -192,35 +188,6 @@ static int vv2_builder_has_hut_work(const unsigned char *village) {
         && (state[0x2E818] == 1 || state[0x2E820] == 1 || state[0x2E828] == 1);
 }
 
-/* Builders never start a project nobody was dropped on.  A New Home's stock
-   Building case (0x447528) builds hut 9 whenever it is not done and huts 10 /
-   11 above 22 / 45 villagers (population 0x41CF90, thiscall on the state),
-   whatever their progress; a hut a player has worked on has progress 2 or
-   more (the drawing routine writes 1 for a shown scaffold).  progress(id) =
-   [state+0x9F9C+8*id], done = the byte 4 later. */
-#define VV1_POPULATION 0x41CF90u
-static int vv1_fresh_hut_on_offer(const unsigned char *village) {
-    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
-    int population = -1;
-    unsigned int id;
-    for (id = 9; id <= 11; ++id) {
-        const int progress = *(const int *)(state + 0x9F9Cu + 8u * id);
-        if (state[0x9FA0u + 8u * id] == 1 || progress >= 2) continue;
-        if (id == 9) return 1;
-        if (population < 0) population = (int)tc0(VV1_POPULATION, (unsigned int)(uintptr_t)state);
-        if (population > (id == 10 ? 22 : 45)) return 1;
-    }
-    return 0;
-}
-
-/* The Lost Children's stock Building case starts hut 24 whenever it is not
-   done (0x4600D2), whatever its progress [state+0x2E814]; huts 25 / 26 and
-   every other project need progress 2 or more already. */
-static int vv2_fresh_hut_on_offer(const unsigned char *village) {
-    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
-    return state[0x2E818] != 1 && *(const int *)(state + 0x2E814) < 2;
-}
-
 struct later_game {
     unsigned int complete_fn;      /* __stdcall(int) -> al, ecx = complete_obj */
     unsigned int complete_obj;
@@ -315,11 +282,10 @@ static int decision_roll(void) {
 struct vvfp_work_first_stats {
     int tried;          /* the villager's own job was tried first */
     int started;        /* ... and started something */
-    int exercised;      /* the exercise fallback started */
     int studied;        /* the plant fallback started */
     int pick;           /* forced random pick, or -1 */
 };
-__declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0, 0, 0, 0, -1 };
+__declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0, 0, 0, -1 };
 #define COUNT(field) (++VvfpWorkFirstStats.field)
 static unsigned int pick_index(unsigned int n) {
     if (VvfpWorkFirstStats.pick >= 0) return (unsigned int)VvfpWorkFirstStats.pick % n;
@@ -345,9 +311,9 @@ static const struct jobs VV5_JOBS = { 0, 1, 2, 3, 4, 5 };
    building_ok / devotion_ok / farming_ok: whether that job may be put first
    now (see WHO IS PUT FIRST).  The roll is asked only when the companion
    would act. */
-static int own_first(const struct jobs *j, int selected, int requested,
+static int own_first(const struct jobs *j, int selected, int requested, int skill_ok,
                      int building_ok, int devotion_ok, int farming_ok) {
-    if (selected < 0 || selected == requested || selected == j->parenting) {
+    if (selected < 0 || selected == requested || selected == j->parenting || !skill_ok) {
         return -1;
     }
     if (selected == j->building) {
@@ -368,15 +334,18 @@ static int own_first(const struct jobs *j, int selected, int requested,
     return selected;
 }
 
-/* A villager asked for the very job that has a fallback -- the later games'
-   builders (exercise) and A New Home's / The Lost Children's healers (herb
-   study), the picker's usual answer for them: on the decision's roll the
+/* A villager asked for the very job that has a fallback -- A New Home's /
+   The Lost Children's healers (herb study), the picker's usual answer for
+   them: on the decision's roll the
    request is dispatched here, so that if it starts nothing the fallback can
    follow (Codex on #807); -1 = the stock request alone (roll failed), -2 =
    not this case (ask own_first). */
-static int own_asked(int selected, int requested, int job_with_fallback) {
+static int own_asked(int selected, int requested, int job_with_fallback, int skill_ok) {
     if (selected != job_with_fallback || requested != job_with_fallback) {
         return -2;
+    }
+    if (!skill_ok) {
+        return -1;
     }
     if (!decision_roll()) {
         return -1;
@@ -402,7 +371,7 @@ static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au, 0x465
 static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu, 0x46E9CEu };
 #define VV5_CATCH_UP_CALL 0x46E9CEu
 /* New Believers: a Heathen (u8 record+0x1CEC non-zero) never gets job work in the game, and nothing here
-   gives them any -- not their selected job, not the untrained mark, not the beginners' gate, not noni. */
+   gives them any -- not their selected job, not the untrained mark, not noni. */
 #define VV5_HEATHEN 0x1CECu
 
 /* Easier Devotee Training replaces New Believers' scheduler test at 0x46F1DD;
@@ -420,6 +389,39 @@ static int vv1_farming_starts(const unsigned char *village) {
     const int level = *(const int *)(state + 0xA2E4);
     if (level == 2 || level == 3) return 1;
     return level == 1 && *(const int *)(state + 0xA2F4) > 0;
+}
+
+
+/* ---- Only above skill 5 ---------------------------------------------------- */
+/* The owner (2026-11-18, on #807): "Villagers should go to their chosen job on
+   their own only above skill 5 in all 5 games."  The Lost Children, The Secret
+   City, The Tree of Life and New Believers' job pickers never send a villager
+   to a job whose skill is 5 or less (VV2 0x449E0F, VV3 0x45986D, VV4
+   0x461E69, VV5 0x46A594: cmp esi, 5; jle); A New Home's did so from skill 2
+   (0x439C80: cmp esi, 1), and is brought to the same rule below.  This
+   companion never puts a villager's own job first while that skill is 5 or
+   less either.  The skill of each job, as the pickers read it:
+     A New Home        village+i*0x3D8: Farming 0x3C4, Parenting 0x3BC,
+                       Research 0x3CC, Building 0x3C0, Healing 0x3C8
+     The Lost Children village+i*0xE48C: Farming 0x7EC, Parenting 0x7E4,
+                       Healing 0x7F0, Research 0x7F4, Building 0x7E8
+     The Secret City   record+0xEAC+4*job (ints)
+     Tree of Life / New Believers  record+0x1C5C+4*job (floats, truncated as
+                       the pickers' 0x471630 / 0x47C9B0 do) */
+#define SKILL_ABOVE 5
+static int vv1_skill(const unsigned char *rec, int job) {
+    static const unsigned int at[6] = { 0, 0x3C4u, 0x3BCu, 0x3CCu, 0x3C0u, 0x3C8u };
+    return job >= 1 && job <= 5 ? *(const int *)(rec + at[job]) : 0;
+}
+static int vv2_skill(const unsigned char *rec, int job) {
+    static const unsigned int at[6] = { 0, 0x7ECu, 0x7E4u, 0x7F0u, 0x7F4u, 0x7E8u };
+    return job >= 1 && job <= 5 ? *(const int *)(rec + at[job]) : 0;
+}
+static int vv3_skill(const unsigned char *rec, int job) {
+    return job >= 0 && job <= 4 ? *(const int *)(rec + 0xEACu + 4u * (unsigned int)job) : 0;
+}
+static int later_skill(const unsigned char *rec, int job, int last) {
+    return job >= 0 && job <= last ? (int)*(const float *)(rec + 0x1C5Cu + 4u * (unsigned int)job) : 0;
 }
 
 /* ---- The plants (A New Home, The Lost Children) ---------------------------- */
@@ -470,27 +472,6 @@ static int vv2_plant_fallback(unsigned char *village, unsigned int index) {
     const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
     if (state[0x2E788] == 0) return 0;                                      /* Herb Mastery */
     return study_a_plant(village, index, state, VV2_PLANTS, 6, 0x4454E0u);
-}
-
-/* ---- Exercise (The Secret City, The Tree of Life, New Believers) ----------- */
-struct exercise {
-    unsigned int do_action;        /* thiscall(action, args) on the record, ret 8 */
-    unsigned int action;
-    unsigned int food;             /* the village's food total */
-    unsigned int current;          /* the record's current action */
-};
-static const struct exercise VV3_EXERCISE = { 0x455570u, 0x96u, 0x582490u, 0xF24u };
-static const struct exercise VV4_EXERCISE = { 0x45DEC0u, 0x47u, 0x4D6DD0u, 0x1CE0u };
-static const struct exercise VV5_EXERCISE = { 0x465580u, 0x4Eu, 0x51D34Cu, 0x1D10u };
-
-static int exercise(const struct exercise *e, unsigned char *record, int action_before) {
-    unsigned char args[0x58];
-    if (*(const int *)(uintptr_t)e->food <= 250) return 0;
-    if (*(const int *)(record + e->current) != action_before) return 0;
-    memset(args, 0, sizeof args);
-    tc2(e->do_action, (unsigned int)(uintptr_t)record, e->action, (unsigned int)(uintptr_t)args);
-    COUNT(exercised);
-    return 1;
 }
 
 /* ---- The stock dispatchers, callable --------------------------------------- */
@@ -551,14 +532,14 @@ static int dispatch_later(void (*original)(void), unsigned char *object, int job
 /* ---- The handlers: -1 = run the caller's request (the stub jumps to the
    stock dispatcher with the caller's own frame); 0 / 1 = return that. ------- */
 static int __cdecl vv1_handle(unsigned int ret, unsigned char *village, unsigned int index, int job) {
-    int selected, own;
+    int selected, own, skill_ok;
     if (!is_one_of(ret, VV1_CALLS, 3)) return -1;
     selected = *(const int *)(village + index * 0x3D8u + 0x3D0u);
-    own = own_asked(selected, job, VV1_JOBS.healing);
+    skill_ok = vv1_skill(village + index * 0x3D8u, selected) > SKILL_ABOVE;
+    own = own_asked(selected, job, VV1_JOBS.healing, skill_ok);
     if (own == -2) {
-        own = own_first(&VV1_JOBS, selected, job,
-                        selected == VV1_JOBS.building
-                            && vv1_builder_has_hut_work(village) && !vv1_fresh_hut_on_offer(village), 0,
+        own = own_first(&VV1_JOBS, selected, job, skill_ok,
+                        selected == VV1_JOBS.building && vv1_builder_has_hut_work(village), 0,
                         selected == VV1_JOBS.farming && vv1_farming_starts(village));
     }
     if (own < 0) return -1;
@@ -568,14 +549,14 @@ static int __cdecl vv1_handle(unsigned int ret, unsigned char *village, unsigned
 }
 
 static int __cdecl vv2_handle(unsigned int ret, unsigned char *village, unsigned int index, int job) {
-    int selected, own;
+    int selected, own, skill_ok;
     if (!is_one_of(ret, VV2_CALLS, 3)) return -1;
     selected = *(const int *)(village + index * 0xE48Cu + 0x7F8u);
-    own = own_asked(selected, job, VV2_JOBS.healing);
+    skill_ok = vv2_skill(village + index * 0xE48Cu, selected) > SKILL_ABOVE;
+    own = own_asked(selected, job, VV2_JOBS.healing, skill_ok);
     if (own == -2) {
-        own = own_first(&VV2_JOBS, selected, job,
-                        selected == VV2_JOBS.building
-                            && vv2_builder_has_hut_work(village) && !vv2_fresh_hut_on_offer(village), 0, 1);
+        own = own_first(&VV2_JOBS, selected, job, skill_ok,
+                        selected == VV2_JOBS.building && vv2_builder_has_hut_work(village), 0, 1);
     }
     if (own < 0) return -1;
     if (dispatch12(vv2_original, village, index, own)) return 1;
@@ -583,90 +564,82 @@ static int __cdecl vv2_handle(unsigned int ret, unsigned char *village, unsigned
     return own == job ? 0 : -1;                    /* the request already ran */
 }
 
-static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) {
-    unsigned char *record;
-    int own, before, selected;
-    if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
-    record = *(unsigned char *const *)(object + 0x1B88u);
-    selected = *(const int *)(record + 0x1C70u);
-    own = own_asked(selected, job, LATER_JOBS.building);
-    if (own == -2) {
-        own = own_first(&LATER_JOBS, selected, job,
-                        selected == LATER_JOBS.building && !vv4_puzzle_on_offer(), 0, 1);
-    }
-    if (own < 0) return -1;
-    before = *(const int *)(record + VV4_EXERCISE.current);
-    if (dispatch_later(vv4_original, object, own)) {
-        COUNT(started);
-        return 1;
-    }
-    if (own == LATER_JOBS.building && exercise(&VV4_EXERCISE, record, before)) return 1;
-    return own == job ? 0 : -1;                    /* the request already ran */
-}
-
-/* New Believers: the "untrained" mark is lifted for one dispatch of the
-   villager's selected job (never Parenting). */
-static int vv5_dispatch(unsigned char *object, unsigned char *record, int job) {
+/* The Tree of Life and New Believers: every new villager starts with the
+   "untrained" mark [record+0x1C54] = 1, which the dispatcher refuses (VV4
+   0x4639D2, VV5 0x46C565).  The mark is lifted for one dispatch of the
+   villager's selected job (never Parenting) and put back afterwards if it is
+   still 0 (a refusal inside the call writes 0, which would otherwise train
+   them for everything).  The owner: New Believers (item 3), and The Tree of
+   Life too (2026-11-18, on #807). */
+static int untrained_dispatch(void (*original)(void), unsigned char *object, unsigned char *record, int job,
+                              unsigned int selected_at) {
     int *mark = (int *)(record + 0x1C54u);
-    int lifted = *mark == 1 && job >= 0 && job != VV5_JOBS.parenting && job == *(const int *)(record + 0x1C74u);
+    int lifted = *mark == 1 && job >= 0 && job != LATER_JOBS.parenting && job == *(const int *)(record + selected_at)
+                 && later_skill(record, job, 5) > SKILL_ABOVE;
     int started;
     if (lifted) *mark = 0;
-    started = dispatch_later(vv5_original, object, job);
+    started = dispatch_later(original, object, job);
     if (lifted && *mark == 0) *mark = 1;
     return started;
 }
 
+static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) {
+    unsigned char *record;
+    int own, selected, skill_ok;
+    if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
+    record = *(unsigned char *const *)(object + 0x1B88u);
+    selected = *(const int *)(record + 0x1C70u);
+    skill_ok = later_skill(record, selected, 4) > SKILL_ABOVE;
+    own = own_first(&LATER_JOBS, selected, job, skill_ok,
+                    selected == LATER_JOBS.building && !vv4_puzzle_on_offer(), 0, 1);
+    if (own >= 0 && untrained_dispatch(vv4_original, object, record, own, 0x1C70u)) {
+        COUNT(started);
+        return 1;
+    }
+    if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
+    return untrained_dispatch(vv4_original, object, record, job, 0x1C70u);
+}
+
+
 static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) {
     unsigned char *record;
-    int own, before, catch_up;
+    int own, catch_up, skill_ok;
     if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
     catch_up = ret == VV5_CATCH_UP_CALL;
     record = *(unsigned char *const *)(object + 0x1B88u);
     if (record[VV5_HEATHEN] != 0) return -1;                /* Heathens get nothing new */
-    own = own_asked(*(const int *)(record + 0x1C74u), job, VV5_JOBS.building);
-    if (own == -2) {
-        own = own_first(&VV5_JOBS, *(const int *)(record + 0x1C74u), job, 1,
-                        catch_up || !vv5_devotee_training_present(), 1);
-    }
-    if (own >= 0) {
-        before = *(const int *)(record + VV5_EXERCISE.current);
-        if (vv5_dispatch(object, record, own)) {
-            COUNT(started);
-            return 1;
-        }
-        if (own == VV5_JOBS.building && exercise(&VV5_EXERCISE, record, before)) return 1;
-        if (own == job) return 0;                  /* the request already ran */
+    skill_ok = later_skill(record, *(const int *)(record + 0x1C74u), 5) > SKILL_ABOVE;
+    own = own_first(&VV5_JOBS, *(const int *)(record + 0x1C74u), job, skill_ok, 1,
+                    catch_up || !vv5_devotee_training_present(), 1);
+    if (own >= 0 && untrained_dispatch(vv5_original, object, record, own, 0x1C74u)) {
+        COUNT(started);
+        return 1;
     }
     if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
-    return vv5_dispatch(object, record, job);
+    return untrained_dispatch(vv5_original, object, record, job, 0x1C74u);
 }
 
 /* For The Secret City's executable-side stub at the dispatcher's entry (the
    fix-huts page): the scheduler's return address, the record, the requested
    job and the ecx the dispatcher was called with.  Returns -2 when this
-   companion started something (the stub returns "started"), -3 when it ran
-   the request itself and nothing started (the stub returns "nothing"), else
+   companion started something (the stub returns "started"), else
    -1 (the stub runs the stock request).  The own job is dispatched through the
    dispatcher's entry, which reaches this export again with a caller that is
    none of the calls and so runs the stock dispatcher. */
 __declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int ret,
                                                      unsigned char *record, int job,
                                                      unsigned int self) {
-    int own, before;
+    int own, skill_ok;
     if (game_id != 3 || record == NULL) return -1;
     if (!is_one_of(ret, VV3_CALLS, 4)) return -1;
-    own = own_asked(*(const int *)(record + 0xEC0u), job, LATER_JOBS.building);
-    if (own == -2) {
-        own = own_first(&LATER_JOBS, *(const int *)(record + 0xEC0u), job, 1, 0, 1);
-    }
+    skill_ok = vv3_skill(record, *(const int *)(record + 0xEC0u)) > SKILL_ABOVE;
+    own = own_first(&LATER_JOBS, *(const int *)(record + 0xEC0u), job, skill_ok, 1, 0, 1);
     if (own < 0) return -1;
-    before = *(const int *)(record + VV3_EXERCISE.current);
     if ((tc2(VV3_DISPATCHER, self, (unsigned int)(uintptr_t)record, (unsigned int)own) & 0xFFu) != 0) {
         COUNT(started);
         return -2;
     }
-    if (own == LATER_JOBS.building && exercise(&VV3_EXERCISE, record, before)) return -2;
-    return own == job ? -3 : -1;                   /* -3: the request already ran, nothing started */
+    return -1;
 }
 
 /* ---- The dispatcher stubs -------------------------------------------------- */
@@ -714,44 +687,6 @@ VV12_STUB(vv1)
 VV12_STUB(vv2)
 LATER_STUB(vv4)
 LATER_STUB(vv5)
-
-/* ---- Beginners: the picker's skill gate (The Tree of Life, New Believers) --- */
-/* At the site: esi = the job's skill, ebx = the job, edi = the villager
-   object.  The stock `cmp esi, 5; jle fail` is replayed; at 5 or less, for
-   the selected job (never Parenting) on the decision's roll, the pick goes on
-   to the game's own roll. */
-static int __cdecl vv4_beginner(int job, const unsigned char *object) {
-    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
-    return job >= 0 && job != LATER_JOBS.parenting && job == *(const int *)(record + 0x1C70u)
-        && decision_roll();
-}
-static int __cdecl vv5_beginner(int job, const unsigned char *object) {
-    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
-    return job >= 0 && job != VV5_JOBS.parenting && job == *(const int *)(record + 0x1C74u)
-        && record[VV5_HEATHEN] == 0 && decision_roll();
-}
-static const unsigned int vv4_gate_go = 0x461E6Eu, vv4_gate_fail = 0x461EB4u;
-static const unsigned int vv5_gate_go = 0x46A599u, vv5_gate_fail = 0x46A5DFu;
-#define GATE_STUB(NAME)                                                       \
-    static __declspec(naked) void NAME##_gate_stub(void) {                    \
-        __asm {                                                              \
-            __asm cmp esi, 5                                                 \
-            __asm jg go                                                      \
-            __asm pushad                                                     \
-            __asm push edi                                                   \
-            __asm push ebx                                                   \
-            __asm call NAME##_beginner                                       \
-            __asm add esp, 8                                                 \
-            __asm test eax, eax                                              \
-            __asm popad                                                      \
-            __asm jnz go                                                     \
-            __asm jmp dword ptr [NAME##_gate_fail]                           \
-            __asm go:                                                        \
-            __asm jmp dword ptr [NAME##_gate_go]                             \
-        }                                                                    \
-    }
-GATE_STUB(vv4)
-GATE_STUB(vv5)
 
 /* ---- Catch-up offers: fruit (The Tree of Life), noni (New Believers) ------- */
 /* At the site: eax = the game object, ebx = 0, esi = the villager object.
@@ -801,6 +736,62 @@ static __declspec(naked) void vv5_offer_stub(void) {
     }
 }
 
+/* ---- No population hut started by nobody's drop (A New Home, The Lost Children) */
+/* The owner (2026-11-18, on #807): builders never start a population hut on
+   their own; it is started only once the player has dropped a builder on it,
+   and then builders continue it as usual.  Builders Fix Huts When Idle's own
+   choices and its new-hut test already require a hut worked on (A New Home:
+   hut 9 progress 1 or more, huts 10 / 11 2 or more -- the drawing routine
+   marks a shown scaffold with 1; The Lost Children: huts 25 / 26 2 or more,
+   hut 24 1 or more).  What is left is the stock code that builds A New
+   Home's hut 9 and The Lost Children's hut 24 whenever they are not done --
+   a new village starts them at progress 125 and 205, but an earthquake can
+   take a hut back to 0.  So the call that starts a hut there (A New Home
+   0x44753C, call 0x442090, which huts 9 and 10 share; The Lost Children
+   0x45FF11, call 0x457130 for hut 24) asks first: the hut is worked on, or
+   this villager was dropped on it (the drop's own activity, A New Home
+   [rec+0x3B8] 0xB / 0xC / 0xD for huts 9 / 10 / 11; The Lost Children's task
+   [rec+0x7E0] 0xB for hut 24).  Otherwise nothing is started and the
+   dispatcher reports "nothing" (its own exit: A New Home 0x447901, The Lost
+   Children 0x46004C), so the scheduler goes on to other work. */
+static int __cdecl vv1_hut_may_start(const unsigned char *village, unsigned int index, int hut) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    if (hut < 9 || hut > 11) return 1;
+    if (state[0x9FA0u + 8u * (unsigned int)hut] == 1) return 1;
+    if (*(const int *)(state + 0x9F9Cu + 8u * (unsigned int)hut) >= (hut == 9 ? 1 : 2)) return 1;
+    return *(const int *)(village + index * 0x3D8u + 0x3B8u) == 0xB + (hut - 9);
+}
+static int __cdecl vv2_hut_may_start(const unsigned char *village, unsigned int index, int hut) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    if (hut != 24) return 1;
+    if (state[0x2E818] == 1 || *(const int *)(state + 0x2E814) >= 1) return 1;
+    return *(const int *)(village + index * 0xE48Cu + 0x7E0u) == 0xB;
+}
+static const unsigned int vv1_build_hut = 0x442090u, vv1_nothing = 0x447901u;
+static const unsigned int vv2_build_hut = 0x457130u, vv2_nothing = 0x46004Cu;
+/* Entered as the call: [esp] = its return, then (index, hut, flag); ecx =
+   the village. */
+#define HUT_CALL_STUB(NAME)                                                   \
+    static __declspec(naked) void NAME##_hut_stub(void) {                     \
+        __asm {                                                              \
+            __asm push ecx                                                   \
+            __asm push dword ptr [esp + 0x0C]      /* hut */                  \
+            __asm push dword ptr [esp + 0x0C]      /* index */                \
+            __asm push ecx                         /* the village */          \
+            __asm call NAME##_hut_may_start                                  \
+            __asm add esp, 12                                                \
+            __asm pop ecx                                                    \
+            __asm test eax, eax                                              \
+            __asm jz blocked                                                 \
+            __asm jmp dword ptr [NAME##_build_hut]                           \
+            __asm blocked:                                                   \
+            __asm add esp, 16                      /* the return, 3 args */   \
+            __asm jmp dword ptr [NAME##_nothing]                             \
+        }                                                                    \
+    }
+HUT_CALL_STUB(vv1)
+HUT_CALL_STUB(vv2)
+
 /* ---- The Lost Children: examining the finished sewing hut ------------------ */
 /* At 0x4602B0 (push 4; call rand, 7 bytes): esi = the village, edi = the
    villager's index, bl = 1.  1 when this pick examines the sewing hut. */
@@ -839,25 +830,33 @@ struct site {
     const unsigned char *stock;
     int length;
     void (*stub)(void);
+    unsigned char opcode;          /* 0: a jmp (0xE9); else this opcode (0xE8, a call) */
 };
 
+static const unsigned char VV1_HUT_CALL_STOCK[5] = { 0xE8, 0x4F, 0xAB, 0xFF, 0xFF };   /* call 0x442090 */
+static const unsigned char VV2_HUT_CALL_STOCK[5] = { 0xE8, 0x1A, 0x72, 0xFF, 0xFF };   /* call 0x457130 */
 static const unsigned char VV2_SEWING_STOCK[7] = { 0x6A, 0x04, 0xE8, 0xE9, 0x2E, 0xFA, 0xFF };
-static const unsigned char GATE_STOCK[5] = { 0x83, 0xFE, 0x05, 0x7E, 0x46 };
+/* A New Home's job picker: cmp esi, 1 (no job at skill 0 or 1) becomes cmp
+   esi, 5, the other games' rule; the jle that follows (0F 8E 99 FE FF FF)
+   is checked too. */
+#define VV1_PICKER_GATE 0x439C80u
+static const unsigned char VV1_PICKER_GATE_STOCK[9] = { 0x83, 0xFE, 0x01, 0x0F, 0x8E, 0x99, 0xFE, 0xFF, 0xFF };
+static const unsigned char VV1_PICKER_GATE_ABOVE_5[3] = { 0x83, 0xFE, 0x05 };
 static const unsigned char VV4_OFFER_STOCK[8] = { 0x38, 0x98, 0xA4, 0x71, 0x01, 0x00, 0x75, 0x0B };
 static const unsigned char VV5_OFFER_STOCK[8] = { 0x38, 0x98, 0x10, 0x7E, 0x01, 0x00, 0x75, 0x06 };
 
 #define MAX_SITES 3
 static const struct site SITES[6][MAX_SITES] = {
     { { 0 } },
-    { { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub } },
+    { { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub },
+      { 0x44753Cu, VV1_HUT_CALL_STOCK, sizeof VV1_HUT_CALL_STOCK, vv1_hut_stub, 0xE8 } },
     { { VV2_DISPATCHER, VV2_STOCK, sizeof VV2_STOCK, vv2_stub },
-      { 0x4602B0u, VV2_SEWING_STOCK, sizeof VV2_SEWING_STOCK, vv2_sewing_stub } },
+      { 0x4602B0u, VV2_SEWING_STOCK, sizeof VV2_SEWING_STOCK, vv2_sewing_stub },
+      { 0x45FF11u, VV2_HUT_CALL_STOCK, sizeof VV2_HUT_CALL_STOCK, vv2_hut_stub, 0xE8 } },
     { { 0 } },                          /* The Secret City: the fix-huts page's stub */
     { { VV4_DISPATCHER, VV4_STOCK, sizeof VV4_STOCK, vv4_stub },
-      { 0x461E69u, GATE_STOCK, sizeof GATE_STOCK, vv4_gate_stub },
       { 0x463A30u, VV4_OFFER_STOCK, sizeof VV4_OFFER_STOCK, vv4_offer_stub } },
     { { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
-      { 0x46A594u, GATE_STOCK, sizeof GATE_STOCK, vv5_gate_stub },
       { 0x46C5CAu, VV5_OFFER_STOCK, sizeof VV5_OFFER_STOCK, vv5_offer_stub } },
 };
 static int install_state[6];
@@ -877,7 +876,7 @@ static int site_is_stock(const struct site *s) {
    every site of the game is checked, then all written, or none
    (native/shared/install_sites.h). */
 __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
-    vvfp_site_write w[MAX_SITES];
+    vvfp_site_write w[MAX_SITES + 1];
     int n = 0, i;
     if (game_id < 1 || game_id > 5) {
         return 0;
@@ -894,9 +893,17 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
             return 0;
         }
     }
+    if (game_id == 1 && !vvfp_site_holds(VV1_PICKER_GATE, VV1_PICKER_GATE_STOCK, sizeof VV1_PICKER_GATE_STOCK)) {
+        return 0;
+    }
     for (i = 0; i < MAX_SITES && SITES[game_id][i].va != 0; ++i) {
         vvfp_site_branch(&w[n++], SITES[game_id][i].va, SITES[game_id][i].length, SITES[game_id][i].stock,
-                         0xE9, (const void *)SITES[game_id][i].stub);
+                         SITES[game_id][i].opcode ? SITES[game_id][i].opcode : 0xE9,
+                         (const void *)SITES[game_id][i].stub);
+    }
+    if (game_id == 1) {
+        vvfp_site_bytes(&w[n++], VV1_PICKER_GATE, sizeof VV1_PICKER_GATE_ABOVE_5, VV1_PICKER_GATE_STOCK,
+                        VV1_PICKER_GATE_ABOVE_5);
     }
     if (!vvfp_install_sites(w, n)) {
         return 0;
@@ -924,7 +931,7 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstProbeSiteAt(int game_id, int wh
     *va = s->va;
     memcpy(stock, s->stock, (size_t)s->length);
     rel = (unsigned int)((const unsigned char *)s->stub - ((const unsigned char *)(uintptr_t)s->va + 5));
-    patched[0] = 0xE9;
+    patched[0] = s->opcode ? s->opcode : 0xE9;
     memcpy(patched + 1, &rel, 4);
     for (i = 5; i < s->length; ++i) {
         patched[i] = 0x90;

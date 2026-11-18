@@ -21,25 +21,25 @@ owner's decisions:
 3. The low-food safety net wins: at 250 food or less with Farming 20 or more,
    The Secret City, The Tree of Life and New Believers dispatch Farming and
    Work First never overrides it.
-4. Builders never start a project nobody was dropped on: A New Home / The Lost
-   Children only while there is hut work and no hut the stock case could start
-   by itself; The Tree of Life never while its Building case offers puzzle work
-   it can start by itself (the stream only until The Stream is solved, the
-   owner's item 73).
-5. The fallbacks: a builder whose Building work started nothing exercises
-   (The Secret City, The Tree of Life, New Believers; above 250 food); a
-   healer whose Healing work started nothing studies an understood plant once
-   Herb Mastery is solved (A New Home -- never the Magic Plant of Life -- and
-   The Lost Children).
-6. New Believers' "untrained" mark is lifted for one dispatch of the
-   villager's selected job, and put back.
-7. The Lost Children's healers continue plant study (state 9, the scheduler's
+4. Builders never start a project nobody was dropped on: The Tree of Life
+   never while its Building case offers puzzle work it can start by itself
+   (the stream only until The Stream is solved, the owner's item 73); A New
+   Home's / The Lost Children's hut starts: tests/test_work_first.py.
+5. The fallback: a healer whose Healing work started nothing studies an
+   understood plant once Herb Mastery is solved (A New Home -- never the
+   Magic Plant of Life -- and The Lost Children).  "Doing exercise" stays the
+   game's own leisure: a builder with nothing to build is never sent to it.
+6. The "untrained" mark (The Tree of Life, New Believers) is lifted for one
+   dispatch of the villager's selected job, and put back.
+7. Only above skill 5 (the owner, 2026-11-18): nobody is put first while
+   their skill in that job is 5 or less.
+8. The Lost Children's healers continue plant study (state 9, the scheduler's
    own continuation 0x460590(index, 40)) during catch-up; A New Home's the same
    way (0x447CD0(index, 60), tests/test_easier_healing_mastery.py).
 
 Everything here is EMULATED FROM THE WORKER'S ENTRY in the executable the
 patcher renders for the rows (Origins base + Builders Fix Huts When Idle +
-Builders and Healers Work First, + Healers Study Plants Regardless of Food in
+Villagers Work Their Own Job First, + Healers Study Plants Regardless of Food in
 A New Home / The Lost Children), with the test builds of the companions
 mapped and installed as their per-frame callers install them
 (tests/test_builders_decision_roll.Machine).  The worker, every patched site
@@ -84,15 +84,15 @@ G = {
     "vv3": dict(worker=0x45BF00, disp=0x45AF00, body=0x45AF0A, shift=0xA0, argbytes=8,
                 parent_site=0x45BF52, parent_stock="83FB017524", pick_ret=0x45BFC5,
                 farming=0, parenting=1, healing=2, research=3, building=4,
-                food=0x582490, farm_ret=0x45BFB0, do_action=0x455570, exercise=0x96, current=0xF24),
+                food=0x582490, farm_ret=0x45BFB0, do_action=0x455570),
     "vv4": dict(worker=0x465750, disp=0x4639B0, body=0x4639BA, shift=0x98, argbytes=4,
                 parent_site=0x46579F, parent_stock="83FF01751F", pick_ret=0x46582C,
                 farming=0, parenting=1, healing=2, research=3, building=4,
-                food=0x4D6DD0, farm_ret=0x46580F, do_action=0x45DEC0, exercise=0x47, current=0x1CE0),
+                food=0x4D6DD0, farm_ret=0x46580F, do_action=0x45DEC0),
     "vv5": dict(worker=0x46E8E0, disp=0x46C540, body=0x46C546, shift=0x94, argbytes=4,
                 parent_site=0x46E92F, parent_stock="83FF017531", pick_ret=0x46E9CE,
                 farming=0, parenting=1, healing=2, research=3, building=4, devotion=5,
-                food=0x51D34C, farm_ret=0x46E9B1, do_action=0x465580, exercise=0x4E, current=0x1D10),
+                food=0x51D34C, farm_ret=0x46E9B1, do_action=0x465580),
 }
 GAMES = tuple(G)
 FARMING = 0
@@ -147,7 +147,7 @@ class Worker(Machine):
             job, = struct.unpack("<i", mu.mem_read(frame + self.g["argbytes"], 4))
             self.asked.append((ret, job))
             self.calls.append(("dispatch", (job,), 0))
-            if self.game == "vv5":
+            if self.game in ("vv4", "vv5"):
                 self.marks.append(self.u32(RECORD + 0x1C54))
             if self.building_asks and job == self.g["building"] and "fix_huts" in self.exports:
                 self._pending = (frame, job)
@@ -168,14 +168,15 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
           food=1000, farming=10, huts_done=False, task=0, task_done=0, cont=0, rolls=None,
           modules=None, install=True, exe=None, herb_mastery=False, herbs=(), trait=False,
           stream=0, stream_solved=False, piers_stage=5, rubble_stage=1, population=10,
-          hut_progress=5, farm_level=2) -> Worker:
+          hut_progress=5, farm_level=2, skill=30) -> Worker:
     """A machine ready to run `game`'s catch-up worker for one adult.
     starts: job -> whether the dispatcher starts something (default: every
     job but 0... except that the picker's 0 is 'nothing' in A New Home).
     herbs: indexes of understood herbs (VV1 / VV2 tables above); stream,
     piers_stage, rubble_stage: The Tree of Life's puzzle tests (the defaults
     offer no puzzle work); hut_progress: A New Home's hut 10 / The Lost
-    Children's hut 24 progress (2 or more: a player worked on it)."""
+    Children's hut 24 progress (2 or more: a player worked on it); skill:
+    every job's skill (above 5: the game's own pickers' rule)."""
     g = G[game]
     rows = _rows(game) if rows is None else rows
     if modules is None:
@@ -197,6 +198,8 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
         m.w32(rec + 0x344, 100)
         m.w32(rec + 0x358, 0)
         m.w32(rec + 0x3D0, selected)
+        for off in (0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC):
+            m.w32(rec + off, skill)
         m.w32(STATE + 0xA2CC, 3)
         m.w32(STATE + 0xA2E4, farm_level)
         for off in (0x9FE8, 0x9FF0, 0x9FF8):
@@ -229,6 +232,8 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
         m.w32(rec + 0x52C, 100)
         m.w32(rec + 0x540, 0)
         m.w32(rec + 0x7F8, selected)
+        for off in (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4):
+            m.w32(rec + off, skill)
         m.w32(STATE + 0x2EA84, 3)
         for off in (0x2E818, 0x2E820, 0x2E828):
             m.w8(STATE + off, 1)
@@ -258,6 +263,8 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
         m.w32(RECORD + 0xE78, 100)
         m.w32(RECORD + 0xE8C, 0)
         m.w32(RECORD + 0xEA0, task)
+        for job in range(5):
+            m.w32(RECORD + 0xEAC + 4 * job, skill)
         m.w32(RECORD + 0xEAC, farming)
         m.w32(RECORD + 0xEC0, selected)
         m.w32(g["food"], food)
@@ -280,6 +287,8 @@ def world(game, *, rows=None, runtime=True, force=FORCE_PASS, selected=4, pick=1
         m.w32(RECORD + 0x1C40, 100)
         m.w32(RECORD + 0x1C4C, 0)
         m.w32(RECORD + 0x1C54, task)
+        for job in range(5 if game == "vv4" else 6):
+            m.mu.mem_write(RECORD + 0x1C5C + 4 * job, struct.pack("<f", float(skill)))
         m.w32(RECORD + (0x1C70 if game == "vv4" else 0x1C74), selected)
         m.w32(g["food"], food)
         hut = 0x438960 if game == "vv4" else 0x43AE80
@@ -432,8 +441,7 @@ class OwnJobFirst(unittest.TestCase):
                     self.assertNotEqual(m.asked[0][0], g["pick_ret"])
                     self.assertIn("processor", names(m))
                     # Nothing of theirs to do: the pick runs, as the stock call.
-                    m = decide(world(game, selected=own, pick=other, starts=lambda j, o=own: j != o,
-                                     food=200, farming=0))
+                    m = decide(world(game, selected=own, pick=other, starts=lambda j, o=own: j != o))
                     self.assertEqual(jobs(m)[0], own)
                     self.assertEqual(m.asked[-1], (g["pick_ret"], other))
 
@@ -628,9 +636,9 @@ class UntouchedCases(unittest.TestCase):
                 with self.subTest(game=game, who=who):
                     m = decide(world(game, selected=own, pick=own))
                     self.assertEqual(jobs(m), [own])
-                    # A job with a fallback (the later games' Building, A New Home's and The Lost Children's
-                    # Healing) is dispatched by the companion so its fallback can follow.
-                    fallback = G[game]["building"] if game in LATER else G[game]["healing"]
+                    # A job with a fallback (A New Home's and The Lost Children's Healing) is dispatched
+                    # by the companion so its fallback can follow; every other one is the stock call.
+                    fallback = G[game]["healing"] if game in ("vv1", "vv2") else None
                     self.assertEqual(m.asked[0][0] == G[game]["pick_ret"], own != fallback)
 
     def test_a_builder_without_hut_work(self):
@@ -645,25 +653,6 @@ class UntouchedCases(unittest.TestCase):
 class BuildersNeverStartAnUndroppedProject(unittest.TestCase):
     """Decision 4: the owner's rule -- builders never START a project nobody
     was dropped on; they may continue one in progress."""
-
-    def test_a_new_home_hut_nobody_worked_on(self):
-        g = G["vv1"]
-        # Hut 10 unbuilt, progress below 2 (the drawing routine's scaffold
-        # mark is 1), more than 22 villagers: the stock case could start it.
-        for progress, population, first in ((0, 23, False), (1, 23, False), (2, 23, True), (0, 22, True)):
-            with self.subTest(progress=progress, population=population):
-                m = decide(world("vv1", selected=g["building"], pick=g["healing"], hut_progress=progress,
-                                 population=population))
-                self.assertEqual(jobs(m)[0] == g["building"], first)
-
-    def test_the_lost_children_first_hut_nobody_worked_on(self):
-        g = G["vv2"]
-        for progress, first in ((0, False), (1, False), (2, True)):
-            with self.subTest(progress=progress):
-                m = world("vv2", selected=g["building"], pick=g["healing"], hut_progress=progress)
-                m.w8(STATE + 0x2E818, 0)                       # hut 24 not built
-                decide(m)
-                self.assertEqual(jobs(m)[0] == g["building"], first)
 
     def test_the_tree_of_life_puzzle_work(self):
         g = G["vv4"]
@@ -686,40 +675,20 @@ class BuildersNeverStartAnUndroppedProject(unittest.TestCase):
 class Fallbacks(unittest.TestCase):
     """Decision 5."""
 
-    def _exercises(self, m):
-        return [c for c in m.calls if c[0] == "do-action"]
-
-    def test_a_builder_with_nothing_to_build_exercises(self):
+    def test_exercise_stays_stock(self):
+        # The owner (2026-11-18): "Villagers' exercising frequency should stay stock".  A builder whose Building
+        # work starts nothing is never sent to "Doing exercise"; the decision is the stock worker's.
         for game in LATER:
             g = G[game]
             for pick in (g["healing"], g["building"]):
                 with self.subTest(game=game, pick=pick):
-                    m = decide(world(game, selected=g["building"], pick=pick,
-                                     starts=lambda j, b=g["building"]: j != b))
-                    calls = self._exercises(m)
-                    self.assertEqual(len(calls), 1)
-                    self.assertEqual(calls[0][1][0], g["exercise"])
-                    self.assertEqual(calls[0][2], RECORD)              # thiscall on the record
-                    self.assertEqual(jobs(m), [g["building"]])         # the pick is not run as well
-
-    def test_no_exercise_at_low_food_or_when_something_started(self):
-        for game in LATER:
-            g = G[game]
-            with self.subTest(game=game, case="250 food"):
-                m = decide(world(game, selected=g["building"], pick=g["healing"], food=250, farming=0,
-                                 starts=lambda j, b=g["building"]: j != b))
-                self.assertEqual(self._exercises(m), [])
-                self.assertEqual(jobs(m), [g["building"], g["healing"]])
-            with self.subTest(game=game, case="started"):
-                m = decide(world(game, selected=g["building"], pick=g["healing"]))
-                self.assertEqual(self._exercises(m), [])
-            with self.subTest(game=game, case="roll failed"):
-                m = decide(world(game, selected=g["building"], pick=g["healing"], force=FORCE_FAIL,
-                                 starts=lambda j, b=g["building"]: j != b))
-                self.assertEqual(self._exercises(m), [])
-            with self.subTest(game=game, case="healer"):
-                m = decide(world(game, selected=g["healing"], pick=g["building"], starts=lambda j: False))
-                self.assertEqual(self._exercises(m), [])
+                    kw = dict(selected=g["building"], pick=pick, starts=lambda j, b=g["building"]: j != b,
+                              rolls=Rolls(default=lambda n: 0))
+                    m = decide(world(game, **kw))
+                    self.assertEqual([c for c in m.calls if c[0] == "do-action"], [])
+                    if pick == g["building"]:
+                        stock = decide(world(game, rows=(), runtime=False, **kw))
+                        self.assertEqual(effects(m), effects(stock))
 
     def _studied(self, m):
         return [c[0] for c in m.calls if c[0].startswith("herb ") or c[0] == "magic plant"]
@@ -781,7 +750,7 @@ class Fallbacks(unittest.TestCase):
         for seed in range(8):
             m = world("vv1", selected=g["healing"], pick=g["building"], herb_mastery=True, herbs=(0, 1, 2, 3),
                       starts=lambda j: j != g["healing"])
-            m.mu.mem_write(m.exports["work_first"]["VvfpWorkFirstStats"] + 16, struct.pack("<i", seed))
+            m.mu.mem_write(m.exports["work_first"]["VvfpWorkFirstStats"] + 12, struct.pack("<i", seed))
             decide(m)
             self.assertNotIn("magic plant", names(m))
             self.assertEqual(len(self._studied(m)), 1)
@@ -789,18 +758,28 @@ class Fallbacks(unittest.TestCase):
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
-class NewBelieversUntrained(unittest.TestCase):
-    """Decision 6: the untrained mark (record+0x1C54 = 1) is lifted for one
-    dispatch of the selected job (never Parenting) and put back."""
+class Untrained(unittest.TestCase):
+    """Decision 6: the untrained mark (record+0x1C54 = 1; The Tree of Life
+    and New Believers) is lifted for one dispatch of the selected job (never
+    Parenting, skill above 5) and put back."""
 
     def test_the_selected_job_is_dispatched_trained_and_the_mark_put_back(self):
-        g = G["vv5"]
-        for own in (g["farming"], g["healing"], g["building"]):
-            with self.subTest(selected=own):
-                m = decide(world("vv5", selected=own, pick=own, task=1))
-                self.assertEqual(jobs(m), [own])
-                self.assertEqual(m.marks, [0], "lifted for the dispatch")
-                self.assertEqual(m.u32(RECORD + 0x1C54), 1, "put back")
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            for own in (g["farming"], g["healing"], g["building"]):
+                for pick in (own, g["research"]):
+                    with self.subTest(game=game, selected=own, pick=pick):
+                        m = decide(world(game, selected=own, pick=pick, task=1))
+                        self.assertEqual(jobs(m)[0], own)
+                        self.assertEqual(m.marks[0], 0, "lifted for the dispatch")
+                        self.assertEqual(m.u32(RECORD + 0x1C54), 1, "put back")
+
+    def test_not_at_skill_5_or_less(self):
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            with self.subTest(game=game):
+                m = decide(world(game, selected=g["healing"], pick=g["healing"], task=1, skill=5))
+                self.assertEqual(m.marks, [1])
 
     def test_any_other_request_still_sees_the_mark(self):
         g = G["vv5"]
@@ -829,6 +808,41 @@ class NewBelieversUntrained(unittest.TestCase):
         m = decide(world("vv5", selected=g["healing"], pick=g["healing"], task=0))
         self.assertEqual(m.marks, [0])
         self.assertEqual(m.asked, [(g["pick_ret"], g["healing"])])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class OnlyAboveSkill5(unittest.TestCase):
+    """Decision 7: at skill 5 or less in their job, nobody is put first -- the
+    decision is the stock worker's."""
+
+    def test_skill_5_or_less_is_never_put_first(self):
+        for game in GAMES:
+            for who, own in _own_jobs(game):
+                other = _other(game, own)
+                for skill in (0, 5):
+                    with self.subTest(game=game, who=who, skill=skill):
+                        kw = dict(selected=own, pick=other, skill=skill, rolls=Rolls(default=lambda n: 0))
+                        if game == "vv3" and own == G[game]["farming"]:
+                            kw["farming"] = skill
+                        m = decide(world(game, **kw))
+                        self.assertNotEqual(jobs(m)[:1], [own])
+                        self.assertEqual(effects(m), effects(decide(world(game, rows=(), runtime=False, **kw))))
+
+    def test_skill_6_is(self):
+        for game in GAMES:
+            g = G[game]
+            with self.subTest(game=game):
+                m = decide(world(game, selected=g["healing"], pick=g["building"], skill=6))
+                self.assertEqual(jobs(m)[:1], [g["healing"]])
+
+    def test_no_herb_study_at_skill_5_or_less(self):
+        for game in ("vv1", "vv2"):
+            g = G[game]
+            with self.subTest(game=game):
+                m = decide(world(game, selected=g["healing"], pick=g["healing"], skill=5, herb_mastery=True,
+                                 herbs=(0,), starts=lambda j, h=g["healing"]: j != h))
+                self.assertEqual([c for c in m.calls if c[0].startswith("herb ")], [])
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

@@ -4,8 +4,8 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv5",
-  "name": "Builders and Healers Work First",
-  "description": "Villagers practise their selected job on their own: about three times in four, each time the game chooses what a villager does, a villager whose selected job is Farming, Research, Healing or Building, or Devotion (Devotion while you play only when Easier Devotee Training is not selected, so the two never double up) first tries that job's own work, at any food level; the rest of the time, and whenever there is nothing of theirs to do, the game chooses exactly as it always has. The one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. What the work is -- which crop, project, patient or study -- is the game's own choice, with its own technology levels and buildings, so nothing starts that the game itself would not allow. Researchers never take the place of a farming attempt, and Parenting is left to the game and the Birth Control patches. **This patch never sends a builder to start a project nobody was ever dropped on; it only puts builders first to carry on work that was started**. A builder with no building work to carry on does \"Doing exercise\" instead (Building practice), when the village has more than 250 food. Healers heal the sick, or study medicine once the Pain Totem has been dismantled. Beginners practise too: the game never sent a villager to their selected job while that skill was 5 or less; now they go on the game's own terms (skill + 40 times in 100). A new villager is no longer held back by the game's \"untrained\" mark for their selected job (only that job: mating and every other job still wait for training, as in the game). Heathens get nothing new. In catch-up a farmer may also harvest noni before the Hungry Totem is dismantled, as a farmer you dropped there already does. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp. Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, whatever their job. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, a small stub in the page the Origins-exclusive base appends does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
+  "name": "Villagers Work Their Own Job First",
+  "description": "Villagers practise their selected job on their own: about three times in four, each time the game chooses what a villager does, a villager whose selected job is Farming, Research, Healing or Building, or Devotion (Devotion while you play only when Easier Devotee Training is not selected, so the two never double up) first tries that job's own work, at any food level; the rest of the time, and whenever there is nothing of theirs to do, the game chooses exactly as it always has. The one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. What the work is -- which crop, project, patient or study -- is the game's own choice, with its own technology levels and buildings, so nothing starts that the game itself would not allow. As in the game, a villager goes to their job on their own only above skill 5 -- in every game: in A New Home the game sent them from skill 2, and now waits for 6 as the other games do. Researchers never take the place of a farming attempt, and Parenting is left to the game and the Birth Control patches. **This patch never sends a builder to start a project nobody was ever dropped on; it only puts builders first to carry on work that was started**. Healers heal the sick, or study medicine once the Pain Totem has been dismantled. A new villager is no longer held back by the game's \"untrained\" mark for their selected job (only that job: mating and every other job still wait for training, as in the game). Heathens get nothing new. In catch-up a farmer may also harvest noni before the Hungry Totem is dismantled, as a farmer you dropped there already does. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp. Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, whatever their job. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, a small stub in the page the Origins-exclusive base appends does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
   "output_tag": "Work First",
   "dependencies": [
     "vv5_builders_fix_huts"
@@ -14,10 +14,10 @@
     "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x46E9C9 returning to 0x46E9CE) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building or Devotion (Farming 0, Parenting 1, Healing 2, Research 3, Building 4, Devotion 5), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
     "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
     "Builders never start a project nobody was dropped on: New Believers' Building case only continues projects above 0%, so a builder is always put first.",
-    "Exercise: when a builder's Building work started nothing (including when Building was the caller's own request, which the companion then dispatches itself on the roll), the food total [0x51D34C] is above 250 and the villager's current action (record+0x1D10) did not change, the companion starts the game's own \"Doing exercise\" (do-action 0x465580, action 0x4E), whose step raises Building through the standard practice roll.",
+    "Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them (its own gate, cmp esi, 5).",
     "Devotion (job 5) is put first like Healing: in catch-up always; while you play only when Easier Devotee Training's bytes are not at 0x46F1DD (stock 83B9FC1C00000D7554), so the two never double up. The dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing.",
-    "Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x46C565). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).",
-    "Heathens (u8 record+0x1CEC non-zero) get nothing new: the dispatcher hook, the untrained mark, the beginners' gate and the noni offer all leave them to the stock game.",
+    "Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x46C565). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting; skill above 5) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).",
+    "Heathens (u8 record+0x1CEC non-zero) get nothing new: the dispatcher hook, the untrained mark and the noni offer all leave them to the stock game.",
     "At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders."
   ],
   "explicit_non_changes": [
@@ -32,7 +32,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "1635E79102AFBC1E7BC07919CEAAB7C31CF12A55FFBC4D140EE0E175E3E9E743"
+      "sha256": "7DB85EA5394319095FD59C12E50672B20C356ECB86A4A49E9E7662CBBC8888DD"
     }
   ],
   "patches": [],
@@ -41,12 +41,6 @@
       "va": "0x46C540",
       "stock_bytes": "81EC94000000",
       "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x46F291, 0x46F2D6, 0x46F2EA) and the catch-up worker's pick dispatch (0x46E9CE)",
-      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
-    },
-    {
-      "va": "0x46A594",
-      "stock_bytes": "83FE057E46",
-      "routine": "the job picker's skill gate (cmp esi, 5; jle fail): at skill 5 or less the villager's selected job (never Parenting) goes on to the stock rand(100) < skill + 40 on the decision's roll",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
     },
     {

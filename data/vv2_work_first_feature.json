@@ -4,8 +4,8 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv2",
-  "name": "Builders and Healers Work First",
-  "description": "Villagers practise their selected job on their own: about three times in four, each time the game chooses what a villager does, a villager whose selected job is Farming, Research, Healing or Building first tries that job's own work, at any food level; the rest of the time, and whenever there is nothing of theirs to do, the game chooses exactly as it always has. The one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. What the work is -- which crop, project, patient or study -- is the game's own choice, with its own technology levels and buildings, so nothing starts that the game itself would not allow. Researchers never take the place of a farming attempt, and Parenting is left to the game and the Birth Control patches. **This patch never sends a builder to start a project nobody was ever dropped on; it only puts builders first to carry on work that was started** (here a builder is put first only while there is hut work, and never while the first population hut could be started by nobody's drop). A builder also sometimes examines the finished sewing hut, as they already examine the other huts (Building practice). Healers heal the sick, or study plants: **before Herb Mastery is solved a healer with no patient studies a plant only if you dropped them on one, unless Easier Healing Mastery is also selected**; once Herb Mastery is solved, a healer with nothing else to do studies any of the six plants on their own. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, a small stub in the page the Origins-exclusive base appends does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
+  "name": "Villagers Work Their Own Job First",
+  "description": "Villagers practise their selected job on their own: about three times in four, each time the game chooses what a villager does, a villager whose selected job is Farming, Research, Healing or Building first tries that job's own work, at any food level; the rest of the time, and whenever there is nothing of theirs to do, the game chooses exactly as it always has. The one roll is shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. What the work is -- which crop, project, patient or study -- is the game's own choice, with its own technology levels and buildings, so nothing starts that the game itself would not allow. As in the game, a villager goes to their job on their own only above skill 5 -- in every game: in A New Home the game sent them from skill 2, and now waits for 6 as the other games do. Researchers never take the place of a farming attempt, and Parenting is left to the game and the Birth Control patches. **This patch never sends a builder to start a project nobody was ever dropped on; it only puts builders first to carry on work that was started** (here a builder is put first only while there is hut work). No population hut is ever started by itself: a hut is started only once you have dropped a builder on it, and then builders carry it on as usual. A builder also sometimes examines the finished sewing hut, as they already examine the other huts (Building practice). Healers heal the sick, or study plants: **before Herb Mastery is solved a healer with no patient studies a plant only if you dropped them on one, unless Easier Healing Mastery is also selected**; once Herb Mastery is solved, a healer with nothing else to do studies any of the six plants on their own. This also applies during catch-up -- the time that passes while the game is closed, and Time Warp. An addendum to Builders Fix Huts When Idle. **Requires Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret City, a small stub in the page the Origins-exclusive base appends does); ticking this ticks it, and it brings with it the Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens.",
   "output_tag": "Work First",
   "dependencies": [
     "vv2_builders_fix_huts"
@@ -13,8 +13,9 @@
   "behavior_changes": [
     "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x43B583 returning to 0x43B588) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building (Farming 1, Parenting 2, Healing 3, Research 4, Building 5), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
     "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
-    "Builders never start a project nobody was dropped on: a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built) and hut 24, which the stock Building case starts on its own, is done or has progress 2 or more ([state+0x2E814]).",
-    "Plants: once Herb Mastery is solved, a healer whose Healing work started nothing studies a random understood plant through the game's own starter (herbs 1-6, 0x458CD0, 0x4589A0, 0x458B70, 0x458E30, 0x458FD0, 0x459130; solved flag [state+0x2E788]; trait test 0x4454E0(index, 0xB), as the drop makes); a re-study's step is the stock Healing practice roll."
+    "Builders never start a project nobody was dropped on: a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built), and the Building case's hut-24 start (0x45FF11) runs only for hut 24 worked on (progress [state+0x2E814] 1 or more; a new village starts it at 205) or by a villager dropped on it (task 0xB); Builders Fix Huts When Idle's new-hut test needs huts 25 / 26 at progress 2 or more.",
+    "Plants: once Herb Mastery is solved, a healer whose Healing work started nothing studies a random understood plant through the game's own starter (herbs 1-6, 0x458CD0, 0x4589A0, 0x458B70, 0x458E30, 0x458FD0, 0x459130; solved flag [state+0x2E788]; trait test 0x4454E0(index, 0xB), as the drop makes); a re-study's step is the stock Healing practice roll.",
+    "Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them (its own gate, cmp esi, 5)."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the fix-huts companion loads the DLL, which detours the sites below at run time, all of them or none, only after verifying the stock bytes; a different build of the game installs nothing.",
@@ -28,7 +29,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "1635E79102AFBC1E7BC07919CEAAB7C31CF12A55FFBC4D140EE0E175E3E9E743"
+      "sha256": "7DB85EA5394319095FD59C12E50672B20C356ECB86A4A49E9E7662CBBC8888DD"
     }
   ],
   "patches": [],
@@ -43,6 +44,12 @@
       "va": "0x4602B0",
       "stock_bytes": "6A04E8E92EFAFF",
       "routine": "the Building case's examine pick (push 4; call rand): once the sewing hut is finished, on the decision's roll, one time in five it examines the sewing hut (0x45F7C0(index, 7)); otherwise the stock rand(4) runs",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x45FF11",
+      "stock_bytes": "E81A72FFFF",
+      "routine": "the Building case's hut-24 start (call 0x457130): called only when hut 24 has progress 1 or more or this villager was dropped on it (task 0xB); otherwise the dispatcher's 'nothing' exit 0x46004C",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
     }
   ]

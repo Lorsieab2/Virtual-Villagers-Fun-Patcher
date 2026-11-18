@@ -219,7 +219,7 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 "vv2_teaching_children_cap_50",
                 # Healers Study Plants Regardless of Food: loaded the same way.
                 "vv2_healers_study_regardless_of_food",
-                # Builders and Healers Work First: loaded by the fix-huts companion.
+                # Villagers Work Their Own Job First: loaded by the fix-huts companion.
                 "vv2_builders_and_healers_work_first",
                 # Story / Cheat Upgrades: loaded by the Origins companion, and
                 # it requires the Origins upgrades row itself.

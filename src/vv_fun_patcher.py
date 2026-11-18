@@ -170,7 +170,7 @@ FIX_HUTS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_builders_fix_huts_feature.json"
     for game_number in range(1, 6)
 ) + tuple(
-    # Builders and Healers Work First: the addendum to Builders Fix Huts When
+    # Villagers Work Their Own Job First: the addendum to Builders Fix Huts When
     # Idle, whose companion loads "VVFP Work First.dll".
     ROOT / "data" / f"vv{game_number}_work_first_feature.json"
     for game_number in range(1, 6)

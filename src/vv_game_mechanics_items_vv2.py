@@ -266,7 +266,7 @@ PUZZLE_ENTRIES = (
         ("In the original game a villager carrying on with plant study never studies the third or fourth herb "
          "again. With the patcher (Fix Vanilla Bugs): all six can be studied again, each a Healing practice roll.",
          C),
-        ("With the patcher (Builders and Healers Work First): once Herb Mastery is solved, a healer with nothing "
+        ("With the patcher (Villagers Work Their Own Job First): once Herb Mastery is solved, a healer with nothing "
          "else to do studies one of the six plants on their own, about three times in four (never one who "
          "dislikes herbs).", C),
     )),

@@ -234,8 +234,8 @@ class SecretCityTests(unittest.TestCase):
             "vv3_enable_origins_exclusive_features"]
 
     def test_the_site_patch_replaces_the_exact_stock_test(self):
-        # The hut site, the food site and the dispatcher site for the Builders
-        # and Healers Work First addendum (tests/test_work_first.py), the
+        # The hut site, the food site and the dispatcher site for the Villagers Work Their
+        # Own Job First addendum (tests/test_work_first.py), the
         # scheduler entry and the catch-up worker's entry.  The catch-up worker's
         # Parenting pick (0x45BF52) is never touched (tests/test_catch_up_work_first.py).
         self.assertEqual([p["offset"] for p in self.overlay["hook_patches"]],

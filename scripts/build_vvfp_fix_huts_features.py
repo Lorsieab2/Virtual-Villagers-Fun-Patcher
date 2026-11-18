@@ -74,11 +74,11 @@ DESCRIPTION = (
 )
 # The other behaviour patches of each game that share the one roll per choice.
 SHARE = {
-    "vv1": "Builders and Healers Work First, Healers Study Plants Regardless of Food and Builder Action Fixes use the same roll when selected with it,",
-    "vv2": "Builders and Healers Work First and Healers Study Plants Regardless of Food use the same roll when selected with it,",
-    "vv3": "Builders and Healers Work First uses the same roll when selected with it,",
-    "vv4": "Builders and Healers Work First uses the same roll when selected with it,",
-    "vv5": "Builders and Healers Work First uses the same roll when selected with it,",
+    "vv1": "Villagers Work Their Own Job First, Healers Study Plants Regardless of Food and Builder Action Fixes use the same roll when selected with it,",
+    "vv2": "Villagers Work Their Own Job First and Healers Study Plants Regardless of Food use the same roll when selected with it,",
+    "vv3": "Villagers Work Their Own Job First uses the same roll when selected with it,",
+    "vv4": "Villagers Work Their Own Job First uses the same roll when selected with it,",
+    "vv5": "Villagers Work Their Own Job First uses the same roll when selected with it,",
 }
 
 
@@ -98,11 +98,10 @@ HUTS = {
         "but its builders will not work on the second hut until there are more than 22 villagers, nor on "
         "the third until there are more than 45 -- and above those numbers they start one on their own, "
         "while a hut they have already started is abandoned whenever the population falls back to 22 (or "
-        "45) or below. With this patch, at or below 22 (or 45) villagers builders only work on the "
-        "second or third population hut once you have dropped a villager on it at least once, and from then "
-        "on they finish it whatever the population; above that, as in the original game, they may start it "
-        "themselves. This holds every time the game chooses, not only three times in four. Builder Action "
-        "Fixes makes the same change in the executable."
+        "45) or below. With this patch builders never start a population hut by themselves, whatever the "
+        "population: they work on one only once you have dropped a villager on it at least once, and from then "
+        "on they finish it whatever the population. This holds every time the game chooses, not only three "
+        "times in four. Builder Action Fixes makes the same change in the executable."
     ),
     "vv2": (
         " The new population huts also change. The normal game has a hidden rule here: it shows the "
@@ -114,13 +113,13 @@ HUTS = {
     ),
 }
 HUT_GATE_BEHAVIOR = {
-    "vv1": "The Building branch's new-hut test (0x44754A) is extended: hut 10 and hut 11 are built while they are not complete and either their progress is 2 or more, at any population, or the population is above 22 / 45 as in the stock game (stock: only the population, whatever the progress). The village drawing routine marks a shown scaffold with progress 1 (0x414B0C, 0x414BF1); a villager the player drops on it works it past that. So at or below 22 / 45 builders never start one of these huts by themselves and always finish one the player has started; above, they may start it as the stock game does. Hut 9, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
+    "vv1": "The Building branch's new-hut test (0x44754A) is replaced: hut 10 and hut 11 are built while they are not complete and their progress is 2 or more, whatever the population (stock: only above 22 / 45 villagers, whatever the progress). The village drawing routine marks a shown scaffold with progress 1 (0x414B0C, 0x414BF1); a villager the player drops on it works it past that. So builders never start one of these huts by themselves and always finish one the player has started (the owner, 2026-11-18). The companion's own choices also need hut 9 at progress 1 or more (a new village starts it at 125). The rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
     "vv2": "The Building branch's new-hut test (0x4600DE) is replaced: hut 25 and hut 26 are built while they are not complete and their progress is 2 or more, whatever the population (stock: also more than 22 / more than 45 villagers). The village drawing routine marks a shown scaffold with progress 1 (0x419702, 0x41977D); a villager the player drops on it works it past that. So builders never start one of these huts by themselves and always finish one the player has started. Hut 24, the rest of the branch and the build itself are the game's own. This holds on every choice, whether or not the roll below passes.",
 }
 GATE_RUNTIME = {
     "vv1": {"va": "0x44754A",
             "stock_bytes": "E8415AFDFF83F8167E228B9610E00300389AF09F00007414536A0A558BCEE823ABFFFF5F5D8AC35B5EC208008B8E10E00300E80F5AFDFF83F82D7E4B8B8610E003003898F89F0000743D",
-            "routine": "the Building dispatcher's new-hut test for huts 10 and 11 (0x4472C0), replaced by not complete and (progress >= 2 or population above 22 / 45); Builder Action Fixes' identical bytes are accepted as already in place"},
+            "routine": "the Building dispatcher's new-hut test for huts 10 and 11 (0x4472C0), replaced by not complete and progress >= 2, whatever the population; Builder Action Fixes' identical bytes are accepted as already in place"},
 }
 # The Lost Children's companion is installed only once the village is first
 # drawn, after the load-time catch-up of a session has already run, so its new-
@@ -167,11 +166,11 @@ PREFERENCE_BEHAVIOR = (
     "job 86 times in 100."
 )
 PREFERENCE_HEALER = {
-    "vv3": "; and the low-food bypass, which sends a builder or (with Builders and Healers Work First) a healer "
+    "vv3": "; and the low-food bypass, which sends a builder or (with Villagers Work Their Own Job First) a healer "
            "straight to their pick, asks the same of the picked job, Building or Healing",
-    "vv4": "; and the low-food bypass, which sends a builder or (with Builders and Healers Work First) a healer "
+    "vv4": "; and the low-food bypass, which sends a builder or (with Villagers Work Their Own Job First) a healer "
            "straight to their pick, asks the same of the picked job, Building or Healing",
-    "vv5": "; and the low-food bypass, which sends a builder or (with Builders and Healers Work First) a healer "
+    "vv5": "; and the low-food bypass, which sends a builder or (with Villagers Work Their Own Job First) a healer "
            "straight to their pick, asks the same of the picked job, Building or Healing",
 }
 
@@ -222,7 +221,7 @@ LEVEL_BEHAVIOR = {
 # goes straight into that construction).  See "Build first, fix last" and
 # "About three times in four" in the companion's source.
 BUILD_FIRST_BEHAVIOR = {
-    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, or hut 10 or 11 once the player has worked on it or the population is above 22 / 45) or a started project open at this Building level -- after its 21% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
+    "vv1": "Construction always comes first: where the Building branch reaches the hut fix although it has a new hut to build (hut 9, hut 10 or hut 11 once the player has worked on it) or a started project open at this Building level -- after its 21% 'not this time' roll, or at the level-3 gate -- the builder goes straight into that construction through the branch's own code for it, and a hut is fixed only when there is nothing to build.",
     "vv2": "Construction always comes first: while the Building branch has a new hut to build or a project to start or continue -- the villager's own build task, project 1, hut 24, hut 25 or 26 once the player has worked on it, and the level-2 and level-3 projects -- with only its 79% rolls (rand(100) > 20) against it, a failed roll no longer leads to a hut fix (the companion's or the stock one): the builder goes straight into the first of them, in the branch's own order, through the branch's own code for it.",
     "vv3": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, so a builder fixes a hut only when there is no construction to choose. The Secret City's Building branch has no random roll that skips construction, so there is nothing to go straight into.",
     "vv4": "Construction always comes first: the stock 'fix a hut' option is taken out of any option list that also holds a hut to build or a project, and when the stock dislike roll takes a builder's construction options away (a builder with a certain dislike keeps each option only 16% of the time, rand(100) <= 15), the options it took are put back, by the branch's own tests and in its own order, and the stock pick goes straight into one of them; a hut is fixed only when there is no construction at all.",
@@ -245,11 +244,11 @@ ROLL_SCHED = {
     "vv5": ("0x46F070", ", including the choose-the-next-job routine's retries of it for the same villager (0x46F3DA, up to ten)"),
 }
 ROLL_SHARE = {
-    "vv1": " -- Builders and Healers Work First, Healers Study Plants Regardless of Food and Builder Action Fixes included",
-    "vv2": " -- Builders and Healers Work First and Healers Study Plants Regardless of Food included",
-    "vv3": " -- Builders and Healers Work First included",
-    "vv4": " -- Builders and Healers Work First included",
-    "vv5": " -- Builders and Healers Work First included",
+    "vv1": " -- Villagers Work Their Own Job First, Healers Study Plants Regardless of Food and Builder Action Fixes included",
+    "vv2": " -- Villagers Work Their Own Job First and Healers Study Plants Regardless of Food included",
+    "vv3": " -- Villagers Work Their Own Job First included",
+    "vv4": " -- Villagers Work Their Own Job First included",
+    "vv5": " -- Villagers Work Their Own Job First included",
 }
 # The scheduler entries the companion wraps to open and close each decision.
 SCHED_RUNTIME = {
@@ -294,7 +293,7 @@ FOOD_HOW = {
     "vv5": "at 250 food or less a picked Building job is dispatched at once instead of waiting behind a farming attempt and a 50% swap for a food action",
 }
 
-# ---- The addendum: Builders and Healers Work First (skill practice) --------
+# ---- The addendum: Villagers Work Their Own Job First (skill practice) --------
 # The owner's skill-practice upgrade (v1.35.97, decisions of 2026-11-17 on
 # "Skill Practice - Behaviors to Approve"): villagers practise their selected
 # job on their own -- farmers, researchers, healers, builders and (New
@@ -308,7 +307,9 @@ WORK_FIRST_DESCRIPTION = (
     "whenever there is nothing of theirs to do, the game chooses exactly as it always has. The one roll is "
     "shared with Builders Fix Huts When Idle, so a choice is either all patched or all stock. What the "
     "work is -- which crop, project, patient or study -- is the game's own choice, with its own technology "
-    "levels and buildings, so nothing starts that the game itself would not allow. Researchers never take "
+    "levels and buildings, so nothing starts that the game itself would not allow. As in the game, a "
+    "villager goes to their job on their own only above skill 5 -- in every game: in A New Home the game sent "
+    "them from skill 2, and now waits for 6 as the other games do. Researchers never take "
     "the place of a farming attempt, and Parenting is left to the game and the Birth Control patches. "
     "**This patch never sends a builder to start a project nobody was ever dropped on; it only puts builders first to carry on work that was started**"
     "{builders} Healers{healers}{extra} This also applies during catch-up -- the time that passes while "
@@ -318,20 +319,18 @@ WORK_FIRST_DESCRIPTION = (
     "Origins-exclusive base, which adds the Origins Upgrades buttons to the Tech and Villager Details screens."
 )
 WORK_FIRST_BUILDERS = {
-    "vv1": (" (here a builder is put first only while there is hut work, and never while a population hut "
-            "nobody has worked on could be started)."),
-    "vv2": (" (here a builder is put first only while there is hut work, and never while the first population "
-            "hut could be started by nobody's drop). A builder also sometimes examines the finished sewing hut, "
-            "as they already examine the other huts (Building practice)."),
-    "vv3": (". A builder with no building work to carry on does \"Doing exercise\" instead (Building "
-            "practice), when the village has more than 250 food."),
-    "vv4": (". A builder with no building work to carry on does \"Doing exercise\" instead (Building "
-            "practice), when the village has more than 250 food. While the Building work could start puzzle "
-            "work on its own -- the stream before The Stream is cleared, the piers before Fishing Nets, the "
-            "rubble before the Cooking Pit -- builders are not put first; once The Stream is cleared, keeping "
-            "it clear counts as building practice."),
-    "vv5": (". A builder with no building work to carry on does \"Doing exercise\" instead (Building "
-            "practice), when the village has more than 250 food."),
+    "vv1": (" (here a builder is put first only while there is hut work). No population hut is ever started "
+            "by itself: a hut is started only once you have dropped a builder on it, and then builders carry it "
+            "on as usual."),
+    "vv2": (" (here a builder is put first only while there is hut work). No population hut is ever started "
+            "by itself: a hut is started only once you have dropped a builder on it, and then builders carry it "
+            "on as usual. A builder also sometimes examines the finished sewing hut, as they already examine "
+            "the other huts (Building practice)."),
+    "vv3": ".",
+    "vv4": (". While the Building work could start puzzle work on its own -- the stream before The Stream is "
+            "cleared, the piers before Fishing Nets, the rubble before the Cooking Pit -- builders are not put "
+            "first; once The Stream is cleared, keeping it clear counts as building practice."),
+    "vv5": ".",
 }
 WORK_FIRST_HEALERS = {
     "vv1": (" heal the sick, or study plants: **before Herb Mastery is solved a healer with no patient studies "
@@ -349,15 +348,14 @@ WORK_FIRST_EXTRA = {
     "vv1": "",
     "vv2": "",
     "vv3": "",
-    "vv4": (" Beginners practise too: the game never sent a villager to their selected job while that skill was 5 "
-            "or less; now they go on the game's own terms (skill + 40 times in 100). In catch-up a farmer may also "
-            "make the fruit trip, \"Attempting to retrieve fruit\", once the Cooking Pit is restored, as they do "
-            "while you play."),
-    "vv5": (" Beginners practise too: the game never sent a villager to their selected job while that skill was 5 "
-            "or less; now they go on the game's own terms (skill + 40 times in 100). A new villager is no longer "
-            "held back by the game's \"untrained\" mark for their selected job (only that job: mating and every "
-            "other job still wait for training, as in the game). Heathens get nothing new. In catch-up a farmer may also harvest noni "
-            "before the Hungry Totem is dismantled, as a farmer you dropped there already does."),
+    "vv4": (" A new villager is no longer held back by the game's \"untrained\" mark for their selected job "
+            "(only that job: mating and every other job still wait for training, as in the game). In catch-up a "
+            "farmer may also make the fruit trip, \"Attempting to retrieve fruit\", once the Cooking Pit is "
+            "restored, as they do while you play."),
+    "vv5": (" A new villager is no longer held back by the game's \"untrained\" mark for their selected job "
+            "(only that job: mating and every other job still wait for training, as in the game). Heathens get "
+            "nothing new. In catch-up a farmer may also harvest noni before the Hungry Totem is dismantled, as a "
+            "farmer you dropped there already does."),
 }
 WORK_FIRST_CATCH_UP_FARMING = (
     " Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, "
@@ -385,21 +383,23 @@ JOB_NUMBERS = {
 }
 PICKER_RUNTIME = {
     "vv1": [{"va": "0x4472C0", "stock_bytes": "8B44240885C0",
-             "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x448355, 0x448382) and the catch-up worker's pick dispatch (0x42E821)"}],
+             "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x448355, 0x448382) and the catch-up worker's pick dispatch (0x42E821)"},
+            {"va": "0x44753C", "stock_bytes": "E84FABFFFF",
+             "routine": "the Building case's hut start (call 0x442090, huts 9 and 10): called only when the hut has been worked on (hut 9 progress 1 or more, hut 10 2 or more) or this villager was dropped on it (activity 0xB / 0xC); otherwise the dispatcher's 'nothing' exit 0x447901"},
+            {"va": "0x439C80", "stock_bytes": "83FE010F8E99FEFFFF",
+             "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05)"}],
     "vv2": [{"va": "0x45FBF0", "stock_bytes": "8B44240885C0",
              "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x461A08, 0x461A35) and the catch-up worker's pick dispatch (0x43B588)"},
             {"va": "0x4602B0", "stock_bytes": "6A04E8E92EFAFF",
-             "routine": "the Building case's examine pick (push 4; call rand): once the sewing hut is finished, on the decision's roll, one time in five it examines the sewing hut (0x45F7C0(index, 7)); otherwise the stock rand(4) runs"}],
+             "routine": "the Building case's examine pick (push 4; call rand): once the sewing hut is finished, on the decision's roll, one time in five it examines the sewing hut (0x45F7C0(index, 7)); otherwise the stock rand(4) runs"},
+            {"va": "0x45FF11", "stock_bytes": "E81A72FFFF",
+             "routine": "the Building case's hut-24 start (call 0x457130): called only when hut 24 has progress 1 or more or this villager was dropped on it (task 0xB); otherwise the dispatcher's 'nothing' exit 0x46004C"}],
     "vv4": [{"va": "0x4639B0", "stock_bytes": "8B44240481EC98000000",
              "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x4659D2, 0x465A17, 0x465A2A) and the catch-up worker's pick dispatch (0x46582C)"},
-            {"va": "0x461E69", "stock_bytes": "83FE057E46",
-             "routine": "the job picker's skill gate (cmp esi, 5; jle fail): at skill 5 or less the villager's selected job (never Parenting) goes on to the stock rand(100) < skill + 40 on the decision's roll"},
             {"va": "0x463A30", "stock_bytes": "3898A4710100750B",
              "routine": "the Farming case's catch-up test before the fruit trip (cmp byte [game+0x171A4], bl; jne): in catch-up a villager whose selected job is Farming is offered the fruit trip on the decision's roll"}],
     "vv5": [{"va": "0x46C540", "stock_bytes": "81EC94000000",
              "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x46F291, 0x46F2D6, 0x46F2EA) and the catch-up worker's pick dispatch (0x46E9CE)"},
-            {"va": "0x46A594", "stock_bytes": "83FE057E46",
-             "routine": "the job picker's skill gate (cmp esi, 5; jle fail): at skill 5 or less the villager's selected job (never Parenting) goes on to the stock rand(100) < skill + 40 on the decision's roll"},
             {"va": "0x46C5CA", "stock_bytes": "3898107E01007506",
              "routine": "the Farming case's catch-up test before noni (cmp byte [game+0x17E10], bl; jne): in catch-up a villager whose selected job is Farming is offered noni on the decision's roll, before the Hungry Totem as a dropped farmer already is"}],
 }
@@ -423,27 +423,25 @@ def work_first_row(game: str, sha: str) -> dict:
         f"Whenever the adult scheduler (or the catch-up worker's pick dispatch, {cu['call']} returning to {cu['ret']}) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building{' or Devotion' if game == 'vv5' else ''} ({jobs_text}), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
         "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
         "Builders never start a project nobody was dropped on: " + {
-            "vv1": "a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built) and no hut the stock Building case could start on its own is still below progress 2 (hut 9 any time, huts 10 / 11 above 22 / 45 villagers; progress [state+0x9F9C+8*id], 1 is the drawing routine's scaffold mark).",
-            "vv2": "a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built) and hut 24, which the stock Building case starts on its own, is done or has progress 2 or more ([state+0x2E814]).",
+            "vv1": "a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built), and the Building case's hut start (0x44753C) runs only for a hut worked on (hut 9 progress 1 or more, hut 10 2 or more; progress [state+0x9F9C+8*id], 1 is the drawing routine's scaffold mark) or by a villager dropped on it; Builders Fix Huts When Idle's new-hut test and choices need the same.",
+            "vv2": "a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built), and the Building case's hut-24 start (0x45FF11) runs only for hut 24 worked on (progress [state+0x2E814] 1 or more; a new village starts it at 205) or by a villager dropped on it (task 0xB); Builders Fix Huts When Idle's new-hut test needs huts 25 / 26 at progress 2 or more.",
             "vv3": "The Secret City's Building case only continues projects above 0%, so a builder is always put first.",
             "vv4": "a builder is put first only while the Building case offers no puzzle work it can start by itself: the stream (0x430FD0 on 0x4D8CF0 between 1 and 97) while The Stream (project 1) is unsolved, the piers (0x4396D0 on 0x4D86A8 below 2 and 0x421570 below 100), the rubble (0x4396D0 on 0x4D8720 at 0 and [0x4D8A8C] below 100). Its construction only continues projects above 0%.",
             "vv5": "New Believers' Building case only continues projects above 0%, so a builder is always put first.",
         }[game],
     ]
-    if game in ("vv3", "vv4", "vv5"):
-        ex = {"vv3": ("0x455570", "0x96", "0x582490", "record+0xF24"),
-              "vv4": ("0x45DEC0", "0x47", "0x4D6DD0", "record+0x1CE0"),
-              "vv5": ("0x465580", "0x4E", "0x51D34C", "record+0x1D10")}[game]
-        behavior.append(f"Exercise: when a builder's Building work started nothing (including when Building was the caller's own request, which the companion then dispatches itself on the roll), the food total [{ex[2]}] is above 250 and the villager's current action ({ex[3]}) did not change, the companion starts the game's own \"Doing exercise\" (do-action {ex[0]}, action {ex[1]}), whose step raises Building through the standard practice roll.")
     if game in ("vv1", "vv2"):
         plants = ("medical cactus 0x443270, rare rose 0x4435B0, strange lily 0x443440, strange plant 0x443720 -- never the Magic Plant of Life (0x443030); solved flag [state+0xA080]; trait test 0x4372E0(index, 0xB) for the rose, lily and plant, as the drop makes; a villager whose last activity is 9 (the Healing case already started the cactus) is left alone"
                   if game == "vv1" else
                   "herbs 1-6, 0x458CD0, 0x4589A0, 0x458B70, 0x458E30, 0x458FD0, 0x459130; solved flag [state+0x2E788]; trait test 0x4454E0(index, 0xB), as the drop makes")
         behavior.append(f"Plants: once Herb Mastery is solved, a healer whose Healing work started nothing studies a random understood plant through the game's own starter ({plants}); a re-study's step is the stock Healing practice roll.")
+    behavior.append("Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them " + ("(A New Home's picker gate 0x439C80, cmp esi, 1, becomes cmp esi, 5)." if game == "vv1" else "(its own gate, cmp esi, 5)."))
+    if game == "vv4":
+        behavior.append("Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x4639D2). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting; skill above 5) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).")
     if game == "vv5":
         behavior.append("Devotion (job 5) is put first like Healing: in catch-up always; while you play only when Easier Devotee Training's bytes are not at 0x46F1DD (stock 83B9FC1C00000D7554), so the two never double up. The dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing.")
-        behavior.append("Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x46C565). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).")
-        behavior.append("Heathens (u8 record+0x1CEC non-zero) get nothing new: the dispatcher hook, the untrained mark, the beginners' gate and the noni offer all leave them to the stock game.")
+        behavior.append("Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x46C565). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting; skill above 5) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).")
+        behavior.append("Heathens (u8 record+0x1CEC non-zero) get nothing new: the dispatcher hook, the untrained mark and the noni offer all leave them to the stock game.")
     if game in ("vv3", "vv4", "vv5"):
         behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
     non_changes_catch_up = (
@@ -456,7 +454,7 @@ def work_first_row(game: str, sha: str) -> dict:
         "catalog_enabled": True,
         "catalog_hidden": False,
         "game_id": game,
-        "name": "Builders and Healers Work First",
+        "name": "Villagers Work Their Own Job First",
         "description": work_first_description(game),
         "output_tag": "Work First",
         "dependencies": [f"{game}_builders_fix_huts"],
@@ -534,7 +532,7 @@ VV3_FOOD_EXPORT_NAME = b"VvfpFixHutsBuilderFirst\0"
 VV3_FOOD_EXPORT_OFFSET = 0xC0
 VV3_FOOD_CODE_OFFSET = 0x100
 
-# The hook for the addendum row "Builders and Healers Work First": the work
+# The hook for the addendum row "Villagers Work Their Own Job First": the work
 # dispatcher's entry (0x45AF00: mov eax, [esp+8]; sub esp, 0xA0) jumps to a
 # third stub, which resolves "VVFP Work First.dll"'s VvfpWorkFirstFirst(3,
 # caller, record, job).  A job number back means: ask the stock dispatcher for
@@ -763,17 +761,11 @@ def vv3_build_page(base_va: int) -> bytes:
         add esp, 20
         cmp eax, -2
         je started
-        cmp eax, -3
-        je nothing
         popad
         jmp original
     started:
         popad
         mov al, 1
-        ret 8
-    nothing:
-        popad
-        xor al, al
         ret 8
     mark_failed:
         mov dword ptr [0x{VV3_PRIORITY_CACHE_SLOT:X}], 1
@@ -922,11 +914,11 @@ def vv3_picker_site_patch(page_va: int) -> dict:
         "after": entry.hex().upper(),
         "purpose": (
             "Divert the work dispatcher's entry (mov eax, [esp+8]; sub esp, 0xA0 at "
-            "0x45AF00) into the work-first stub for the Builders and Healers Work First "
+            "0x45AF00) into the work-first stub for the Villagers Work Their Own Job First "
             "addendum, which resolves \"VVFP Work First.dll\" and asks its "
-            "VvfpWorkFirstFirst (the caller, record, job and ecx): -2 returns 'started', "
-            "-3 'nothing started' (the companion ran the request itself), and otherwise "
-            "-- or without that DLL -- the stock request runs through the displaced bytes."
+            "VvfpWorkFirstFirst (the caller, record, job and ecx): -2 returns 'started'; "
+            "otherwise -- or without that DLL -- the stock request runs through the displaced "
+            "bytes."
         ),
     }
 
@@ -1106,13 +1098,13 @@ def main() -> None:
                  if game in LEVEL_RUNTIME else []) + (
                 [{**GATE_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall"}]
                  if game in GATE_RUNTIME else []) + [
-                {**CU_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (before Builders and Healers Work First)"},
+                {**CU_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (before Villagers Work Their Own Job First)"},
                 {**SCHED_RUNTIME[game], "installed_by": "VVFP Fix Huts.dll, VvfpFixHutsInstall (first; nothing else installs without it)"},
             ]
         else:
             patches, transaction, _overlay_patches = vv3_transaction(STOCK_VV3.read_bytes())
             manifest["explicit_non_changes"].insert(0,
-                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry, the idle scheduler's six-byte entry, and the catch-up worker's six-byte entry into five stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher stub serves the Builders and Healers Work First addendum and does nothing unless \"VVFP Work First.dll\" is shipped.")
+                "The Secret City's row diverts one eight-byte test in the Building dispatcher, one nine-byte test in the idle scheduler's low-food path, the work dispatcher's ten-byte entry, the idle scheduler's six-byte entry, and the catch-up worker's six-byte entry into five stubs in the page Origins appends; each resolves its companion once and otherwise replays the stock bytes, so with the DLL missing the stock scheduler runs. The dispatcher stub serves the Villagers Work Their Own Job First addendum and does nothing unless \"VVFP Work First.dll\" is shipped.")
             manifest["patches"] = patches
             manifest["pe_append_transaction"] = transaction
         out = ROOT / "data" / f"{game}_builders_fix_huts_feature.json"

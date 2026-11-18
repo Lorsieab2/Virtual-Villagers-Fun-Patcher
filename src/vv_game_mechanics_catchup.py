@@ -339,9 +339,9 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
     for fact in (
         _patch_vv5(village, VV5_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a believer whose job is Farming, Research, Healing, Building or Devotion "
-               "does that job first (a researcher never instead of farming; Parenting never; a builder with "
-               "nothing to carry on exercises above 250 food); farmers also harvest noni before the Hungry "
-               "Totem; at 250 food or less a believer with Farming 20 or more still farms first."),
+               "does that job first, once that skill is above 5 (a researcher never instead of farming; "
+               "Parenting never); farmers also harvest noni before the Hungry Totem; at 250 food or less a "
+               "believer with Farming 20 or more still farms first."),
         _patch_vv5(village, VV5_FIX_HUTS, "Normally a builder in a job turn joins only a site already more than 1% "
                                           "built, and examines huts only once Houses 1 to 3 and the Clothing Hut "
                                           "stand.",
@@ -471,8 +471,8 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
     for fact in (
         _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building does that "
-               "job first (a researcher never instead of farming; Parenting never; a builder not while puzzle "
-               "work could start, and with nothing to carry on exercises above 250 food); farmers also make "
+               "job first, once that skill is above 5 (a researcher never instead of farming; Parenting "
+               "never; a builder not while puzzle work could start); farmers also make "
                "the fruit trip (Attempting to retrieve fruit) once the Cooking Pit is restored; at 250 food or "
                "less a villager with Farming 20 or more still farms first."),
         _patch(village, VV4_FIX_HUTS, "Normally a builder in a job turn joins only a building already more than 1% "
@@ -592,9 +592,8 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
     for fact in (
         _patch(village, VV3_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building does that "
-               "job first (a researcher never instead of farming; Parenting never; a builder with nothing to "
-               "carry on exercises above 250 food); at 250 food or less a villager with Farming 20 or more "
-               "still farms first."),
+               "job first, once that skill is above 5 (a researcher never instead of farming; Parenting "
+               "never); at 250 food or less a villager with Farming 20 or more still farms first."),
         _patch(village, VV3_FIX_HUTS, "Normally a builder in a job turn joins only a site already 2% or more "
                                       "built, and examines huts only once all four huts stand.",
                "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
@@ -725,9 +724,9 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
     for fact in (
         _patch(village, VV2_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building (while "
-               "it has hut work and no hut could be started by nobody's drop) does that job first (a researcher "
-               "never instead of farming; Parenting never); once Herb Mastery is solved a healer with nothing "
-               "to heal studies a plant."),
+               "it has hut work) does that job first, once that skill is above 5 (a researcher never instead "
+               "of farming; Parenting never; no hut is started by nobody's drop); once Herb Mastery is solved "
+               "a healer with nothing to heal studies a plant."),
         _patch(village, VV2_FIX_HUTS, "Normally a builder in a job turn follows the game's own building "
                                       "choice.",
                "when the job turn's job is building, the patch's build-first, hut-fixing and new-hut rules apply."),
@@ -852,9 +851,9 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
     for fact in (
         _patch(village, VV1_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building (while "
-               "it has hut work and no hut could be started by nobody's drop) does that job first (a researcher "
-               "never instead of farming; Parenting never); once Herb Mastery is solved a healer with nothing "
-               "to heal studies a herb (never the Magic Plant of Life)."),
+               "it has hut work) does that job first, once that skill is above 5 (a researcher never instead "
+               "of farming; Parenting never; no hut is started by nobody's drop); once Herb Mastery is solved "
+               "a healer with nothing to heal studies a herb (never the Magic Plant of Life)."),
         _patch(village, VV1_FIX_HUTS, "Normally a builder in a job turn follows the game's own building choice.",
                "when the job turn's job is building, the patch's build-first, hut-fixing and new-hut rules apply."),
         _patch(village, VV1_LEARNING, "Normally a skill check in a job turn succeeds (skill + 31) times in 100.",

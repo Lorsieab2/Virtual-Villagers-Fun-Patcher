@@ -365,7 +365,7 @@ PUZZLE_ENTRIES = (
         ("In the original game the first study of each herb gives no Healing practice (only later studies do). "
          "With the patcher (Fix Vanilla Bugs): every study gives the game's own Healing practice roll; the Magic "
          "Plant of Life is unchanged.", C),
-        ("With the patcher (Builders and Healers Work First): once Herb Mastery is solved, a healer with nothing "
+        ("With the patcher (Villagers Work Their Own Job First): once Herb Mastery is solved, a healer with nothing "
          "else to do studies one of the four herbs on their own, about three times in four (never the Magic "
          "Plant of Life; a villager who dislikes herbs only the cactus).", C),
     )),

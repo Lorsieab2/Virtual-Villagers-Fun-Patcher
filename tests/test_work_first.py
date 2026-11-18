@@ -1,4 +1,4 @@
-"""Builders and Healers Work First, upgraded to skill practice (all five games)
+"""Villagers Work Their Own Job First, upgraded to skill practice (all five games)
 -- the addendum to Builders Fix Huts When Idle.
 
 The owner's decisions (2026-11-17, "Skill Practice - Behaviors to Approve"):
@@ -37,7 +37,7 @@ from pathlib import Path
 
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import (
-    UC_X86_REG_EAX, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EIP, UC_X86_REG_ESI,
+    UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EIP, UC_X86_REG_ESI,
     UC_X86_REG_ESP,
 )
 
@@ -120,7 +120,12 @@ class SiteTests(unittest.TestCase):
                 with self.subTest(game=game, va=hex(va)):
                     self.assertEqual(_stock_bytes_at(game, va, len(stock)), stock)
                     code = bytes(m.mu.mem_read(va, len(stock)))
-                    self.assertEqual(code[0], 0xE9)
+                    if va == 0x439C80:
+                        # A New Home's picker gate: cmp esi, 1 -> cmp esi, 5; the jle is kept.
+                        self.assertEqual(code, bytes.fromhex("83FE05") + stock[3:])
+                        continue
+                    self.assertIn(code[0], (0xE9, 0xE8))
+                    self.assertEqual(code[0], 0xE8 if stock[0] == 0xE8 else 0xE9, "a call stays a call")
                     target = (va + 5 + struct.unpack("<i", code[1:5])[0]) & 0xFFFFFFFF
                     self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
                     self.assertEqual(code[5:], b"\x90" * (len(stock) - 5))
@@ -224,38 +229,97 @@ class NewBelieversDevotion(unittest.TestCase):
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
-class Beginners(unittest.TestCase):
-    """Items 1 and 2: the picker's `cmp esi, 5; jle fail` -- for the selected
-    job (never Parenting), on the decision's roll, a skill of 5 or less goes
-    on to the game's own roll."""
+class OnlyAboveSkill5(unittest.TestCase):
+    """The owner (2026-11-18): "Villagers should go to their chosen job on
+    their own only above skill 5 in all 5 games."  A New Home's picker gate
+    (0x439C80) becomes the others' rule; the others are untouched, and
+    nobody is put first at skill 5 or less."""
 
-    SITES = {"vv4": (0x461E69, 0x461E6E, 0x461EB4, 0x1C70), "vv5": (0x46A594, 0x46A599, 0x46A5DF, 0x1C74)}
+    def picker(self, skill, rows=None):
+        m = world("vv1", rows=rows) if rows is None else world("vv1", rows=rows, runtime=False)
+        m.leaves[0x402F10] = Leaf(1, lambda m, a, c, r: 0, cdecl=True, name="rand")
+        where = run_until(m, 0x439C80, (0x439C89, 0x439B22), {UC_X86_REG_ESI: skill})
+        return "goes on" if where == 0x439C89 else "no job"
 
-    def gate(self, game, skill, job, selected, force=FORCE_PASS):
-        site, go, fail, field = self.SITES[game]
-        m = world(game, selected=selected, force=force)
-        where = run_until(m, site, (go, fail), {UC_X86_REG_ESI: skill, UC_X86_REG_EBX: job, UC_X86_REG_EDI: OBJ})
-        self.assertEqual((m.mu.reg_read(UC_X86_REG_ESI), m.mu.reg_read(UC_X86_REG_EBX),
-                          m.mu.reg_read(UC_X86_REG_EDI)), (skill, job, OBJ), "registers kept")
-        return "go" if where == go else "fail" if where == fail else hex(where)
+    def test_a_new_home_gate_is_above_5(self):
+        for skill, expected in ((0, "no job"), (2, "no job"), (5, "no job"), (6, "goes on")):
+            with self.subTest(skill=skill):
+                self.assertEqual(self.picker(skill), expected)
 
-    def test_the_selected_job_at_skill_0_to_5_goes_on(self):
-        for game in self.SITES:
-            for job in (0, 2, 3, 4) + ((5,) if game == "vv5" else ()):
-                for skill in (0, 5):
-                    with self.subTest(game=game, job=job, skill=skill):
-                        self.assertEqual(self.gate(game, skill, job, selected=job), "go")
+    def test_the_stock_a_new_home_gate_was_above_1(self):
+        self.assertEqual(_stock_bytes_at("vv1", 0x439C80, 9).hex().upper(), "83FE010F8E99FEFFFF")
+        for skill, expected in ((1, "no job"), (2, "goes on"), (5, "goes on")):
+            with self.subTest(skill=skill):
+                self.assertEqual(self.picker(skill, rows=()), expected)
 
-    def test_everything_else_is_the_stock_gate(self):
-        for game in self.SITES:
-            with self.subTest(game=game, case="parenting"):
-                self.assertEqual(self.gate(game, 3, 1, selected=1), "fail")
-            with self.subTest(game=game, case="not the selected job"):
-                self.assertEqual(self.gate(game, 3, 2, selected=4), "fail")
-            with self.subTest(game=game, case="roll failed"):
-                self.assertEqual(self.gate(game, 3, 2, selected=2, force=FORCE_FAIL), "fail")
-            with self.subTest(game=game, case="above 5"):
-                self.assertEqual(self.gate(game, 6, 2, selected=4), "go")
+    def test_the_other_games_gates_are_untouched(self):
+        for game, va in (("vv2", 0x449E0F), ("vv3", 0x45986D), ("vv4", 0x461E69), ("vv5", 0x46A594)):
+            with self.subTest(game=game):
+                m = world(game)
+                self.assertEqual(bytes(m.mu.mem_read(va, 3)).hex().upper(), "83FE05")
+
+    def test_nobody_is_put_first_at_skill_5_or_less(self):
+        for game in GAMES:
+            g = G[game]
+            for skill, first in ((5, False), (6, True)):
+                with self.subTest(game=game, skill=skill):
+                    m = live(world(game, selected=g["healing"], skill=skill), game, LIVE[game][0], g["building"])
+                    self.assertEqual(jobs(m)[0] == g["healing"], first)
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class NoHutStartedByNobodysDrop(unittest.TestCase):
+    """The owner (2026-11-18): builders never start a population hut on their
+    own; a hut is started only once the player has dropped a builder on it,
+    and then builders continue it.  The Building case's hut start (A New Home
+    0x44753C, huts 9 and 10; The Lost Children 0x45FF11, hut 24), run from
+    its call with the game's registers."""
+
+    def test_a_new_home(self):
+        cases = [(9, 0, 0, "nothing"), (9, 1, 0, "started"), (9, 0, 0xB, "started"),
+                 (10, 1, 0, "nothing"), (10, 2, 0, "started"), (10, 1, 0xC, "started"), (10, 1, 0xB, "nothing")]
+        for hut, progress, activity, expected in cases:
+            with self.subTest(hut=hut, progress=progress, activity=activity):
+                self.assertEqual(self.call_site("vv1", hut, progress, activity), expected)
+
+    def test_the_lost_children(self):
+        for progress, task, expected in ((0, 0, "nothing"), (1, 0, "started"), (205, 0, "started"),
+                                         (0, 0xB, "started"), (0, 0xC, "nothing")):
+            with self.subTest(progress=progress, task=task):
+                self.assertEqual(self.call_site("vv2", 24, progress, task), expected)
+
+    def call_site(self, game, hut, progress, activity):
+        """Run the dispatcher's own `push flag; push hut; push index; mov ecx, village; call` block."""
+        m = world(game)
+        if game == "vv1":
+            m.w32(STATE + 0x9F9C + 8 * hut, progress)
+            m.w8(STATE + 0x9FA0 + 8 * hut, 0)
+            m.w32(VILLAGE + INDEX * 0x3D8 + 0x3B8, activity)
+            block, build, nothing = 0x447536, 0x442090, 0x447901
+            regs = {UC_X86_REG_EBX: 1, UC_X86_REG_ESI: VILLAGE, UC_X86_REG_EBP: INDEX}
+            if hut == 10:
+                block = None
+        else:
+            m.w32(STATE + 0x2E814, progress)
+            m.w8(STATE + 0x2E818, 0)
+            m.w32(VILLAGE + INDEX * 0xE48C + 0x7E0, activity)
+            block, build, nothing = 0x45FF0B, 0x457130, 0x46004C
+            regs = {UC_X86_REG_EBX: 1, UC_X86_REG_ESI: VILLAGE, UC_X86_REG_EDI: INDEX}
+        stack = (0xE0, 0xEB, 0xEB0, 0xE51)          # the dispatcher's saved edi, ebp, ebx, esi
+        if block is None:
+            # Hut 10 enters the hut-9 tail as Builders Fix Huts does: push ebx; push 10; jmp 0x447539.
+            stack = (10, 1) + stack
+            block = 0x447539
+        where = run_until(m, block, (build, nothing), regs, stack=stack)
+        if where == build:
+            ret, index, h, flag = struct.unpack("<4I", m.mu.mem_read(m.mu.reg_read(UC_X86_REG_ESP), 16))
+            self.assertEqual((index, h, flag), (INDEX, hut, 1))
+            self.assertEqual(ret, (0x447541 if game == "vv1" else 0x45FF16), "the stock call's return")
+            return "started"
+        top = struct.unpack("<4I", m.mu.mem_read(m.mu.reg_read(UC_X86_REG_ESP), 16))
+        self.assertEqual(top, stack[-4:], "the dispatcher's frame, as at its 'nothing' exit")
+        return "nothing"
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
@@ -304,7 +368,7 @@ class LostChildrenSewingHut(unittest.TestCase):
     def pick(self, finished, forced, force=FORCE_PASS):
         m = world("vv2", force=force)
         m.w8(STATE + 0x2E790, 1 if finished else 0)
-        m.mu.mem_write(m.exports["work_first"]["VvfpWorkFirstStats"] + 16, struct.pack("<i", forced))
+        m.mu.mem_write(m.exports["work_first"]["VvfpWorkFirstStats"] + 12, struct.pack("<i", forced))
         m.leaves[0x45F7C0] = Leaf(2, lambda m, a, c, r: 0, name="examine")
         m.leaves[0x4031A0] = Leaf(1, lambda m, a, c, r: 2, cdecl=True, name="rand")
         m.calls = []

@@ -454,7 +454,7 @@ def _building_entries() -> list[Entry]:
                 "project to work on examines and fixes a built hut even before every hut stands.", VERIFIED_C),
                (f"{_feature('vv5_builders_and_healers_work_first')}: farmers, researchers, healers, builders and "
                 "devotees try their own work first about three times in four (devotees while you play only without "
-                "Easier Devotee Training); beginners and untrained villagers practise their ticked job too.",
+                "Easier Devotee Training), once that skill is above 5; untrained villagers practise their ticked job too.",
                 VERIFIED_C))),
     ]
 
