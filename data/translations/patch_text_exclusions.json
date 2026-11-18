@@ -2,6 +2,11 @@
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
   {
+   "reason": "Village Solidarity: its scores file, its log lines and its harness stay English (the patcher reads them back; logs are never translated). Only the Tech screen counter is drawn in the game, and it has its own row.",
+   "files": ["native/vvfp_village_solidarity/*"],
+   "match": "^(?!Village Solidarity: %d / 100$)"
+  },
+  {
    "reason": "Log and export writers: the Births, Deaths, History, Arrived, Unaccounted and Statistics logs and the Family Tree / Statistics data the patcher's own tools read back. Logs and files stay in the game's English (src/vv_translations.py: never for logs or files the patcher writes) so the patcher can parse them and every language's logs match.",
    "files": ["native/parentage_export/*", "native/population_export/*", "native/statistics_export/*", "native/save_reset_export/*"]
   },

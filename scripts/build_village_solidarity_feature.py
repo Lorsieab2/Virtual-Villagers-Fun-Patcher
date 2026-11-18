@@ -57,6 +57,9 @@ DESCRIPTION = (
 COUNTER_SITES: dict[int, list[tuple[int, str, str]]] = {
     1: [(0x43401B, "8B8E24010000", "the Tech screen draw 0x433B20, where its text widgets are drawn")],
     2: [(0x441D2B, "8B8E24010000", "the Tech screen draw 0x441830, where its text widgets are drawn")],
+    3: [(0x464C1D, "5F5E83C424C3", "the Tech screen draw 0x4649C0, its return")],
+    4: [(0x43E87E, "5F5E5D5B83C418C3", "the Tech screen draw 0x43E640, its return")],
+    5: [(0x44121C, "5E5D5B83C428C3", "the Tech screen draw 0x440F80, its return")],
 }
 
 

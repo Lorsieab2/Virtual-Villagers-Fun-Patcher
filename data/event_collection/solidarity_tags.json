@@ -49,9 +49,6 @@
    "o2": "lower"
   }
  },
- "adv46_helpful_fix": {
-  "kind": "repair"
- },
  "adv47_hands_words": {
   "nodes": {
    "o1": "raise",
@@ -1297,9 +1294,6 @@
    "setup": "lower"
   }
  },
- "arm77_mended_quiver": {
-  "kind": "repair"
- },
  "arm82_inventory_song": {
   "kind": "cooperative"
  },
@@ -1543,9 +1537,6 @@
   "nodes": {
    "e1": "raise"
   }
- },
- "c5b052_mended_shirt": {
-  "kind": "repair"
  },
  "c5b059_future_village": {
   "nodes": {
@@ -2116,7 +2107,6 @@
   "kind": "cooperative"
  },
  "drm31_dream_quietly": {
-  "kind": "repair",
   "nodes": {
    "o1": "raise",
    "o2": "raise"
@@ -3126,9 +3116,6 @@
  "hz005_mourn_as_we_do": {
   "kind": "cooperative"
  },
- "hz007_people_grow_old": {
-  "kind": "repair"
- },
  "hz008_celebration": {
   "kind": "cooperative",
   "nodes": {
@@ -3539,7 +3526,6 @@
   "kind": "cooperative"
  },
  "il145_tool_fit": {
-  "kind": "repair",
   "nodes": {
    "a": "raise"
   }
@@ -3548,9 +3534,6 @@
   "nodes": {
    "a": "lower"
   }
- },
- "il154_work_i_might": {
-  "kind": "repair"
  },
  "il156_wrong_tool": {
   "nodes": {
@@ -3974,6 +3957,7 @@
   }
  },
  "lo07_lucky_sandals": {
+  "kind": "cooperative",
   "nodes": {
    "a": "raise",
    "b": "raise"
@@ -5213,7 +5197,6 @@
   }
  },
  "tim003_mended_lantern": {
-  "kind": "repair",
   "nodes": {
    "e1": "raise"
   }
@@ -5246,9 +5229,6 @@
   "nodes": {
    "e2": "raise"
   }
- },
- "tim026_mending": {
-  "kind": "repair"
  },
  "tim028_butterflies": {
   "kind": "cooperative"
@@ -5325,7 +5305,6 @@
   }
  },
  "tim047_grandparent_net": {
-  "kind": "repair",
   "nodes": {
    "e1": "raise"
   }
@@ -5346,7 +5325,6 @@
   }
  },
  "tim052_watching_parent": {
-  "kind": "repair",
   "nodes": {
    "e1": "raise"
   }
@@ -5498,7 +5476,6 @@
   }
  },
  "tim121_mending_basket": {
-  "kind": "repair",
   "nodes": {
    "e2": "raise"
   }
@@ -5606,7 +5583,6 @@
   }
  },
  "tt18_best_shade": {
-  "kind": "repair",
   "nodes": {
    "o1": "raise"
   }

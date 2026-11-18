@@ -5345,7 +5345,8 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
             for (i = from; i < h->nodes; ++i) {
                 const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
                 int page = 0;
-                if (cg_node_pop[i] != p || cg_fx_count(n) == 0) {
+                /* A page with no effects is a job too when it carries a Village Solidarity tag (made with the page). */
+                if (cg_node_pop[i] != p || (cg_fx_count(n) == 0 && cg_sol_tag(n) == 0)) {
                     continue;
                 }
                 while (page + 1 < pages.count && pages.src_end[page] < cg_node_end[i]) {

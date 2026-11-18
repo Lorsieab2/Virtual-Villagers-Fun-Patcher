@@ -77,7 +77,7 @@ typedef struct {
 
 /* The village scores.  APPEND ONLY: the index is each score's id in the exports. */
 static const vs_score_def VS_SCORES[] = {
-    { "Village Solidarity", "Village Solidarity", "vvfp.village_solidarity/counter", "Village Solidarity: %d / 100",
+    { "Village Solidarity", "Village Solidarity", "vvfp.village_solidarity/vvfp_village_solidarity.VS_SCORES.s0", "Village Solidarity: %d / 100",
       NULL },
 };
 #define VS_COUNT ((int)(sizeof VS_SCORES / sizeof VS_SCORES[0]))

@@ -70346,6 +70346,20 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.VS_SCORES.s0",
+   "english": "Village Solidarity: %d / 100",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window; %1 = a number (number)"
   }
  ]
 }

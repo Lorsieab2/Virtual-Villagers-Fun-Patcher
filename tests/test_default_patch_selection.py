@@ -170,13 +170,25 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
                   or p == "vv5_respecting_the_legacy_of_isola"
                   # Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults only).
-                  or p.endswith("_gender_presentation")})
+                  or p.endswith("_gender_presentation")
+                  # Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults only).
+                  or p.endswith("_village_solidarity")})
 
     def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
         defaults and Select All leave Change Sex and Gender Presentation off in all five games."""
         for game in range(1, 6):
             patch_id = f"vv{game}_gender_presentation"
+            with self.subTest(patch_id):
+                self.assertIn(patch_id, fun_patch_ids())
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
+
+    def test_village_solidarity_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-17): Village Solidarity is off by default and in Select All, on in Owner's Defaults."""
+        for game in range(1, 6):
+            patch_id = f"vv{game}_village_solidarity"
             with self.subTest(patch_id):
                 self.assertIn(patch_id, fun_patch_ids())
                 self.assertFalse(default_fun_patch_selection(patch_id))
@@ -378,6 +390,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_isola_grand_event_collection" for n in range(1, 6)}
         # ...and Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
+        # ...and Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_village_solidarity" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
