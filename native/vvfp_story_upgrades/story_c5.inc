@@ -736,11 +736,16 @@ static int c5_skeleton(const unsigned char *r) {
    under way: its stand-in corpse is a second body of the same villager. */
 static int c5_revive(int index, int health, int cure) {
     unsigned char *r = c5_record(index);
+    /* the game object 0x425950 keeps at 0x4DACE0: read, never the getter (which would build it) */
+    unsigned char *world = *(unsigned char *volatile *)(uintptr_t)VV5_WORLD_GLOBAL;
     if (c5_reanimating()) {
         return ce_because(CE_WHY_REVIVE);
     }
+    if (world == NULL) {
+        return 0;
+    }
     TC2(0x4758B0u, r + 0x1C34, health, -1);
-    *(int *)(r + 0x1C38) = TC0(0x4036E0u, ((getter_fn)(uintptr_t)0x425950u)());
+    *(int *)(r + 0x1C38) = TC0(0x4036E0u, world);
     if (cure) {
         r[0x1C48] = 0;
     }

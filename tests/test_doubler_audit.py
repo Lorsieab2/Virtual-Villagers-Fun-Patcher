@@ -403,7 +403,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (native/shared/sex_change.h, sex_change_ui.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "53B50416D84E3E2091DD2C05764328CB5B643D509CA365B63F5D2D5C6581F9C9",
+            "60871A76BBD661276587039834C31983C52F78123464F08D940661A4E9132C85",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

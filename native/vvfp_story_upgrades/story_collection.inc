@@ -147,16 +147,17 @@ static int sc_clock(int game, unsigned int *now, unsigned int **timer) {
         *timer = (unsigned int *)(world + VV4_COUNTDOWN);
         *now = (unsigned int)((clock_fn)(uintptr_t)VV4_CLOCK)(world, NULL);
         return 1;
-    case 5: {
-        void *clock_owner = ((getter_fn)(uintptr_t)0x425950u)();   /* the clock 0x4036E0's object (story_c5.inc) */
-        world = *(unsigned char **)(uintptr_t)VV5_WORLD_GLOBAL;
-        if (world == NULL || clock_owner == NULL) {
+    case 5:
+        /* The clock 0x4036E0's object is the game object itself, which 0x425950 keeps at 0x4DACE0: read, never the
+           getter.  This tick runs from the install, which buildSavePath's detour runs INSIDE that object's
+           constructor, where the getter would build it again (the start-up crash, 2026-11-18). */
+        world = *(unsigned char *volatile *)(uintptr_t)VV5_WORLD_GLOBAL;
+        if (world == NULL) {
             return 0;
         }
         *timer = (unsigned int *)(world + VV5_COUNTDOWN);
-        *now = (unsigned int)TC0(0x4036E0u, clock_owner);
+        *now = (unsigned int)TC0(0x4036E0u, world);
         return 1;
-    }
     default:
         return 0;
     }

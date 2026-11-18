@@ -545,8 +545,13 @@ static int c4_skeleton(const unsigned char *r) {
    bypassing that problem" -- a full village of records included). */
 static int c4_revive(int index, int health, int cure) {
     unsigned char *r = c4_record(index);
+    /* the world 0x41FE70 keeps at 0x4CB51C: read, never the getter (which would build it) */
+    unsigned char *world = *(unsigned char *volatile *)(uintptr_t)VV4_WORLD_GLOBAL;
+    if (world == NULL) {
+        return 0;
+    }
     TC2(0x46AF00u, r + 0x1C34, health, -1);
-    *(int *)(r + 0x1C38) = TC0(0x403750u, ((getter_fn)(uintptr_t)0x41FE70u)());
+    *(int *)(r + 0x1C38) = TC0(0x403750u, world);
     if (cure) {
         r[0x1C48] = 0;
     }

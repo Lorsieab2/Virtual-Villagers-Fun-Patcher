@@ -91,6 +91,7 @@ class Mask(Village):
         p.stub(code + 24, lambda pr: (BUTTON_W, 0))
         p.stub(code + 32, lambda pr: (BUTTON_H, 0))
         p.stub(0x44CCF0, lambda pr: (0x7777, 0))                         # the image manager
+        p.put32(0x4DEA0C, 0x7777)                                        # ... the word the companion reads
         p.stub(0x470C5C, lambda pr: (p.alloc(0x40), 0))                  # operator new
         p.stub(0x44CB60, lambda pr: (0x5555, 4))                         # the picture
         p.stub(0x401C20, self._button)
