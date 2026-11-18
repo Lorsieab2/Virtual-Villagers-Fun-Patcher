@@ -896,9 +896,9 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
 #ifdef VVFP_TEST
 /* For the test build only: site `which` of the game -- its address, stock
    bytes, what it becomes, the stub.  0: no such site. */
-__declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, int which, unsigned int *va,
-                                                            unsigned char *stock, unsigned char *patched,
-                                                            unsigned int *stub_va) {
+__declspec(dllexport) int __stdcall VvfpWorkFirstProbeSiteAt(int game_id, int which, unsigned int *va,
+                                                              unsigned char *stock, unsigned char *patched,
+                                                              unsigned int *stub_va) {
     const struct site *s;
     unsigned int rel;
     int i;
@@ -919,6 +919,12 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, int whic
     }
     *stub_va = (unsigned int)(uintptr_t)s->stub;
     return s->length;
+}
+
+/* The dispatcher hook (site 0), as the other tests' harnesses probe it. */
+__declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, unsigned int *va, unsigned char *stock,
+                                                            unsigned char *patched, unsigned int *stub_va) {
+    return VvfpWorkFirstProbeSiteAt(game_id, 0, va, stock, patched, stub_va);
 }
 #endif /* VVFP_TEST */
 

@@ -361,6 +361,13 @@ PUZZLE_ENTRIES = (
         ("With the patcher (Healers Study Plants Regardless of Food, on by default): a villager studying the cactus "
          "carries on at 400 food or more as below it, 50% of the time each choice (14% for one not checked on "
          "Healing).", C),
+        # The completion routine 0x43A230's herb cases never call the practice roll 0x43D440 (VVFP Herb Study.dll).
+        ("In the original game the first study of each herb gives no Healing practice (only later studies do). "
+         "With the patcher (Fix Vanilla Bugs): every study gives the game's own Healing practice roll; the Magic "
+         "Plant of Life is unchanged.", C),
+        ("With the patcher (Builders and Healers Work First): once Herb Mastery is solved, a healer with nothing "
+         "else to do studies one of the four herbs on their own, about three times in four (never the Magic "
+         "Plant of Life; a villager who dislikes herbs only the cactus).", C),
     )),
     Entry(PUZZLE, "The Garden", (
         # Callback 4 (0x43B1E6): 200 sets +0x9FC0.  0x43FC20 queues no skill roll (hidden gates #36).

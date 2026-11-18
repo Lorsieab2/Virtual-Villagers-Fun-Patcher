@@ -1053,7 +1053,9 @@ class FromTheRealCallerTests(unittest.TestCase):
                 self.assertLess(abs(patched - 0.75 * n), 4 * sd, f"{patched}/{n} patched")
 
 
-NOT_A_BUILDER = {"vv1": 1, "vv2": 1, "vv3": 3, "vv4": 3, "vv5": 3}      # checked on another job
+# Checked on another job: Parenting, the one job Builders and Healers Work First never puts first (it would
+# otherwise try that job before the Building the game gave them).
+NOT_A_BUILDER = {"vv1": 2, "vv2": 2, "vv3": 1, "vv4": 1, "vv5": 1}
 BUILDING_PICK = {"vv1": dict(preferred_pick=4), "vv2": dict(preferred_pick=5), "vv3": {}, "vv4": {}, "vv5": {}}
 
 
