@@ -8,8 +8,9 @@ static const unsigned char SOL4_RESOURCES[7] = { 0x6A, 0xFF, 0x68, 0x8B, 0x88, 0
 static const unsigned char SOL4_DRAW[7] = { 0x8B, 0x09, 0xE9, 0x29, 0xFB, 0xFF, 0xFF };     /* jmp 0x409700 */
 static const unsigned char SOL4_HEIGHT[6] = { 0x56, 0x8B, 0x71, 0x04, 0x85, 0xF6 };
 
-/* The counter: the carved strip of the top frame left of the title's plank (the title, string 0x161, is centred
-   at x 400, y 4), in the colour of the screen's bottom label (its global 0x4BEEC4). */
+/* The counter: the carved strip of the top frame RIGHT of the title's plank (the title, string 0x161, is centred
+   at x 400, y 4; left of it the Origins companion's Upgrades button sits in a patched build: seen live 2026-11-18),
+   in the colour of the screen's bottom label (its global 0x4BEEC4). */
 static const sol345_game SOL_VV4 = {
     0x43E87Eu, 8, SOL4_SITE,
     0x408130u, SOL4_RENDERER,
@@ -18,7 +19,7 @@ static const sol345_game SOL_VV4 = {
     0x402430u,
     0x402500u, SOL4_HEIGHT,
     0x4BEEC4u, 0,
-    30, 270, 8,
+    535, 785, 8,
     600,
 };
 

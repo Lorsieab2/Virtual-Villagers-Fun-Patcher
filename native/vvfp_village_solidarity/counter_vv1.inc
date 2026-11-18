@@ -9,7 +9,8 @@
 
    THE SPOT.  The tan banner across the top of tech_bg.png (about x 45..745, y 3..33) holds nothing: no widget, no
    cell and no button is drawn there (the cells start at y 0x36, the labels and buttons are in the bars and the
-   bottom strip).  The counter is centred on the screen's middle (x 400) and on the banner's middle (y 18).
+   bottom strip).  The counter is centred at x 615, right of the banner's own "Technologies" title (centred at x 400), and on the
+   banner's middle (y 18).
 
    THE TEXT.  Drawn as the screen's own labels draw theirs: the game's centred text routine 0x4094C0 (thiscall on
    the graphics wrapper [screen+8]: text, centre x, y, colour, font; ret 0x14), in the font of the screen's bottom
@@ -17,8 +18,8 @@
    (0xFFFFFFFF, the labels' colour), at the screen's fade alpha while it fades in.
 
    TOO WIDE (the owner's rule: never off the screen).  The text is measured with the game's own measure 0x402160
-   (font; text, scale 1.0; ret 8).  Wider than SOL12_MAX_WIDTH (760: 20 pixels in from each edge of the 800-pixel
-   screen) it wraps at spaces onto more lines (each centred, one line height 0x402100(font; NULL) apart, the block
+   (font; text, scale 1.0; ret 8).  Wider than SOL12_MAX_WIDTH (280: the banner right of the centred
+   "Technologies" title, x 475..755 of the 800-pixel screen; seen live 2026-11-18) it wraps at spaces onto more lines (each centred, one line height 0x402100(font; NULL) apart, the block
    centred on the banner, never above y 2); a single word wider than that is cut to fit; at most SOL12_MAX_LINES
    lines (anything after them is not drawn).  Below the banner is fine (out of a box), off the screen never.
 
@@ -27,10 +28,10 @@
    (every register and the flags kept), runs the six stock bytes and goes on at 0x434021.  The three routines it
    calls are checked too (their first 16 bytes the stock ones): a different build of the game installs nothing. */
 
-#define SOL12_MAX_WIDTH 760
+#define SOL12_MAX_WIDTH 280            /* x 475..755: right of the centred title (seen live, 2026-11-18) */
 #define SOL12_MAX_LINES 4
 #define SOL12_LINE_CAP 160
-#define SOL12_CENTRE_X 400
+#define SOL12_CENTRE_X 615
 #define SOL12_BANNER_MID_Y 18
 #define SOL12_TOP_Y 2
 #define SOL12_COLOUR 0xFFFFFFFFu
