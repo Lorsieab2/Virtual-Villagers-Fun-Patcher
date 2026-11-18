@@ -173,6 +173,12 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_gender_presentation")
                   # More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults only).
                   or p.endswith("_more_frequent_island_events")
+                  # The 0.1x-10x sliders (the owner, 2026-11-17: on in Owner's Defaults only).
+                  or p.endswith("_collectible_frequency")
+                  or p.endswith("_food_gain")
+                  or p.endswith("_tech_gain")
+                  or p.endswith("_skill_success")
+                  or p.endswith("_age_speed")
                   # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
                   # Defaults only; the 28 content filters and No Safeguards for Island Events off everywhere.
                   or p.endswith("_island_event_content_notes")
@@ -387,6 +393,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
         # ...and More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_more_frequent_island_events" for n in range(1, 6)}
+        # ...and the 0.1x-10x sliders (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}{s}" for n in range(1, 6) for s in ("_collectible_frequency", "_food_gain", "_tech_gain", "_skill_success", "_age_speed")}
         # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults
         # only), the 28 content filters and No Safeguards for Island Events (off everywhere).
         held_back |= {f"vv{n}_island_event_content_notes" for n in range(1, 6)}
