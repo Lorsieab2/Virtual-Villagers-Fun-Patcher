@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Nest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb05_last_nest",
+  "source": "draft_lcb",
+  "lines": [
+   64,
+   75
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L64",
+  "ledger": [
+   {
+    "src": "L65",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an adult)"
+   },
+   {
+    "src": "L71",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L71",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children find the last nests of a rare seabird on the new garden site: move the garden, or plant around them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has cleared a new garden on the headland, and (subject) has found something there: three nests of the grey-backed seabird, a bird so rare that most villagers have never seen one. (friend) is in charge of the garden and needs every bit of ground. (subject) and the other children are standing in front of the nests with their arms folded. What should (friend) do?",
+   "src": "L67",
+   "choices": [
+    {
+     "label": "Move the Garden",
+     "next": "o1",
+     "src": "L69"
+    },
+    {
+     "label": "Plant Around the Nests",
+     "next": "o2",
+     "src": "L73"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sighs, and moves the garden further inland. It is worse soil and it takes twice as long. But that spring, (subject) counts five chicks on the headland. Whether there are more birds next year, nobody can say. The children check every morning.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L71"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) marks out a wide circle around the nests with stones and plants the garden around them. The birds put up with the gardeners. The gardeners put up with the birds, mostly. One chick survives, and (subject) names it.",
+   "src": "L75"
+  }
+ }
+}

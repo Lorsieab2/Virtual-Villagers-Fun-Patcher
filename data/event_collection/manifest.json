@@ -625,6 +625,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "draft_lcb": {
+  "source": "docs/more-island-events/New Events - Living Culture II (draft for owner).txt",
+  "source_sha256": "d5b4a53de945e70f4e21c3c7f3e5a2ab296eb0c5667b137c6bee47fd9daddec0",
+  "counts": {
+   "rows": 52,
+   "events": 50,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 50,
+   "series": {
+    "dr_lcb": 50
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "draft_rm2": {
   "source": "docs/more-island-events/New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
   "source_sha256": "a162ecbec360f51ee9e9e9053bd17bbd2f97770f41ef3ad9b4d6d581b40e6acc",
@@ -96590,6 +96607,1864 @@
    "source": "draft_lca",
    "source_check": {
     "heading": "L698: LCA-50. The Right to Disagree",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_lcb_notes_intro",
+   "title": "Living Culture II: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_lcb_notes_end",
+   "title": "Living Culture II: notes for the owner",
+   "games": [],
+   "lines": [
+    708,
+    758
+   ],
+   "kind": "notes",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L708: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lcb01_song_first_rain",
+   "title": "The Song of the First Rain",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    8,
+    19
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L8: LCB-01. The Song of the First Rain",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb02_promise_reef",
+   "title": "A Promise to the Reef",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22,
+    33
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L22: LCB-02. A Promise to the Reef",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb03_tree_sheltered",
+   "title": "The Tree That Sheltered Us",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    36,
+    47
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L36: LCB-03. The Tree That Sheltered Us",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb04_river_memory",
+   "title": "The River's Memory",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    50,
+    61
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L50: LCB-04. The River's Memory",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb05_last_nest",
+   "title": "The Last Nest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    64,
+    75
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L64: LCB-05. The Last Nest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb06_quiet_harvest",
+   "title": "The Quiet Harvest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    78,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L78: LCB-06. The Quiet Harvest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb07_song_stars",
+   "title": "A Song for the Stars",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    92,
+    103
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L92: LCB-07. A Song for the Stars",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb08_returning_seeds",
+   "title": "The Day of Returning Seeds",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    106,
+    117
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L106: LCB-08. The Day of Returning Seeds",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb09_ocean_gives",
+   "title": "The Ocean Gives, the Ocean Takes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    120,
+    131
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L120: LCB-09. The Ocean Gives, the Ocean Takes",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb10_living_island",
+   "title": "The Living Island",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    134,
+    145
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L134: LCB-10. The Living Island",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb11_song_those_never",
+   "title": "The Song for Those Who Never Returned",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    148,
+    159
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L148: LCB-11. The Song for Those Who Never Returned",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb12_names_we",
+   "title": "The Names We Remember",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    162,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L162: LCB-12. The Names We Remember",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb13_empty_place",
+   "title": "The Empty Place at the Feast",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    176,
+    187
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L176: LCB-13. The Empty Place at the Feast",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb14_song_without",
+   "title": "A Song Without Words",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    190,
+    201
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L190: LCB-14. A Song Without Words",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb15_story_imperfect",
+   "title": "The Story of an Imperfect Hero",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    204,
+    215
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L204: LCB-15. The Story of an Imperfect Hero",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb16_celebration",
+   "title": "The First Celebration After Loss",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    218,
+    229
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L218: LCB-16. The First Celebration After Loss",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb17_child_question",
+   "title": "The Child's Question",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    232,
+    243
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L232: LCB-17. The Child's Question",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb18_memory_garden",
+   "title": "The Memory Garden",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    246,
+    257
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L246: LCB-18. The Memory Garden",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb19_place_grieve",
+   "title": "A Place to Grieve Alone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    260,
+    271
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L260: LCB-19. A Place to Grieve Alone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb20_song_changed",
+   "title": "The Song That Changed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    274,
+    285
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L274: LCB-20. The Song That Changed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb21_new_verse",
+   "title": "The New Verse",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    288,
+    299
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L288: LCB-21. The New Verse",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb22_forgotten_melody",
+   "title": "The Forgotten Melody",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    302,
+    313
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L302: LCB-22. The Forgotten Melody",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb23_festival_nobody",
+   "title": "The Festival Nobody Planned",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    316,
+    327
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L316: LCB-23. The Festival Nobody Planned",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb24_two_villages",
+   "title": "The Two Villages' Chorus",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    330,
+    341
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L330: LCB-24. The Two Villages' Chorus",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb25_story_another",
+   "title": "The Story in Another Language",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    344,
+    355
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L344: LCB-25. The Story in Another Language",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb26_song_many",
+   "title": "The Song of Many Beliefs",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    358,
+    369
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L358: LCB-26. The Song of Many Beliefs",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb27_child_would_sing",
+   "title": "The Child Who Would Not Sing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    372,
+    383
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L372: LCB-27. The Child Who Would Not Sing",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb28_tradition_hurt",
+   "title": "The Tradition That Hurt",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    386,
+    397
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L386: LCB-28. The Tradition That Hurt",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb29_ceremony",
+   "title": "The Ceremony of New Beginnings",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    400,
+    411
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L400: LCB-29. The Ceremony of New Beginnings",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb30_future_ancestors",
+   "title": "The Future Ancestors",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    414,
+    425
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L414: LCB-30. The Future Ancestors",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb31_names_those",
+   "title": "The Names of Those Before Us",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    428,
+    439
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L428: LCB-31. The Names of Those Before Us",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb32_broken_memorial",
+   "title": "The Broken Memorial",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    442,
+    453
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L442: LCB-32. The Broken Memorial",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb33_last_witness",
+   "title": "The Last Witness",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    456,
+    467
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L456: LCB-33. The Last Witness",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb34_villager_does",
+   "title": "The Villager Who Does Not Pray",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    470,
+    481
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L470: LCB-34. The Villager Who Does Not Pray",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb35_question_nobody",
+   "title": "The Question Nobody Can Answer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    484,
+    495
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L484: LCB-35. The Question Nobody Can Answer",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb36_last_wish",
+   "title": "The Last Wish",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    498,
+    509
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L498: LCB-36. The Last Wish",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb37_funeral_fire",
+   "title": "The Funeral Fire",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    512,
+    523
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L512: LCB-37. The Funeral Fire",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb38_mourning_paint",
+   "title": "The Mourning Paint",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    526,
+    537
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L526: LCB-38. The Mourning Paint",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb39_feast_departed",
+   "title": "The Feast for the Departed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    540,
+    551
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L540: LCB-39. The Feast for the Departed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb40_grave_sea",
+   "title": "The Grave by the Sea",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    554,
+    565
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L554: LCB-40. The Grave by the Sea",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb41_mourning_drum",
+   "title": "The Mourning Drum",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    568,
+    579
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L568: LCB-41. The Mourning Drum",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb42_song_departed",
+   "title": "The Song for the Departed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    582,
+    593
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L582: LCB-42. The Song for the Departed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb43_shared_grief",
+   "title": "The Shared Grief",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    596,
+    607
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L596: LCB-43. The Shared Grief",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb44_children_funeral",
+   "title": "The Children's Funeral for a Fish",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    610,
+    621
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L610: LCB-44. The Children's Funeral for a Fish",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb45_year_mourning",
+   "title": "The Year of Mourning",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    624,
+    635
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L624: LCB-45. The Year of Mourning",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb46_bones_old_canoe",
+   "title": "The Bones of the Old Canoe",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    638,
+    649
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L638: LCB-46. The Bones of the Old Canoe",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb47_song_unknown",
+   "title": "The Song for the Unknown Sailor",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    652,
+    663
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L652: LCB-47. The Song for the Unknown Sailor",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb48_mourning",
+   "title": "The Mourning Gathering of Many Ways",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    666,
+    677
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L666: LCB-48. The Mourning Gathering of Many Ways",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb49_grandfather",
+   "title": "The Grandfather's Tools",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    680,
+    691
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L680: LCB-49. The Grandfather's Tools",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcb50_laughter_grave",
+   "title": "The Laughter at the Grave",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    694,
+    705
+   ],
+   "kind": "event",
+   "section": "dr_lcb",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcb",
+   "source": "draft_lcb",
+   "source_check": {
+    "heading": "L694: LCB-50. The Laughter at the Grave",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

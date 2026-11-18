@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandfather's Tools",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb49_grandfather",
+  "source": "draft_lcb",
+  "lines": [
+   680,
+   691
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L680",
+  "ledger": [
+   {
+    "src": "L681",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a teen)"
+   },
+   {
+    "src": "L687",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L687",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "After a funeral, the family must decide what to do with a beloved carver's tools: keep them, or give them to an apprentice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s father was the village's best carver, and now that he is gone, his tools lie wrapped in cloth in the family hut. (friend), his apprentice, has not asked for them, but everyone knows (friend.he/she) is lost without good tools. (subject) cannot carve and never wanted to. What should (subject) do with them?",
+   "src": "L683",
+   "choices": [
+    {
+     "label": "Give Them to (friend)",
+     "next": "o1",
+     "src": "L685"
+    },
+    {
+     "label": "Keep Them for Now",
+     "next": "o2",
+     "src": "L689"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) unwraps the tools and gives them to (friend). (friend) cannot speak. (friend.He/she) carves (friend.his/her) first piece with them that same week, a small fish, and gives it to (subject). (subject) keeps it on (subject.his/her) shelf, next to (subject.his/her) father's last carving.",
+   "src": "L687",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L687"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) is not ready to let them go, and says so. (friend) understands. Months later, (subject) brings the tools to (friend)'s door without a word. (friend) takes them very carefully. Some things take time.",
+   "src": "L691"
+  }
+ }
+}

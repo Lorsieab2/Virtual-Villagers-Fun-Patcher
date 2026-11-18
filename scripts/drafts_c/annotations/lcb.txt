@@ -1,0 +1,268 @@
+LCB-01
+DESC: The first rain after a long drought: run out and dance in it, or catch every drop first.
+ROLES: name1=55+ name2=5-13
+REVIEW: 15/15 pass (joy and practicality both valid)
+
+LCB-02
+DESC: Part of the reef is dying: promise not to fish it for a season, or keep fishing it carefully.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (real cost; families' hunger respected; no single right answer)
+
+LCB-03
+DESC: The builders want to cut down an old tree that sheltered the village founders: spare it, or use its wood with honor.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (spiritual and practical views both respected)
+
+LCB-04
+DESC: A child asks why the river is so small, and an elder remembers it wide: take a walk upstream, or tell the old stories.
+ROLES: name1=55+ name2=5-13
+REVIEW: 15/15 pass (environmental change shown honestly; no false fix)
+
+LCB-05
+DESC: Children find the last nests of a rare seabird on the new garden site: move the garden, or plant around them.
+ROLES: name1=5-13 name2=18+
+REVIEW: 15/15 pass (protection has a cost; recovery not guaranteed)
+
+LCB-06
+DESC: A farmer wants to leave part of the field for the birds and animals: leave it, or harvest everything this year.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (generosity has a cost; both views reasonable)
+
+LCB-07
+DESC: A researcher, a storyteller and a believer each explain the night sky: let each speak, or let them argue it out.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (no school presented as simply right)
+
+LCB-08
+DESC: Families trade seeds once a year, and one family wants to keep its special beans to itself: let them, or ask them to share.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (family knowledge respected; sharing not forced)
+
+LCB-09
+DESC: A teen wants to fish beyond the reef like the adults: tell them about the sea's dangers, or take them out to see.
+ROLES: name1=55+ name2=14-17
+FIX O1: 1=2
+REVIEW: 15/15 pass (danger real but not graphic; autonomy for teens)
+
+LCB-10
+DESC: Two villagers argue whether caring for the island is a duty, a faith or just good sense: argue on, or plant a tree together.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (the island's nature never settled)
+
+LCB-11
+DESC: The village remembers those lost at sea: sing for them on the beach, or carve their names on the canoe house.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (grief without lesson; both forms respectful)
+
+LCB-12
+DESC: At the remembrance gathering everyone speaks a name, and a child does not want to: let them stay silent, or help them find words.
+ROLES: name1=18+ name2=5-13
+REVIEW: 15/15 pass (no forced disclosure; a child's grief respected)
+
+LCB-13
+DESC: A family must decide whether to keep an empty place at the feast for someone who has died: keep the place, or fill it.
+ROLES: name1=18+ name2=18+
+FIX S: 1=1
+FIX O2: 2=s
+REVIEW: 15/15 pass (no right way to grieve; both choices respected)
+
+LCB-14
+DESC: A grieving villager cannot sing at the memorial: ask them to hum, or just let them stand quietly.
+ROLES: name1=18+ name2=55+
+FIX O2: 1=1
+REVIEW: 15/15 pass (all forms of taking part valued)
+
+LCB-15
+DESC: A teen learns that a village hero made a terrible mistake: tell the whole story at the festival, or keep the legend simple.
+ROLES: name1=55+ name2=14-17
+FIX S: 1=s
+REVIEW: 15/15 pass (history not erased or glorified)
+
+LCB-16
+DESC: The village wants to hold its dance festival weeks after a sad death: go ahead, or wait until the family is ready.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (joy is not forgetting; the family's voice comes first)
+
+LCB-17
+DESC: A child asks why people die, and two adults give very different answers: let both answers stand, or pick one.
+ROLES: name1=5-13 name2=18+ name3=18+
+REVIEW: 15/15 pass (no belief corrected; uncertainty allowed)
+
+LCB-18
+DESC: An elder wants a garden where families plant a flower for each person they have lost: start it, or keep the graves as they are.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (respectful; space needed is real)
+
+LCB-19
+DESC: A grieving villager does not want a public mourning ceremony: respect it, or hold a small one anyway.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2 2=1
+REVIEW: 15/15 pass (private grief respected; no pressure)
+
+LCB-20
+DESC: A young singer wants to add a new verse to the old mourning song after a hard year: add it, or keep the song unchanged.
+ROLES: name1=55+ name2=18-25
+FIX O2: 2=2
+REVIEW: 15/15 pass (change debated; both views respected)
+
+LCB-21
+DESC: A teen wants to change the words of an old fishing song that make no sense anymore: change them, or learn what they mean.
+ROLES: name1=14-17 name2=55+
+REVIEW: 15/15 pass (gentle humor; learning without humiliation)
+
+LCB-22
+DESC: An elder remembers part of a song nobody else knows: help piece it together, or let them write a new ending.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (incomplete knowledge accepted)
+
+LCB-23
+DESC: A spontaneous beach party has become the best night of the year: make it a yearly festival, or keep it spontaneous.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (pure joy; no harm)
+
+LCB-24
+DESC: The village and a neighboring settlement want to sing together at a shared festival: blend their songs, or sing back and forth.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (two identities kept)
+
+LCB-25
+DESC: A newcomer offers to teach the children words from their homeland: hold lessons, or just let it happen at play.
+ROLES: name1=18+ name2=5-13
+FIX S: 4=2
+REVIEW: 15/15 pass (the newcomer's language valued)
+
+LCB-26
+DESC: The village wants a song anyone can join, whatever they believe: write one with no prayers, or give each belief a verse.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (every belief and non-belief welcome)
+
+LCB-27
+DESC: A child refuses to sing at the festival but wants to drum: let them drum, or encourage them to try singing.
+ROLES: name1=5-13 name2=18+
+FIX O1: 1=1
+REVIEW: 15/15 pass (the child's way respected)
+
+LCB-28
+DESC: A villager challenges the custom that only those born on Isola may light the festival fire: change it, or keep it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (exclusion named as unfair; change chosen by the people)
+
+LCB-29
+DESC: A villager wants a ceremony to mark a fresh start after a hard time: create a new one, or adapt an old one.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (no forced disclosure)
+
+LCB-30
+DESC: Children wonder how the village will be remembered in a hundred years: bury a message for the future, or carve a story pole.
+ROLES: name1=5-13 name2=55+
+REVIEW: 15/15 pass (hopeful without being a lecture)
+
+LCB-31
+DESC: An elder wants the forgotten ancestors honored with the named ones: include them, or keep to the known names.
+ROLES: name1=55+ name2=14-17
+REVIEW: 15/15 pass (the unrecorded honored)
+
+LCB-32
+DESC: A storm has broken the old memorial stone: restore it exactly, or rebuild it in a new way.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (both views legitimate)
+
+LCB-33
+DESC: Two elders remember the night of the great flood very differently: record both versions, or ask them to agree.
+ROLES: name1=55+ name2=55+ name3=14-17
+REVIEW: 15/15 pass (memory's uncertainty respected)
+
+LCB-34
+DESC: Someone stays seated during the prayer before the feast: say nothing, or quietly ask them about it later.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (belief and non-belief respected; curiosity without pressure)
+
+LCB-35
+DESC: A child asks an elder what happens after people die: admit not knowing, or tell the stories people believe.
+ROLES: name1=5-13 name2=55+
+FIX S: 2=1
+REVIEW: 15/15 pass (uncertainty honest; beliefs not ranked)
+
+LCB-36
+DESC: An elder wants no grand farewell when the time comes, but the family wants one: promise to honor it, or ask them to reconsider.
+ROLES: name1=55+ name2=18+
+FIX S: 3=1
+REVIEW: 15/15 pass (the elder's wishes respected; no death shown)
+
+LCB-37
+DESC: A family wants to send their elder off the old way, with a night-long vigil fire: hold the vigil, or keep it short.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (respectful; tiredness is not disrespect)
+
+LCB-38
+DESC: A child wants to wear the white mourning paint for a friend who died: allow it, or explain it is only for family.
+ROLES: name1=18+ name2=5-13
+FIX O1: 1=2 2=2
+REVIEW: 15/15 pass (a child's grief taken seriously)
+
+LCB-39
+DESC: A grieving family is too poor to give the funeral feast: let the village bring the food, or hold a small feast anyway.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (poverty without shame; mutual aid)
+
+LCB-40
+DESC: An elder asks to be buried by the sea instead of the graveyard when the time comes: agree, or ask the village first.
+ROLES: name1=55+ name2=18+
+FIX S: 2=1 3=1
+REVIEW: 15/15 pass (the elder's autonomy)
+
+LCB-41
+DESC: The slow mourning drum is beaten for three days after a death, and some find it hard to bear: keep it, or shorten it.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: 15/15 pass (different needs in grief both respected)
+
+LCB-42
+DESC: Everyone at a memorial may speak, sing, or stay silent, and one guest talks far too long: let them, or gently stop them.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (humor on a harmless detail, never on the grief)
+
+LCB-43
+DESC: Two families who have quarreled for years both lose someone in the same storm: mourn together, or mourn apart.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (shared loss does not erase the quarrel; no forced forgiveness)
+
+LCB-44
+DESC: The children are holding a solemn funeral for a dead fish: join in seriously, or let them do it alone.
+ROLES: name1=5-13 name2=18+
+REVIEW: 15/15 pass (children's feelings taken seriously; gentle humor)
+
+LCB-45
+DESC: A widowed villager is ready to dance again before the custom's mourning year ends: support them, or ask them to wait.
+ROLES: name1=18+ name2=18+
+FIX S: 2=1 3=1 4=1
+FIX O1: 1=1
+REVIEW: 15/15 pass (no right timeline; nobody shamed)
+
+LCB-46
+DESC: The canoe of a beloved fisher who died is rotting on the beach: burn it with ceremony, or rebuild it for the young crews.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (both honor the dead)
+
+LCB-47
+DESC: The sea has washed up a stranger's body on the beach: bury them with the village's dead, or in a place of their own.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s 2=s 3=s 4=s
+REVIEW: 15/15 pass (dignity for the unknown; non-graphic)
+
+LCB-48
+DESC: A family who came from elsewhere wants silence, and the village wants songs: hold both, or follow the family's wish.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+REVIEW: 15/15 pass (the family's custom respected)
+
+LCB-49
+DESC: After a funeral, the family must decide what to do with a beloved carver's tools: keep them, or give them to an apprentice.
+ROLES: name1=18+ name2=14-17
+REVIEW: 15/15 pass (grief and practicality)
+
+LCB-50
+DESC: Someone laughs out loud at a burial at a happy memory: laugh along, or ask them to be quiet.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: 15/15 pass (laughter in grief respected)

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Villager Who Does Not Pray",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb34_villager_does",
+  "source": "draft_lcb",
+  "lines": [
+   470,
+   481
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L477",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Someone stays seated during the prayer before the feast: say nothing, or quietly ask them about it later.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Before the feast, the village stands for the thanks-giving prayer. (subject) stays sitting, as (subject.he/she) always does, eating a piece of fruit. (friend) has never noticed before, and is surprised and a little offended. What should (friend) do?",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Say Nothing",
+     "next": "o1",
+     "src": "L475"
+    },
+    {
+     "label": "Ask Kindly, Later",
+     "next": "o2",
+     "src": "L479"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) says nothing. The prayer ends, the feast begins, and (subject) passes (friend) the fish. Later, (friend) realizes nobody else seemed to mind, and that (friend.he/she) does not really mind either.",
+   "src": "L477"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After the feast, (friend) asks (subject), kindly, why (subject.he/she) does not stand. (subject) says (subject.he/she) does not believe the way others do, and does not want to pretend. (friend) thinks about it and says (friend.he/she) would rather (subject) sit honestly than stand falsely. They are better friends after that.",
+   "src": "L481"
+  }
+ }
+}

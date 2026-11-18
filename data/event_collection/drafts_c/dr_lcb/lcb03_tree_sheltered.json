@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree That Sheltered Us",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb03_tree_sheltered",
+  "source": "draft_lcb",
+  "lines": [
+   36,
+   47
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L36",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L43",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L43",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L47",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L47",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The builders want to cut down an old tree that sheltered the village founders: spare it, or use its wood with honor.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The builders need a great beam for the new meeting hut, and the only tree big enough is the old fig at the edge of the village. (subject) says that tree sheltered the first families through the storm that brought them here, and nobody should touch it. (friend), who leads the builders, says a tree is a tree, and the village needs the hut. What should the village do?",
+   "src": "L39",
+   "choices": [
+    {
+     "label": "Spare the Tree",
+     "next": "o1",
+     "src": "L41"
+    },
+    {
+     "label": "Use Its Wood With Honor",
+     "next": "o2",
+     "src": "L45"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village spares the fig. The builders spend a week hauling a beam from the far side of the island instead, complaining every step. The new hut is built with its door facing the old tree. (subject) sits under it every evening, and before long so does (friend).",
+   "src": "L43",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L43"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village holds a gathering under the fig to tell its stories one last time, and then the builders cut it down. Its wood becomes the great beam, carved with the story of the storm. Some people love the carving. Some people, (subject) among them, never sit in the new hut.",
+   "src": "L47",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L47"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tradition That Hurt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb28_tradition_hurt",
+  "source": "draft_lcb",
+  "lines": [
+   386,
+   397
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L393",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L397",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager challenges the custom that only those born on Isola may light the festival fire: change it, or keep it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "By old custom, only someone born on Isola may light the festival fire. (subject) came to Isola as a baby, has lived here for thirty years, and was told again this year that (subject.he/she) may not light it. (subject.He/she) has asked the village to change the custom. (friend), who lit the fire last year, thinks the custom is about honoring the island, not about excluding anyone. What should the village do?",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Change the Custom",
+     "next": "o1",
+     "src": "L391"
+    },
+    {
+     "label": "Keep the Custom",
+     "next": "o2",
+     "src": "L395"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village decides that anyone who has lived on Isola for a full year may light the fire. That night, (subject) lights it, with (friend) beside (subject.him/her) holding the torch steady. (subject) has to step back for a moment before (subject.he/she) can speak.",
+   "src": "L393"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village votes to keep the custom. (subject) does not come to the festival. Several other villagers who were not born on Isola stay away too. The fire is lit, and the festival goes on, but there are a lot of empty places. The question will come up again.",
+   "src": "L397"
+  }
+ }
+}

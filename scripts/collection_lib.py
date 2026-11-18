@@ -130,6 +130,7 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     # Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18; owner review waived, each event passed
     # the Isola rules and the 15-point review): "[Solidarity: ...]" tags are notes (gen_drafts_c.SOLIDARITY_RE).
     "draft_lca": ("Living Culture I", 762, "dr_lca", "LCA"),
+    "draft_lcb": ("Living Culture II", 758, "dr_lcb", "LCB"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",

@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Wish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb36_last_wish",
+  "source": "draft_lcb",
+  "lines": [
+   498,
+   509
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L498",
+  "ledger": [
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L505",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder wants no grand farewell when the time comes, but the family wants one: promise to honor it, or ask them to reconsider.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is old but perfectly well, and has decided to make one thing clear while (subject.he/she) still can: when (subject.he/she) dies, there is to be no grand farewell, no three days of singing, no fuss. A quiet burial and a good meal. (friend), (subject.his/her) grandchild, thinks (subject) deserves the biggest farewell the village has ever seen. What should (friend) do?",
+   "src": "L501",
+   "text_only": [
+    {
+     "what": "\"dies\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L501"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Promise to Honor It",
+     "next": "o1",
+     "src": "L503"
+    },
+    {
+     "label": "Ask (subject) to Reconsider",
+     "next": "o2",
+     "src": "L507"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) promises. (subject) looks very relieved, and then asks what will be on the menu for the good meal. They spend the rest of the afternoon arguing happily about fish.",
+   "src": "L505"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks (subject) to think again, because the farewell is for the living, too. (subject) thinks about it, and agrees to one song. Just one. (subject.He/she) gets to choose it. (subject.He/she) chooses a very silly one, on purpose.",
+   "src": "L509"
+  }
+ }
+}

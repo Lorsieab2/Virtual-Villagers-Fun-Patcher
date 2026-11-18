@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Place at the Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb13_empty_place",
+  "source": "draft_lcb",
+  "lines": [
+   176,
+   187
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L183",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family must decide whether to keep an empty place at the feast for someone who has died: keep the place, or fill it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s mother died in the spring, and this is the first harvest feast without her. (subject) wants to leave her place empty at the family's mat, with her favorite bowl. (friend), (subject.his/her) cousin, thinks an empty place will make everyone too sad to enjoy anything, and wants to invite a lonely neighbor to sit there instead. What should the family do?",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Keep Her Place",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Fill It With a Neighbor",
+     "next": "o2",
+     "src": "L185"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They keep the place, with the bowl and a flower in it. Some of the family cry. Some of them talk to the bowl, which makes others laugh. At the end of the feast, (subject) fills the bowl with food and carries it out to leave at her grave.",
+   "src": "L183",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L183"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They invite (friend)'s neighbor, who has eaten alone all year. (subject) watches someone else sit in (subject.his/her) mother's place and does not know how to feel. But the neighbor tells a story about (subject)'s mother that (subject) never knew, and (subject) asks (other.him/her) to tell it again.",
+   "src": "L187"
+  }
+ }
+}
