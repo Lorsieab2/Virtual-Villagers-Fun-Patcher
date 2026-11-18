@@ -634,6 +634,15 @@
       ]
     },
     {
+      "ids": ["vv1_every_island_event_can_happen", "vv2_every_island_event_can_happen", "vv3_every_island_event_can_happen", "vv5_every_island_event_can_happen"],
+      "guide": [
+        "Island events that used to stop once a technology reached a certain level keep coming at every level, even with everything researched.",
+        "An event that raises a technology raises it by 1 level, up to 3. At level 3 the event still comes and shows its text; the level stays at 3.",
+        "Nothing else about the events changes: they still need their villagers, puzzles, food and the rest, and they come as often as before.",
+        "With Story / Cheat Upgrades, Pick Island Event can choose them at every level too."
+      ]
+    },
+    {
       "ids": ["vv1_show_parents"],
       "guide": [
         "Villagers born from now on remember their mother and father.",

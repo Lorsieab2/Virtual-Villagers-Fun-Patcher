@@ -309,6 +309,14 @@ static int vv2_crystal_ball_fixed(void) {
     return mem_matches(0x41F636u, VV2_CRYSTAL_BALL_FIX, 5);
 }
 
+/* Every Island Event Can Happen (vv2_every_island_event_can_happen) makes the Gold Coin's and the Spyglass's
+   technology tests (setl bl at 0x41F5C5 and 0x41F659) "mov bl, 1": with that row the game asks no level. */
+static const unsigned char VV2_EVERY_EVENT_PASS[3] = { 0xB3, 0x01, 0x90 };
+
+static int vv2_every_event(unsigned int site) {
+    return mem_matches(site, VV2_EVERY_EVENT_PASS, 3);
+}
+
 /* What any island event needs, whatever its own condition: a living adult
    for the trigger (0x44BAE0(1)), and the village's first island event is
    always a two-choice event.  An unlocked pick needs only this. */
@@ -354,7 +362,7 @@ static int vv2_possible(const story_event *e) {
     }
     if (family == VV2_FAMILY_A) {
         switch (index) {
-        case 0: return *(int *)(world + 0x2EA74) < 2;
+        case 0: return vv2_every_event(0x41F5C5u) || *(int *)(world + 0x2EA74) < 2;
         case 1: return *(int *)(world + 0x2EAA4) >= 250;
         case 2: return vv2_any_villager(pool, 0x118, -1, 2, 0);
         case 4: return room(pool, NULL) != 0;
@@ -363,7 +371,7 @@ static int vv2_possible(const story_event *e) {
             return vv2_any_villager(pool, 0x118, -1, 0, 0)
                 && (!vv2_crystal_ball_fixed() || vv2_living_count(pool) >= 2);
         case 14: return population(world, NULL) >= 2;
-        case 18: return *(int *)(world + 0x2EA94) < 2;
+        case 18: return vv2_every_event(0x41F659u) || *(int *)(world + 0x2EA94) < 2;
         case 19: return vv2_any_villager(pool, 0x168, -1, 2, 0) && vv2_any_villager(pool, 0x168, -1, 1, 0);
         default: return 1;
         }

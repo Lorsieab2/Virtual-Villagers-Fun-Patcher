@@ -1,0 +1,49 @@
+{
+  "id": "vv2_every_island_event_can_happen",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Every Island Event Can Happen",
+  "description": "The Ancient Gold Coin (it needed Culture below level 2) and The Spyglass (Exploration below level 2) can now happen at any technology level, even with everything researched. \"Use it to adorn clothing\" raises Culture by 1 level up to 3 (it stopped at 2), and \"Keep it\" raises Exploration by 1 level up to 3 instead of setting it to 2 (which lowered a village at level 3); at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**",
+  "output_tag": "Every Island Event",
+  "behavior_changes": [
+    "The Ancient Gold Coin can be chosen by the two-choice roll at every Culture level.",
+    "The Spyglass can be chosen by the two-choice roll at every Exploration level.",
+    "\"Use it to adorn clothing\": Culture + 1 level, up to 3 (was: only below 2).",
+    "\"Keep it\": Exploration + 1 level, up to 3 (was: Exploration set to 2)."
+  ],
+  "explicit_non_changes": [
+    "Only technology-level requirements are dropped; every other requirement of every event is the game's own.",
+    "The time between island events, the family weights, the re-rolls and every event's text are unchanged.",
+    "No save data changes."
+  ],
+  "evidence_status": "static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x1F5C5",
+      "before": "0F9CC3",
+      "after": "B30190",
+      "purpose": "The Ancient Gold Coin (two-choice case 0): Culture (world+0x2EA74) below 2 (setl bl) -> mov bl, 1"
+    },
+    {
+      "offset": "0x1F659",
+      "before": "0F9CC3",
+      "after": "B30190",
+      "purpose": "The Spyglass (two-choice case 18): Exploration (world+0x2EA94) below 2 (setl bl) -> mov bl, 1"
+    },
+    {
+      "offset": "0x20524",
+      "before": "83F802",
+      "after": "83F803",
+      "purpose": "The Ancient Gold Coin, \"Use it to adorn clothing\": Culture + 1 only below 2 -> only below 3 (the top)"
+    },
+    {
+      "offset": "0x21E74",
+      "before": "8B8EAC5000005F5E5DC78194EA0200020000005B81C42C2C0000C3",
+      "after": "8B8EAC50000083B994EA020003839194EA020000E9C90300009090",
+      "purpose": "The Spyglass, \"Keep it\": Exploration = 2 (mov at 0x421E7D) -> Exploration + 1 below 3 (cmp 3 / adc 0), then the resolve's shared exit 0x422256 (the same pops and return)"
+    }
+  ]
+}

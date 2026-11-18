@@ -99,6 +99,22 @@ def with_scaling(game: int, events: tuple, titles: frozenset) -> tuple:
                  for event in events)
 
 
+def every_event_id(game: int) -> str:
+    """Every Island Event Can Happen: A New Home, The Lost Children, The Secret City, New Believers."""
+    return f"vv{game}_every_island_event_can_happen"
+
+
+def with_every_event(game: int, events: tuple, changes: dict) -> tuple:
+    """`events` with Every Island Event Can Happen's mark on each event titled in `changes` (title -> what the patch
+    changes; every title must be there)."""
+    import dataclasses
+    missing = set(changes) - {event.title for event in events}
+    if missing:
+        raise ValueError(f"every island event: no such event {sorted(missing)}")
+    return tuple(dataclasses.replace(event, patched=tuple(event.patched) + ((every_event_id(game), changes[event.title]),))
+                 if event.title in changes else event for event in events)
+
+
 def _line(item) -> Line:
     return item if isinstance(item, Line) else Line(item)
 
