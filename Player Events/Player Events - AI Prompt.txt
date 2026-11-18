@@ -205,6 +205,13 @@ main villager):
 Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
 "Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for
 the Pick Island Event list", "Coda:" (a closing paragraph shown after every outcome).
+"Solidarity: raise", "Solidarity: lower" or "Solidarity: neutral" under an outcome, only when its text clearly
+carries one of these feelings: raise for songs and gatherings, fair resolutions, mutual aid, welcoming newcomers,
+happiness, togetherness, trust, comfort, gratitude, pride, hope, courage, respect, relief, reconciliation or
+inspiration; lower for unresolved conflicts, unfairness, broken promises, wrongs left unaddressed, tension, distrust,
+resentment, fear or worry, divisive shame, grief left alone or division; neutral for solemn remembrance, quiet
+reflection, bittersweet moments or private choices respected. Otherwise leave the line out. It changes nothing in the
+game unless the Village Solidarity patch is on, and then it only shifts the odds of new events.
 Role words: adult, child, teen, elder, 18 to 50, 30+, male, female, skill Healing 20+, best at Healing, spouse of
 <who>, parent of <who>, child of <who>, sibling of <who>, within 10 years of <who>, optional, speaks, carrier,
 golden child, tribal chief, stranger, named stranger, any faith (VV5: an Isolan may take it).
