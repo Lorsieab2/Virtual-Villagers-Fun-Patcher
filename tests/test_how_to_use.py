@@ -46,6 +46,8 @@ CONTROLS = {
     # The 0.1x-10x sliders (the owner, 2026-11-17), made by one loop over RUNTIME_SLIDERS.
     "collectible_frequency_multiplier", "food_gain_multiplier", "tech_gain_multiplier",
     "skill_success_multiplier", "age_speed_multiplier",
+    # The Difficulty Sliders page's button (the owner, 2026-11-18): every slider is on that page.
+    "difficulty_sliders",
     "island_event_content_filters",  # the Island Events section's filters (the owner, 2026-11-15)
 }
 
@@ -166,11 +168,12 @@ class GuiSourceTests(unittest.TestCase):
     SOURCE = GUI.read_text(encoding="utf-8")
 
     def test_every_control_is_wired_to_a_question_mark(self) -> None:
-        runtime = {f"{slider.key}_multiplier" for slider in vfp.RUNTIME_SLIDERS}
-        # The 0.1x-10x sliders' "?" come from one loop, each with its own key.
-        self.assertIn('fun_settings, slider.name + ":", variable, RUNTIME_SLIDER_RANGE, f"{slider.key}_multiplier")',
-                      self.SOURCE)
-        for key in CONTROLS - runtime:
+        import vv_fun_patcher_gui as gui
+        # Every slider's "?" is on the Difficulty Sliders page, one per slider and game, by its table's key.
+        sliders = {spec[2] for spec in gui.DIFFICULTY_SLIDERS}
+        self.assertIn("self._difficulty_variable(name, help_key),\n                                                     "
+                      "multipliers, help_key)", self.SOURCE)
+        for key in CONTROLS - sliders:
             with self.subTest(control=key):
                 self.assertRegex(self.SOURCE, r'_help_button\(\s*\w+, "%s"\)' % re.escape(key)
                                  + "|" + r'\(\d+, "%s"\)' % re.escape(key)
@@ -213,7 +216,28 @@ def walk(w):
     for c in w.winfo_children():
         yield from walk(c)
 
-result = {"keys": sorted(app.help_keys)}
+# Every slider is on the Difficulty Sliders page (the owner, 2026-11-18), none on the main page.
+result = {"main_scales": sum(isinstance(w, tkinter.Scale) for w in walk(app))}
+app._open_difficulty_sliders()
+app.update()
+page = app._difficulty_sliders_dialog
+result["page_rows"] = [(pid, str(scale.cget("state"))) for pid, scale, box, note in app._difficulty_slider_rows]
+result["page_scales"] = sum(isinstance(w, tkinter.Scale) for w in walk(page))
+result["page_height"] = page.winfo_reqheight()
+# Ticking a row lights its slider; the number typed on the page is the App's own (saved as before).
+first = app._difficulty_slider_rows[0]
+app.fun_patch_vars[first[0]].set(True)
+app._fun_patch_changed()
+app.update()
+result["lit"] = str(first[1].cget("state"))
+first[2].delete(0, "end")
+first[2].insert(0, "-2")
+first[2].commit()
+result["typed"] = app._tech_cost_multiplier()
+app.tech_cost_var.set(10)
+app.update()
+result["shown"] = first[2].get()
+result["keys"] = sorted(app.help_keys)
 # The patch rows are drawn only while their list is scrolled to them, so every list is
 # scrolled through its length. Every patch checkbox has a "?" beside it, in the same row;
 # the cause-of-death "?" is clicked (invoke) the first time its row is drawn.
@@ -283,6 +307,23 @@ class WindowTests(unittest.TestCase):
 
     def test_every_guide_has_a_question_mark_in_the_window(self) -> None:
         self.assertEqual(set(self.result["keys"]), set(all_guides()))
+
+    def test_every_slider_is_on_the_difficulty_sliders_page(self) -> None:
+        import vv_fun_patcher_gui as gui
+        public = {patch.id for patch in vfp.load_public_fun_patches()}
+        wanted = [f"vv{game}{spec[3]}" for game in range(1, 6) for spec in gui.DIFFICULTY_SLIDERS
+                  if f"vv{game}{spec[3]}" in public]
+        self.assertEqual(self.result["main_scales"], 0, "no slider left on the main page")
+        self.assertEqual(sorted(pid for pid, _state in self.result["page_rows"]), sorted(wanted))
+        self.assertEqual(self.result["page_scales"], len(wanted))
+        # A fresh settings file ticks the defaults: a slider whose patch is off there is greyed out.
+        for pid, state in self.result["page_rows"]:
+            with self.subTest(row=pid):
+                self.assertEqual(state, "normal" if gui.default_fun_patch_selection(pid) else "disabled")
+        self.assertEqual(self.result["lit"], "normal")
+        self.assertEqual(self.result["typed"], 0.5)          # "-2" typed on the page: half, the App's own number
+        self.assertEqual(self.result["shown"], "10")        # the App's number moves the page's box
+        self.assertLess(self.result["page_height"], 32_767)
 
     def test_every_patch_row_has_its_own_question_mark(self) -> None:
         # The 28 content filters sit in the Island Events section's grid: one "?" (Content Filters) for them all.

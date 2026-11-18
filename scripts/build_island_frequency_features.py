@@ -61,10 +61,10 @@ def description(game: int) -> str:
              "village has seen no event are as in the normal game." if game in (4, 5) else
              " The 30 minutes before the next event while the village has seen no event are as in the normal game.")
     return (
-        "The game's own island events come more or less often: 0.1 to 100 times as often, as you choose with the "
+        "The game's own island events come more or less often: 0.1 to 10 times as often, as you choose with the "
         "More Frequent Island Events slider in the patcher window (in steps of 0.1, 2 unless you move it; 1 is the "
         "normal game, below 1 they come less often; type it in the "
-        f"box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). Normally the next event comes {k} to {2 * k - 1} whole real-life hours after "
+        f"box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). Normally the next event comes {k} to {2 * k - 1} whole real-life hours after "
         f"the last; at 2 times it comes {k // 2} to {(2 * k - 1) / 2:g} hours after it, at 10 times every "
         f"{k * 6} to {(2 * k - 1) * 6} minutes, at 0.5 times {2 * k} to {2 * (2 * k - 1)} hours." + first + " Which event comes, and every rule for it, is the "
         "game's own. A bought or picked island event (Origins, Story / Cheat Upgrades) still leaves the next "
@@ -93,7 +93,7 @@ def row(game: int, dll_sha: str) -> dict:
             "eax, eax, 0xE10` (rand(" + str(k) + f") + {k} whole hours in seconds) at "
             + ", ".join(f"0x{va:X}" for va in SITES[game])
             + ", becomes a call of the companion's stub, which puts (rand + " + str(k) + ") x 3600 / N in eax, N "
-            f"the slider (0.1 to 100 in tenths, 2 by default; x 10 / tenths) read at start from \"{CHOICE}\" beside the companion (above 100 is "
+            f"the slider (0.1 to 10 in tenths, 2 by default; x 10 / tenths) read at start from \"{CHOICE}\" beside the companion (above 100 is "
             "100, below 0.1 is 0.1, none is 2). Every other register is the game's; the instruction after each site sets "
             "the flags anew or does not read them.",
         ],

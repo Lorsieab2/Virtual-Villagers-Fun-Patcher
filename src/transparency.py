@@ -457,13 +457,13 @@ def render_transparency_text(
         if feature.get("partial_failure_limit"):
             lines.append(f"  Partial-write disclosure: {feature['partial_failure_limit']}")
         if feature["id"].endswith("_tech_cost_multiplier") and data.get("tech_cost_multiplier"):
-            lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 0.1-100x Tech Cost slider): every "
+            lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 0.1-10x Tech Cost slider): every "
                          "technology price is its normal price times this.")
         if feature["id"].endswith("_hungrier_villagers") and data.get("meal_multiplier"):
             lines.append(f"  Multiplier: x{data['meal_multiplier']} (the Hungrier Villagers slider): every villager "
                          "meal takes its normal food times this.")
         if feature["id"].endswith("_sickness_multiplier") and data.get("sickness_multiplier"):
-            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 0.1-100x Sickness slider): villagers fall "
+            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 0.1-10x Sickness slider): villagers fall "
                          "sick that many times as often.")
         if feature["id"].endswith("_more_frequent_island_events") and data.get("island_frequency_multiplier"):
             lines.append(f"  Multiplier: x{data['island_frequency_multiplier']} (the More Frequent Island Events "

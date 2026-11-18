@@ -5,12 +5,12 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "More Frequent Island Events",
-  "description": "The game's own island events come more or less often: 0.1 to 100 times as often, as you choose with the More Frequent Island Events slider in the patcher window (in steps of 0.1, 2 unless you move it; 1 is the normal game, below 1 they come less often; type it in the box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). Normally the next event comes 12 to 23 whole real-life hours after the last; at 2 times it comes 6 to 11.5 hours after it, at 10 times every 72 to 138 minutes, at 0.5 times 24 to 46 hours. The 30 minutes before the next event while the village has seen no event are as in the normal game. Which event comes, and every rule for it, is the game's own. A bought or picked island event (Origins, Story / Cheat Upgrades) still leaves the next natural event's time as it was, now the shorter time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play** (checked by emulation of the game's own trigger). The companion is \"VVFP Island Frequency.dll\", started by VVFP Startup.dll, and the slider's number is written beside it in \"VVFP Island Frequency.txt\"; nothing is written to a save.",
+  "description": "The game's own island events come more or less often: 0.1 to 10 times as often, as you choose with the More Frequent Island Events slider in the patcher window (in steps of 0.1, 2 unless you move it; 1 is the normal game, below 1 they come less often; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). Normally the next event comes 12 to 23 whole real-life hours after the last; at 2 times it comes 6 to 11.5 hours after it, at 10 times every 72 to 138 minutes, at 0.5 times 24 to 46 hours. The 30 minutes before the next event while the village has seen no event are as in the normal game. Which event comes, and every rule for it, is the game's own. A bought or picked island event (Origins, Story / Cheat Upgrades) still leaves the next natural event's time as it was, now the shorter time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play** (checked by emulation of the game's own trigger). The companion is \"VVFP Island Frequency.dll\", started by VVFP Startup.dll, and the slider's number is written beside it in \"VVFP Island Frequency.txt\"; nothing is written to a save.",
   "output_tag": "More Frequent Island Events",
   "dependencies": [],
   "conflicts": [],
   "behavior_changes": [
-    "Each of the island event trigger's (0X4237BD) draws of the next wait, `add eax, 12; imul eax, eax, 0xE10` (rand(12) + 12 whole hours in seconds) at 0x423883, 0x42390A, 0x423A61, becomes a call of the companion's stub, which puts (rand + 12) x 3600 / N in eax, N the slider (0.1 to 100 in tenths, 2 by default; x 10 / tenths) read at start from \"VVFP Island Frequency.txt\" beside the companion (above 100 is 100, below 0.1 is 0.1, none is 2). Every other register is the game's; the instruction after each site sets the flags anew or does not read them."
+    "Each of the island event trigger's (0X4237BD) draws of the next wait, `add eax, 12; imul eax, eax, 0xE10` (rand(12) + 12 whole hours in seconds) at 0x423883, 0x42390A, 0x423A61, becomes a call of the companion's stub, which puts (rand + 12) x 3600 / N in eax, N the slider (0.1 to 10 in tenths, 2 by default; x 10 / tenths) read at start from \"VVFP Island Frequency.txt\" beside the companion (above 100 is 100, below 0.1 is 0.1, none is 2). Every other register is the game's; the instruction after each site sets the flags anew or does not read them."
   ],
   "explicit_non_changes": [
     "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none).",
@@ -22,7 +22,7 @@
     {
       "source": "assets/island_frequency/VVFP Island Frequency.dll",
       "destination": "VVFP Island Frequency.dll",
-      "sha256": "4720F7D29601913985871DE1006DB886E62F76ECB2566F675F2EA10A26C95413"
+      "sha256": "C8DFE58F900354F0F8EA6E9F9616DBB0D90030556313EE057494EC1EE6E927EC"
     }
   ],
   "patches": [],

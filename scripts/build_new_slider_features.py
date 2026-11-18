@@ -149,7 +149,7 @@ def describe(key: str, game: int) -> str:
         body = (f"Research brings more or fewer tech points: 0.1 to 10 times the normal points, as you choose with "
                 f"{words}; the rest of a whole point is a chance, so on average it is exact. The Science level, the "
                 "speed and every research bonus still count. Island events, duplicate collectibles, puzzles' and "
-                "messages' rewards and cheats are the game's own. Works with 0.1-100x Tech Cost (prices) and the "
+                "messages' rewards and cheats are the game's own. Works with 0.1-10x Tech Cost (prices) and the "
                 "Origins Tech Point Doubler. ")
     elif key == "skill_success":
         skills = ", ".join(SKILL_NAMES + (("Devotion",) if game == 5 else ()))

@@ -1,7 +1,7 @@
-"""Generate data/vv<N>_hungrier_villagers_feature.json (all five games): "Hungrier Villagers (0.1-100x Meals)".
+"""Generate data/vv<N>_hungrier_villagers_feature.json (all five games): "Hungrier Villagers (0.1-10x Meals)".
 
 The owner (2026-11-07), on making the games harder: "I like the hungrier villagers mod for all 5 games in addition to
-the tech point cost slider thing" -- a slider like 0.1-100x Tech Cost (vv_fun_patcher.MEAL_MULTIPLIER_RANGE), off by
+the tech point cost slider thing" -- a slider like 0.1-10x Tech Cost (vv_fun_patcher.MEAL_MULTIPLIER_RANGE), off by
 default; "have the classic vv difficulty on default for owner's defaults! (set the sliders to 2x."
 
 THE MEAL (research/stock-executables, read with capstone, 2026-11-07).  Once per age unit each villager eats in one
@@ -20,7 +20,7 @@ are skipped by the stock code and stay so.
 
 THE CHANGE: each of the two immediates becomes -2 x N, a signed byte for every N from 2 to 64 (-4 .. -128), in place;
 the slider goes to 100 (the owner, 2026-11-15) and 65 to 100 are written as 64, the most the byte holds (never wrapped
-round to a gain).  The owner (2026-11-17): every slider goes less as well as more, 0.1 to 100 in tenths, 1 the normal
+round to a gain).  The owner (2026-11-17): every slider goes less as well as more, 0.1 to 10 in tenths, 1 the normal
 game.  A meal is whole food, so an N whose 2 x N is whole (0.5, 1, 1.5, 2 ...) is written in the bytes as before (x 0.5:
 -1); any other N (0.1, 0.3, 1.7 ...) leaves the bytes at the normal -2 and "VVFP Meal Scale.dll"
 (native/vvfp_meal_scale, a third-word companion started by "VVFP More Companions.dll") makes each meal take 2 x N food
@@ -50,7 +50,7 @@ import pefile
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables"
-NAME = "Hungrier Villagers (0.1-100x Meals)"
+NAME = "Hungrier Villagers (0.1-10x Meals)"
 DLL_NAME = "VVFP Meal Scale.dll"
 DLL = ROOT / "assets" / "meal_scale" / DLL_NAME
 CHOICE = "VVFP Meal Scale.txt"
@@ -74,10 +74,10 @@ def imm(n: int) -> int:
 def description(game: int) -> str:
     threshold = GAMES[game][3]
     return (
-        "**Needs no other patch.** Off by default. Every villager's meal takes 0.1 to 100 times the normal food "
-        "(at most 64 times: the game's meal cannot take more, so 65 to 100 are the same as 64): you choose how many "
+        "**Needs no other patch.** Off by default. Every villager's meal takes 0.1 to 10 times the normal food "
+        "(a saved number above 10 is 10, the slider's top): you choose how many "
         f"times with the Hungrier Villagers slider in the patcher window (in steps of 0.1, {FACTOR} unless you move "
-        "it; type it in the box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). 1 is the normal game; above 1 the game is harder, below 1 "
+        "it; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). 1 is the normal game; above 1 the game is harder, below 1 "
         f"easier. Normally a villager's meal takes 2 food, and 2 more three times in four {threshold} on Normal "
         f"difficulty, at any food level on Hard, never on Easy; at x {FACTOR} that is 4 and 4 more, at x 0.5 1 and 1 "
         "more. A meal is whole food, so a number like 0.3 or 1.7 takes 2 x that ON AVERAGE: at x 0.3 a meal takes 1 "
@@ -124,8 +124,8 @@ def feature(game: int, dll_sha: str) -> dict:
         "output_tag": "Hungrier Villagers",
         "behavior_changes": [
             f"The meal routine's two food amounts ({', '.join('0x%X' % va for va, _, _ in sites)}), each -2, become "
-            "-2 x N when that is whole food (the slider, 0.1 to 100 in tenths; 2 by default; above 64 it is 64, as "
-            "-128 is the most the byte holds); the stock clamp keeps food at 0 or more.",
+            "-2 x N when that is whole food (the slider, 0.1 to 10 in tenths; 2 by default; at x 10 a "
+            "meal is -20); the stock clamp keeps food at 0 or more.",
             "Any other N leaves both at -2, and the companion makes each of the two instructions (all of them or "
             "none, after their stock bytes are checked) a call of its stub, which takes 2 x N food on average: the "
             "whole part every time and one more with the chance of the rest, drawn from the companion's own numbers "
@@ -141,7 +141,7 @@ def feature(game: int, dll_sha: str) -> dict:
         "evidence_status": (
             "implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated "
             "in tests/test_hungrier_villagers.py; runtime/player confirmation pending"),
-        "meal_multiplier": {"default": FACTOR, "minimum": 0.1, "maximum": 100, "stock_meal": STOCK_MEAL},
+        "meal_multiplier": {"default": FACTOR, "minimum": 0.1, "maximum": 10, "stock_meal": STOCK_MEAL},
         "companion_files": [
             {"source": f"assets/meal_scale/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
         ],

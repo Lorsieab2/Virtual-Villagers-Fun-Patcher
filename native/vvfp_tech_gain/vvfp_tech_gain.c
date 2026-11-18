@@ -21,7 +21,7 @@
 
    The Science level, the speed, catch-up's divisors, the Purify Tree's glow, the chief, Magic, the potion, the fire
    and the collections' bonuses are worked out before the call, so they all still count; the Origins Tech Point
-   Doubler works on the scaled amount.  The 0.1-100x Tech Cost slider changes prices, not gains: both work together.
+   Doubler works on the scaled amount.  The 0.1-10x Tech Cost slider changes prices, not gains: both work together.
 
    SAFETY.  At 1x, or with no setting file, nothing is installed.  Every site is checked to hold exactly its stock
    call first (all of them, or none).  Nothing is written to a save, a villager record or a file; no text is shown.

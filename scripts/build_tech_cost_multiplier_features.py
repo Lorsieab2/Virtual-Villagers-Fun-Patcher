@@ -1,10 +1,10 @@
-"""Generate data/vv<N>_tech_cost_multiplier_feature.json (all five games): 0.1-100x Tech Cost, off by default.
+"""Generate data/vv<N>_tech_cost_multiplier_feature.json (all five games): 0.1-10x Tech Cost, off by default.
 
 The owner (2026-11-06): "Default OFF: "Triple Tech Cost" = triples all technologies so they have 3x the normal cost.
 makes the game super hard."  And: "7 should be default off for everything. players who want it must explicitly
 choose it": Default Patches, Owner's Defaults and Select All all leave it unticked (src/vv_fun_patcher_gui.py).
 Then (2026-11-07): "instead of a flat "Triple Tech Cost", how about a slider? 2-10x Tech Cost" - the player can
-manually adjust how hard the game will be!!!!!!": the row is "0.1-100x Tech Cost", and the patcher window's slider
+manually adjust how hard the game will be!!!!!!": the row is "0.1-10x Tech Cost", and the patcher window's slider
 picks the multiplier (3 unless the player moves it; the owner, 2026-11-15: every such slider 2x to 100x;
 2026-11-17: every slider goes less as well as more, 0.1x to 100x in tenths, 1x the normal game).
 
@@ -62,8 +62,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE_BASE = 0x400000
 FACTOR = 3                     # the manifest's own bytes: the slider's default
-MULTIPLIERS = (0.1, 100)       # the slider: 0.1 to 100 in tenths
-NAME = "0.1-100x Tech Cost"
+MULTIPLIERS = (0.1, 10)        # the slider: 0.1 to 10 in tenths
+NAME = "0.1-10x Tech Cost"
 
 # A New Home and The Lost Children: the three routines' (start, end) VAs, each starting on an instruction.
 ROUTINES = {
@@ -158,9 +158,9 @@ def description(game: int) -> str:
         listed = "; ".join(f"{name} " + ", ".join(levels) for name, levels in rows.items())
     faction = (" The two factions, Nature and Magic, are technologies too: choosing one costs that many times as "
                "much." if game == 3 else "")
-    return ("Every technology level on the Tech screen costs 0.1 to 100 times its normal price in tech points: "
-            "you choose the multiplier with the 0.1-100x Tech Cost slider in the patcher window (in steps of 0.1, 3 "
-            "unless you move it; type it in the box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). 1 is the normal price; below 1 "
+    return ("Every technology level on the Tech screen costs 0.1 to 10 times its normal price in tech points: "
+            "you choose the multiplier with the 0.1-10x Tech Cost slider in the patcher window (in steps of 0.1, 3 "
+            "unless you move it; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). 1 is the normal price; below 1 "
             "technologies are cheaper, each price rounded to a whole tech point and never below 1. "
             f"The normal prices are: {listed}. At x 3, for example, a 5,000-point level costs 15,000; at x 0.5, "
             "2,500. "
@@ -189,7 +189,7 @@ def feature(game: int, stock: bytes) -> dict:
         where = ("the Tech screen's hover label (0x%X), information box (0x%X) and buy handler (0x%X), each a "
                  "price immediate" % tuple(r[0] for r in ROUTINES[game].values()))
         behaviour = [
-            f"Every technology price immediate in {where}, x N rounded to a whole tech point, never below 1 (the slider, 0.1 to 100; 3 by default): the shown "
+            f"Every technology price immediate in {where}, x N rounded to a whole tech point, never below 1 (the slider, 0.1 to 10; 3 by default): the shown "
             "price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and "
             "spends nothing) and the amount it takes (sub) are the same multiplied number.",
         ]
@@ -205,7 +205,7 @@ def feature(game: int, stock: bytes) -> dict:
         callers = ", ".join("0x%X" % c for c in GETTER_CALLERS[game])
         behaviour = [
             f"Every non-zero entry of the technology price table 0x{table:X}, x N rounded to a whole tech point, never below 1 "
-            f"(the slider, 0.1 to 100; 3 by default). Its only reader is the getter 0x{getter:X}, called by the Tech screen's hover label, "
+            f"(the slider, 0.1 to 10; 3 by default). Its only reader is the getter 0x{getter:X}, called by the Tech screen's hover label, "
             f"information box and purchase ({callers}): the shown price, the purchase's refusal threshold and the "
             "amount it takes are the same multiplied number.",
         ]

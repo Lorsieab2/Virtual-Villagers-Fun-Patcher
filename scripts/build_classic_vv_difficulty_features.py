@@ -8,7 +8,7 @@ make the text colored red for the classic vv difficulty patch titles?"
 The row changes no byte itself: it needs the harder-game patches (its dependencies), so ticking it ticks them all,
 the way any patch ticks what it needs; unticking one of them unticks this row too.  The patcher window draws its
 title in red (vv_fun_patcher_gui.CLASSIC_DIFFICULTY_FUN_PATCH_IDS); Owner's Defaults ticks it and sets both sliders
-(0.1-100x Tech Cost, Hungrier Villagers) to 2.  Off in the normal defaults, like every piece.
+(0.1-10x Tech Cost, Hungrier Villagers) to 2.  Off in the normal defaults, like every piece.
 """
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ NAME = "Classic VV Difficulty"
 
 PIECES = {
     "vv4": [("vv4_food_pays_like_earlier_games", "Food Gains are Flat, like VV1-3 (Harder Games)"),
-            ("vv4_hungrier_villagers", "Hungrier Villagers (0.1-100x Meals)"),
-            ("vv4_tech_cost_multiplier", "0.1-100x Tech Cost"),
+            ("vv4_hungrier_villagers", "Hungrier Villagers (0.1-10x Meals)"),
+            ("vv4_tech_cost_multiplier", "0.1-10x Tech Cost"),
             ("vv4_science_collectibles_complete", "Science Collectibles Only Count When Complete"),
             ("vv4_harder_fishing_unlock", "Harder Fishing Unlock in VV4"),
             ("vv4_collectible_spawn_like_vv3", "Collectible Spawn Timing works like VV1-3"),
@@ -33,8 +33,8 @@ PIECES = {
             ("vv4_more_island_events", "More Island Events"),
             ("vv4_difficulty_settings", "Difficulty Settings")],
     "vv5": [("vv5_food_pays_like_earlier_games", "Food Gains are Flat, like VV1-3 (Harder Games)"),
-            ("vv5_hungrier_villagers", "Hungrier Villagers (0.1-100x Meals)"),
-            ("vv5_tech_cost_multiplier", "0.1-100x Tech Cost"),
+            ("vv5_hungrier_villagers", "Hungrier Villagers (0.1-10x Meals)"),
+            ("vv5_tech_cost_multiplier", "0.1-10x Tech Cost"),
             ("vv5_science_collectibles_complete", "Science Collectibles Only Count When Complete"),
             ("vv5_faith_loss_doubled_gains_halved", "Faith Loss is Doubled/Gains Halved"),
             ("vv5_sickness_like_vv3", "Sickness works like VV1-3"),
@@ -56,7 +56,7 @@ def feature(game: str) -> dict:
         "name": NAME,
         "description": (
             "Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks "
-            f"all of these: {listed}. Set how hard with the two sliders (0.1-100x Tech Cost and Hungrier Villagers); "
+            f"all of these: {listed}. Set how hard with the two sliders (0.1-10x Tech Cost and Hungrier Villagers); "
             "Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay "
             "as they are. This row changes nothing by itself. **Needs all of the patches it names.**"),
         "output_tag": "Classic VV Difficulty",

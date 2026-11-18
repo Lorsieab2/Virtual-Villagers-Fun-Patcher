@@ -58,9 +58,9 @@ def description() -> str:
         "The wind flutes that play in fog once you have found a Wind Flute (every 60 to 89 seconds of the game's "
         "clock while the fog lasts: Flute1 with 1 to 4 flutes found, Flute3 with 5 to 9, Flute5 with 10 to 12) are "
         "made louder, so they are heard clearly over the music. How much louder is the Louder Wind Flutes slider in "
-        "the patcher window: 0.1 to 100 times (in steps of 0.1, 5 unless you move it; 1 is the normal volume and below "
+        "the patcher window: 0.1 to 10 times (in steps of 0.1, 5 unless you move it; 1 is the normal volume and below "
         "1 quieter; type it in the box beside the "
-        "slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). The game's own flute recordings are much quieter than its music, and the game already plays "
+        "slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). The game's own flute recordings are much quieter than its music, and the game already plays "
         "them at full volume, so the sounds themselves are made louder as the game loads them. They never distort: "
         "the loudest moments are held just under the loudest a sound can be, so from about 3 times up the quiet "
         "parts gain the most and every higher number is still louder. At 5 times, with the game's Sound and Music "
@@ -89,14 +89,14 @@ def row(dll_sha: str) -> dict:
             "The sound loader's call of FSOUND_Sample_Load (0x40C4E1 in 0x40C490, every sound effect the game "
             "loads) goes to the companion, which makes the same call; when the file is Flute1.ogg, Flute3.ogg or "
             "Flute5.ogg and FMOD made a 16-bit signed PCM sample, it locks the whole sample (FSOUND_Sample_Lock), "
-            "makes it N times louder and unlocks it, N the slider (0.1 to 100 in tenths, 5 by default) read at start from "
-            "\"VVFP VV4 Louder Flutes.txt\" beside the companion (above 100 is 100, below 0.1 is 0.1, none is 5). The "
+            "makes it N times louder and unlocks it, N the slider (0.1 to 10 in tenths, 5 by default) read at start from "
+            "\"VVFP VV4 Louder Flutes.txt\" beside the companion (above 10 is 10, below 0.1 is 0.1, none is 5). The "
             "gain goes through a limiter worked out over the whole sample first: each frame's largest gain that keeps "
             "it at or under -1 dBFS (29,204), falling ahead of a loud frame by at most 3 dB per 220 frames and "
             "recovering after it by at most 3 dB per 4,410 frames (24-bit fixed point). Nothing is clipped.",
             "Measured with both sliders at their maximum (the louder half's RMS; the loudest song -12.9 dBFS): "
             "stock -22.9 / -26.5 / -25.5 dBFS (Flute1 / 3 / 5); x 2 -16.8 / -20.5 / -19.5; x 5 -9.9 / -12.6 / "
-            "-11.7; x 10 -7.4 / -8.3 / -7.3; x 100 -5.9 / -6.1 / -5.2.",
+            "-11.7; x 10 (the top of the slider) -7.4 / -8.3 / -7.3.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion replaces the one call at run time, only after verifying "
