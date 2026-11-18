@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Mothers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce47_two_mothers",
+  "source": "draft_lce",
+  "lines": [
+   652,
+   663
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L653",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L659",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child's birth mother and the woman who raised her both want to be at the naming feast: welcome both, or keep it simple.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) raised a little girl from a baby, after the girl's birth mother, (subject), left Isola for reasons she has never discussed. Now (subject) has come back, and wants to be at the girl's coming-of-age feast. (friend) is frightened of losing her. What should (friend) do?",
+   "src": "L655",
+   "choices": [
+    {
+     "label": "Welcome Both",
+     "next": "o1",
+     "src": "L657"
+    },
+    {
+     "label": "Keep It Simple",
+     "next": "o2",
+     "src": "L661"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) invites (subject) to the feast. The girl is shy, then curious. (subject) sits at the edge and watches her daughter dance, and cries quietly. Afterwards, (subject) thanks (friend) for everything. (friend) says the girl has room for two mothers.",
+   "src": "L659"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks (subject) to wait, and to meet the girl first another time, quietly. (subject) agrees, sadly. They meet on the beach a week later, the three of them, and it goes better than anyone hoped.",
+   "src": "L663"
+  }
+ }
+}

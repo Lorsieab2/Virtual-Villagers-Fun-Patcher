@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Accusation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce29_wrong_accusation",
+  "source": "draft_lce",
+  "lines": [
+   400,
+   411
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L400",
+  "ledger": [
+   {
+    "src": "L401",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L407",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L411",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wrongly accused a neighbor of stealing a knife they have now found: apologize publicly, or privately.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last week, (subject) told half the village that (friend) had stolen (subject.his/her) best carving knife. This morning, (subject) found it, in (subject.his/her) own sleeping mat. (friend) has been treated coldly all week. What should (subject) do?",
+   "src": "L403",
+   "choices": [
+    {
+     "label": "Apologize Publicly",
+     "next": "o1",
+     "src": "L405"
+    },
+    {
+     "label": "Apologize Privately",
+     "next": "o2",
+     "src": "L409"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands up at the gathering and says it: (subject.he/she) was wrong, (friend) took nothing, and (subject.he/she) is sorry. It is the hardest thing (subject.he/she) has done in years. (friend) accepts the apology stiffly. The cold looks stop. The friendship takes longer.",
+   "src": "L407"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) goes to (friend) and apologizes. (friend) asks why (subject.he/she) is not telling the village. (subject) has no good answer. In the end, (friend) tells the village (friend.him/her)self. (subject) is ashamed, and knows (subject.he/she) deserves to be.",
+   "src": "L411"
+  }
+ }
+}

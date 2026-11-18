@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Accused Villager",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce06_accused_villager",
+  "source": "draft_lce",
+  "lines": [
+   78,
+   89
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L78",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L85",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager is blamed for breaking the shared fish trap without proof: investigate fairly, or let the village decide.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village fish trap was found smashed this morning, and (friend) says (friend.he/she) saw (subject) near it last night. Half the village has already decided (subject) did it. (subject) says (subject.he/she) was only walking home. (third) thinks accusations must be looked into properly. What should happen?",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Investigate Fairly",
+     "next": "o1",
+     "src": "L83"
+    },
+    {
+     "label": "Let the Village Decide",
+     "next": "o2",
+     "src": "L87"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) and two elders walk down to the trap and look. The stakes have been pushed over from the sea side, and there are huge marks in the sand. A sea turtle, a big one, got tangled and broke free. (subject) is cleared. (friend) apologizes, red-faced. (subject) accepts, coolly.",
+   "src": "L85"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village argues at the gathering, and in the end decides there is not enough to say either way. (subject) is not punished. But some people still look at (subject.him/her) strangely, and (subject) stops walking home past the trap. Months later, a turtle is seen breaking the new trap. Not everyone hears about it.",
+   "src": "L89"
+  }
+ }
+}

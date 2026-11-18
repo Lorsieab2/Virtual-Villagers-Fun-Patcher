@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hut Too Close",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce44_hut_too_close",
+  "source": "draft_lce",
+  "lines": [
+   610,
+   621
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L610",
+  "ledger": [
+   {
+    "src": "L611",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L617",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A newcomer has built a hut that blocks a family's view of the sea: ask them to move it, or learn to live with it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is new to the village, and has built (friend.his/her) hut on the only empty spot left, right in front of (subject)'s family hut. Now (subject)'s family can no longer see the sea from the door. Three generations have looked at that view. (friend) did not know. What should (subject) do?",
+   "src": "L613",
+   "choices": [
+    {
+     "label": "Ask (friend) to Move It",
+     "next": "o1",
+     "src": "L615"
+    },
+    {
+     "label": "Learn to Live With It",
+     "next": "o2",
+     "src": "L619"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks. (friend) is upset: (friend.he/she) worked hard on that hut. In the end, the village helps (friend) move it ten strides to the left. Both families can see the sea now, mostly. (subject) brings (friend) a basket of fish as thanks.",
+   "src": "L617"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. The family grumbles about the view for a season. Then (friend) invites them over to sit in front of (friend.his/her) hut, where the view is even better. The two families watch the sunset together most evenings now.",
+   "src": "L621"
+  }
+ }
+}

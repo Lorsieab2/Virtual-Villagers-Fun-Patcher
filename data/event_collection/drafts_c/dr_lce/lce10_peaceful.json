@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Peaceful Gathering",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce10_peaceful",
+  "source": "draft_lce",
+  "lines": [
+   134,
+   145
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and two adults)"
+   },
+   {
+    "src": "L141",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L145",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Villagers organize a gathering to call for an end to a long feud between two families: hold it, or let the families sort it out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The families of (friend) and (third) have been feuding for so long that nobody remembers how it started. Now it is spoiling everything: feasts, fishing crews, even weddings. (subject) wants to call a gathering where the whole village asks them, together, to stop. Is that kind, or too much?",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Hold the Gathering",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Let Them Sort It Out",
+     "next": "o2",
+     "src": "L143"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village gathers, and one by one, people say how the feud has touched them. (friend) and (third) sit at opposite ends, red-faced. At the end, neither family apologizes. But (friend) nods at (third) on the way out, which nobody has seen in years.",
+   "src": "L141"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides the families must find their own way. The feud goes on. Then one day (friend)'s child falls in the lagoon, and it is (third) who pulls (other.him/her) out. Nothing is said. But the feud quietly stops, and nobody knows quite when.",
+   "src": "L145"
+  }
+ }
+}

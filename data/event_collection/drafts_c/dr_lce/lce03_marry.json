@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who to Marry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce03_marry",
+  "source": "draft_lce",
+  "lines": [
+   36,
+   47
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L36",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and two elders)"
+   },
+   {
+    "src": "L43",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L47",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager's two parents each want them to marry someone different: choose for themselves, or ask them both to stop.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 45
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 45
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) wants (subject) to marry the steady fisher from the next hut. (third) wants (subject) to marry the clever weaver from across the village. They have been arguing about it all season, as if (subject) were not in the room. (subject) does not especially want to marry either of them. What should (subject) do?",
+   "src": "L39",
+   "choices": [
+    {
+     "label": "Choose Freely",
+     "next": "o1",
+     "src": "L41"
+    },
+    {
+     "label": "Ask Them Both to Stop",
+     "next": "o2",
+     "src": "L45"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells them both that (subject.he/she) is in love with someone else entirely, the quiet healer's apprentice, and has been for a year. Both parents are speechless for the first time in living memory. Then they start arguing about the wedding.",
+   "src": "L43"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits them both down and asks them to stop choosing for (subject.him/her). They argue about who started it. Then, slowly, they agree. The house is very quiet for a while. It is the most peaceful season (subject) has had in years.",
+   "src": "L47"
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Disputed Hero",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce41_disputed_hero",
+  "source": "draft_lce",
+  "lines": [
+   568,
+   579
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L569",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L575",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two villagers both claim they saved the child from the stream: let the child say, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A little one fell in the stream last week and was pulled out. Both (subject) and (friend) say they did it, and their stories get bigger every day. By now, according to them, the stream was a raging river, and there were crocodiles. There are no crocodiles on Isola. What should the village do?",
+   "src": "L571",
+   "choices": [
+    {
+     "label": "Ask the Child",
+     "next": "o1",
+     "src": "L573"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L577"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village asks the child, who thinks hard and says that (subject) pulled, (friend) pushed, and a goat helped. Both heroes are deflated. The goat is given a garland.",
+   "src": "L575"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Nobody settles it. (subject) and (friend) keep telling the story at every feast, competing to make it bigger. By the next year, the stream has become a waterfall and there are three crocodiles. The children love it.",
+   "src": "L579"
+  }
+ }
+}

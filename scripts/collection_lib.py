@@ -133,6 +133,7 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     "draft_lcb": ("Living Culture II", 758, "dr_lcb", "LCB"),
     "draft_lcc": ("Living Culture III", 758, "dr_lcc", "LCC"),
     "draft_lcd": ("Living Culture IV", 758, "dr_lcd", "LCD"),
+    "draft_lce": ("Living Culture V", 758, "dr_lce", "LCE"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
