@@ -1,0 +1,38 @@
+{
+  "id": "vv2_age_speed",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Age and Nursing Timer Speed",
+  "description": "Villagers' age clock runs faster or slower: 0.1 to 10 times as fast, as you choose with the Age and Nursing Timer Speed slider in the patcher window (0.1 to 10 in steps of 0.1, 1 unless you move it; 1 is the normal game, below 1 less; type it in the box beside the slider too). Everything counted in years of age follows it together: growing up, becoming an elder, old age, pregnancy and nursing (a baby is born 2 years of the mother's age after it was conceived), and eating, health and sickness, which come once per age step. So at 2 villagers also eat twice as often per real hour. The ages at which things happen are the game's own; only how soon they come changes. A Time Warp's years are multiplied too. Esteemed Elders (the totems) are not aged by the game, as before. Work, conception, food regrowth, island events and the Nursery School run at the normal speed. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Age Speed.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Age Speed.txt\"; nothing is written to a save.",
+  "output_tag": "Age Speed",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "Age and Nursing Timer Speed: the companion's sites 0x43B856 (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Age Speed.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/age_speed/VVFP Age Speed.dll",
+      "destination": "VVFP Age Speed.dll",
+      "sha256": "2575542C824729C4BCC36C08F6405507C377C7B980F4CB5798E7B1F767C8BF94"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x43B856",
+      "stock_bytes": "2BC203C8898D24050000",
+      "written_bytes": "E8XXXXXXXX9090909090",
+      "routine": "the world tick's add of each villager's real seconds since its last look (sub eax, edx; add ecx, eax; mov [ebp + 0x524], ecx): the companion does the same with the seconds multiplied by N (the rest a chance), before the game's own cap",
+      "installed_by": "VVFP Age Speed.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

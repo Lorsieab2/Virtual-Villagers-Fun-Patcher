@@ -76,8 +76,9 @@ class Stock(unittest.TestCase):
                     self.assertEqual(self.call_target(data, va), gen.RAND[game])
                 for va in gen.SKILL_SITES[game]:
                     self.assertEqual(self.call_target(data, va), gen.RAND[game])
-                    # push 100 just before.
-                    self.assertIn(b"\x6A\x64", data[va - 0x400000 - 12:va - 0x400000])
+                    # push 100 just before (A New Home's Farming: mov ebp, 100; push ebp).
+                    before = data[va - 0x400000 - 16:va - 0x400000]
+                    self.assertTrue(b"\x6A\x64" in before or b"\xBD\x64\x00\x00\x00\x55" in before, hex(va))
                 for va, _w, _o in gen.FOOD_SITES[game]:
                     if va != 0x434C77:      # only a call with Fruit is Harvested at the Food Bin
                         self.assertEqual(self.call_target(data, va), gen.FOOD_WRITER[game], hex(va))
@@ -114,7 +115,7 @@ class Stock(unittest.TestCase):
             game = int(feature.id[2]) if re.match(r"vv[1-5]_", feature.id) else None
             for p in feature.raw.get("patches", []):
                 start = int(p["offset"], 16) + 0x400000
-                end = start + len(p["after"]) // 2
+                end = start + max(len(p.get("after", "")), len(p.get("before", ""))) // 2
                 for g, va, n in sites:
                     if g == game:
                         with self.subTest(row=feature.id, site=hex(va)):
