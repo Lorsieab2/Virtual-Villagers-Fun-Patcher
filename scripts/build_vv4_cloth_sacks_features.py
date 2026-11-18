@@ -155,10 +155,13 @@ def row(dll_sha: str) -> dict:
             "bin\"), job event 0x76 (the cooked sack shows), item 0x36 carried, the walk to the food bin (area 8), the "
             "trip's own 1-second wait and put-down, and job event 0x77: the sack's food. The trip's own job event 15 "
             "(3 food) is therefore never queued, and the stew is never given the sack.",
-            f"Job event 0x77 (as event 14): n = {SACK_FRUIT}; with {LIMITED}, n = the fruit left, at most "
-            f"{SACK_FRUIT}, taken from the tree (VvfpYellowFruitTake of \"VVFP VV4 Fruit Supply.dll\", found with "
-            "GetProcAddress); 0x41D920(n); with the limited tree and fewer than 3 fruit left, the villager's task "
-            "cleared; over 2,000 food, tip 0x2E5.",
+            "Job event 0x77 is paid by the cutting-tool harvest's own credit, job event 14 (0x4644EE), called with the "
+            "blackberry count [game + 0x170F8] set for the call to the fruit left (with " + LIMITED + ") or 1000 (the stock "
+            "unlimited tree) and put back after it: it pays min(that, 30) from its stock food-writer call (return 0x464510; "
+            "Food Mastery inside 0x41D920, and the Origins Food Doubler, which doubles writer calls by their stock return "
+            "address (#805), act on it exactly once, as on a cutting-tool harvest), clears the villager's task below 3 and "
+            "shows the 2,000-food tip; what it paid is then taken from the tree (VvfpYellowFruitTake of \"VVFP VV4 Fruit "
+            "Supply.dll\").",
             "The pictures: the carried item's draw (0x466770, its call of 0x44C640 at 0x4667B4; the fifth argument "
             "is the picture's alpha, 1.0, and the size the map's zoom) draws, for a villager whose queue still holds "
             "event 0x77: after event 0x75, item 0x35 -> Images\\vvfp_sack_empty.png and item 0x36 (trees to pit) -> "

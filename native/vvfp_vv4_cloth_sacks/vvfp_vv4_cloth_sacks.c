@@ -30,7 +30,8 @@
    the cutting tools allow harvesting with less than 3 fruit, so should the sacks"); the food at the bin from this companion's job event, as event 14: n = 30, or with
    "Yellow Fruit Trees are No Longer Unlimited" the fruit left, at most 30, taken from the tree there and then
    ("VVFP VV4 Fruit Supply.dll", VvfpYellowFruitTake; without it the trees are the stock game's unlimited ones and
-   a sack always holds 30); 0x41D920(n); fewer than 3 fruit left: the task cleared; over 2,000 food: tip 0x2E5.
+   a sack always holds 30), paid by event 14 itself run on the fruit (on_event), so its food-writer call, the task
+   rule below 3 and the 2,000-food tip are the harvest's own.
    The full sack is carried as item 0x36 (the yellow fruit), never 0x37: like the harvest's berries it is no
    Grand Feast item and never goes into the stew (the trip's stew branch, 0x4349A3, is replaced by the food bin).
    The differences the owner asked for: the fruit (the yellow fruit trees), making the sack, the game's own
@@ -118,12 +119,11 @@
 #define MAP 0x6C4658u
 #define AREA_AT 0x46C410u            /* thiscall(map; x, y): the drop area there (the drop dispatcher's) */
 #define HUT_AREA 0x12               /* the Clothing Hut's (its handler 0x46F600, registered at 0x46FA8E) */
-#define FOOD_STORE 0x4D6DD0u
-#define FOOD_ADD 0x41D920u           /* thiscall(food): Food Mastery inside */
-#define TIPS 0x4DACE0u
-#define TIP 0x44B890u                /* thiscall(id, 0, 0) */
-#define TIP_FOOD 0x2E5
-#define FOOD_TIP_ABOVE 2000
+#define GAME_GET 0x41FE70u           /* the game object */
+#define G_BERRIES 0x170F8u           /* the blackberries the harvest's credit reads */
+#define JOB_EVENT 0x4642F0u          /* thiscall(job; event) */
+#define HARVEST_CREDIT 14            /* the cutting-tool harvest's credit (0x4644EE) */
+#define SACK_UNLIMITED 1000          /* the stand-in for the stock unlimited tree: always 30 paid, the task kept */
 
 /* The step builders (thiscall on the villager), each appending one step. */
 #define STEP_TEXT 0x468CF0u          /* (text): type 5 */
@@ -242,8 +242,8 @@ typedef char (__fastcall *taken_fn)(void *self, void *unused, int lock);
 typedef char (__fastcall *do_action_fn)(void *self, void *unused, int action, void *block);
 typedef int *(__fastcall *position_fn)(void *self, void *unused, int *out);
 typedef int (__fastcall *area_fn)(void *self, void *unused, int x, int y);
-typedef void (__fastcall *food_fn)(void *self, void *unused, int food);
-typedef void (__fastcall *tip_fn)(void *self, void *unused, int id, int a, int b);
+typedef unsigned char *(__cdecl *game_get_fn)(void);
+typedef void (__fastcall *event_fn)(void *self, void *unused, int event);
 typedef void (__fastcall *step1_fn)(void *self, void *unused, int arg);
 typedef void (__fastcall *step0_fn)(void *self, void *unused);
 typedef void (__fastcall *walk_fn)(void *self, void *unused, int area, int speed, int front);
@@ -481,22 +481,32 @@ static int __cdecl on_event(unsigned char *job, int event) {
         unsigned char *villager = *(unsigned char **)(job + REC_OF_JOB);
         sack_mark *m;
         if (event == SACK_EV_CREDIT) {
-            int n = SACK_FRUIT, left;
-            int taken;
-            bind_fruit();
-            taken = g_fruit_take != NULL ? g_fruit_take(SACK_FRUIT) : -1;
-            if (taken >= 0) {
-                n = taken;
-            }
-            ((food_fn)(UINT_PTR)FOOD_ADD)((void *)(UINT_PTR)FOOD_STORE, NULL, n);
-            left = fruit_left();
-            if (left >= 0 && left < 3 && villager != NULL) {
-                *(int *)(villager + REC_TASK) = 0;
+            /* The sack is paid by the cutting-tool harvest's own credit, job event 14 (0x4644EE), run on the
+               fruit instead of the berries: the blackberry count [game + 0x170F8] is set to the fruit left (or, with
+               the stock unlimited tree, SACK_UNLIMITED) for the call and put back after it.  Event 14 pays
+               min(that, 30) through the food writer from its stock call (return 0x464510), clears the villager's
+               task below 3 and shows the 2,000-food tip -- so everything that acts on that stock payment (Food
+               Mastery inside 0x41D920, the Origins Food Doubler's wrapper, which doubles writer calls by their
+               stock return address, PR #805) acts on the sack exactly as on a cutting-tool harvest, once.  What it
+               paid is then taken from the tree. */
+            unsigned char *game = ((game_get_fn)(UINT_PTR)GAME_GET)();
+            int left = fruit_left(), saved, stand_in, paid;
+            if (game != NULL) {
+                saved = *(int *)(game + G_BERRIES);
+                stand_in = left >= 0 ? left : SACK_UNLIMITED;
+                *(int *)(game + G_BERRIES) = stand_in;
+                __try {
+                    ((event_fn)(UINT_PTR)JOB_EVENT)(job, NULL, HARVEST_CREDIT);
+                } __finally {
+                    paid = stand_in - *(int *)(game + G_BERRIES);
+                    *(int *)(game + G_BERRIES) = saved;
+                }
+                bind_fruit();
+                if (left >= 0 && paid > 0 && g_fruit_take != NULL) {
+                    (void)g_fruit_take(paid);
+                }
             }
             unmark(villager);
-            if (*(const int *)(UINT_PTR)FOOD_STORE > FOOD_TIP_ABOVE) {
-                ((tip_fn)(UINT_PTR)TIP)((void *)(UINT_PTR)TIPS, NULL, TIP_FOOD, 0, 0);
-            }
         } else if (villager != NULL && (m = mark_of(villager, 1)) != NULL) {
             m->shows = event == SACK_EV_MADE ? 1 : 2;
         }
