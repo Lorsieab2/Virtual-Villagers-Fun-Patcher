@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Voices of the Young",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca16_voices_young",
+  "source": "draft_lca",
+  "lines": [
+   222,
+   233
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L222",
+  "ledger": [
+   {
+    "src": "L223",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen and an elder)"
+   },
+   {
+    "src": "L229",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L233",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The young people have made up a chant asking the elders to listen: hear them at the gathering, or tell them to wait their turn.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The children and teens of the village have made up a chant. It goes: listen, listen, we live here too. They have been chanting it outside the elders' hut all morning. (subject) is leading it. (friend), inside, is trying to have a meeting about the fishing grounds and cannot hear (friend.him/her)self think. What should (friend) do?",
+   "src": "L225",
+   "choices": [
+    {
+     "label": "Invite Them In",
+     "next": "o1",
+     "src": "L227"
+    },
+    {
+     "label": "Tell Them to Wait Their Turn",
+     "next": "o2",
+     "src": "L231"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) opens the door and invites the young ones in. They are so surprised they stop chanting. (subject) explains: the children want a say in where the new swimming spot will be, because the old one is too far and too deep. The elders listen. The new swimming spot is moved. (subject) walks out a little taller.",
+   "src": "L229"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) tells them, kindly but firmly, that the elders' meeting is not the place, and they will be heard at the next village gathering. (subject) is not satisfied. At the next gathering, (subject.he/she) stands up and says it all again, with forty children chanting behind (subject.him/her). This time everyone hears it.",
+   "src": "L233"
+  }
+ }
+}

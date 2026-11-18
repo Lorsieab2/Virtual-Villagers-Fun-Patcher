@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Good Luck on the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca32_good_luck_path",
+  "source": "draft_lca",
+  "lines": [
+   446,
+   457
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L446",
+  "ledger": [
+   {
+    "src": "L447",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L453",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L453",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L457",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L457",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager sets off alone to fetch healing herbs from the mountain: sing them a luck song, or send a friend with them.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The herbs the healers need only grow high on the mountain, two days' walk away. (subject) has volunteered to fetch them, alone. (friend) thinks the path is too dangerous for one person, but (subject) says (subject.he/she) is faster alone. What should the village do?",
+   "src": "L449",
+   "choices": [
+    {
+     "label": "Sing a Luck Song and Let (subject) Go",
+     "next": "o1",
+     "src": "L451"
+    },
+    {
+     "label": "Send (friend) Along",
+     "next": "o2",
+     "src": "L455"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At dawn, the village sings the walking song, the one that is supposed to keep feet steady, and (subject) sets off. (subject.He/she) is back in four days, scratched and sunburned, with a bag full of herbs and a story about a very rude bird.",
+   "src": "L453",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L453"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) insists on going too. They argue the whole way up the mountain about which path is faster, and take the wrong one twice. They come back with the herbs, a day late, and still arguing.",
+   "src": "L457",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L457"
+    }
+   ]
+  }
+ }
+}

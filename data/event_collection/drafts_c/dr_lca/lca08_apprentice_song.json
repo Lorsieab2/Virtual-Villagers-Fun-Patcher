@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca08_apprentice_song",
+  "source": "draft_lca",
+  "lines": [
+   110,
+   121
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L110",
+  "ledger": [
+   {
+    "src": "L111",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L117",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L121",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L121",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An apprentice has learned all a master can teach: sing a song of completion, or give a quiet gift instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For four years, (friend) has learned canoe-carving from (subject), and today (friend.he/she) finished a canoe that (subject) could not fault, though (subject.he/she) looked very hard. By old custom, a master sings a song for an apprentice who has learned everything. (subject) has never been much of a singer. What should (subject) do?",
+   "src": "L113",
+   "choices": [
+    {
+     "label": "Sing the Song Anyway",
+     "next": "o1",
+     "src": "L115"
+    },
+    {
+     "label": "Give a Quiet Gift",
+     "next": "o2",
+     "src": "L119"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sings. It is gruff and off-key and (subject.he/she) forgets the middle, so (subject.he/she) hums it. (friend) stands there with (friend.his/her) mouth open. Nobody laughs. When it ends, (friend) hugs (subject.him/her) so hard (subject)'s hat falls off.",
+   "src": "L117",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L117"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives (friend) (subject.his/her) oldest carving knife, the one (subject.his/her) own teacher gave (subject.him/her), and says nothing at all. (friend) understands perfectly. (friend.He/she) keeps that knife wrapped in cloth and uses it only for the finest work.",
+   "src": "L121",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L121"
+    }
+   ]
+  }
+ }
+}

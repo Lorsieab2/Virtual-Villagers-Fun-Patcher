@@ -549,6 +549,19 @@ review sheet). The shape is 15b's (the setup asks; each label leads to its own t
 - "The chief" stays the game word `{@chief}` / `{@Chief}` (a label in title case: collection_check compares a game word
   as the word it stands for); a title with "Chief" has a "Leader" title variant outside VV3. Nobody is cast as the chief.
 
+## 15j. Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18)
+
+"New Events - Living Culture I (draft for owner).txt", "... II ..." and on (LCA-, LCB-, ...; 50 events each) are group C
+files (`collection_lib.DRAFTS_C`, source ids `draft_lca`, `draft_lcb`, ...; one series each; SHA-256 in
+`DRAFT_LC*.sha256`), built by `scripts/drafts_c/gen_drafts_c.py` with `scripts/drafts_c/annotations/lc*.txt`. The owner's
+concept volumes are kept verbatim in the private VVFP-owner-files repo (`living-culture/`); each event's concepts and
+real-world inspiration are in its file's closing notes only, never in event text. The owner waived review ("I'm sure the
+draft events are fine"); every annotation's REVIEW line logs the 15-point review. Each ending may carry a
+"[Solidarity: raise|lower|neutral]" tag (the owner's planned village counter, which only changes odds): a ledger note,
+never shown, no effect yet. Effects use the general words of `gen_drafts_c._general_effect` ("small Farming skill for
+(name2)", "(name1) loses a little health", "everyone celebrates", "small tech gain", ...). Like every new added event:
+off by default, on in Owner's Defaults (the collection's rows).
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

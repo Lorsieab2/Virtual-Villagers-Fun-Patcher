@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "No One Left Behind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca15_one_left_behind",
+  "source": "draft_lca",
+  "lines": [
+   208,
+   219
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L208",
+  "ledger": [
+   {
+    "src": "L209",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L215",
+    "kind": "instruction",
+    "text": "[effect: (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L215",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L219",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager has not come back from gathering: search with a calling chant, or search in silence to listen better.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) went to gather berries on the far side of the island this morning and has not come back. It is getting dark. (subject) is organizing a search, and the village is split: some want to sweep the forest chanting the old calling chant so (friend) can follow the sound; others want to search silently, so they can hear (friend.him/her) calling. How should they search?",
+   "src": "L211",
+   "choices": [
+    {
+     "label": "Chant as We Search",
+     "next": "o1",
+     "src": "L213"
+    },
+    {
+     "label": "Search in Silence",
+     "next": "o2",
+     "src": "L217"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The searchers spread out through the trees, chanting so loudly the birds scatter. Near midnight, a faint voice chants back the next line from somewhere down a ravine. (friend) has twisted (friend.his/her) ankle and could not climb out. They carry (friend.him/her) home on a litter, still chanting, now mostly out of relief.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L215"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The searchers move slowly and quietly, stopping every few steps to listen. It takes hours. Then (subject) hears it: a tired, hoarse voice, calling (subject.his/her) name. (friend) is sitting under a tree, lost, cold and very glad to see (friend.him/her). (subject) gives (friend.him/her) (subject.his/her) own cloak.",
+   "src": "L219"
+  }
+ }
+}

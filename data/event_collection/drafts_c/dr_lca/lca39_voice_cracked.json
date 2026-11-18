@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Voice That Cracked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca39_voice_cracked",
+  "source": "draft_lca",
+  "lines": [
+   544,
+   555
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L544",
+  "ledger": [
+   {
+    "src": "L545",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen and an adult)"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L555",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen's voice cracks in the middle of a solo at the festival: keep singing, or let the choir take over.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been practicing (subject.his/her) solo for the moon festival for weeks. Tonight, right in front of the whole village, on the highest note, (subject.his/her) voice cracks like a branch. There is a terrible silence. (friend), who leads the choir, catches (friend.his/her) eye. What should (subject) do?",
+   "src": "L547",
+   "choices": [
+    {
+     "label": "Keep Singing",
+     "next": "o1",
+     "src": "L549"
+    },
+    {
+     "label": "Let the Choir Take Over",
+     "next": "o2",
+     "src": "L553"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes a breath and sings the next line, and the next. (subject.His/her) voice cracks twice more. (subject.He/she) finishes anyway. The village cheers louder than for anyone else that night, because everyone knows exactly how hard that was.",
+   "src": "L551",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L551"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) gives the signal and the whole choir comes in, carrying the song. (subject) sings along in the middle of them, where nobody can pick (subject.his/her) voice out. Afterwards (subject.he/she) is red to the ears, but (friend) says the solo can wait for next year. (subject) is already practicing.",
+   "src": "L555"
+  }
+ }
+}
