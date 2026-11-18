@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Became a Student",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci23_elder_became",
+  "source": "draft_lci",
+  "lines": [
+   316,
+   327
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L316",
+  "ledger": [
+   {
+    "src": "L317",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult)"
+   },
+   {
+    "src": "L323",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L323",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L327",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder wants to start a new craft and take lessons from someone much younger: go ahead, or keep their dignity.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has fished for fifty years and has decided (subject.he/she) wants to learn to carve. The best carving teacher in the village is (friend), who is twenty. (subject) is not sure how it will feel to be a beginner again, taught by someone (subject.he/she) once carried on (subject.his/her) shoulders. What should (subject) do?",
+   "src": "L319",
+   "choices": [
+    {
+     "label": "Go Ahead",
+     "next": "o1",
+     "src": "L321"
+    },
+    {
+     "label": "Learn Alone",
+     "next": "o2",
+     "src": "L325"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) joins (friend)'s lessons. (subject.He/she) is terrible at first, and laughs at (subject.him/her)self. (friend) is patient. By the end of the season, (subject) carves a lopsided fish (subject.he/she) is enormously proud of.",
+   "src": "L323",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L323"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tries to teach (subject.him/her)self, in secret. It goes badly. Eventually (subject.he/she) asks (friend) for one lesson, just one. (friend) says (friend.he/she) would be honored.",
+   "src": "L327",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L327"
+    }
+   ]
+  }
+ }
+}

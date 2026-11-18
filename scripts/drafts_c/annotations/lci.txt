@@ -1,0 +1,264 @@
+LCI-01
+DESC: A family's garden was taken unfairly long ago, but others have farmed it for decades: share it, or offer other repair.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no easy answer; nobody alive blamed)
+
+LCI-02
+DESC: A trader returns a carved staff taken from the village long ago: give it to the family it came from, or keep it where all can see.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (both choices respectful)
+
+LCI-03
+DESC: The council apologizes for an old wrong, and the family says words are not enough: make real repair, or let it stand.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (apology without forced forgiveness)
+
+LCI-04
+DESC: The great stone wall was built by workers left out of its story: add their names, or tell the whole truth too.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (history not erased; descendants not shamed)
+
+LCI-05
+DESC: Households on the far side of the island find decisions made without them: give them a seat, or hold meetings closer to them.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (representation)
+
+LCI-06
+DESC: Two villages claim the same fishing ground: share it by season, or divide it in two.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fair negotiation)
+
+LCI-07
+DESC: The leader admits they are overwhelmed: share the duties out, or let them rest while others lead.
+ROLES: name1=18+ name2=55+
+WORD: chief
+FIX S: 1=s 2=s
+FIX O1: 1=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (vulnerability respected)
+
+LCI-08
+DESC: Nearly everyone at the assembly opposes a plan for different reasons: find what they share, or end without a decision.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (unresolved endings allowed)
+
+LCI-09
+DESC: A water channel would help most families but cut through two family gardens: build it and make it up to them, or route it around.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (individual rights weighed)
+
+LCI-10
+DESC: A visiting musician claims a family's private song as their own: demand acknowledgment, or agree on rules for sharing.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+FIX O1: 1=s
+REVIEW: 15/15 pass (acknowledgment; privacy)
+
+LCI-11
+DESC: A researcher wants to study the families' medicine plants: agree on how the findings are shared first, or let the study begin.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (consent and benefit-sharing)
+
+LCI-12
+DESC: Artisans want a market day for crafts: hold the market with rules on family patterns, or keep trading as before.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fair exchange)
+
+LCI-13
+DESC: The red feathers for the harvest ceremony have become scarce: use something else, or skip the ceremony until they return.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (change debated respectfully)
+
+LCI-14
+DESC: Children invent a new festival and insist it become a tradition: let it, or wait to see if it lasts.
+ROLES: name1=6-13 name2=55+
+WORD: chief
+REVIEW: 15/15 pass (new traditions matter)
+
+LCI-15
+DESC: A family finds instructions for a lost bark-cloth craft: rebuild it by trying, or ask the elders what they remember.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (revival; past implied)
+
+LCI-16
+DESC: The families who clean fish are not invited to the great feast because of their work: change it, or make the feast open to all.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (labor not undervalued)
+
+LCI-17
+DESC: Some villagers mock a newcomer's accent: step in now, or talk to the mockers privately.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (prejudice named as wrong; no humiliation)
+
+LCI-18
+DESC: A capable villager is never chosen as an apprentice because of the family they come from: take them on, or ask the others why.
+ROLES: name1=55+ name2=18-25
+REVIEW: 15/15 pass (unfair assumptions challenged)
+
+LCI-19
+DESC: A false rumor about a newcomer divides the village: set the record straight, or let the newcomer speak.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=2
+REVIEW: 15/15 pass (autonomy; rumor accountable)
+
+LCI-20
+DESC: A young woman wants to navigate but her family expects pottery: support her choice, or ask her to do both.
+ROLES: name1=18-25/f name2=45+
+REVIEW: 15/15 pass (autonomy; family not villainized)
+
+LCI-21
+DESC: A father stays home to raise the children while his partner fishes, and neighbors tease him: answer them, or ignore it.
+ROLES: name1=18+/m name2=18+
+REVIEW: 15/15 pass (family roles not fixed; no shaming)
+
+LCI-22
+DESC: Two families have planned a marriage, and one of the pair does not want it: stand by them, or ask them to give it a chance.
+ROLES: name1=18+ name2=18+ name3=45+
+REVIEW: 15/15 pass (autonomy upheld)
+
+LCI-23
+DESC: An elder wants to start a new craft and take lessons from someone much younger: go ahead, or keep their dignity.
+ROLES: name1=55+ name2=18-25
+FIX O1: 1=1 2=1
+REVIEW: 15/15 pass (aging with growth)
+
+LCI-24
+DESC: Several unrelated villagers want to live together as one household to share the work: support it, or keep households by family.
+ROLES: name1=18+ name2=18+ name3=55+
+REVIEW: 15/15 pass (chosen family)
+
+LCI-25
+DESC: A healer is overwhelmed after a hard season and cannot sleep: make them rest, or let them talk it through.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+REVIEW: 15/15 pass (care for carers; no forced recovery)
+
+LCI-26
+DESC: After a disaster, some want to gather and others need to be alone: hold the gathering, or offer quiet help to those who want it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (many ways to grieve)
+
+LCI-27
+DESC: A cheerful singer has withdrawn from everything: sit with them, or ask them to come back.
+ROLES: name1=18+ name2=18+
+FIX S: 4=1
+REVIEW: 15/15 pass (presence without pressure)
+
+LCI-28
+DESC: A villager proposes a day when anyone can speak about their worries without being judged: hold it, or keep worries private.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (voluntary; privacy respected)
+
+LCI-29
+DESC: A family does everything for an old relative who wants to do things themselves: step back, or keep helping.
+ROLES: name1=55+ name2=18+
+FIX S: 6=1 7=1
+FIX O2: 4=1 5=1
+REVIEW: 15/15 pass (help without removing choice)
+
+LCI-30
+DESC: Builders find a bird's nest under a roof they must repair: wait until the chicks leave, or move the nest.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (animal welfare; practical cost)
+
+LCI-31
+DESC: Wild pigs keep raiding the gardens: build a fence, or set traps.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (predation not wrongdoing; non-graphic)
+
+LCI-32
+DESC: Children find a sea turtle tangled in an old net: free it on the beach, or carry it to the healers.
+ROLES: name1=6-13 name2=18+
+REVIEW: 15/15 pass (care for animals)
+
+LCI-33
+DESC: A young hunter wounded a wild pig that escaped: track it to end its suffering, or let it go.
+ROLES: name1=55+ name2=18-25
+REVIEW: 15/15 pass (responsibility; non-graphic)
+
+LCI-34
+DESC: The old one-eyed dog everyone feeds has fallen sick: try to treat it, or let it rest in peace.
+ROLES: name1=6-13 name2=18+
+REVIEW: 15/15 pass (animal care; no false hope)
+
+LCI-35
+DESC: The village needs timber for new huts, but the nearest grove is the last of a rare tree: cut it, or haul timber from far away.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (hard tradeoff)
+
+LCI-36
+DESC: Researchers ask for no fishing in the breeding season, just as a flood ruins the gardens: keep the ban, or lift it for now.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (competing needs; no right answer)
+
+LCI-37
+DESC: A hillside stripped by careless harvesting is washing away: start a long replanting effort, or let it heal on its own.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (long-term effort; no guaranteed result)
+
+LCI-38
+DESC: Builders propose different bridge designs: test them all first, or build the favorite.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (testing and learning)
+
+LCI-39
+DESC: Farmers want to grow plants on a floating raft in the sheltered lagoon: try it, or dig new water channels instead.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (experiment)
+
+LCI-40
+DESC: A child spots a mistake in the planting calendar: check it together, or trust the old count.
+ROLES: name1=8-13 name2=18+
+REVIEW: 15/15 pass (anyone can find an error; experts can be wrong)
+
+LCI-41
+DESC: A teacher at the open lessons will not share their best remedy: urge them to share, or respect their choice.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (open learning; respectful questioning)
+
+LCI-42
+DESC: The builders refuse to climb the roof with rotten ropes: fix the equipment, or push on.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (safety and fair pay)
+
+LCI-43
+DESC: The hardest-working families got the smallest shares: look at how food is shared, or help quietly.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fairness investigated; no shame)
+
+LCI-44
+DESC: An artist paints a hilariously exaggerated portrait of the leader: show it, or paint over it.
+ROLES: name1=18+
+WORD: chief
+REVIEW: 15/15 pass (affectionate satire; the leader laughs)
+
+LCI-45
+DESC: Researchers want a festival of their failed inventions: hold the festival, or keep failures private.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (failure celebrated, never shamed)
+
+LCI-46
+DESC: A villager's necklace tells their life story: hold a festival of personal stories, or let it grow on its own.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (self-expression; the right to be different)
+
+LCI-47
+DESC: A child and an elder bond over beetles, and the child's parent wants to mend things: share the hunt, or apologize plainly.
+ROLES: name1=6-13 name2=55+
+FIX S: 1=s
+REVIEW: 15/15 pass (domestic repair; no harm shown)
+
+LCI-48
+DESC: An old burial site is found whose people nobody knows: honor them without names, or try to learn who they were.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (dignity for the unknown dead)
+
+LCI-49
+DESC: Someone smashed a villager's canoe in a quarrel: ask for restitution, or let the village decide.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (restorative justice; no humiliation)
+
+LCI-50
+DESC: The village holds a great gathering about what kind of island it wants to become: choose one dream, or keep negotiating together.
+ROLES: name1=55+ name2=18+ name3=6-13
+REVIEW: 15/15 pass (hope earned; no single ideal)

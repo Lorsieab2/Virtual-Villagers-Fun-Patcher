@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Independence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci29_elder",
+  "source": "draft_lci",
+  "lines": [
+   400,
+   411
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L400",
+  "ledger": [
+   {
+    "src": "L401",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L407",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L407",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L411",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family does everything for an old relative who wants to do things themselves: step back, or keep helping.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Since (subject) fell last winter, (subject.his/her) family has done everything for (subject.him/her): fetching water, cooking, even carrying (subject.him/her) to the gathering. (subject) is furious. (subject.He/she) wants to do things (subject.him/her)self, slowly. (friend), (subject.his/her) grandchild, is frightened (subject.he/she) will fall again. What should (friend) do?",
+   "src": "L403",
+   "choices": [
+    {
+     "label": "Step Back",
+     "next": "o1",
+     "src": "L405"
+    },
+    {
+     "label": "Keep Helping",
+     "next": "o2",
+     "src": "L409"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) steps back and builds a railing along the path to the stream. (subject) fetches (subject.his/her) own water, slowly, holding the rail, and is very pleased with (subject.him/her)self. (friend) watches from a distance every time.",
+   "src": "L407",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L407"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) keeps helping. (subject) gets quieter and quieter. One day (subject.he/she) says, simply, that being helped with everything makes (subject.him/her) feel already gone. (friend) is shocked, and asks (subject.him/her) what (subject.he/she) wants to do (subject.him/her)self.",
+   "src": "L411"
+  }
+ }
+}

@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Workers Who Refused",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci42_workers_refused",
+  "source": "draft_lci",
+  "lines": [
+   582,
+   593
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L582",
+  "ledger": [
+   {
+    "src": "L583",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two builders)"
+   },
+   {
+    "src": "L589",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L589",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L593",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The builders refuse to climb the roof with rotten ropes: fix the equipment, or push on.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The builders have stopped work on the meeting hut roof: the ropes are rotten, and (subject) nearly fell yesterday. (friend), in charge of the building, is under pressure to finish before the festival. A visiting merchant has offered to send workers, for a price nobody thinks is fair. What should (friend) do?",
+   "src": "L585",
+   "choices": [
+    {
+     "label": "Fix the Equipment",
+     "next": "o1",
+     "src": "L587"
+    },
+    {
+     "label": "Push On",
+     "next": "o2",
+     "src": "L591"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stops the work and has new ropes made, which takes two weeks. The festival is held under a half-finished roof. Nobody falls. (subject) is grateful, and says so.",
+   "src": "L589",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L589"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the builders to be careful and keep going. They refuse. In the end, the roof is finished late anyway, with new ropes. (friend) realizes (friend.he/she) should have listened the first time.",
+   "src": "L593"
+  }
+ }
+}

@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family That Chose Each Other",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci24_family_chose",
+  "source": "draft_lci",
+  "lines": [
+   330,
+   341
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L330",
+  "ledger": [
+   {
+    "src": "L331",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L337",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name3)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L337",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Several unrelated villagers want to live together as one household to share the work: support it, or keep households by family.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), (friend) and (third) are not related. (subject) has two small children, (friend) works long days, and (third) is old and lonely. They want to live together in one big hut and share the cooking, childcare and caring for each other. Some families think this is odd. What should the village do?",
+   "src": "L333",
+   "choices": [
+    {
+     "label": "Support It",
+     "next": "o1",
+     "src": "L335"
+    },
+    {
+     "label": "Keep Households by Family",
+     "next": "o2",
+     "src": "L339"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village helps build them a big hut. It is noisy and busy and works beautifully. (third) tells the children stories every evening. (friend) comes home to a hot meal. (subject) sleeps through the night.",
+   "src": "L337",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "third",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L337"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders say households are for families. The three of them live in three huts, side by side, and walk between them so often that they wear a path. Eventually the elders give up and call it one household.",
+   "src": "L341"
+  }
+ }
+}

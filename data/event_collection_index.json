@@ -10749,6 +10749,206 @@
    "harm": [],
    "section": "dr_lch"
   },
+  "lci01_land_taken": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci02_returned": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci03_apology_without": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci04_forgotten": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci05_council_without": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci06_treaty_two": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci07_burden": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci08_assembly": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci09_people_decision": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci10_song_borrowed": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci11_researcher": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci12_market_many": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci13_ceremony": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci14_festival": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci15_forgotten_craft": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci16_tradition": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci17_stranger_accent": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci18_apprentice": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci19_rumor_about": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci20_daughter_wanted": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci21_father_stayed": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci22_marriage_nobody": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci23_elder_became": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci24_family_chose": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci25_healer_could": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci26_after_storm": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci27_villager_stopped": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci28_day_listening": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci29_elder": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci30_nest_beneath": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci31_animals_eating": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci32_turtle_net": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci33_hunter": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci34_village_beloved": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci35_forest_houses": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci36_fishing_ban": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci37_promise": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci38_bridge_many": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci39_floating_garden": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci40_child_found": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci41_school_beneath": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci42_workers_refused": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci43_harvest_unequal": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci44_chief_ridiculous": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci45_festival_bad": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci46_necklace_story": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci47_friendship": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci48_memorial_without": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci49_villager_refused": {
+   "harm": [],
+   "section": "dr_lci"
+  },
+  "lci50_island_many": {
+   "harm": [],
+   "section": "dr_lci"
+  },
   "lif01_only_until": {
    "harm": [],
    "section": "dr_lif"
