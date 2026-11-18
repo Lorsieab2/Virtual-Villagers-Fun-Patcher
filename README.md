@@ -22,6 +22,11 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.97
+
+- **Cloth Sacks for Yellow Fruit** (The Tree of Life, off by default, on in Owner's Defaults): drop an adult on the left side of the finished Clothing Hut, under its awning, and they make a sack from one cloth bolt, gather yellow fruit in it and bring 30 food to the food bin (before Food Mastery), working like the cutting tool on the blackberries; farmers who farm on their own make sacks too while there is cloth. Art by Lorsieab2.
+- **Cutting Tool Harvest Caption** (The Tree of Life, off by default, on in Owner's Defaults): a villager harvesting blackberries with a cutting tool says "Harvesting berries with a cutting tool".
+
 ## What's new in v1.35.96
 
 - **All Fruit Trees Refill to Full** (The Secret City, on in Owner's Defaults): each time a fruit tree's refill comes due, it goes back to 1,000 fruit instead of gaining about 111.
@@ -1407,6 +1412,18 @@ With "Yellow Fruit Trees are No Longer Unlimited", the yellow fruit tree is no l
 
 - Patch ID: `vv4_yellow_fruit_refills_partially`
 
+**Cloth Sacks for Yellow Fruit** (The Tree of Life)
+
+The Clothing Hut's extra cloth bolts get a use, for the yellow fruit only. Drop an adult on the left side of the finished Clothing Hut, under its awning, once the Cooking Pit is restored: the villager takes one cloth bolt, makes a sack at the hut ("Making a sack out of cloth"), carries the empty sack to the yellow fruit trees ("Gathering food in cloth sack"), shakes down and cooks the fruit as on any fruit trip, and carries the full sack to the food bin ("Carrying fruit to the food bin"): 30 food before Food Mastery. It works like the cutting tool on the blackberries: the cloth bolt is used when the villager starts (a failed Farming check or an interrupted trip loses it), no cloth means a refusal ("They need cloth for this!"), the food is 1 for each fruit, at most 30, paid at the food bin, and Food Mastery multiplies it exactly as for a blackberry harvest; a sack never goes into the stew and does not count toward The Grand Feast (neither does a cutting-tool harvest). **With "Yellow Fruit Trees are No Longer Unlimited" ticked too, each sack takes its fruit from the tree at the food bin (30, or what is left), and with fewer than 3 fruit on the tree the villager refuses.** Without it every sack holds 30. Farmers who decide to farm by themselves make sacks too while there is cloth, as one more choice beside the blackberries, the fruit and the fish. The sacks are new pictures (`Images\vvfp_sack_empty.png`, `Images\vvfp_sack_yellow_fruit.png`, art by Lorsieab2) drawn by the companion "VVFP VV4 Cloth Sacks.dll", started by VVFP Startup.dll; nothing is written to the save. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **The in-game effect is not yet verified by a live test.**
+
+- Patch ID: `vv4_cloth_sacks_for_yellow_fruit`
+
+**Cutting Tool Harvest Caption** (The Tree of Life)
+
+A villager harvesting blackberries with a cutting tool says "Harvesting berries with a cutting tool" instead of "Harvesting blackberries" (the game's caption holds at most 39 letters, so "Harvesting blackberries with a cutting tool" would be cut). Picking blackberries and every other caption are unchanged. The companion is "VVFP VV4 Harvest Caption.dll", started by VVFP Startup.dll. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **The in-game effect is not yet verified by a live test.**
+
+- Patch ID: `vv4_cutting_tool_harvest_caption`
+
 **Island Events Scale With Population (like The Lost Children)** (A New Home, The Tree of Life, New Believers)
 
 Island events' food and tech-point gains and losses grow with the village, as in The Lost Children: each amount is multiplied by 1 with up to 25 villagers, by 2 with 26 to 50 and by 3 with more than 50, counted as the game counts its population (the living villagers plus the babies being carried; in New Believers the believers and the babies they carry, Heathens not counted). The Tree of Life: 14 amounts of 9 events (The Creeping Mold, The Mysterious Footprints, The Arc of Brilliant Colors, The Calabash Instrument, The Climber, The Mosquito Larvae, Faces in the Night, The Sealed Box, The Aspiring Scientist). New Believers: 23 amounts of 16 events (The Creeping Mold, The Mysterious Footprints, The Strange Crystals, The Pesky Critter, Mushroom Day!, News From Another Tribe, Spying on the Heathens, You're Doing It Wrong!, Outreach?, The Advanced Artifacts, Trick Or Trade, The Aphids in the Noni Bush, The Defector, The Straw Hat, The Strange Nectar). A New Home's island events already grow with the village, so there only the four encounters with a set or rolled amount are scaled: The Trapped Whale, The Troubled Child, The Wild Mushroom and The Brass Compass. A loss still takes no more than there is; Food Mastery still raises a food gain as the game does; a rolled amount is scaled after the roll, so Pick Island Event's amount settings choose the roll. The popups of The Creeping Mold and The Mysterious Footprints show the scaled amount; every other result text is fixed (for example "Your tribe gains 5000 tech points."), so it still names the game's own amount while the scaled amount is what is given. Custom Island Events keep their own amounts. Nothing is saved, so it can be ticked or unticked at any time. **Needs no other patch.** **Cannot be ticked together with "Island Events Scale With Stored Food and Tech Points".** Off by default; part of Classic VV Difficulty (The Tree of Life, New Believers); Owner's Defaults ticks it. The companion is "VVFP Island Events Scale.dll", started by VVFP Startup.dll. **The in-game effect is not yet verified by a live test.**
@@ -2464,6 +2481,7 @@ from its own folders by name, so they must stay where the game looks:
 | `Images\vvfp_hovel.png` (New Believers Fix Vanilla Bugs: The Last Heathen's hovel cover) | the game's own image table names it |
 | `Images\vvfp_respectful_hovel.png` (New Believers Shrine to the Ancestors) | the game's own image table names it |
 | `Images\vvfp_fruit_tree_0.png` to `_5.png` (The Tree of Life Yellow Fruit Trees are No Longer Unlimited: the trees showing the fruit left, art by Lorsieab2) | the game's own sprite loader opens them by name |
+| `Images\vvfp_sack_empty.png`, `Images\vvfp_sack_yellow_fruit.png` (The Tree of Life Cloth Sacks for Yellow Fruit: the sacks a villager carries, art by Lorsieab2) | the game's own sprite loader opens them by name |
 | `Assets\sm.xml` (The Tree of Life Optional Text Changes, New Believers Guardians of Isola Rewrite) | replaces the game's own string table |
 | New Believers' Guardians of Isola Rewrite images | replace stock images the game opens from `Images` |
 

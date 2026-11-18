@@ -1151,6 +1151,44 @@ int __stdcall VvfpYellowFruitRefill(void) {
     return filled;
 }
 
+/* For "VVFP VV4 Cloth Sacks.dll" (Cloth Sacks for Yellow Fruit, which finds these by GetProcAddress and treats
+   the tree as the stock game's unlimited one without this companion): the fruit left on the tree for the village
+   on screen, or -1 when the tree is the stock game's here (the sites not installed, no one alive, or its file not
+   read yet: the same answers take() gives). */
+int __stdcall VvfpYellowFruitLeft(void) {
+    int left = -1;
+    if (!g_installed) {
+        return -1;
+    }
+    __try {
+        if (bind_village(0) && !g_pending) {
+            left = g_fruit;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        left = -1;
+    }
+    return left;
+}
+
+/* ... and a sack's fruit taken at the food bin, as the blackberry harvest takes its berries (job event 14,
+   0x4644EE: the berries, at most 30, down to 0): min(want, fruit left) taken and returned; -1 (nothing taken)
+   when the tree is the stock game's here. */
+int __stdcall VvfpYellowFruitTake(int want) {
+    int taken = -1;
+    if (!g_installed || want < 0) {
+        return -1;
+    }
+    __try {
+        if (bind_village(0) && !g_pending) {
+            taken = g_fruit < want ? g_fruit : want;
+            g_fruit -= taken;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        taken = -1;
+    }
+    return taken;
+}
+
 /* "Yellow Breadfruit Refills Partially Every Time" is shipped: its file is in the patcher's folder (THE PARTIAL
    REFILL).  Any failure reads as not shipped: the refill to full. */
 static int partial_shipped(void) {

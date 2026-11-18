@@ -1,0 +1,756 @@
+/* VVFP VV4 Cloth Sacks -- "Cloth Sacks for Yellow Fruit", The Tree of Life.
+
+   THE OWNER (2026-11-17).  The tribe makes extra cloth bolts at the Clothing Hut; this gives them a use, for the
+   yellow fruit (the breadfruit of the Cooking Pit) only.  An adult dropped on the LEFT side of the Clothing Hut,
+   under its awning, takes one cloth bolt, makes a sack at the hut ("Making a sack out of cloth", the research
+   look), carries the empty sack to the yellow fruit trees ("Gathering food in cloth sack"), does the game's own
+   shaking and cooking, and carries the full sack to the food bin ("Carrying fruit to the food bin"): 30 fruit.
+   It must work like the cutting tool on the blackberries in every respect.
+
+   THE CUTTING TOOL (read from the stock executable, the model for everything here):
+     * the drop on map area 0x31 (handler 0x46E7E0, registered at 0x46FB00): with no cutting tool on hand
+       ([0x4D8618] = 0) the villager refuses -- action 0x1A with text 0x12F "They need a cutting tool for this!"
+       (0x46E810..0x46E836); otherwise ONE tool is used at once (0x4369F0(1) on the tools' object 0x4D8614,
+       0x46E872), before anything is known about the harvest, and the harvest starts (the tool carried, item 0x12,
+       then action 0xBE, 0x451CE0);
+     * the harvest (0x451CE0): "Harvesting blackberries" (text 0x280), the walk to the bushes (area 0x20), three
+       cuts, the Farming check (step 9, 0x469220(0): a failed check ends the trip -- the tool is gone), the
+       blackberries carried (item 0x3E), the walk to the food bin (area 8), and job event 14;
+     * job event 14 (0x4644EE): n = the berries left, at most 30; the food writer 0x41D920(n) -- 1 food for each
+       berry, Food Mastery (tech 4) multiplying inside the writer (level 2 +half, 3 doubled), the only technology
+       that changes it; the berries -= n (not below 0); fewer than 3 left: the villager's task is cleared
+       (+0x1C54 = 0); over 2,000 food: tip 0x2E5;
+     * no farmer the game sends ever harvests with a tool (only the drop starts action 0xBE), and a harvest is
+       never a Grand Feast item: the stew pot's listener 0x42EA30 counts only items 0 (picked berries), 0x37
+       (stomped fruit), 0x38 (fish) and 0x76..0x78 (mushrooms) toward the feast (table 0x42EB4C) -- the harvest's
+       0x3E is none of them and it always goes to the food bin.
+   THE SACK, the same way: one cloth bolt (0x4369F0(1) on the cloth's object 0x4D8AC8, count [0x4D8ACC], the
+   same routine) used at the drop; no cloth: action 0x1A with text 0x136 "They need cloth for this!" (the game's
+   own words for cloth); the food at the bin from this companion's job event, as event 14: n = 30, or with
+   "Yellow Fruit Trees are No Longer Unlimited" the fruit left, at most 30, taken from the tree there and then
+   ("VVFP VV4 Fruit Supply.dll", VvfpYellowFruitTake; without it the trees are the stock game's unlimited ones and
+   a sack always holds 30); 0x41D920(n); fewer than 3 fruit left: the task cleared; over 2,000 food: tip 0x2E5.
+   The full sack is carried as item 0x36 (the yellow fruit), never 0x37: like the harvest's berries it is no
+   Grand Feast item and never goes into the stew (the trip's stew branch, 0x4349A3, is replaced by the food bin).
+   The differences the owner asked for: the fruit (the yellow fruit trees), making the sack, the game's own
+   shaking and cooking in between, and the 30.
+
+   WHAT RUNS.
+     the drop      VILLAGER DROPPED: the drop dispatcher 0x46E460 (the villager's place 0x45ED00 -> its handler)
+                   is entered here first.  An adult (+0x1B8C >= 0x118, as the dispatcher's own test), not
+                   expecting (+0x1C4C, the dispatcher refuses those at the hut), dropped inside SACK_BOX of the
+                   finished Clothing Hut (puzzle 0x16; the hut's place is its object 0x4D82D8 +0x28/+0x2C, (400,
+                   1600) in the stock game; the awning is its left part) with the Cooking Pit restored (puzzle 6):
+                   no cloth: the refusal above; with "Yellow Fruit Trees are No Longer Unlimited" and fewer than 3
+                   fruit: the tree's own refusal (action 0x3F, text 0xA7 "There is not enough to harvest."); all
+                   four of the pit's spots taken (locks 5..8 at 0x705148, 0x46D880): the tree's own (action 0x1A,
+                   text 0x13C, the task cleared, as 0x43446F); otherwise the sack trip.  Anything else (a child,
+                   the hut unfinished, the pit not restored, elsewhere on the hut) is the stock drop.
+     farmers       A farmer the game sends (the Farming dispatcher 0x4639B0, which offers the berries, the fruit
+                   and the fish and picks one by rand(n) at 0x463A62): when the sack can be made -- not catching
+                   up (game +0x171A4, as the fruit is offered), the hut finished, the pit restored, cloth on hand,
+                   a free spot, and with the limited trees 6 fruit or more (the fruit's own offer keeps 3 back) --
+                   the sack is one more option with the same chance as each of the others: rand(n + 1) == n
+                   (with no other option, always).  Otherwise, or when it is not picked, the dispatcher's own
+                   pick, unchanged.  The farmer first walks to the awning (SACK_WALK).
+     the trip      Queued with the game's own step builders: "Making a sack out of cloth" (a text step 0x468CF0),
+                   the cloth carried (item 0x35), the research look -- the Researching action's own two animations
+                   (0x469CD0(1, 1.0, 2) and (0x67, 0.5, 2), 0x453700) with its waits (0x469280) -- then this
+                   companion's event SACK_EV_MADE (the empty sack shows), "Gathering food in cloth sack", then the
+                   game's own fruit trip: do-action 0x64 (0x4343A0, which picks a free spot and builds that spot's
+                   trip 0x65..0x68: the walk to the trees, the shaking, the Farming check, the fruit, the cooking).
+                   Its tail -- from its last text step ("Carrying fruit to the food bin", or the stew's "Adding to
+                   the stew") -- is replaced by: "Carrying fruit to the food bin" (text 0x240), SACK_EV_FULL (the
+                   full sack shows), the full sack (item 0x36), the walk to the food bin (area 8), the trip's own
+                   1-second wait and put-down (0x4693B0(1), 0x469820), and SACK_EV_CREDIT, the food above.  The
+                   game's event 15 (3 food) is not queued, so the trip pays only the sack.
+     the events    The job events 0x4642F0 (thiscall(villager; event)) are entered here first: SACK_EV_MADE,
+                   SACK_EV_FULL and SACK_EV_CREDIT are this companion's (numbers the game's table never reaches:
+                   events above 74 go to its own end, 0x464EB2, so a queue the game kept without this companion
+                   does nothing with them); every other event is the game's.
+     the pictures  The carried item 0x466770 draws carrying.png's cell through the world draw 0x44C640 (call at
+                   0x4667B4).  For a villager on a sack trip (its queue still holds SACK_EV_CREDIT) carrying item
+                   0x35 after SACK_EV_MADE, Images\vvfp_sack_empty.png is drawn instead; carrying item 0x36 after
+                   SACK_EV_FULL, Images\vvfp_sack_yellow_fruit.png (the owner's art), at SACK_SCALE, moved by
+                   SACK_DX / SACK_DY_* so it sits where the cell sat.  Built once by the game's ldwImageGrid
+                   0x40AB10 (name, 1, 1) after its PNG header says 8-bit RGBA of the expected size; a missing or
+                   wrong file: the game's own picture (the cloth, the yellow fruit).  The call goes on into
+                   0x44C640, so "VVFP Golden Mushroom.dll" (which enters there) is unaffected.
+
+   Nothing is kept: no file, nothing in the save.  A queue the game keeps holds only the game's own steps (and
+   SACK_EV_* numbers the game ignores).
+
+   Sites, all checked stock first and written all or none (native/shared/install_sites.h):
+     0x46E460  8  the drop dispatcher's entry (sub esp,8 / push esi / mov esi,[esp+0x10])
+     0x4642F0  7  the job events' entry (mov eax,[esp+4] / sub esp,0x18)
+     0x463A5A  8  the Farming dispatcher's "any option?" (cmp edi,ebx / je 0x4640FB)
+     0x4667B4  5  the carried item's call of the world draw 0x44C640
+
+   SAFETY.  Our steps run under structured exception handling: a fault leaves the stock decision.  No debug
+   output. */
+#include <windows.h>
+#include <string.h>
+#include "../shared/install_sites.h"
+#include "../shared/patcher_files.h"
+#include "../shared/vvfp_translate.h"
+
+#define CS_GAME 4
+
+/* The game. */
+#define GAME_GET 0x41FE70u           /* the game object */
+#define G_CATCHUP 0x171A4u           /* byte: catching up */
+#define PUZZLES 0x4D8BF8u
+#define PUZZLE_SOLVED 0x438960u      /* thiscall(id) */
+#define PUZZLE_PIT 6                 /* The Cooking Pit restored */
+#define PUZZLE_HUT 0x16              /* The Clothing Hut finished */
+#define HUT 0x4D82D8u                /* the Clothing Hut's object: its place at +0x28 / +0x2C */
+#define HUT_X 0x28
+#define HUT_Y 0x2C
+#define HUT_STOCK_PLACE 0x4BDBF0u    /* (400, 1600): what the hut's set-up 0x430C30 copies there */
+#define CLOTH 0x4D8AC8u              /* the cloth's object; its count at +4 */
+#define CLOTH_COUNT 0x4D8ACCu
+#define USE_UP 0x4369F0u             /* thiscall(n): n used (the cutting tools' and the cloth's own) */
+#define SPOTS 0x705148u
+#define SPOT_TAKEN 0x46D880u         /* thiscall(lock): the lock taken */
+#define RAND 0x4036D0u               /* cdecl rand(n) */
+#define DO_ACTION 0x45DEC0u
+#define POSITION 0x45ED00u           /* thiscall(villager; out): its place */
+#define FOOD_STORE 0x4D6DD0u
+#define FOOD_ADD 0x41D920u           /* thiscall(food): Food Mastery inside */
+#define TIPS 0x4DACE0u
+#define TIP 0x44B890u                /* thiscall(id, 0, 0) */
+#define TIP_FOOD 0x2E5
+#define FOOD_TIP_ABOVE 2000
+
+/* The step builders (thiscall on the villager), each appending one step. */
+#define STEP_PUSH 0x468B20u          /* thiscall(step block by value, front): the queue's append */
+#define STEP_TEXT 0x468CF0u          /* (text): type 5 */
+#define STEP_TEXT_ID 0x468D60u       /* (text id) */
+#define STEP_CARRY 0x4697C0u         /* (item): type 0x11 */
+#define STEP_ANIM 0x469CD0u          /* (animation, speed, 2): type 0x19 */
+#define STEP_POSE_WAIT 0x469280u     /* (seconds): type 0x0A */
+#define STEP_WAIT 0x4693B0u          /* (seconds): type 0x0E */
+#define STEP_PUT_DOWN 0x469820u      /* (): type 0x12 */
+#define STEP_EVENT 0x469990u         /* (event): type 0x13 */
+#define STEP_WALK_AREA 0x468FC0u     /* (area, 100, 0): type 3 */
+#define QUEUE_START 0x46A030u
+#define CLEAR_QUEUE 0x468C60u
+
+#define T_TEXT 5
+#define T_WALK 3
+#define T_EVENT 0x13
+#define STEP_SIZE 0x58
+#define STEPS 0x50
+
+/* The villager record. */
+#define REC_AGE 0x1B8C
+#define REC_PREGNANT 0x1C4C
+#define REC_TASK 0x1C54
+#define REC_ITEM 0x1CDC
+#define REC_OF_JOB 0x1B88            /* the job events' object -> the villager (event 14's own read) */
+#define ADULT_AGE 0x118
+
+/* Actions and texts. */
+#define ACT_FRUIT 0x64               /* the tree's start 0x4343A0 */
+#define ACT_REFUSE 0x1A
+#define ACT_REFUSE_TEXT 0x3F
+#define TXT_NEED_CLOTH 0x136         /* eSayNeedCloth "They need cloth for this!" */
+#define TXT_NOT_ENOUGH 0xA7          /* eSayNotEnoughToHarvest */
+#define TXT_PIT_FULL 0x13C           /* the tree's own: every spot taken */
+#define TXT_TO_BIN 0x240             /* eSayCarryFruitStore "Carrying fruit to the food bin" */
+#define ITEM_CLOTH 0x35
+#define ITEM_YELLOW 0x36
+#define AREA_BIN 8
+
+/* The sack. */
+#define SACK_FRUIT 30                /* a sack's fruit, as a harvest's berries (event 14: at most 30) */
+#define SACK_KEEP_DROP 3             /* a drop needs a trip's fruit, as the tree's own drop */
+#define SACK_KEEP_FARMER 6           /* a farmer the game sends: the tree's own offer (3 + the 3 kept back) */
+#define SACK_EV_MADE 0x75
+#define SACK_EV_FULL 0x76
+#define SACK_EV_CREDIT 0x77
+/* The awning: the left part of the hut picture, relative to the hut's place (the hut is drawn there, its
+   finished frame 200 x 200; the awning's posts stand at about +5 and +45, the bolts of cloth from +45). */
+#define SACK_BOX_LEFT (-10)
+#define SACK_BOX_RIGHT 55
+#define SACK_BOX_TOP 40
+#define SACK_BOX_BOTTOM 135
+#define SACK_WALK_X 25               /* where a farmer the game sends stands to make it */
+#define SACK_WALK_Y 112
+/* The pictures (the owner's 60 x 65 and 60 x 87) drawn at 45 %, centred on carrying.png's 40-pixel cell and
+   standing on its bottom (the fruit cells' art ends about 30 pixels down). */
+#define SACK_SCALE 0.45f
+#define SACK_DX 6
+#define SACK_DY_EMPTY 1
+#define SACK_DY_FULL (-9)
+
+/* The pictures. */
+#define ALLOC 0x470C5Cu              /* operator new */
+#define GRID_CTOR 0x40AB10u          /* thiscall(name, columns, rows): ldwImageGrid */
+#define GRID_SIZE 0x34
+#define GRID_CELL_W 0x10
+#define GRID_CELL_H 0x14
+#define WORLD_DRAW 0x44C640u
+
+/* Sites. */
+#define DROP_SITE 0x46E460u
+#define DROP_ON 0x46E468u
+#define EVENT_SITE 0x4642F0u
+#define EVENT_ON 0x4642F7u
+#define OFFER_SITE 0x463A5Au
+#define OFFER_ON 0x463A62u
+#define OFFER_NONE 0x4640FBu
+#define OFFER_STARTED 0x463FC8u      /* the dispatcher's own "started": pop edi/ebx/esi, al = 1, pop ebp, ret 4 */
+#define DRAW_SITE 0x4667B4u
+#define SITES 4
+
+static const unsigned char DROP_STOCK[8] = { 0x83, 0xEC, 0x08, 0x56, 0x8B, 0x74, 0x24, 0x10 };
+static const unsigned char EVENT_STOCK[7] = { 0x8B, 0x44, 0x24, 0x04, 0x83, 0xEC, 0x18 };
+static const unsigned char OFFER_STOCK[8] = { 0x3B, 0xFB, 0x0F, 0x84, 0x99, 0x06, 0x00, 0x00 };
+static const unsigned char DRAW_STOCK[5] = { 0xE8, 0x87, 0x5E, 0xFE, 0xFF };          /* call 0x44C640 */
+/* The other stock code this relies on: the dispatcher's "started" exit, the routines it calls checked by their
+   first bytes. */
+static const unsigned char STARTED_STOCK[13] = { 0x5F, 0x5B, 0x5E, 0xB0, 0x01, 0x5D, 0x81, 0xC4, 0x98, 0x00, 0x00,
+                                                 0x00, 0xC2 };
+static const unsigned char USE_UP_STOCK[7] = { 0x8B, 0x44, 0x24, 0x04, 0x29, 0x41, 0x04 };
+static const unsigned char FRUIT_START_STOCK[5] = { 0x83, 0xEC, 0x20, 0x53, 0x33 };
+
+static int g_installed;
+
+/* ---- the fruit supply --------------------------------------------------------------------------------------- */
+
+typedef int (__stdcall *fruit_left_fn)(void);
+typedef int (__stdcall *fruit_take_fn)(int want);
+static fruit_left_fn g_fruit_left;
+static fruit_take_fn g_fruit_take;
+static int g_fruit_bound;
+
+/* "Yellow Fruit Trees are No Longer Unlimited" ("VVFP VV4 Fruit Supply.dll"), when loaded. */
+static void bind_fruit(void) {
+    HMODULE m;
+    if (g_fruit_bound) {
+        return;
+    }
+    m = GetModuleHandleW(L"VVFP VV4 Fruit Supply.dll");
+    if (m == NULL) {
+        return;                      /* not (yet) loaded: asked again next time */
+    }
+    g_fruit_left = (fruit_left_fn)(void *)GetProcAddress(m, "VvfpYellowFruitLeft");
+    g_fruit_take = (fruit_take_fn)(void *)GetProcAddress(m, "VvfpYellowFruitTake");
+    g_fruit_bound = 1;
+}
+
+/* The fruit left on the tree, or -1: the stock game's unlimited tree. */
+static int fruit_left(void) {
+    bind_fruit();
+    return g_fruit_left != NULL ? g_fruit_left() : -1;
+}
+
+/* ---- the game's calls --------------------------------------------------------------------------------------- */
+
+typedef void *(__cdecl *game_get_fn)(void);
+typedef char (__fastcall *solved_fn)(void *self, void *unused, int id);
+typedef int (__fastcall *use_fn)(void *self, void *unused, int n);
+typedef char (__fastcall *taken_fn)(void *self, void *unused, int lock);
+typedef int (__cdecl *rand_fn)(int n);
+typedef char (__fastcall *do_action_fn)(void *self, void *unused, int action, void *block);
+typedef int *(__fastcall *position_fn)(void *self, void *unused, int *out);
+typedef void (__fastcall *food_fn)(void *self, void *unused, int food);
+typedef void (__fastcall *tip_fn)(void *self, void *unused, int id, int a, int b);
+typedef void (__fastcall *step1_fn)(void *self, void *unused, int arg);
+typedef void (__fastcall *step0_fn)(void *self, void *unused);
+typedef void (__fastcall *anim_fn)(void *self, void *unused, int anim, float speed, int mode);
+typedef void (__fastcall *walk_fn)(void *self, void *unused, int area, int speed, int front);
+
+static int solved(int id) {
+    return ((solved_fn)(UINT_PTR)PUZZLE_SOLVED)((void *)(UINT_PTR)PUZZLES, NULL, id) != 0;
+}
+
+static int catching_up(void) {
+    const unsigned char *game = (const unsigned char *)((game_get_fn)(UINT_PTR)GAME_GET)();
+    return game != NULL && game[G_CATCHUP] != 0;
+}
+
+static int cloth_on_hand(void) {
+    return *(const int *)(UINT_PTR)CLOTH_COUNT > 0;
+}
+
+/* A free spot at the pit (the tree's start 0x4343A0 tests locks 5..8 the same way). */
+static int spot_free(void) {
+    int lock;
+    for (lock = 5; lock <= 8; ++lock) {
+        if (!((taken_fn)(UINT_PTR)SPOT_TAKEN)((void *)(UINT_PTR)SPOTS, NULL, lock)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void act(unsigned char *villager, int action, int text, int second) {
+    int block[8];
+    memset(block, 0, sizeof block);
+    block[0] = text;
+    block[1] = second;
+    ((do_action_fn)(UINT_PTR)DO_ACTION)(villager, NULL, action, block);
+}
+
+static void step1(unsigned int builder, unsigned char *villager, int arg) {
+    ((step1_fn)(UINT_PTR)builder)(villager, NULL, arg);
+}
+
+/* One step of `type` at the back of the queue: the queue's own append 0x468B20 with a 0x58-byte block. */
+static void push_step(unsigned char *villager, const unsigned int *block) {
+    static const unsigned int append = STEP_PUSH;
+    __asm {
+        push 0
+        sub esp, STEP_SIZE
+        mov esi, block
+        mov edi, esp
+        mov ecx, STEP_SIZE / 4
+        rep movsd
+        mov ecx, villager
+        call dword ptr [append]
+    }
+}
+
+/* ---- the sack trips ----------------------------------------------------------------------------------------- */
+
+/* The villagers on a sack trip and what they show: 1 the empty sack, 2 the full one. */
+typedef struct {
+    const unsigned char *villager;
+    int shows;
+} sack_mark;
+#define MARKS 64
+static sack_mark g_marks[MARKS];
+
+static const unsigned char *step_at(const unsigned char *villager, int i) {
+    return villager + i * STEP_SIZE;
+}
+
+/* The villager's queue still ends in a sack's food (a cleared or replaced queue: no longer a sack trip). */
+static int on_sack_trip(const unsigned char *villager) {
+    int i;
+    for (i = 0; i < STEPS; ++i) {
+        const unsigned int *s = (const unsigned int *)step_at(villager, i);
+        if (s[0] == 0) {
+            return 0;
+        }
+        if (s[0] == T_EVENT && s[1] == SACK_EV_CREDIT) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static sack_mark *mark_of(const unsigned char *villager, int make) {
+    int i;
+    sack_mark *free_mark = NULL;
+    for (i = 0; i < MARKS; ++i) {
+        if (g_marks[i].villager == villager) {
+            return &g_marks[i];
+        }
+        if (free_mark == NULL && (g_marks[i].villager == NULL || !on_sack_trip(g_marks[i].villager))) {
+            free_mark = &g_marks[i];
+        }
+    }
+    if (make && free_mark != NULL) {
+        free_mark->villager = villager;
+        free_mark->shows = 0;
+        return free_mark;
+    }
+    return NULL;
+}
+
+static void unmark(const unsigned char *villager) {
+    sack_mark *m = mark_of(villager, 0);
+    if (m != NULL) {
+        m->villager = NULL;
+        m->shows = 0;
+    }
+}
+
+/* The captions (each at most 38 letters: the villager's caption field takes 39, 0x4724E0 with 0x27). */
+static const char *caption_making(void) {
+    return vvfp_tr("vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0", "Making a sack out of cloth", 39);
+}
+
+static const char *caption_gathering(void) {
+    return vvfp_tr("vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0", "Gathering food in cloth sack", 39);
+}
+
+/* The sack trip, queued behind whatever the villager already has (as every action handler does); `walk`: first
+   to the awning (a farmer the game sends).  The cloth is used here, at once, as the cutting tool is. */
+static void start_trip(unsigned char *villager, int walk) {
+    int i, first, last_text = -1;
+    ((use_fn)(UINT_PTR)USE_UP)((void *)(UINT_PTR)CLOTH, NULL, 1);
+    unmark(villager);
+    ((step1_fn)(UINT_PTR)STEP_TEXT)(villager, NULL, (int)(UINT_PTR)caption_making());
+    if (walk) {
+        unsigned int block[STEP_SIZE / 4];
+        const int *hut = (const int *)(UINT_PTR)HUT;
+        int x = hut[HUT_X / 4], y = hut[HUT_Y / 4];
+        if (x == 0 && y == 0) {
+            x = ((const int *)(UINT_PTR)HUT_STOCK_PLACE)[0];
+            y = ((const int *)(UINT_PTR)HUT_STOCK_PLACE)[1];
+        }
+        memset(block, 0, sizeof block);
+        block[0] = T_WALK;           /* as 0x468FC0 fills it: speed 100, the point */
+        block[1] = 100;
+        block[2] = (unsigned int)(x + SACK_WALK_X);
+        block[3] = (unsigned int)(y + SACK_WALK_Y);
+        push_step(villager, block);
+    }
+    step1(STEP_CARRY, villager, ITEM_CLOTH);
+    /* The research look: the Researching action's own animations and waits (0x4537A9..0x45380E). */
+    ((anim_fn)(UINT_PTR)STEP_ANIM)(villager, NULL, 1, 1.0f, 2);
+    step1(STEP_POSE_WAIT, villager, 6);
+    ((anim_fn)(UINT_PTR)STEP_ANIM)(villager, NULL, 0x67, 0.5f, 2);
+    step1(STEP_POSE_WAIT, villager, 6);
+    step1(STEP_EVENT, villager, SACK_EV_MADE);
+    ((step1_fn)(UINT_PTR)STEP_TEXT)(villager, NULL, (int)(UINT_PTR)caption_gathering());
+    for (first = 0; first < STEPS && *(const unsigned int *)step_at(villager, first) != 0; ++first) {
+    }
+    /* The game's own fruit trip, after ours. */
+    act(villager, ACT_FRUIT, 0, 0);
+    for (i = first; i < STEPS; ++i) {
+        const unsigned int *s = (const unsigned int *)step_at(villager, i);
+        if (s[0] == 0) {
+            break;
+        }
+        if (s[0] == T_TEXT) {
+            last_text = i;
+        }
+    }
+    if (last_text < first) {
+        /* The fruit trip was not built (it cannot be: every test it makes was made first): no trip at all. */
+        ((step0_fn)(UINT_PTR)CLEAR_QUEUE)(villager, NULL);
+        return;
+    }
+    for (i = last_text; i < STEPS; ++i) {
+        memset((unsigned char *)step_at(villager, i), 0, STEP_SIZE);
+    }
+    step1(STEP_TEXT_ID, villager, TXT_TO_BIN);
+    step1(STEP_EVENT, villager, SACK_EV_FULL);
+    step1(STEP_CARRY, villager, ITEM_YELLOW);
+    ((walk_fn)(UINT_PTR)STEP_WALK_AREA)(villager, NULL, AREA_BIN, 100, 0);
+    step1(STEP_WAIT, villager, 1);
+    ((step0_fn)(UINT_PTR)STEP_PUT_DOWN)(villager, NULL);
+    step1(STEP_EVENT, villager, SACK_EV_CREDIT);
+    (void)mark_of(villager, 1);
+}
+
+/* The villager's place is under the finished hut's awning. */
+static int under_awning(unsigned char *villager) {
+    int out[2];
+    const int *place;
+    const int *hut = (const int *)(UINT_PTR)HUT;
+    int x = hut[HUT_X / 4], y = hut[HUT_Y / 4];
+    if (x == 0 && y == 0) {
+        x = ((const int *)(UINT_PTR)HUT_STOCK_PLACE)[0];
+        y = ((const int *)(UINT_PTR)HUT_STOCK_PLACE)[1];
+    }
+    place = ((position_fn)(UINT_PTR)POSITION)(villager, NULL, out);
+    return place[0] >= x + SACK_BOX_LEFT && place[0] < x + SACK_BOX_RIGHT
+           && place[1] >= y + SACK_BOX_TOP && place[1] < y + SACK_BOX_BOTTOM;
+}
+
+/* A villager dropped: 1 handled here (the sack trip or a refusal), 0 the stock drop. */
+static int __cdecl on_drop(unsigned char *villager) {
+    int handled = 0;
+    __try {
+        int left;
+        if (villager == NULL || *(const int *)(villager + REC_AGE) < ADULT_AGE
+            || *(const int *)(villager + REC_PREGNANT) != 0 || !solved(PUZZLE_HUT) || !solved(PUZZLE_PIT)
+            || !under_awning(villager)) {
+            return 0;
+        }
+        handled = 1;
+        left = fruit_left();
+        if (!cloth_on_hand()) {
+            act(villager, ACT_REFUSE, TXT_NEED_CLOTH, 0);
+        } else if (left >= 0 && left < SACK_KEEP_DROP) {
+            act(villager, ACT_REFUSE_TEXT, TXT_NOT_ENOUGH, -1);
+        } else if (!spot_free()) {
+            *(int *)(villager + REC_TASK) = 0;
+            act(villager, ACT_REFUSE, TXT_PIT_FULL, 0);
+        } else {
+            start_trip(villager, 0);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return handled;
+}
+
+/* The Farming dispatcher has `count` options: 1 when the sack was picked as one more (and started). */
+static int __cdecl on_offer(int count, unsigned char *job) {
+    int started = 0;
+    __try {
+        unsigned char *villager = *(unsigned char **)(job + REC_OF_JOB);
+        int left;
+        if (villager == NULL || catching_up() || !solved(PUZZLE_HUT) || !solved(PUZZLE_PIT) || !cloth_on_hand()
+            || !spot_free()) {
+            return 0;
+        }
+        left = fruit_left();
+        if (left >= 0 && left < SACK_KEEP_FARMER) {
+            return 0;
+        }
+        if (((rand_fn)(UINT_PTR)RAND)(count + 1) != count) {
+            return 0;
+        }
+        start_trip(villager, 1);
+        started = 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return started;
+}
+
+/* The companion's job events: 1 handled here, 0 the game's. */
+static int __cdecl on_event(unsigned char *job, int event) {
+    if (event != SACK_EV_MADE && event != SACK_EV_FULL && event != SACK_EV_CREDIT) {
+        return 0;
+    }
+    __try {
+        unsigned char *villager = *(unsigned char **)(job + REC_OF_JOB);
+        sack_mark *m;
+        if (event == SACK_EV_CREDIT) {
+            int n = SACK_FRUIT, left;
+            int taken;
+            bind_fruit();
+            taken = g_fruit_take != NULL ? g_fruit_take(SACK_FRUIT) : -1;
+            if (taken >= 0) {
+                n = taken;
+            }
+            ((food_fn)(UINT_PTR)FOOD_ADD)((void *)(UINT_PTR)FOOD_STORE, NULL, n);
+            left = fruit_left();
+            if (left >= 0 && left < 3 && villager != NULL) {
+                *(int *)(villager + REC_TASK) = 0;
+            }
+            unmark(villager);
+            if (*(const int *)(UINT_PTR)FOOD_STORE > FOOD_TIP_ABOVE) {
+                ((tip_fn)(UINT_PTR)TIP)((void *)(UINT_PTR)TIPS, NULL, TIP_FOOD, 0, 0);
+            }
+        } else if (villager != NULL && (m = mark_of(villager, 1)) != NULL) {
+            m->shows = event == SACK_EV_MADE ? 1 : 2;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return 1;
+}
+
+/* ---- the pictures ------------------------------------------------------------------------------------------- */
+
+typedef void *(__cdecl *alloc_fn)(unsigned int size);
+typedef void *(__fastcall *grid_ctor_fn)(void *self, void *unused, const char *name, int columns, int rows);
+
+static const char SACK_EMPTY[] = "vvfp_sack_empty.png";
+static const char SACK_FULL[] = "vvfp_sack_yellow_fruit.png";
+static void *g_art[2];
+static int g_art_state[2];           /* 0 not tried, 1 built, -1 not usable */
+
+/* Images\<name> says 8-bit RGBA, 60 x `height`, in its PNG header. */
+static int art_file_fits(const char *name, int height) {
+    static const unsigned char SIGNATURE[16] = {
+        0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R',
+    };
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    char leaf[64];
+    unsigned char header[26];
+    DWORD got = 0;
+    HANDLE file;
+    int ok;
+    wsprintfA(leaf, "Images\\%s", name);
+    if (!vvfp_game_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, leaf)) {
+        return 0;
+    }
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = ReadFile(file, header, sizeof header, &got, NULL) && got == sizeof header
+        && memcmp(header, SIGNATURE, sizeof SIGNATURE) == 0
+        && header[16] == 0 && header[17] == 0 && header[18] == 0 && header[19] == 60
+        && header[20] == 0 && header[21] == 0 && header[22] == (height >> 8) && header[23] == (height & 0xFF)
+        && header[24] == 8 && header[25] == 6;
+    CloseHandle(file);
+    return ok;
+}
+
+static void *sack_art(int full) {
+    if (g_art_state[full] == 0) {
+        unsigned char *made;
+        const char *name = full ? SACK_FULL : SACK_EMPTY;
+        g_art_state[full] = -1;
+        if (!art_file_fits(name, full ? 87 : 65)) {
+            return NULL;
+        }
+        made = (unsigned char *)((alloc_fn)(UINT_PTR)ALLOC)(GRID_SIZE);
+        if (made == NULL) {
+            return NULL;
+        }
+        memset(made, 0, GRID_SIZE);
+        ((grid_ctor_fn)(UINT_PTR)GRID_CTOR)(made, NULL, name, 1, 1);
+        if (*(const int *)(made + GRID_CELL_W) <= 0 || *(const int *)(made + GRID_CELL_H) <= 0) {
+            return NULL;             /* not loaded: never drawn (the object is kept) */
+        }
+        g_art[full] = made;
+        g_art_state[full] = 1;
+    }
+    return g_art_state[full] == 1 ? g_art[full] : NULL;
+}
+
+/* The carried item about to be drawn (`args`: sprite, x, y, frame, scale): a sack's picture in its place when the
+   villager is on a sack trip and carries the sack. */
+static void __cdecl on_draw(const unsigned char *villager, unsigned int *args) {
+    __try {
+        const sack_mark *m;
+        int item, full;
+        void *art;
+        if (villager == NULL) {
+            return;
+        }
+        item = *(const int *)(villager + REC_ITEM);
+        if (item != ITEM_CLOTH && item != ITEM_YELLOW) {
+            return;
+        }
+        m = mark_of(villager, 0);
+        if (m == NULL || m->shows == 0 || !on_sack_trip(villager)) {
+            return;
+        }
+        full = m->shows == 2;
+        if ((full && item != ITEM_YELLOW) || (!full && item != ITEM_CLOTH)) {
+            return;
+        }
+        art = sack_art(full);
+        if (art == NULL) {
+            return;
+        }
+        args[0] = (unsigned int)(UINT_PTR)art;
+        args[1] += SACK_DX;
+        args[2] += full ? SACK_DY_FULL : SACK_DY_EMPTY;
+        args[3] = 0;
+        *(float *)&args[4] = SACK_SCALE;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* ---- the stubs ---------------------------------------------------------------------------------------------- */
+
+static unsigned int g_world_draw = WORLD_DRAW;
+
+/* At DROP_SITE ([esp+4] the villager): 1 from on_drop answers the drop (al = 1, ret 4); else the stock entry. */
+__declspec(naked) static void drop_stub(void) {
+    __asm {
+        pushad
+        push dword ptr [esp + 36]
+        call on_drop
+        add esp, 4
+        mov dword ptr [esp + 28], eax
+        popad
+        test eax, eax
+        jz stock
+        mov al, 1
+        ret 4
+    stock:
+        sub esp, 8
+        push esi
+        mov esi, dword ptr [esp + 0x10]
+        push DROP_ON
+        ret
+    }
+}
+
+/* At EVENT_SITE (ecx the job events' object, [esp+4] the event): ours (ret 4) or the stock entry. */
+__declspec(naked) static void event_stub(void) {
+    __asm {
+        pushad
+        push dword ptr [esp + 36]
+        push ecx
+        call on_event
+        add esp, 8
+        mov dword ptr [esp + 28], eax
+        popad
+        test eax, eax
+        jz stock
+        ret 4
+    stock:
+        mov eax, dword ptr [esp + 4]
+        sub esp, 0x18
+        push EVENT_ON
+        ret
+    }
+}
+
+/* At OFFER_SITE (edi the options counted, ebx 0, esi the job object): the sack, or the stock test. */
+__declspec(naked) static void offer_stub(void) {
+    __asm {
+        pushad
+        push esi
+        push edi
+        call on_offer
+        add esp, 8
+        mov dword ptr [esp + 28], eax
+        popad
+        test eax, eax
+        jnz started
+        cmp edi, ebx
+        je none
+        push OFFER_ON
+        ret
+    none:
+        push OFFER_NONE
+        ret
+    started:
+        push OFFER_STARTED
+        ret
+    }
+}
+
+/* At DRAW_SITE, called in place of 0x44C640 ([esp] the return, then sprite, x, y, frame, scale; the villager is
+   the carried-item draw's first argument, [esp+0x2C]): the arguments perhaps changed, then 0x44C640. */
+__declspec(naked) static void draw_stub(void) {
+    __asm {
+        pushad
+        lea eax, [esp + 36]
+        push eax
+        push dword ptr [esp + 0x50]
+        call on_draw
+        add esp, 8
+        popad
+        jmp dword ptr [g_world_draw]
+    }
+}
+
+/* ---- installing --------------------------------------------------------------------------------------------- */
+
+/* 1 when every site is installed (for the tests' emulation), else 0. */
+int __stdcall VvfpClothSacksInstalled(void) {
+    return g_installed;
+}
+
+/* Called once by VVFP Startup.dll before WinMain. */
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    vvfp_site_write w[SITES];
+    (void)shipped;
+    if (g_installed || game != CS_GAME
+        || !vvfp_site_holds(OFFER_STARTED, STARTED_STOCK, sizeof STARTED_STOCK)
+        || !vvfp_site_holds(USE_UP, USE_UP_STOCK, sizeof USE_UP_STOCK)
+        || !vvfp_site_holds(0x4343A0u, FRUIT_START_STOCK, sizeof FRUIT_START_STOCK)) {
+        return;
+    }
+    vvfp_site_branch(&w[0], DROP_SITE, sizeof DROP_STOCK, DROP_STOCK, 0xE9, (const void *)drop_stub);
+    vvfp_site_branch(&w[1], EVENT_SITE, sizeof EVENT_STOCK, EVENT_STOCK, 0xE9, (const void *)event_stub);
+    vvfp_site_branch(&w[2], OFFER_SITE, sizeof OFFER_STOCK, OFFER_STOCK, 0xE9, (const void *)offer_stub);
+    vvfp_site_branch(&w[3], DRAW_SITE, sizeof DRAW_STOCK, DRAW_STOCK, 0xE8, (const void *)draw_stub);
+    if (vvfp_install_sites(w, SITES)) {
+        g_installed = 1;
+    }
+}
+
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
+    (void)reserved;
+    if (reason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(instance);
+    }
+    return TRUE;
+}

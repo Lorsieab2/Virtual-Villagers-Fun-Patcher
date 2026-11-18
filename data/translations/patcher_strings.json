@@ -64465,6 +64465,39 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0",
+   "english": "Making a sack out of cloth",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0",
+   "english": "Gathering food in cloth sack",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.harvest_caption/vvfp_vv4_harvest_caption.caption.s0",
+   "english": "Harvesting berries with a cutting tool",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Harvest Caption.dll",
+   "notes": "a patcher window",
+   "route": "key"
   }
  ]
 }

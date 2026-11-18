@@ -619,6 +619,31 @@ Virtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
 saves; the save itself is never changed, so without the patch the tree is
 unlimited again. Not yet tested in a running game.
 
+CLOTH SACKS FOR YELLOW FRUIT (THE TREE OF LIFE)
+
+Off by default; Owner's Defaults ticks it. Once the Clothing Hut is finished
+and the Cooking Pit is restored, drop an adult on the left side of the
+Clothing Hut, under its awning. The villager takes one cloth bolt, makes a
+sack ("Making a sack out of cloth"), carries the empty sack to the yellow
+fruit trees ("Gathering food in cloth sack"), shakes down and cooks the fruit
+as on any fruit trip, and carries the full sack to the food bin: 30 food
+before Food Mastery. It works like the cutting tool on the blackberries: the
+cloth is used when the villager starts (a failed Farming check loses it),
+with no cloth the villager refuses ("They need cloth for this!"), and Food
+Mastery multiplies the food. A sack never goes into the stew. With Yellow
+Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30,
+or what is left), and with fewer than 3 fruit the villager refuses; without
+it every sack holds 30. Farmers who farm on their own make sacks too while
+there is cloth. The sacks are new pictures (art by Lorsieab2). Not yet tested
+in a running game.
+
+CUTTING TOOL HARVEST CAPTION (THE TREE OF LIFE)
+
+Off by default; Owner's Defaults ticks it. A villager harvesting blackberries
+with a cutting tool says "Harvesting berries with a cutting tool"; picking
+blackberries still says "Harvesting blackberries". Not yet tested in a
+running game.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

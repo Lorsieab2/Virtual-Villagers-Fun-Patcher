@@ -334,6 +334,14 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
 # them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_vv4_louder_wind_flutes_feature.py.
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
+# Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; off by default, on in Owner's Defaults): a
+# villager dropped under the Clothing Hut's awning makes a sack from a cloth bolt and brings 30 yellow fruit to the
+# food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll".  Cutting Tool
+# Harvest Caption (same day, same defaults): the cutting-tool blackberry harvest says so; companion only, "VVFP VV4
+# Harvest Caption.dll".  Both started by VVFP Startup.dll from its second word;
+# scripts/build_vv4_cloth_sacks_features.py.
+CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_feature.json",
+                             ROOT / "data" / "vv4_cutting_tool_harvest_caption_feature.json")
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -4208,7 +4216,8 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS):
+                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + CLOTH_SACKS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12732,7 +12741,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "EB05441138F7194BFBA4977B90B57825BC3FC7FB80FDECBBE3C05C217414D027",
+    "sha256": "08BF9ED28E64F9C2FAA6B7DE3B733A3688E96EE4F831207C5605DE5AAC41B3F5",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12832,6 +12841,10 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
     # right after the carry step, never again at delivery.
     "VVFP Collectibles Stay Collected.dll",
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): a cloth bolt made into a sack for 30 yellow fruit.
+    "VVFP VV4 Cloth Sacks.dll",
+    # Cutting Tool Harvest Caption (The Tree of Life): the cutting-tool blackberry harvest says so.
+    "VVFP VV4 Harvest Caption.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

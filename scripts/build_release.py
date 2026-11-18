@@ -141,6 +141,12 @@ FILES = [
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the companion.
     "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): the companion and the owner's two sack pictures.
+    "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll",
+    "assets/cloth_sacks/vvfp_sack_empty.png",
+    "assets/cloth_sacks/vvfp_sack_yellow_fruit.png",
+    # Cutting Tool Harvest Caption (The Tree of Life): the companion.
+    "assets/harvest_caption/VVFP VV4 Harvest Caption.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -307,6 +313,8 @@ FILES = [
     "data/vv4_yellow_fruit_trees_limited_feature.json",
     "data/vv4_yellow_fruit_refills_partially_feature.json",
     "data/vv4_louder_wind_flutes_feature.json",
+    "data/vv4_cloth_sacks_for_yellow_fruit_feature.json",
+    "data/vv4_cutting_tool_harvest_caption_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",
