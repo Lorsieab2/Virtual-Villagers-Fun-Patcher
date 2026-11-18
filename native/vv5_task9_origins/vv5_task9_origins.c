@@ -2504,6 +2504,13 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
 #define VV5_TW_SPEED_OFFSET     0x17D7C  /* on the world object; 999 = paused */
 #define VV5_TW_SPEED_PAUSED     999
 #define VV5_TW_WORLD_GETTER     0x00425950u
+/* Where that getter keeps the game object once it is built (0 until then).  The getter BUILDS the object when this
+   is 0, and the object's constructor reads the settings through buildSavePath (0x403600), whose detour runs
+   Vv5InstallCompanions -> the Story DLL's install -> this companion's time skip callbacks.  A callback that called
+   the getter there built the object again, inside its own constructor, without end: a stack overflow at start
+   (v1.35.92 - v1.35.97, Story / Cheat Upgrades).  So the callbacks the Story DLL calls read this word, never the
+   getter: no object yet is "no village". */
+#define VV5_TW_WORLD_GLOBAL     0x004DACE0u
 #define VV5_TW_TIME_EPOCH_VA    0x004C6250u   /* 64-bit, low dword           */
 #define VV5_TW_PENDING_OFFSET   0x1C34
 #define VV5_TW_LAST_SEEN_OFFSET 0x1C38
@@ -2745,9 +2752,13 @@ static int vv5_skip_living(const unsigned char *rec) {
         && *(const int *)(rec + 0x1C40) > 0;
 }
 
+/* The game object, or 0 while it is not built yet (VV5_TW_WORLD_GLOBAL): never builds it. */
+static unsigned char *vv5_story_world(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)VV5_TW_WORLD_GLOBAL;
+}
+
 static int __stdcall vv5_story_time_skip_step(int years) {
-    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv5_story_world();
     unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
     int speed, step, i, slots;
     if (world == 0 || years <= 0) {
@@ -2789,8 +2800,7 @@ static int __stdcall vv5_story_time_skip_settled(void) {
 /* Whether the game's clock runs (a known speed, not paused): only that time
    counts toward the time skip's replay wait (native/shared/story_bridge.h). */
 static int __stdcall vv5_story_time_skip_running(void) {
-    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv5_story_world();
     return world != 0 && vv5_time_warp_years(*(int *)(world + VV5_TW_SPEED_OFFSET)) > 0;
 }
 
