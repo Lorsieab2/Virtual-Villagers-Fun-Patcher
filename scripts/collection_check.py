@@ -80,10 +80,11 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
     + tuple(v[2] for v in lib.DRAFTS_B.values()) \
     + tuple(v[2] for v in lib.DRAFTS_C.values()) \
     + tuple(v[2] for v in lib.DRAFTS_D.values()) \
-    + tuple(lib.ANTHOLOGY_SECTIONS)  # the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
+    + tuple(lib.ANTHOLOGY_SECTIONS) \
+    + ("hc",)  # the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology; the Harshest Critic
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
-                 "description_variants", "cast_only", "label_case")
+                 "description_variants", "cast_only", "label_case", "list_title")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
@@ -1385,7 +1386,8 @@ def collection_files() -> list[Path]:
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
                   + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_A_DIR.glob("*/*.json"))
                   + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json"))
-                  + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json")))
+                  + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json"))
+                  + list(lib.CRITIC_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

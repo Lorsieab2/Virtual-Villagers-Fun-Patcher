@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Isola Grand Event Collection",
-  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 3159 events in this game in this build. The Living Event Engine adds 215 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 3165 events in this game in this build. The Living Event Engine adds 215 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
   "output_tag": "Isola Grand Event Collection",
   "dependencies": [
     "vv5_story_cheat_upgrades",
@@ -24,12 +24,12 @@
     {
       "source": "assets/event_collection/vv5/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "F7644197F2AA471CED57B6BF162369CE8170F9BC8D6C2630C2B96D3194652A85"
+      "sha256": "D06C7B90943369973CF76B8C13F2C194B9103488669D2A71A62DABDC7555CE44"
     },
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "85ADC20ACCB4BA989158BD32B0273477BCA1BF02B7092E93403C29CD753F74BF"
+      "sha256": "7ADFB1A10950FBC014B56F98D1837CAF56BE65C0045658E3D05CB477C8D09A6E"
     },
     {
       "source": "assets/event_collection/vv5/living.pak",
@@ -7900,6 +7900,36 @@
       "source": "assets/event_collection/fwk060_last_voyage.cieg",
       "destination": "Island Event Collection/fwk060_last_voyage.cieg",
       "sha256": "F41EEBB722395428432693873D11485168DBFE4FBD7B01BC43D3F1B577B5F9CC"
+    },
+    {
+      "source": "assets/event_collection/hc1_routes.cieg",
+      "destination": "Island Event Collection/hc1_routes.cieg",
+      "sha256": "DF19FE1AB849EC14912AE1F890CCF3CAB99E7A099B19117C693706125C6ABB09"
+    },
+    {
+      "source": "assets/event_collection/hc2_pleas.cieg",
+      "destination": "Island Event Collection/hc2_pleas.cieg",
+      "sha256": "DC29A5ADAEC061F77356AC23033F5F58966679EEC935D96498C7EB6E3B527629"
+    },
+    {
+      "source": "assets/event_collection/hc3_disasters.cieg",
+      "destination": "Island Event Collection/hc3_disasters.cieg",
+      "sha256": "7AE81481B479C785B3A554EECE8414FA1B1EB78142C671D542FF156EC54C75F8"
+    },
+    {
+      "source": "assets/event_collection/hc4_noises.cieg",
+      "destination": "Island Event Collection/hc4_noises.cieg",
+      "sha256": "E4464FC72D439A9F5582AA25F54F7B0A0C047E6D11288DADBF125018DFD2BEAC"
+    },
+    {
+      "source": "assets/event_collection/hc5_victories.cieg",
+      "destination": "Island Event Collection/hc5_victories.cieg",
+      "sha256": "044F3F3DD6CF245964F06772A39975FE4519BE3CE9EC8FD503673C46B544B6CE"
+    },
+    {
+      "source": "assets/event_collection/hc6_sabotage.cieg",
+      "destination": "Island Event Collection/hc6_sabotage.cieg",
+      "sha256": "69494489936F78D67831D6D04F6FA5D7F41F8D963B4A79E1A8B4C656F665F427"
     },
     {
       "source": "assets/event_collection/hea01_count_four_count.cieg",
