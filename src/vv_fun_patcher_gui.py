@@ -558,12 +558,32 @@ def saved_runtime_slider_multiplier(settings: dict, key: str):
     return saved_multiplier(settings, f"{key}_multiplier", RUNTIME_SLIDER_RANGE, RUNTIME_SLIDER_DEFAULT)
 
 
+# The sliders' labels (the owner, 2026-11-17: "-10 to 10" is JUST THE LABEL -- 10 is x 10, -10 the opposite, a
+# tenth, the middle the normal game; nothing is truly negative).  A multiplier of 1 or more is shown as itself ("2",
+# "10"); below 1 as minus what it divides by ("-2" is half, "-10" a tenth).  The number kept, saved, written beside
+# a companion and given on the command line is the multiplier itself (0.1 to the maximum in tenths), so saved
+# settings keep their effect; every tenth below 1 reads back as itself (0.3 is "-3.3", which is 0.3 again).
+def multiplier_label(value) -> str:
+    """A slider's label for a multiplier: "2" for x 2, "-2" for half, "1" the normal game."""
+    if value >= 1:
+        return multiplier_text(value)
+    divisor = round(1 / value, 1)
+    return "-" + (str(int(divisor)) if divisor == int(divisor) else f"{divisor:g}")
+
+
 def typed_multiplier(text: str, multipliers):
-    """A slider's type-in box: the number typed ("0.5", ".5", "2", "2x"), rounded to a tenth and kept within the
-    slider's range (0.1 to its maximum), or None when nothing like a number was typed (the box then shows the
-    slider's number again)."""
+    """A slider's type-in box: the label typed ("2", "-2", "2x", "1,5"; see multiplier_label) as the multiplier it
+    stands for, rounded to a tenth and kept within the slider's range (0.1 to its maximum), or None when nothing like
+    a number was typed (the box then shows the slider's label again).  -1 to 0 is the middle, the normal game; a
+    fraction typed (0.5) is taken as that multiplier, as before the labels."""
     value = parse_multiplier(text)
-    return None if value is None else multipliers.clamp(value)
+    if value is None:
+        return None
+    if value <= -1:
+        value = 1 / -value
+    elif value <= 0:
+        value = 1
+    return multipliers.clamp(value)
 
 
 # The sliders run on a logarithmic track (the owner, 2026-11-17: 0.1x to 100x, 1x the normal game): 1,000 steps from
@@ -3170,9 +3190,12 @@ class App(tk.Tk):
             if value is not None and slider_value(position.get(), multipliers) != value:
                 position.set(slider_position(value, multipliers))
 
+        # The track's two ends, as labels (the owner, 2026-11-17: "-10 to 10"): the smallest and the largest.
+        ttk.Label(group, text=multiplier_label(multipliers[0])).pack(side="left")
         scale = tk.Scale(group, variable=position, orient="horizontal", from_=0, to=SLIDER_STEPS, resolution=1,
                          length=120, showvalue=False, command=moved)
         scale.pack(side="left")
+        ttk.Label(group, text=multiplier_label(multipliers[-1])).pack(side="left")
         variable.trace_add("write", follow)
         scale.position = position
         box = self._multiplier_box(group, variable, multipliers)
@@ -3191,7 +3214,7 @@ class App(tk.Tk):
         def show(*_args) -> None:
             value = App._slider_number(variable, multipliers, None)
             if value is not None:
-                text.set(multiplier_text(value))
+                text.set(multiplier_label(value))
 
         show()
 

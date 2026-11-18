@@ -144,14 +144,44 @@ class Saved(unittest.TestCase):
 class Typed(unittest.TestCase):
     def test_typed_numbers_are_rounded_and_kept_within_range(self) -> None:
         r = patcher.TECH_COST_MULTIPLIER_RANGE
-        for text, value in (("2", 2), ("10", 10), ("100", 100), (" 42 ", 42), ("7x", 7), ("7 X", 7), ("0", 0.1),
-                            ("1", 1), ("-5", 0.1), ("+9", 9), ("101", 100), ("100000000000000000000", 100),
+        for text, value in (("2", 2), ("10", 10), ("100", 100), (" 42 ", 42), ("7x", 7), ("7 X", 7), ("0", 1),
+                            ("1", 1), ("-5", 0.2), ("+9", 9), ("101", 100), ("100000000000000000000", 100),
                             ("0.5", 0.5), (".5", 0.5), ("0,5", 0.5), ("4.5", 4.5), ("1.25", 1.2), ("1.26", 1.3),
-                            ("0.04", 0.1), ("2.", 2),
+                            ("0.04", 1), ("2.", 2), ("-2", 0.5), ("-10", 0.1), ("-3.3", 0.3), ("-1", 1),
+                            ("-0.5", 1), ("-40", 0.1), ("-1000", 0.1),
                             ("abc", None), ("", None), ("  ", None), ("1e3", None), ("٣", None), ("x", None),
                             ("--3", None), (".", None), ("1.2.3", None)):
             with self.subTest(text=text):
                 self.assertEqual(gui.typed_multiplier(text, r), value)
+
+
+class Labels(unittest.TestCase):
+    """The owner (2026-11-17): "-10 to 10" is just the label -- 10 is x 10, -10 a tenth, the middle the normal game;
+    the number kept and saved is the multiplier, so old settings keep their effect."""
+
+    def test_the_labels(self) -> None:
+        self.assertEqual([gui.multiplier_label(v) for v in (0.1, 0.2, 0.3, 0.5, 0.8, 1, 2, 2.5, 10, 100)],
+                         ["-10", "-5", "-3.3", "-2", "-1.2", "1", "2", "2.5", "10", "100"])
+
+    def test_every_number_reads_back_as_itself(self) -> None:
+        for r in (patcher.TECH_COST_MULTIPLIER_RANGE, patcher.RUNTIME_SLIDER_RANGE):
+            for value in r:
+                with self.subTest(value=value):
+                    self.assertEqual(gui.typed_multiplier(gui.multiplier_label(value), r), value)
+
+    def test_the_ends_and_the_middle(self) -> None:
+        r = patcher.RUNTIME_SLIDER_RANGE
+        self.assertEqual((gui.typed_multiplier("10", r), gui.typed_multiplier("-10", r)), (10, 0.1))
+        self.assertEqual(gui.slider_value(gui.SLIDER_STEPS // 2, r), 1)      # the middle of a -10 to 10 slider
+        self.assertEqual((gui.multiplier_label(r[0]), gui.multiplier_label(r[-1])), ("-10", "10"))
+        self.assertEqual(gui.multiplier_label(patcher.TECH_COST_MULTIPLIER_RANGE[-1]), "100")
+        for typed in ("0", "-1", "-0.5", "1"):
+            self.assertEqual(gui.typed_multiplier(typed, r), 1)
+
+    def test_saved_numbers_keep_their_effect(self) -> None:
+        for saved in (0.1, 0.5, 2, 10):
+            self.assertEqual(gui.saved_runtime_slider_multiplier({"food_gain_multiplier": saved}, "food_gain"), saved)
+            self.assertEqual(gui.saved_tech_cost_multiplier({"tech_cost_multiplier": saved}), saved)
 
 
 class Track(unittest.TestCase):
@@ -218,14 +248,14 @@ class Tk(unittest.TestCase):
                 self.typed(text)
                 self.assertEqual(self.value(), value)
                 self.assertEqual(self.scale.get(), gui.slider_position(value, r))
-                self.assertEqual(self.box.get(), patcher.multiplier_text(value))
+                self.assertEqual(self.box.get(), gui.multiplier_label(value))
 
     def test_out_of_range_is_kept_within_range_and_nothing_bad_is_kept(self) -> None:
-        for text, value in (("500", 100), ("0", 0.1), ("-40", 0.1), ("0.04", 0.1)):
+        for text, value in (("500", 100), ("0", 1), ("-40", 0.1), ("0.04", 1), ("-2", 0.5)):
             with self.subTest(text=text):
                 self.typed(text)
                 self.assertEqual(self.value(), value)
-                self.assertEqual(self.box.get(), patcher.multiplier_text(value))
+                self.assertEqual(self.box.get(), gui.multiplier_label(value))
         self.typed("33")
         for text in ("abc", "", "1e3"):
             with self.subTest(text=text):
@@ -250,7 +280,7 @@ class Tk(unittest.TestCase):
         for position in (0, 333, gui.SLIDER_STEPS):
             self.scale.set(position)
             self.root.update()
-            self.assertEqual(self.box.get(), patcher.multiplier_text(gui.slider_value(position, r)))
+            self.assertEqual(self.box.get(), gui.multiplier_label(gui.slider_value(position, r)))
         self.var.set(9)                     # settings loaded, Owner's Defaults
         self.root.update()
         self.assertEqual(self.box.get(), "9")

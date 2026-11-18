@@ -160,7 +160,7 @@ def description(game: int) -> str:
                "much." if game == 3 else "")
     return ("Every technology level on the Tech screen costs 0.1 to 100 times its normal price in tech points: "
             "you choose the multiplier with the 0.1-100x Tech Cost slider in the patcher window (in steps of 0.1, 3 "
-            "unless you move it; type it in the box beside the slider too). 1 is the normal price; below 1 "
+            "unless you move it; type it in the box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). 1 is the normal price; below 1 "
             "technologies are cheaper, each price rounded to a whole tech point and never below 1. "
             f"The normal prices are: {listed}. At x 3, for example, a 5,000-point level costs 15,000; at x 0.5, "
             "2,500. "

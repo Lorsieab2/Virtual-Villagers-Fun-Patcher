@@ -186,7 +186,7 @@ def multiplier_feature(game: int) -> dict:
         "description": (
             "**Needs no other patch.** Off by default. Villagers fall sick 0.1 to 100 times as often as they would: "
             "you choose how many times with the 0.1-100x Sickness slider in the patcher window (in steps of 0.1, 2 "
-            "unless you move it; type it in the box beside the slider too). 1 is the normal game; above 1 the game is "
+            "unless you move it; type it in the box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). 1 is the normal game; above 1 the game is "
             "harder, below 1 easier (at x 0.5 half as often). The rarest chances cannot go below the game's own "
             "smallest, about 1 in 32,768 a check, so at the lowest settings the rarest rolls are a little more "
             "likely than the number says. Every natural chance of falling sick is multiplied, at every Medicine "

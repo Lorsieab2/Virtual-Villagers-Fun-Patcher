@@ -77,7 +77,7 @@ def description(game: int) -> str:
         "**Needs no other patch.** Off by default. Every villager's meal takes 0.1 to 100 times the normal food "
         "(at most 64 times: the game's meal cannot take more, so 65 to 100 are the same as 64): you choose how many "
         f"times with the Hungrier Villagers slider in the patcher window (in steps of 0.1, {FACTOR} unless you move "
-        "it; type it in the box beside the slider too). 1 is the normal game; above 1 the game is harder, below 1 "
+        "it; type it in the box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). 1 is the normal game; above 1 the game is harder, below 1 "
         f"easier. Normally a villager's meal takes 2 food, and 2 more three times in four {threshold} on Normal "
         f"difficulty, at any food level on Hard, never on Easy; at x {FACTOR} that is 4 and 4 more, at x 0.5 1 and 1 "
         "more. A meal is whole food, so a number like 0.3 or 1.7 takes 2 x that ON AVERAGE: at x 0.3 a meal takes 1 "

@@ -60,7 +60,7 @@ def description() -> str:
         "made louder, so they are heard clearly over the music. How much louder is the Louder Wind Flutes slider in "
         "the patcher window: 0.1 to 100 times (in steps of 0.1, 5 unless you move it; 1 is the normal volume and below "
         "1 quieter; type it in the box beside the "
-        "slider too). The game's own flute recordings are much quieter than its music, and the game already plays "
+        "slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). The game's own flute recordings are much quieter than its music, and the game already plays "
         "them at full volume, so the sounds themselves are made louder as the game loads them. They never distort: "
         "the loudest moments are held just under the loudest a sound can be, so from about 3 times up the quiet "
         "parts gain the most and every higher number is still louder. At 5 times, with the game's Sound and Music "

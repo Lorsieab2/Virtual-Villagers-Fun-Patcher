@@ -64,7 +64,7 @@ def description(game: int) -> str:
         "The game's own island events come more or less often: 0.1 to 100 times as often, as you choose with the "
         "More Frequent Island Events slider in the patcher window (in steps of 0.1, 2 unless you move it; 1 is the "
         "normal game, below 1 they come less often; type it in the "
-        f"box beside the slider too). Normally the next event comes {k} to {2 * k - 1} whole real-life hours after "
+        f"box beside the slider too; the slider reads -10 to 100: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game). Normally the next event comes {k} to {2 * k - 1} whole real-life hours after "
         f"the last; at 2 times it comes {k // 2} to {(2 * k - 1) / 2:g} hours after it, at 10 times every "
         f"{k * 6} to {(2 * k - 1) * 6} minutes, at 0.5 times {2 * k} to {2 * (2 * k - 1)} hours." + first + " Which event comes, and every rule for it, is the "
         "game's own. A bought or picked island event (Origins, Story / Cheat Upgrades) still leaves the next "

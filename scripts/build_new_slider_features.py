@@ -110,8 +110,9 @@ COMMON_TAIL = ("**Needs no other patch.** Off by default; Owner's Defaults ticks
                "**Unverified in play** (checked by emulation of the game's own code). The companion is \"{dll}\", "
                "started by VVFP More Companions.dll, and the slider's number is written beside it in \"{choice}\"; "
                "nothing is written to a save.")
-SLIDER_WORDS = ("the {name} slider in the patcher window (0.1 to 10 in steps of 0.1, 1 unless you move it; 1 is the "
-                "normal game, below 1 less; type it in the box beside the slider too)")
+SLIDER_WORDS = ("the {name} slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 "
+                "half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the "
+                "slider too)")
 
 
 def call_bytes(va: int, target: int) -> str:

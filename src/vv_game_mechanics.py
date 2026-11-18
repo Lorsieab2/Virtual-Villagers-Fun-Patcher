@@ -761,9 +761,12 @@ def slider_facts(village: "Village") -> list[Fact]:
             effect = (words.format(n="N", collectibles=collectibles)
                       + ", N the number set on its slider (0.1 to 10)")
         elif n == 1:
-            effect = "its slider is at 1, so the game is the normal game here"
+            effect = "its slider is at 1, the middle, so the game is the normal game here"
         else:
-            effect = words.format(n=n, collectibles=collectibles)
+            # The slider's label (the owner, 2026-11-17: "-10 to 10"): below 1, minus what it divides by.
+            divisor = round(1 / n, 1)
+            label = n if n >= 1 else "-" + (str(int(divisor)) if divisor == int(divisor) else f"{divisor:g}")
+            effect = f"its slider is at {label}: " + words.format(n=n, collectibles=collectibles)
         out.append(Fact(group, patch_words(village, feature, effect)))
     return out
 
