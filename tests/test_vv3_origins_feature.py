@@ -594,9 +594,11 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         # #506 review: the Tech menu's legacy tail (a Cure call no row could
         # reach) is a short jump over zeroed bytes now.
         # v1.35.70: Details rows 0-3 refuse a dead villager (detail_living_check).
+        # v1.35.97: the doublers are whitelists (the owner's scope): the two
+        # wrappers (+0xA20, +0xAA0) and their return table (+0x1D0).
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "2D109805B8F9674DE3C7A478CCAD9D0F28486EA9264A2C40A8854E54BF74431A",
+            "E3321953563C8CEBE31351FA92A11046107B4B28B6A35FC669335B9EA98883D5",
         )
         self.assertEqual(
             bytes.fromhex(

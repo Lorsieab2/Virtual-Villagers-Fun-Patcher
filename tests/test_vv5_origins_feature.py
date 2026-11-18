@@ -628,9 +628,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         # Re-pinned when the unreachable legacy menus, helpers and the
         # 0x94B32/0x94B37/0x94EA0 caves were removed from the base payload.
+        # Re-pinned for the owner's doubler scope (2026-11-17): only the two
+        # doubler wrappers (0x7B2A00, 0x7B2B00) became longer whitelists.
         self.assertEqual(
             digest,
-            "16891ED0ECF4166941A95993B6196FC22ED1A448306467E1DAC92AC88D8D0F61",
+            "FCF2E722055273C5DEDB3B6490811C6A15981C960DD371D90FE3B965A6B9FF17",
         )
         # The base record no longer lists the sourceless legacy
         # assets/origins/VVFP Origins Icons.dll: the shipped VV5 record is the

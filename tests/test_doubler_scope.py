@@ -164,6 +164,8 @@ class _Wrapper:
         self.pristine = bytes(image)
         self.mu.mem_map(STACK_TOP - 0x100000, 0x100000, UC_PROT_ALL)
         self.mu.mem_map(STORE, 0x40000, UC_PROT_ALL)
+        self.mu.mem_map(DLL_CALLER & ~0xFFF, 0x1000, UC_PROT_ALL)   # the companion DLL's code page
+        self.mu.mem_write(DLL_CALLER & ~0xFFF, b"\xF4" * 0x1000)
         self.stops: set[int] = set()
         self.mu.hook_add(UC_HOOK_CODE, self._on_code)
 

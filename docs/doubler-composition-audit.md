@@ -130,8 +130,8 @@ The Tech Doubler must double only an eligible positive earned-tech source
 delta. It must not fold Magic, quarter-base, timed, or random components into a
 different post-sum operation. Because case 26 emits components separately, the
 VV3 Tech Doubler stays at the positive-writer boundary and doubles each research
-component once (the whitelisted returns are its provenance-safe source
-boundary). Deduction, startup and Island Event paths remain native.
+component once; the whitelisted returns are its provenance-safe source boundary.
+Deduction, startup and Island Event paths remain native.
 
 ## Required follow-up before GO
 

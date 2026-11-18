@@ -333,11 +333,14 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (0xE574A0) as a head atlas (v1.35.86: no second mask over a body):
         # both stubs lost one compare, so the detours' rel32 follow them in the
         # appended page -- nothing in any doubler region.
+        # Re-pinned for the owner's doubler scope (2026-11-17): the two doubler
+        # wrappers (+0x820..0x960) became whitelists of the research, duplicate
+        # collectible and gathered-food returns; nothing outside them changed.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "F348FCF3D9ED9B39D0D3A782BEA11695C22F6434F3B14D842461B2DD8BFEFE20",
+            "D697F8A23301AF3E3DE90D0C2BD26E3715785088D663662F99D8E9CAB04BC5B0",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
