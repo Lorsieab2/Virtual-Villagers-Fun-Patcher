@@ -77,6 +77,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
+    /* Fix Vanilla Bugs (A New Home, The Lost Children): every herb study gives Healing practice (A New Home's first
+       studies), and The Lost Children's study continuation re-studies herbs 3 and 4 too. */
+    "VVFP Herb Study.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
