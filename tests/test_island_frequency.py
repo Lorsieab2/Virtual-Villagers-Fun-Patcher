@@ -6,7 +6,7 @@ EMULATED, on the executable the patcher renders for the row, in each of the thre
 Frequency.dll" is started as VVFP Startup.dll starts it (VvfpStartup(game, ...)), with the slider's number in
 "VVFP Island Frequency.txt" in the patcher's folder; then each of the game's own draws of the next wait (`add eax,
 K; imul eax, eax, 0xE10`, eax the game's rand(K)) is run, and eax comes out as (roll + K) x 3600 / N with every other
-register as the game left it -- at x 2, x 10 and x 100, and (the owner, 2026-11-17: every slider goes less as
+register as the game left it -- at x 2 and x 10 (the slider's top since the owner capped every slider at 10, 2026-11-17), and (the owner, 2026-11-17: every slider goes less as
 well as more) at x 0.1, x 0.5 and x 1.5: (roll + K) x 36000 / tenths.  The 30 minutes before the next event while a village has
 seen none, and the trigger's own write that the Origins companions' island timer keeper hooks, are other bytes.
 """
@@ -123,7 +123,7 @@ class Emulated(unittest.TestCase):
     def test_the_wait_follows_the_slider(self) -> None:
         for game in HOURS:
             k = HOURS[game]
-            for n in ("2", "10", "100", "0.1", "0.5", "1.5", "1"):
+            for n in ("2", "10", "0.1", "0.5", "1.5", "1"):
                 tenths = round(float(n) * 10)
                 for mode in (MODES if n == "10" else MODES[:1]):
                     with self.subTest(game=game, n=n, mode=mode):
@@ -140,16 +140,16 @@ class Emulated(unittest.TestCase):
                                                         "esi": 0x44444444, "edi": 0x55555555, "ebp": 0x66666666})
 
     def test_the_numbers_at_the_ends(self) -> None:
-        # A New Home at x 2: 6 to 11.5 hours; The Secret City at x 100: 4 minutes 48 seconds to 9 minutes; A New Home
+        # A New Home at x 2: 6 to 11.5 hours; The Secret City at x 10: 48 to 90 minutes; A New Home
         # at x 0.1: 120 to 230 hours, far inside the timer's 32 bits.
         self.assertEqual((12 * 36000 // 20, 23 * 36000 // 20), (21_600, 41_400))
-        self.assertEqual((8 * 36000 // 1000, 15 * 36000 // 1000), (288, 540))
+        self.assertEqual((8 * 36000 // 100, 15 * 36000 // 100), (2_880, 5_400))
         self.assertEqual((12 * 36000 // 1, 23 * 36000 // 1), (432_000, 828_000))
 
     def test_the_setting_file(self) -> None:
         # In tenths: 20 is 2.
-        cases = ((b"2", 20), (b"10\n", 100), (b"100\r\n", 1000), (b" 42 ", 420), (b"0", 1), (b"1", 10), (b"101", 1000),
-                 (b"99999999999", 1000), (b"abc", 20), (b"", 20), (None, 20), (b"0.5", 5), (b"0.1\n", 1), (b".5", 5),
+        cases = ((b"2", 20), (b"10\n", 100), (b"100\r\n", 100), (b" 42 ", 100), (b"0", 1), (b"1", 10), (b"101", 100),
+                 (b"99999999999", 100), (b"10.1", 100), (b"abc", 20), (b"", 20), (None, 20), (b"0.5", 5), (b"0.1\n", 1), (b".5", 5),
                  (b"0.05", 1), (b"1.25", 12), (b"2.", 20), (b"7.x", 70))
         for setting, wanted in cases:
             with self.subTest(setting=setting):
@@ -184,7 +184,7 @@ class Rows(unittest.TestCase):
                 self.assertEqual(row.raw["dependencies"], [])
                 self.assertEqual(row.raw["patches"], [])
                 self.assertIn("**Needs no other patch.**", row.raw["description"])
-                self.assertIn("0.1 to 100 times as often", row.raw["description"])
+                self.assertIn("0.1 to 10 times as often", row.raw["description"])
                 self.assertEqual([d["va"] for d in row.raw["runtime_detours"]],
                                  [f"0x{va:X}" for va in SITES[game]])
                 self.assertEqual({d["stock_bytes"] for d in row.raw["runtime_detours"]},
@@ -216,17 +216,17 @@ class Setting(unittest.TestCase):
     def test_tenths_from_a_tenth_to_100_default_2(self) -> None:
         self.assertEqual(patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT, 2)
         r = patcher.ISLAND_FREQUENCY_MULTIPLIER_RANGE
-        self.assertEqual((r[0], r[-1], len(r)), (0.1, 100, 1000))
-        for good in (1, 2.5, 0.1, 2, 10, 100):
+        self.assertEqual((r[0], r[-1], len(r)), (0.1, 10, 100))
+        for good in (1, 2.5, 0.1, 2, 9.9, 10):
             self.assertEqual(patcher.set_island_frequency_multiplier(good), good)
-        for bad in (0, 101, 0.05, 2.55, "5", True, None):
+        for bad in (0, 10.1, 100, 101, 0.05, 2.55, "5", True, None):
             with self.subTest(bad=bad), self.assertRaises(patcher.PatcherError):
                 patcher.set_island_frequency_multiplier(bad)
-        self.assertEqual(patcher.island_frequency_multiplier(), 100)
+        self.assertEqual(patcher.island_frequency_multiplier(), 10)
 
     def test_written_beside_the_companion_only_with_the_row(self) -> None:
         public = {p.id: p for p in patcher.load_public_fun_patches()}
-        for n in (2, 10, 100, 0.5, 1.5):
+        for n in (2, 10, 0.5, 1.5):
             with tempfile.TemporaryDirectory() as out, self.subTest(n=n):
                 patcher.set_island_frequency_multiplier(n)
                 patcher._write_island_frequency_choice(Path(out), [public["vv3_children_play"]])
@@ -242,10 +242,10 @@ class Setting(unittest.TestCase):
         parser = argparse.ArgumentParser()
         patcher._add_check_logs_arg(parser)
         self.assertIsNone(parser.parse_args([]).island_frequency_multiplier)
-        for n in ("2", "10", "100", "1", "0.5"):
+        for n in ("2", "10", "1", "0.5"):
             self.assertEqual(parser.parse_args(["--island-frequency-multiplier", n]).island_frequency_multiplier,
                              float(n))
-        for bad in ("0", "101", "0.05"):
+        for bad in ("0", "10.1", "100", "101", "0.05"):
             with self.subTest(value=bad), self.assertRaises(SystemExit):
                 parser.parse_args(["--island-frequency-multiplier", bad])
 
@@ -291,13 +291,13 @@ class GameMechanics(unittest.TestCase):
     def test_every_game_and_setting(self) -> None:
         import vv_game_mechanics_events as ev
         expected = {(1, b"2"): "6 hours to 11 hours 30 minutes", (2, b"2"): "5 hours to 9 hours 30 minutes",
-                    (4, b"100"): "4 minutes 48 seconds to 9 minutes", (5, b"100"): "4 minutes 48 seconds to 9 minutes",
-                    (1, b"100"): "7 minutes 12 seconds to 13 minutes 48 seconds"}
+                    (4, b"10"): "48 minutes to 1 hour 30 minutes", (5, b"100"): "48 minutes to 1 hour 30 minutes",
+                    (1, b"10"): "1 hour 12 minutes to 2 hours 18 minutes"}
         for (game, setting), words in expected.items():
             with self.subTest(game=game, setting=setting):
                 self.assertIn(words, self.facts(game, True, setting)[1])
         # No file: the number set on its slider.
-        self.assertIn("divided by the number set on its slider (0.1 to 100;", self.facts(4, True, None)[1])
+        self.assertIn("divided by the number set on its slider (0.1 to 10;", self.facts(4, True, None)[1])
         # Less often below 1: A New Home at x 0.5, 24 to 46 hours.
         self.assertIn("0.5 times as often", self.facts(1, True, b"0.5")[1])
         self.assertIn("24 hours to 46 hours", self.facts(1, True, b"0.5")[1])

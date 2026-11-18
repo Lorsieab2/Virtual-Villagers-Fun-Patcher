@@ -7,7 +7,7 @@
    bytes at the normal 2 and ships this companion, which makes each of the two meals take 2 x N food ON AVERAGE: the
    whole part every time and one more food with the chance of the rest (x 0.3 = 0.6 food: 1 food six times in ten,
    else none; x 1.7 = 3.4 food: 3, and a fourth four times in ten).  N is read at start from "VVFP Meal Scale.txt"
-   in the patcher's folder (native/shared/multiplier_choice.h, tenths); 65 to 100 count as 64, as the bytes do.
+   in the patcher's folder (native/shared/multiplier_choice.h, tenths); above 10 counts as 10.
 
    HOW.  The two meal instructions of each game's meal routine (the same routine live and while catching up):
      A New Home         0x42ECCC 0x42ED03   add dword [eax + 0xA2EC], -2       (83 80 EC A2 00 00 FE)
@@ -33,7 +33,7 @@
 #define MS_CHOICE_FILE "VVFP Meal Scale.txt"
 #define MS_DEFAULT 20u                   /* 2, the slider's default, in tenths: whole food, nothing to do */
 #define MS_MINIMUM 1u                    /* 0.1 */
-#define MS_MAXIMUM 1000u                 /* 100 */
+#define MS_MAXIMUM 100u                  /* 10 (the owner, 2026-11-17: every slider capped at 10) */
 #define MS_BYTE_LIMIT 640u               /* 64: the most the meal bytes hold, and so the most here too */
 #define MS_SITE_BYTES 7
 

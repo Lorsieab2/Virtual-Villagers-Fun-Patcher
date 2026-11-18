@@ -112,7 +112,7 @@ def frequency_id(game: int) -> str:
 
 def frequency_multiplier(village) -> int | float | None:
     """The N the game's "VVFP Island Frequency.txt" holds (beside its companion, in the patcher's folder next to the
-    game's exe), read as the companion reads it (native/shared/multiplier_choice.h): 0.1 to 100 in tenths (above 100
+    game's exe), read as the companion reads it (native/shared/multiplier_choice.h): 0.1 to 10 in tenths (above 100
     is 100, below 0.1 is 0.1), 2 with no number; an int when whole; None when the exe is not known or the file cannot
     be read."""
     import patcher_files
@@ -134,7 +134,7 @@ def frequency_multiplier(village) -> int | float | None:
     tenth = rest[1] if rest[:1] == "." and rest[1:2].isdigit() and rest[1:2].isascii() else ""
     if not digits and not tenth:
         return 2
-    tenths = max(1, min(1000, int(digits[:6] or "0") * 10 + int(tenth or "0")))
+    tenths = max(1, min(100, int(digits[:6] or "0") * 10 + int(tenth or "0")))
     return tenths // 10 if tenths % 10 == 0 else tenths / 10
 
 
@@ -159,7 +159,7 @@ def frequency_words(village) -> str:
     n = frequency_multiplier(village)
     if n is None:
         effect = (f"each wait after an event ({k} to {2 * k - 1} hours) is divided by the number set on its slider "
-                  "(0.1 to 100; below 1 the wait is longer), so the game's own events come that many times as often; "
+                  "(0.1 to 10; below 1 the wait is longer), so the game's own events come that many times as often; "
                   "the first events' minutes are unchanged")
     else:
         tenths = round(n * 10)

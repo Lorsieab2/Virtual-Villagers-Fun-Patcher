@@ -339,11 +339,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each believer's meal, and the difficulty's extra, "
-                                        "take 0.1 to 100 times the food (the slider, 1 the normal game; at most 64 "
+                                        "take 0.1 to 10 times the food (the slider, 1 the normal game; at most 64 "
                                         "times; a number like 0.3 on "
                                         "average); food never goes below 0"))
     if village.has(CLASSIC) is not False:
-        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 0.1-100x "
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 0.1-10x "
                                          "Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved "
                                          "together; each one's own line on this page says what it changes"))
 
@@ -545,6 +545,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     out.extend(faith.lines(village))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 

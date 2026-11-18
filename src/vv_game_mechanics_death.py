@@ -693,7 +693,7 @@ def facts(village: gm.Village, **kw) -> list[gm.Fact]:
 
 
 def sickness_multiplier_in_game(village: gm.Village) -> int | float | None:
-    """0.1-100x Sickness's multiplier in the game's executable: N (0.1 to 100 in tenths; an int when whole) when each
+    """0.1-10x Sickness's multiplier in the game's executable: N (0.1 to 10 in tenths; an int when whole) when each
     of the roll's moduli holds round(stock / N) at the sites its build has (scripts/build_sickness_features.py); None
     when it cannot be read."""
     import json
@@ -709,7 +709,7 @@ def sickness_multiplier_in_game(village: gm.Village) -> int | float | None:
     except (OSError, ValueError):
         return None
     for rows in record["sickness_multiplier"]["sites"].values():
-        # The N, in tenths, that gives every one of the rolls' moduli (0.1 to 100; two neighbours can round alike:
+        # The N, in tenths, that gives every one of the rolls' moduli (0.1 to 10; two neighbours can round alike:
         # then the number is not told).
         found = set(range(1, 1001))
         for row in rows:
@@ -734,7 +734,7 @@ def sickness_patch_facts(village: gm.Village) -> list[gm.Fact]:
         n = sickness_multiplier_in_game(village) if village.has(slider) is True else None
         out.append(gm.Fact(DEATH, gm.patch_words(village, slider, (
             f"every natural chance of falling sick is "
-            f"{f'{n} times as large' if n else '0.1 to 100 times as large (the number set on its slider)'}: each "
+            f"{f'{n} times as large' if n else '0.1 to 10 times as large (the number set on its slider)'}: each "
             "Medicine level's roll and the old villagers' extra roll, at every difficulty"
             # (Only The Tree of Life and New Believers have "Sickness works like VV1-3".)
             + (f", and the rolls of \"{gm.feature_name(f'vv{game}_sickness_like_vv3')}\" when the game has that too"

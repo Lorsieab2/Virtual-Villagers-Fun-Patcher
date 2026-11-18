@@ -1,0 +1,73 @@
+{
+  "id": "vv1_food_gain",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Food Gained per Food Source",
+  "description": "Each food source gives more or less food each time: 0.1 to 10 times its normal food, as you choose with the Food Gained per Food Source slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too); the rest of a whole food is a chance, so on average it is exact. The sources: berries, crab, crops, fish, mushroom, the Golden Child's +150 food. What the source itself loses is the game's own, and so is every other food gain: island events, puzzles' and messages' rewards, purchases and cheats. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Food Gain.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Food Gain.txt\"; nothing is written to a save.",
+  "output_tag": "Food Gain",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "Food Gained per Food Source: the companion's sites 0x43AD8C, 0x43AECD, 0x43AF3C, 0x43AF8E, 0x43AFF7, 0x43B09B (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Food Gain.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/food_gain/VVFP Food Gain.dll",
+      "destination": "VVFP Food Gain.dll",
+      "sha256": "45AE3AA7E16160342D5AA4E07D1DF2083369C59274D4F035462A9134D338189F"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x43AD8C",
+      "stock_bytes": "E8AF23FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "berries: the call of the food writer 0x41D140 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43AECD",
+      "stock_bytes": "E86E22FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "crops: the call of the food writer 0x41D140 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43AF3C",
+      "stock_bytes": "E8FF21FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "fish: the call of the food writer 0x41D140 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43AF8E",
+      "stock_bytes": "E8AD21FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "crab: the call of the food writer 0x41D140 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43AFF7",
+      "stock_bytes": "E84421FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "mushroom: the call of the food writer 0x41D140 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43B09B",
+      "stock_bytes": "E8A020FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Golden Child's +150 food: the call of the food writer 0x41D140 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

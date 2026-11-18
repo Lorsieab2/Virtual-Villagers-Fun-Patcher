@@ -1,4 +1,4 @@
-"""0.1-100x Sickness (all five games) and Sickness works like VV1-3 (The Tree of Life, New Believers).  The traces are in
+"""0.1-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree of Life, New Believers).  The traces are in
 scripts/build_sickness_features.py.
 
   * The rewritten roll, run in unicorn with the game's helpers stubbed (the game-state getter, rand, the Medicine
@@ -6,7 +6,7 @@ scripts/build_sickness_features.py.
     state with no Aromatherapy: the highest rand result that still makes a villager sick is k x m, m = 1 + (fire out)
     + (Hard); Easy's "not sick" half the time, an existing sickness and the old villagers' roll as stock.
   * The stock VV4 / VV5 roll gives m = 1 always (the reason for the patch).
-  * 0.1-100x Sickness writes round(n / N) at the right sites, stock or with the rewritten roll, and stacks.
+  * 0.1-10x Sickness writes round(n / N) at the right sites, stock or with the rewritten roll, and stacks.
 """
 from __future__ import annotations
 
@@ -154,7 +154,7 @@ class Slider(unittest.TestCase):
             record = json.loads((ROOT / "data" / f"vv{game}_sickness_multiplier_feature.json").read_text("utf-8"))
             for ids in variants:
                 sites = record["sickness_multiplier"]["sites"]["stock" if len(ids) == 1 else ids[1]]
-                for n in (2, 3, 10, 100):
+                for n in (2, 3, 10):
                     data, applied = patcher.render_patched_bytes(stock, builds[f"vv{game}"], "stock", ids)
                     patcher.apply_sickness_multiplier(data, f"vv{game}", n, applied, set(ids))
                     with self.subTest(game=game, ids=ids, n=n):

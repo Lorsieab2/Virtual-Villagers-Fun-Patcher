@@ -402,7 +402,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_save_layout", set()),
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
             ("vv_game_mechanics", {"vv_tribe_rename",
-                                   "vv_game_mechanics_tech_time",  # 0.1-100x Tech Cost: the multiplier read from the exe (function-level)
+                                   "vv_game_mechanics_tech_time",  # 0.1-10x Tech Cost: the multiplier read from the exe (function-level)
                                    "vv_last_names",    # the villagers, as Last Names reads them (function-level)
                                    "vv_game_mechanics_counts",  # the Village counts group (function-level)
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
@@ -502,7 +502,10 @@ class ReleasesLinkTests(unittest.TestCase):
                                         "vv_game_mechanics_tech_time",
                                         # Each villager's skills where the saved entry keeps them (function-level;
                                         # the Cooking Pit and Hand of Bloom estimates, 2026-11-08).
-                                        "vv_corrupt_skills"}),
+                                        "vv_corrupt_skills",
+                                        # The meal companion's number beside it, in the patcher's folder
+                                        # (function-level; the Hungrier Villagers line, 2026-11-17).
+                                        "patcher_files"}),
             ("vv_game_mechanics_farmers", set()),
             *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).

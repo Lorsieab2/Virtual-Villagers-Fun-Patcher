@@ -76,12 +76,16 @@ from vv_fun_patcher import (
     LOUDER_FLUTES_MULTIPLIER_RANGE,
     ISLAND_FREQUENCY_MULTIPLIER_DEFAULT,
     ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+    RUNTIME_SLIDER_DEFAULT,
+    RUNTIME_SLIDER_RANGE,
+    RUNTIME_SLIDERS,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     multiplier_text,
     parse_multiplier,
     set_louder_flutes_multiplier,
     set_island_frequency_multiplier,
+    set_runtime_slider_multiplier,
     set_unicode_font_face,
     set_unicode_font_file,
     unicode_font_file,
@@ -145,7 +149,7 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 #
 # Matched by exact id rather than by substring or display name, so a future
 # patch whose name merely mentions learning is not excluded by accident.
-# 0.1-100x Tech Cost, one row per game: only ever ticked by the player's own
+# 0.1-10x Tech Cost, one row per game: only ever ticked by the player's own
 # click on it (the owner, 2026-11-06: "7 should be default off for
 # everything. players who want it must explicitly choose it.").
 TECH_COST_MULTIPLIER_FUN_PATCH_IDS = ["vv%d_tech_cost_multiplier" % game for game in range(1, 6)]
@@ -259,6 +263,9 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
+# The rows of the 0.1x-10x sliders (all five games): the owner, 2026-11-17.
+NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in range(1, 6)]
+
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
@@ -289,7 +296,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-    # 0.1-100x Tech Cost (all five games) makes the game super hard: the owner
+    # 0.1-10x Tech Cost (all five games) makes the game super hard: the owner
     # (2026-11-06): "Default OFF", and "players who want it must explicitly
     # choose it" -- so Owner's Defaults and Select All leave it off too
     # (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS, SELECT_ALL_OFF_FUN_PATCH_IDS).
@@ -299,14 +306,14 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Believers): a difficulty change too, so off by default; Owner's Defaults
     # ticks it like every default-off patch it does not name.
     + ["vv4_science_collectibles_complete", "vv5_science_collectibles_complete"]
-    # Hungrier Villagers (0.1-100x Meals) (all five games): a difficulty change,
+    # Hungrier Villagers (0.1-10x Meals) (all five games): a difficulty change,
     # off by default; Owner's Defaults ticks it like every default-off patch
     # it does not name.
     + ["vv%d_hungrier_villagers" % game for game in range(1, 6)]
     # Classic VV Difficulty (The Tree of Life, New Believers): ticks the
     # harder-game patches; off by default. The owner (2026-11-07): "have the
     # classic vv difficulty on default for owner's defaults! (set the sliders
-    # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (0.1-100x Tech
+    # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (0.1-10x Tech
     # Cost included, there), and sets both sliders to 2.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Collectible Spawn Timing works like VV1-3 (The Tree of Life): a
@@ -315,7 +322,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Harder Fishing Unlock in VV4 (The Tree of Life, the owner 2026-11-08:
     # "Default ON in Owner's Defaults"), in Classic VV Difficulty.
     + ["vv4_harder_fishing_unlock"]
-    # 0.1-100x Sickness (all five games) and Sickness works like VV1-3 (The Tree
+    # 0.1-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree
     # of Life, New Believers; in Classic VV Difficulty): the owner
     # (2026-11-08): off by default, Owner's Defaults ticks both.
     + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
@@ -356,6 +363,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # More Frequent Island Events (all five games; the owner, 2026-11-15: new v1.35.97 patches are on in Owner's
     # Defaults, off everywhere else) -- off here and in Select All.
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # The 0.1x-10x sliders' rows (the owner, 2026-11-17; new v1.35.97 patches are on in Owner's Defaults, off
+    # everywhere else) -- off here and in Select All.
+    + NEW_SLIDER_ROW_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -392,7 +402,7 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
-    # 0.1-100x Tech Cost is NOT here: the owner (2026-11-07), after Classic VV
+    # 0.1-10x Tech Cost is NOT here: the owner (2026-11-07), after Classic VV
     # Difficulty ticked it in The Tree of Life and New Believers: "sure,
     # default them on in vv1-3 too!" -- Owner's Defaults ticks it in all five
     # games, with the slider at 2.
@@ -419,9 +429,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # separate "- Modded 256" game with its own save folder and save format.
 SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-    # The owner (2026-11-06): 0.1-100x Tech Cost is ticked only by its own row.
+    # The owner (2026-11-06): 0.1-10x Tech Cost is ticked only by its own row.
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
-    # Classic VV Difficulty would tick 0.1-100x Tech Cost through its dependencies.
+    # Classic VV Difficulty would tick 0.1-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
@@ -432,6 +442,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # The 0.1x-10x sliders' rows: likewise (the owner, 2026-11-17).
+    + NEW_SLIDER_ROW_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -515,7 +527,7 @@ def saved_multiplier(settings: dict, key: str, multipliers, default):
 
 
 def saved_tech_cost_multiplier(settings: dict):
-    """The 0.1-100x Tech Cost multiplier a settings file holds (saved_multiplier; default 3)."""
+    """The 0.1-10x Tech Cost multiplier a settings file holds (saved_multiplier; default 3)."""
     return saved_multiplier(settings, "tech_cost_multiplier", TECH_COST_MULTIPLIER_RANGE, TECH_COST_MULTIPLIER_DEFAULT)
 
 
@@ -525,7 +537,7 @@ def saved_meal_multiplier(settings: dict):
 
 
 def saved_sickness_multiplier(settings: dict):
-    """0.1-100x Sickness's multiplier a settings file holds (saved_multiplier; default 2)."""
+    """0.1-10x Sickness's multiplier a settings file holds (saved_multiplier; default 2)."""
     return saved_multiplier(settings, "sickness_multiplier", SICKNESS_MULTIPLIER_RANGE, SICKNESS_MULTIPLIER_DEFAULT)
 
 
@@ -541,17 +553,75 @@ def saved_island_frequency_multiplier(settings: dict):
                             ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
 
 
+def saved_runtime_slider_multiplier(settings: dict, key: str):
+    """A 0.1x-10x slider's number a settings file holds (saved_multiplier, "<key>_multiplier"; default 1)."""
+    return saved_multiplier(settings, f"{key}_multiplier", RUNTIME_SLIDER_RANGE, RUNTIME_SLIDER_DEFAULT)
+
+
+# The sliders' labels (the owner, 2026-11-17: "-10 to 10" is JUST THE LABEL -- 10 is x 10, -10 the opposite, a
+# tenth, the middle the normal game; nothing is truly negative).  A multiplier of 1 or more is shown as itself ("2",
+# "10"); below 1 as minus what it divides by ("-2" is half, "-10" a tenth).  The number kept, saved, written beside
+# a companion and given on the command line is the multiplier itself (0.1 to the maximum in tenths), so saved
+# settings keep their effect; every tenth below 1 reads back as itself (0.3 is "-3.3", which is 0.3 again).
+def multiplier_label(value) -> str:
+    """A slider's label for a multiplier: "2" for x 2, "-2" for half, "1" the normal game."""
+    if value >= 1:
+        return multiplier_text(value)
+    divisor = round(1 / value, 1)
+    return "-" + (str(int(divisor)) if divisor == int(divisor) else f"{divisor:g}")
+
+
+# The Difficulty Sliders page (the owner, 2026-11-18: every slider on its own page, grouped by game, the patch's
+# name beside each; the patch rows stay on the main page).  Each entry: the App's variable (None: a 0.1x-10x slider,
+# found by its help key), its range, its "?" guide (also its settings key) and the row it belongs to in each game.
+DIFFICULTY_SLIDERS_TITLE = "Difficulty Sliders"
+DIFFICULTY_SLIDERS_BUTTON = "Difficulty Sliders..."
+DIFFICULTY_SLIDERS_INTRO = (
+    "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One "
+    "number is shared by every game that has its patch, and it is used only while that patch is ticked on the main "
+    "page. Patch again after changing a slider.")
+DIFFICULTY_SLIDER_OFF_NOTE = "(its patch is not ticked)"
+# Every line above, and the page's "?" guide, is shown in the player's language (the template rows
+# vvfp.gui/difficulty_sliders.*, scripts/build_patch_text_inventory.py).
+
+
+def gui_text(english: str, game=None) -> str:
+    """A line of the patcher window in the language the player chose (for `game`, else the first game that has
+    one; vv_translations.display_text), or the English itself."""
+    import vv_translations
+    for number in ((game,) if game is not None else range(1, 6)):
+        shown = vv_translations.display_text(number, english)
+        if shown != english:
+            return shown
+    return english
+DIFFICULTY_SLIDERS = (
+    ("tech_cost_var", TECH_COST_MULTIPLIER_RANGE, "tech_cost_multiplier", "_tech_cost_multiplier"),
+    ("meal_var", MEAL_MULTIPLIER_RANGE, "meal_multiplier", "_hungrier_villagers"),
+    ("sickness_var", SICKNESS_MULTIPLIER_RANGE, "sickness_multiplier", "_sickness_multiplier"),
+    ("louder_flutes_var", LOUDER_FLUTES_MULTIPLIER_RANGE, "louder_flutes_multiplier", "_louder_wind_flutes"),
+    ("island_frequency_var", ISLAND_FREQUENCY_MULTIPLIER_RANGE, "island_frequency_multiplier",
+     "_more_frequent_island_events"),
+) + tuple((None, RUNTIME_SLIDER_RANGE, f"{slider.key}_multiplier", slider.row_suffix) for slider in RUNTIME_SLIDERS)
+
+
 def typed_multiplier(text: str, multipliers):
-    """A slider's type-in box: the number typed ("0.5", ".5", "2", "2x"), rounded to a tenth and kept within the
-    slider's range (0.1 to its maximum), or None when nothing like a number was typed (the box then shows the
-    slider's number again)."""
+    """A slider's type-in box: the label typed ("2", "-2", "2x", "1,5"; see multiplier_label) as the multiplier it
+    stands for, rounded to a tenth and kept within the slider's range (0.1 to its maximum), or None when nothing like
+    a number was typed (the box then shows the slider's label again).  -1 to 0 is the middle, the normal game; a
+    fraction typed (0.5) is taken as that multiplier, as before the labels."""
     value = parse_multiplier(text)
-    return None if value is None else multipliers.clamp(value)
+    if value is None:
+        return None
+    if value <= -1:
+        value = 1 / -value
+    elif value <= 0:
+        value = 1
+    return multipliers.clamp(value)
 
 
-# The sliders run on a logarithmic track (the owner, 2026-11-17: 0.1x to 100x, 1x the normal game): 1,000 steps from
-# 0.1 to the maximum, so the small numbers are as easy to pick as the large ones and 1 sits a third of the way along
-# a 0.1-100 slider.  The track's step is only where the knob is; the number is always the one in the box beside it.
+# The sliders run on a logarithmic track (the owner, 2026-11-17: 0.1x to 10x, -10 to 10 on the label, 1x the normal
+# game): 1,000 steps from 0.1 to 10, so the small numbers are as easy to pick as the large ones and 1 sits in the
+# middle.  The track's step is only where the knob is; the number is always the one in the box beside it.
 SLIDER_STEPS = 1000
 
 
@@ -1530,7 +1600,7 @@ class App(tk.Tk):
             # "Can you make the check logs automatically default on?"); a
             # per-install choice, written into each game built from now on.
             self.check_logs_var = tk.BooleanVar(value=True)
-            # 0.1-100x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
+            # 0.1-10x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
             # about a slider? 2-10x Tech Cost"): a whole number 2 to 100, 3 unless moved; written into each game
             # built with that row ticked.
             # Every multiplier slider goes from 0.1 to its maximum in tenths (the owner, 2026-11-17: "less as well
@@ -1538,7 +1608,7 @@ class App(tk.Tk):
             self.tech_cost_var = tk.DoubleVar(value=TECH_COST_MULTIPLIER_DEFAULT)
             # Hungrier Villagers' multiplier, the second slider (the owner, 2026-11-07): 2 unless moved.
             self.meal_var = tk.DoubleVar(value=MEAL_MULTIPLIER_DEFAULT)
-            # 0.1-100x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 unless moved.
+            # 0.1-10x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 unless moved.
             self.sickness_var = tk.DoubleVar(value=SICKNESS_MULTIPLIER_DEFAULT)
             # Louder Wind Flutes' multiplier (The Tree of Life; the owner, 2026-11-15: "control how loud the wind
             # flutes are too! (same slider)"): 5 unless moved; written beside its companion.
@@ -1546,6 +1616,10 @@ class App(tk.Tk):
             # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 unless moved;
             # written beside its companion.
             self.island_frequency_var = tk.DoubleVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+            # The 0.1x-10x sliders (all five games; the owner, 2026-11-17): 1 unless moved; each written beside its
+            # companion.
+            self.runtime_slider_vars = {slider.key: tk.DoubleVar(value=RUNTIME_SLIDER_DEFAULT)
+                                        for slider in RUNTIME_SLIDERS}
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -1852,26 +1926,22 @@ class App(tk.Tk):
         unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
         unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
         self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
-        # The multiplier sliders (each only used with its row ticked): 0.1 to the maximum on a logarithmic track
-        # (SLIDER_STEPS), 1 the normal game, with a box beside each to type the number in (the owner, 2026-11-15)
-        # that also shows it.
-        self.tech_cost_scale, self.tech_cost_box = self._multiplier_slider(
-            fun_settings, "0.1-100x Tech Cost:", self.tech_cost_var, TECH_COST_MULTIPLIER_RANGE, "tech_cost_multiplier")
-        self.meal_scale, self.meal_box = self._multiplier_slider(
-            fun_settings, "Hungrier Villagers:", self.meal_var, MEAL_MULTIPLIER_RANGE, "meal_multiplier")
-        self.sickness_scale, self.sickness_box = self._multiplier_slider(
-            fun_settings, "0.1-100x Sickness:", self.sickness_var, SICKNESS_MULTIPLIER_RANGE, "sickness_multiplier")
-        self.louder_flutes_scale, self.louder_flutes_box = self._multiplier_slider(
-            fun_settings, "Louder Wind Flutes:", self.louder_flutes_var, LOUDER_FLUTES_MULTIPLIER_RANGE,
-            "louder_flutes_multiplier")
+        # The multiplier sliders live on their own page, Difficulty Sliders (the owner, 2026-11-18): the patch rows
+        # stay here, and this button opens the page (_open_difficulty_sliders).
+        sliders_group = ttk.Frame(fun_settings)
+        sliders_group.pack(side="left", padx=(0, 16))
+        ttk.Button(sliders_group, text=gui_text(DIFFICULTY_SLIDERS_BUTTON),
+                   command=self._open_difficulty_sliders).pack(side="left")
+        self._help_button(sliders_group, "difficulty_sliders").pack(side="left", padx=(2, 0))
         # What patches use follows the slider, whichever way it is moved (slider, box, settings, Owner's Defaults).
         self.louder_flutes_var.trace_add("write", lambda *_args: self._louder_flutes_changed())
         self._louder_flutes_changed()       # the saved number, loaded before the window was built
-        self.island_frequency_scale, self.island_frequency_box = self._multiplier_slider(
-            fun_settings, "More Frequent Island Events:", self.island_frequency_var, ISLAND_FREQUENCY_MULTIPLIER_RANGE,
-            "island_frequency_multiplier")
         self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())
         self._island_frequency_changed()    # the saved number, loaded before the window was built
+        for slider in RUNTIME_SLIDERS:
+            variable = self.runtime_slider_vars[slider.key]
+            variable.trace_add("write", lambda *_args, key=slider.key: self._runtime_slider_changed(key))
+            self._runtime_slider_changed(slider.key)    # the saved number, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -2781,6 +2851,7 @@ class App(tk.Tk):
     def _fun_patch_changed(self) -> None:
         self._apply_gui_dependency_selection()
         refresh_conflict_rows(self)
+        App._refresh_difficulty_sliders(self)
         self._selected_fun_patch_ids()
         selected = [
             patch.name
@@ -2830,6 +2901,9 @@ class App(tk.Tk):
         # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+        # The 0.1x-10x sliders at 1, the normal game (their rows are ticked there; the owner, 2026-11-17).
+        for variable in getattr(self, "runtime_slider_vars", {}).values():
+            variable.set(RUNTIME_SLIDER_DEFAULT)
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -2863,6 +2937,67 @@ class App(tk.Tk):
         search_var, listing, rows = self.patch_searches[page_name]
         term = search_var.get()
         listing.set_rows([row for row in rows if patch_name_matches(row[0], term)])
+
+    def _difficulty_variable(self, name: str, help_key: str):
+        """A Difficulty Sliders entry's number: the App's own variable (the five older sliders) or the 0.1x-10x
+        slider's (by its help key, "<key>_multiplier")."""
+        if name:
+            return getattr(self, name)
+        return self.runtime_slider_vars[help_key.removesuffix("_multiplier")]
+
+    def _open_difficulty_sliders(self) -> None:
+        """The Difficulty Sliders page (the owner, 2026-11-18): every slider, grouped by game, the patch's name beside
+        each.  One number per slider is shared by every game that has its patch (the same variable, saved as
+        before); a slider whose patch is not ticked in that game is greyed out, with a note."""
+        existing = getattr(self, "_difficulty_sliders_dialog", None)
+        if existing is not None and existing.winfo_exists():
+            existing.deiconify()
+            existing.lift()
+            existing.focus_set()
+            return
+        title = gui_text(DIFFICULTY_SLIDERS_TITLE)
+        dialog, frame = self._scrolling_dialog(title)
+        self._difficulty_sliders_dialog = dialog
+        ttk.Label(frame, text=title, font=("Segoe UI", 10, "bold"), wraplength=560).pack(anchor="w")
+        ttk.Label(frame, text=gui_text(DIFFICULTY_SLIDERS_INTRO), wraplength=560, justify="left").pack(anchor="w",
+                                                                                                     pady=(4, 6))
+        by_id = {patch.id: patch for patch in self.fun_patches}
+        self._difficulty_slider_rows = []
+        for build in self.builds:
+            entries = [(spec, by_id[build.id + spec[3]]) for spec in DIFFICULTY_SLIDERS if build.id + spec[3] in by_id]
+            if not entries:
+                continue
+            group = ttk.LabelFrame(frame, text=build.title.removeprefix("Virtual Villagers - "))
+            group.pack(fill="x", pady=(6, 0))
+            for (name, multipliers, help_key, _suffix), patch in entries:
+                line = ttk.Frame(group)
+                line.pack(fill="x", anchor="w", padx=6, pady=2)
+                scale, box = self._multiplier_slider(line, patch.name + ":", self._difficulty_variable(name, help_key),
+                                                     multipliers, help_key)
+                note = ttk.Label(line, text="", foreground="#666666", wraplength=300)
+                note.game = build.id
+                note.pack(side="left", padx=(8, 0))
+                self._difficulty_slider_rows.append((patch.id, scale, box, note))
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="right")
+        dialog.bind("<Escape>", lambda _event: dialog.destroy())
+        App._refresh_difficulty_sliders(self)
+
+    def _refresh_difficulty_sliders(self) -> None:
+        """Grey out each Difficulty Sliders entry whose patch is not ticked in its game, with a note."""
+        rows = getattr(self, "_difficulty_slider_rows", [])
+        for patch_id, scale, box, note in list(rows):
+            try:
+                if not scale.winfo_exists():
+                    rows.remove((patch_id, scale, box, note))
+                    continue
+                on = bool(self.fun_patch_vars[patch_id].get())
+                scale.configure(state="normal" if on else "disabled")
+                box.state(["!disabled"] if on else ["disabled"])
+                note.configure(text="" if on else gui_text(DIFFICULTY_SLIDER_OFF_NOTE, getattr(note, "game", None)))
+            except tk.TclError:
+                rows.remove((patch_id, scale, box, note))
 
     def _open_patch_selection_settings(self) -> None:
         """The owner: "a button to easily tick and untick certain patches in all 5 games. like in
@@ -2998,6 +3133,8 @@ class App(tk.Tk):
             self.louder_flutes_var.set(saved_louder_flutes_multiplier(data))
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(saved_island_frequency_multiplier(data))
+        for key, variable in getattr(self, "runtime_slider_vars", {}).items():
+            variable.set(saved_runtime_slider_multiplier(data, key))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -3050,6 +3187,7 @@ class App(tk.Tk):
             "island_frequency_multiplier": (App._island_frequency_multiplier(self)
                                             if hasattr(self, "island_frequency_var")
                                             else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT),
+            **{f"{slider.key}_multiplier": App._runtime_slider_number(self, slider.key) for slider in RUNTIME_SLIDERS},
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -3074,28 +3212,37 @@ class App(tk.Tk):
         return default if value is None else value
 
     def _tech_cost_multiplier(self):
-        """The 0.1-100x Tech Cost slider's number, kept within 0.1 to 100."""
+        """The 0.1-10x Tech Cost slider's number, kept within 0.1 to 10."""
         return App._slider_number(getattr(self, "tech_cost_var", None), TECH_COST_MULTIPLIER_RANGE,
                                   TECH_COST_MULTIPLIER_DEFAULT)
 
     def _meal_multiplier(self):
-        """The Hungrier Villagers slider's number, kept within 0.1 to 100."""
+        """The Hungrier Villagers slider's number, kept within 0.1 to 10."""
         return App._slider_number(getattr(self, "meal_var", None), MEAL_MULTIPLIER_RANGE, MEAL_MULTIPLIER_DEFAULT)
 
     def _sickness_multiplier(self):
-        """The 0.1-100x Sickness slider's number, kept within 0.1 to 100."""
+        """The 0.1-10x Sickness slider's number, kept within 0.1 to 10."""
         return App._slider_number(getattr(self, "sickness_var", None), SICKNESS_MULTIPLIER_RANGE,
                                   SICKNESS_MULTIPLIER_DEFAULT)
 
     def _louder_flutes_multiplier(self):
-        """The Louder Wind Flutes slider's number, kept within 0.1 to 100."""
+        """The Louder Wind Flutes slider's number, kept within 0.1 to 10."""
         return App._slider_number(getattr(self, "louder_flutes_var", None), LOUDER_FLUTES_MULTIPLIER_RANGE,
                                   LOUDER_FLUTES_MULTIPLIER_DEFAULT)
 
     def _island_frequency_multiplier(self):
-        """The More Frequent Island Events slider's number, kept within 0.1 to 100."""
+        """The More Frequent Island Events slider's number, kept within 0.1 to 10."""
         return App._slider_number(getattr(self, "island_frequency_var", None), ISLAND_FREQUENCY_MULTIPLIER_RANGE,
                                   ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+    def _runtime_slider_number(self, key: str):
+        """A 0.1x-10x slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "runtime_slider_vars", {}).get(key), RUNTIME_SLIDER_RANGE,
+                                  RUNTIME_SLIDER_DEFAULT)
+
+    def _runtime_slider_changed(self, key: str) -> None:
+        """A 0.1x-10x slider moved: the next patch writes its number beside its companion."""
+        set_runtime_slider_multiplier(key, App._runtime_slider_number(self, key))
 
     def _island_frequency_changed(self) -> None:
         """The More Frequent Island Events slider moved: the next patch writes its number beside the companion."""
@@ -3127,13 +3274,27 @@ class App(tk.Tk):
             if value is not None and slider_value(position.get(), multipliers) != value:
                 position.set(slider_position(value, multipliers))
 
+        # The track's two ends, as labels (the owner, 2026-11-17: "-10 to 10"): the smallest and the largest.
+        ttk.Label(group, text=multiplier_label(multipliers[0])).pack(side="left")
         scale = tk.Scale(group, variable=position, orient="horizontal", from_=0, to=SLIDER_STEPS, resolution=1,
                          length=120, showvalue=False, command=moved)
         scale.pack(side="left")
-        variable.trace_add("write", follow)
+        ttk.Label(group, text=multiplier_label(multipliers[-1])).pack(side="left")
+        follow_id = variable.trace_add("write", follow)
         scale.position = position
         box = self._multiplier_box(group, variable, multipliers)
         self._help_button(group, help_key).pack(side="left", padx=(2, 0))
+
+        def forget(event) -> None:
+            # A page closed: its copies stop following the number (the number itself stays, shared).
+            if event.widget is group:
+                for trace in (follow_id, box.trace_id):
+                    try:
+                        variable.trace_remove("write", trace)
+                    except (tk.TclError, ValueError):
+                        pass
+
+        group.bind("<Destroy>", forget, add="+")
         return scale, box
 
     def _multiplier_box(self, group, variable, multipliers) -> ttk.Entry:
@@ -3148,7 +3309,7 @@ class App(tk.Tk):
         def show(*_args) -> None:
             value = App._slider_number(variable, multipliers, None)
             if value is not None:
-                text.set(multiplier_text(value))
+                text.set(multiplier_label(value))
 
         show()
 
@@ -3163,7 +3324,7 @@ class App(tk.Tk):
             if changed:
                 self._save_settings()
 
-        variable.trace_add("write", show)
+        box.trace_id = variable.trace_add("write", show)
         box.bind("<Return>", commit)
         box.bind("<KP_Enter>", commit)
         box.bind("<FocusOut>", commit)
@@ -3780,11 +3941,11 @@ class App(tk.Tk):
         window.resizable(False, False)
         frame = scrollable_frame(window, padding=16)
         ttk.Label(
-            frame, text=guide.title, font=("Segoe UI", 11, "bold"),
+            frame, text=gui_text(guide.title), font=("Segoe UI", 11, "bold"),
             wraplength=480, justify="left",
         ).pack(anchor="w", pady=(0, 8))
         for line in guide.lines:
-            ttk.Label(frame, text=line, wraplength=480, justify="left").pack(
+            ttk.Label(frame, text=gui_text(line), wraplength=480, justify="left").pack(
                 anchor="w", pady=(0, 6)
             )
         close = ttk.Button(frame, text="Close", command=window.destroy)

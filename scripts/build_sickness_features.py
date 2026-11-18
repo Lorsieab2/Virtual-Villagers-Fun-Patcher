@@ -1,7 +1,7 @@
 """Generate the two sickness patches (the owner, 2026-11-08: "bruh I'm playing on hard mode vv4 and vv5 and its still too
 easy"):
 
-  * data/vv<N>_sickness_multiplier_feature.json (all five games): "0.1-100x Sickness", a slider (0.1 to 100 in tenths, 2 unless moved; below 1 rarer)
+  * data/vv<N>_sickness_multiplier_feature.json (all five games): "0.1-10x Sickness", a slider (0.1 to 10 in tenths, 2 unless moved; below 1 rarer)
     that makes villagers fall sick N times as often; it stacks with every other patch ("sliders should stack with
     patches too!").  Its sites are written when a build is published (vv_fun_patcher.apply_sickness_multiplier), to
     the stock routine or to "Sickness works like VV1-3"'s, whichever the build has.
@@ -28,7 +28,7 @@ The Secret City's rule with no Aromatherapy.  The fire test is each game's own (
 VV5 0x51DE80 / 0x438EC0, the ones the health regain reads).  Medicine's three rolls, its old-age years and Easy are
 the stock ones.
 
-"0.1-100x SICKNESS": each roll's modulus n (its push imm32, the four rolls of each routine) becomes round(n / N): within
+"0.1-10x SICKNESS": each roll's modulus n (its push imm32, the four rolls of each routine) becomes round(n / N): within
 4.5% of N times as likely (0.2% up to x10); the smallest is 10 (the old villagers' 1,000 at x100), never 0; at x 0.1 the largest is 100,000 (A New Home's 10,000), where the game's rand scales its
 0..32,767 draw to the range, so such a roll is about 1 in N times as likely, never rarer than 1 in 32,768; and the
 game's rand takes 1 to 32,767.  Run after any change and re-run tests/test_sickness_patches.py.
@@ -182,11 +182,11 @@ def multiplier_feature(game: int) -> dict:
         "catalog_enabled": True,
         "catalog_hidden": False,
         "game_id": f"vv{game}",
-        "name": "0.1-100x Sickness",
+        "name": "0.1-10x Sickness",
         "description": (
-            "**Needs no other patch.** Off by default. Villagers fall sick 0.1 to 100 times as often as they would: "
-            "you choose how many times with the 0.1-100x Sickness slider in the patcher window (in steps of 0.1, 2 "
-            "unless you move it; type it in the box beside the slider too). 1 is the normal game; above 1 the game is "
+            "**Needs no other patch.** Off by default. Villagers fall sick 0.1 to 10 times as often as they would: "
+            "you choose how many times with the 0.1-10x Sickness slider in the patcher window (in steps of 0.1, 2 "
+            "unless you move it; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). 1 is the normal game; above 1 the game is "
             "harder, below 1 easier (at x 0.5 half as often). The rarest chances cannot go below the game's own "
             "smallest, about 1 in 32,768 a check, so at the lowest settings the rarest rolls are a little more "
             "likely than the number says. Every natural chance of falling sick is multiplied, at every Medicine "
@@ -196,7 +196,7 @@ def multiplier_feature(game: int) -> dict:
         "output_tag": "Sickness",
         "behavior_changes": [
             "The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become "
-            "round(stock / N), N the slider (0.1 to 100 in tenths): each chance about N times as large (below 1, smaller).",
+            "round(stock / N), N the slider (0.1 to 10 in tenths): each chance about N times as large (below 1, smaller).",
         ],
         "explicit_non_changes": [
             "The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and "
@@ -205,7 +205,7 @@ def multiplier_feature(game: int) -> dict:
         "evidence_status": ("implemented from exact-build disassembly; every multiplier on every site, stock and with "
                             "Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player "
                             "confirmation pending"),
-        "sickness_multiplier": {"default": DEFAULT, "minimum": 0.1, "maximum": 100, "sites": sites},
+        "sickness_multiplier": {"default": DEFAULT, "minimum": 0.1, "maximum": 10, "sites": sites},
         "companion_files": [],
         "patches": [],
     }
@@ -229,7 +229,7 @@ def like_vv3_feature(game: int) -> dict:
             "burning, three times with it out). With the fire burning on Easy or Medium nothing changes. Medicine's "
             "levels keep their own chances (the higher the level, the rarer), old villagers keep their extra chance, "
             "and Easy still lets a sickness end by itself. The Secret City's Aromatherapy, which cancels the fire's "
-            "part there, does not exist in this game. 0.1-100x Sickness multiplies these chances too."),
+            "part there, does not exist in this game. 0.1-10x Sickness multiplies these chances too."),
         "output_tag": "Sickness like VV3",
         "behavior_changes": [
             f"The natural sickness roll 0x{start:X} (its only caller the life tick) rewritten in place: m = 1 + "

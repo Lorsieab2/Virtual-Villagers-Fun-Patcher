@@ -71021,6 +71021,118 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.title",
+   "english": "Difficulty Sliders",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (its title)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.button",
+   "english": "Difficulty Sliders...",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the main page's button that opens the Difficulty Sliders page",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.intro",
+   "english": "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One number is shared by every game that has its patch, and it is used only while that patch is ticked on the main page. Patch again after changing a slider.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (the text under its title)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.off_note",
+   "english": "(its patch is not ticked)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (beside a greyed-out slider)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_1",
+   "english": "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes and the five newer ones.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 1",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_2",
+   "english": "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 2",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_3",
+   "english": "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 3",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_4",
+   "english": "One number is shared by every game that has the patch. Patch again after changing a slider.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 4",
+   "notes": "a patcher window"
   }
  ]
 }

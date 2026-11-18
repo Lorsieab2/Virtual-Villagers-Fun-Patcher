@@ -666,7 +666,7 @@ def _boost(amount: float, mastery: float) -> float:
 
 
 def meal_multiplier(village: gm.Village) -> int | float:
-    """Hungrier Villagers' (0.1-100x Meals) multiplier in the game: k when both of the row's meal sites
+    """Hungrier Villagers' (0.1-10x Meals) multiplier in the game: k when both of the row's meal sites
     (data/vv<N>_hungrier_villagers_feature.json) hold -2 x k (whole food: 0.5 to 64 in halves); when they hold the
     normal -2, the number in "VVFP Meal Scale.txt" beside the meal companion if it is one the companion acts on (2 x N
     not whole food, e.g. 0.3: 0.6 food a meal on average); else 1 -- also when the row is not known to be in the
@@ -693,11 +693,11 @@ def meal_multiplier(village: gm.Village) -> int | float:
         try:
             raw = (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / "VVFP Meal Scale.txt").read_bytes()[:15]
             whole, _, tenth = raw.decode("ascii").strip().partition(".")
-            tenths = min(int(whole or "0") * 10 + (int(tenth[:1]) if tenth[:1] else 0), 640)
+            tenths = min(int(whole or "0") * 10 + (int(tenth[:1]) if tenth[:1] else 0), 100)
         except (OSError, UnicodeDecodeError, ValueError):
             return 1
         return tenths / 10 if tenths >= 1 and tenths % 5 else 1
-    # 0.5 to 64 in halves: the slider goes to 100, but the meal's signed byte holds -128 at most (x 64).
+    # 0.5 to 10 in halves (the slider goes to 10; the owner, 2026-11-17).
     if value >= 0:
         return 1
     return -value // 2 if -value % 2 == 0 else -value / 2
@@ -880,7 +880,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         + ("; the Golden Child never eats" if any(p.golden for p in members) else "")
         + ("; Heathens outside the tribe never eat" if ctx.game == 5 else "") + ".", True, gm.SAVE)
     add(f"Eating: {ctx.food_words}"
-        + (f" With the patcher's \"Hungrier Villagers (0.1-100x Meals)\" at x{ctx.meals} in this game, every meal and "
+        + (f" With the patcher's \"Hungrier Villagers (0.1-10x Meals)\" at x{ctx.meals} in this game, every meal and "
            "extra takes that many times the food." if ctx.meals != 1 else "")
         + f" That is {per_unit:g} food a villager each age unit now, "
         f"{per_unit * units_hour:g} per real-life hour on {on} speed.", True, gm.RUNNING)

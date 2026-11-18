@@ -46,11 +46,11 @@ REMAINING = {
     "vv2_copy_paste",
     # companion only: replaces the story pages' vtable slots at run time, owns no bytes
     "vv2_skip_all_intro",
-    # 0.1-100x Tech Cost: its price immediates only, nothing of Origins.
+    # 0.1-10x Tech Cost: its price immediates only, nothing of Origins.
     "vv2_tech_cost_multiplier",
     # Hungrier Villagers: the meal's two immediates only, nothing of Origins.
     "vv2_hungrier_villagers",
-    # 0.1-100x Sickness: no render byte (written at publish), nothing of Origins.
+    # 0.1-10x Sickness: no render byte (written at publish), nothing of Origins.
     "vv2_sickness_multiplier",
     "vv2_island_events",
     "vv2_storytelling",
@@ -72,6 +72,12 @@ REMAINING = {
     "vv2_children_play",
     # companion only (the island event trigger's wait draws, at run time); owns no Origins bytes
     "vv2_more_frequent_island_events",
+    # the 0.1x-10x sliders: companion only (call sites, at run time); own no Origins bytes
+    "vv2_collectible_frequency",
+    "vv2_food_gain",
+    "vv2_tech_gain",
+    "vv2_skill_success",
+    "vv2_age_speed",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",
