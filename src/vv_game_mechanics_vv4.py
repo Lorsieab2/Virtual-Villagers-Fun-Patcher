@@ -64,7 +64,8 @@ FRUIT_PARTIAL_GAIN = FRUIT_PARTIAL_UNITS * FRUIT_PARTIAL_PER_10_UNITS // 10     
 # Cloth Sacks for Yellow Fruit ("VVFP VV4 Cloth Sacks.dll", native/vvfp_vv4_cloth_sacks): a villager dropped under the
 # Clothing Hut's awning uses one cloth bolt (0x4369F0(1) on 0x4D8AC8, as the cutting tool's 0x46E872) and brings a
 # sack of yellow fruit to the food bin: its job event pays like the harvest's event 14 (0x4644EE), the fruit, at most
-# 30 (with the limited tree, what is left), through 0x41D920 (Food Mastery).  Farmers the game sends make sacks too.
+# 30 (with the limited tree, what is left, even none), through 0x41D920 (Food Mastery).  Only a drop starts one: the
+# Farming dispatcher is never touched (farmers never harvest with a cutting tool either).
 CLOTH_SACKS = "vv4_cloth_sacks_for_yellow_fruit"
 SACK_FRUIT = 30
 
@@ -377,9 +378,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             village, CLOTH_SACKS, "an adult dropped under the Clothing Hut's awning (its left side) uses one cloth "
                                   f"bolt to make a sack and brings {food(SACK_FRUIT)} food from the yellow fruit "
                                   f"trees ({SACK_FRUIT} fruit before Food Mastery, as a blackberry harvest with a "
-                                  "cutting tool: with the limited trees, what is left when fewer); with no cloth the "
-                                  "villager refuses, and farmers who farm on their own make sacks too while there "
-                                  "is cloth" + mastery_words), gm.CODE)
+                                  "cutting tool: with the limited trees, what is left when fewer, even none); with no "
+                                  "cloth the villager refuses; only villagers you drop make sacks, farmers never do on "
+                                  "their own" + mastery_words), gm.CODE)
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
     fruit_at = fruit_next_at = None

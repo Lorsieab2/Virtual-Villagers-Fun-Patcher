@@ -632,10 +632,10 @@ cloth is used when the villager starts (a failed Farming check loses it),
 with no cloth the villager refuses ("They need cloth for this!"), and Food
 Mastery multiplies the food. A sack never goes into the stew. With Yellow
 Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30,
-or what is left), and with fewer than 3 fruit the villager refuses; without
-it every sack holds 30. Farmers who farm on their own make sacks too while
-there is cloth. The sacks are new pictures (art by Lorsieab2). Not yet tested
-in a running game.
+or what is left, even none, as a cutting tool harvests a nearly bare bush);
+without it every sack holds 30. Only villagers you drop make sacks: farmers
+never do on their own. The sacks are new pictures (art by Lorsieab2). Not yet
+tested in a running game.
 
 CUTTING TOOL HARVEST CAPTION (THE TREE OF LIFE)
 

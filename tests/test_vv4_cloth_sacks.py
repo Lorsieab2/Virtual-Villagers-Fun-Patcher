@@ -3,7 +3,7 @@
 
 Everything here runs the shipped DLLs beside The Tree of Life's own code in unicorn (tests/farmers_emulation_vv4.py,
 with the companion mapped through tests/story_emulator.py's Process).  The drop dispatcher, the fruit trip, the job
-events, the food writer (Food Mastery inside it), the Farming dispatcher and the carried item's draw are the game's
+events, the food writer (Food Mastery inside it), the Farming dispatcher (untouched) and the carried item's draw are the game's
 own routines; only rand, the clock and the two singleton getters are stand-ins (farmers_emulation_vv4.py says why
 each is safe), and for the pictures the image loader and operator new (the sprite's own loading is not the point).
 "Stock" is the same village without the companion: every behaviour test also shows the stock game does not do it.
@@ -77,24 +77,6 @@ def render(mode: str) -> bytes:
     return bytes(data)
 
 
-class _Rolls(dict):
-    """farmers_emulation_vv4's forced rand(n) answers by return address, plus every rand the companion (mapped at
-    0x10000000) draws answered by the hut's dll_rand when it is set."""
-
-    def __init__(self, hut: "Hut"):
-        super().__init__()
-        self.hut = hut
-
-    def _ours(self, caller: int) -> bool:
-        return self.hut.dll_rand is not None and 0x10000000 <= caller < 0x11000000
-
-    def __contains__(self, caller) -> bool:
-        return self._ours(caller) or dict.__contains__(self, caller)
-
-    def __getitem__(self, caller):
-        return self.hut.dll_rand if self._ours(caller) else dict.__getitem__(self, caller)
-
-
 class Hut:
     """A Tree of Life village with the Clothing Hut finished and the Cooking Pit restored."""
 
@@ -103,7 +85,6 @@ class Hut:
                  seed: int = 5):
         self.v = fe.Village(seed=seed, berries=berries, solved=solved, levels=levels, exe=exe,
                             dll=dll if patched else None)
-        self.dll_rand: int | None = None
         self.taken: list[int] = []
         self.tree = tree
         if patched:
@@ -111,7 +92,6 @@ class Hut:
             if tree is not None:
                 self._fake_fruit_supply()
             p.export("VvfpStartup", 4, 0)
-            self.v.by_caller = _Rolls(self)      # a rand(n) the companion draws can be forced (dll_rand)
         self.v.w32(HUT_X, 400)
         self.v.w32(HUT_Y, 1600)
         self.v.w32(CLOTH, cloth)
@@ -294,44 +274,38 @@ class SackTripTests(unittest.TestCase):
                 self.assertEqual(sack.v.food() - before, expected)
 
     def test_with_the_limited_tree_a_sack_takes_its_fruit_from_it(self) -> None:
-        for tree, paid in ((1000, 30), (10, 10)):
+        # As the cutting tool: nothing is checked about the fruit at the drop (the owner, 2026-11-17); the sack
+        # takes what is left at the food bin, at most 30, even none, and the cloth bolt is used either way.
+        for tree, paid in ((1000, 30), (10, 10), (2, 2), (0, 0)):
             with self.subTest(tree=tree):
                 h = Hut(tree=tree)
                 r = h.villager(task=2)
-                h.drop(r)
+                self.assertEqual(h.drop(r), 1)
+                self.assertEqual(h.v.r32(CLOTH), 2)
+                self.assertNotEqual(h.v.r32(r + REC_ACTION), 0x3F)  # never the empty tree's refusal
                 h.run()
                 self.assertEqual(h.taken, [paid])            # taken at the food bin, at most 30
                 self.assertEqual(h.credits(), [paid])
                 self.assertEqual(h.tree, tree - paid)
                 self.assertEqual(h.v.r32(r + REC_TASK), 2 if tree - paid >= 3 else 0)   # event 14's rule
-        h = Hut(tree=2)
-        r = h.villager()
-        h.drop(r)
-        self.assertEqual(h.v.r32(r + REC_ACTION), 0x3F)         # the tree's own refusal
-        self.assertEqual(h.v.r32(CLOTH), 3)
 
-    def test_farmers_the_game_sends_make_sacks_as_one_more_choice(self) -> None:
+    def test_farmers_the_game_sends_never_make_a_sack(self) -> None:
+        # The owner (2026-11-17): "farmers should never use cutting tools or sacks on their own".
         h = Hut()
-        r = h.villager(preference=0)
-        h.dll_rand = 1                                         # rand(2) == 1: the sack (one other option: fruit)
-        h.v.call(DISPATCHER, r, 0)
-        self.assertEqual(h.v.r32(CLOTH), 2)
-        q = h.queue(r)
-        self.assertEqual(q[1], (3, 100))                       # first the walk to the awning
-        self.assertIn((0x13, EV_CREDIT), q)
-        h.run(max_frames=30_000)
-        self.assertEqual(h.credits(), [30])
-        not_picked = Hut()
-        r = not_picked.villager(preference=0)
-        not_picked.dll_rand = 0
-        not_picked.v.call(DISPATCHER, r, 0)
-        self.assertEqual(not_picked.v.r32(CLOTH), 3)
-        self.assertIn(not_picked.v.r32(r + REC_ACTION), range(100, 105))   # the dispatcher's own fruit
-        none = Hut(cloth=0)
-        r = none.villager(preference=0)
-        none.dll_rand = 1
-        none.v.call(DISPATCHER, r, 0)
-        self.assertNotIn((0x13, EV_CREDIT), none.queue(r))
+        self.assertEqual(bytes(h.v.uc.mem_read(0x463A5A, 8)).hex().upper(), "3BFB0F8499060000")
+        self.assertNotIn(0x463A5A, [va for va, _, _ in builder.SITES])
+        for roll in (0, 1):                                     # the berries or the fruit
+            with self.subTest(roll=roll):
+                h = Hut(berries=1000)
+                r = h.villager(preference=0)
+                h.v.by_caller[0x463A68] = roll                  # the dispatcher's own rand(n), either pick
+                h.v.call(DISPATCHER, r, 0)
+                self.assertEqual(h.v.r32(CLOTH), 3)
+                self.assertNotIn((0x13, EV_CREDIT), h.queue(r))
+                self.assertNotIn((0x13, EV_MADE), h.queue(r))
+                h.run(max_frames=30_000)
+                self.assertNotIn(EV_CREDIT, h.events())
+                self.assertEqual(h.v.r32(CLOTH), 3)
 
     def test_the_sack_pictures_are_drawn_for_the_sack_only(self) -> None:
         h = Hut()

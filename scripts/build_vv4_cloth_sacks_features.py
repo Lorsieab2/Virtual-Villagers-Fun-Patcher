@@ -3,8 +3,10 @@
 
 The owner (2026-11-17): the Clothing Hut's extra cloth bolts get a use -- an adult dropped on the left side of the
 Clothing Hut, under its awning, makes a sack from one bolt, gathers the yellow fruit in it and brings 30 fruit to
-the food bin, working "like the cutting tool on the blackberries in every respect"; farmers who act on their own do
-it too.  Off by default, on in Owner's Defaults.  And: a villager harvesting blackberries with a cutting tool says
+the food bin, working "like the cutting tool on the blackberries in every respect".  Then: "farmers should never use cutting
+tools or sacks on their own" (only a villager the player drops makes a sack) and "if the cutting tools allow
+harvesting with less than 3 fruit, so should the sacks" (no fruit check at the drop).  Off by default, on in
+Owner's Defaults.  And: a villager harvesting blackberries with a cutting tool says
 so ("Harvesting berries with a cutting tool"), its own row, also off by default and on in Owner's Defaults.
 
 "VVFP VV4 Cloth Sacks.dll" (native/vvfp_vv4_cloth_sacks) and "VVFP VV4 Harvest Caption.dll"
@@ -54,10 +56,6 @@ SITES = (
      "the job events 0x4642F0: events 0x75, 0x76 and 0x77 (the sack made, the sack full, the sack's food at the "
      "bin; above 74, which the game's own table sends to its end 0x464EB2) are the companion's; every other event "
      "goes on to the stock code"),
-    (0x463A5A, "3BFB0F8499060000",
-     "the Farming dispatcher 0x4639B0, after it has counted its options (cmp edi, ebx / je 0x4640FB): when a sack "
-     "can be made, it is one more option with the same chance, rand(n + 1) == n, started from here and leaving "
-     "through the dispatcher's own 'started' exit 0x463FC8; otherwise the stock test and rand(n)"),
     (0x4667B4, "E8875EFEFF",
      "the carried item's draw 0x466770, its call of the world draw 0x44C640: for a villager on a sack trip that "
      "carries the sack, the sack's picture at 45% instead of carrying.png's cell, then the same call"),
@@ -92,13 +90,11 @@ def description() -> str:
         "sack never goes into the stew and does not count toward The Grand Feast (the cutting-tool harvest's "
         "blackberries do not either). "
         f"**With \"{LIMITED_NAME}\" ticked too, each sack takes its fruit from the tree when it reaches the food "
-        f"bin: {SACK_FRUIT}, or what is left when fewer; with fewer than 3 fruit on the tree a villager dropped at "
-        "the hut refuses (\"There is not enough to harvest.\"), as at the tree.** Without it the trees are the "
+        f"bin: {SACK_FRUIT}, or what is left when fewer -- even none, as a cutting tool harvests a nearly bare bush "
+        "(the cloth bolt is still used).** Without it the trees are the "
         f"game's own unlimited ones and every sack holds {SACK_FRUIT}. All four places at the Cooking Pit taken: "
-        "the villager refuses as at the tree. Farmers who decide to farm by themselves (Farming) make sacks too: "
-        "while there is cloth (and, with the limited trees, at least 6 fruit), a sack is one more choice with the "
-        "same chance as each of the game's own (blackberries, fruit, fish); such a farmer walks to the awning "
-        "first. The sacks are drawn with Lorsieab2's art. Nothing is written to the save or anywhere else. "
+        "the villager refuses as at the tree. Only a villager you drop at the hut makes a sack: farmers who "
+        "decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are drawn with Lorsieab2's art. Nothing is written to the save or anywhere else. "
         "**Needs no other patch.** **Off by default; Owner's Defaults ticks it.** **Unverified in play: the effect "
         f"has not been tested live.** The companion is \"{DLL_NAME}\", started by VVFP Startup.dll; if the DLL "
         "cannot be loaded, the stock game runs."
@@ -128,8 +124,7 @@ def row(dll_sha: str) -> dict:
             "0x37, 0x38 and 0x76..0x78 only, table 0x42EB4C).",
             "The drop (0x46E460, before the stock dispatcher): an adult, not expecting, under the finished Clothing "
             "Hut's awning, the Cooking Pit restored: no cloth ([0x4D8ACC] = 0): action 0x1A with text 0x136 (\"They "
-            f"need cloth for this!\"); with {LIMITED} and fewer than 3 fruit: action 0x3F with text 0xA7 (the tree's "
-            "own refusal); the pit's four spot locks (5..8 at 0x705148, 0x46D880) all taken: the task cleared and "
+            f"need cloth for this!\"); the fruit left is not checked (the tool does not check the berries); the pit's four spot locks (5..8 at 0x705148, 0x46D880) all taken: the task cleared and "
             "action 0x1A with text 0x13C (the tree's start 0x4343A0's own refusal); otherwise one cloth bolt is "
             "used (0x4369F0(1) on 0x4D8AC8, the cutting tools' own routine) and the sack trip is queued.",
             "The sack trip, with the game's own step builders: a caption step (0x468CF0) \"Making a sack out of "
@@ -147,11 +142,6 @@ def row(dll_sha: str) -> dict:
             f"{SACK_FRUIT}, taken from the tree (VvfpYellowFruitTake of \"VVFP VV4 Fruit Supply.dll\", found with "
             "GetProcAddress); 0x41D920(n); with the limited tree and fewer than 3 fruit left, the villager's task "
             "cleared; over 2,000 food, tip 0x2E5.",
-            "Farmers the game sends (the Farming dispatcher 0x4639B0, at 0x463A5A after it counts its options): not "
-            f"catching up (game +0x171A4), the hut finished, the pit restored, cloth on hand, a free spot and (with "
-            f"{LIMITED}) 6 fruit or more: rand(n + 1) == n starts the sack trip (n the dispatcher's own options; "
-            "with none, always), preceded by a walk (step 3, speed 100) to the hut's place + (25, 112); otherwise the "
-            "dispatcher goes on exactly as before.",
             "The pictures: the carried item's draw (0x466770, its call of 0x44C640 at 0x4667B4) draws "
             "Images\\vvfp_sack_empty.png (carrying item 0x35 after event 0x75) or Images\\vvfp_sack_yellow_fruit.png "
             "(item 0x36 after event 0x76) for a villager whose queue still holds event 0x77, at scale 0.45, 6 "
@@ -162,12 +152,14 @@ def row(dll_sha: str) -> dict:
             "caption_making.s0 and .caption_gathering.s0), at most 38 letters (the caption field takes 39).",
         ],
         "explicit_non_changes": [
+            "The Farming dispatcher 0x4639B0 is not touched: farmers the game sends never make a sack, as they never "
+            "harvest with a cutting tool (the owner, 2026-11-17).",
             "The cutting tool, the blackberries, picking, the fruit trips a player or the game starts at the tree, "
             "their 3 fruit and 3 food, the stew, the Cooking Pit bonus while catching up and the cloth's other uses "
             "(the fishing nets, new clothes on the rest of the hut) are the game's own.",
             "Food Mastery is the only technology that changes a sack's food, inside the game's own food writer, as "
             "for a blackberry harvest; the difficulty and every other setting do not.",
-            "No executable byte is patched: the companion writes its 4 jumps and calls at run time, only after "
+            "No executable byte is patched: the companion writes its 3 jumps and calls at run time, only after "
             "verifying every stock byte (and the stock code it relies on), all or none; a different build installs "
             "nothing.",
             "Nothing is written to a save, a villager record's saved fields or a file. A queue the game keeps holds "
@@ -176,8 +168,8 @@ def row(dll_sha: str) -> dict:
         ],
         "evidence_status": ("implemented from exact-build disassembly; emulated on the stock executable (the drop, "
                             "the refusals, a whole trip to the food bin, the food with Food Mastery beside the "
-                            "stock cutting-tool harvest's, the limited tree's take, the farmers' choice, the "
-                            "pictures' draw) in tests/test_vv4_cloth_sacks.py; runtime/player confirmation pending"),
+                            "stock cutting-tool harvest's, the limited tree's take, farmers never choosing it, "
+                            "the pictures' draw) in tests/test_vv4_cloth_sacks.py; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/cloth_sacks/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
         ] + [picture(*p) for p in PICTURES],

@@ -330,8 +330,8 @@
       "guide": [
         "Off by default; Owner's Defaults ticks it. Needs the Clothing Hut finished and the Cooking Pit restored.",
         "Drop an adult on the left side of the Clothing Hut, under its awning: they take one cloth bolt, make a sack, gather yellow fruit in it and bring 30 food to the food bin (before Food Mastery).",
-        "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food. Farmers who farm on their own make sacks too while there is cloth.",
-        "With Yellow Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30, or what is left); without it every sack holds 30. Not yet tested in play."
+        "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food. Only villagers you drop make sacks: farmers never do on their own.",
+        "With Yellow Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30, or what is left, even none); without it every sack holds 30. Not yet tested in play."
       ]
     },
     {
