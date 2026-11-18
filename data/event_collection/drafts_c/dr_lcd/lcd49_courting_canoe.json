@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Courting Canoe Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd49_courting_canoe",
+  "source": "draft_lcd",
+  "lines": [
+   680,
+   691
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L680",
+  "ledger": [
+   {
+    "src": "L681",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L687",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A sweetheart says they will marry whoever wins the canoe race, as a joke: race for it, or race for fun.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the festival, (friend) joked that (friend.he/she) would marry whoever won the canoe race. Everyone laughed. (subject), who has been courting (friend) for months, did not laugh. Now (subject.he/she) is in the race, and several other paddlers seem to be taking it a little too seriously. What should (subject) do?",
+   "src": "L683",
+   "choices": [
+    {
+     "label": "Race to Win",
+     "next": "o1",
+     "src": "L685"
+    },
+    {
+     "label": "Race for Fun",
+     "next": "o2",
+     "src": "L689"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) paddles like (subject.his/her) life depends on it, and comes in second. (friend) walks past the winner, who is very confused, straight to (subject), and says it was a joke, and that the answer was always going to be (subject).",
+   "src": "L687"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) races for fun and comes in last, laughing. Afterwards, (subject.he/she) tells (friend) that nobody wins a person in a race. (friend) says (friend.he/she) knows, and that is exactly why (friend.he/she) likes (subject).",
+   "src": "L691"
+  }
+ }
+}

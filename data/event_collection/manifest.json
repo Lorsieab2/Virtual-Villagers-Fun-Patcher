@@ -659,6 +659,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "draft_lcd": {
+  "source": "docs/more-island-events/New Events - Living Culture IV (draft for owner).txt",
+  "source_sha256": "8e40bb3a3836b862b27579f3e04bdce6d13e4f803df286bb4c7ed61b15dd21be",
+  "counts": {
+   "rows": 52,
+   "events": 50,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 50,
+   "series": {
+    "dr_lcd": 50
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "draft_rm2": {
   "source": "docs/more-island-events/New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
   "source_sha256": "a162ecbec360f51ee9e9e9053bd17bbd2f97770f41ef3ad9b4d6d581b40e6acc",
@@ -100340,6 +100357,1864 @@
    "source": "draft_lcc",
    "source_check": {
     "heading": "L694: LCC-50. The Day of the Defenders",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_lcd_notes_intro",
+   "title": "Living Culture IV: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_lcd_notes_end",
+   "title": "Living Culture IV: notes for the owner",
+   "games": [],
+   "lines": [
+    708,
+    758
+   ],
+   "kind": "notes",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L708: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lcd01_make_move_stay",
+   "title": "Make a Move or Stay Friends",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    8,
+    19
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L8: LCD-01. Make a Move or Stay Friends",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd02_teen_crush",
+   "title": "The Teen's Crush",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22,
+    33
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L22: LCD-02. The Teen's Crush",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd03_flowers_doorstep",
+   "title": "Flowers on the Doorstep",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    36,
+    47
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L36: LCD-03. Flowers on the Doorstep",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd04_love_poem",
+   "title": "The Love Poem",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    50,
+    61
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L50: LCD-04. The Love Poem",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd05_serenade",
+   "title": "The Serenade",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    64,
+    75
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L64: LCD-05. The Serenade",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd06_where_should",
+   "title": "Where Should They Go for a Date",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    78,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L78: LCD-06. Where Should They Go for a Date",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd07_first_kiss",
+   "title": "The First Kiss",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    92,
+    103
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L92: LCD-07. The First Kiss",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd08_holding_hands",
+   "title": "Holding Hands at the Festival",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    106,
+    117
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L106: LCD-08. Holding Hands at the Festival",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd09_gift_went_wrong",
+   "title": "The Gift That Went Wrong",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    120,
+    131
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L120: LCD-09. The Gift That Went Wrong",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd10_rival_suitors",
+   "title": "The Rival Suitors",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    134,
+    145
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L134: LCD-10. The Rival Suitors",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd11_shy_admirer",
+   "title": "The Shy Admirer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    148,
+    159
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L148: LCD-11. The Shy Admirer",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd12_friend_knew",
+   "title": "The Friend Who Knew",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    162,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L162: LCD-12. The Friend Who Knew",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd13_love_song_nobody",
+   "title": "The Love Song Nobody Expected",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    176,
+    187
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L176: LCD-13. The Love Song Nobody Expected",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd14_asking_family",
+   "title": "Asking the Family",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    190,
+    201
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L190: LCD-14. Asking the Family",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd15_secret_proposal",
+   "title": "The Secret Proposal",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    204,
+    215
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L204: LCD-15. The Secret Proposal",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd16_low_key_grand",
+   "title": "Low-Key or Grand",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    218,
+    229
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L218: LCD-16. Low-Key or Grand",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd17_wedding_two",
+   "title": "The Wedding of Two Traditions",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    232,
+    243
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L232: LCD-17. The Wedding of Two Traditions",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd18_how_many",
+   "title": "How Many Children",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    246,
+    257
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L246: LCD-18. How Many Children",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd19_breaking_news",
+   "title": "Breaking the News",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    260,
+    271
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L260: LCD-19. Breaking the News",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd20_bad_news",
+   "title": "The Bad News",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    274,
+    285
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L274: LCD-20. The Bad News",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd21_breakup",
+   "title": "The Breakup",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    288,
+    299
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L288: LCD-21. The Breakup",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd22_changing",
+   "title": "Changing Feelings",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    302,
+    313
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L302: LCD-22. Changing Feelings",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd23_divorce",
+   "title": "The Divorce",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    316,
+    327
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L316: LCD-23. The Divorce",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd24_starting_over",
+   "title": "Starting Over",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    330,
+    341
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L330: LCD-24. Starting Over",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd25_choice_marry",
+   "title": "The Choice Not to Marry",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    344,
+    355
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L344: LCD-25. The Choice Not to Marry",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd26_promise_between",
+   "title": "The Promise Between Friends",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    358,
+    369
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L358: LCD-26. The Promise Between Friends",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd27_matchmaker",
+   "title": "The Matchmaker Grandmother",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    372,
+    383
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L372: LCD-27. The Matchmaker Grandmother",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd28_teen_heartbreak",
+   "title": "The Teen Heartbreak",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    386,
+    397
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L386: LCD-28. The Teen Heartbreak",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd29_hut_two",
+   "title": "The Hut for Two",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    400,
+    411
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L400: LCD-29. The Hut for Two",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd30_anniversary",
+   "title": "The Anniversary",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    414,
+    425
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L414: LCD-30. The Anniversary",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd31_gift_necklace",
+   "title": "The Gift of the Necklace",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    428,
+    439
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L428: LCD-31. The Gift of the Necklace",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd32_courting_across",
+   "title": "Courting Across the Bay",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    442,
+    453
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L442: LCD-32. Courting Across the Bay",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd33_clumsy_dance",
+   "title": "The Clumsy Dance",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    456,
+    467
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L456: LCD-33. The Clumsy Dance",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd34_jealous_moment",
+   "title": "The Jealous Moment",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    470,
+    481
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L470: LCD-34. The Jealous Moment",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd35_parents",
+   "title": "The Parents Who Disapprove",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    484,
+    495
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L484: LCD-35. The Parents Who Disapprove",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd36_gift_song_dawn",
+   "title": "The Gift of Song at Dawn",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    498,
+    509
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L498: LCD-36. The Gift of Song at Dawn",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd37_teen_gift",
+   "title": "The Teen Gift",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    512,
+    523
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L512: LCD-37. The Teen Gift",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd38_lost_love",
+   "title": "The Lost Love Returns",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    526,
+    537
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L526: LCD-38. The Lost Love Returns",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd39_wedding_feast",
+   "title": "The Wedding Feast Disaster",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    540,
+    551
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L540: LCD-39. The Wedding Feast Disaster",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd40_marriage_advice",
+   "title": "The Marriage Advice",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    554,
+    565
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L554: LCD-40. The Marriage Advice",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd41_nervous_groom",
+   "title": "The Nervous Groom or Bride",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    568,
+    579
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L568: LCD-41. The Nervous Groom or Bride",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd42_garland_pattern",
+   "title": "The New Garland Pattern",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    582,
+    593
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L582: LCD-42. The New Garland Pattern",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd43_meddling_cousins",
+   "title": "The Meddling Cousins",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    596,
+    607
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L596: LCD-43. The Meddling Cousins",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd44_breakup_song",
+   "title": "The Breakup Song",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    610,
+    621
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L610: LCD-44. The Breakup Song",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd45_proposal",
+   "title": "The Proposal at the Festival",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    624,
+    635
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L624: LCD-45. The Proposal at the Festival",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd46_wedding_gift",
+   "title": "The Wedding Gift From the Village",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    638,
+    649
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L638: LCD-46. The Wedding Gift From the Village",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd47_long_engagement",
+   "title": "The Long Engagement",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    652,
+    663
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L652: LCD-47. The Long Engagement",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd48_love_after_fifty",
+   "title": "Love After Fifty",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    666,
+    677
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L666: LCD-48. Love After Fifty",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd49_courting_canoe",
+   "title": "The Courting Canoe Race",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    680,
+    691
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L680: LCD-49. The Courting Canoe Race",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcd50_love_hut_rumor",
+   "title": "The Love Hut Rumor",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    694,
+    705
+   ],
+   "kind": "event",
+   "section": "dr_lcd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcd",
+   "source": "draft_lcd",
+   "source_check": {
+    "heading": "L694: LCD-50. The Love Hut Rumor",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

@@ -9749,6 +9749,206 @@
    "harm": [],
    "section": "dr_lcc"
   },
+  "lcd01_make_move_stay": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd02_teen_crush": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd03_flowers_doorstep": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd04_love_poem": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd05_serenade": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd06_where_should": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd07_first_kiss": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd08_holding_hands": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd09_gift_went_wrong": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd10_rival_suitors": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd11_shy_admirer": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd12_friend_knew": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd13_love_song_nobody": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd14_asking_family": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd15_secret_proposal": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd16_low_key_grand": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd17_wedding_two": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd18_how_many": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd19_breaking_news": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd20_bad_news": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd21_breakup": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd22_changing": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd23_divorce": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd24_starting_over": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd25_choice_marry": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd26_promise_between": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd27_matchmaker": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd28_teen_heartbreak": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd29_hut_two": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd30_anniversary": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd31_gift_necklace": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd32_courting_across": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd33_clumsy_dance": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd34_jealous_moment": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd35_parents": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd36_gift_song_dawn": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd37_teen_gift": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd38_lost_love": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd39_wedding_feast": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd40_marriage_advice": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd41_nervous_groom": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd42_garland_pattern": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd43_meddling_cousins": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd44_breakup_song": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd45_proposal": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd46_wedding_gift": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd47_long_engagement": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd48_love_after_fifty": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd49_courting_canoe": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
+  "lcd50_love_hut_rumor": {
+   "harm": [],
+   "section": "dr_lcd"
+  },
   "lif01_only_until": {
    "harm": [],
    "section": "dr_lif"

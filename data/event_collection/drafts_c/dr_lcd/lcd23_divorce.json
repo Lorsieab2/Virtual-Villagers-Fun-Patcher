@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Divorce",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd23_divorce",
+  "source": "draft_lcd",
+  "lines": [
+   316,
+   327
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L316",
+  "ledger": [
+   {
+    "src": "L317",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L323",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A married couple has decided to part: tell the village together, or quietly live apart.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   },
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been married for many years, and they have decided, after a long time of trying, that they are better apart. Nobody did anything terrible. They simply want different lives. Now they have to tell their families and the village. How should they do it?",
+   "src": "L319",
+   "choices": [
+    {
+     "label": "Tell the Village Together",
+     "next": "o1",
+     "src": "L321"
+    },
+    {
+     "label": "Quietly Live Apart",
+     "next": "o2",
+     "src": "L325"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They stand up together at the gathering and say it plainly: they are parting, kindly, and they want no sides taken. Some people are shocked. Some are not at all. (subject)'s grandmother is furious for a week, then brings them both soup. They build a second hut, close to the first.",
+   "src": "L323"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) quietly moves to a hut on the other side of the village. People notice, and talk, and guess wrong about why. It is a hard season. (subject) and (friend) still eat together on festival days, and by the end of the year, the village has stopped talking about it.",
+   "src": "L327"
+  }
+ }
+}

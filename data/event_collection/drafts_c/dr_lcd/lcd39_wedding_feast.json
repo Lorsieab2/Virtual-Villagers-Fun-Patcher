@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Feast Disaster",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd39_wedding_feast",
+  "source": "draft_lcd",
+  "lines": [
+   540,
+   551
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L540",
+  "ledger": [
+   {
+    "src": "L541",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L547",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L547",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "On the wedding day, a storm floods the feast: move it inside, or celebrate in the rain.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend)'s wedding day has arrived, and so has a storm. The feast is laid out on the beach, the garlands are ready, and the rain is coming down so hard the drums are floating. The guests are huddled under palm leaves. What should the couple do?",
+   "src": "L543",
+   "choices": [
+    {
+     "label": "Move It Inside",
+     "next": "o1",
+     "src": "L545"
+    },
+    {
+     "label": "Celebrate in the Rain",
+     "next": "o2",
+     "src": "L549"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Everyone crowds into the meeting hut with the food. It is hot, cramped and smells of wet garlands. The drummers play anyway. (subject) and (friend) make their promise squeezed between a grandmother and a goat. It is the most crowded wedding anyone remembers, and the warmest.",
+   "src": "L547",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L547"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L547"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes (friend)'s hand and walks out into the rain. They make their promise standing in the downpour, soaked to the skin, laughing. The guests come out one by one and dance in the mud. The food is ruined. Nobody cares.",
+   "src": "L551",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L551"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L551"
+    }
+   ]
+  }
+ }
+}

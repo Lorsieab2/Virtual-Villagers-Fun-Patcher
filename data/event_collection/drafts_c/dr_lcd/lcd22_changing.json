@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Changing Feelings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd22_changing",
+  "source": "draft_lcd",
+  "lines": [
+   302,
+   313
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L302",
+  "ledger": [
+   {
+    "src": "L303",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L309",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two old friends start to wonder whether they are more than friends: talk about it, or let it grow on its own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been best friends since they were small. Lately, something has changed: they keep finding reasons to be in the same place, and when their hands touch passing the water pot, both of them pretend it did not happen. (subject) is confused. What should (subject.he/she) do?",
+   "src": "L305",
+   "choices": [
+    {
+     "label": "Talk About It",
+     "next": "o1",
+     "src": "L307"
+    },
+    {
+     "label": "Let It Grow",
+     "next": "o2",
+     "src": "L311"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) says it out loud, sitting on the old rock where they used to play: \"Something is different, isn't it?\" (friend) laughs with relief. They talk for hours. They decide to find out what it is, slowly.",
+   "src": "L309"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. Neither does (friend). Over the season, the hand touches stop being accidents, and one day, at the festival, (friend) simply takes (subject)'s hand and does not let go. Neither of them ever says when it started.",
+   "src": "L313"
+  }
+ }
+}

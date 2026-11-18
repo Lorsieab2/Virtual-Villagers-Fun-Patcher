@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jealous Moment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd34_jealous_moment",
+  "source": "draft_lcd",
+  "lines": [
+   470,
+   481
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L477",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager feels jealous when their partner laughs with someone else: talk about it, or keep it to themselves.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the gathering, (subject) watched (subject.his/her) partner, (friend), laughing for a long time with a newcomer to the village. (subject) felt something hot and ugly in (subject.his/her) chest. (subject.He/she) knows (friend) has done nothing wrong. The feeling is still there. What should (subject) do?",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Talk About It",
+     "next": "o1",
+     "src": "L475"
+    },
+    {
+     "label": "Keep It Quiet",
+     "next": "o2",
+     "src": "L479"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend), awkwardly, how (subject.he/she) felt. (friend) is surprised, then kind: the newcomer was telling a very funny story about a pig. (subject) laughs, embarrassed. The feeling does not vanish all at once. But it is smaller, now that it has been said.",
+   "src": "L477",
+   "text_only": [
+    {
+     "what": "\"vanish\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L477"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing and goes for a long walk. By the time (subject.he/she) gets back, the feeling has faded. But it comes back the next time, and the time after. Eventually (subject.he/she) realizes it might be worth talking about.",
+   "src": "L481"
+  }
+ }
+}

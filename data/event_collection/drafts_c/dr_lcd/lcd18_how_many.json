@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How Many Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd18_how_many",
+  "source": "draft_lcd",
+  "lines": [
+   246,
+   257
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L246",
+  "ledger": [
+   {
+    "src": "L247",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L253",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A couple disagrees about how many children they want: talk it through, or wait and see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   },
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) grew up in a hut with eight brothers and sisters and wants a big, noisy family. (friend) was an only child and imagines one, maybe two. They have only just realized they never talked about it. Tonight, it has come up, and both of them are a little shaken. What should they do?",
+   "src": "L249",
+   "choices": [
+    {
+     "label": "Talk It Through",
+     "next": "o1",
+     "src": "L251"
+    },
+    {
+     "label": "Wait and See",
+     "next": "o2",
+     "src": "L255"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They talk until the fire burns down. (subject) talks about the noise and the love; (friend) talks about the quiet and the time. They do not decide on a number. They decide they will keep talking, and that neither of them will ever be pushed into anything. That feels like enough.",
+   "src": "L253"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree not to decide anything yet. Life will happen, and they will see. (subject) is relieved. (friend) is relieved. Both of them lie awake for a while that night, thinking about it, and then fall asleep holding hands.",
+   "src": "L257"
+  }
+ }
+}

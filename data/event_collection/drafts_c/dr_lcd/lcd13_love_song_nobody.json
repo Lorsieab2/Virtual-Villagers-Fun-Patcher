@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Love Song Nobody Expected",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd13_love_song_nobody",
+  "source": "draft_lcd",
+  "lines": [
+   176,
+   187
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L183",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager sings a love song for someone at the gathering who may not feel the same: sing it, or sing it privately.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has written a love song for (friend), and wants to sing it at the gathering tonight. The trouble is, (subject) is not at all sure (friend) feels the same, and a song in front of everyone is hard to take back. What should (subject) do?",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Sing It at the Gathering",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Sing It Privately",
+     "next": "o2",
+     "src": "L185"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sings. The song is lovely. (friend) listens with a kind, sad face, and afterwards finds (subject) by the fire and says, gently, that (friend.he/she) does not feel the same, but has never been given anything so beautiful. (subject) nods. It hurts. It also feels like something (subject.he/she) had to do.",
+   "src": "L183"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to walk to the beach, and sings it there, with nobody else listening. (friend) is quiet for a long time. Then (friend.he/she) says (friend.he/she) needs to think. A week later, (friend.he/she) comes back and asks (subject) to sing it again.",
+   "src": "L187"
+  }
+ }
+}

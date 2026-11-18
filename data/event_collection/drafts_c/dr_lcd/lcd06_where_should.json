@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Should They Go for a Date",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd06_where_should",
+  "source": "draft_lcd",
+  "lines": [
+   78,
+   89
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L78",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L85",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L89",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A couple's first date: watch the sunset from the cliffs, or go night fishing by torchlight.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has finally asked (friend) to spend an evening together, just the two of them, and (friend) said yes. Now (subject) has to decide where to go. The cliffs at sunset are beautiful, but everybody goes there. Night fishing by torchlight is exciting, but (friend) gets seasick. Where should they go?",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Sunset on the Cliffs",
+     "next": "o1",
+     "src": "L83"
+    },
+    {
+     "label": "Night Fishing by Torchlight",
+     "next": "o2",
+     "src": "L87"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They climb to the cliffs and watch the sun go down into the sea. There are four other couples there already, pretending not to see each other. (subject) and (friend) find a quiet rock and talk until the stars come out. It is perfect, apart from the ants.",
+   "src": "L85"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They take a small canoe out into the lagoon with a torch. (friend) is not seasick in the calm water, and catches more fish than (subject), and is extremely smug about it. They cook the catch on the beach and eat it with their fingers. (subject) decides this was the best idea (subject.he/she) has ever had.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L89"
+    }
+   ]
+  }
+ }
+}

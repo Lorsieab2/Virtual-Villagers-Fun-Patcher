@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Love After Fifty",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd48_love_after_fifty",
+  "source": "draft_lcd",
+  "lines": [
+   666,
+   677
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L666",
+  "ledger": [
+   {
+    "src": "L667",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders)"
+   },
+   {
+    "src": "L673",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L677",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two widowed elders have fallen in love and their grown children are surprised: tell the family, or keep it quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) were both widowed years ago. This season, they have started taking long walks together, and holding hands when they think nobody is looking. Everybody has been looking. Their grown children are surprised and a little bewildered. What should (subject) and (friend) do?",
+   "src": "L669",
+   "choices": [
+    {
+     "label": "Tell the Family",
+     "next": "o1",
+     "src": "L671"
+    },
+    {
+     "label": "Keep It Quiet",
+     "next": "o2",
+     "src": "L675"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They call both families together and say it plainly: they are in love, and they are too old to waste time. The children are startled. One grandchild cheers. By the end of the evening, both families are laughing, and (friend)'s son is asking (subject) for fishing tips.",
+   "src": "L673"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They keep walking and holding hands and saying nothing. Their families talk about it endlessly behind their backs. (subject) and (friend) find this very funny. They do not explain themselves to anybody, ever.",
+   "src": "L677"
+  }
+ }
+}

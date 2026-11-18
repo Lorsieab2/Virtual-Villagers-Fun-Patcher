@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Asking the Family",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd14_asking_family",
+  "source": "draft_lcd",
+  "lines": [
+   190,
+   201
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L190",
+  "ledger": [
+   {
+    "src": "L191",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and an elder)"
+   },
+   {
+    "src": "L197",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L201",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wants to marry and wonders whether to ask their love's family first: ask the family, or ask their love directly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to marry (friend). In the old days, you asked the family first: (third), (friend)'s grandparent, would expect it. But (subject) thinks the only person whose answer really matters is (friend). How should (subject) ask?",
+   "src": "L193",
+   "choices": [
+    {
+     "label": "Ask the Family First",
+     "next": "o1",
+     "src": "L195"
+    },
+    {
+     "label": "Ask (friend) Directly",
+     "next": "o2",
+     "src": "L199"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (third), very nervous. (third) listens, looks (subject.him/her) up and down, and says (third.he/she) will consider it, and that the answer is (friend)'s anyway. When (subject) finally asks (friend), (friend) says yes, and that (third) already told (friend.him/her) everything.",
+   "src": "L197"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) on the beach at sunset. (friend) says yes. They tell (third) together. (third) is a little put out not to have been asked first, then hugs them both so hard (subject)'s back cracks.",
+   "src": "L201"
+  }
+ }
+}

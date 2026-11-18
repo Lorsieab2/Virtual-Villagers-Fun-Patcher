@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rival Suitors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd10_rival_suitors",
+  "source": "draft_lcd",
+  "lines": [
+   134,
+   145
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L141",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L145",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two villagers are both courting the same person: compete for them, or let them choose in peace.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) and (third) are both courting (subject), and they have started competing: bigger fish, brighter flowers, louder songs. (subject) is flattered for about a day, then exhausted. (subject.He/she) likes them both, in different ways, and does not know what (subject.he/she) wants. What should (subject) do?",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Let Them Compete",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Ask for Peace to Choose",
+     "next": "o2",
+     "src": "L143"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) lets it go on. The fish get bigger, the songs get louder, and one evening (friend) and (third) both try to give (subject.him/her) a flower at the same time and fall in the stream. (subject) laughs, helps them out, and tells them (subject.he/she) will choose when (subject.he/she) is ready, and not one moment before.",
+   "src": "L141"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks them both, kindly, to stop: (subject.he/she) needs time to think, without gifts. They agree, a little sheepishly. A month later, (subject) chooses (friend). (third) is hurt, and says so, and stays away from gatherings for a while. Then (third.he/she) comes back, and is fine. Mostly.",
+   "src": "L145"
+  }
+ }
+}
