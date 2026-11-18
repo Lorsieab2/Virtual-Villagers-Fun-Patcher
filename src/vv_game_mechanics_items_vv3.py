@@ -588,8 +588,8 @@ def _patcher() -> list[Entry]:
                                "cheats are not.", UNCONFIRMED),
         ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the food gathered from food "
                                "sources is doubled (fruit, honey, fish, crabs and mushrooms, with the chief's "
-                               "bonuses); island events, the chief's grant, other rewards, purchases and cheats are "
-                               "not.", UNCONFIRMED),
+                               "bonuses), and so is the chief's grant of food; island events, other rewards, "
+                               "purchases and cheats are not.", UNCONFIRMED),
         ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked found (each complete "
                                      "collection raises the population limit by 5, all four by 25); nothing is "
                                      "taken when every piece is already found.", UNCONFIRMED),

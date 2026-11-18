@@ -122,9 +122,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                 # The owner's scope (2026-11-17): island events, rewards, purchases and cheats are never
                 # doubled in any game; duplicate collectibles are doubled (Tech) wherever the game has them.
                 rewards = {
-                    "1": "Reward tech-point and food-point gain (story/puzzle discoveries, milestone dialogs, the Golden Child's act)",
+                    # The owner (2026-11-18): the VV1 Golden Child's +150 food and the VV3 chief's grant
+                    # are doubled, so neither is a reward exclusion.
+                    "1": "Reward tech-point and food-point gain (story/puzzle discoveries, milestone dialogs)",
                     "2": "Reward tech-point and food-point gain (Gong of Wonder, Sack/Vial)",
-                    "3": "Reward tech-point and food-point gain (the chief's grant food, dialogs)",
+                    "3": "Reward tech-point and food-point gain (dialogs)",
                     "4": "Reward tech-point and food-point gain (dialogs, objects)",
                     "5": "Reward tech-point and food-point gain",
                 }[game]

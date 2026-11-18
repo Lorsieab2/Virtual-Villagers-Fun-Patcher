@@ -695,7 +695,7 @@ Researchers keep choosing the stock research action and earning tech points afte
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp. The Tech Point Doubler doubles research tech points and the Food Point Doubler doubles food gathered from food sources (berries, crops, fish, crabs and mushrooms); island events, rewards (puzzles, milestone dialogs, the Golden Child), purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp. The Tech Point Doubler doubles research tech points and the Food Point Doubler doubles food gathered from food sources (berries, crops, fish, crabs and mushrooms) and the Golden Child's +150 food; island events, rewards (puzzles, milestone dialogs), purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
 
 - Requires: vv1_enable_origins_exclusive_features
 - Patch ID: `vv1_origins_village_wide_upgrades`
@@ -1205,7 +1205,7 @@ Every technology level on the Tech screen costs 2 to 10 times its normal price i
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The Tech Point Doubler doubles research tech points (with the chief's, Magic's, the potion's and the fire's extra points) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (fruit, honey, fish, crabs and mushrooms, with the chief's bonuses); island events, rewards, purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The Tech Point Doubler doubles research tech points (with the chief's, Magic's, the potion's and the fire's extra points) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (fruit, honey, fish, crabs and mushrooms, with the chief's bonuses) and the chief's grant of food; island events, rewards, purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
 
 - Requires: vv3_enable_origins_exclusive_features
 - Patch ID: `vv3_origins_village_wide_upgrades`

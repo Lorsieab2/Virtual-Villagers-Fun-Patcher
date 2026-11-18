@@ -15,8 +15,10 @@ the behaviour has been seen in a running game.
   VV3 chief/Magic/potion points, the VV5 second-set bonus), collectible
   duplicates, and collection effects on tech gain.
 - **Never doubled:** island events, rewards (puzzles, dialogs, the Gong of
-  Wonder, the Sack and Vial, the Golden Child, the chief's grant), purchases and
-  cheats.
+  Wonder, the Sack and Vial), purchases and cheats.
+- **Owner's additions (2026-11-18):** the VV1 Golden Child's +150 food and the
+  VV3 chief's grant (job event 43) are doubled; the VV4 Mossy Rocks crab is a
+  food source.
 
 ## Decision rule
 
@@ -29,7 +31,7 @@ a companion DLL's own call, an unknown caller -- stays native. This replaced the
 earlier blacklists (2026-11-18), which had wrongly excluded VV4's and VV3's job
 events (the research table and the gathering jobs), VV5's gathering jobs, and
 every game's duplicate collectibles, and had doubled VV1's milestone dialogs,
-VV1's Golden Child food, VV2's Sack/Vial rewards and the island events that
+VV2's Sack/Vial rewards and the island events that
 companion DLLs run.
 
 The composition contract is positive earned tech deltas only and positive food-source deltas only.
@@ -45,9 +47,9 @@ source is still doubled, once, on the scaled amount.
 
 | Game | Tech writer / eligible returns | Food writer / eligible returns | Status |
 |---|---|---|---|
-| VV1 A New Home | `0x41D120`: research at Science 1, 2, 3 (`0x43B318`, `0x43B333`, `0x43B350`). No collectibles and no fire bonus in this game. | `0x41D140`: berries `0x43AD91`, crops `0x43AED2`, fish `0x43AF41`, crab `0x43AF93`, mushroom `0x43AFFC`. | **GO (static exact-build proof; runtime pending)** |
+| VV1 A New Home | `0x41D120`: research at Science 1, 2, 3 (`0x43B318`, `0x43B333`, `0x43B350`). No collectibles and no fire bonus in this game. | `0x41D140`: berries `0x43AD91`, crops `0x43AED2`, fish `0x43AF41`, crab `0x43AF93`, mushroom `0x43AFFC`; the Golden Child's +150 food `0x43B0A0` (the owner, 2026-11-18). | **GO (static exact-build proof; runtime pending)** |
 | VV2 The Lost Children | `0x426290`: research `0x46373C`, `0x4637C5`, the fire `0x46380E`; duplicates `0x463461`, `0x46346D`, `0x463479`. | `0x4262B0`: coconuts `0x46319D`, crops `0x46325E`, fish `0x463317`, the big catch `0x463369`, mushroom `0x4633D2`. | **GO (static exact-build proof; runtime pending)** |
-| VV3 The Secret City | `0x427130`: research `0x459237`, `0x4593AF`, the chief's quarter `0x4593D5`, Magic `0x4593F2`, the chief's third / potion `0x459410`, the fire `0x45943A`; duplicate `0x42DF7E`. | `0x4263F0`: fruit `0x434AF1`, chief's fruit bonus `0x434B1A`, honey `0x431C2F`, chief's honey bonus `0x431C51`, fish `0x458EEA`, crab `0x458FE6`, mushroom `0x42E07E`, rain lift `0x434C0B`, cliff top `0x434D84`, fruit at the food bin `0x434C7C`. | **GO (static exact-build proof; runtime pending)** |
+| VV3 The Secret City | `0x427130`: research `0x459237`, `0x4593AF`, the chief's quarter `0x4593D5`, Magic `0x4593F2`, the chief's third / potion `0x459410`, the fire `0x45943A`; duplicate `0x42DF7E`. | `0x4263F0`: fruit `0x434AF1`, chief's fruit bonus `0x434B1A`, honey `0x431C2F`, chief's honey bonus `0x431C51`, fish `0x458EEA`, crab `0x458FE6`, mushroom `0x42E07E`, rain lift `0x434C0B`, cliff top `0x434D84`, fruit at the food bin `0x434C7C`; the chief's grant (job event 43, food by Leadership) `0x45906D` (the owner, 2026-11-18). | **GO (static exact-build proof; runtime pending)** |
 | VV4 The Tree of Life | `0x41E300`: research `0x464E5D`, Lab Equipment `0x464E87`, the fire `0x464EB0`; duplicates `0x41447C`, `0x414498`, `0x4144B4`. | `0x41D920` (doubled at `0x41D94F`, after Food Mastery): blackberry bush `0x464497`, cutting-tool berries `0x464510`, yellow breadfruit `0x464578`, fish `0x4645B5`, golden fish `0x464600`, crab `0x464A4B`, Mossy Rocks crab `0x436F1A`, Cooking Pit catch-up fruit `0x468AB7`, mushroom `0x414665`, inherited fish job `0x464438`. | **GO (static exact-build proof; runtime pending)** |
 | VV5 New Believers | `0x4237B0` (stock wrapper `0x7B2A00`): research `0x46DE4D`, second set's bonus `0x46DE7C`, the fire `0x46DEA5`; duplicates `0x4147BE`, `0x4147DD`, `0x4147F9`. | `0x41EB40` (stock wrapper `0x7B2B00`, after Food Mastery): noni `0x46D000`, crops `0x46D113`, lake fish `0x46D7A1`, mushroom `0x414970`, and the food jobs inherited from VV4 `0x46CFA1`, `0x46D079`, `0x46D764`, `0x46D7DE`, `0x46DB25`. | **GO (static exact-build proof; runtime pending)** |
 
@@ -59,8 +61,7 @@ static proof; expanded-256 modes are not public patcher modes.
 - VV1: island events (`0x428194`, `0x4281DA`, and the encounters More Island
   Events runs from its DLL), story/puzzle discoveries (`0x41A378`, `0x419459`,
   `0x419F14`), the milestone dialogs (tech `0x42BB18`, `0x42BBF7`, `0x42BCD6`,
-  `0x42BE50`, `0x42BFB0`, `0x42C110`; food `0x42B86A`, `0x42B938`, `0x42BA06`)
-  and the Golden Child's +150 food (`0x43B0A0`).
+  `0x42BE50`, `0x42BFB0`, `0x42C110`; food `0x42B86A`, `0x42B938`, `0x42BA06`).
 - VV2: island events (`0x4205AC`, `0x434351`, `0x420AE9`, `0x433FC6`), the
   Gong of Wonder (tech `0x44EA32`, `0x44ED52`, `0x44F202`; food `0x44E9C3`,
   `0x44EDB9`, `0x44F0D9`), the Sack and Vial (tech `0x4385E6`, `0x438746`,
@@ -68,8 +69,8 @@ static proof; expanded-256 modes are not public patcher modes.
   `0x43844A`). Full inventory: 17 tech and 13 food calls, with zero E9
   tail-jumps.
 - VV3: island events (direct calls and the tail-jumps `0x415EF1`, `0x416983`,
-  `0x416BAB`, `0x417A3A`, `0x415D44`, `0x41673E`, `0x418452`), the chief's
-  grant food (job event 43, `0x45906D`), the -5000 tech and the food bowl's -1.
+  `0x416BAB`, `0x417A3A`, `0x415D44`, `0x41673E`, `0x418452`), the -5000 tech
+  and the food bowl's -1.
 - VV4: island events (direct calls `0x414A2D`, `0x41494E` and the tail-jumps
   `0x4156F8`, `0x415862`, `0x41586F`, `0x415A81`, `0x415B46`, `0x415D8C`,
   `0x416722`, `0x416735`, `0x41520E`), the +250 object (`0x431AA0`), the

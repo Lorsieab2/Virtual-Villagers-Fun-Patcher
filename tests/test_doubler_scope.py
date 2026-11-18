@@ -68,13 +68,14 @@ TECH = {
 }
 FOOD = {
     1: (0x41D140, {0x43AD91: "berries", 0x43AED2: "crops", 0x43AF41: "fish", 0x43AF93: "crab",
-                   0x43AFFC: "mushroom"}),
+                   0x43AFFC: "mushroom", 0x43B0A0: "the Golden Child's +150 (the owner, 2026-11-18)"}),
     2: (0x4262B0, {0x46319D: "coconuts", 0x46325E: "crops", 0x463317: "fish", 0x463369: "the big catch",
                    0x4633D2: "mushroom"}),
     3: (0x4263F0, {0x434AF1: "fruit", 0x434B1A: "the chief's fruit bonus", 0x431C2F: "honey",
                    0x431C51: "the chief's honey bonus", 0x458EEA: "fish", 0x458FE6: "crab",
                    0x42E07E: "mushroom", 0x434C0B: "the rain lift's fruit", 0x434D84: "the cliff top's fruit",
-                   0x434C7C: "fruit at the food bin"}),
+                   0x434C7C: "fruit at the food bin",
+                   0x45906D: "the chief's grant, job event 43 (the owner, 2026-11-18)"}),
     4: (0x41D920, {0x464497: "blackberry bush", 0x464510: "cutting-tool berries", 0x464578: "yellow breadfruit",
                    0x4645B5: "fish", 0x464600: "golden fish", 0x464A4B: "crab", 0x436F1A: "the Mossy Rocks crab",
                    0x468AB7: "the Cooking Pit's catch-up fruit", 0x414665: "mushroom",
@@ -89,10 +90,10 @@ ROW_ONLY_RETURNS = {0x434C7C}
 # Out-of-scope callers named by the owner's rule, checked by name as well as by the full inventory.
 NAMED_EXCLUSIONS = {
     1: {"tech": {0x428194: "island event", 0x42BB18: "milestone dialog", 0x41A378: "puzzle discovery"},
-        "food": {0x4281DA: "island event", 0x43B0A0: "the Golden Child's act", 0x42B938: "milestone dialog"}},
+        "food": {0x4281DA: "island event", 0x42B938: "milestone dialog"}},
     2: {"tech": {0x4205AC: "island event", 0x44EA32: "Gong of Wonder", 0x4385E6: "Sack/Vial reward"},
         "food": {0x420AE9: "island event", 0x44E9C3: "Gong of Wonder", 0x438298: "Sack/Vial reward"}},
-    3: {"tech": {0x41592D: "island event"}, "food": {0x45906D: "the chief's grant"}},
+    3: {"tech": {0x41592D: "island event"}, "food": {0x414B95: "island event"}},
     4: {"tech": {0x414A2D: "island event", 0x431AA0: "the +250 object", 0x440889: "the +80,000 grant"},
         "food": {0x41494E: "island event", 0x440898: "the +5,000 grant"}},
     5: {"tech": {0x414D0D: "island event", 0x419EA3: "a refund"}, "food": {0x416D01: "island event"}},

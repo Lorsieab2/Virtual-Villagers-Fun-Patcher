@@ -27,9 +27,10 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 # The owner's doubler scope (2026-11-17, the same rule in all five games):
 # FOOD is only food gathered from a food source; TECH is research-table work.
 # Island events (also the ones a companion DLL runs), the milestone dialogs'
-# rewards, the Golden Child's act, puzzle discoveries, purchases and cheats are
-# never doubled.  The wrappers double only a call whose immediate return
-# address is one of these exact stock returns; every other caller stays native.
+# rewards, puzzle discoveries, purchases and cheats are never doubled.  The
+# Golden Child's +150 food is doubled (the owner, 2026-11-18).  The wrappers
+# double only a call whose immediate return address is one of these exact
+# stock returns; every other caller stays native.
 # A New Home has no collectibles and no fire bonus.
 VV1_TECH_DOUBLER_ELIGIBLE_RETURNS = (
     0x43B318,  # research at Science 1
@@ -42,6 +43,7 @@ VV1_FOOD_DOUBLER_ELIGIBLE_RETURNS = (
     0x43AF41,  # fish
     0x43AF93,  # crab
     0x43AFFC,  # mushroom
+    0x43B0A0,  # the Golden Child's +150 food (the owner, 2026-11-18)
 )
 
 
@@ -4452,7 +4454,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (includes the Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each: the Tech Point Doubler doubles research tech points; the Food Point Doubler doubles food gathered from food sources (berries, crops, fish, crabs and mushrooms). Island events, story/puzzle discoveries (Whale, berries, mushroom, device), milestone-dialog rewards, the Golden Child's gifts, purchases and cheats are never doubled. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. The Golden Child is skipped by all three, as by Equal Division. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each: the Tech Point Doubler doubles research tech points; the Food Point Doubler doubles food gathered from food sources (berries, crops, fish, crabs and mushrooms) and the Golden Child's +150 food. Island events, story/puzzle discoveries (Whale, berries, mushroom, device), milestone-dialog rewards, purchases and cheats are never doubled. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. The Golden Child is skipped by all three, as by Equal Division. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -4508,10 +4510,10 @@ def main() -> None:
                 "0x42BB18, 0x42BBF7, 0x42BCD6, 0x42BE50, 0x42BFB0, 0x42C110 tech",
                 "0x42B86A, 0x42B938, 0x42BA06 food (fixed reward dialogs)",
             ],
-            "golden_child_producers": ["0x43B0A0 food (+150, the Golden Child's act)"],
+            "golden_child_producers": ["0x43B0A0 food (+150, the Golden Child's act; doubled: the owner, 2026-11-18)"],
             "tech_eligible_returns": [f"0x{va:X}" for va in VV1_TECH_DOUBLER_ELIGIBLE_RETURNS],
             "food_eligible_returns": [f"0x{va:X}" for va in VV1_FOOD_DOUBLER_ELIGIBLE_RETURNS],
-            "hook_status": "GO: exact-build static whitelist of research and the gathered food sources; Island Event, story-puzzle, milestone-dialog, Golden Child and every other caller (companion DLLs too) stay native; runtime/player confirmation pending",
+            "hook_status": "GO: exact-build static whitelist of research, the gathered food sources and the Golden Child's +150 food; Island Event, story-puzzle, milestone-dialog and every other caller (companion DLLs too) stay native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -4520,11 +4522,11 @@ def main() -> None:
             ],
             "scope": {
                 "tech": ["research"],
-                "food": ["berries", "crops", "fish", "crab", "mushrooms"],
+                "food": ["berries", "crops", "fish", "crab", "mushrooms", "the Golden Child's +150 food"],
             },
             "exclusions": [
                 "Island Event tech-point and food-point gain",
-                "Reward tech-point and food-point gain (story/puzzle discoveries, milestone dialogs, the Golden Child's act)",
+                "Reward tech-point and food-point gain (story/puzzle discoveries, milestone dialogs)",
                 "Purchases and cheats",
             ],
             "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",

@@ -39,8 +39,8 @@ STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 # (with the chief's, Magic's, the potion's and the fire's points worked out at
 # the research table), collectible duplicates and collection effects on tech
 # gain.  Island events (direct calls, tail-jumps and the ones a companion DLL
-# runs), rewards (the chief's grant, dialogs), purchases and cheats are never
-# doubled.  The wrappers double only a call whose immediate return address is
+# runs), rewards (dialogs), purchases and cheats are never doubled.  The chief's
+# grant (job event 43) is doubled (the owner, 2026-11-18).  The wrappers double only a call whose immediate return address is
 # one of these exact stock returns; every other caller stays native.
 TECH_DOUBLER_ELIGIBLE_RETURNS = (
     0x459237,  # research at Science 0 or 4 and up
@@ -62,6 +62,7 @@ FOOD_DOUBLER_ELIGIBLE_RETURNS = (
     0x434C0B,  # the rain lift's fruit
     0x434D84,  # the cliff top's fruit
     0x434C7C,  # the rain lift's fruit at the food bin ("Fruit is Harvested at the Food Bin")
+    0x45906D,  # the chief's grant (job event 43, food by Leadership; the owner, 2026-11-18)
 )
 DOUBLER_TABLE_VA = PAYLOAD_VA + 0x1D0
 HEAL_CAVE_FILE_OFFSET = 0x7B664
@@ -2741,7 +2742,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x97488", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each: the Tech Point Doubler doubles research tech points (with the chief's, Magic's, the potion's and the fire's extra points) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (fruit, honey, fish, crabs and mushrooms, with the chief's bonuses). Island events, the chief's grant, other rewards, purchases and cheats are never doubled. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. The Tribal Chief, who cannot hold a preference, is skipped. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Tribal Chief is skipped.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each: the Tech Point Doubler doubles research tech points (with the chief's, Magic's, the potion's and the fire's extra points) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (fruit, honey, fish, crabs and mushrooms, with the chief's bonuses) and the chief's grant of food. Island events, other rewards, purchases and cheats are never doubled. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. The Tribal Chief, who cannot hold a preference, is skipped. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Tribal Chief is skipped.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -2788,7 +2789,7 @@ def main() -> None:
             },
             "job_event_dispatcher": {
                 "dispatcher": "sub_458DB0 (job events 24-43)",
-                "sources": "fish 0x458EE5, crab 0x458FE1 and research 0x459232-0x459435 are doubled; the food bowl's -1 (0x458E78), the -5000 tech (0x458E09) and the chief's grant food (event 43, 0x459068) stay native",
+                "sources": "fish 0x458EE5, crab 0x458FE1, the chief's grant food (event 43, 0x459068) and research 0x459232-0x459435 are doubled; the food bowl's -1 (0x458E78) and the -5000 tech (0x458E09) stay native",
                 "final_delta": "sub_458DB0 emits base and bonus components through separate tech-writer calls; each research component is doubled once",
             },
             "tech_eligible_returns": [f"0x{va:X}" for va in TECH_DOUBLER_ELIGIBLE_RETURNS],
@@ -2809,11 +2810,11 @@ def main() -> None:
             ],
             "scope": {
                 "tech": ["research", "the chief's, Magic's, the potion's and the fire's research points", "duplicate collectibles"],
-                "food": ["fruit (with the chief's bonus, the rain lift, the cliff top and the food bin)", "honey (with the chief's bonus)", "fish", "crab", "mushrooms"],
+                "food": ["fruit (with the chief's bonus, the rain lift, the cliff top and the food bin)", "honey (with the chief's bonus)", "fish", "crab", "mushrooms", "the chief's grant"],
             },
             "exclusions": [
                 "Island Event tech-point and food-point gain",
-                "Reward tech-point and food-point gain (the chief's grant food, dialogs)",
+                "Reward tech-point and food-point gain (dialogs)",
                 "Purchases and cheats",
             ],
             "food_mastery_status": "confirmed absent in the exact-build writer, strings, and bounded caller corpus",
