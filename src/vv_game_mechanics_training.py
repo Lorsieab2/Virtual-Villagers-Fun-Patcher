@@ -80,10 +80,11 @@ def mark_lines(village: gm.Village) -> list[tuple[str, bool | str, bool]]:
          "before the mark is looked at, so an untrained villager can conceive in time away.", C, True),
         ("The mark is kept in the save, so an untrained villager is still untrained after loading.", gm.SAVE, True),
     ]
-    has = village.has(WORK_FIRST.format(game))
-    if has is not False:
-        where = "" if has else " (whether the game has it could not be told)"
-        out.append((f"With the patcher's \"{WORK_FIRST_NAME}\"{where}: the mark no longer blocks the villager's "
+    # Only the skill-practice version of the patch (id vvN_work_first, PR #807) lifts the mark; the older "Builders
+    # and Healers Work First" (vvN_builders_and_healers_work_first) does not, so nothing is said unless the game is
+    # known to have the new one.
+    if village.has(WORK_FIRST.format(game)) is True:
+        out.append((f"With the patcher's \"{WORK_FIRST_NAME}\" (in this game): the mark no longer blocks the villager's "
                     "preferred job (never Parenting): when the patch puts that job first, the game is asked for it "
                     "with the mark lifted for that one request. Every other job stays blocked until a drop clears "
                     "the mark. The preferred job also gets past the skill-5 floor to the (skill + 40) roll.", C, True))
