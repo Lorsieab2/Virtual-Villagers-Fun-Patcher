@@ -213,6 +213,11 @@ def add_gui_rows(strings: list[dict]) -> None:
     strings.append({"stem": "vvfp.gui/rename_tribe.long_name_note", "english": vv_tribe_rename.LONG_NAME_NOTE,
                     "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",
                     "context": "Rename Tribe window (the note under the name box)", "notes": "a patcher window"})
+    import vv_game_mechanics
+    strings.append({"stem": "vvfp.gui/game_mechanics.minimum_detail", "english": vv_game_mechanics.MINIMUM_DETAIL,
+                    "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",
+                    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics "
+                               "and numbers)", "notes": "a patcher window"})
 
 
 def main() -> None:

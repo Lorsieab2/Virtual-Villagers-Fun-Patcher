@@ -1211,6 +1211,66 @@ def render(facts: list[Fact], now: float | None = None) -> str:
     return render_live(facts, now)[0]
 
 
+# MINIMUM DETAIL (the owner, 2026-11-17: "a toggle to game mechanics for 'Minimum Detail': only gives vital stats and
+# numbers, hides all the explanations and stuff").  The page's lines are written answer-first, so a line keeps only
+# its first sentence -- the answer -- and a line is left out when that answer holds no number (an explanation), when
+# it is one of the page's explanations (_EXPLAINS: how a figure is worked out, the stock rule a patch replaces, what is
+# not counted, code that never runs, and what one of the patcher's patches does), or when it is in a group that only
+# explains the page or lists the game's keys and tips (MINIMUM_HIDDEN_GROUPS).  The Vital
+# statistics keep every line (their first sentence).  A left-out line whose sub-lines are kept shows its heading
+# instead -- the words before its first colon -- so the numbers under it still say what they count.
+MINIMUM_DETAIL = "Minimum Detail"
+MINIMUM_HIDDEN_GROUPS = frozenset({"Time and units", "Sources", "Hidden keys, clicks and cheats"})
+_EXPLAINS = re.compile(r"^(?:How |Normally|Not counted|DEAD)|\b[Ww]ith the patcher\b|\b[Tt]he patcher's\b"
+                       r"|\bthe patcher \(")
+_SENTENCE_END = re.compile(r"[.!?][\"”)]?(?=\s+[A-Z\"(])")
+
+
+def first_sentence(text: str) -> str:
+    """The answer a Game Mechanics line starts with: its text up to the end of the first sentence (never inside the
+    game's own words in quotation marks)."""
+    for end in _SENTENCE_END.finditer(text):
+        if text.count('"', 0, end.end()) % 2 == 0:
+            return text[:end.end()]
+    return text
+
+
+def minimum(facts: list[Fact]) -> list[Fact]:
+    """The page in Minimum Detail (see MINIMUM DETAIL above): the vital statistics and the numbers, each line cut to
+    its answer; the explanations left out."""
+    def short(fact: Fact) -> str | None:
+        if fact.group in MINIMUM_HIDDEN_GROUPS:
+            return None
+        answer = first_sentence(fact.text)
+        if _EXPLAINS.search(answer):
+            return None
+        if fact.group == GROUPS[0] or fact.due is not None or re.search(r"\d", answer):
+            return answer
+        return None
+
+    out: list[Fact] = []
+    heading: Fact | None = None        # a left-out parent line, shown as a heading if a sub-line under it is kept
+    orphan = False                     # the parent was left out with no heading: its kept sub-lines become bullets
+    for fact in facts:
+        text = short(fact)
+        if not fact.sub:
+            heading, orphan = None, False
+            if text is None:
+                orphan = True
+                answer = first_sentence(fact.text)
+                lead = answer.split(":", 1)[0]
+                if lead != answer and fact.group not in MINIMUM_HIDDEN_GROUPS and not _EXPLAINS.search(lead):
+                    heading = dataclasses.replace(fact, text=lead + ":", due=None, due_kind=None)
+                continue
+        if text is None:
+            continue
+        if heading is not None:
+            out.append(heading)
+            heading, orphan = None, False
+        out.append(dataclasses.replace(fact, text=text, sub=fact.sub and not orphan))
+    return out
+
+
 def tidy(text: str) -> str:
     """A line with an empty marker left in it read cleanly: no space before a stop, no double space."""
     text = re.sub(r"\(\s*\)", "", text)
