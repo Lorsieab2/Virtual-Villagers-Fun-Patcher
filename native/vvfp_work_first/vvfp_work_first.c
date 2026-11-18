@@ -1,84 +1,166 @@
-/* VVFP Work First -- Builders and Healers Work First (all five games).
+/* VVFP Work First -- Builders and Healers Work First, upgraded to skill
+   practice (all five games).
 
-   An addendum to Builders Fix Huts When Idle.  The owner: "in both low and
-   high food situations, builders and healers still should prioritize fixing
-   huts over other stuff for all 5 games" -- builders their building work,
-   healers their healing and study, first, only while not every population
-   hut is built -- and "make the work patches an addendum to the preexisting
-   ones".
+   An addendum to Builders Fix Huts When Idle.  The owner first asked for
+   builders and healers to do their own work first, at any food level; the
+   skill-practice upgrade (v1.35.97, the owner's decisions of 2026-11-17 on
+   "Skill Practice - Behaviors to Approve") extends it so villagers practise
+   their SELECTED job on their own: farmers, researchers, healers, builders
+   and (New Believers) devotees.  Parenting stays under the Birth Control
+   patches and is never put first.
 
-   HOW.  Every game's adult idle scheduler asks one work dispatcher to start
-   a job for the villager ("dispatch job N; true if something started").  When
-   the adult scheduler makes that call for a villager whose selected job is
-   Building or Healing, while a population hut is unbuilt, this companion
-   first asks the dispatcher for the villager's own job; if that starts
-   something, the scheduler sees "started".  If it starts nothing -- no
-   project, no hut to fix, no one sick, nothing to study -- the scheduler's own
-   request runs exactly as it would have.  So builders and healers work first
-   when there is work of theirs to do, and otherwise do whatever the stock
-   game would have them do (farming, research, ...).  At low food in VV3-VV5
-   the scheduler's farming attempt is one of these calls, so a builder or
-   healer tries their own work before farming.
+   HOW.  Every game's adult idle scheduler -- and its catch-up worker -- asks
+   one work dispatcher to start a job for the villager ("dispatch job N; true
+   if something started").  For the scheduler's and the worker's own calls,
+   on the decision's roll (about three times in four, shared with Builders
+   Fix Huts When Idle), this companion first asks the dispatcher for the
+   villager's own selected job; if that starts something, the caller sees
+   "started".  If it starts nothing, a builder in The Secret City, The Tree of
+   Life and New Believers may do the game's own "Doing exercise" (Building
+   practice), and a healer in A New Home and The Lost Children whose village
+   has solved Herb Mastery may study one of the understood plants (Healing
+   practice); otherwise the caller's own request runs exactly as it would have.
+   Whatever the work does -- which project, which crop, which patient -- is
+   the game's own dispatcher's choice.
 
-     game  dispatcher  displaced                      adult-scheduler returns         selected job             Bld Heal
-     VV1   0x4472C0    mov eax,[esp+8]; test eax,eax  0x448355 0x448382               village+i*0x3D8+0x3D0     4   5
-     VV2   0x45FBF0    the same                       0x461A08 0x461A35               village+i*0xE48C+0x7F8    5   3
-     VV3   0x45AF00    mov eax,[esp+8]; sub esp,0xA0  0x45C23C 0x45C27A 0x45C28F      record+0xEC0              4   2
-     VV4   0x4639B0    mov eax,[esp+4]; sub esp,0x98  0x4659D2 0x465A17 0x465A2A      [obj+0x1B88]+0x1C70       4   2
-     VV5   0x46C540    sub esp,0x94                   0x46F291 0x46F2D6 0x46F2EA      [obj+0x1B88]+0x1C74       4   2
+     game  dispatcher  displaced                      adult-scheduler returns         selected job             Farm Par Heal Res Bld
+     VV1   0x4472C0    mov eax,[esp+8]; test eax,eax  0x448355 0x448382               village+i*0x3D8+0x3D0     1    2   5    3   4
+     VV2   0x45FBF0    the same                       0x461A08 0x461A35               village+i*0xE48C+0x7F8    1    2   3    4   5
+     VV3   0x45AF00    mov eax,[esp+8]; sub esp,0xA0  0x45C23C 0x45C27A 0x45C28F      record+0xEC0              0    1   2    3   4
+     VV4   0x4639B0    mov eax,[esp+4]; sub esp,0x98  0x4659D2 0x465A17 0x465A2A      [obj+0x1B88]+0x1C70       0    1   2    3   4
+     VV5   0x46C540    sub esp,0x94                   0x46F291 0x46F2D6 0x46F2EA      [obj+0x1B88]+0x1C74       0    1   2    3   4  (Devotion 5)
 
-   VV1/VV2: thiscall(index, job), ret 8, ecx = village.  VV3: thiscall(record,
-   job), ret 8.  VV4/VV5: thiscall(job), ret 4, ecx = the villager object.
-   The result is in al.  Every other caller of a dispatcher is untouched.
+   WHO IS PUT FIRST.
+   * Healing and Farming: always (whether there is anything to do is the
+     dispatcher's decision).  A New Home's Farming case returns "started"
+     having started nothing at Farming level 1 with nothing to forage, so
+     there a farmer is put first only when the case would start something.
+   * Research: always, except that it never displaces a Farming request (the
+     low-food farming attempt of the later games' scheduler, or any Farming
+     pick) -- researchers never take food work away from the village.
+   * Building: builders never START a project the player never dropped anyone
+     on (the owner's rule); they may continue one in progress.
+       - A New Home / The Lost Children: only while the builder has hut work
+         (as before), and never while the stock Building case could start a
+         population hut nobody has worked on (A New Home: hut 9 any time, huts
+         10/11 above 22/45 villagers; The Lost Children: hut 24), whose
+         progress is below 2 -- the village drawing routine marks a scaffold
+         with progress 1.
+       - The Secret City / New Believers: always; their Building cases only
+         continue projects above 0%.
+       - The Tree of Life: always, except while the Building case would offer
+         puzzle work it can start on its own: the stream before The Stream is
+         solved (the owner: keeping the stream clear only once it has been
+         cleared), the piers before Fishing Nets, the rubble before the
+         Cooking Pit.
+   * Devotion (New Believers): in catch-up always (as before); while you play
+     only when Easier Devotee Training is not in the executable, so the two
+     never double up.
+   * Parenting: never.
 
-   CATCH-UP.  Time passing while the game was closed, and Time Warp, never run
-   the idle scheduler: each game has a catch-up worker, called a few times per
-   age unit for each adult (14+, health >= 20, not busy), which takes the
-   stock picker's job and dispatches it itself.  The owner: in catch-up too, a
-   villager whose selected job is Building or Healing -- and in New Believers
-   Devotion, which only catch-up boosts ("the patch is only meant to boost
-   skill gain and progress in jobs that kind of lack that natively") -- does
-   that job about three times in four, one roll per worker decision; otherwise
-   the stock pick runs.  The worker reaches the dispatcher by one of two
-   routes, and both are covered:
+   THE FALLBACKS (only after the own job started nothing).
+   * Exercise (The Secret City, The Tree of Life, New Believers; the owner's
+     items 56, 77, 92): a builder whose Building work started nothing does the
+     game's own "Doing exercise" (do-action 0x96 / 0x47 / 0x4E), whose step
+     raises Building through the standard practice roll -- above 250 food only
+     (at 250 or less the village needs its farmers), and only when the
+     dispatch left the villager's current action unchanged.
+   * Plants (A New Home, The Lost Children; the owner's items 15, 39-41):
+     once Herb Mastery is solved (A New Home [state+0xA080], The Lost Children
+     [state+0x2E788]) a healer whose Healing work started nothing studies a
+     random understood plant -- A New Home's medical cactus, rare rose,
+     strange lily and strange plant (never the Magic Plant of Life), The Lost
+     Children's six -- through the game's own study starter, whose re-study
+     step is the Healing practice roll.  A villager the game would send
+     "Running away" from a plant (trait 0xB, the drop's own test) is never
+     sent to it.  In A New Home a villager whose last activity is 9 (the
+     cactus: the Healing case started it and reports "nothing") is left alone.
 
-     game  worker    pick dispatch (return)  research pick: site, bytes      research path  done
-     VV1   0x42E790  0x42E81C (0x42E821)     0x42E7E0 cmp eax,2; jne   (5)   0x42E7E5       0x42E821
-     VV2   0x43B4D0  0x43B583 (0x43B588)     0x43B52D cmp ebp,2; jne   (5)   0x43B532       0x43B588
-     VV3   0x45BF00  0x45BFC0 (0x45BFC5)     0x45BF52 cmp ebx,1; jne   (5)   0x45BF57       0x45BFC5
-     VV4   0x465750  0x465827 (0x46582C)     0x46579F cmp edi,1; jne   (5)   0x4657A4       0x46582C
-     VV5   0x46E8E0  0x46E9C9 (0x46E9CE)     0x46E92F cmp edi,1; jne   (5)   0x46E934       0x46E9CE
+   THE OTHER SITES (runtime detours, all-or-none with the dispatcher hook).
+   * The Tree of Life / New Believers, beginners (items 1, 2): the job picker
+     never sends a villager to a job whose skill is 5 or less (VV4 0x461E69,
+     VV5 0x46A594: cmp esi,5; jle fail).  For the villager's SELECTED job
+     (never Parenting), on the decision's roll, the gate lets the pick through
+     to the game's own roll, rand(100) < skill + 40.
+   * New Believers, "untrained" (item 3): every new villager starts with
+     [record+0x1C54] = 1, and the dispatcher refuses every job while it is 1
+     (0x46C565).  For the scheduler's and catch-up's calls, a request for the
+     villager's selected job (never Parenting) is dispatched with the mark
+     lifted for that one call and put back afterwards (a refusal inside the
+     call writes 0, which would otherwise train them for everything).
+   * The Tree of Life, the fruit trip in catch-up (item 84): the Farming case
+     offers "Attempting to retrieve fruit" only while not catching up
+     (0x463A30: cmp byte [game+0x171A4], bl; jne).  In catch-up a villager
+     whose selected job is Farming is offered it too, on the decision's roll.
+   * New Believers, noni in catch-up before the Hungry Totem (item 101): the
+     same test at 0x46C5CA ([game+0x17E10]); a selected farmer is offered noni
+     in catch-up on the decision's roll, as a dropped farmer already is.
+   * The Lost Children, examining the sewing hut (item 30): the Building
+     case's examine pick (0x4602B0: push 4; call rand) chooses among the three
+     population huts and the hospital; once the sewing hut is finished
+     ([state+0x2E790]), on the decision's roll and one time in five, it
+     examines the sewing hut instead (0x45F7C0(index, 7), the drop's own
+     call).
 
-   * The pick dispatch: its return address is one of the dispatcher stub's
-     callers, so it acts exactly as for the live scheduler (own job first;
-     nothing of theirs to do -> the pick).  In The Lost Children, The Tree of
-     Life and New Believers the worker's task-state continuation runs before
-     it, as the live scheduler's does.
-   * The research pick (VV1/VV2 job 2, VV3-VV5 job 1) never reaches the
-     dispatcher: the worker gives it its own 5% research step.  The site above
-     tests for it; a research pick of a builder, healer (or devotee) asks the
-     same question and, if the own job starts something, goes to the worker's
-     own "done" (its queue processor); otherwise the stock research step runs.
-     Any other pick continues to the stock code unchanged.  In The Secret City
-     the site is an executable-side stub in the fix-huts page (it resolves
-     this DLL itself, so it acts from the first catch-up decision), which asks
-     VvfpWorkFirstFirst with the research step 0x45BF57 as the caller; the
-     other four games' sites are runtime detours from this DLL.
-   * The low-food safety net: at 250 food or less with Farming 20 or more,
-     The Secret City, The Tree of Life and New Believers dispatch Farming from
-     a third call (returns 0x45BFB0, 0x46580F, 0x46E9B1) and then finish; that
-     call is not one of the stub's callers, so Farming still wins.
+   CATCH-UP.  Time passing while the game was closed, and Time Warp, never
+   run the idle scheduler: each game's catch-up worker takes the stock
+   picker's job and dispatches it itself.  That pick dispatch (VV1 0x42E821,
+   VV2 0x43B588, VV3 0x45BFC5, VV4 0x46582C, VV5 0x46E9CE returns) is one of
+   the calls above, so everything here acts in catch-up too.  The worker's
+   other branch, `cmp pick, Parenting; jne` (VV1/VV2 job 2, VV3-VV5 job 1),
+   is the Parenting pick: 5% of the time a catch-up conception attempt.  An
+   earlier version of this companion hooked it as "research" and gave
+   builders and healers their own job instead; that took catch-up mating
+   away from the Birth Control patches, so it is no longer hooked.  The
+   worker's low-food Farming dispatch (VV3 0x45BFB0, VV4 0x46580F, VV5
+   0x46E9B1) is not one of the calls: Farming still wins there.
 
    Loaded by "VVFP Fix Huts.dll" (VvfpFixHutsInstall, from a companion that
    runs every frame) by full path; The Secret City's hook is a stub in the
-   fix-huts page that resolves VvfpWorkFirstFirst, and its catch-up site is
-   installed by the first VvfpWorkFirstFirst call.  Not shipped: nothing is
+   fix-huts page that resolves VvfpWorkFirstFirst.  Not shipped: nothing is
    loaded, and every hook falls through to the stock code. */
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
 #include <intrin.h>
 #include "../shared/install_sites.h"    /* every site written, or none */
+
+/* ---- Calling the game ----------------------------------------------------- */
+static unsigned int tc0(unsigned int fn, unsigned int self) {
+    unsigned int r;
+    __asm {
+        mov ecx, self
+        mov eax, fn
+        call eax
+        mov r, eax
+    }
+    return r;
+}
+
+static unsigned int tc1(unsigned int fn, unsigned int self, unsigned int a) {
+    unsigned int r;
+    __asm {
+        mov ecx, self
+        mov eax, fn
+        push a
+        call eax
+        mov r, eax
+    }
+    return r;
+}
+
+static unsigned int tc2(unsigned int fn, unsigned int self, unsigned int a, unsigned int b) {
+    unsigned int r;
+    __asm {
+        mov ecx, self
+        mov eax, fn
+        push b
+        push a
+        call eax
+        mov r, eax
+    }
+    return r;
+}
 
 /* ---- Population huts ------------------------------------------------------ */
 /* The same tests the fix-huts companion makes (native/vvfp_fix_huts). */
@@ -110,38 +192,58 @@ static int vv2_builder_has_hut_work(const unsigned char *village) {
         && (state[0x2E818] == 1 || state[0x2E820] == 1 || state[0x2E828] == 1);
 }
 
+/* Builders never start a project nobody was dropped on.  A New Home's stock
+   Building case (0x447528) builds hut 9 whenever it is not done and huts 10 /
+   11 above 22 / 45 villagers (population 0x41CF90, thiscall on the state),
+   whatever their progress; a hut a player has worked on has progress 2 or
+   more (the drawing routine writes 1 for a shown scaffold).  progress(id) =
+   [state+0x9F9C+8*id], done = the byte 4 later. */
+#define VV1_POPULATION 0x41CF90u
+static int vv1_fresh_hut_on_offer(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    int population = -1;
+    unsigned int id;
+    for (id = 9; id <= 11; ++id) {
+        const int progress = *(const int *)(state + 0x9F9Cu + 8u * id);
+        if (state[0x9FA0u + 8u * id] == 1 || progress >= 2) continue;
+        if (id == 9) return 1;
+        if (population < 0) population = (int)tc0(VV1_POPULATION, (unsigned int)(uintptr_t)state);
+        if (population > (id == 10 ? 22 : 45)) return 1;
+    }
+    return 0;
+}
+
+/* The Lost Children's stock Building case starts hut 24 whenever it is not
+   done (0x4600D2), whatever its progress [state+0x2E814]; huts 25 / 26 and
+   every other project need progress 2 or more already. */
+static int vv2_fresh_hut_on_offer(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    return state[0x2E818] != 1 && *(const int *)(state + 0x2E814) < 2;
+}
+
 struct later_game {
     unsigned int complete_fn;      /* __stdcall(int) -> al, ecx = complete_obj */
     unsigned int complete_obj;
     int project_base;
 };
-static const struct later_game VV3 = { 0x4321F0u, 0x594620u, 0 };
 static const struct later_game VV4 = { 0x438960u, 0x4D8BF8u, 19 };
-static const struct later_game VV5 = { 0x43AE80u, 0x51E008u, 19 };
 
-typedef unsigned char (__stdcall *complete_t)(int);
-
-static int later_complete(const struct later_game *g, int hut) {
-    complete_t fn = (complete_t)(uintptr_t)g->complete_fn;
-    unsigned char r;
-    unsigned int obj = g->complete_obj;
-    int arg = g->project_base + hut;
-    __asm {
-        mov ecx, obj
-        push arg
-        call fn
-        mov r, al
-    }
-    return r != 0;
+static int project_done(const struct later_game *g, int project) {
+    return (tc1(g->complete_fn, g->complete_obj, (unsigned int)project) & 0xFFu) != 0;
 }
 
-static int later_huts_incomplete(const struct later_game *g) {
-    int i;
-    for (i = 0; i < 4; ++i) {
-        if (!later_complete(g, i)) {
-            return 1;
-        }
-    }
+/* The Tree of Life's Building case (0x463C1C) offers puzzle work it can start
+   on its own: the stream (option 5, obstruction 0x430FD0 on 0x4D8CF0 between
+   1 and 97), the piers (option 6: stage 0x4396D0 on 0x4D86A8 below 2 and
+   0x421570 below 100) and the rubble (option 7: stage 0x4396D0 on 0x4D8720
+   at 0 and [0x4D8A8C] below 100).  The stream counts only until The Stream
+   (project 1) is solved: after that, keeping it clear is building practice
+   (the owner's item 73). */
+static int vv4_puzzle_on_offer(void) {
+    int obstruction = (int)tc0(0x430FD0u, 0x4D8CF0u);
+    if (obstruction > 0 && obstruction < 0x62 && !project_done(&VV4, 1)) return 1;
+    if ((int)tc0(0x4396D0u, 0x4D86A8u) < 2 && (int)tc0(0x421570u, 0x4D86A8u) < 100) return 1;
+    if ((int)tc0(0x4396D0u, 0x4D8720u) == 0 && *(const int *)(uintptr_t)0x4D8A8Cu < 100) return 1;
     return 0;
 }
 
@@ -149,14 +251,13 @@ static int later_huts_incomplete(const struct later_game *g) {
 /* The owner: the behaviour patches "should increase the LIKELIHOOD of
    villagers doing that action, not 100% replace them" -- 75%, one roll per
    decision shared by every patch in it.  The decision and its roll belong to
-   "VVFP Fix Huts.dll", which wraps each game's idle scheduler (see "About
-   three times in four" there) and hands this companion its VvfpFixHutsRoll
-   through VvfpWorkFirstSetRoll before installing it; in The Secret City,
-   where the fix-huts page stub loads that DLL, the export is looked up by
-   module name.  This companion acts only for the scheduler's own calls, so
-   it always asks within a decision.  If the fix-huts DLL cannot be found at
-   all (it loads this one, so that does not happen in play) each ask draws a
-   75% roll of this companion's own. */
+   "VVFP Fix Huts.dll", which wraps each game's idle scheduler and catch-up
+   worker and hands this companion its VvfpFixHutsRoll through
+   VvfpWorkFirstSetRoll before installing it; in The Secret City, where the
+   fix-huts page stub loads that DLL, the export is looked up by module name.
+   If the fix-huts DLL cannot be found at all (it loads this one, so that
+   does not happen in play) each ask draws a 75% roll of this companion's
+   own. */
 static int (__cdecl *shared_roll)(void);
 static int shared_roll_state;          /* 0 = not looked up, 1 = found, -1 = absent */
 static unsigned int own_roll_state;
@@ -173,7 +274,7 @@ __declspec(dllexport) void __stdcall VvfpWorkFirstSetRoll(int (__cdecl *roll)(vo
     shared_roll_state = roll != NULL ? 1 : 0;
 }
 
-static int own_roll(void) {
+static unsigned int next_random(void) {
     unsigned int x = own_roll_state;
     if (x == 0) {
         x = (unsigned int)__rdtsc() ^ 0x2545F491u;
@@ -183,6 +284,11 @@ static int own_roll(void) {
     x ^= x >> 17;
     x ^= x << 5;
     own_roll_state = x;
+    return x;
+}
+
+static int own_roll(void) {
+    unsigned int x = next_random();
 #ifdef VVFP_TEST
     ++VvfpWorkFirstRollTest.draws;
     if (VvfpWorkFirstRollTest.force == 1) return 1;
@@ -201,44 +307,79 @@ static int decision_roll(void) {
     return shared_roll_state == 1 ? shared_roll() : own_roll();
 }
 
-/* ---- The decision ---------------------------------------------------------- */
-/* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
-   tests/test_dlls/): the shipped DLL carries no counters and no probe. */
+/* ---- Counters the tests read ------------------------------------------------ */
+/* Compiled only into the TEST build (VVFP_TEST, tests/test_dlls/): the
+   shipped DLL carries no counters and no probe.  pick: the random index the
+   next plant choice uses (-1: the real random). */
 #ifdef VVFP_TEST
 struct vvfp_work_first_stats {
     int tried;          /* the villager's own job was tried first */
     int started;        /* ... and started something */
+    int exercised;      /* the exercise fallback started */
+    int studied;        /* the plant fallback started */
+    int pick;           /* forced random pick, or -1 */
 };
-__declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0 };
-#define WORK_FIRST_COUNT_TRIED ++VvfpWorkFirstStats.tried
-#define WORK_FIRST_COUNT_STARTED __asm inc dword ptr [VvfpWorkFirstStats + 4]
+__declspec(dllexport) struct vvfp_work_first_stats VvfpWorkFirstStats = { 0, 0, 0, 0, -1 };
+#define COUNT(field) (++VvfpWorkFirstStats.field)
+static unsigned int pick_index(unsigned int n) {
+    if (VvfpWorkFirstStats.pick >= 0) return (unsigned int)VvfpWorkFirstStats.pick % n;
+    return next_random() % n;
+}
 #else
-#define WORK_FIRST_COUNT_TRIED ((void)0)
-#define WORK_FIRST_COUNT_STARTED
+#define COUNT(field) ((void)0)
+static unsigned int pick_index(unsigned int n) {
+    return next_random() % n;
+}
 #endif
 
-/* The villager's own job to try first, or -1: the stock request alone.
-   Builders: only while a population hut is unbuilt.  Healers: always -- the
-   owner: "For healers, they should study medicine at all food levels, when
-   they can study medicine"; whether they can (a patient, the Medicine tech,
-   the Hospital) is the game's own healing dispatcher's decision, and when it
-   starts nothing the scheduler's own request runs.  All of it only when the
-   decision's roll passes; otherwise the stock request alone.  devotion: New
-   Believers' Devotion job in catch-up (always first, like Healing; whether
-   there is anything to honour is the dispatcher's decision), else -1. */
-static int own_first(int selected, int requested, int building, int healing, int devotion,
-                     int huts_incomplete) {
-    if (selected == requested) {
+/* ---- The decision ---------------------------------------------------------- */
+struct jobs {
+    int farming, parenting, healing, research, building, devotion;
+};
+static const struct jobs VV1_JOBS = { 1, 2, 5, 3, 4, -1 };
+static const struct jobs VV2_JOBS = { 1, 2, 3, 4, 5, -1 };
+static const struct jobs LATER_JOBS = { 0, 1, 2, 3, 4, -1 };
+static const struct jobs VV5_JOBS = { 0, 1, 2, 3, 4, 5 };
+
+/* The villager's own job to try first, or -1: the caller's request alone.
+   building_ok / devotion_ok / farming_ok: whether that job may be put first
+   now (see WHO IS PUT FIRST).  The roll is asked only when the companion
+   would act. */
+static int own_first(const struct jobs *j, int selected, int requested,
+                     int building_ok, int devotion_ok, int farming_ok) {
+    if (selected < 0 || selected == requested || selected == j->parenting) {
         return -1;
     }
-    if (selected == building ? !huts_incomplete
-                             : selected != healing && (devotion < 0 || selected != devotion)) {
+    if (selected == j->building) {
+        if (!building_ok) return -1;
+    } else if (selected == j->devotion) {
+        if (!devotion_ok) return -1;
+    } else if (selected == j->research) {
+        if (requested == j->farming) return -1;
+    } else if (selected == j->farming) {
+        if (!farming_ok) return -1;
+    } else if (selected != j->healing) {
         return -1;
     }
     if (!decision_roll()) {
         return -1;
     }
-    WORK_FIRST_COUNT_TRIED;
+    COUNT(tried);
+    return selected;
+}
+
+/* The later games' builders asked for Building already (the picker's usual
+   answer): on the decision's roll the request is dispatched here, so that if
+   it starts nothing the exercise fallback can follow; -1 = the stock request
+   alone (roll failed), -2 = not this case (ask own_first). */
+static int builder_asked(const struct jobs *j, int selected, int requested) {
+    if (selected != j->building || requested != j->building) {
+        return -2;
+    }
+    if (!decision_roll()) {
+        return -1;
+    }
+    COUNT(tried);
     return selected;
 }
 
@@ -250,95 +391,107 @@ static int is_one_of(unsigned int ret, const unsigned int *sites, int n) {
     return 0;
 }
 
-/* The adult scheduler's calls, then the catch-up worker's pick dispatch (and,
-   in The Secret City, its research step, which the fix-huts page's research
-   stub passes as the caller; see CATCH-UP above).  The worker's low-food
-   Farming dispatch in VV3-VV5 is deliberately absent. */
+/* The adult scheduler's calls, then the catch-up worker's pick dispatch.
+   The worker's low-food Farming dispatch in VV3-VV5 is deliberately absent. */
 static const unsigned int VV1_CALLS[] = { 0x448355u, 0x448382u, 0x42E821u };
 static const unsigned int VV2_CALLS[] = { 0x461A08u, 0x461A35u, 0x43B588u };
-static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu, 0x45BFC5u, 0x45BF57u };
+static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu, 0x45BFC5u };
 static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au, 0x46582Cu };
 static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu, 0x46E9CEu };
 #define VV5_CATCH_UP_CALL 0x46E9CEu
-#define VV5_DEVOTION 5
 
-/* The decision for one villager.  catch_up: New Believers' Devotion counts
-   only there. */
-static int vv1_decide(const unsigned char *village, unsigned int index, int job) {
-    return own_first(*(const int *)(village + index * 0x3D8u + 0x3D0u), job, 4, 5, -1,
-                     vv1_builder_has_hut_work(village));
-}
-
-static int vv2_decide(const unsigned char *village, unsigned int index, int job) {
-    return own_first(*(const int *)(village + index * 0xE48Cu + 0x7F8u), job, 5, 3, -1,
-                     vv2_builder_has_hut_work(village));
+/* Easier Devotee Training replaces New Believers' scheduler test at 0x46F1DD;
+   while it is there the live scheduler leaves devotees to it. */
+static const unsigned char VV5_EDT_STOCK[9] = { 0x83, 0xB9, 0xFC, 0x1C, 0x00, 0x00, 0x0D, 0x75, 0x54 };
+static int vv5_devotee_training_present(void) {
+    return !vvfp_site_holds(0x46F1DDu, VV5_EDT_STOCK, sizeof VV5_EDT_STOCK);
 }
 
-static int vv3_decide(const unsigned char *record, int job) {
-    return own_first(*(const int *)(record + 0xEC0u), job, 4, 2, -1, later_huts_incomplete(&VV3));
+/* A New Home's Farming case (0x4472E5) returns "started" having started
+   nothing at Farming level 1 with nothing to forage ([state+0xA2F4] <= 0)
+   or at a level outside 1-3. */
+static int vv1_farming_starts(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    const int level = *(const int *)(state + 0xA2E4);
+    if (level == 2 || level == 3) return 1;
+    return level == 1 && *(const int *)(state + 0xA2F4) > 0;
 }
 
-static int vv4_decide(const unsigned char *object, int job) {
-    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
-    return own_first(*(const int *)(record + 0x1C70u), job, 4, 2, -1, later_huts_incomplete(&VV4));
+/* ---- The plants (A New Home, The Lost Children) ---------------------------- */
+struct plant { unsigned int starter; unsigned int flag; int trait_check; };
+/* A New Home: medical cactus, rare rose, strange lily, strange plant.  The
+   Magic Plant of Life ("Studying fruitless plant", 0x443030) is never here. */
+static const struct plant VV1_PLANTS[4] = {
+    { 0x443270u, 0xA068u, 0 }, { 0x4435B0u, 0xA060u, 1 },
+    { 0x443440u, 0xA070u, 1 }, { 0x443720u, 0xA078u, 1 },
+};
+/* The Lost Children: herbs 1-6; the drop refuses all six for trait 0xB. */
+static const struct plant VV2_PLANTS[6] = {
+    { 0x458CD0u, 0x2E860u, 1 }, { 0x4589A0u, 0x2E868u, 1 }, { 0x458B70u, 0x2E870u, 1 },
+    { 0x458E30u, 0x2E878u, 1 }, { 0x458FD0u, 0x2E880u, 1 }, { 0x459130u, 0x2E888u, 1 },
+};
+
+/* Start a random understood plant for the villager; 1 when started.
+   has_trait: the game's trait test (thiscall(index, trait) on the village). */
+static int study_a_plant(unsigned char *village, unsigned int index, const unsigned char *state,
+                         const struct plant *plants, unsigned int count, unsigned int has_trait) {
+    unsigned int ok[6];
+    unsigned int n = 0, i;
+    int refuses = -1;
+    for (i = 0; i < count; ++i) {
+        if (state[plants[i].flag] == 0) continue;
+        if (plants[i].trait_check) {
+            if (refuses < 0) {
+                refuses = (int)(tc2(has_trait, (unsigned int)(uintptr_t)village, index, 0xB) & 0xFFu) != 0;
+            }
+            if (refuses) continue;
+        }
+        ok[n++] = plants[i].starter;
+    }
+    if (n == 0) return 0;
+    tc1(ok[pick_index(n)], (unsigned int)(uintptr_t)village, index);
+    COUNT(studied);
+    return 1;
 }
 
-static int vv5_decide(const unsigned char *object, int job, int catch_up) {
-    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
-    return own_first(*(const int *)(record + 0x1C74u), job, 4, 2, catch_up ? VV5_DEVOTION : -1,
-                     later_huts_incomplete(&VV5));
+static int vv1_plant_fallback(unsigned char *village, unsigned int index) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0x3E010);
+    if (state[0xA080] == 0) return 0;                                       /* Herb Mastery */
+    if (*(const int *)(village + index * 0x3D8u + 0x3B8u) == 9) return 0;  /* the cactus runs */
+    return study_a_plant(village, index, state, VV1_PLANTS, 4, 0x4372E0u);
 }
 
-static int __cdecl vv1_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
-    if (!is_one_of(ret, VV1_CALLS, 3)) return -1;
-    return vv1_decide(village, index, job);
+static int vv2_plant_fallback(unsigned char *village, unsigned int index) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    if (state[0x2E788] == 0) return 0;                                      /* Herb Mastery */
+    return study_a_plant(village, index, state, VV2_PLANTS, 6, 0x4454E0u);
 }
 
-static int __cdecl vv2_first(unsigned int ret, const unsigned char *village, unsigned int index, int job) {
-    if (!is_one_of(ret, VV2_CALLS, 3)) return -1;
-    return vv2_decide(village, index, job);
+/* ---- Exercise (The Secret City, The Tree of Life, New Believers) ----------- */
+struct exercise {
+    unsigned int do_action;        /* thiscall(action, args) on the record, ret 8 */
+    unsigned int action;
+    unsigned int food;             /* the village's food total */
+    unsigned int current;          /* the record's current action */
+};
+static const struct exercise VV3_EXERCISE = { 0x455570u, 0x96u, 0x582490u, 0xF24u };
+static const struct exercise VV4_EXERCISE = { 0x45DEC0u, 0x47u, 0x4D6DD0u, 0x1CE0u };
+static const struct exercise VV5_EXERCISE = { 0x465580u, 0x4Eu, 0x51D34Cu, 0x1D10u };
+
+static int exercise(const struct exercise *e, unsigned char *record, int action_before) {
+    unsigned char args[0x58];
+    if (*(const int *)(uintptr_t)e->food <= 250) return 0;
+    if (*(const int *)(record + e->current) != action_before) return 0;
+    memset(args, 0, sizeof args);
+    tc2(e->do_action, (unsigned int)(uintptr_t)record, e->action, (unsigned int)(uintptr_t)args);
+    COUNT(exercised);
+    return 1;
 }
 
-static int __cdecl vv4_first(unsigned int ret, const unsigned char *object, int job) {
-    if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
-    return vv4_decide(object, job);
-}
-
-static int __cdecl vv5_first(unsigned int ret, const unsigned char *object, int job) {
-    if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
-    return vv5_decide(object, job, ret == VV5_CATCH_UP_CALL);
-}
-
-/* The catch-up worker's research pick (the sites' stubs below): the job to
-   try first, or -1. */
-static int __cdecl vv1_research_first(const unsigned char *village, unsigned int index, int pick) {
-    return vv1_decide(village, index, pick);
-}
-static int __cdecl vv2_research_first(const unsigned char *village, unsigned int index, int pick) {
-    return vv2_decide(village, index, pick);
-}
-static int __cdecl vv4_research_first(const unsigned char *object, int pick) {
-    return vv4_decide(object, pick);
-}
-static int __cdecl vv5_research_first(const unsigned char *object, int pick) {
-    return vv5_decide(object, pick, 1);
-}
-
-/* For The Secret City's executable-side stub at the dispatcher's entry: the
-   scheduler's return address, the record and the requested job.  The job to
-   try first, or -1.  A started job is counted by the stub's caller.  Also
-   asked by the page's catch-up research stub, with the research step
-   0x45BF57 as the caller. */
-__declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int ret,
-                                                     const unsigned char *record, int job) {
-    if (game_id != 3 || record == NULL) return -1;
-    if (!is_one_of(ret, VV3_CALLS, 5)) return -1;
-    return vv3_decide(record, job);
-}
-
-/* ---- The stubs ------------------------------------------------------------ */
+/* ---- The stock dispatchers, callable --------------------------------------- */
 #define VV1_DISPATCHER 0x4472C0u
 #define VV2_DISPATCHER 0x45FBF0u
+#define VV3_DISPATCHER 0x45AF00u
 #define VV4_DISPATCHER 0x4639B0u
 #define VV5_DISPATCHER 0x46C540u
 static const unsigned char VV1_STOCK[6] = { 0x8B, 0x44, 0x24, 0x08, 0x85, 0xC0 };
@@ -348,8 +501,8 @@ static const unsigned char VV5_STOCK[6] = { 0x81, 0xEC, 0x94, 0x00, 0x00, 0x00 }
 static const unsigned int vv1_body = VV1_DISPATCHER + 6, vv2_body = VV2_DISPATCHER + 6;
 static const unsigned int vv4_body = VV4_DISPATCHER + 10, vv5_body = VV5_DISPATCHER + 6;
 
-/* The stock dispatcher, callable: the displaced bytes, then its body.  Also
-   the target when the stock request should simply run. */
+/* The displaced bytes, then the body: the stock dispatcher, bypassing the
+   hook.  Also the target when the caller's request should simply run. */
 static __declspec(naked) void vv1_original(void) {
     __asm {
         mov eax, dword ptr [esp + 8]
@@ -378,31 +531,148 @@ static __declspec(naked) void vv5_original(void) {
     }
 }
 
-/* VV1/VV2: [esp] = the caller, [esp+4] = index, [esp+8] = job; after
-   pushad, +0x20.  Try the own job with the same ecx; al != 0 -> "started"
-   (ret 8); else the stock request with the stack untouched. */
+static int dispatch12(void (*original)(void), unsigned char *village, unsigned int index, int job) {
+    int started = (tc2((unsigned int)(uintptr_t)original, (unsigned int)(uintptr_t)village, index,
+                       (unsigned int)job) & 0xFFu) != 0;
+    if (started) COUNT(started);
+    return started;
+}
+
+static int dispatch_later(void (*original)(void), unsigned char *object, int job) {
+    return (tc1((unsigned int)(uintptr_t)original, (unsigned int)(uintptr_t)object, (unsigned int)job)
+            & 0xFFu) != 0;
+}
+
+/* ---- The handlers: -1 = run the caller's request (the stub jumps to the
+   stock dispatcher with the caller's own frame); 0 / 1 = return that. ------- */
+static int __cdecl vv1_handle(unsigned int ret, unsigned char *village, unsigned int index, int job) {
+    int selected, own;
+    if (!is_one_of(ret, VV1_CALLS, 3)) return -1;
+    selected = *(const int *)(village + index * 0x3D8u + 0x3D0u);
+    own = own_first(&VV1_JOBS, selected, job,
+                    selected == VV1_JOBS.building
+                        && vv1_builder_has_hut_work(village) && !vv1_fresh_hut_on_offer(village), 0,
+                    selected == VV1_JOBS.farming && vv1_farming_starts(village));
+    if (own < 0) return -1;
+    if (dispatch12(vv1_original, village, index, own)) return 1;
+    if (own == VV1_JOBS.healing && vv1_plant_fallback(village, index)) return 1;
+    return -1;
+}
+
+static int __cdecl vv2_handle(unsigned int ret, unsigned char *village, unsigned int index, int job) {
+    int selected, own;
+    if (!is_one_of(ret, VV2_CALLS, 3)) return -1;
+    selected = *(const int *)(village + index * 0xE48Cu + 0x7F8u);
+    own = own_first(&VV2_JOBS, selected, job,
+                    selected == VV2_JOBS.building
+                        && vv2_builder_has_hut_work(village) && !vv2_fresh_hut_on_offer(village), 0, 1);
+    if (own < 0) return -1;
+    if (dispatch12(vv2_original, village, index, own)) return 1;
+    if (own == VV2_JOBS.healing && vv2_plant_fallback(village, index)) return 1;
+    return -1;
+}
+
+static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) {
+    unsigned char *record;
+    int own, before, selected;
+    if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
+    record = *(unsigned char *const *)(object + 0x1B88u);
+    selected = *(const int *)(record + 0x1C70u);
+    own = builder_asked(&LATER_JOBS, selected, job);
+    if (own == -2) {
+        own = own_first(&LATER_JOBS, selected, job,
+                        selected == LATER_JOBS.building && !vv4_puzzle_on_offer(), 0, 1);
+    }
+    if (own < 0) return -1;
+    before = *(const int *)(record + VV4_EXERCISE.current);
+    if (dispatch_later(vv4_original, object, own)) {
+        COUNT(started);
+        return 1;
+    }
+    if (own == LATER_JOBS.building && exercise(&VV4_EXERCISE, record, before)) return 1;
+    return own == job ? 0 : -1;                    /* the request already ran */
+}
+
+/* New Believers: the "untrained" mark is lifted for one dispatch of the
+   villager's selected job (never Parenting). */
+static int vv5_dispatch(unsigned char *object, unsigned char *record, int job) {
+    int *mark = (int *)(record + 0x1C54u);
+    int lifted = *mark == 1 && job >= 0 && job != VV5_JOBS.parenting && job == *(const int *)(record + 0x1C74u);
+    int started;
+    if (lifted) *mark = 0;
+    started = dispatch_later(vv5_original, object, job);
+    if (lifted && *mark == 0) *mark = 1;
+    return started;
+}
+
+static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) {
+    unsigned char *record;
+    int own, before, catch_up;
+    if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
+    catch_up = ret == VV5_CATCH_UP_CALL;
+    record = *(unsigned char *const *)(object + 0x1B88u);
+    own = builder_asked(&VV5_JOBS, *(const int *)(record + 0x1C74u), job);
+    if (own == -2) {
+        own = own_first(&VV5_JOBS, *(const int *)(record + 0x1C74u), job, 1,
+                        catch_up || !vv5_devotee_training_present(), 1);
+    }
+    if (own >= 0) {
+        before = *(const int *)(record + VV5_EXERCISE.current);
+        if (vv5_dispatch(object, record, own)) {
+            COUNT(started);
+            return 1;
+        }
+        if (own == VV5_JOBS.building && exercise(&VV5_EXERCISE, record, before)) return 1;
+        if (own == job) return 0;                  /* the request already ran */
+    }
+    if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
+    return vv5_dispatch(object, record, job);
+}
+
+/* For The Secret City's executable-side stub at the dispatcher's entry (the
+   fix-huts page): the scheduler's return address, the record, the requested
+   job and the ecx the dispatcher was called with.  Returns -2 when this
+   companion started something (the stub returns "started"), -3 when it ran
+   the request itself and nothing started (the stub returns "nothing"), else
+   -1 (the stub runs the stock request).  The own job is dispatched through the
+   dispatcher's entry, which reaches this export again with a caller that is
+   none of the calls and so runs the stock dispatcher. */
+__declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int ret,
+                                                     unsigned char *record, int job,
+                                                     unsigned int self) {
+    int own, before;
+    if (game_id != 3 || record == NULL) return -1;
+    if (!is_one_of(ret, VV3_CALLS, 4)) return -1;
+    own = builder_asked(&LATER_JOBS, *(const int *)(record + 0xEC0u), job);
+    if (own == -2) {
+        own = own_first(&LATER_JOBS, *(const int *)(record + 0xEC0u), job, 1, 0, 1);
+    }
+    if (own < 0) return -1;
+    before = *(const int *)(record + VV3_EXERCISE.current);
+    if ((tc2(VV3_DISPATCHER, self, (unsigned int)(uintptr_t)record, (unsigned int)own) & 0xFFu) != 0) {
+        COUNT(started);
+        return -2;
+    }
+    if (own == LATER_JOBS.building && exercise(&VV3_EXERCISE, record, before)) return -2;
+    return own == job ? -3 : -1;                   /* -3: the request already ran, nothing started */
+}
+
+/* ---- The dispatcher stubs -------------------------------------------------- */
+/* VV1/VV2: [esp] = the caller, [esp+4] = index, [esp+8] = job, ecx = the
+   village.  ecx is kept for the stock request. */
 #define VV12_STUB(NAME)                                                       \
     static __declspec(naked) void NAME##_stub(void) {                         \
         __asm {                                                              \
-            __asm pushad                                                     \
-            __asm push dword ptr [esp + 0x28]      /* job */                  \
-            __asm push dword ptr [esp + 0x28]      /* index */                \
+            __asm push ecx                                                   \
+            __asm push dword ptr [esp + 0x0C]      /* job */                  \
+            __asm push dword ptr [esp + 0x0C]      /* index */                \
             __asm push ecx                         /* village */              \
-            __asm push dword ptr [esp + 0x2C]      /* the caller */           \
-            __asm call NAME##_first                                          \
+            __asm push dword ptr [esp + 0x10]      /* the caller */           \
+            __asm call NAME##_handle                                         \
             __asm add esp, 16                                                \
-            __asm mov [esp + 0x1C], eax                                      \
-            __asm popad                                                      \
+            __asm pop ecx                                                    \
             __asm cmp eax, -1                                                \
             __asm je stock_request                                           \
-            __asm push ecx                                                   \
-            __asm push eax                         /* the own job */          \
-            __asm push dword ptr [esp + 0x0C]      /* index */                \
-            __asm call NAME##_original                                       \
-            __asm pop ecx                                                    \
-            __asm test al, al                                                \
-            __asm jz stock_request                                           \
-            WORK_FIRST_COUNT_STARTED                                         \
             __asm ret 8                                                      \
             __asm stock_request:                                             \
             __asm jmp NAME##_original                                        \
@@ -413,23 +683,15 @@ static __declspec(naked) void vv5_original(void) {
 #define LATER_STUB(NAME)                                                      \
     static __declspec(naked) void NAME##_stub(void) {                         \
         __asm {                                                              \
-            __asm pushad                                                     \
-            __asm push dword ptr [esp + 0x24]      /* job */                  \
+            __asm push ecx                                                   \
+            __asm push dword ptr [esp + 0x08]      /* job */                  \
             __asm push ecx                         /* the object */           \
-            __asm push dword ptr [esp + 0x28]      /* the caller */           \
-            __asm call NAME##_first                                          \
+            __asm push dword ptr [esp + 0x0C]      /* the caller */           \
+            __asm call NAME##_handle                                         \
             __asm add esp, 12                                                \
-            __asm mov [esp + 0x1C], eax                                      \
-            __asm popad                                                      \
+            __asm pop ecx                                                    \
             __asm cmp eax, -1                                                \
             __asm je stock_request                                           \
-            __asm push ecx                                                   \
-            __asm push eax                         /* the own job */          \
-            __asm call NAME##_original                                       \
-            __asm pop ecx                                                    \
-            __asm test al, al                                                \
-            __asm jz stock_request                                           \
-            WORK_FIRST_COUNT_STARTED                                         \
             __asm ret 4                                                      \
             __asm stock_request:                                             \
             __asm jmp NAME##_original                                        \
@@ -441,110 +703,123 @@ VV12_STUB(vv2)
 LATER_STUB(vv4)
 LATER_STUB(vv5)
 
-/* ---- Catch-up: the research pick ------------------------------------------ */
-/* Each site is the worker's `cmp pick, research; jne` (five bytes) right
-   after the stock picker.  The stub replays it: any other pick jumps where
-   the jne went.  A research pick asks NAME_research_first; a job back is
-   dispatched (the stock dispatcher, with the worker's own arguments); if it
-   starts something the worker's "done" runs (its queue processor), else --
-   and for -1 -- the stock research step.  Every register the worker keeps is
-   untouched; the dispatcher, like the stock call, may change eax/ecx/edx,
-   which neither continuation reads before setting. */
-static const unsigned int vv1_cu_other = 0x42E817u, vv1_cu_research = 0x42E7E5u, vv1_cu_done = 0x42E821u;
-static const unsigned int vv2_cu_other = 0x43B566u, vv2_cu_research = 0x43B532u, vv2_cu_done = 0x43B588u;
-static const unsigned int vv4_cu_other = 0x4657C3u, vv4_cu_research = 0x4657A4u, vv4_cu_done = 0x46582Cu;
-static const unsigned int vv5_cu_other = 0x46E965u, vv5_cu_research = 0x46E934u, vv5_cu_done = 0x46E9CEu;
-/* VV1: eax = pick, esi = index, edi = the worker, [edi+4] = village. */
-static __declspec(naked) void vv1_cu_stub(void) {
-    __asm {
-        cmp eax, 2
-        jne other
-        pushad
-        push eax
-        push esi
-        push dword ptr [edi + 4]
-        call vv1_research_first
-        add esp, 12
-        mov [esp + 0x1C], eax
-        popad
-        cmp eax, -1
-        je research
-        mov ecx, dword ptr [edi + 4]
-        push eax
-        push esi
-        call vv1_original
-        test al, al
-        jz research
-        WORK_FIRST_COUNT_STARTED
-        jmp dword ptr [vv1_cu_done]
-    research:
-        jmp dword ptr [vv1_cu_research]
-    other:
-        jmp dword ptr [vv1_cu_other]
-    }
+/* ---- Beginners: the picker's skill gate (The Tree of Life, New Believers) --- */
+/* At the site: esi = the job's skill, ebx = the job, edi = the villager
+   object.  The stock `cmp esi, 5; jle fail` is replayed; at 5 or less, for
+   the selected job (never Parenting) on the decision's roll, the pick goes on
+   to the game's own roll. */
+static int __cdecl vv4_beginner(int job, const unsigned char *object) {
+    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
+    return job >= 0 && job != LATER_JOBS.parenting && job == *(const int *)(record + 0x1C70u)
+        && decision_roll();
 }
-
-/* VV2: ebp = pick, edi = index, ebx = the worker, [ebx+4] = village. */
-static __declspec(naked) void vv2_cu_stub(void) {
-    __asm {
-        cmp ebp, 2
-        jne other
-        pushad
-        push ebp
-        push edi
-        push dword ptr [ebx + 4]
-        call vv2_research_first
-        add esp, 12
-        mov [esp + 0x1C], eax
-        popad
-        cmp eax, -1
-        je research
-        mov ecx, dword ptr [ebx + 4]
-        push eax
-        push edi
-        call vv2_original
-        test al, al
-        jz research
-        WORK_FIRST_COUNT_STARTED
-        jmp dword ptr [vv2_cu_done]
-    research:
-        jmp dword ptr [vv2_cu_research]
-    other:
-        jmp dword ptr [vv2_cu_other]
-    }
+static int __cdecl vv5_beginner(int job, const unsigned char *object) {
+    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
+    return job >= 0 && job != VV5_JOBS.parenting && job == *(const int *)(record + 0x1C74u)
+        && decision_roll();
 }
-
-/* VV4/VV5: edi = pick, esi = the villager object. */
-#define LATER_CU_STUB(NAME)                                                   \
-    static __declspec(naked) void NAME##_cu_stub(void) {                      \
+static const unsigned int vv4_gate_go = 0x461E6Eu, vv4_gate_fail = 0x461EB4u;
+static const unsigned int vv5_gate_go = 0x46A599u, vv5_gate_fail = 0x46A5DFu;
+#define GATE_STUB(NAME)                                                       \
+    static __declspec(naked) void NAME##_gate_stub(void) {                    \
         __asm {                                                              \
-            __asm cmp edi, 1                                                 \
-            __asm jne other                                                  \
+            __asm cmp esi, 5                                                 \
+            __asm jg go                                                      \
             __asm pushad                                                     \
             __asm push edi                                                   \
-            __asm push esi                                                   \
-            __asm call NAME##_research_first                                 \
+            __asm push ebx                                                   \
+            __asm call NAME##_beginner                                       \
             __asm add esp, 8                                                 \
-            __asm mov [esp + 0x1C], eax                                      \
+            __asm test eax, eax                                              \
             __asm popad                                                      \
-            __asm cmp eax, -1                                                \
-            __asm je research                                                \
-            __asm mov ecx, esi                                               \
-            __asm push eax                                                   \
-            __asm call NAME##_original                                       \
-            __asm test al, al                                                \
-            __asm jz research                                                \
-            WORK_FIRST_COUNT_STARTED                                         \
-            __asm jmp dword ptr [NAME##_cu_done]                             \
-            __asm research:                                                  \
-            __asm jmp dword ptr [NAME##_cu_research]                         \
-            __asm other:                                                     \
-            __asm jmp dword ptr [NAME##_cu_other]                            \
+            __asm jnz go                                                     \
+            __asm jmp dword ptr [NAME##_gate_fail]                           \
+            __asm go:                                                        \
+            __asm jmp dword ptr [NAME##_gate_go]                             \
         }                                                                    \
     }
+GATE_STUB(vv4)
+GATE_STUB(vv5)
 
-LATER_CU_STUB(vv4)
-LATER_CU_STUB(vv5)
+/* ---- Catch-up offers: fruit (The Tree of Life), noni (New Believers) ------- */
+/* At the site: eax = the game object, ebx = 0, esi = the villager object.
+   The stock `cmp byte [eax+flag], bl; jne skip` is replayed; in catch-up a
+   villager whose selected job is Farming is offered the option on the
+   decision's roll. */
+static int __cdecl vv4_farmer_offer(const unsigned char *object) {
+    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
+    return *(const int *)(record + 0x1C70u) == LATER_JOBS.farming && decision_roll();
+}
+static int __cdecl vv5_farmer_offer(const unsigned char *object) {
+    const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
+    return *(const int *)(record + 0x1C74u) == VV5_JOBS.farming && decision_roll();
+}
+static const unsigned int vv4_offer_yes = 0x463A38u, vv4_offer_no = 0x463A43u;
+static const unsigned int vv5_offer_yes = 0x46C5D2u, vv5_offer_no = 0x46C5D8u;
+static __declspec(naked) void vv4_offer_stub(void) {
+    __asm {
+        cmp byte ptr [eax + 0x171A4], bl
+        je yes
+        pushad
+        push esi
+        call vv4_farmer_offer
+        add esp, 4
+        test eax, eax
+        popad
+        jnz yes
+        jmp dword ptr [vv4_offer_no]
+    yes:
+        jmp dword ptr [vv4_offer_yes]
+    }
+}
+static __declspec(naked) void vv5_offer_stub(void) {
+    __asm {
+        cmp byte ptr [eax + 0x17E10], bl
+        je yes
+        pushad
+        push esi
+        call vv5_farmer_offer
+        add esp, 4
+        test eax, eax
+        popad
+        jnz yes
+        jmp dword ptr [vv5_offer_no]
+    yes:
+        jmp dword ptr [vv5_offer_yes]
+    }
+}
+
+/* ---- The Lost Children: examining the finished sewing hut ------------------ */
+/* At 0x4602B0 (push 4; call rand, 7 bytes): esi = the village, edi = the
+   villager's index, bl = 1.  1 when this pick examines the sewing hut. */
+static int __cdecl vv2_sewing_pick(const unsigned char *village) {
+    const unsigned char *state = *(const unsigned char *const *)(village + 0xE574D4);
+    if (state[0x2E790] != 1) return 0;
+    if (!decision_roll()) return 0;
+    return pick_index(5) == 4;
+}
+static const unsigned int vv2_rand = 0x4031A0u, vv2_examine = 0x45F7C0u;
+static const unsigned int vv2_pick_resume = 0x4602B7u, vv2_examine_started = 0x4602E5u;
+static __declspec(naked) void vv2_sewing_stub(void) {
+    __asm {
+        pushad
+        push esi
+        call vv2_sewing_pick
+        add esp, 4
+        test eax, eax
+        popad
+        jnz sewing
+        push 4
+        call dword ptr [vv2_rand]
+        jmp dword ptr [vv2_pick_resume]
+    sewing:
+        push 7
+        push edi
+        mov ecx, esi
+        call dword ptr [vv2_examine]
+        jmp dword ptr [vv2_examine_started]
+    }
+}
 
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
@@ -554,29 +829,26 @@ struct site {
     void (*stub)(void);
 };
 
-static const struct site SITES[6] = {
-    { 0 },
-    { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub },
-    { VV2_DISPATCHER, VV2_STOCK, sizeof VV2_STOCK, vv2_stub },
-    { 0 },
-    { VV4_DISPATCHER, VV4_STOCK, sizeof VV4_STOCK, vv4_stub },
-    { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
+static const unsigned char VV2_SEWING_STOCK[7] = { 0x6A, 0x04, 0xE8, 0xE9, 0x2E, 0xFA, 0xFF };
+static const unsigned char GATE_STOCK[5] = { 0x83, 0xFE, 0x05, 0x7E, 0x46 };
+static const unsigned char VV4_OFFER_STOCK[8] = { 0x38, 0x98, 0xA4, 0x71, 0x01, 0x00, 0x75, 0x0B };
+static const unsigned char VV5_OFFER_STOCK[8] = { 0x38, 0x98, 0x10, 0x7E, 0x01, 0x00, 0x75, 0x06 };
+
+#define MAX_SITES 3
+static const struct site SITES[6][MAX_SITES] = {
+    { { 0 } },
+    { { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub } },
+    { { VV2_DISPATCHER, VV2_STOCK, sizeof VV2_STOCK, vv2_stub },
+      { 0x4602B0u, VV2_SEWING_STOCK, sizeof VV2_SEWING_STOCK, vv2_sewing_stub } },
+    { { 0 } },                          /* The Secret City: the fix-huts page's stub */
+    { { VV4_DISPATCHER, VV4_STOCK, sizeof VV4_STOCK, vv4_stub },
+      { 0x461E69u, GATE_STOCK, sizeof GATE_STOCK, vv4_gate_stub },
+      { 0x463A30u, VV4_OFFER_STOCK, sizeof VV4_OFFER_STOCK, vv4_offer_stub } },
+    { { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
+      { 0x46A594u, GATE_STOCK, sizeof GATE_STOCK, vv5_gate_stub },
+      { 0x46C5CAu, VV5_OFFER_STOCK, sizeof VV5_OFFER_STOCK, vv5_offer_stub } },
 };
 static int install_state[6];
-
-/* The catch-up worker's research-pick sites (see CATCH-UP above). */
-static const unsigned char VV1_CU_STOCK[5] = { 0x83, 0xF8, 0x02, 0x75, 0x32 };
-static const unsigned char VV2_CU_STOCK[5] = { 0x83, 0xFD, 0x02, 0x75, 0x34 };
-static const unsigned char VV4_CU_STOCK[5] = { 0x83, 0xFF, 0x01, 0x75, 0x1F };
-static const unsigned char VV5_CU_STOCK[5] = { 0x83, 0xFF, 0x01, 0x75, 0x31 };
-static const struct site CU_SITES[6] = {
-    { 0 },
-    { 0x42E7E0u, VV1_CU_STOCK, sizeof VV1_CU_STOCK, vv1_cu_stub },
-    { 0x43B52Du, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
-    { 0 },                              /* The Secret City: the fix-huts page's research stub */
-    { 0x46579Fu, VV4_CU_STOCK, sizeof VV4_CU_STOCK, vv4_cu_stub },
-    { 0x46E92Fu, VV5_CU_STOCK, sizeof VV5_CU_STOCK, vv5_cu_stub },
-};
 
 static int site_is_stock(const struct site *s) {
     MEMORY_BASIC_INFORMATION info;
@@ -589,27 +861,12 @@ static int site_is_stock(const struct site *s) {
     return memcmp(at, s->stock, (size_t)s->length) == 0;
 }
 
-static void site_bytes(const struct site *s, unsigned char *out) {
-    unsigned int rel = (unsigned int)((const unsigned char *)s->stub
-                                      - ((const unsigned char *)(uintptr_t)s->va + 5));
-    int i;
-    out[0] = 0xE9;
-    memcpy(out + 1, &rel, 4);
-    for (i = 5; i < s->length; ++i) {
-        out[i] = 0x90;
-    }
-}
-
 /* Called by the fix-huts companion from its per-frame install.  Idempotent:
-   the dispatcher hook and the catch-up worker's research-pick site (whose
-   stub calls the dispatcher through the replayed stock bytes the hook
-   verified; The Secret City has none here) are checked, then both written,
-   or neither (native/shared/install_sites.h).  Before, the catch-up site was
-   tried on its own after the hook, so live play could have the feature and
-   catch-up not. */
+   every site of the game is checked, then all written, or none
+   (native/shared/install_sites.h). */
 __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
-    vvfp_site_write w[2];
-    int n = 0;
+    vvfp_site_write w[MAX_SITES];
+    int n = 0, i;
     if (game_id < 1 || game_id > 5) {
         return 0;
     }
@@ -617,15 +874,17 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
         return install_state[game_id] == 1;
     }
     install_state[game_id] = -1;
-    if (SITES[game_id].va == 0 || !site_is_stock(&SITES[game_id])
-        || (CU_SITES[game_id].va != 0 && !site_is_stock(&CU_SITES[game_id]))) {
+    if (SITES[game_id][0].va == 0) {
         return 0;
     }
-    vvfp_site_branch(&w[n++], SITES[game_id].va, SITES[game_id].length, SITES[game_id].stock, 0xE9,
-                     (const void *)SITES[game_id].stub);
-    if (CU_SITES[game_id].va != 0) {
-        vvfp_site_branch(&w[n++], CU_SITES[game_id].va, CU_SITES[game_id].length, CU_SITES[game_id].stock,
-                         0xE9, (const void *)CU_SITES[game_id].stub);
+    for (i = 0; i < MAX_SITES && SITES[game_id][i].va != 0; ++i) {
+        if (!site_is_stock(&SITES[game_id][i])) {
+            return 0;
+        }
+    }
+    for (i = 0; i < MAX_SITES && SITES[game_id][i].va != 0; ++i) {
+        vvfp_site_branch(&w[n++], SITES[game_id][i].va, SITES[game_id][i].length, SITES[game_id][i].stock,
+                         0xE9, (const void *)SITES[game_id][i].stub);
     }
     if (!vvfp_install_sites(w, n)) {
         return 0;
@@ -635,40 +894,29 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
 }
 
 #ifdef VVFP_TEST
-/* For the test build only: the site, its stock bytes, what it becomes, the
-   stub. */
-__declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, unsigned int *va,
-                                                            unsigned char *stock,
-                                                            unsigned char *patched,
+/* For the test build only: site `which` of the game -- its address, stock
+   bytes, what it becomes, the stub.  0: no such site. */
+__declspec(dllexport) int __stdcall VvfpWorkFirstProbeSite(int game_id, int which, unsigned int *va,
+                                                            unsigned char *stock, unsigned char *patched,
                                                             unsigned int *stub_va) {
     const struct site *s;
-    if (game_id < 1 || game_id > 5) {
+    unsigned int rel;
+    int i;
+    if (game_id < 1 || game_id > 5 || which < 0 || which >= MAX_SITES) {
         return 0;
     }
-    s = &SITES[game_id];
+    s = &SITES[game_id][which];
     if (s->va == 0) {
         return 0;
     }
     *va = s->va;
     memcpy(stock, s->stock, (size_t)s->length);
-    site_bytes(s, patched);
-    *stub_va = (unsigned int)(uintptr_t)s->stub;
-    return s->length;
-}
-
-/* For the test build only: the catch-up research-pick site, the same way. */
-__declspec(dllexport) int __stdcall VvfpWorkFirstProbeCatchUpSite(int game_id, unsigned int *va,
-                                                                   unsigned char *stock,
-                                                                   unsigned char *patched,
-                                                                   unsigned int *stub_va) {
-    const struct site *s;
-    if (game_id < 1 || game_id > 5) {
-        return 0;
+    rel = (unsigned int)((const unsigned char *)s->stub - ((const unsigned char *)(uintptr_t)s->va + 5));
+    patched[0] = 0xE9;
+    memcpy(patched + 1, &rel, 4);
+    for (i = 5; i < s->length; ++i) {
+        patched[i] = 0x90;
     }
-    s = &CU_SITES[game_id];
-    *va = s->va;
-    memcpy(stock, s->stock, (size_t)s->length);
-    site_bytes(s, patched);
     *stub_va = (unsigned int)(uintptr_t)s->stub;
     return s->length;
 }
