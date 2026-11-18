@@ -9548,7 +9548,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_low",
@@ -9558,7 +9559,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_high",
@@ -9568,7 +9570,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_tablet_research",
@@ -9578,7 +9581,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_medicine",
@@ -9588,7 +9592,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s5",

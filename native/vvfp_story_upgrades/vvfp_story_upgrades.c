@@ -1235,8 +1235,8 @@ static const char *event_requires(const story_event *e) {
         case 22:
             if (mem_matches(0x415C69u, VV3_LEVEL_LT3_STOCK, 3) && mem_matches(0x415C7Fu, VV3_LEVEL_GE2_STOCK, 3)) {
                 return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_tablet_research",
-                               "a villager the event can be about, Science technology level 2 or more, and Alchemy "
-                               "technology below level 3", 300);
+                    "a villager the event can be about, Science technology level 2 or more, and Alchemy technology below level 3",
+                    300);
             }
             break;
         case 36:
