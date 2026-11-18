@@ -42,7 +42,7 @@ A fact whose clock is stopped (saved paused, a frozen clock) passes `due=None` a
   the game's exe as it is now) and restarts the countdowns. It keeps the tab, the save folder, the tribe and
   the scroll position. The other tabs are read again when they are next shown.
 - **Auto-refresh** (off by default) does the same every 30 seconds, from the same one-second timer.
-- **Minimum Detail** (off by default, kept in `patcher_local_settings.json` as `game_mechanics_minimum`; the owner,
+- **Minimal Detail** (off by default, kept in `patcher_local_settings.json` as `game_mechanics_minimum`; the owner,
   2026-11-17) shows only the vital statistics and the numbers: `gm.minimum(facts)` keeps each line's first sentence
   (the lines are written answer-first), leaves out a line whose answer holds no number, the explanations ("How ...",
   "Normally ...", "Not counted ...", "DEAD", what a patcher patch does) and the Time and units, Sources and Hidden

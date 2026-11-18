@@ -1219,7 +1219,8 @@ def render(facts: list[Fact], now: float | None = None) -> str:
 # explains the page or lists the game's keys and tips (MINIMUM_HIDDEN_GROUPS).  The Vital
 # statistics keep every line (their first sentence).  A left-out line whose sub-lines are kept shows its heading
 # instead -- the words before its first colon -- so the numbers under it still say what they count.
-MINIMUM_DETAIL = "Minimum Detail"
+# The label is "Minimal Detail" (the owner, 2026-11-18).
+MINIMUM_DETAIL = "Minimal Detail"
 MINIMUM_HIDDEN_GROUPS = frozenset({"Time and units", "Sources", "Hidden keys, clicks and cheats"})
 _EXPLAINS = re.compile(r"^(?:How |Normally|Not counted|DEAD)|\b[Ww]ith the patcher\b|\b[Tt]he patcher's\b"
                        r"|\bthe patcher \(")
