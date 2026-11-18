@@ -387,6 +387,15 @@ CASES = [
     Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
          (1, 2), lambda g: [f"vv{g}_collectibles_stay_collected"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpCollectiblesStayCollectedInstalled"))[1]),
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): the drop dispatcher's and the job events' entries, the
+    # Farming dispatcher's option test and the carried item's draw call.
+    Case("Cloth Sacks", "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll", (4,),
+         lambda g: [f"vv{g}_cloth_sacks_for_yellow_fruit"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpClothSacksInstalled"))[1]),
+    # Cutting Tool Harvest Caption (The Tree of Life): the harvest's caption copy.
+    Case("Harvest Caption", "assets/harvest_caption/VVFP VV4 Harvest Caption.dll", (4,),
+         lambda g: [f"vv{g}_cutting_tool_harvest_caption"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHarvestCaptionInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),
