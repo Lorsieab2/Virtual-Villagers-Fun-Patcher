@@ -14,7 +14,10 @@
    the stream's flow (frog_water.h, traced from the game's river and tree pictures by
    scripts/build_vv4_frog_water.py): along the curve on the left, the whole bottom stretch and the pool under the
    waterfall by the ladder, never on rock, grass, the island, the tree, the waterfall or the ladder.  When the
-   stream runs low (flow 1, the narrow river) no leap fits on its water, and none is placed.
+   stream runs low (flow 1, the narrow river) no whole leap fits on its water, and the frogs still leap whenever
+   the base game makes them leap (the owner, 2026-11-18): at the corners along the low river where a leap overlaps
+   its water the most, partly over the bed's rocky edge as in the base game, never on the tree, the island's grass
+   or the ladder.  A flow with no corner at all for a frog uses the base game's own box for that leap.
 
    SAFETY.  The whole frog block and the gate before it are checked to hold the stock bytes first; then one jump
    at 0x46D3F7 (the block's `push esi`) is written, or nothing (native/shared/install_sites.h).  The block's own
@@ -75,21 +78,35 @@ static const frog_set *frog_set_for(int flow, int frog) {
     return NULL;
 }
 
-/* One leap of `frog` at a corner picked with the game's rand from the water this flow draws. */
+/* The effect maker with the base game's own arguments: no follow, -1, 5, not centred. */
+static void frog_make(int frog, int x, int y) {
+    ((effect_maker_fn)(UINT_PTR)VV4_EFFECT_MAKER)((void *)(UINT_PTR)VV4_EFFECTS, NULL, frog, x, y, 0, 0, -1, 5, 0);
+}
+
+/* One leap of `frog` at a corner picked with the game's rand from this flow's set; with no set, in the base game's
+   own box, with its two rolls in its order (x, then y). */
 static void frog_leap(int flow, int frog) {
     const frog_set *set = frog_set_for(flow, frog);
+    game_rand_fn game_rand = (game_rand_fn)(UINT_PTR)VV4_RAND;
     int pick, i;
     if (set == NULL || set->total <= 0) {
+        int x, y;
+        if (frog == FROG_RIGHT) {
+            x = game_rand(0x9A) + 0x405;
+            y = game_rand(0x20) + 0x25D;
+        } else {
+            x = game_rand(0xB8) + 0x3B6;
+            y = game_rand(0x1E) + 0x258;
+        }
+        frog_make(frog, x, y);
         return;
     }
-    pick = ((game_rand_fn)(UINT_PTR)VV4_RAND)(set->total);
+    pick = game_rand(set->total);
     for (i = set->first; i < set->first + set->count; ++i) {
         const frog_run *run = &FROG_RUNS[i];
         int length = run->x1 - run->x0 + 1;
         if (pick < length) {
-            /* The base game's own arguments: no follow, -1, 5, not centred. */
-            ((effect_maker_fn)(UINT_PTR)VV4_EFFECT_MAKER)((void *)(UINT_PTR)VV4_EFFECTS, NULL, frog,
-                                                         run->x0 + pick, run->y, 0, 0, -1, 5, 0);
+            frog_make(frog, run->x0 + pick, run->y);
             return;
         }
         pick -= length;

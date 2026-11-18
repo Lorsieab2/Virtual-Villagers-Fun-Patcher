@@ -126,7 +126,10 @@ class TheWater(unittest.TestCase):
         self.assertEqual(water.main(["--check"]), 0)
 
     def test_every_corner_puts_the_whole_leap_on_the_water(self) -> None:
+        # Full flow; the low stream's best fits are checked in test_at_low_flow_the_leaps_fit_the_thin_river_best.
         for (flow, frog), runs in self.runs.items():
+            if flow != 2:
+                continue
             ys, xs = np.nonzero(water.footprint(frog))
             self.assertGreater(len(ys), 300)
             wet = self.water[flow]
@@ -158,11 +161,33 @@ class TheWater(unittest.TestCase):
                 # far more places than the base game's box (0x1B: 154 x 32)
                 self.assertGreater(sum(x1 - x0 + 1 for _, x0, x1 in self.runs[(2, frog)]), 10000)
 
-    def test_at_low_flow_no_leap_fits(self) -> None:
-        self.assertNotIn((1, 0x1B), self.runs)
-        self.assertNotIn((1, 0x1C), self.runs)
+    def test_at_low_flow_no_whole_leap_fits(self) -> None:
         heights = [int(self.water[1][:, x].sum()) for x in range(700, 1201, 50)]
         self.assertLess(max(heights), 27)       # a leap's frames span 27 rows (7..33)
+        for frog in (0x1B, 0x1C):
+            self.assertFalse(water.corners(self.water[1], water.footprint(frog)).any())
+
+    def test_at_low_flow_the_leaps_fit_the_thin_river_best(self) -> None:
+        bed = water.riverbed_mask()
+        tree = np.zeros_like(bed)
+        for name in water.TREE:
+            tree |= water._paste_alpha(name, water.TREE_AT)[..., 3] >= water.TREE_ALPHA
+        for frog in (0x1B, 0x1C):
+            with self.subTest(frog=hex(frog)):
+                runs = self.runs[(1, frog)]
+                foot = water.footprint(frog)
+                ys, xs = np.nonzero(foot)
+                corners = [(x, y) for y, x0, x1 in runs for x in range(x0, x1 + 1)]
+                self.assertGreater(len(corners), 300)
+                for x, y in corners:
+                    # wholly in the river's bed (never the island's grass, the banks or the ladder), never the tree
+                    self.assertTrue(bed[ys + y, xs + x].all(), (x, y))
+                    self.assertFalse(tree[ys + y, xs + x].any(), (x, y))
+                    # at least 40% of the leap on the low water
+                    self.assertGreaterEqual(self.water[1][ys + y, xs + x].sum(), 0.4 * len(ys), (x, y))
+                # along the whole bottom stretch, not one box
+                cols = {x // 50 * 50 for x, _ in corners}
+                self.assertTrue({700, 800, 900, 1000, 1100} <= cols, sorted(cols))
 
 
 def _frog_process(exe: bytes, *, with_dll: bool, flow: int, rolls: list[int]) -> tuple[Process, list, list]:
@@ -210,37 +235,90 @@ class TheBlock(unittest.TestCase):
                 else:
                     self.assertTrue(950 <= x <= 1133 and 600 <= y <= 629)
 
+    @staticmethod
+    def _chances(rand_calls) -> list[int]:
+        return [value for n, value in rand_calls if n == 100]
+
     def test_the_companion_leaps_at_listed_corners_with_the_games_own_arguments(self) -> None:
         sets = _runs()
-        allowed = {frog: {(x, y) for y, x0, x1 in runs for x in range(x0, x1 + 1)}
-                   for (flow, frog), runs in sets.items() if flow == 2}
-        seen = {0x1B: set(), 0x1C: set()}
-        for seed in range(40):
-            rolls = [seed * 7919 + 13, (seed * 37) % 100, seed * 104729 + 1, (seed * 53 + 11) % 100, seed * 31337]
-            p, leaps, rand_calls = _frog_process(STOCK.read_bytes(), with_dll=True, flow=2, rolls=rolls)
-            state = self._run(p)
-            for name, value in state["kept"].items():
-                self.assertEqual(state[name], value, name)
-            # one leaping right, then each 50-in-100 chance of one leaping left, as the base game
-            self.assertEqual(leaps[0][1][0], 0x1B)
-            chances = [value for n, value in rand_calls if n == 100]
-            self.assertEqual(len(chances), 2)
-            self.assertEqual(sum(1 for _, a in leaps if a[0] == 0x1C), sum(1 for v in chances if v < 50))
-            self.assertEqual(len(leaps), 1 + sum(1 for v in chances if v < 50))
-            for ecx, (frog, x, y, *rest) in leaps:
-                self.assertEqual(ecx, EFFECTS)
-                self.assertEqual(rest, [0, 0, 0xFFFFFFFF, 5, 0])
-                self.assertIn((x, y), allowed[frog])
-                seen[frog].add((x, y))
-        # the leaps spread out along the river, not into one box
-        for frog, points in seen.items():
-            xs = [x for x, _ in points]
-            self.assertGreater(max(xs) - min(xs), 300, hex(frog))
+        for flow in (1, 2):
+            allowed = {frog: {(x, y) for y, x0, x1 in runs for x in range(x0, x1 + 1)}
+                       for (f, frog), runs in sets.items() if f == flow}
+            seen = {0x1B: set(), 0x1C: set()}
+            for seed in range(40):
+                rolls = [seed * 7919 + 13, (seed * 37) % 100, seed * 104729 + 1, (seed * 53 + 11) % 100,
+                         seed * 31337]
+                p, leaps, rand_calls = _frog_process(STOCK.read_bytes(), with_dll=True, flow=flow, rolls=rolls)
+                state = self._run(p)
+                with self.subTest(flow=flow, seed=seed):
+                    for name, value in state["kept"].items():
+                        self.assertEqual(state[name], value, name)
+                    # one leaping right, then each 50-in-100 chance of one leaping left, as the base game: no leap
+                    # is ever skipped, at either flow
+                    self.assertEqual(leaps[0][1][0], 0x1B)
+                    chances = self._chances(rand_calls)
+                    self.assertEqual(len(chances), 2)
+                    self.assertEqual(sum(1 for _, a in leaps if a[0] == 0x1C), sum(1 for v in chances if v < 50))
+                    self.assertEqual(len(leaps), 1 + sum(1 for v in chances if v < 50))
+                    for ecx, (frog, x, y, *rest) in leaps:
+                        self.assertEqual(ecx, EFFECTS)
+                        self.assertEqual(rest, [0, 0, 0xFFFFFFFF, 5, 0])
+                        self.assertIn((x, y), allowed[frog])
+                        seen[frog].add((x, y))
+            # the leaps spread out along the river, not into one box
+            for frog, points in seen.items():
+                xs = [x for x, _ in points]
+                self.assertGreater(max(xs) - min(xs), 300, (flow, hex(frog)))
 
-    def test_no_leap_at_low_flow(self) -> None:
-        p, leaps, _ = _frog_process(STOCK.read_bytes(), with_dll=True, flow=1, rolls=[0])
-        self._run(p)
-        self.assertEqual(leaps, [])
+    def test_as_many_leaps_as_the_base_game_at_every_flow(self) -> None:
+        # The stock block and the companion, given the same two chance rolls, make the same leaps (1 to 3, the same
+        # frogs in the same order) at both flows.
+        for flow in (1, 2):
+            for first, second in ((0, 0), (49, 50), (50, 49), (99, 99), (12, 77)):
+                with self.subTest(flow=flow, chances=(first, second)):
+                    made = []
+                    for with_dll in (False, True):
+                        # The stock block rolls x and y for each leap, the companion one corner: feed each its
+                        # chance rolls where it asks for rand(100) and anything else elsewhere.
+                        queue = [first, second]
+                        p = Process(STOCK.read_bytes(), DLL if with_dll else None)
+                        if with_dll:
+                            p.export("VvfpStartup", 4, 0)
+                        leaps = []
+                        p.stub(PUZZLE, lambda m: (1, 4))
+                        p.stub(PAUSED, lambda m: (0, 0))
+                        p.stub(FLOW, lambda m, f=flow: (f, 0))
+                        p.stub(RAND, lambda m: (queue.pop(0) if m.arg(0) == 100 else 7 % m.arg(0), 0))
+                        p.stub(MAKER, lambda m: (leaps.append(m.arg(0)), (1, 0x20))[1])
+                        self._run(p)
+                        made.append(leaps)
+                    self.assertEqual(made[1], made[0])
+                    self.assertEqual(len(made[0]), 1 + (first < 50) + (second < 50))
+
+    def test_a_flow_with_no_corners_uses_the_base_games_box(self) -> None:
+        # frog_water.h has corners for both flows; with a set taken away (its flow field changed in the companion's
+        # data), that frog's leap is made in the base game's own box with the base game's two rolls.
+        pe = pefile.PE(str(DLL))
+        image = pe.get_memory_mapped_image()
+        sets = re.findall(r"\{(\d+), 0x([0-9A-F]+), (\d+), (\d+), (\d+)\}",
+                          HEADER.read_text(encoding="utf-8").split("FROG_SETS[")[1])
+        packed = b"".join(int(f).to_bytes(4, "little") + int(g, 16).to_bytes(4, "little") + int(a).to_bytes(4, "little")
+                          + int(b).to_bytes(4, "little") + int(c).to_bytes(4, "little") for f, g, a, b, c in sets)
+        rva = image.find(packed)
+        self.assertGreater(rva, 0)
+        for flow in (1, 2):
+            p, leaps, rand_calls = _frog_process(STOCK.read_bytes(), with_dll=True, flow=flow, rolls=[3, 10, 5, 20])
+            base = p.exports["VvfpStartup"] - next(e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols
+                                                  if e.name == b"VvfpStartup")
+            for i in range(len(sets)):
+                p.put32(base + rva + 20 * i, 9)          # no flow 9: every set gone
+            self._run(p)
+            with self.subTest(flow=flow):
+                self.assertEqual([n for n, _ in rand_calls][:3], [0x9A, 0x20, 100])
+                frog, x, y = leaps[0][1][:3]
+                self.assertEqual((frog, x, y), (0x1B, 0x405 + 3, 0x25D + 10))
+                for _, (frog, x, y, *_rest) in leaps[1:]:
+                    self.assertTrue(950 <= x <= 1133 and 600 <= y <= 629)
 
     def test_a_changed_byte_in_the_block_installs_nothing(self) -> None:
         pe = pefile.PE(str(STOCK), fast_load=True)

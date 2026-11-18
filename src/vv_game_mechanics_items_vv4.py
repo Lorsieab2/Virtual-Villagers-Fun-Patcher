@@ -231,7 +231,9 @@ def _puzzles() -> list[Entry]:
                 "right of the river's bottom stretch.", VERIFIED_C),
                (patch("vv4_fix_vanilla_bugs") + ": they leap anywhere on the river's blue water round the island "
                 "(the curve on the left, the whole bottom stretch and the pool under the waterfall by the ladder), "
-                "never on rock or grass. While the stream runs low (its debris above 75%) no frog leaps.",
+                "never on grass, the tree or the ladder, as often as in the game. While the stream runs low (its "
+                "debris above 75%) no whole leap fits on the thin river, so each leap goes where it fits it best, "
+                "partly over its rocky edge as in the game.",
                 VERIFIED_C))),
         Entry(PUZZLE, "The Cooking Pit", (
             "solved in 1 step. Solved, farmers are offered the fruit (\"Attempting to retrieve fruit\": stomping or "

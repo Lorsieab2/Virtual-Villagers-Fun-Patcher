@@ -478,7 +478,7 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
-        "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on rock or grass. While the stream runs low, no frog leaps.",
+        "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game.",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
