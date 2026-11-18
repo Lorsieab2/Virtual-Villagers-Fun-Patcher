@@ -1540,6 +1540,7 @@ _STARTS = (
     (_re.compile(r"^[^:]+? by [^:]+?(?=: (?:1 baby|twins|triplets);)"), "<villager> by <villager>"),
     (_re.compile(r"^[^:]+?(?=: (?:1 baby|twins|triplets);)"), "<villager>"),
     (_re.compile(r"^[^:]+?(?=: (?:1 baby|twins|triplets)\.$)"), "<villager>"),     # Babies being carried
+    (_re.compile(r"^(Untrained now: [\d,]+ of the [\d,]+ (?:villagers|believers): ).+$"), r"\1<villagers>."),
     (_re.compile(r"^[^:]+?, (\d+): turns? "), r"<villagers>, \1: turn(s) "),
     (_re.compile(r"^[^:]+?(?=: -?\d+ health; )"), "<villager>"),
     (_re.compile(r"^.+?(?= is the Golden Child: )"), "<villager>"),
