@@ -575,11 +575,25 @@ def multiplier_label(value) -> str:
 # name beside each; the patch rows stay on the main page).  Each entry: the App's variable (None: a 0.1x-10x slider,
 # found by its help key), its range, its "?" guide (also its settings key) and the row it belongs to in each game.
 DIFFICULTY_SLIDERS_TITLE = "Difficulty Sliders"
+DIFFICULTY_SLIDERS_BUTTON = "Difficulty Sliders..."
 DIFFICULTY_SLIDERS_INTRO = (
     "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One "
     "number is shared by every game that has its patch, and it is used only while that patch is ticked on the main "
     "page. Patch again after changing a slider.")
 DIFFICULTY_SLIDER_OFF_NOTE = "(its patch is not ticked)"
+# Every line above, and the page's "?" guide, is shown in the player's language (the template rows
+# vvfp.gui/difficulty_sliders.*, scripts/build_patch_text_inventory.py).
+
+
+def gui_text(english: str, game=None) -> str:
+    """A line of the patcher window in the language the player chose (for `game`, else the first game that has
+    one; vv_translations.display_text), or the English itself."""
+    import vv_translations
+    for number in ((game,) if game is not None else range(1, 6)):
+        shown = vv_translations.display_text(number, english)
+        if shown != english:
+            return shown
+    return english
 DIFFICULTY_SLIDERS = (
     ("tech_cost_var", TECH_COST_MULTIPLIER_RANGE, "tech_cost_multiplier", "_tech_cost_multiplier"),
     ("meal_var", MEAL_MULTIPLIER_RANGE, "meal_multiplier", "_hungrier_villagers"),
@@ -1916,7 +1930,7 @@ class App(tk.Tk):
         # stay here, and this button opens the page (_open_difficulty_sliders).
         sliders_group = ttk.Frame(fun_settings)
         sliders_group.pack(side="left", padx=(0, 16))
-        ttk.Button(sliders_group, text=DIFFICULTY_SLIDERS_TITLE + "...",
+        ttk.Button(sliders_group, text=gui_text(DIFFICULTY_SLIDERS_BUTTON),
                    command=self._open_difficulty_sliders).pack(side="left")
         self._help_button(sliders_group, "difficulty_sliders").pack(side="left", padx=(2, 0))
         # What patches use follows the slider, whichever way it is moved (slider, box, settings, Owner's Defaults).
@@ -2941,10 +2955,12 @@ class App(tk.Tk):
             existing.lift()
             existing.focus_set()
             return
-        dialog, frame = self._scrolling_dialog(DIFFICULTY_SLIDERS_TITLE)
+        title = gui_text(DIFFICULTY_SLIDERS_TITLE)
+        dialog, frame = self._scrolling_dialog(title)
         self._difficulty_sliders_dialog = dialog
-        ttk.Label(frame, text=DIFFICULTY_SLIDERS_TITLE, font=("Segoe UI", 10, "bold")).pack(anchor="w")
-        ttk.Label(frame, text=DIFFICULTY_SLIDERS_INTRO, wraplength=560, justify="left").pack(anchor="w", pady=(4, 6))
+        ttk.Label(frame, text=title, font=("Segoe UI", 10, "bold"), wraplength=560).pack(anchor="w")
+        ttk.Label(frame, text=gui_text(DIFFICULTY_SLIDERS_INTRO), wraplength=560, justify="left").pack(anchor="w",
+                                                                                                     pady=(4, 6))
         by_id = {patch.id: patch for patch in self.fun_patches}
         self._difficulty_slider_rows = []
         for build in self.builds:
@@ -2958,7 +2974,8 @@ class App(tk.Tk):
                 line.pack(fill="x", anchor="w", padx=6, pady=2)
                 scale, box = self._multiplier_slider(line, patch.name + ":", self._difficulty_variable(name, help_key),
                                                      multipliers, help_key)
-                note = ttk.Label(line, text="", foreground="#666666")
+                note = ttk.Label(line, text="", foreground="#666666", wraplength=300)
+                note.game = build.id
                 note.pack(side="left", padx=(8, 0))
                 self._difficulty_slider_rows.append((patch.id, scale, box, note))
         buttons = ttk.Frame(frame)
@@ -2978,7 +2995,7 @@ class App(tk.Tk):
                 on = bool(self.fun_patch_vars[patch_id].get())
                 scale.configure(state="normal" if on else "disabled")
                 box.state(["!disabled"] if on else ["disabled"])
-                note.configure(text="" if on else DIFFICULTY_SLIDER_OFF_NOTE)
+                note.configure(text="" if on else gui_text(DIFFICULTY_SLIDER_OFF_NOTE, getattr(note, "game", None)))
             except tk.TclError:
                 rows.remove((patch_id, scale, box, note))
 
@@ -3924,11 +3941,11 @@ class App(tk.Tk):
         window.resizable(False, False)
         frame = scrollable_frame(window, padding=16)
         ttk.Label(
-            frame, text=guide.title, font=("Segoe UI", 11, "bold"),
+            frame, text=gui_text(guide.title), font=("Segoe UI", 11, "bold"),
             wraplength=480, justify="left",
         ).pack(anchor="w", pady=(0, 8))
         for line in guide.lines:
-            ttk.Label(frame, text=line, wraplength=480, justify="left").pack(
+            ttk.Label(frame, text=gui_text(line), wraplength=480, justify="left").pack(
                 anchor="w", pady=(0, 6)
             )
         close = ttk.Button(frame, text="Close", command=window.destroy)

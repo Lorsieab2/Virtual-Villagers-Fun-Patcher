@@ -325,5 +325,31 @@ class Tk(unittest.TestCase):
         self.assertEqual(self.saves, 1)
 
 
+class Translated(unittest.TestCase):
+    """The Difficulty Sliders page's own text is shown in the player's language (vv_translations.display_text), each
+    line a template row vvfp.gui/difficulty_sliders.* (scripts/build_patch_text_inventory.py)."""
+
+    def test_the_page_text_goes_through_the_translations(self) -> None:
+        import json
+        from unittest import mock
+        import vv_how_to_use
+        import vv_translations
+        lines = (gui.DIFFICULTY_SLIDERS_TITLE, gui.DIFFICULTY_SLIDERS_BUTTON, gui.DIFFICULTY_SLIDERS_INTRO,
+                 gui.DIFFICULTY_SLIDER_OFF_NOTE, *vv_how_to_use.guide("difficulty_sliders").lines)
+        with mock.patch.object(vv_translations, "display_text", lambda game, english, translation=None: "T:" + english):
+            for english in lines:
+                self.assertEqual(gui.gui_text(english), "T:" + english)
+        with mock.patch.object(vv_translations, "display_text", lambda game, english, translation=None: english):
+            self.assertEqual(gui.gui_text(gui.DIFFICULTY_SLIDERS_TITLE), gui.DIFFICULTY_SLIDERS_TITLE)
+        rows = json.loads((ROOT / "data" / "translations" / "patcher_strings.json").read_text("utf-8"))["strings"]
+        template = {r["english"] for r in rows if r["stem"].startswith("vvfp.gui/difficulty_sliders.")}
+        self.assertEqual(template, set(lines))
+        text = source()
+        for shown in ("text=gui_text(DIFFICULTY_SLIDERS_BUTTON)", "gui_text(DIFFICULTY_SLIDERS_TITLE)",
+                      "gui_text(DIFFICULTY_SLIDERS_INTRO)", "gui_text(DIFFICULTY_SLIDER_OFF_NOTE,",
+                      "text=gui_text(line)", "text=gui_text(guide.title)"):
+            self.assertIn(shown, text)
+
+
 if __name__ == "__main__":
     unittest.main()
