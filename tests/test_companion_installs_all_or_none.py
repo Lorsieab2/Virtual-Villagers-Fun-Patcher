@@ -392,6 +392,10 @@ CASES = [
     Case("Cloth Sacks", "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll", (4,),
          lambda g: [f"vv{g}_cloth_sacks_for_yellow_fruit"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpClothSacksInstalled"))[1]),
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the two caps, the use-up clamp, the two stack draws.
+    Case("Supply Cap", "assets/supply_cap/VVFP VV4 Supply Cap.dll", (4,),
+         lambda g: [f"vv{g}_up_to_99_supplies"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpSupplyCapInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),

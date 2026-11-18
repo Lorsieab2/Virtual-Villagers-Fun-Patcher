@@ -637,6 +637,14 @@ without it every sack holds 30. Only villagers you drop make sacks: farmers
 never do on their own. The sacks are new pictures (art by Lorsieab2). Not yet
 tested in a running game.
 
+UP TO 99 CUTTING TOOLS/SOAP/CLOTH (THE TREE OF LIFE)
+
+Off by default; Owner's Defaults ticks it. Cutting tools and cloth bolts can
+be stored up to 99 instead of 6. They are still made 3 at a time and each use
+takes one. Soap was never limited to 6. The stacked pictures still show at
+most 6 (soap at most 3 bars); point at them to see the real count. Not yet
+tested in a running game.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

@@ -147,6 +147,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv4_yellow_fruit_refills_partially"
                   # Cloth Sacks for Yellow Fruit (the owner, 2026-11-17: on in Owner's Defaults).
                   or p == "vv4_cloth_sacks_for_yellow_fruit"
+                  # Up to 99 Cutting Tools/Soap/Cloth (the owner, 2026-11-17: on in Owner's Defaults).
+                  or p == "vv4_up_to_99_supplies"
                   # Picked Up Collectibles Stay Collected When Dropped (the owner, 2026-11-12: on in Owner's
                   # Defaults only).
                   or p.endswith("_collectibles_stay_collected")

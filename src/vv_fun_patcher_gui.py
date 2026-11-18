@@ -229,6 +229,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17): off by default, on in Owner's Defaults,
     # which ticks it like every default-off patch it does not name.
     + ["vv4_cloth_sacks_for_yellow_fruit"]
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life; the owner, 2026-11-17): off by default, on in Owner's
+    # Defaults.
+    + ["vv4_up_to_99_supplies"]
     # Picked Up Collectibles Stay Collected When Dropped (all five games; the owner, 2026-11-12): off by default,
     # on in Owner's Defaults, which ticks it like every default-off patch it does not name.
     + ["vv%d_collectibles_stay_collected" % game for game in range(1, 6)]

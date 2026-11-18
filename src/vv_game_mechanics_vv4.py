@@ -67,6 +67,9 @@ FRUIT_PARTIAL_GAIN = FRUIT_PARTIAL_UNITS * FRUIT_PARTIAL_PER_10_UNITS // 10     
 # 30 (with the limited tree, what is left, even none), through 0x41D920 (Food Mastery).  Only a drop starts one: the
 # Farming dispatcher is never touched (farmers never harvest with a cutting tool either).
 CLOTH_SACKS = "vv4_cloth_sacks_for_yellow_fruit"
+# Up to 99 Cutting Tools/Soap/Cloth ("VVFP VV4 Supply Cap.dll"): the tools' and cloth's cap of 6 (0x43142F, 0x4368E2 and the
+# use-up's clamp 0x436A09) is 99; soap is never capped in the stock game.
+SUPPLY_CAP = "vv4_up_to_99_supplies"
 SACK_FRUIT = 30
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
@@ -381,6 +384,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                   "cutting tool: with the limited trees, what is left when fewer, even none); with no "
                                   "cloth the villager refuses; only villagers you drop make sacks, farmers never do on "
                                   "their own" + mastery_words), gm.CODE)
+    if village.has(SUPPLY_CAP) is not False:
+        add("Food sources", gm.patch_words(village, SUPPLY_CAP, "up to 99 cutting tools and 99 cloth bolts can be "
+                                           "stored instead of 6 (still made 3 at a time; soap was never "
+                                           "limited)"), gm.CODE)
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
     fruit_at = fruit_next_at = None

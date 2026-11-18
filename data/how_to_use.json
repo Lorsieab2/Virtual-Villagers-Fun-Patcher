@@ -335,6 +335,14 @@
       ]
     },
     {
+      "ids": ["vv4_up_to_99_supplies"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it.",
+        "Cutting tools and cloth bolts can be stored up to 99 instead of 6; they are still made 3 at a time and each use takes one. Soap was never limited.",
+        "The stacks at the fish skeleton and the Clothing Hut still show at most 6; point at them to see the real count. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
