@@ -628,8 +628,10 @@ class UntouchedCases(unittest.TestCase):
                 with self.subTest(game=game, who=who):
                     m = decide(world(game, selected=own, pick=own))
                     self.assertEqual(jobs(m), [own])
-                    self.assertEqual(m.asked[0][0] == G[game]["pick_ret"],
-                                     not (game in LATER and own == G[game]["building"]))
+                    # A job with a fallback (the later games' Building, A New Home's and The Lost Children's
+                    # Healing) is dispatched by the companion so its fallback can follow.
+                    fallback = G[game]["building"] if game in LATER else G[game]["healing"]
+                    self.assertEqual(m.asked[0][0] == G[game]["pick_ret"], own != fallback)
 
     def test_a_builder_without_hut_work(self):
         for game in ("vv1", "vv2"):
@@ -731,6 +733,20 @@ class Fallbacks(unittest.TestCase):
                                      herbs=(k,), starts=lambda j, h=g["healing"]: j != h))
                     self.assertEqual(self._studied(m), [f"herb {k}"])
                     self.assertEqual(jobs(m), [g["healing"]])           # started: the pick is not run
+
+    def test_a_healer_already_given_healing_studies_too(self):
+        # Codex on #807: the picker's usual answer for a healer is Healing itself.
+        for game, herbs in (("vv1", VV1_HERBS), ("vv2", VV2_HERBS)):
+            g = G[game]
+            with self.subTest(game=game):
+                m = decide(world(game, selected=g["healing"], pick=g["healing"], herb_mastery=True, herbs=(0,),
+                                 starts=lambda j, h=g["healing"]: j != h))
+                self.assertEqual(self._studied(m), ["herb 0"])
+                self.assertEqual(jobs(m), [g["healing"]], "the request ran once")
+                m = decide(world(game, selected=g["healing"], pick=g["healing"], herb_mastery=True, herbs=(0,),
+                                 force=FORCE_FAIL, starts=lambda j, h=g["healing"]: j != h))
+                self.assertEqual(self._studied(m), [])
+                self.assertEqual(m.asked, [(g["pick_ret"], g["healing"])])
 
     def test_no_study_before_herb_mastery_or_for_others(self):
         for game, herbs in (("vv1", VV1_HERBS), ("vv2", VV2_HERBS)):

@@ -368,12 +368,14 @@ static int own_first(const struct jobs *j, int selected, int requested,
     return selected;
 }
 
-/* The later games' builders asked for Building already (the picker's usual
-   answer): on the decision's roll the request is dispatched here, so that if
-   it starts nothing the exercise fallback can follow; -1 = the stock request
-   alone (roll failed), -2 = not this case (ask own_first). */
-static int builder_asked(const struct jobs *j, int selected, int requested) {
-    if (selected != j->building || requested != j->building) {
+/* A villager asked for the very job that has a fallback -- the later games'
+   builders (exercise) and A New Home's / The Lost Children's healers (herb
+   study), the picker's usual answer for them: on the decision's roll the
+   request is dispatched here, so that if it starts nothing the fallback can
+   follow (Codex on #807); -1 = the stock request alone (roll failed), -2 =
+   not this case (ask own_first). */
+static int own_asked(int selected, int requested, int job_with_fallback) {
+    if (selected != job_with_fallback || requested != job_with_fallback) {
         return -2;
     }
     if (!decision_roll()) {
@@ -552,27 +554,33 @@ static int __cdecl vv1_handle(unsigned int ret, unsigned char *village, unsigned
     int selected, own;
     if (!is_one_of(ret, VV1_CALLS, 3)) return -1;
     selected = *(const int *)(village + index * 0x3D8u + 0x3D0u);
-    own = own_first(&VV1_JOBS, selected, job,
-                    selected == VV1_JOBS.building
-                        && vv1_builder_has_hut_work(village) && !vv1_fresh_hut_on_offer(village), 0,
-                    selected == VV1_JOBS.farming && vv1_farming_starts(village));
+    own = own_asked(selected, job, VV1_JOBS.healing);
+    if (own == -2) {
+        own = own_first(&VV1_JOBS, selected, job,
+                        selected == VV1_JOBS.building
+                            && vv1_builder_has_hut_work(village) && !vv1_fresh_hut_on_offer(village), 0,
+                        selected == VV1_JOBS.farming && vv1_farming_starts(village));
+    }
     if (own < 0) return -1;
     if (dispatch12(vv1_original, village, index, own)) return 1;
     if (own == VV1_JOBS.healing && vv1_plant_fallback(village, index)) return 1;
-    return -1;
+    return own == job ? 0 : -1;                    /* the request already ran */
 }
 
 static int __cdecl vv2_handle(unsigned int ret, unsigned char *village, unsigned int index, int job) {
     int selected, own;
     if (!is_one_of(ret, VV2_CALLS, 3)) return -1;
     selected = *(const int *)(village + index * 0xE48Cu + 0x7F8u);
-    own = own_first(&VV2_JOBS, selected, job,
-                    selected == VV2_JOBS.building
-                        && vv2_builder_has_hut_work(village) && !vv2_fresh_hut_on_offer(village), 0, 1);
+    own = own_asked(selected, job, VV2_JOBS.healing);
+    if (own == -2) {
+        own = own_first(&VV2_JOBS, selected, job,
+                        selected == VV2_JOBS.building
+                            && vv2_builder_has_hut_work(village) && !vv2_fresh_hut_on_offer(village), 0, 1);
+    }
     if (own < 0) return -1;
     if (dispatch12(vv2_original, village, index, own)) return 1;
     if (own == VV2_JOBS.healing && vv2_plant_fallback(village, index)) return 1;
-    return -1;
+    return own == job ? 0 : -1;                    /* the request already ran */
 }
 
 static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) {
@@ -581,7 +589,7 @@ static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) 
     if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
     record = *(unsigned char *const *)(object + 0x1B88u);
     selected = *(const int *)(record + 0x1C70u);
-    own = builder_asked(&LATER_JOBS, selected, job);
+    own = own_asked(selected, job, LATER_JOBS.building);
     if (own == -2) {
         own = own_first(&LATER_JOBS, selected, job,
                         selected == LATER_JOBS.building && !vv4_puzzle_on_offer(), 0, 1);
@@ -615,7 +623,7 @@ static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) 
     catch_up = ret == VV5_CATCH_UP_CALL;
     record = *(unsigned char *const *)(object + 0x1B88u);
     if (record[VV5_HEATHEN] != 0) return -1;                /* Heathens get nothing new */
-    own = builder_asked(&VV5_JOBS, *(const int *)(record + 0x1C74u), job);
+    own = own_asked(*(const int *)(record + 0x1C74u), job, VV5_JOBS.building);
     if (own == -2) {
         own = own_first(&VV5_JOBS, *(const int *)(record + 0x1C74u), job, 1,
                         catch_up || !vv5_devotee_training_present(), 1);
@@ -647,7 +655,7 @@ __declspec(dllexport) int __cdecl VvfpWorkFirstFirst(int game_id, unsigned int r
     int own, before;
     if (game_id != 3 || record == NULL) return -1;
     if (!is_one_of(ret, VV3_CALLS, 4)) return -1;
-    own = builder_asked(&LATER_JOBS, *(const int *)(record + 0xEC0u), job);
+    own = own_asked(*(const int *)(record + 0xEC0u), job, LATER_JOBS.building);
     if (own == -2) {
         own = own_first(&LATER_JOBS, *(const int *)(record + 0xEC0u), job, 1, 0, 1);
     }
