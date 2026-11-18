@@ -45,7 +45,7 @@ PINNED = {
     "The Scarecrow": "CE",
     "The Elder Totem": "EEC",
     "The Hospital": "CECC",
-    "Herb Mastery": "CEC",
+    "Herb Mastery": "CECCC",
     "The Sewing Hut": "CU",
     "The Dam": "CC",
     "The Cutting Tool": "UC",
