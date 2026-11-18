@@ -1,5 +1,0 @@
-LIBRARY "VVFP Food Mastery Text"
-EXPORTS
-    VvfpStartup=_VvfpStartup@8
-    VvfpFoodMasteryTextInstalled=_VvfpFoodMasteryTextInstalled@0
-    VvfpFoodMasteryTextFixed=_VvfpFoodMasteryTextFixed@0

@@ -116,8 +116,8 @@ FILES = [
     "assets/keep_carried/VVFP Keep Carried.dll",
     # Fix Vanilla Bugs (The Lost Children ... New Believers): a word wider than its box no longer hangs the layout.
     "assets/long_words/VVFP Long Words.dll",
-    # Fix Vanilla Bugs (The Tree of Life, New Believers): the Food Mastery description says what its bonus is for.
-    "assets/food_mastery_text/VVFP Food Mastery Text.dll",
+    # Fix Vanilla Bugs (all five games): the games' own text fixes (approved typos, the Food Mastery line).
+    "assets/text_fixes/VVFP Text Fixes.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.
@@ -411,6 +411,8 @@ FILES = [
     "data/translations/patcher_strings.json",
     "data/translations/exe_patch_strings.json",
     "data/translations/patch_text_exclusions.json",
+    # Fix Vanilla Bugs' game-text fixes: the template gives their fixed English when VVFP Text Fixes.dll is installed.
+    "data/vanilla_text_fixes.json",
     "docs/translation-file-format.md",
     "docs/translating-the-games.md",
     "data/vv3_both_factions_feature.json",

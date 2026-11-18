@@ -77,9 +77,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
-    /* Fix Vanilla Bugs (The Tree of Life, New Believers): the Food Mastery tech's description says its Level 2 bonus is
-       to collected food. */
-    "VVFP Food Mastery Text.dll",
+    /* Fix Vanilla Bugs (all five games): the games' own text fixes -- the owner's approved typos, and the Food Mastery
+       tech's Level 2 line (The Tree of Life, New Believers). */
+    "VVFP Text Fixes.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

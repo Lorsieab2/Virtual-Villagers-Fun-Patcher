@@ -1,0 +1,5 @@
+LIBRARY "VVFP Text Fixes"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpTextFixesInstalled=_VvfpTextFixesInstalled@0
+    VvfpTextFixesApplied=_VvfpTextFixesApplied@0
