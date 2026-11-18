@@ -434,6 +434,28 @@ CHANCES_GROUPS = ("Chances", "Births and gender")
 GROUPS = GROUPS[:GROUPS.index("Chance and timers")] + CHANCES_GROUPS + GROUPS[GROUPS.index("Chance and timers"):]
 
 
+# What the babies being carried count toward (src/vv_game_mechanics_carried.py, the owner 2026-11-18), right after
+# the mothers themselves.
+CARRIED = "Babies being carried"
+GROUPS = GROUPS[:GROUPS.index("Nursing and pregnancy") + 1] + (CARRIED,) + GROUPS[GROUPS.index("Nursing and pregnancy") + 1:]
+
+
+def carried_facts(village: "Village") -> list[Fact]:
+    """The Babies being carried group for `village` (found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_carried").facts(village))
+
+
+# How a villager picks a job and The Tree of Life's / New Believers' "untrained" mark
+# (src/vv_game_mechanics_training.py, the owner 2026-11-18), just before the hidden villager stats.
+TRAINING = "Jobs and training"
+GROUPS = GROUPS[:GROUPS.index(HIDDEN)] + (TRAINING,) + GROUPS[GROUPS.index(HIDDEN):]
+
+
+def training_facts(village: "Village") -> list[Fact]:
+    """The Jobs and training group for `village` (found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_training").facts(village))
+
+
 def chances_facts(village: "Village") -> list[Fact]:
     """The Chances and Births and gender groups for `village` (found by name)."""
     return list(importlib.import_module("vv_game_mechanics_chances").facts(village))
@@ -1047,7 +1069,8 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += catchup_facts(village) + farmers_facts(village) + genetics_facts(village)
-        facts += chances_facts(village) + items_facts(village) + hidden_facts(village)
+        facts += chances_facts(village) + items_facts(village) + hidden_facts(village) + carried_facts(village)
+        facts += training_facts(village)
     import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
     facts += counts.facts(village, facts)
     if not facts:
@@ -1092,7 +1115,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     keep = []
     items = items_facts(village)               # the reference entries: kept whole, never filtered as save values
     for fact in list(module.facts(village)) + catchup_facts(village) + farmers_facts(village) + genetics_facts(village) \
-            + chances_facts(village):
+            + chances_facts(village) + carried_facts(village) + training_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",

@@ -136,9 +136,10 @@ EVENTS = (
     Event("Blessings Day Celebration (first version)", "single-result, always possible; also the fallback when "
                                                        "10 draws find no event", (
         "A gathering, every free living villager goes \"Relaxing at the beach\", and the stored food loses 10 "
-        "for every villager, down to 0 at least.",)),
+        "for every villager (babies being carried counted), down to 0 at least.",)),
     Event("Blessings Day Celebration (second version)", "single-result, always possible", (
-        "\"Greeting the guiding hand\", and the stored food loses 10 for every villager, down to 0 at least.",)),
+        "\"Greeting the guiding hand\", and the stored food loses 10 for every villager (babies being carried "
+        "counted), down to 0 at least.",)),
     Event("Day of Elders", "single-result, always possible", (
         "The gathering Blessings Day (first version) also starts, when the first villager record is a living, "
         "free villager; no amount changes.",)),
