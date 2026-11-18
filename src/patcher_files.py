@@ -87,8 +87,10 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     "Images/vvfp_fruit_tree_4.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_5.png": _GAME_IMAGE,
     # The Tree of Life's Cloth Sacks for Yellow Fruit: the sacks a villager carries; the game's sprite
-    # constructor is handed "vvfp_sack_empty.png" and "vvfp_sack_yellow_fruit.png" (vvfp_vv4_cloth_sacks.c).
+    # constructor is handed "vvfp_sack_empty.png", "vvfp_sack_yellow_fruit_raw.png" and "vvfp_sack_yellow_fruit.png"
+    # (vvfp_vv4_cloth_sacks.c).
     "Images/vvfp_sack_empty.png": _GAME_IMAGE,
+    "Images/vvfp_sack_yellow_fruit_raw.png": _GAME_IMAGE,
     "Images/vvfp_sack_yellow_fruit.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",

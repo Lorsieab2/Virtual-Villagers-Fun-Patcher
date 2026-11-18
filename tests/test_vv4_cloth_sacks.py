@@ -306,18 +306,24 @@ class SackTripTests(unittest.TestCase):
                 self.assertEqual(h.v.r32(CLOTH), 3)
 
     def test_the_sack_pictures_are_drawn_for_the_sack_only(self) -> None:
+        """Owner, live (v2): the sack was drawn faded and huge.  The world draw's fifth argument is the picture's
+        ALPHA (it reaches 0x408DC0 as the opacity; the size is the map's zoom): every carried item passes 1.0, and
+        so must the sack.  The pictures are carried-item size and sit on carrying.png's 40-pixel cell."""
         h = Hut()
         p = h.v.process
-        heads = {name: struct.pack(">II", w, hh) + bytes([8, 6]) for name, w, hh in builder.PICTURES}
+        names = [shipped for shipped, _ in builder.PICTURES]
+        sizes = {name: builder.picture_size(name) for name in names}
+        for w, hh in sizes.values():
+            self.assertLessEqual(max(w, hh), 40)                  # no bigger than a carrying.png cell
         handles: dict[int, bytes] = {}
 
         def create(pp):
-            path = pp.wstring(pp.arg(0))
-            leaf = path.rsplit("\\", 1)[-1]
-            if leaf not in heads:
+            leaf = pp.wstring(pp.arg(0)).rsplit("\\", 1)[-1]
+            if leaf not in sizes:
                 return 0xFFFFFFFF, 28
-            handles[0x900 + len(handles)] = b"\x89PNG\r\n\x1a\n\0\0\0\x0dIHDR" + heads[leaf]
-            return 0x900 + len(handles) - 1, 28
+            handle = 0x900 + len(handles)
+            handles[handle] = (ROOT / "assets" / "cloth_sacks" / leaf).read_bytes()[:26]
+            return handle, 28
 
         def read(pp):
             data = handles[pp.arg(0)]
@@ -335,22 +341,22 @@ class SackTripTests(unittest.TestCase):
             heap[0] += 0x40
             h.v._ret(at, 0)
 
-        def grid(*_):
+        def grid(*_):                                             # the game's image loader, stood in for
             sp = h.v.uc.reg_read(UC_X86_REG_ESP)
             this = h.v.uc.reg_read(fe.UC_X86_REG_ECX)
             name = p.cstring(h.v.r32(sp + 4))
-            size = {n: hh for n, _, hh in builder.PICTURES}[name]
-            h.v.w32(this + 0x10, 60)
-            h.v.w32(this + 0x14, size)
-            h.v.w32(this + 0x30, 0x51AC0000 + size)               # a mark to tell the two apart
+            w, hh = sizes[name]
+            h.v.w32(this + 0x10, w)
+            h.v.w32(this + 0x14, hh)
+            h.v.w32(this + 0x30, 0x51AC0000 + names.index(name))   # a mark to tell them apart
             h.v._ret(this, 0xC)
         drawn: list[tuple] = []
 
         def draw(*_):
             sp = h.v.uc.reg_read(UC_X86_REG_ESP)
             sprite, x, y, frame = struct.unpack("<4I", h.v.uc.mem_read(sp + 4, 16))
-            scale = struct.unpack("<f", h.v.uc.mem_read(sp + 20, 4))[0]
-            drawn.append((sprite, x, y, frame, round(scale, 2)))
+            alpha = struct.unpack("<f", h.v.uc.mem_read(sp + 20, 4))[0]
+            drawn.append((sprite, x, y, frame, round(alpha, 2)))
             h.v._ret(0, 0x14)
         for at, fn in ((0x470C5C, alloc), (0x40AB10, grid), (WORLD_DRAW, draw)):
             h.v.uc.hook_add(UC_HOOK_CODE, lambda *_a, fn=fn: fn(), begin=at, end=at)
@@ -358,13 +364,18 @@ class SackTripTests(unittest.TestCase):
         h.v.w32(mgr + 0x24, 0xCAFE0024)                           # carrying.png
         h.v.w32(mgr + 0x28, 0xCAFE0028)
         r = h.villager()
+        label = {0: "empty", 1: "raw", 2: "cooked"}
 
         def picture() -> tuple:
             drawn.clear()
             h.v.call(CARRY_DRAW, mgr, r, 100, 200)
-            sprite, x, y, frame, scale = drawn[0]
-            mark = h.v.r32(sprite + 0x30) if fe.HEAP <= sprite < fe.HEAP + 0x100000 else 0
-            return {0x51AC0000 + 65: "empty", 0x51AC0000 + 87: "full"}.get(mark, hex(sprite)), x, y, frame, scale
+            sprite, x, y, frame, alpha = drawn[0]
+            mark = h.v.r32(sprite + 0x30) - 0x51AC0000 if fe.HEAP <= sprite < fe.HEAP + 0x100000 else -1
+            return label.get(mark, hex(sprite)), x, y, frame, alpha
+
+        def placed(name: str) -> tuple:
+            w, hh = sizes[f"vvfp_sack_{name}.png".replace("raw", "yellow_fruit_raw").replace("cooked", "yellow_fruit")]
+            return 100 + (40 - w) // 2, 200 + 31 - hh
         h.v.w32(r + REC_ITEM, 0x35)
         self.assertEqual(picture(), ("0xcafe0024", 100, 200, 0x35, 1.0))   # cloth, not on a trip: the game's own
         h.drop(r)
@@ -375,11 +386,52 @@ class SackTripTests(unittest.TestCase):
                 states.add((h.v.r32(r + REC_ITEM), picture()))
         h.run(watch=watch)
         self.assertIn((0x35, ("0xcafe0024", 100, 200, 0x35, 1.0)), states)   # making: the cloth bolt
-        self.assertIn((0x35, ("empty", 106, 201, 0, 0.45)), states)           # the empty sack
-        self.assertIn((0x36, ("0xcafe0024", 100, 200, 0x36, 1.0)), states)   # shaking: the game's yellow fruit
-        self.assertIn((0x36, ("full", 106, 191, 0, 0.45)), states)            # the full sack to the bin
+        self.assertIn((0x35, ("empty", *placed("empty"), 0, 1.0)), states)    # the empty sack
+        self.assertIn((0x36, ("raw", *placed("raw"), 0, 1.0)), states)        # trees to pit: the raw fruit
+        self.assertIn((0x36, ("cooked", *placed("cooked"), 0, 1.0)), states)  # pit to bin: the cooked fruit
+        self.assertNotIn((0x36, ("0xcafe0024", 100, 200, 0x36, 1.0)), states)  # never the loose yellow fruit
+        self.assertTrue(all(state[1][4] == 1.0 for state in states))         # never faded
         h.v.w32(r + REC_ITEM, 0x36)
         self.assertEqual(picture()[0], "0xcafe0024")                          # the trip over: the game's own
+
+    def test_making_the_sack_is_silent(self) -> None:
+        # Owner, live (v2): no researching sounds.  0x469CD0 queues step type 0x19, a sound at the villager (the
+        # Researching action's 1 and 0x67); the making queues none, only the working-pose waits (type 0x0A).
+        h = Hut()
+        r = h.villager()
+        h.drop(r)
+        q = h.queue(r)
+        made = q.index((0x13, EV_MADE))
+        self.assertNotIn(0x19, [t for t, _ in q[:made]])
+        self.assertEqual([t for t, _ in q[:made]].count(0x0A), 2)
+
+    def test_the_pit_spot_is_the_villagers_from_the_drop(self) -> None:
+        def taken(h):
+            return [k for k in range(5, 9) if h.v.call(0x46D880, 0x705148, k) & 0xFF]
+        h = Hut()
+        r = h.villager()
+        self.assertEqual(taken(h), [])
+        h.drop(r)
+        self.assertEqual(len(taken(h)), 1)                         # claimed at once, before the making
+        self.assertEqual(h.queue(r)[0][0], 0x2E)
+        for _ in range(200):                                       # while the sack is made
+            h.v.step_frame()
+        self.assertEqual(len(taken(h)), 1)
+        h.run()
+        self.assertEqual(h.credits(), [30])
+
+    def test_a_full_cooking_pit_refuses_and_uses_no_cloth(self) -> None:
+        for patched in (True, False):
+            with self.subTest(patched=patched):
+                h = Hut(patched=patched)
+                for lock in range(5, 9):                           # all four spots taken
+                    h.v.call(0x46D530, 0x705148, lock)
+                r = h.villager()
+                h.drop(r)
+                self.assertEqual(h.v.r32(CLOTH), 3)
+                self.assertNotIn((0x13, EV_CREDIT), h.queue(r))
+                if patched:
+                    self.assertEqual(h.v.r32(r + REC_ACTION), 0x1A)   # the tree's own refusal, text 0x13C
 
 
 class RowTests(unittest.TestCase):
@@ -390,7 +442,8 @@ class RowTests(unittest.TestCase):
         self.assertIn("**Needs no other patch.**", row["description"])
         self.assertIn("**Off by default; Owner's Defaults ticks it.**", row["description"])
         self.assertEqual([f["destination"] for f in row["companion_files"]],
-                         ["VVFP VV4 Cloth Sacks.dll", "Images/vvfp_sack_empty.png", "Images/vvfp_sack_yellow_fruit.png"])
+                         ["VVFP VV4 Cloth Sacks.dll", "Images/vvfp_sack_empty.png", "Images/vvfp_sack_yellow_fruit_raw.png",
+                          "Images/vvfp_sack_yellow_fruit.png"])
 
     def test_vvfp_startup_starts_it(self) -> None:
         self.assertIn("VVFP VV4 Cloth Sacks.dll", patcher.STARTUP_LOADER_COMPANIONS_2)

@@ -50,29 +50,36 @@
      farmers       The owner (2026-11-17): "farmers should never use cutting tools or sacks on their own" --
                    as no farmer the game sends ever harvests with a cutting tool, the Farming dispatcher
                    0x4639B0 is not touched: only a villager the player drops at the hut makes a sack.
-     the trip      Queued with the game's own step builders: "Making a sack out of cloth" (a text step 0x468CF0),
-                   the cloth carried (item 0x35), the research look -- the Researching action's own two animations
-                   (0x469CD0(1, 1.0, 2) and (0x67, 0.5, 2), 0x453700) with its waits (0x469280) -- then this
-                   companion's event SACK_EV_MADE (the empty sack shows), "Gathering food in cloth sack", then the
-                   game's own fruit trip: do-action 0x64 (0x4343A0, which picks a free spot and builds that spot's
-                   trip 0x65..0x68: the walk to the trees, the shaking, the Farming check, the fruit, the cooking).
-                   Its tail -- from its last text step ("Carrying fruit to the food bin", or the stew's "Adding to
-                   the stew") -- is replaced by: "Carrying fruit to the food bin" (text 0x240), SACK_EV_FULL (the
-                   full sack shows), the full sack (item 0x36), the walk to the food bin (area 8), the trip's own
-                   1-second wait and put-down (0x4693B0(1), 0x469820), and SACK_EV_CREDIT, the food above.  The
-                   game's event 15 (3 food) is not queued, so the trip pays only the sack.
+     the trip      Queued with the game's own step builders: the trip's pit spot claimed at once (a copy of its
+                   own first step, so the pit cannot fill up while the sack is made, as a stock trip claims its
+                   spot at once), "Making a sack out of cloth" (a text step 0x468CF0), the cloth carried (item
+                   0x35), the research look without its sounds -- the Researching action's working-pose waits
+                   (0x469280, step type 0x0A; its 0x469CD0 steps are sounds, step type 0x19, and are left out) --
+                   then this companion's event SACK_EV_MADE (the empty sack shows), "Gathering food in cloth
+                   sack", then the game's own fruit trip: do-action 0x64 (0x4343A0, which picks a free spot and
+                   builds that spot's trip 0x65..0x68: the walk to the trees, the shaking, the Farming check, the
+                   fruit, the cooking).  Its tail -- from its last text step ("Carrying fruit to the food bin", or
+                   the stew's "Adding to the stew") -- is replaced by: "Carrying fruit to the food bin" (text
+                   0x240), SACK_EV_FULL (the cooked sack shows), the full sack (item 0x36), the walk to the food
+                   bin (area 8), the trip's own 1-second wait and put-down (0x4693B0(1), 0x469820), and
+                   SACK_EV_CREDIT, the food above.  The game's event 15 (3 food) is not queued, so the trip pays
+                   only the sack.
      the events    The job events 0x4642F0 (thiscall(villager; event)) are entered here first: SACK_EV_MADE,
                    SACK_EV_FULL and SACK_EV_CREDIT are this companion's (numbers the game's table never reaches:
                    events above 74 go to its own end, 0x464EB2, so a queue the game kept without this companion
                    does nothing with them); every other event is the game's.
-     the pictures  The carried item 0x466770 draws carrying.png's cell through the world draw 0x44C640 (call at
-                   0x4667B4).  For a villager on a sack trip (its queue still holds SACK_EV_CREDIT) carrying item
-                   0x35 after SACK_EV_MADE, Images\vvfp_sack_empty.png is drawn instead; carrying item 0x36 after
-                   SACK_EV_FULL, Images\vvfp_sack_yellow_fruit.png (the owner's art), at SACK_SCALE, moved by
-                   SACK_DX / SACK_DY_* so it sits where the cell sat.  Built once by the game's ldwImageGrid
-                   0x40AB10 (name, 1, 1) after its PNG header says 8-bit RGBA of the expected size; a missing or
-                   wrong file: the game's own picture (the cloth, the yellow fruit).  The call goes on into
-                   0x44C640, so "VVFP Golden Mushroom.dll" (which enters there) is unaffected.
+     the pictures  The carried item 0x466770 draws carrying.png's 40 x 40 cell through the world draw 0x44C640
+                   (call at 0x4667B4), whose fifth argument is the picture's ALPHA (1.0 for every carried item;
+                   the size is the map's zoom [0x4DB9F8 + 0x3010], the same for everything).  For a villager on a
+                   sack trip (its queue still holds SACK_EV_CREDIT) the sack is drawn instead, with the same call,
+                   alpha and zoom: after SACK_EV_MADE, item 0x35 -> Images\vvfp_sack_empty.png and item 0x36 (the
+                   shaken fruit, trees to pit) -> Images\vvfp_sack_yellow_fruit_raw.png; after SACK_EV_FULL, item
+                   0x36 (the cooked fruit, pit to bin) -> Images\vvfp_sack_yellow_fruit.png.  The pictures are
+                   the owner's art made carried-item size (45 %, at most CELL x CELL), centred on the cell and
+                   standing on CELL_FLOOR, where carrying.png's fruit and berries end.  Built once by the game's
+                   ldwImageGrid 0x40AB10 (name, 1, 1) after its PNG header says 8-bit RGBA of at most CELL x CELL; a
+                   missing or wrong file: the game's own picture (the cloth, the yellow fruit).  The call goes on
+                   into 0x44C640, so "VVFP Golden Mushroom.dll" (which enters there) is unaffected.
 
    Nothing is kept: no file, nothing in the save.  A queue the game keeps holds only the game's own steps (and
    SACK_EV_* numbers the game ignores).
@@ -119,7 +126,6 @@
 #define STEP_TEXT 0x468CF0u          /* (text): type 5 */
 #define STEP_TEXT_ID 0x468D60u       /* (text id) */
 #define STEP_CARRY 0x4697C0u         /* (item): type 0x11 */
-#define STEP_ANIM 0x469CD0u          /* (animation, speed, 2): type 0x19 */
 #define STEP_POSE_WAIT 0x469280u     /* (seconds): type 0x0A */
 #define STEP_WAIT 0x4693B0u          /* (seconds): type 0x0E */
 #define STEP_PUT_DOWN 0x469820u      /* (): type 0x12 */
@@ -130,6 +136,8 @@
 
 #define T_TEXT 5
 #define T_EVENT 0x13
+#define T_CLAIM 0x2E                 /* a pit spot claimed (0x46A3D8 -> 0x46D530) */
+#define SPOT_ARG 0x50
 #define STEP_SIZE 0x58
 #define STEPS 0x50
 
@@ -162,12 +170,10 @@
 #define SACK_BOX_RIGHT 55
 #define SACK_BOX_TOP 40
 #define SACK_BOX_BOTTOM 135
-/* The pictures (the owner's 60 x 65 and 60 x 87) drawn at 45 %, centred on carrying.png's 40-pixel cell and
-   standing on its bottom (the fruit cells' art ends about 30 pixels down). */
-#define SACK_SCALE 0.45f
-#define SACK_DX 6
-#define SACK_DY_EMPTY 1
-#define SACK_DY_FULL (-9)
+/* carrying.png's cells are 40 x 40, drawn at 1:1 with their top-left at the carried item's place; the fruit and
+   berry cells' art ends about 31 pixels down.  A sack is centred on the cell and stands on that line. */
+#define CELL 40
+#define CELL_FLOOR 31
 
 /* The pictures. */
 #define ALLOC 0x470C5Cu              /* operator new */
@@ -234,7 +240,6 @@ typedef void (__fastcall *food_fn)(void *self, void *unused, int food);
 typedef void (__fastcall *tip_fn)(void *self, void *unused, int id, int a, int b);
 typedef void (__fastcall *step1_fn)(void *self, void *unused, int arg);
 typedef void (__fastcall *step0_fn)(void *self, void *unused);
-typedef void (__fastcall *anim_fn)(void *self, void *unused, int anim, float speed, int mode);
 typedef void (__fastcall *walk_fn)(void *self, void *unused, int area, int speed, int front);
 
 static int solved(int id) {
@@ -333,18 +338,49 @@ static const char *caption_gathering(void) {
     return vvfp_tr("vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0", "Gathering food in cloth sack", 39);
 }
 
+/* The pit spot the fruit trip claims (its first step, type 0x2E, lock 5..8 at +0x50: 0x4698D0), claimed at once
+   as well: a copy of that step goes before the making, at `start`, and the queue is started again when the
+   villager had nothing queued before.  The stock fruit trip claims its spot at once too (its first step), so no
+   one else can take the spot meanwhile; the trip's own claim still runs after the making (the lock's 45-second
+   timeout, 0x46D563, then runs from there, as for a stock trip).  An interrupted trip leaves the spot to that
+   timeout, as a stock trip does. */
+static void hold_spot(unsigned char *villager, int start, int first) {
+    int i, last;
+    for (last = first; last < STEPS && *(const unsigned int *)step_at(villager, last) != 0; ++last) {
+    }
+    if (last >= STEPS) {
+        return;                      /* a full queue: no room for the copy (the trip's own claim remains) */
+    }
+    for (i = first; i < last; ++i) {
+        const unsigned int *s = (const unsigned int *)step_at(villager, i);
+        if (s[0] == T_CLAIM && s[SPOT_ARG / 4] >= 5 && s[SPOT_ARG / 4] <= 8) {
+            unsigned char claim[STEP_SIZE];
+            memcpy(claim, s, STEP_SIZE);
+            memmove((unsigned char *)step_at(villager, start + 1), step_at(villager, start),
+                    (size_t)(last - start) * STEP_SIZE);
+            memcpy((unsigned char *)step_at(villager, start), claim, STEP_SIZE);
+            if (start == 0) {
+                ((step0_fn)(UINT_PTR)QUEUE_START)(villager, NULL);
+            }
+            return;
+        }
+    }
+}
+
 /* The sack trip, queued behind whatever the villager already has (as every action handler does).  The cloth is
    used here, at once, as the cutting tool is. */
 static void start_trip(unsigned char *villager) {
-    int i, first, last_text = -1;
+    int i, start, first, last_text = -1;
     ((use_fn)(UINT_PTR)USE_UP)((void *)(UINT_PTR)CLOTH, NULL, 1);
     unmark(villager);
+    for (start = 0; start < STEPS && *(const unsigned int *)step_at(villager, start) != 0; ++start) {
+    }
     ((step1_fn)(UINT_PTR)STEP_TEXT)(villager, NULL, (int)(UINT_PTR)caption_making());
     step1(STEP_CARRY, villager, ITEM_CLOTH);
-    /* The research look: the Researching action's own animations and waits (0x4537A9..0x45380E). */
-    ((anim_fn)(UINT_PTR)STEP_ANIM)(villager, NULL, 1, 1.0f, 2);
+    /* The research look, silent: the Researching action's own waits (0x4537D9, 0x45388F: step type 0x0A, the
+       working pose), without its two sound steps (0x469CD0 is step type 0x19, a sound played at the villager --
+       1 and 0x67 there -- not an animation). */
     step1(STEP_POSE_WAIT, villager, 6);
-    ((anim_fn)(UINT_PTR)STEP_ANIM)(villager, NULL, 0x67, 0.5f, 2);
     step1(STEP_POSE_WAIT, villager, 6);
     step1(STEP_EVENT, villager, SACK_EV_MADE);
     ((step1_fn)(UINT_PTR)STEP_TEXT)(villager, NULL, (int)(UINT_PTR)caption_gathering());
@@ -361,6 +397,7 @@ static void start_trip(unsigned char *villager) {
             last_text = i;
         }
     }
+    hold_spot(villager, start, first);
     if (last_text < first) {
         /* The fruit trip was not built (it cannot be: every test it makes was made first): no trip at all. */
         ((step0_fn)(UINT_PTR)CLEAR_QUEUE)(villager, NULL);
@@ -455,13 +492,20 @@ static int __cdecl on_event(unsigned char *job, int event) {
 typedef void *(__cdecl *alloc_fn)(unsigned int size);
 typedef void *(__fastcall *grid_ctor_fn)(void *self, void *unused, const char *name, int columns, int rows);
 
-static const char SACK_EMPTY[] = "vvfp_sack_empty.png";
-static const char SACK_FULL[] = "vvfp_sack_yellow_fruit.png";
-static void *g_art[2];
-static int g_art_state[2];           /* 0 not tried, 1 built, -1 not usable */
+/* The three carried sacks, each one picture already at the size of a carried item (the game draws carrying.png's
+   cells, 40 x 40, at 1:1; scripts/build_vv4_cloth_sacks_features.py makes these from the owner's art at 45 %). */
+#define ART_EMPTY 0
+#define ART_RAW 1                    /* the shaken fruit, carried from the trees to the Cooking Pit */
+#define ART_COOKED 2                 /* the cooked fruit, carried to the food bin */
+#define ARTS 3
+static const char *const SACK_ART[ARTS] = {
+    "vvfp_sack_empty.png", "vvfp_sack_yellow_fruit_raw.png", "vvfp_sack_yellow_fruit.png",
+};
+static void *g_art[ARTS];
+static int g_art_state[ARTS];        /* 0 not tried, 1 built, -1 not usable */
 
-/* Images\<name> says 8-bit RGBA, 60 x `height`, in its PNG header. */
-static int art_file_fits(const char *name, int height) {
+/* Images\<name> says 8-bit RGBA, at most CELL x CELL, in its PNG header. */
+static int art_file_fits(const char *name) {
     static const unsigned char SIGNATURE[16] = {
         0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R',
     };
@@ -481,19 +525,18 @@ static int art_file_fits(const char *name, int height) {
     }
     ok = ReadFile(file, header, sizeof header, &got, NULL) && got == sizeof header
         && memcmp(header, SIGNATURE, sizeof SIGNATURE) == 0
-        && header[16] == 0 && header[17] == 0 && header[18] == 0 && header[19] == 60
-        && header[20] == 0 && header[21] == 0 && header[22] == (height >> 8) && header[23] == (height & 0xFF)
+        && header[16] == 0 && header[17] == 0 && header[18] == 0 && header[19] >= 1 && header[19] <= CELL
+        && header[20] == 0 && header[21] == 0 && header[22] == 0 && header[23] >= 1 && header[23] <= CELL
         && header[24] == 8 && header[25] == 6;
     CloseHandle(file);
     return ok;
 }
 
-static void *sack_art(int full) {
-    if (g_art_state[full] == 0) {
+static void *sack_art(int which) {
+    if (g_art_state[which] == 0) {
         unsigned char *made;
-        const char *name = full ? SACK_FULL : SACK_EMPTY;
-        g_art_state[full] = -1;
-        if (!art_file_fits(name, full ? 87 : 65)) {
+        g_art_state[which] = -1;
+        if (!art_file_fits(SACK_ART[which])) {
             return NULL;
         }
         made = (unsigned char *)((alloc_fn)(UINT_PTR)ALLOC)(GRID_SIZE);
@@ -501,23 +544,27 @@ static void *sack_art(int full) {
             return NULL;
         }
         memset(made, 0, GRID_SIZE);
-        ((grid_ctor_fn)(UINT_PTR)GRID_CTOR)(made, NULL, name, 1, 1);
-        if (*(const int *)(made + GRID_CELL_W) <= 0 || *(const int *)(made + GRID_CELL_H) <= 0) {
-            return NULL;             /* not loaded: never drawn (the object is kept) */
+        ((grid_ctor_fn)(UINT_PTR)GRID_CTOR)(made, NULL, SACK_ART[which], 1, 1);
+        if (*(const int *)(made + GRID_CELL_W) <= 0 || *(const int *)(made + GRID_CELL_W) > CELL
+            || *(const int *)(made + GRID_CELL_H) <= 0 || *(const int *)(made + GRID_CELL_H) > CELL) {
+            return NULL;             /* not loaded as one carried-size cell: never drawn (the object is kept) */
         }
-        g_art[full] = made;
-        g_art_state[full] = 1;
+        g_art[which] = made;
+        g_art_state[which] = 1;
     }
-    return g_art_state[full] == 1 ? g_art[full] : NULL;
+    return g_art_state[which] == 1 ? g_art[which] : NULL;
 }
 
-/* The carried item about to be drawn (`args`: sprite, x, y, frame, scale): a sack's picture in its place when the
-   villager is on a sack trip and carries the sack. */
+/* The carried item about to be drawn (`args`: sprite, x, y, frame, alpha): for a villager on a sack trip, a sack's
+   picture in the cell's place -- the same call, alpha and zoom as every carried item (the fifth argument of
+   0x44C640 is the ALPHA, 1.0 for every carried item: it reaches 0x408DC0 as the picture's opacity; the size is the
+   map's own zoom, [0x4DB9F8 + 0x3010]), centred on the 40-pixel cell and standing on the line where carrying.png's
+   fruit and berries end (CELL_FLOOR). */
 static void __cdecl on_draw(const unsigned char *villager, unsigned int *args) {
     __try {
         const sack_mark *m;
-        int item, full;
-        void *art;
+        int item, which;
+        const unsigned char *art;
         if (villager == NULL) {
             return;
         }
@@ -529,19 +576,21 @@ static void __cdecl on_draw(const unsigned char *villager, unsigned int *args) {
         if (m == NULL || m->shows == 0 || !on_sack_trip(villager)) {
             return;
         }
-        full = m->shows == 2;
-        if ((full && item != ITEM_YELLOW) || (!full && item != ITEM_CLOTH)) {
+        if (m->shows == 1) {
+            which = item == ITEM_CLOTH ? ART_EMPTY : ART_RAW;   /* the empty sack, then the shaken fruit */
+        } else if (item == ITEM_YELLOW) {
+            which = ART_COOKED;
+        } else {
             return;
         }
-        art = sack_art(full);
+        art = (const unsigned char *)sack_art(which);
         if (art == NULL) {
             return;
         }
         args[0] = (unsigned int)(UINT_PTR)art;
-        args[1] += SACK_DX;
-        args[2] += full ? SACK_DY_FULL : SACK_DY_EMPTY;
+        args[1] += (unsigned int)((CELL - *(const int *)(art + GRID_CELL_W)) / 2);
+        args[2] += (unsigned int)(CELL_FLOOR - *(const int *)(art + GRID_CELL_H));
         args[3] = 0;
-        *(float *)&args[4] = SACK_SCALE;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 }

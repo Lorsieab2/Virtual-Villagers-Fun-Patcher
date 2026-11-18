@@ -11,9 +11,15 @@ Owner's Defaults.
 second word; its source says what it changes and why.  tests/test_vv4_cloth_sacks.py proves it by emulation.
 
 One command after the DLL's source changes: this script builds it (scripts/build_vvfp_vv4_cloth_sacks.ps1)
-and pins it and the sack pictures by SHA-256.  --no-build pins what is
-already built.  The art (the owner's, 2026-11-17) is assets/cloth_sacks/vvfp_sack_empty.png (60 x 65) and
-vvfp_sack_yellow_fruit.png (60 x 87), 8-bit RGBA.
+and pins it and the sack pictures by SHA-256.  --no-build pins what is already built.
+
+THE PICTURES.  The owner's art is assets/cloth_sacks/sack_empty.png, sack_yellow_fruit_raw.png (the shaken fruit,
+carried from the trees to the Cooking Pit) and
+sack_yellow_fruit.png (the cooked fruit, carried to the food bin).  The game draws carried items at 1:1 from
+carrying.png's 40 x 40 cells (the world draw's last argument is the picture's alpha, not a scale), so the shipped
+pictures, assets/cloth_sacks/vvfp_sack_*.png, are the owner's art at 45 % (premultiplied Lanczos), carried-item
+size; one scale for all three, so the sack body is the same size in every state.  New art: replace the owner's file, run this script with --art (it remakes the shipped pictures; each must
+come out at most 40 x 40) and then as usual; the companion centres each picture on the cell by its own size.
 """
 from __future__ import annotations
 
@@ -30,7 +36,12 @@ NAME = "Cloth Sacks for Yellow Fruit"
 DLL_NAME = "VVFP VV4 Cloth Sacks.dll"
 DLL = ROOT / "assets" / "cloth_sacks" / DLL_NAME
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
-PICTURES = (("vvfp_sack_empty.png", 60, 65), ("vvfp_sack_yellow_fruit.png", 60, 87))
+# (the shipped picture, the owner's art it is made from)
+PICTURES = (("vvfp_sack_empty.png", "sack_empty.png"),
+            ("vvfp_sack_yellow_fruit_raw.png", "sack_yellow_fruit_raw.png"),
+            ("vvfp_sack_yellow_fruit.png", "sack_yellow_fruit.png"))
+ART_SCALE = 0.45
+CELL = 40
 LIMITED = "vv4_yellow_fruit_trees_limited"
 LIMITED_NAME = "Yellow Fruit Trees are No Longer Unlimited"
 SACK_FRUIT = 30
@@ -48,14 +59,31 @@ SITES = (
      "goes on to the stock code"),
     (0x4667B4, "E8875EFEFF",
      "the carried item's draw 0x466770, its call of the world draw 0x44C640: for a villager on a sack trip that "
-     "carries the sack, the sack's picture at 45% instead of carrying.png's cell, then the same call"),
+     "carries the sack, the sack's picture (carried-item size, alpha 1.0 as passed) instead of carrying.png's "
+     "cell, then the same call"),
 )
 
-def picture(name: str, width: int, height: int) -> dict:
+def make_pictures() -> None:
+    """The shipped pictures from the owner's art, at ART_SCALE (only with --art: Pillow's output is pinned)."""
+    from PIL import Image
+    for shipped, art in PICTURES:
+        im = Image.open(ROOT / "assets" / "cloth_sacks" / art).convert("RGBA")
+        size = (round(im.width * ART_SCALE), round(im.height * ART_SCALE))
+        im.convert("RGBa").resize(size, Image.LANCZOS).convert("RGBA").save(ROOT / "assets" / "cloth_sacks" / shipped)
+
+
+def picture_size(name: str) -> tuple[int, int]:
     data = (ROOT / "assets" / "cloth_sacks" / name).read_bytes()
-    if data[:8] != b"\x89PNG\r\n\x1a\n" or struct.unpack(">II", data[16:24]) != (width, height) \
+    width, height = struct.unpack(">II", data[16:24])
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or not (0 < width <= CELL and 0 < height <= CELL) \
             or (data[24], data[25]) != (8, 6):
-        raise SystemExit(f"assets/cloth_sacks/{name} must be an 8-bit RGBA PNG of {width} x {height}")
+        raise SystemExit(f"assets/cloth_sacks/{name} must be an 8-bit RGBA PNG of at most {CELL} x {CELL}")
+    return width, height
+
+
+def picture(name: str, art: str) -> dict:
+    picture_size(name)
+    data = (ROOT / "assets" / "cloth_sacks" / name).read_bytes()
     return {"source": f"assets/cloth_sacks/{name}", "destination": f"Images/{name}", "sha256": sha_bytes(data)}
 
 
@@ -64,8 +92,9 @@ def description() -> str:
         "The Clothing Hut's extra cloth bolts get a use: sacks for the yellow fruit (the breadfruit of the Cooking "
         "Pit; nothing else). Drop an adult on the LEFT side of the finished Clothing Hut, under its awning, once the "
         "Cooking Pit is restored: the villager takes one cloth bolt, stands at the hut \"Making a sack out of "
-        "cloth\" (the research look), carries the empty sack to the yellow fruit trees (\"Gathering food in cloth "
-        "sack\"), shakes down and cooks the fruit as on any fruit trip, and carries the full sack to the food bin "
+        "cloth\" (the research look, without its sounds), carries the empty sack to the yellow fruit trees (\"Gathering food in cloth "
+        "sack\"), shakes the fruit down into the sack, carries it to the Cooking Pit and cooks it as on any fruit trip, and "
+        "carries the full sack to the food bin "
         f"(\"Carrying fruit to the food bin\"): {SACK_FRUIT} food, before Food Mastery. It works like the cutting "
         "tool on the blackberries: the cloth bolt is used when the villager starts, whatever happens later (a "
         "failed Farming check or an interrupted trip loses it, as a cutting tool is lost); with no cloth the "
@@ -78,8 +107,9 @@ def description() -> str:
         f"bin: {SACK_FRUIT}, or what is left when fewer -- even none, as a cutting tool harvests a nearly bare bush "
         "(the cloth bolt is still used).** Without it the trees are the "
         f"game's own unlimited ones and every sack holds {SACK_FRUIT}. All four places at the Cooking Pit taken: "
-        "the villager refuses as at the tree. Only a villager you drop at the hut makes a sack: farmers who "
-        "decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are drawn with Lorsieab2's art. Nothing is written to the save or anywhere else. "
+        "the villager refuses as at the tree (\"There is no more room in the cooking pit!\") and no cloth is used; "
+        "the villager's place at the pit is kept from the drop, so the pit cannot fill up while the sack is made. Only a villager you drop at the hut makes a sack: farmers who "
+        "decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are drawn with Lorsieab2's art, the size of the game's other carried items: the empty sack, the sack of shaken fruit carried to the Cooking Pit and the sack of cooked fruit carried to the food bin, all three at one scale and standing on one line, so the sack itself is the same size in every state. Nothing is written to the save or anywhere else. "
         "**Needs no other patch.** **Off by default; Owner's Defaults ticks it.** **Unverified in play: the effect "
         f"has not been tested live.** The companion is \"{DLL_NAME}\", started by VVFP Startup.dll; if the DLL "
         "cannot be loaded, the stock game runs."
@@ -112,27 +142,31 @@ def row(dll_sha: str) -> dict:
             f"need cloth for this!\"); the fruit left is not checked (the tool does not check the berries); the pit's four spot locks (5..8 at 0x705148, 0x46D880) all taken: the task cleared and "
             "action 0x1A with text 0x13C (the tree's start 0x4343A0's own refusal); otherwise one cloth bolt is "
             "used (0x4369F0(1) on 0x4D8AC8, the cutting tools' own routine) and the sack trip is queued.",
-            "The sack trip, with the game's own step builders: a caption step (0x468CF0) \"Making a sack out of "
-            "cloth\", the cloth carried (item 0x35), the Researching action's two animations and waits (0x469CD0(1, "
-            "1.0, 2), 0x469280(6), 0x469CD0(0x67, 0.5, 2), 0x469280(6); 0x4537A9..0x45380E), job event 0x75 (the "
+            "The sack trip, with the game's own step builders: the fruit trip's pit-spot claim (its first step, type "
+            "0x2E, lock 5..8) copied to the front and run at once, so the spot is the villager's from the drop, as "
+            "a stock trip claims its spot at once; a caption step (0x468CF0) \"Making a sack out of "
+            "cloth\", the cloth carried (item 0x35), the Researching action's working-pose waits (0x469280(6) twice, "
+            "step type 0x0A), not its sound steps (0x469CD0, step type 0x19, a sound at the villager), job event 0x75 (the "
             "empty sack shows), a caption step \"Gathering food in cloth sack\", then the game's own fruit trip "
             "(do-action 0x64, 0x4343A0: a free spot picked by rand and that spot's trip 0x65..0x68 built: the walk "
             "to the trees, the shaking, the Farming check, the fruit, the walk to the pit, the cooking). From that "
             "trip's last caption step (\"Carrying fruit to the food bin\", or \"Adding to the stew\" when the stew "
             "wanted the fruit, 0x4349A3) its steps are replaced by: the caption 0x240 (\"Carrying fruit to the food "
-            "bin\"), job event 0x76 (the full sack shows), item 0x36 carried, the walk to the food bin (area 8), the "
+            "bin\"), job event 0x76 (the cooked sack shows), item 0x36 carried, the walk to the food bin (area 8), the "
             "trip's own 1-second wait and put-down, and job event 0x77: the sack's food. The trip's own job event 15 "
             "(3 food) is therefore never queued, and the stew is never given the sack.",
             f"Job event 0x77 (as event 14): n = {SACK_FRUIT}; with {LIMITED}, n = the fruit left, at most "
             f"{SACK_FRUIT}, taken from the tree (VvfpYellowFruitTake of \"VVFP VV4 Fruit Supply.dll\", found with "
             "GetProcAddress); 0x41D920(n); with the limited tree and fewer than 3 fruit left, the villager's task "
             "cleared; over 2,000 food, tip 0x2E5.",
-            "The pictures: the carried item's draw (0x466770, its call of 0x44C640 at 0x4667B4) draws "
-            "Images\\vvfp_sack_empty.png (carrying item 0x35 after event 0x75) or Images\\vvfp_sack_yellow_fruit.png "
-            "(item 0x36 after event 0x76) for a villager whose queue still holds event 0x77, at scale 0.45, 6 "
-            "pixels right and 1 down / 9 up, instead of carrying.png's cell; built once by ldwImageGrid 0x40AB10 "
-            "(name, 1, 1) after the PNG header says 8-bit RGBA 60 x 65 / 60 x 87; a missing or wrong file: the "
-            "game's own picture (the cloth, the yellow fruit).",
+            "The pictures: the carried item's draw (0x466770, its call of 0x44C640 at 0x4667B4; the fifth argument "
+            "is the picture's alpha, 1.0, and the size the map's zoom) draws, for a villager whose queue still holds "
+            "event 0x77: after event 0x75, item 0x35 -> Images\\vvfp_sack_empty.png and item 0x36 (trees to pit) -> "
+            "Images\\vvfp_sack_yellow_fruit_raw.png; after event 0x76, item 0x36 (pit to bin) -> "
+            "Images\\vvfp_sack_yellow_fruit.png; with the same alpha, centred on carrying.png's 40-pixel cell and "
+            "standing 31 pixels down, where its fruit and berries end; built once by ldwImageGrid 0x40AB10 (name, 1, "
+            "1) after the PNG header says 8-bit RGBA of at most 40 x 40; a missing or wrong file: the game's own "
+            "picture (the cloth, the yellow fruit).",
             "The captions go through VVFP Translations.dll (rows vvfp.cloth_sacks/vvfp_vv4_cloth_sacks."
             "caption_making.s0 and .caption_gathering.s0), at most 38 letters (the caption field takes 39).",
         ],
@@ -178,6 +212,8 @@ def sha(path: Path) -> str:
 
 
 def main() -> None:
+    if "--art" in sys.argv[1:]:
+        make_pictures()
     if "--no-build" not in sys.argv[1:]:
         subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                         str(ROOT / "scripts" / "build_vvfp_vv4_cloth_sacks.ps1")], check=True)
