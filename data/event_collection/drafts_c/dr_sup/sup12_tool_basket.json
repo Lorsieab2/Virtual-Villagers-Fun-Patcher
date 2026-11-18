@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tool Basket in the Stream",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup12_tool_basket",
+  "source": "draft_sup",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 7-13)"
+   },
+   {
+    "src": "L140",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L146",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 cutting tool]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The basket of cutting tools falls into the stream: dive for them, or ask the children to help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the way to the blackberry bushes, (subject) trips on a root, and the whole basket of cutting tools goes flying into the stream. (subject) sits in the mud, staring at the ripples. (friend), who saw everything, is trying very hard not to laugh.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Dive for Them",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Ask the Children to Help",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) wades in and feels around on the bottom with (subject.his/her) toes. It is cold and slow and full of things that wriggle. (subject.He/she) finds every tool but one. The last one stays somewhere under the water, probably for good.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": -1,
+     "max": -1,
+     "src": "L146"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) fetches every child in the village. They line up across the stream like a fishing net and walk it, step by step, shouting each time a toe finds something. They find every single tool, two shells, a lost bead and a very annoyed crab. (subject) thanks them all, one by one.",
+   "src": "L149"
+  }
+ }
+}

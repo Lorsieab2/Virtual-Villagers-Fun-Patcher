@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Keeps Taking the Soap?",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup07_keeps_taking",
+  "source": "draft_sup",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and a child aged 5-11)"
+   },
+   {
+    "src": "L80",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L86",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 bar of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L89",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 bar of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The soap keeps going missing from the store: set a watch, or ask around.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The soap in the store keeps going missing, one bar at a time. (subject) is certain someone is taking it. (friend) is certain (subject) is just counting wrong. They have been arguing about it for three days, and the soap is still going missing.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Set a Watch",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Ask Around",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) hides behind the store all night. Just before dawn, a small goat trots up, noses the lid aside, and starts licking a bar of soap with great concentration. (subject) chases it off. The goat has very clean teeth and no regrets. (friend) admits (subject) was right, but only once, and very quietly.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": -1,
+     "max": -1,
+     "src": "L86"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks everyone. At last (third) shuffles forward and confesses: (third.he/she) has been taking the soap to make bubbles for the babies, because it makes them laugh. (third) brings back the bar, a good deal smaller than before. Nobody has the heart to be cross. The babies are very clean.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": -1,
+     "max": -1,
+     "src": "L89"
+    }
+   ]
+  }
+ }
+}

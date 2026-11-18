@@ -70346,6 +70346,16 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_c4.C4_SUPPLY_NAMES.s0",
+   "english": "Cloth bolts",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

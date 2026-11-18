@@ -74,6 +74,7 @@ SECTIONS = (
     ("dr_div", "New Events: Disability and Diversity"),
     ("dr_his", "New Events: History and Collective Memory"),
     ("dr_lif", "New Events: Pondering How Life Has Gone"),
+    ("dr_sup", "New Events: Tree of Life Supplies"),
     # The owner-approved files, group D (data/event_collection/drafts_d/<section>/)
     ("dr_rm2", "New Events: Role Models and Good Examples, RM-41 to RM-90"),
     ("dr_hz3", "New Events: Beyond the Horizon, Events 081 to 130"),
@@ -141,6 +142,17 @@ def _effects(node) -> set[str]:
     return out
 
 
+def _supplies(node) -> bool:
+    """Whether a graph has a "supply" effect (The Tree of Life's cutting tools, soap, cloth; cie-v6-binary.md 32)."""
+    if isinstance(node, dict):
+        if node.get("do") == "supply":
+            return True
+        return any(_supplies(value) for value in node.values())
+    if isinstance(node, list):
+        return any(_supplies(value) for value in node)
+    return False
+
+
 def build_index(living_seeds=()) -> dict:
     """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped).
     `living_seeds`: (manifest id, variant graph) of every Living Event Engine variant -- the caller makes them with
@@ -161,6 +173,8 @@ def build_index(living_seeds=()) -> dict:
         out[source.stem] = {"section": graph["collection"]["section"], "harm": sorted(_effects(graph))}
         if _allows(graph):
             out[source.stem]["allow"] = True
+        if _supplies(graph):
+            out[source.stem]["supply"] = True
     # The Living Event Engine's seeds (docs/event-collection/living-pack.md): one manifest row per seed, its event one
     # of the seed's variants in living.pak -- the seed can make what any of its variants makes.
     for manifest_id, graph in living_seeds:
@@ -168,6 +182,8 @@ def build_index(living_seeds=()) -> dict:
         entry["harm"] = sorted(set(entry["harm"]) | _effects(graph))
         if _allows(graph):
             entry["allow"] = True
+        if _supplies(graph):
+            entry["supply"] = True
     return {"format": "vvfp-event-collection-index", "version": 1, "events": out}
 
 
@@ -260,6 +276,13 @@ def lines(game: int) -> list[tuple[str, bool]]:
     if early:
         out.append(("Can make a nursing mother or father give birth early (the parent lives; the baby is born younger "
                     "and weaker the earlier it is): " + ", ".join(early) + ".", True))
+    supplies = [title for event_id, title, _ in manifest(game) if index()[event_id].get("supply")] \
+        if game == 4 else []
+    if supplies:
+        out.append(("Can change the village's cutting tools, bars of soap or cloth bolts (a sack is a cloth bolt) as "
+                    "the story says: cutting tools and cloth bolts stay 0 to 6 (0 to 99 with Up to 99 Cutting "
+                    "Tools/Soap/Cloth), soap 0 to 99, never below 0; before The Cutting Tool, Soap Invented or Cloth "
+                    "Invented is solved, that item's words are story only: " + ", ".join(supplies) + ".", True))
     if allowed:
         who = {1: ", the Golden Child", 3: ", the Tribal Chief"}.get(game, "")
         out.append((f"Where the story calls for it, these may harm a nursing mother or father{who}: "

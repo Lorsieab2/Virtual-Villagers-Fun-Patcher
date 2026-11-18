@@ -101,7 +101,16 @@
   "e3": {
    "name": "Ending 3",
    "text": "Two villagers take turns beating soaked bark into soft cloth. The finished cloth is so thin that light shines through it.",
-   "src": "L59,L62"
+   "src": "L59,L62",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": 1,
+     "max": 1,
+     "src": "L59,L62"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",

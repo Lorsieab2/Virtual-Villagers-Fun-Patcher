@@ -29,12 +29,12 @@
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "85ADC20ACCB4BA989158BD32B0273477BCA1BF02B7092E93403C29CD753F74BF"
+      "sha256": "50C8D3FFFA9861B6DF258AE8CDF563994DBA330E24E7FBF45594697B0A9B1CA1"
     },
     {
       "source": "assets/event_collection/vv5/living.pak",
       "destination": "Island Event Collection/living.pak",
-      "sha256": "E19DD2550E59394EFB8B61D9C5310B431AAA2024CB5AA220033F9349EC5FE6B2"
+      "sha256": "B7F71087B5054E0C393FE4376E14F7EFA4B4A5BFCD5632E3F8221037EAD87AAE"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1604,7 +1604,7 @@
     {
       "source": "assets/event_collection/anexp61_market_repairs.cieg",
       "destination": "Island Event Collection/anexp61_market_repairs.cieg",
-      "sha256": "A72CF8B5652EFE15AF09A866BBC0D3225D05708D75264084F2A8B422DD8EF556"
+      "sha256": "9FE130579E5476864C48675BE6D7FE9D756093BFA7CD9C1A31A1C416F3E3BDB5"
     },
     {
       "source": "assets/event_collection/anexp62_question_mercy.cieg",
@@ -12304,7 +12304,7 @@
     {
       "source": "assets/event_collection/lvlife20_rare_dye_vine.cieg",
       "destination": "Island Event Collection/lvlife20_rare_dye_vine.cieg",
-      "sha256": "6E444D076F974FEBE4AF0F08B62EADC752418CD58DBA88CEEDCE09C19246A6A3"
+      "sha256": "784AFA9F3CCF3D4709B92696C54C3850BC3029F217F0213D7690A6062384FF61"
     },
     {
       "source": "assets/event_collection/lvlife21_story_tablet.cieg",
@@ -13334,7 +13334,7 @@
     {
       "source": "assets/event_collection/nat36_hornets_path.cieg",
       "destination": "Island Event Collection/nat36_hornets_path.cieg",
-      "sha256": "30E4602DFD047141302980831488A6B52E30CDDBF673BD175964A6F97A2D9866"
+      "sha256": "B7C7A26A11244486243ED7EAA98A41DBBAAA28147D40FC343E450EFC56915071"
     },
     {
       "source": "assets/event_collection/nat37_kingfisher.cieg",
@@ -15004,7 +15004,7 @@
     {
       "source": "assets/event_collection/tim133_rhythm_bark.cieg",
       "destination": "Island Event Collection/tim133_rhythm_bark.cieg",
-      "sha256": "C9F9DB0C039088D755372CE2080D3E0E06AF7A9B0693DD99E02E0A2D09BE83CE"
+      "sha256": "EBCCD23ED6B00FCD914188E7111A79B53422A94762ABBA291C33C7EEF73B74C9"
     },
     {
       "source": "assets/event_collection/tim134_coconut_water.cieg",

@@ -608,6 +608,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "draft_sup": {
+  "source": "docs/more-island-events/New Events - Tree of Life Supplies (draft for owner).txt",
+  "source_sha256": "0bddd2d87de344c9e42d246b218582f323fb809f5fe9c82ed59d6ec5b6415927",
+  "counts": {
+   "rows": 16,
+   "events": 14,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 14,
+   "series": {
+    "dr_sup": 14
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "draft_rm2": {
   "source": "docs/more-island-events/New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
   "source_sha256": "a162ecbec360f51ee9e9e9053bd17bbd2f97770f41ef3ad9b4d6d581b40e6acc",
@@ -94715,6 +94732,512 @@
    "source": "draft_lif",
    "source_check": {
     "heading": "L578: LIF-50. So Far, So Good",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_sup_notes_intro",
+   "title": "Tree of Life Supplies: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_sup_notes_end",
+   "title": "Tree of Life Supplies: notes for the owner",
+   "games": [],
+   "lines": [
+    176,
+    180
+   ],
+   "kind": "notes",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L176: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "sup01_blackberry_blade",
+   "title": "The Blackberry Blade Contest",
+   "games": [
+    4
+   ],
+   "lines": [
+    8,
+    17
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L8: SUP-01. The Blackberry Blade Contest (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup02_soap_smelled",
+   "title": "The Soap That Smelled of Flowers",
+   "games": [
+    4
+   ],
+   "lines": [
+    20,
+    29
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L20: SUP-02. The Soap That Smelled of Flowers (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup03_bubbles_stream",
+   "title": "Bubbles in the Stream",
+   "games": [
+    4
+   ],
+   "lines": [
+    32,
+    41
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L32: SUP-03. Bubbles in the Stream (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup04_sack_yellow",
+   "title": "A Sack for the Yellow Fruit",
+   "games": [
+    4
+   ],
+   "lines": [
+    44,
+    53
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L44: SUP-04. A Sack for the Yellow Fruit (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup05_bundle_tide",
+   "title": "The Bundle on the Tide",
+   "games": [
+    4
+   ],
+   "lines": [
+    56,
+    65
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L56: SUP-05. The Bundle on the Tide (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup06_pile_fish_bones",
+   "title": "The Pile of Fish Bones",
+   "games": [
+    4
+   ],
+   "lines": [
+    68,
+    77
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L68: SUP-06. The Pile of Fish Bones (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup07_keeps_taking",
+   "title": "Who Keeps Taking the Soap?",
+   "games": [
+    4
+   ],
+   "lines": [
+    80,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L80: SUP-07. Who Keeps Taking the Soap? (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup08_torn_sail",
+   "title": "The Torn Sail",
+   "games": [
+    4
+   ],
+   "lines": [
+    92,
+    101
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L92: SUP-08. The Torn Sail (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup09_first_bolt",
+   "title": "The First Bolt",
+   "games": [
+    4
+   ],
+   "lines": [
+    104,
+    113
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L104: SUP-09. The First Bolt (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup10_blades_among",
+   "title": "Blades Among the Roots",
+   "games": [
+    4
+   ],
+   "lines": [
+    116,
+    125
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L116: SUP-10. Blades Among the Roots (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup11_many_cooks_soap",
+   "title": "Too Many Cooks at the Soap Pot",
+   "games": [
+    4
+   ],
+   "lines": [
+    128,
+    137
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L128: SUP-11. Too Many Cooks at the Soap Pot (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup12_tool_basket",
+   "title": "The Tool Basket in the Stream",
+   "games": [
+    4
+   ],
+   "lines": [
+    140,
+    149
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L140: SUP-12. The Tool Basket in the Stream (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup13_washing_day_pond",
+   "title": "Washing Day at the Pond",
+   "games": [
+    4
+   ],
+   "lines": [
+    152,
+    161
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L152: SUP-13. Washing Day at the Pond (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup14_cloth_blades",
+   "title": "Cloth for Blades",
+   "games": [
+    4
+   ],
+   "lines": [
+    164,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L164: SUP-14. Cloth for Blades (VV4 only)",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

@@ -375,20 +375,27 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
-              "presentation")                                                # ... 31
+              "presentation",                                                # ... 31
+              "supply")                                                      # ... 32
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
                      "sex_change": 22,     # 29
                      "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
-                     "deliver_early": 24})  # 30
+                     "deliver_early": 24,  # 30
+                     "supply": 25})        # 32: The Tree of Life's cutting tools, soap and cloth bolts
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
-                    "presentation": 0})    # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "presentation": 0,     # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "supply": 0})          # 32: The Tree of Life only; its puzzle solved, known only at run time
+# Section 32: the supplies (the item word the .cieg holds) -> the puzzle that invents each in The Tree of Life.
+SUPPLY_ITEMS = {"cutting_tools": "The Cutting Tool", "soap": "Soap Invented", "cloth": "Cloth Invented"}
+SUPPLY_GAME = 4
+SUPPLY_MAX = 99               # an effect's change is 1..99 either way (the counts are kept 0..6, or 0..99)
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early", "presentation")
@@ -862,6 +869,20 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         if not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
             problems.append(f"{where}: damage is 1..100 percent, min <= max")
         out.update(structures=st if st == DAMAGE_ANY else list(st), min=lo, max=hi)
+    elif do == "supply":
+        # Section 32: the village's cutting tools, soap or cloth bolts (The Tree of Life), min..max a gain or a loss.
+        known |= {"item", "min", "max"}
+        item = e.get("item")
+        if item not in SUPPLY_ITEMS:
+            problems.append(f"{where}: supply item is one of {', '.join(SUPPLY_ITEMS)}")
+        lo, hi = e.get("min"), e.get("max")
+        if not (_int_in(lo, -SUPPLY_MAX, SUPPLY_MAX) and _int_in(hi, -SUPPLY_MAX, SUPPLY_MAX) and lo <= hi
+                and (lo >= 1 or hi <= -1)):
+            problems.append(f"{where}: supply min..max is a gain (1..{SUPPLY_MAX}) or a loss (-{SUPPLY_MAX}..-1), "
+                            "min <= max")
+        if games is not None and SUPPLY_GAME not in games:
+            problems.append(f"{where}: supply changes The Tree of Life's supplies: the event must list game 4")
+        out.update(item=item, min=lo, max=hi)
     else:
         known.add("role")
         out["role"] = e.get("role", default_role)
@@ -2691,6 +2712,8 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
+    if do == "supply":
+        return []                                       # 32: whether it changes anything is known only in the game
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
@@ -3686,6 +3709,8 @@ def _compile_v6(g: dict) -> bytes:
                 a, b = e["min"], e["max"]
                 if do == "damage":
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
+            elif do == "supply":
+                a, b, st = e["min"], e["max"], s(e["item"])
             elif do == "preference":
                 flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
                                                                  else 0)
@@ -3902,6 +3927,8 @@ def _decompile_v6(data: bytes) -> dict:
             elif do == "damage":
                 words = s(st)
                 e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
+            elif do == "supply":
+                e.update(item=s(st), min=a, max=b)
             elif do != "pay_award":
                 e["role"] = role_ids[role]
                 if do == "kill":
@@ -4328,7 +4355,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if hi != 0:
                 lo += below(hi - lo + 1)
             return [lo, 0]
-        if do in ("health", "health_change", "damage") or (do == "deliver_early" and "min" in e):
+        if do in ("health", "health_change", "damage", "supply") or (do == "deliver_early" and "min" in e):
             return [e["min"] + below(e["max"] - e["min"] + 1), 0]
         if do == "skill":
             have = [s for s in e["skills"] if s in gm.skills]
