@@ -446,6 +446,12 @@ PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
 PREF_REMOVE_FLAG = 16         # ... "remove": true takes the like / dislike away (random: one the villager holds)
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
+# Village Solidarity (the owner, 2026-11-17; src/vv_village_scores.py): a page's "solidarity" tag in the node flags'
+# bits 1-2 (byte 3), in every version: 1 raise, 2 lower, 3 neutral.  Untagged nodes keep 0, so an untagged graph
+# compiles to the same bytes as before.
+SOLIDARITY_CODES = {"raise": 1, "lower": 2, "neutral": 3}
+NODE_SOLIDARITY_SHIFT = 1
+NODE_SOLIDARITY_MASK = 6
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
@@ -1436,7 +1442,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
+                 "outcome", "name", "solidarity"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1547,6 +1553,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                       "else": els, "summary": summary, "outcome": outcome}
         if name:
             nodes[nid]["name"] = name   # only when given: a graph without names normalizes as before
+        sol = n.get("solidarity")
+        if sol is not None:
+            # Village Solidarity (any version): the page raises, lowers or leaves the village's score; kept only
+            # when given, so an untagged graph normalizes and compiles exactly as before.
+            if sol not in SOLIDARITY_CODES:
+                problems.append(f"{where}: solidarity is raise, lower or neutral")
+            elif t == "branch":
+                problems.append(f"{where}: a branch shows no page, so it has no solidarity tag")
+            else:
+                nodes[nid]["solidarity"] = sol
         if v6:
             for k in ("src", "text_only_reason"):
                 if k in n:
@@ -3804,7 +3820,18 @@ assert _HEADER.size == 80 and _ROLE.size == 8 and _NODE.size == 28 and _CHILD.si
 assert _EFFECT.size == 16 and _COND.size == 8 and _VARIANT.size == 4
 
 
-_HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18: + title variants first, count
+def _solidarity_flags(node: dict) -> int:
+    """A node's Village Solidarity tag in its flags byte (0 untagged: the bytes as before)."""
+    return SOLIDARITY_CODES.get(node.get("solidarity"), 0) << NODE_SOLIDARITY_SHIFT
+
+
+def _solidarity_from_flags(node: dict, flags: int) -> None:
+    code = (flags & NODE_SOLIDARITY_MASK) >> NODE_SOLIDARITY_SHIFT
+    if code:
+        node["solidarity"] = {v: k for k, v in SOLIDARITY_CODES.items()}[code]
+
+
+_HEADER6 =struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18: + title variants first, count
 _ROLE6 = struct.Struct("<BBBBHBB BBHBBH")
 _POOL = struct.Struct("<HHHBBHH")       # G3: + the distinct_from string, + 0
 _ITEM = struct.Struct("<HHHH")
@@ -4002,7 +4029,8 @@ def _compile_v6(g: dict) -> bytes:
             effects += _EFFECT.pack(code, role, flags, sel, a, b, st, last)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, NODE_AUTO_TEXT if n.get("auto_text") else 0,
+                            1 if n["join"] == "paragraph" else 0,
+                            (NODE_AUTO_TEXT if n.get("auto_text") else 0) | _solidarity_flags(n),
                             s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
@@ -4286,6 +4314,7 @@ def _decompile_v6(data: bytes) -> dict:
             nodes[nid]["title"] = s(ntitle)
         if nflags & NODE_AUTO_TEXT:
             nodes[nid]["auto_text"] = True
+        _solidarity_from_flags(nodes[nid], nflags)
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:
         _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
@@ -4424,7 +4453,7 @@ def compile_graph(g: dict) -> bytes:
             effects += _EFFECT.pack(EFFECT_CODES[do], role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, 0, s(nid), s(n["text"]),
+                            1 if n["join"] == "paragraph" else 0, _solidarity_flags(n), s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
                             e_first if n["effects"] else NONE, len(n["effects"]), s(n["summary"]),
@@ -4547,7 +4576,7 @@ def decompile_graph(data: bytes) -> dict:
                 roles[rid]["max_age_gap"] = {"role": role_ids[(extra & 0xFF) - 1], "years": extra >> 8}
     nodes = {}
     for nid, n in zip(node_ids, nodes_raw):
-        (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
+        (t, popup, join, nflags, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
          outcome, _z4) = n
         typ = NODE_TYPES[t]
         variants = []
@@ -4590,6 +4619,7 @@ def decompile_graph(data: bytes) -> dict:
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
                       "choices": choices, "else": node_ids[els] if els != NONE else None, "summary": s(summary),
                       "outcome": s(outcome)}
+        _solidarity_from_flags(nodes[nid], nflags)
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if version >= 3 and req_cond != NONE:
         op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
