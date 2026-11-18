@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Raider's Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc20_raider_gift",
+  "source": "draft_lcc",
+  "lines": [
+   274,
+   285
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L274",
+  "ledger": [
+   {
+    "src": "L275",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L281",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L281",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L285",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The raiders send a gift of fine rope and an offer of peace: accept it, or refuse until the stolen food is repaid.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A canoe from the raiders' island has arrived with a single paddler, a bundle of fine rope and a message: their people want peace. (subject) thinks the village should accept: nobody wants another raid. (friend) remembers the empty gardens and says a little rope does not repay a whole harvest. What should the village answer?",
+   "src": "L277",
+   "choices": [
+    {
+     "label": "Accept the Peace",
+     "next": "o1",
+     "src": "L279"
+    },
+    {
+     "label": "Ask for the Harvest Back",
+     "next": "o2",
+     "src": "L283"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village accepts the rope and sends back a basket of dried fish and a song. The paddler goes home. There are no raids that season, or the next. Some villagers still say the raiders got off lightly. (friend) is one of them.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L281"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sends the paddler home with a message: peace when the stolen food is repaid. A month later, three canoes arrive loaded with yams and taro. It is not quite a whole harvest. It is enough. (friend) accepts.",
+   "src": "L285",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L285"
+    }
+   ]
+  }
+ }
+}

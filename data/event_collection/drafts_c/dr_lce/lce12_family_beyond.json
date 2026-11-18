@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family Beyond Blood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce12_family_beyond",
+  "source": "draft_lce",
+  "lines": [
+   162,
+   173
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an adult)"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child raised by several neighbors asks why some say they have no family: answer gently, or let the neighbors speak.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been raised by three neighboring households since (subject.he/she) was a baby: one feeds (subject.him/her), one teaches (subject.him/her), one tucks (subject.him/her) in. Today another child said (subject) has no real family. (subject) has come to (friend) with a trembling lip. What should (friend) do?",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Answer Gently",
+     "next": "o1",
+     "src": "L167"
+    },
+    {
+     "label": "Let the Neighbors Speak",
+     "next": "o2",
+     "src": "L171"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits (subject) down and counts on (friend.his/her) fingers: the people who feed (subject.him/her), teach (subject.him/her), tuck (subject.him/her) in, worry about (subject.him/her). (friend) runs out of fingers. (subject) thinks about it, then goes off to find the other child and explain, at length, that (subject.he/she) has more family than anybody.",
+   "src": "L169"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) gathers the three households. That evening, they all come to the fire together and sit around (subject), and each tells (subject.him/her) why (subject.he/she) is theirs. (subject) does not say much. (subject.He/she) falls asleep in the middle of them.",
+   "src": "L173"
+  }
+ }
+}

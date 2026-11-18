@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Recharging Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf12_recharging_stone",
+  "source": "draft_lcf",
+  "lines": [
+   162,
+   173
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A lavastone has gone dark after use: wait for it to recharge, or try to wake it with sunlight and song.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The healers used the village's lavastone to treat a terrible burn last month, and since then it has been dark and cold, like an ordinary rock. (subject) says it just needs time. (friend) has heard that lavastones wake faster in sunlight, with singing. (subject) thinks that is a story somebody made up. What should they do?",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Wait",
+     "next": "o1",
+     "src": "L167"
+    },
+    {
+     "label": "Sunlight and Song",
+     "next": "o2",
+     "src": "L171"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They wrap the stone and wait. One moon passes. Two. On the third, (subject) wakes in the night to a faint orange glow coming from the cloth. The stone is back. Nobody knows what woke it.",
+   "src": "L169"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) lays the stone on a rock in the sun every morning and sings to it. The village thinks (friend.he/she) has lost (friend.his/her) mind. After nine days, the stone begins to glow again. (subject) says it would have anyway. (friend) says, maybe.",
+   "src": "L173"
+  }
+ }
+}

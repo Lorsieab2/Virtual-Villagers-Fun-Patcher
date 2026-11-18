@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Speech for the Ancestors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca28_speech_ancestors",
+  "source": "draft_lca",
+  "lines": [
+   390,
+   401
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L390",
+  "ledger": [
+   {
+    "src": "L391",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L397",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L397",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L401",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L401",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder asked to praise the ancestors wants to mention their mistakes too: speak honestly, or keep it to praise.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the founding feast, (subject) has been asked to give the speech honoring the people who first settled the village. (subject.He/she) wants to tell the whole story, including the times the founders were wrong: the forest they burned that never grew back, the families they turned away. (friend) thinks a feast is not the place for that. What should (subject) say?",
+   "src": "L393",
+   "choices": [
+    {
+     "label": "Speak Honestly",
+     "next": "o1",
+     "src": "L395"
+    },
+    {
+     "label": "Keep It to Praise",
+     "next": "o2",
+     "src": "L399"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells it all, the brave parts and the shameful parts, without blaming anyone alive. The feast goes very quiet. Some people are angry. But afterwards, a young villager asks (subject) where the burned forest was, and the next spring they plant seedlings there together.",
+   "src": "L397",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L397"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives a warm speech about the founders' courage, and the feast cheers. Later, by the fire, (subject.he/she) tells the rest to anyone who wants to hear it. A few people do. Most go home.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L401"
+    }
+   ]
+  }
+ }
+}

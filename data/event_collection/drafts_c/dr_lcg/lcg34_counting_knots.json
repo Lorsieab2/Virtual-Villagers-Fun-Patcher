@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Counting Knots",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg34_counting_knots",
+  "source": "draft_lcg",
+  "lines": [
+   470,
+   481
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a weaver)"
+   },
+   {
+    "src": "L477",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small Building skill for (name2); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L477",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L481",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A researcher counts with knots, and a weaver's patterns already count: work together, or keep separate.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has invented a way of keeping count with knots on cords: one knot for each basket of fish. (friend), who weaves, looks at it and laughs: (friend.his/her) patterns have always counted things, the rows and repeats and turns. Neither of them knew. What should they do?",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Work Together",
+     "next": "o1",
+     "src": "L475"
+    },
+    {
+     "label": "Keep Them Separate",
+     "next": "o2",
+     "src": "L479"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) work together all season, and come up with a cord that can count fish, days, and people in a single string. The village uses it to keep the stores. Nobody else understands it. (subject) and (friend) find this hilarious.",
+   "src": "L477",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L477"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L477"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L477"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each keeps their own way. (subject)'s cords keep count of the stores. (friend)'s patterns keep count of the family stories. Years later, a young researcher finds both and works out that they say the same things.",
+   "src": "L481",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L481"
+    }
+   ]
+  }
+ }
+}

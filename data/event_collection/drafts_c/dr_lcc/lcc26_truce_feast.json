@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Truce Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc26_truce_feast",
+  "source": "draft_lcc",
+  "lines": [
+   358,
+   369
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L358",
+  "ledger": [
+   {
+    "src": "L359",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L365",
+    "kind": "instruction",
+    "text": "[effect: small food loss; small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L365",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village hosts a feast for the raiders' island to seal the truce: hold a grand feast, or a modest one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The truce is agreed, and the village must host a feast for its former enemies. (subject) wants it grand, to show the village is strong and generous. (friend) lost a cousin in the last raid, and thinks a grand feast for raiders is more than (friend.he/she) can stomach. What kind of feast should it be?",
+   "src": "L361",
+   "choices": [
+    {
+     "label": "A Grand Feast",
+     "next": "o1",
+     "src": "L363"
+    },
+    {
+     "label": "A Modest Feast",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The feast is enormous. The guests are astonished, and a little humbled. There are toasts and songs and one very awkward moment when a guest recognizes a canoe the village took from them years ago. (friend) leaves early. Nobody stops (friend.him/her).",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L365"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L365"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The feast is simple: fish, breadfruit, a few songs. The guests eat, thank the village and leave before dark. (friend) stays to the end, and when the guests leave, (friend.he/she) goes down to the beach and sits for a long time. Then (friend.he/she) comes back and helps clean up.",
+   "src": "L369"
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Warriors' Quarrel",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc36_two_warriors",
+  "source": "draft_lcc",
+  "lines": [
+   498,
+   509
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L498",
+  "ledger": [
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L505",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two warriors blame each other for the raiders getting through: hold a hearing, or make them stand watch together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last night raiders slipped past the watch and took the drying fish. (subject) says (friend) fell asleep at the south post. (friend) says (subject) left the north post to fetch water. Both are probably a little bit right. The village is angry. What should happen?",
+   "src": "L501",
+   "choices": [
+    {
+     "label": "Hold a Hearing",
+     "next": "o1",
+     "src": "L503"
+    },
+    {
+     "label": "Make Them Watch Together",
+     "next": "o2",
+     "src": "L507"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village hears both of them at the gathering. It turns out both of them made a mistake, and the raiders were very lucky. They are not punished, but the watch is changed: three people at each post, and nobody leaves until relieved. (subject) and (friend) do not look at each other for a month.",
+   "src": "L505"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The watch leader puts (subject) and (friend) on the same post, every night, for a month. The first week they do not speak. The second week they argue. By the end of the month, they are the best watch pair in the village, and they know each other's family histories by heart.",
+   "src": "L509"
+  }
+ }
+}

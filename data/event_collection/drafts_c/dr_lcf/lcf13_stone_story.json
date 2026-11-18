@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Story Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf13_stone_story",
+  "source": "draft_lcf",
+  "lines": [
+   176,
+   187
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and two adults)"
+   },
+   {
+    "src": "L183",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Villagers argue about where lavastones come from: let each tell their story, or ask the elder for the true one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 70
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Around the fire, an argument has started. (friend) says lavastones are tears of the island's spirits. (third) says they are just very strange rocks thrown up by the mountain. The children turn to (subject), the oldest person there, for the true answer. What should (subject) say?",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Let Each Tell Their Story",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Ask for the True Story",
+     "next": "o2",
+     "src": "L185"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) says there are many stories, and asks everyone to tell theirs. They hear about spirit tears, mountain fire, fallen stars, sleeping giants and a very old crab. The children decide all of them are true. (subject) does not disagree.",
+   "src": "L183"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) has wondered for seventy years, and does not know. Nobody does. The children are astonished that an elder does not know something. (subject) says that is the most important thing (subject.he/she) will ever teach them.",
+   "src": "L187"
+  }
+ }
+}

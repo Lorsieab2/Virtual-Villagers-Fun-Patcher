@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The River Belongs to No Trader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg15_river_belongs",
+  "source": "draft_lcg",
+  "lines": [
+   204,
+   215
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L204",
+  "ledger": [
+   {
+    "src": "L205",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L211",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L215",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An outsider offers riches to control the village's river and forest: refuse together, or ask to hear the offer out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader with a great canoe has offered the village a mountain of tools and cloth, in return for control of the river and the forest beside it: who may fish, who may cut wood. (subject) says the river belongs to no trader. (friend) says the village should at least hear the offer before refusing. What should the village do?",
+   "src": "L207",
+   "choices": [
+    {
+     "label": "Refuse Together",
+     "next": "o1",
+     "src": "L209"
+    },
+    {
+     "label": "Hear the Offer Out",
+     "next": "o2",
+     "src": "L213"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village gathers at the river mouth and (subject) tells the trader: the river is not for sale. The trader looks at the crowd and leaves. That night there is singing by the river, and some regret about the tools.",
+   "src": "L211"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village hears the trader out. The offer is very generous. It is also forever. After a long night of talking, the village says no anyway, but now everyone understands exactly what they turned down, and why.",
+   "src": "L215"
+  }
+ }
+}

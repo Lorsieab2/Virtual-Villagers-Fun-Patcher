@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Make a Move or Stay Friends",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd01_make_move_stay",
+  "source": "draft_lcd",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates; (name2) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wonders whether their friend likes them back: make a move, or stay friends.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been friends with (friend) for years: fishing together, arguing about everything, sharing the last piece of fruit. Lately, (subject) cannot stop thinking about the way (friend) laughs. (subject.He/she) wonders whether (friend) likes (subject.him/her) back. Should (subject) make a move, or stay friends?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Make a Move",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Stay Friends",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) brings (friend) a flower from the cliff top, the kind that only grows where it is hard to climb, and says it plainly. (friend) stares at the flower, then at (subject), and starts to laugh. \"I have been trying to tell you that for a year,\" (friend.he/she) says. They walk home holding hands.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L15"
+    },
+    {
+     "do": "celebrate",
+     "who": "friend",
+     "src": "L15"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides the friendship matters too much to risk. They go fishing the next day like always, and (subject) laughs at (friend)'s jokes like always. It aches a little. It also feels right, for now. Whether it stays that way, (subject) does not know.",
+   "src": "L19"
+  }
+ }
+}

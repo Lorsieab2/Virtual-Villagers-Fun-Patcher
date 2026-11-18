@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Matchmaker Grandmother",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd27_matchmaker",
+  "source": "draft_lcd",
+  "lines": [
+   372,
+   383
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L372",
+  "ledger": [
+   {
+    "src": "L373",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and two adults)"
+   },
+   {
+    "src": "L379",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A grandmother is determined to match two villagers who have nothing in common: let her try, or ask her to stop.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided that (friend) and (third) are perfect for each other. They are not. (friend) loves noise and dancing; (third) loves silence and stars. (subject) has invited them both to dinner three times this week. They have both noticed. What should (friend) do?",
+   "src": "L375",
+   "choices": [
+    {
+     "label": "Let (subject) Try",
+     "next": "o1",
+     "src": "L377"
+    },
+    {
+     "label": "Ask (subject) to Stop",
+     "next": "o2",
+     "src": "L381"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) goes to the dinners. So does (third). They have nothing to talk about, and say so. But they start laughing together about (subject)'s schemes, and by the end of the season they are good friends. Just friends. (subject) is still sure she was right.",
+   "src": "L379"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks (subject), kindly, to stop. (subject) is offended for a whole day. Then she turns her attention to someone else entirely, with great enthusiasm. (friend) warns them.",
+   "src": "L383"
+  }
+ }
+}

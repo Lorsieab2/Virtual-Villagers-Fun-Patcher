@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Untrained Hand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf05_untrained_hand",
+  "source": "draft_lcf",
+  "lines": [
+   64,
+   75
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L64",
+  "ledger": [
+   {
+    "src": "L65",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer)"
+   },
+   {
+    "src": "L71",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L71",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L75",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health; small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager grabbed a lavastone to see what would happen and is dazed: let them rest, or try to draw the power out.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) could not resist. (subject.He/she) picked up the elders' lavastone with (subject.his/her) bare hand, just to feel it. The next thing (subject.he/she) knew, (subject.he/she) was on the floor, staring at the ceiling, unable to remember (subject.his/her) own name. (friend), the healer, has been fetched. What should (friend) do?",
+   "src": "L67",
+   "choices": [
+    {
+     "label": "Let (subject) Rest",
+     "next": "o1",
+     "src": "L69"
+    },
+    {
+     "label": "Draw the Power Out",
+     "next": "o2",
+     "src": "L73"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) lays (subject) on a mat in a dark corner and lets (subject.him/her) sleep. It takes two days before (subject) can stand without falling over, and three before (subject.he/she) remembers (subject.his/her) name. (subject.He/she) never touches a lavastone again.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L71"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) tries an old method: cold water, salt, and holding (subject)'s hands in the sea. It might be working. It might be the cold. By evening (subject) is talking sense again, though (subject.his/her) fingertips stay faintly orange for a week.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L75"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L75"
+    }
+   ]
+  }
+ }
+}

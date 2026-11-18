@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Conch Blew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc07_night_conch_blew",
+  "source": "draft_lcc",
+  "lines": [
+   92,
+   103
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L99",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L103",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Raiders land on the beach at night: meet them at the waterline, or pull back and defend the huts.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The conch on the headland blows three times: raiders, on the beach, now. (subject), (friend) and (third) are the first warriors out of their huts. The raiders are already dragging their canoes onto the sand. (subject) wants to charge them at the waterline before they can form up. (third) wants to fall back to the huts, where the children are. What should they do?",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Meet Them at the Waterline",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Defend the Huts",
+     "next": "o2",
+     "src": "L101"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They charge. The night is all shouting and torchlight and the crack of shields. The raiders were not expecting a fight so soon, and in the confusion they push their canoes back out and flee, dragging one of their own who does not get up. (subject) is badly hurt and carried to the healers. By morning (subject.he/she) is still breathing, and the healers do not leave (subject.his/her) side.",
+   "src": "L99",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L99"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They fall back and form a line in front of the huts with every adult who can hold a spear. The raiders come up the beach, see the line, see the torches, and stop. For a long moment nobody moves. Then the raiders take the drying fish from the racks and go. Nobody is hurt. The racks are empty.",
+   "src": "L103",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L103"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Breaking the News",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd19_breaking_news",
+  "source": "draft_lcd",
+  "lines": [
+   260,
+   271
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and an elder)"
+   },
+   {
+    "src": "L267",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L271",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A couple has wonderful news for a grumpy grandparent: tell them at the feast, or tell them alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "grandparent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are going to marry, and they have to tell (third), (subject)'s grandparent, who has opinions about everything, especially (friend). Should they tell (third.him/her) in front of everyone at the feast, where (third.he/she) cannot make a scene, or alone, where (third.he/she) can?",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Tell (third) at the Feast",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Tell (third) Alone",
+     "next": "o2",
+     "src": "L269"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They announce it at the feast. The whole village cheers. (third) sits very still. Then (third.he/she) stands up, walks over to (friend), and says, loudly, \"Finally. I was beginning to think you would never ask.\" (friend) did not ask. (subject) did. Nobody corrects (third.him/her).",
+   "src": "L267"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They go to (third)'s hut and tell (third.him/her) quietly. (third) grumbles for a long time about the young and their hurry. Then (third.he/she) gets out a carved bowl (third.he/she) has been saving for (subject)'s wedding for twenty years, and puts it in (friend)'s hands.",
+   "src": "L271"
+  }
+ }
+}

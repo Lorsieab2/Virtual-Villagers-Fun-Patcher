@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask That Means Something",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj31_mask_means",
+  "source": "draft_lcj",
+  "lines": [
+   432,
+   443
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L432",
+  "ledger": [
+   {
+    "src": "L433",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a carver and an elder)"
+   },
+   {
+    "src": "L439",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L443",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A carver made a mask about their own life, and people think it belongs to an old ceremony: explain it, or let them believe.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) carved a mask about the year (subject.he/she) was very ill and recovered: half dark, half bright. People have started treating it as if it were sacred, from an ancient ceremony nobody remembers. (friend) says (subject) should set the record straight. What should (subject) do?",
+   "src": "L435",
+   "choices": [
+    {
+     "label": "Explain It",
+     "next": "o1",
+     "src": "L437"
+    },
+    {
+     "label": "Let Them Believe",
+     "next": "o2",
+     "src": "L441"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells the gathering what the mask really means. Some people are disappointed it is not ancient. Others are more moved by it now. A few people ask (subject) to carve masks of their own hard years.",
+   "src": "L439",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L439"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. The mask becomes part of a new ceremony, made up by people who think it is old. (subject) watches it, half amused, half uneasy. Years later, (subject.he/she) tells (friend) the truth, and they both laugh.",
+   "src": "L443"
+  }
+ }
+}

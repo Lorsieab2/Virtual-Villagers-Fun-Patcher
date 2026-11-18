@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift That Went Wrong",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd09_gift_went_wrong",
+  "source": "draft_lcd",
+  "lines": [
+   120,
+   131
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L120",
+  "ledger": [
+   {
+    "src": "L121",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L127",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L131",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L131",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager carved a gift for their sweetheart, but it looks nothing like intended: give it anyway, or carve another.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has spent a week carving a little dolphin for (friend), because (friend) loves dolphins. It does not look like a dolphin. It looks like a potato with a fin. The village carver, asked for an opinion, said it was \"brave\". What should (subject) do?",
+   "src": "L123",
+   "choices": [
+    {
+     "label": "Give It Anyway",
+     "next": "o1",
+     "src": "L125"
+    },
+    {
+     "label": "Carve Another",
+     "next": "o2",
+     "src": "L129"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gives (friend) the potato-dolphin. (friend) turns it over in (friend.his/her) hands, very seriously, and says it is the most beautiful potato (friend.he/she) has ever seen. Then (friend.he/she) sees (subject)'s face and laughs and says (friend.he/she) loves it. It sits by (friend.his/her) bed for years.",
+   "src": "L127"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) carves another, and another. The fifth one looks like a dolphin. (friend) loves it. Months later, (friend) finds the potato one in (subject)'s hut and laughs until (friend.he/she) cries. (friend.He/she) takes that one too.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L131"
+    }
+   ]
+  }
+ }
+}

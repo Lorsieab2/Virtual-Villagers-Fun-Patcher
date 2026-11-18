@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Father Who Stayed Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci21_father_stayed",
+  "source": "draft_lci",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a father and an adult)"
+   },
+   {
+    "src": "L295",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A father stays home to raise the children while his partner fishes, and neighbors tease him: answer them, or ignore it.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided to stay home and raise the children while his partner leads the fishing crew. He is good at it, and happy. Some of the other men tease him at the stream. (friend), his friend, thinks he should say something. What should (subject) do?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Answer Them",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "Ignore It",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) says, cheerfully, that he gets to spend every day with his children, and asks what they get. The teasers go quiet. One of them, a week later, asks him how he gets the baby to sleep.",
+   "src": "L295",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L295"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) ignores it. The teasing fades because there is nothing to tease. His children grow up knowing their father's songs, his jokes and his terrible cooking. That is his answer.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L299"
+    }
+   ]
+  }
+ }
+}

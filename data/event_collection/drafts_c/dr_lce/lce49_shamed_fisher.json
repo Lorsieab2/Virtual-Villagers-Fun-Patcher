@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shamed Fisher",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce49_shamed_fisher",
+  "source": "draft_lce",
+  "lines": [
+   680,
+   691
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L680",
+  "ledger": [
+   {
+    "src": "L681",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L687",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L691",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A fisher lost the village's best net in a storm and is being blamed: defend them, or let the anger cool.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was caught out in a sudden storm and had to cut the village's best net loose to save the canoe. (subject.He/she) came home alive and without the net. Some villagers are saying (subject.he/she) should have stayed in. (subject) is not sleeping. (friend) was on the beach when the storm came. What should (friend) do?",
+   "src": "L683",
+   "choices": [
+    {
+     "label": "Defend (subject)",
+     "next": "o1",
+     "src": "L685"
+    },
+    {
+     "label": "Let the Anger Cool",
+     "next": "o2",
+     "src": "L689"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stands up at the gathering and describes the storm: how fast it came, how dark it was. (friend.He/she) says (subject) made the right choice and came home alive. The muttering stops. (subject) cries afterwards, from relief.",
+   "src": "L687"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) waits for the village to calm down, and spends the evenings with (subject), mending a new net together. The muttering fades. The new net is better. (subject) still dreams about the storm.",
+   "src": "L691",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L691"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council of Generations",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce16_council",
+  "source": "draft_lce",
+  "lines": [
+   218,
+   229
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult)"
+   },
+   {
+    "src": "L225",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L225",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L229",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Elders and young people on the new council cannot agree on the fishing grounds: compromise, or split the decision.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The new council of generations has met for the first time, and it is going badly. (subject) wants to keep fishing the old grounds the old way. (friend) wants to rest them for a season and try the deep water beyond the reef. Both sides have half the council behind them. What should the council do?",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Compromise",
+     "next": "o1",
+     "src": "L223"
+    },
+    {
+     "label": "Split the Decision",
+     "next": "o2",
+     "src": "L227"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They agree to rest half the old grounds and try the deep water with a few canoes. The deep water is hard and dangerous and yields less than hoped. The rested grounds come back strong. Both sides claim they were right.",
+   "src": "L225",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L225"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council splits: the elders fish the old grounds, the young the deep water. It works, sort of, but the village becomes two crews that do not talk much. (subject) and (friend) both worry about it.",
+   "src": "L229"
+  }
+ }
+}

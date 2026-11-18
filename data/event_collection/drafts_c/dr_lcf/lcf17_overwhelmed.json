@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Overwhelmed Elder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf17_overwhelmed",
+  "source": "draft_lcf",
+  "lines": [
+   232,
+   243
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a healer)"
+   },
+   {
+    "src": "L239",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health; (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder used a lavastone to heal a child and has not woken since: wait at their side, or try the stone again.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Yesterday, a child was badly burned in a cooking fire, and (subject), who has some skill with lavastones, used one to heal the burn. The child is fine. (subject) collapsed, and has not woken since. (friend), the healer, is beside (subject.him/her). Some say the stone could wake (subject.him/her) too. What should (friend) do?",
+   "src": "L235",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- the draft's notes: everything but the marked effects is story only",
+     "src": "L235"
+    },
+    {
+     "what": "\"collapsed\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L235"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Wait at (subject)'s Side",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Try the Stone Again",
+     "next": "o2",
+     "src": "L241"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) waits, and tends (subject) with water and broth. On the third day, (subject) opens (subject.his/her) eyes and asks if the child is all right. (subject.He/she) walks with a stick from then on. (subject.He/she) says it was worth it. The child brings (subject.him/her) flowers every day.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L239"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) holds the stone to (subject)'s forehead. (friend) is thrown across the hut. (subject) does not wake for another two days. When (subject.he/she) does, (subject.he/she) scolds (friend) weakly for being so foolish, and holds (friend.his/her) hand.",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L243"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L243"
+    }
+   ]
+  }
+ }
+}

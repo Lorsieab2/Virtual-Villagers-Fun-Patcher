@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spirit or the Weather",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf38_spirit_weather",
+  "source": "draft_lcf",
+  "lines": [
+   526,
+   537
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L526",
+  "ledger": [
+   {
+    "src": "L527",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L533",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L537",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A sudden silence in the forest before a storm: one says spirits warned them, the other says the birds know: does it matter?",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The forest went completely silent this afternoon, and an hour later a storm hit. (subject) says the island's spirits were warning everyone. (friend) says the birds sense the weather and hide. Both agree the village should listen to the silence next time. Does it matter who is right?",
+   "src": "L529",
+   "choices": [
+    {
+     "label": "It Matters",
+     "next": "o1",
+     "src": "L531"
+    },
+    {
+     "label": "It Does Not Matter",
+     "next": "o2",
+     "src": "L535"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They argue about it for a week. (friend) watches the birds; (subject) leaves offerings. The next time the forest goes quiet, they both run to warn the village at the same moment and collide in the doorway.",
+   "src": "L533"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree it does not matter why: what matters is that the village listens. They teach the children to notice the silence. Whether the children grow up believing in spirits or birds, they all run home when the forest goes quiet.",
+   "src": "L537"
+  }
+ }
+}

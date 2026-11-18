@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Oath",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj22_healer_oath",
+  "source": "draft_lcj",
+  "lines": [
+   306,
+   317
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L306",
+  "ledger": [
+   {
+    "src": "L307",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two young healers)"
+   },
+   {
+    "src": "L313",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L317",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L317",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Young healers want to make a promise about honesty and secrets: carve it in the hut, or let each speak their own.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend), both new healers, have been talking about what kind of healers they want to be: honest about what they do not know, keeping their patients' secrets, never pretending a cure is certain. They want to make a promise. How?",
+   "src": "L309",
+   "choices": [
+    {
+     "label": "Write It Down",
+     "next": "o1",
+     "src": "L311"
+    },
+    {
+     "label": "Each Their Own",
+     "next": "o2",
+     "src": "L315"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They carve a short promise on a board in the healing hut: tell the truth, keep secrets, know your limits. Every new healer reads it. The old healers grumble, then quietly read it too.",
+   "src": "L313",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L313"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each healer speaks their own promise, aloud, at a small gathering. They are all different. (friend)'s ends with \"and never laugh at a strange rash\", which is cheered.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L317"
+    }
+   ]
+  }
+ }
+}

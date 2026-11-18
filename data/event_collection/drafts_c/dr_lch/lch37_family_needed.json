@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family That Needed Silence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch37_family_needed",
+  "source": "draft_lch",
+  "lines": [
+   512,
+   523
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L519",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L523",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Neighbors want to sing outside a hut where someone is very ill: sing softly, or ask the family what they need.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend)'s grandmother is very ill, and the family has been sitting with her day and night. (subject) and the neighbors want to gather and sing outside the hut, to comfort them. (subject) is not sure the family wants that. What should (subject) do?",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Sing Softly",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Ask What They Need",
+     "next": "o2",
+     "src": "L521"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The neighbors sing very softly at sunset. The family opens the door to listen. The grandmother hears it too, and smiles. Afterwards (friend) says it was lovely, and asks if, next time, they could also bring water.",
+   "src": "L519"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend). (friend) says the family would like quiet, and someone to fetch water and cook. The neighbors do exactly that, silently, for two weeks. It is not a song. It is better.",
+   "src": "L523"
+  }
+ }
+}

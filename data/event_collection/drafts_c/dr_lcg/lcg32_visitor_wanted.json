@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor Who Wanted to Stay",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg32_visitor_wanted",
+  "source": "draft_lcg",
+  "lines": [
+   442,
+   453
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L442",
+  "ledger": [
+   {
+    "src": "L443",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L449",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L453",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A newcomer wants to stay but keep their homeland's customs: welcome them as they are, or ask them to follow Isola's ways.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor has asked to stay on Isola for good. (other.He/she) wants to keep (other.his/her) homeland's customs: eating only at night, praying to the moon, wearing (other.his/her) hair in a long braid. (subject) says the village should welcome (other.him/her) as (other.he/she) is. (friend) worries about a newcomer who will not follow the village's ways. What should the village decide?",
+   "src": "L445",
+   "choices": [
+    {
+     "label": "Welcome Them as They Are",
+     "next": "o1",
+     "src": "L447"
+    },
+    {
+     "label": "Ask Them to Follow Our Ways",
+     "next": "o2",
+     "src": "L451"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village welcomes the newcomer. (other.He/she) eats at night, prays to the moon, and works harder than anyone in the gardens. Within a year, half the village has tried eating at night, and some of them prefer it.",
+   "src": "L449"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the newcomer to follow Isola's ways. The newcomer agrees, unhappily, and stays. But (other.he/she) prays to the moon in secret, alone, on the beach. When (subject) finds out, (subject.he/she) goes and sits with (other.him/her).",
+   "src": "L453"
+  }
+ }
+}

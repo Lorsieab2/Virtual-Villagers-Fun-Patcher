@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song for the Departed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb42_song_departed",
+  "source": "draft_lcb",
+  "lines": [
+   582,
+   593
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L582",
+  "ledger": [
+   {
+    "src": "L583",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L589",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L593",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Everyone at a memorial may speak, sing, or stay silent, and one guest talks far too long: let them, or gently stop them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the memorial for Old Nana Goat, anyone may speak, sing, or stay silent, as they wish. (subject) is speaking. (subject.He/she) has been speaking for a very long time, mostly about a dispute over a goat that Old Nana Goat won in nineteen different ways. (friend), who leads the memorial, can see the children falling asleep. What should (friend) do?",
+   "src": "L585",
+   "choices": [
+    {
+     "label": "Let (subject) Go On",
+     "next": "o1",
+     "src": "L587"
+    },
+    {
+     "label": "Gently Stop (subject)",
+     "next": "o2",
+     "src": "L591"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) lets (subject) go on. The goat story turns out to be wonderful: it ends with Old Nana Goat riding the goat into the meeting hut. By the end, even the grieving family is laughing. It is exactly what she would have wanted.",
+   "src": "L589"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) touches (subject)'s arm and says, kindly, that others are waiting to speak. (subject) is embarrassed, but sits down. Several people tell quiet stories after that. Later, by the fire, (subject) finishes the goat story for anyone who wants to hear it, and quite a lot of people do.",
+   "src": "L593"
+  }
+ }
+}

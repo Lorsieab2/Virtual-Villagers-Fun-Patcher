@@ -127,6 +127,18 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     "draft_div": ("Disability and Diversity", 612, "dr_div", "DIV"),
     "draft_his": ("History and Collective Memory", 614, "dr_his", "HIS"),
     "draft_lif": ("Pondering How Life Has Gone", 596, "dr_lif", "LIF"),
+    # Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18; owner review waived, each event passed
+    # the Isola rules and the 15-point review): "[Solidarity: ...]" tags are notes (gen_drafts_c.SOLIDARITY_RE).
+    "draft_lca": ("Living Culture I", 762, "dr_lca", "LCA"),
+    "draft_lcb": ("Living Culture II", 758, "dr_lcb", "LCB"),
+    "draft_lcc": ("Living Culture III", 758, "dr_lcc", "LCC"),
+    "draft_lcd": ("Living Culture IV", 758, "dr_lcd", "LCD"),
+    "draft_lce": ("Living Culture V", 758, "dr_lce", "LCE"),
+    "draft_lcf": ("Living Culture VI", 758, "dr_lcf", "LCF"),
+    "draft_lcg": ("Living Culture VII", 758, "dr_lcg", "LCG"),
+    "draft_lch": ("Living Culture VIII", 758, "dr_lch", "LCH"),
+    "draft_lci": ("Living Culture IX", 758, "dr_lci", "LCI"),
+    "draft_lcj": ("Living Culture X", 762, "dr_lcj", "LCJ"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",

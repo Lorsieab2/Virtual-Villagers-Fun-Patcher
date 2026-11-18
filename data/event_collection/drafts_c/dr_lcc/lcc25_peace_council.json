@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Peace Council",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc25_peace_council",
+  "source": "draft_lcc",
+  "lines": [
+   344,
+   355
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and two adults)"
+   },
+   {
+    "src": "L351",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L351",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L355",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The raiders' island invites the village to a peace council: send the elders, or send warriors with them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Word has come that the island the raiders come from is holding a peace council, and the village is invited. (subject) wants to go, with the other elders, unarmed, to show the village comes in peace. (friend) wants to send warriors with them. (third) is worried that warriors will start a fight, and that no warriors will invite one. Who should go?",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Send the Elders Unarmed",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Send Warriors With Them",
+     "next": "o2",
+     "src": "L353"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders go alone. (subject) comes back a week later, sunburned and hoarse from talking, with a peace agreement and an invitation to the other island's harvest festival. Some of the warriors are sure it is a trick. It is not.",
+   "src": "L351",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L351"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders go with (friend) and four warriors. At the council, the other island's warriors stand on one side and the village's on the other, glaring, and the elders talk in the middle. They agree to a truce for a season. It is not peace, but it is a start.",
+   "src": "L355"
+  }
+ }
+}

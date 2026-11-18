@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village's Favorite Joke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj42_village_favorite",
+  "source": "draft_lcj",
+  "lines": [
+   586,
+   597
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L586",
+  "ledger": [
+   {
+    "src": "L587",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L593",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L597",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A newcomer does not laugh at the village's oldest joke: explain it, or tell a better one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every child on Isola laughs at the joke about the eel and the elder's sandal. (friend), a newcomer, heard it at dinner and did not laugh. Everyone stared. (subject) is determined to explain it. (friend) is fairly sure it is not funny. What should happen?",
+   "src": "L589",
+   "choices": [
+    {
+     "label": "Explain It",
+     "next": "o1",
+     "src": "L591"
+    },
+    {
+     "label": "Tell a Better One",
+     "next": "o2",
+     "src": "L595"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) explains it for an hour, with diagrams in the sand. (friend) understands it completely, and still does not find it funny. That, the whole village agrees, is the funniest thing that has ever happened.",
+   "src": "L593"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) tells a joke from (friend.his/her) home island, about a pig and a very confused elder. Nobody on Isola laughs. (subject) laughs to be polite, then really laughs, and cannot stop. Now there are two jokes.",
+   "src": "L597"
+  }
+ }
+}

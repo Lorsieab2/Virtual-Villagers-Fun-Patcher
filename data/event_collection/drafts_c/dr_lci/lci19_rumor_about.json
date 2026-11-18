@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rumor About the Newcomer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci19_rumor_about",
+  "source": "draft_lci",
+  "lines": [
+   260,
+   271
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L267",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L271",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A false rumor about a newcomer divides the village: set the record straight, or let the newcomer speak.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend), a newcomer, swims alone at night and sleeps in the afternoon, and a rumor has spread that (friend.he/she) steals from the stores in the dark. It is not true. (subject) knows it is not true: (subject.he/she) has seen (friend) swimming. What should (subject) do?",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Set the Record Straight",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Let (friend) Speak",
+     "next": "o2",
+     "src": "L269"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells the gathering what (subject.he/she) has seen: (friend) swims, and that is all. Those who spread the rumor are asked to apologize. Some do. The village learns that different is not the same as dangerous.",
+   "src": "L267"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend) about the rumor and offers to stand with (friend.him/her). (friend) speaks at the gathering: (friend.he/she) cannot sleep at night, and swimming helps. The village goes quiet. Several people offer to swim with (friend.him/her).",
+   "src": "L271"
+  }
+ }
+}

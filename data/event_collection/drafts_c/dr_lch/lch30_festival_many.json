@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Many Shores",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch30_festival_many",
+  "source": "draft_lch",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two musicians)"
+   },
+   {
+    "src": "L421",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Communities from many islands gather for a festival and a shared agreement: compose one song together, or each perform its own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For the first time, five islands have gathered on Isola for a festival: games, food, and talks about sharing the fishing grounds fairly. (subject) wants the musicians of all five islands to compose one song for the closing night. (friend) wants each island to perform its own. What should the festival do?",
+   "src": "L417",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L417"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Compose One Song",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Each Its Own",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The five islands' musicians argue for three days and produce a song with five verses, each in its own island's style. It is a strange, wonderful song. The fishing agreement is signed the same night.",
+   "src": "L421",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L421"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L421"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each island performs its own song, in turn, until dawn. Nobody's song is changed. The fishing agreement takes another day, but is signed. The children of five islands go home singing each other's songs.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L425"
+    }
+   ]
+  }
+ }
+}

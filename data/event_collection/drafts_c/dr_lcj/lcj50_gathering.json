@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gathering of Storytellers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj50_gathering",
+  "source": "draft_lcj",
+  "lines": [
+   698,
+   709
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L698",
+  "ledger": [
+   {
+    "src": "L699",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child)"
+   },
+   {
+    "src": "L705",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L705",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L709",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Storytellers from four villages tell stories in their own languages: translate everything, or hear them as they are.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Storytellers from four villages have come to Isola to tell their stories, each in their own language. (friend) cannot understand half of them, and is frustrated. (subject) says some stories are best heard in their own words, even if you do not understand them all. What should happen?",
+   "src": "L701",
+   "choices": [
+    {
+     "label": "Translate Everything",
+     "next": "o1",
+     "src": "L703"
+    },
+    {
+     "label": "Hear Them as They Are",
+     "next": "o2",
+     "src": "L707"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Interpreters translate every story. (friend) understands everything and loves it. The storytellers say some of the magic was lost, and some was found. Everyone goes home knowing more.",
+   "src": "L705",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L705"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The stories are told in their own languages, with gestures and drums. (friend) understands only some of it, and finds that (friend.he/she) can feel the rest. At the end, (friend.he/she) asks a storyteller to teach (friend.him/her) one word from each story.",
+   "src": "L709"
+  }
+ }
+}

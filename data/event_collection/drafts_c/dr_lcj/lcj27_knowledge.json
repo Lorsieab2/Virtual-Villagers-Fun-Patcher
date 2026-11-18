@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knowledge Keepers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj27_knowledge",
+  "source": "draft_lcj",
+  "lines": [
+   376,
+   387
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L376",
+  "ledger": [
+   {
+    "src": "L377",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a farmer)"
+   },
+   {
+    "src": "L383",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L387",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L387",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Researchers and farmers both predict the weather and argue about whose way is better: compare their notes, or hold a contest.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), a researcher, has been predicting the rains by watching the clouds and counting days. (friend), a farmer, predicts them by watching the ants. They both claim to be right more often. What should they do?",
+   "src": "L379",
+   "choices": [
+    {
+     "label": "Compare Notes",
+     "next": "o1",
+     "src": "L381"
+    },
+    {
+     "label": "Hold a Contest",
+     "next": "o2",
+     "src": "L385"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They compare a season's predictions. The ants are better about rain; the clouds are better about wind. Together they are better than either. (subject) now watches ants. (friend) now counts days.",
+   "src": "L383",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L383"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L383"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village holds a prediction contest for a whole season. The ants win, narrowly. (subject) demands a rematch. The rematch goes on for years and becomes a festival of its own.",
+   "src": "L387",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L387"
+    }
+   ]
+  }
+ }
+}

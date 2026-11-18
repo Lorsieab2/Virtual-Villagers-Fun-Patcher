@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children of Two Shores",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg13_children_two",
+  "source": "draft_lcg",
+  "lines": [
+   176,
+   187
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children)"
+   },
+   {
+    "src": "L183",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L183",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children from two islands invent a game that mixes both villages' ways: let them play, or ask them to keep their own games.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the shared festival with the island across the bay, (subject) and a child from the other island, (friend), have invented a game that mixes both villages' games: it involves a ball, a rope, a song in two languages, and a great deal of shouting. Some of the elders are worried the children will forget their own games. What should happen?",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Let Them Play",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Keep Their Own Games",
+     "next": "o2",
+     "src": "L185"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The new game spreads to every child on both islands. They also keep playing their own games, which turns out not to be a problem at all. By the next festival, there is a tournament, and the adults are playing too.",
+   "src": "L183",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L183"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders ask the children to play their own games at the festival. The children do, reluctantly. Then, behind the canoe house, out of sight, they play the new game until dark. The elders hear the shouting and pretend not to.",
+   "src": "L187"
+  }
+ }
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wounded Healer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc24_wounded_healer",
+  "source": "draft_lcc",
+  "lines": [
+   330,
+   341
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L330",
+  "ledger": [
+   {
+    "src": "L331",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer and an adult)"
+   },
+   {
+    "src": "L337",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health; small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L337",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L341",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health; small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A healer was hurt running to help during the raid: let them rest, or ask them to guide the others from their mat.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During the raid, (subject), the village's best healer, ran out to help a fallen warrior and was struck by a thrown stone. Now (subject.he/she) is lying in the healing hut with a bandaged head, and there are six other wounded to tend. (friend), (subject.his/her) apprentice, is panicking. What should (friend) do?",
+   "src": "L333",
+   "choices": [
+    {
+     "label": "Let (subject) Rest",
+     "next": "o1",
+     "src": "L335"
+    },
+    {
+     "label": "Learn From the Mat",
+     "next": "o2",
+     "src": "L339"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tells (subject) to rest, and does everything (friend.him/her)self, for three days without sleep. (friend.He/she) gets two dressings wrong and fixes them. Everyone recovers. (subject), when (subject.he/she) can sit up, says (friend) is a healer now.",
+   "src": "L337",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L337"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L337"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) brings each patient to (subject)'s mat, and (subject) talks (friend.him/her) through every wound, very slowly, with (subject.his/her) eyes closed. It exhausts (subject). But (friend) learns more in those three days than in the year before.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L341"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L341"
+    }
+   ]
+  }
+ }
+}

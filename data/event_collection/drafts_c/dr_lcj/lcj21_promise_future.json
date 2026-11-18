@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Promise to Future Generations",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj21_promise_future",
+  "source": "draft_lcj",
+  "lines": [
+   292,
+   303
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L292",
+  "ledger": [
+   {
+    "src": "L293",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L299",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L303",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village debates how much to use now and how much to save for those not yet born: make a lasting rule, or decide each season.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants the village to make a promise: never take more from the reef, the forest or the river than they can give back in a lifetime. (friend) says nobody can know that, and the village should decide each season what it needs. What should the village do?",
+   "src": "L295",
+   "choices": [
+    {
+     "label": "Make a Lasting Rule",
+     "next": "o1",
+     "src": "L297"
+    },
+    {
+     "label": "Decide Each Season",
+     "next": "o2",
+     "src": "L301"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village carves the promise on a stone by the meeting hut. It is often argued about. It is usually kept. Children grow up reading it every day.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L299"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides each season. Some seasons it takes too much, some too little. (friend) keeps careful count. Over the years, the counts become their own kind of promise.",
+   "src": "L303"
+  }
+ }
+}

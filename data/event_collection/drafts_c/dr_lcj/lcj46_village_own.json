@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village's Own Welcome",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj46_village_own",
+  "source": "draft_lcj",
+  "lines": [
+   642,
+   653
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L642",
+  "ledger": [
+   {
+    "src": "L643",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L653",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village must decide what visitors may join: hold a council until all agree, or let the elders decide.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Visitors are coming for the season. The village wants to welcome them warmly but agree on what the visitors may join and what stays private. (subject) wants a council where everyone keeps talking until all agree. (friend) says that will take forever, and the elders should just decide. What should the village do?",
+   "src": "L645",
+   "choices": [
+    {
+     "label": "Hold a Council",
+     "next": "o1",
+     "src": "L647"
+    },
+    {
+     "label": "Let the Elders Decide",
+     "next": "o2",
+     "src": "L651"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council talks for three nights. Not everyone thinks alike at the end, but everyone can live with it: the feasts are open, the naming rites are not. The visitors are welcomed, and never once intrude.",
+   "src": "L649"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders decide in an evening. Most people agree. A few families feel unheard, and say so. The visitors come and go happily. (friend) wonders if the council would have been worth it after all.",
+   "src": "L653"
+  }
+ }
+}

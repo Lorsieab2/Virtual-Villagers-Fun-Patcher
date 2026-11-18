@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song of the First Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb01_song_first_rain",
+  "source": "draft_lcb",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The first rain after a long drought: run out and dance in it, or catch every drop first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It has not rained for forty days. The gardens are brown and the stream is a trickle. Then, this afternoon, the sky goes dark and the first fat drops hit the dust. (friend) is already at the door, bouncing. (subject) knows the rain song by heart, but (subject.he/she) also knows how badly the village needs every drop. What should they do first?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Dance in the Rain",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Catch Every Drop First",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) run out into the rain, and the whole village follows. They sing the rain song with their faces turned up and their mouths open. Some of the water pots are left out by accident and fill up anyway. (friend) slips in the mud four times and declares it the best day of (friend.his/her) life.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L15"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sends (friend) running from hut to hut, shouting for everyone to set out pots, bowls and anything that holds water. By the time every pot is out, the rain is easing. They sing the rain song anyway, a bit damp and a bit late. The village has water for weeks.",
+   "src": "L19",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L19"
+    }
+   ]
+  }
+ }
+}

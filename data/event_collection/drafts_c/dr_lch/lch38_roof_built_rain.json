@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Roof Built for the Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch38_roof_built_rain",
+  "source": "draft_lch",
+  "lines": [
+   526,
+   537
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L526",
+  "ledger": [
+   {
+    "src": "L527",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two builders)"
+   },
+   {
+    "src": "L533",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L533",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L537",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2); small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L537",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "After a severe storm, two builders argue over a steeper roof or a cooler, wider one: build steep, or build cool.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The last storm tore the roofs off five huts. (subject) wants every new roof built steeper, so the rain runs off and the wind cannot grab it. (friend) says steep roofs make the huts unbearably hot in summer, and wants wide eaves and gaps to let the air through. What should they build?",
+   "src": "L529",
+   "choices": [
+    {
+     "label": "Steep Roofs",
+     "next": "o1",
+     "src": "L531"
+    },
+    {
+     "label": "Wide and Cool",
+     "next": "o2",
+     "src": "L535"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The new roofs are steep. They survive the next storm. In summer, the huts are like ovens, and people sleep outside. (subject) adds a few small gaps under the eaves, quietly.",
+   "src": "L533",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L533"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The new roofs are wide, with gaps for the breeze. The huts are cool all summer. The next storm lifts one roof. (friend) ties the gaps shut in storm season. Both of them learn something.",
+   "src": "L537",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L537"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L537"
+    }
+   ]
+  }
+ }
+}

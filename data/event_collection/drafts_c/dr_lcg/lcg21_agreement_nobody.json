@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Agreement Nobody Signed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg21_agreement_nobody",
+  "source": "draft_lcg",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A trader says a past leader promised them the cove: demand proof, or let the families decide anew.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader has arrived saying that the village's old leader, long dead, promised (other.his/her) family the use of the east cove forever. Nobody alive remembers any such promise. (subject) wants proof. (friend) says even if the promise was made, the families who fish the cove never agreed to it. What should the village do?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Demand Proof",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "The Families Decide Anew",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The trader produces a carved stick with marks on it. Nobody can read it. The village says a stick is not a promise, and the trader leaves angry. Whether the old leader ever said such a thing, nobody will ever know.",
+   "src": "L295"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) calls the families who fish the cove. They agree the trader may fish there one day a moon, as a guest, not by right. The trader accepts, reluctantly. The cove's families feel, for the first time, that it is really theirs.",
+   "src": "L299"
+  }
+ }
+}
