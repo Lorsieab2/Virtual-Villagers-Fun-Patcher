@@ -199,6 +199,12 @@ class TheRows(unittest.TestCase):
             self.assertIn("**Needs Story / Cheat Upgrades", row["description"])
             self.assertEqual(len(row["runtime_detours"]), 1)
 
+    def test_the_release_ships_its_files(self) -> None:
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        for path in ("src/vv_village_scores.py", "src/vv_game_mechanics_solidarity.py",
+                     "assets/village_solidarity/VVFP Village Solidarity.dll",
+                     *(f"data/vv{n}_village_solidarity_feature.json" for n in range(1, 6))):
+            self.assertIn(f'    "{path}",\n', release)
     def test_owners_defaults_only(self) -> None:
         import vv_fun_patcher_gui as gui
         for game in range(1, 6):
