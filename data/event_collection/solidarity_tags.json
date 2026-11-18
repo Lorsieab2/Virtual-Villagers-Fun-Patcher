@@ -1,0 +1,5871 @@
+{
+ "adv01_three_people": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "adv03_advice_just_ears": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "adv15_builder_changes": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "adv20_feedback_later": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "adv24_words_tip_tongue": {
+  "nodes": {
+   "o1": "neutral"
+  }
+ },
+ "adv31_list_leaf": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "adv37_what_spiritual": {
+  "nodes": {
+   "o2": "neutral"
+  }
+ },
+ "adv40_which_trade": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "adv43_someone_been": {
+  "kind": "cooperative"
+ },
+ "adv44_should_we_move": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "lower"
+  }
+ },
+ "adv46_helpful_fix": {
+  "kind": "repair"
+ },
+ "adv47_hands_words": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "adv48_leader_asks": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "adv50_my_choice": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "all_conundrums": {
+  "nodes": {
+   "b3": "lower"
+  }
+ },
+ "all_invention_showcase": {
+  "nodes": {
+   "b4": "lower",
+   "b5": "lower",
+   "b6": "raise",
+   "c5": "raise"
+  }
+ },
+ "all_its_alive": {
+  "nodes": {
+   "b2": "raise",
+   "b3": "lower"
+  }
+ },
+ "all_panel_standards": {
+  "nodes": {
+   "end1": "lower"
+  }
+ },
+ "all_scholasticon": {
+  "nodes": {
+   "c3": "raise",
+   "c4": "raise",
+   "c5": "raise",
+   "j4": "lower"
+  }
+ },
+ "all_secret_of_life": {
+  "nodes": {
+   "c3": "lower",
+   "c7": "lower"
+  }
+ },
+ "all_strange_statue": {
+  "nodes": {
+   "a3": "raise",
+   "c2": "raise"
+  }
+ },
+ "all_v20_d1_two_lives": {
+  "nodes": {
+   "a15": "neutral",
+   "a2": "neutral",
+   "a3": "raise",
+   "a8": "raise",
+   "c10": "raise",
+   "c17": "raise",
+   "c24": "raise",
+   "c29": "lower",
+   "c37": "raise"
+  }
+ },
+ "all_v20_d8_works_too": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "all_v23_2_ill_timed": {
+  "nodes": {
+   "s1": "neutral",
+   "s3": "raise"
+  }
+ },
+ "all_v23_4_missing": {
+  "nodes": {
+   "a3": "raise"
+  }
+ },
+ "all_v23_5_false_alarm": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "all_v23_6_prank_war": {
+  "nodes": {
+   "b2": "lower",
+   "c1": "raise"
+  }
+ },
+ "all_v24_revolutionary": {
+  "nodes": {
+   "e5": "lower"
+  }
+ },
+ "all_v27_06_grove": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "all_v27_07_secret": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "all_v27_09_kingdom": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "all_v27_10_supper": {
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "all_v27_13_raft": {
+  "nodes": {
+   "a": "lower"
+  }
+ },
+ "all_v27_15_embarrass": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "all_v27_17_pact": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "all_v27_19_beam": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "all_v27_27_empty_chair": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "all_v27_30_basket": {
+  "nodes": {
+   "c": "neutral"
+  }
+ },
+ "all_v27_35_pets_last": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "all_v27_39_marriage": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "all_v27_40_siblings": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "all_v27_43_lovers": {
+  "nodes": {
+   "a": "raise",
+   "c": "raise"
+  }
+ },
+ "all_v27_45_coworkers": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "all_v27_50_reunion": {
+  "nodes": {
+   "a": "raise",
+   "c": "lower"
+  }
+ },
+ "all_v27_51_apology": {
+  "kind": "repair",
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "all_v27_52_unexpected": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "all_v27_53_shore": {
+  "nodes": {
+   "c": "neutral"
+  }
+ },
+ "all_v27_56_empty_boat": {
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "all_v27_57_bell": {
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "all_verse_that_changed": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1_more": "raise",
+   "b4_more": "raise"
+  }
+ },
+ "anage06_crabs_know": {
+  "nodes": {
+   "a2": "raise",
+   "b2": "raise"
+  }
+ },
+ "anage12_festival": {
+  "kind": "cooperative"
+ },
+ "anage13_unseen_work": {
+  "kind": "cooperative"
+ },
+ "anage14_choice_lead": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anage15_marriage_needs": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "anage16_missing_trade": {
+  "nodes": {
+   "a1": "lower",
+   "c2": "lower"
+  }
+ },
+ "anage17_adult_needs": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anage21_unwanted": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anage22_festival": {
+  "kind": "cooperative"
+ },
+ "anage23_return": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "anage24_parent_more": {
+  "nodes": {
+   "c1": "raise",
+   "d2": "raise"
+  }
+ },
+ "anage26_forgotten": {
+  "nodes": {
+   "b2": "raise",
+   "c2": "raise"
+  }
+ },
+ "anage27_slowest_walker": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anage28_embarrassing": {
+  "nodes": {
+   "b2": "lower",
+   "c1": "raise",
+   "c2": "neutral"
+  }
+ },
+ "anage29_elder_wants": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anage31_question": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "anage33_island_many": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anage35_nursery": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anage36_youngest": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anchd01_shell_someone": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anchd02_two_children": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anchd05_where_do": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anchd10_question_wrong": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anchd11_child_feared": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anchd22_why_do_some": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anchd23_why_do_people": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anchd27_why_do_people": {
+  "kind": "cooperative"
+ },
+ "anchd28_why_do_we_get": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anchd29_why_does": {
+  "nodes": {
+   "a1": "raise",
+   "c1": "raise"
+  }
+ },
+ "anchd32_why_do_some": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anchd37_why_do_we": {
+  "kind": "cooperative"
+ },
+ "anchd40_why_do_some": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anchd41_question_about": {
+  "nodes": {
+   "a1": "raise",
+   "c2": "lower",
+   "d1": "raise"
+  }
+ },
+ "anchd44_why_do_people": {
+  "nodes": {
+   "c2": "raise",
+   "d1": "raise"
+  }
+ },
+ "anchd45_why_do_people": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anexp05_stick_figure": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "anexp08_long_paddle": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anexp11_playground": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anexp12_nursery_song": {
+  "kind": "cooperative"
+ },
+ "anexp13_dress_many": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anexp20_unfinished": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anexp21_festival_mask": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "lower"
+  }
+ },
+ "anexp25_disputed": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "anexp26_loudest_voice": {
+  "nodes": {
+   "b2": "raise",
+   "d1": "lower"
+  }
+ },
+ "anexp29_ancestral": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anexp34_angry_thought": {
+  "nodes": {
+   "c1": "lower",
+   "c2": "raise"
+  }
+ },
+ "anexp35_war_song": {
+  "kind": "cooperative",
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anexp36_boundary_feast": {
+  "kind": "cooperative",
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anexp37_question": {
+  "kind": "cooperative"
+ },
+ "anexp39_elder_refuses": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anexp40_baby_meeting": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anexp44_solo": {
+  "kind": "cooperative"
+ },
+ "anexp45_unwelcome_gift": {
+  "nodes": {
+   "d2": "lower"
+  }
+ },
+ "anexp51_chief_clothes": {
+  "kind": "cooperative"
+ },
+ "anexp53_quiet_parade": {
+  "kind": "cooperative"
+ },
+ "anexp55_difficult": {
+  "kind": "repair",
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anexp56_strange_dream": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anexp57_unfair_match": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anexp59_difficult": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anexp68_moonlit_tale": {
+  "nodes": {
+   "b2": "neutral"
+  }
+ },
+ "anexp72_costume_crown": {
+  "kind": "cooperative"
+ },
+ "anfam01_unfinished": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anfam03_sibling_broken": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anfam05_parent_sharp": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anfam06_forgotten": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anfam07_best_friend": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anfam09_elder": {
+  "nodes": {
+   "a1": "raise",
+   "b1": "raise"
+  }
+ },
+ "anfam10_cousins": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anfam13_unwelcome_joke": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anfam14_child_said": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anfam15_late_apology": {
+  "kind": "repair",
+  "nodes": {
+   "c1": "lower"
+  }
+ },
+ "anfam16_disputed": {
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise",
+   "d2": "lower"
+  }
+ },
+ "anfam17_neighbor_loud": {
+  "kind": "cooperative"
+ },
+ "anfam18_missed": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1": "raise",
+   "c1": "raise"
+  }
+ },
+ "anfam20_reconciliation": {
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anfam21_child_took": {
+  "kind": "cooperative",
+  "nodes": {
+   "a2": "lower",
+   "b1": "raise"
+  }
+ },
+ "anfam22_sibling_wanted": {
+  "nodes": {
+   "b1": "raise",
+   "d2": "raise"
+  }
+ },
+ "anfam23_relative": {
+  "nodes": {
+   "d1": "lower"
+  }
+ },
+ "anfam24_apology_needed": {
+  "kind": "repair",
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anfau01_lizard_warm": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anfau02_shed_skin": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anfau05_snake_rumor": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anfau09_crow_remembers": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "anfau12_animal_wants": {
+  "nodes": {
+   "b1": "lower"
+  }
+ },
+ "anfau16_claw_marks": {
+  "nodes": {
+   "b1": "lower"
+  }
+ },
+ "anfau20_broken_wing": {
+  "nodes": {
+   "d2": "neutral"
+  }
+ },
+ "anfau23_stranger_beast": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anfau24_child_protects": {
+  "kind": "cooperative",
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "anhs01_hammock": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anhs02_swing_above": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anhs07_embarrassing": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anhs09_which_totem": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "anhs10_totem_everyone": {
+  "nodes": {
+   "a1": "raise",
+   "c2": "lower"
+  }
+ },
+ "anhs11_chief_nobody": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anhs14_what_order": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anhs15_rule_reason": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anhs17_what_makes": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anhs18_why_do_people": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anhs21_friendship": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anhs22_jealous": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anhs23_apology": {
+  "kind": "repair",
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anhs27_broken_arm_long": {
+  "nodes": {
+   "d1": "lower",
+   "d2": "raise"
+  }
+ },
+ "anhs29_life_after": {
+  "nodes": {
+   "a1": "raise",
+   "c2": "raise"
+  }
+ },
+ "anhs30_missing_leg": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anhs32_bodies_shared": {
+  "kind": "cooperative"
+ },
+ "anhs33_wrong_guess": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anhs34_name_another": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anhs37_child_questions": {
+  "kind": "cooperative",
+  "nodes": {
+   "d2": "lower"
+  }
+ },
+ "anhs40_gets_tell_story": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anhs41_hard_clear": {
+  "nodes": {
+   "a2": "raise",
+   "b2": "raise"
+  }
+ },
+ "anhs42_unfair": {
+  "kind": "cooperative",
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anjoy01_newborn": {
+  "kind": "cooperative",
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anjoy04_two_tribe": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "raise",
+   "c1": "raise"
+  }
+ },
+ "anjoy05_unplanned": {
+  "kind": "cooperative"
+ },
+ "anjoy06_elder_birthday": {
+  "nodes": {
+   "c2": "neutral"
+  }
+ },
+ "anjoy07_waterfall": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anjoy10_forest_story": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anjoy13_dance_nobody": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anjoy17_two_families": {
+  "nodes": {
+   "a2": "raise",
+   "b2": "raise",
+   "d1": "raise"
+  }
+ },
+ "anjoy18_remarriage": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "c2": "raise"
+  }
+ },
+ "anjoy21_child_second": {
+  "nodes": {
+   "a2": "raise",
+   "c1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anjoy22_anniversary": {
+  "nodes": {
+   "c2": "neutral"
+  }
+ },
+ "anjoy23_memorial": {
+  "nodes": {
+   "a2": "raise",
+   "c1": "neutral",
+   "d2": "neutral"
+  }
+ },
+ "anjoy24_ancestor_loved": {
+  "nodes": {
+   "b2": "neutral"
+  }
+ },
+ "anjoy25_empty_seat": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "c2": "neutral",
+   "d1": "neutral"
+  }
+ },
+ "anjoy30_tattoo_artist": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anjoy31_memorial_mark": {
+  "nodes": {
+   "d1": "neutral"
+  }
+ },
+ "anjoy32_visiting": {
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anjoy34_festival_many": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "c1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anjoy36_garden_reunion": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anjus03_stolen_woven": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anjus04_broken_swing": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anjus05_when_chief": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "anjus06_punishment": {
+  "kind": "cooperative"
+ },
+ "anjus07_angry_apology": {
+  "kind": "repair"
+ },
+ "anjus09_elder_cannot": {
+  "nodes": {
+   "a1": "raise",
+   "b2": "raise",
+   "d1": "raise"
+  }
+ },
+ "anjus10_scar_nobody": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anjus11_cut_shore": {
+  "kind": "cooperative"
+ },
+ "anjus12_fracture": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anjus14_after_shaking": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anjus15_smoke_beyond": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anjus18_unspoken_loss": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "neutral",
+   "b1": "neutral",
+   "b2": "raise"
+  }
+ },
+ "anjus19_empty_place": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anjus20_missing_scout": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "anjus21_memory_war": {
+  "nodes": {
+   "a2": "lower",
+   "c1": "raise"
+  }
+ },
+ "anjus23_joke_funny": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anjus24_quiet_warning": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anjus26_dangerous_edge": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anjus29_refused": {
+  "kind": "repair",
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anjus30_when_someone": {
+  "nodes": {
+   "c2": "raise",
+   "d1": "raise"
+  }
+ },
+ "anjus31_courage_defend": {
+  "nodes": {
+   "d1": "lower",
+   "d2": "lower"
+  }
+ },
+ "anjus32_what_we_carry": {
+  "nodes": {
+   "b1": "neutral",
+   "d1": "raise"
+  }
+ },
+ "anmom03_afternoon": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "anmom05_unfinished": {
+  "kind": "cooperative"
+ },
+ "anmom06_changed_hair": {
+  "kind": "cooperative"
+ },
+ "anmom07_empty_place": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anmom08_applause": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anrel01_shared_walk": {
+  "nodes": {
+   "a1": "raise",
+   "c1": "raise",
+   "d2": "raise"
+  }
+ },
+ "anrel03_elderly": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel05_couple_chose": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel06_proposal_could": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel07_widow_loved": {
+  "nodes": {
+   "a1": "raise",
+   "b1": "neutral",
+   "d1": "raise"
+  }
+ },
+ "anrel08_friendly": {
+  "nodes": {
+   "b1": "raise",
+   "c1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anrel09_name_fits": {
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anrel10_name_ancestor": {
+  "nodes": {
+   "b1": "raise",
+   "c1": "neutral",
+   "d2": "raise"
+  }
+ },
+ "anrel11_private_truth": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anrel14_weaver_loved": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anrel15_person_they": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anrel16_beginning": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel17_elder_changed": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "anrel18_elder_form": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "anrel19_couple_name": {
+  "nodes": {
+   "c1": "raise",
+   "c2": "raise"
+  }
+ },
+ "anrel21_friend_needed": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anrel23_shy_couple": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "b1": "raise"
+  }
+ },
+ "anrel24_courtship": {
+  "nodes": {
+   "c1": "raise",
+   "d1": "raise",
+   "d2": "raise"
+  }
+ },
+ "anrel25_matchmaker": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "anrel26_two_elders": {
+  "nodes": {
+   "c1_f": "raise",
+   "c1_m": "raise"
+  }
+ },
+ "anrel27_festival": {
+  "kind": "cooperative",
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "anrel29_villager": {
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise"
+  }
+ },
+ "anrel30_changing_hair": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "anrel31_newcomer": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel32_young_friends": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel33_ceremony_many": {
+  "kind": "cooperative"
+ },
+ "anrel34_grandparent": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "anrel35_friendship": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "arm04_ceremonial": {
+  "kind": "cooperative"
+ },
+ "arm15_spear_dance": {
+  "kind": "cooperative"
+ },
+ "arm25_warrior_armor": {
+  "kind": "cooperative",
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "arm27_village": {
+  "nodes": {
+   "setup": "lower"
+  }
+ },
+ "arm29_veteran_silence": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "arm39_keeper_choice": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "arm43_festival": {
+  "kind": "cooperative"
+ },
+ "arm45_changing": {
+  "kind": "cooperative"
+ },
+ "arm51_child_reed_spear": {
+  "kind": "cooperative",
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "arm54_feather_cloak": {
+  "kind": "cooperative"
+ },
+ "arm60_spearhead": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "arm69_restorer": {
+  "nodes": {
+   "setup": "lower"
+  }
+ },
+ "arm77_mended_quiver": {
+  "kind": "repair"
+ },
+ "arm82_inventory_song": {
+  "kind": "cooperative"
+ },
+ "arm87_arrows_laid_down": {
+  "kind": "cooperative"
+ },
+ "armm19_rehearsing": {
+  "kind": "cooperative"
+ },
+ "armm30_bowyer_favorite": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "armm33_heirloom": {
+  "kind": "cooperative"
+ },
+ "blf01_good_morning_sun": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf08_teen_stopped": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf10_question_fire": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "blf14_spiritual_leader": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf16_name_everyone": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf20_stone_doesnt": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf21_moment_silence": {
+  "nodes": {
+   "o1": "neutral"
+  }
+ },
+ "blf22_night_walk": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "blf24_same_prayer": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "blf25_rain_song": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf26_isolan_feast": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "blf27_songs_across": {
+  "kind": "cooperative"
+ },
+ "blf28_old_charm_lost": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf29_brightest_wrap": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "blf32_questions": {
+  "kind": "cooperative"
+ },
+ "blf33_ready_tell": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf34_newcomer_prayers": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "blf35_coming_back": {
+  "kind": "cooperative"
+ },
+ "blf36_blessing_two": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2_f": "raise",
+   "o2_m": "raise"
+  }
+ },
+ "blf37_i_just_come": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "blf39_two_ways_reading": {
+  "nodes": {
+   "o2": "neutral"
+  }
+ },
+ "blf42_knocked_over": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf44_food_wont_eat": {
+  "kind": "cooperative"
+ },
+ "blf46_way_dress": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "blf49_nothing_explain": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "blf50_around_one_fire": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "c5a006_brewer_promise": {
+  "kind": "cooperative"
+ },
+ "c5a024_eclipse_watch": {
+  "nodes": {
+   "o3": "raise"
+  }
+ },
+ "c5a031_shield_dance": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "c5a032_trial_balance": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "c5a033_warrior_oath": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "c5a038_deepwater_shell": {
+  "nodes": {
+   "o3": "raise"
+  }
+ },
+ "c5a046_mechanist": {
+  "kind": "cooperative"
+ },
+ "c5b001_fireside_chorus": {
+  "kind": "cooperative"
+ },
+ "c5b005_song_sleep": {
+  "kind": "cooperative"
+ },
+ "c5b011_watching_over": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b021_forgotten_name": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5b024_unsent_apology": {
+  "kind": "repair"
+ },
+ "c5b026_new_neighbor": {
+  "kind": "cooperative"
+ },
+ "c5b027_secret_talent": {
+  "kind": "cooperative"
+ },
+ "c5b029_broken_toy": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b033_growing_child": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b037_honest_answer": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b039_sound_waves": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b043_shared_secret": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b045_quiet_birthday": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b047_unfinished_song": {
+  "kind": "cooperative"
+ },
+ "c5b050_lucky_pebble": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b052_mended_shirt": {
+  "kind": "repair"
+ },
+ "c5b059_future_village": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5b061_old_rival": {
+  "kind": "cooperative"
+ },
+ "c5b064_favorite_place": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5b069_tears": {
+  "kind": "cooperative"
+ },
+ "c5b071_fear_success": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b073_silent_thank": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b074_last_ember": {
+  "kind": "cooperative",
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5b078_unspoken_worry": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5b080_forgiveness": {
+  "kind": "repair",
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5b086_evening_dance": {
+  "kind": "cooperative"
+ },
+ "c5b089_uncertain": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b090_name_remembered": {
+  "nodes": {
+   "e2": "neutral"
+  }
+ },
+ "c5b095_celebration": {
+  "kind": "cooperative",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5b099_evening": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5c002_rain_apology": {
+  "kind": "repair",
+  "nodes": {
+   "e1": "lower",
+   "e2": "raise"
+  }
+ },
+ "c5c004_empty_nest": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5c010_goodbye": {
+  "nodes": {
+   "e2": "neutral"
+  }
+ },
+ "c5c013_borrowed_laugh": {
+  "nodes": {
+   "e1": "raise",
+   "e2": "raise"
+  }
+ },
+ "c5c014_seatmates": {
+  "kind": "cooperative"
+ },
+ "c5c017_brave": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "c5c022_day_two_sunsets": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5c023_lost_recipe": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5c024_real_friend": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5c028_anniversary": {
+  "kind": "cooperative"
+ },
+ "c5c029_apology_worked": {
+  "kind": "repair",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5c030_apology_didnt": {
+  "kind": "repair"
+ },
+ "c5c038_after_festival": {
+  "kind": "cooperative"
+ },
+ "c5c039_one_remembers": {
+  "kind": "cooperative"
+ },
+ "c5c045_future_stranger": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5c050_better_tomorrow": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn003_five_scholar": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn010_festival": {
+  "kind": "cooperative"
+ },
+ "c5dn013_grandmother": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5dn014_uninvited": {
+  "kind": "cooperative"
+ },
+ "c5dn017_backward_cap": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "c5dn032_quiet_singer": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn034_archer_choice": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn035_shield_drum": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn037_difficult": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "c5dn041_good_outcome": {
+  "nodes": {
+   "e1": "raise",
+   "e2": "raise"
+  }
+ },
+ "c5dn044_listening": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5dn045_orphanage": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5dn047_many_ones": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn053_lost_child": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5dn056_child_never": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5dn064_last_seat": {
+  "kind": "cooperative"
+ },
+ "c5ev003_doll_three": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "c5ev006_tailor_dilemma": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5ev012_shellfish_tide": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "c5ev015_pig_feast": {
+  "kind": "cooperative"
+ },
+ "c5ev031_dance_knows": {
+  "kind": "cooperative"
+ },
+ "c5ev032_performance": {
+  "kind": "cooperative"
+ },
+ "c5ev036_heavy_morning": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5ev047_old_feud": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "c5ev050_visitor_stayed": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "cat117_fertility": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat118_sustenance": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat119_curing": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat120_growth": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat121_health": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat122_mutation": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat123_golden_guppy": {
+  "nodes": {
+   "d": "lower"
+  }
+ },
+ "cat136_pearl_heals": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "cat139_orchid_memory": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "cat146_masterpiece": {
+  "nodes": {
+   "a": "lower",
+   "d": "raise"
+  }
+ },
+ "cat150_conch_two": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "day01_everything": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "day02_grumpy_reason": {
+  "nodes": {
+   "o1": "neutral"
+  }
+ },
+ "day06_everywhere_goes": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "day08_song": {
+  "kind": "cooperative"
+ },
+ "day10_just_time": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "day12_everyone": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "day20_bird_door": {
+  "kind": "cooperative"
+ },
+ "day23_puddle_day": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "day27_too_hot": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "day32_wrong_name_three": {
+  "kind": "repair",
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "day33_fire_wouldnt": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep01_night_hut": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "dep07_canoe_kept_going": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "dep09_whoever_needs": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep10_name_nobody_says": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "dep13_last_day_crew": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep21_home_already": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep23_going_after_all": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "dep24_halfway_there": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "dep31_shell_each_day": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "dep34_dog_wanted_come": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep35_nobody_noticed": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "dep38_season_away": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep42_second_thoughts": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "dep43_first_sleepover": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "dep47_nothing_pack": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "div08_paint_around": {
+  "kind": "cooperative"
+ },
+ "div11_ask_first": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "div12_leg_fits": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "lower"
+  }
+ },
+ "div13_smoky_festival": {
+  "kind": "cooperative"
+ },
+ "div17_windows_eyes": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "div18_way_says_hello": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "div20_nothing_comb": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "div22_eat_more": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "div28_something_hands": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "div31_wobbly_pots": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "div32_made_without": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "div34_red_green": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "div35_four_hundred": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "div40_shells_brace": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "div44_kids_look": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "div49_muddiest_child": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm01_fish_bigger_me": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm04_top_island": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm07_most_comfortable": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm08_song_outlast_me": {
+  "kind": "cooperative"
+ },
+ "drm11_nose_flute": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm12_every_fruit": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm14_lighting": {
+  "kind": "cooperative"
+ },
+ "drm15_canoe_own_making": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm18_fisher_story": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm25_bridge_over": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm30_dance": {
+  "kind": "cooperative"
+ },
+ "drm31_dream_quietly": {
+  "kind": "repair",
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "drm32_two_friends_two": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm34_tree_later": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "drm37_cook_burns": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm40_what_everyone": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "drm42_what_would_i_say": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "drm47_carving_basket": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm48_master_last": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "drm49_making_rain": {
+  "kind": "cooperative"
+ },
+ "fam201_hugs_kisses": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam202_when_will_yours": {
+  "kind": "cooperative"
+ },
+ "fam204_fish_nobody": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam205_separate": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam206_raising_two": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fam207_quiet_siblings": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam211_holding_hands": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "fam212_flowers_frogs": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam213_still_friends": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam214_two_bowls_shelf": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam215_living_next": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam216_many_relatives": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam218_parent_many": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam219_cousin_always": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fam221_friends_live": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fam222_ceremony_they": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam233_moving_out": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam234_sibling_always": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "fam235_recipe_argument": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fam236_couple_bicker": {
+  "nodes": {
+   "o1": "lower",
+   "o2": "raise"
+  }
+ },
+ "fam237_matchmaking": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam238_family_worst": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam239_two_huts_now": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fam242_lonely_still": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "fam243_when_are_you": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fam244_race_you_rock": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fam245_two": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fat01_father_carries": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "fat02_clothes_changing": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "fat03_what_will_child": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "fat05_first_hold": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "fat09_father_waited": {
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise"
+  }
+ },
+ "fat12_two_futures": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "fat15_father_turn": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "fat17_child_would_held": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "fat18_father_mistake": {
+  "nodes": {
+   "b2": "raise",
+   "c1": "raise"
+  }
+ },
+ "fat19_empty_cradle": {
+  "nodes": {
+   "a1": "raise",
+   "d1": "raise"
+  }
+ },
+ "fat20_baby_festival": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "raise",
+   "c2": "raise"
+  }
+ },
+ "fat21_lessons_beneath": {
+  "nodes": {
+   "d1": "lower"
+  }
+ },
+ "fat22_extra_pair_hands": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "fat23_father_devotion": {
+  "nodes": {
+   "a1": "raise",
+   "c1": "raise"
+  }
+ },
+ "fat24_boundary_holds": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "fat25_more_difficult": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "fat26_first_word": {
+  "nodes": {
+   "b1": "raise",
+   "c1": "raise",
+   "d2": "raise"
+  }
+ },
+ "fat27_after_birth": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "fat28_what_makes_man": {
+  "nodes": {
+   "a2": "raise",
+   "b1": "raise"
+  }
+ },
+ "fat29_what_makes_us": {
+  "nodes": {
+   "b2": "raise",
+   "d1": "raise"
+  }
+ },
+ "fat30_children": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "fea03_when_thunder": {
+  "nodes": {
+   "o1": "lower",
+   "o2": "raise"
+  }
+ },
+ "fea05_faces_names": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "lower"
+  }
+ },
+ "fea06_chickens": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fea07_left_out_game": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fea08_knot_stomach": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fea12_ready": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fea13_contest": {
+  "nodes": {
+   "o1": "lower",
+   "o2": "raise"
+  }
+ },
+ "fea16_spider_corner": {
+  "kind": "repair",
+  "nodes": {
+   "o1": "raise",
+   "o2": "lower"
+  }
+ },
+ "fea17_checking_fire": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fea20_rumble": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fea24_masks": {
+  "kind": "cooperative"
+ },
+ "fea25_will_remember": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fea29_too_small_see": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "fea31_jungle_dusk": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "fea33_seen_crying": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fea36_rain_rain": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fea37_loose_tooth": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "lower"
+  }
+ },
+ "fea39_new_hair": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "fea41_words_welcome": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "fea43_too_good_last": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "lower"
+  }
+ },
+ "fea45_sea_urchins": {
+  "kind": "cooperative"
+ },
+ "fea46_waiting_answer": {
+  "nodes": {
+   "o1": "lower",
+   "o2": "lower"
+  }
+ },
+ "fea47_empty_village": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "fea49_high_rock": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "fwk001_feeling_being": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk002_island_breathes": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk003_same_day_twice": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk004_doorway_dream": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk005_knows_my_name": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk006_path_moved": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk007_forest_memory": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk008_stone_hummed": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk009_unanswered_pray": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk010_storm_innocent": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk011_isola_alone": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk012_paradise_prison": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk013_kindness_gods": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk014_price_miracle": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk015_silent_reef": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk016_moon_followed": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk017_broken_omen": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk018_unlucky_child": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk019_reflection": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk020_fire_not_catch": {
+  "kind": "cooperative",
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk021_answer_rain": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk022_sacred_useful": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk023_river_claim": {
+  "kind": "cooperative",
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk024_voice_volcano": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk025_child_questions": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk026_elder_changed": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk027_island_heart": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk028_map_edge": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk029_price_knowing": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk030_festival_signs": {
+  "kind": "cooperative",
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk031_owns_wind": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk032_garden_grew": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk033_light_beneath": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk034_forgotten_name": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk035_two_stories": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk036_unfair_harvest": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk037_visitor_knew": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk038_shore_gives": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk039_no_one_answers": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "fwk040_last_candle": {
+  "nodes": {
+   "r3": "raise"
+  }
+ },
+ "hea01_count_four_count": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hea02_tea_tastes": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hea06_morning_walk": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hea10_too_many_people": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hea12_two_teas": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hea13_worrying_hour": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "hea15_knot_bed": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hea26_shaking_hands": {
+  "kind": "cooperative"
+ },
+ "hea28_more_better": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "hea29_my_story_tell": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "hea31_laughing_visit": {
+  "kind": "cooperative"
+ },
+ "hea32_burning_worries": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "hea35_both_please": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hea38_steam_hut": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "hea40_toothache": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "hea43_itch_nobody_can": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hea44_after_storm": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hea46_swapped_cups": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hea49_long_sleep": {
+  "kind": "repair"
+ },
+ "his01_festival_used": {
+  "kind": "cooperative"
+ },
+ "his05_song_nobody_can": {
+  "kind": "cooperative"
+ },
+ "his08_why_we_cover": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "his11_feast_portions": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "his16_apparently": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "his17_wrong_hero": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "his18_unfinished": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "his20_shell_money": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "his21_ending_changed": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "his24_dish_everyone": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "his31_dance_eight": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "his34_feud_nobody": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "his35_bundle_door": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "his36_leader_nobody": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "his37_bones_bank": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "his42_why_we_hop": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "his43_elder_there": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "his44_wall_hooks": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "his45_lost_black_pots": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "his46_hiding_place": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "his49_old_word_friend": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon01_gate_left_open": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon04_i_absolutely": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hon05_telling": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon06_two_missing": {
+  "kind": "cooperative"
+ },
+ "hon07_confidently": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "hon09_message_didnt": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon13_quite_cooked": {
+  "kind": "repair"
+ },
+ "hon15_asleep_bird": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon22_rain_drying": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hon24_excuse_got_out": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hon25_what_overheard": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hon26_canoe_small_leak": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon27_garden_didnt": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon30_mice_didnt_do": {
+  "kind": "cooperative"
+ },
+ "hon38_replacement_crab": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "hon39_lid": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "hon46_honey_tree": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hon50_lie_became_true": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "hum05_burp_came_back": {
+  "kind": "repair"
+ },
+ "hum06_battle_fishy": {
+  "kind": "repair",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hum07_knock_knock_joke": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hum12_spin_kept_going": {
+  "kind": "cooperative"
+ },
+ "hum13_after_you_after": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "hum14_blame_pig": {
+  "kind": "cooperative"
+ },
+ "hum15_midnight": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "hum22_potion_made": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hum23_charm_worked": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hum26_snoring_duet": {
+  "kind": "cooperative"
+ },
+ "hum27_overripe_mango": {
+  "kind": "repair",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hum29_tallest": {
+  "kind": "cooperative"
+ },
+ "hum41_frog_sang_along": {
+  "kind": "cooperative"
+ },
+ "hum42_sticky_fingers": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "hum43_tug_war_nobody": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "hum44_crab_longest": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "hz001_other_breakfast": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "hz003_come_home": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "hz004_argument_across": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "hz005_mourn_as_we_do": {
+  "kind": "cooperative"
+ },
+ "hz007_people_grow_old": {
+  "kind": "repair"
+ },
+ "hz008_celebration": {
+  "kind": "cooperative",
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "hz016_house_garden": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "hz018_library_without": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "hz019_unseen_illness": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "hz023_machine_thinks": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "hz029_being_different": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "hz030_stranger_looks": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "hz036_story_everyone": {
+  "kind": "cooperative"
+ },
+ "hz037_thousand_ways": {
+  "kind": "cooperative"
+ },
+ "hz039_invention": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "hz043_thinking_tool": {
+  "nodes": {
+   "c1": "lower"
+  }
+ },
+ "hz044_machine_says": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "hz057_house_touches": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "hz067_wall_divides": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "hz069_world_watches": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "hz072_under_glass": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "hz073_festival": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "hz075_many_families": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "hz077_construct_makes": {
+  "kind": "cooperative"
+ },
+ "hz078_construct_mourns": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "hz085_word_we_dont": {
+  "nodes": {
+   "b1": "lower"
+  }
+ },
+ "hz088_land_shore": {
+  "nodes": {
+   "a1": "raise",
+   "a2": "lower"
+  }
+ },
+ "hz091_fire_flowers_sky": {
+  "kind": "cooperative"
+ },
+ "hz092_do_they_sing": {
+  "kind": "cooperative"
+ },
+ "hz096_counting": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "b2": "raise",
+   "c1": "raise"
+  }
+ },
+ "hz097_do_they_know": {
+  "kind": "cooperative"
+ },
+ "hz100_people_wear": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "hz102_do_their": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "hz106_feast_whole_city": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "raise",
+   "c2": "raise"
+  }
+ },
+ "hz108_would_they": {
+  "nodes": {
+   "a1": "lower",
+   "a2": "lower"
+  }
+ },
+ "hz109_path_stars": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "hz110_weather_readers": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "hz115_do_they_love_sea": {
+  "nodes": {
+   "a2": "raise",
+   "c1": "raise"
+  }
+ },
+ "hz116_land_sand": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "hz118_do_their_healers": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "hz120_distant_apology": {
+  "kind": "repair"
+ },
+ "hz121_picture_caught": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "hz128_people_dance": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "il001_mister_pebbles": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "il003_quiet_hands": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il004_what_didnt_say": {
+  "kind": "cooperative",
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il006_talking": {
+  "kind": "repair"
+ },
+ "il007_big_maybe": {
+  "nodes": {
+   "a": "lower"
+  }
+ },
+ "il008_worry_stone": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "il009_night_thoughts": {
+  "kind": "cooperative"
+ },
+ "il014_bravest_person": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il016_secret_ambition": {
+  "kind": "cooperative"
+ },
+ "il020_mystery_missing": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il021_small_envy": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il024_day_decisions": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il029_private": {
+  "kind": "cooperative",
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il030_worst_case": {
+  "kind": "cooperative"
+ },
+ "il032_old_song": {
+  "kind": "cooperative"
+ },
+ "il034_impossible": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il035_reluctant_hero": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il038_quiet_dreamer": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il039_unexpected_tears": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il040_dream_can_wait": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il043_have_i_done_this": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il047_hidden_talent": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il050_argument_bird": {
+  "kind": "repair"
+ },
+ "il052_morning_song": {
+  "kind": "cooperative"
+ },
+ "il056_nothing_much": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "il057_important_ritual": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il059_smell_rain": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il060_am_i_today": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il062_same_breakfast": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il064_goodnight_trees": {
+  "nodes": {
+   "b": "lower"
+  }
+ },
+ "il069_first_cold_swim": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il071_nose_scratch": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il074_once_year": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il084_name_tip_tongue": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il086_great_crab_story": {
+  "kind": "cooperative"
+ },
+ "il087_good_rainy_year": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il088_giant_rock": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il102_do_fish_sleep": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il115_counting_thunder": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il118_tide": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il123_visitor_knows": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il124_gift": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il126_step_aside_dance": {
+  "kind": "cooperative"
+ },
+ "il131_last_know": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il134_help_wanted": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il135_matching_flower": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il142_looking_busy": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il144_shelling_song": {
+  "kind": "cooperative"
+ },
+ "il145_tool_fit": {
+  "kind": "repair",
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il148_path_nobody": {
+  "nodes": {
+   "a": "lower"
+  }
+ },
+ "il154_work_i_might": {
+  "kind": "repair"
+ },
+ "il156_wrong_tool": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il161_all_myself": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il162_almost_dance": {
+  "kind": "cooperative"
+ },
+ "il164_dinner": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il174_canoe_race": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il176_secret_language": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il181_oldest_one": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il182_how_are_you": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il187_confident_advice": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "il190_new_old_friend": {
+  "nodes": {
+   "a": "raise",
+   "b": "raise"
+  }
+ },
+ "il191_same_stars": {
+  "nodes": {
+   "setup": "raise"
+  }
+ },
+ "il194_words_doesnt": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "il199_new_collection": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "jus01_whose_fish": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus02_tree_line": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus06_canoe_keeper": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus08_night_cool_down": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "jus11_mend_say": {
+  "kind": "repair",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus14_fruit_over_fence": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "jus15_nobody_has_fish": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "jus18_council_got": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus19_fish_owes": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus23_different_canoes": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus24_small_basket": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "jus25_buried_boundary": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus26_children_council": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus27_where_rain_goes": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus29_sentence": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "jus30_one_sent_away": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "jus31_paddle_storm": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "jus34_longest_meeting": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "jus40_dry_season_rule": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus42_pig_vote": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus45_whose_dog_took": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus46_matter_council": {
+  "kind": "cooperative"
+ },
+ "jus48_food_fight": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "jus50_case_missing": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "lbl004_favorite_child": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "lbl008_caregiver": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl010_shared_birthday": {
+  "kind": "cooperative",
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "lbl012_adoption": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "lbl015_forgotten": {
+  "kind": "cooperative"
+ },
+ "lbl016_rival_injury": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "lbl017_public": {
+  "kind": "cooperative"
+ },
+ "lbl022_secret_admirer": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "lbl024_wedding_without": {
+  "kind": "cooperative",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl027_daring_climb": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "lbl034_unfinished_toy": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl040_wrong_cradle": {
+  "kind": "cooperative"
+ },
+ "lbl041_first_steps": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl042_father_song": {
+  "kind": "cooperative"
+ },
+ "lbl043_nursing_mother": {
+  "nodes": {
+   "e1": "raise",
+   "e3": "neutral"
+  }
+ },
+ "lbl048_empty_cradle": {
+  "nodes": {
+   "e2": "neutral"
+  }
+ },
+ "lbl050_unreliable": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "lbl055_old_rival_gift": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl060_village": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "lbl068_creature_six": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "lbl085_stolen": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "lbl089_failed": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "lbl091_broken_tool": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "lbl093_unwanted_mentor": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl094_worker_strike": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "lbl100_awful_song": {
+  "kind": "cooperative"
+ },
+ "lbl105_surprise_feast": {
+  "kind": "cooperative",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "lbl108_festival_bad": {
+  "kind": "cooperative"
+ },
+ "lbl113_stranger_past": {
+  "nodes": {
+   "e1": "raise",
+   "e3": "raise"
+  }
+ },
+ "lbl118_honest_election": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "lif05_something_said": {
+  "kind": "repair"
+ },
+ "lif08_schedule": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "lif10_children_helped": {
+  "nodes": {
+   "o1": "lower"
+  }
+ },
+ "lif14_second_half": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif16_wrong_turn": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif19_joke_made": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "lif24_middle": {
+  "kind": "cooperative"
+ },
+ "lif28_would_i_do_again": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif30_friend_drifted": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "lif31_second_try": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif34_rich_ways": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif36_being_forgiven": {
+  "kind": "repair",
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "lif37_watching_wedding": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif38_taking_stock": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "lif41_knew": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "lif49_version_left": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "lo01_fishing_song": {
+  "kind": "cooperative",
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "lo06_speak_them_they": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "lo07_lucky_sandals": {
+  "nodes": {
+   "a": "raise",
+   "b": "raise"
+  }
+ },
+ "lo13_lucky_seat": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "lo35_cracked_lavastone": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "lo36_lost_over_side": {
+  "nodes": {
+   "a": "neutral"
+  }
+ },
+ "lo40_tireless_necklace": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "lo42_stone_burned": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lo44_night_stone_kept": {
+  "nodes": {
+   "a": "raise",
+   "b": "raise"
+  }
+ },
+ "lo46_stone_under_floor": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "lo47_shattered_stone": {
+  "nodes": {
+   "a1": "raise",
+   "b": "raise"
+  }
+ },
+ "lvauth02_rookie": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvauth04_chief_sacred": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "lvauth05_leader": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "lvauth06_master_healer": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "lvauth07_chief_could": {
+  "kind": "repair",
+  "nodes": {
+   "a1": "lower"
+  }
+ },
+ "lvauth11_leader": {
+  "nodes": {
+   "c1": "raise",
+   "d1": "raise"
+  }
+ },
+ "lvauth12_chief_rain": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvauth15_scientist": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "lvauth17_masked": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvauth20_elder_lesson": {
+  "nodes": {
+   "a1": "raise",
+   "c2": "lower"
+  }
+ },
+ "lvauth21_master_feared": {
+  "nodes": {
+   "c2": "lower",
+   "d1": "raise"
+  }
+ },
+ "lvauth22_chief_false": {
+  "nodes": {
+   "a1": "raise",
+   "b1": "raise"
+  }
+ },
+ "lvauth23_rookie_rescue": {
+  "nodes": {
+   "b1": "raise",
+   "c2": "lower"
+  }
+ },
+ "lvauth24_council": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvauth27_spiritual": {
+  "nodes": {
+   "c1": "raise",
+   "d2": "lower"
+  }
+ },
+ "lvauth29_apprentice": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "lvauth30_leader_spoke": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "d1": "raise"
+  }
+ },
+ "lvcir01_child_beneath": {
+  "nodes": {
+   "b1": "raise",
+   "b2": "lower"
+  }
+ },
+ "lvcir04_does_tree_have": {
+  "nodes": {
+   "b1": "neutral"
+  }
+ },
+ "lvcir09_fisher_thanks": {
+  "nodes": {
+   "b2": "raise",
+   "c2": "raise"
+  }
+ },
+ "lvcir14_tide_go": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvcir15_name_sand": {
+  "nodes": {
+   "b2": "neutral"
+  }
+ },
+ "lvcir19_departed": {
+  "nodes": {
+   "a2": "neutral"
+  }
+ },
+ "lvcir21_tree_fallen": {
+  "nodes": {
+   "b1": "raise",
+   "b2": "lower"
+  }
+ },
+ "lvcir23_coral_stone": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "lvcir26_dog_morning": {
+  "nodes": {
+   "a2": "raise",
+   "c1": "raise",
+   "c2": "raise"
+  }
+ },
+ "lvcir27_stranger": {
+  "nodes": {
+   "a1": "raise",
+   "c2": "raise"
+  }
+ },
+ "lvcir28_last_seed": {
+  "nodes": {
+   "a2": "raise",
+   "b1": "raise"
+  }
+ },
+ "lvcir29_weaver_funeral": {
+  "nodes": {
+   "a1": "raise",
+   "c1": "neutral"
+  }
+ },
+ "lvlife01_bitter_root": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "lvlife02_draught": {
+  "nodes": {
+   "b1": "lower"
+  }
+ },
+ "lvlife04_crooked_arm": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvlife06_bone_would": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvlife08_patient_fears": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvlife14_field_grew": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "lvlife16_farm_above": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvlife17_mangrove": {
+  "nodes": {
+   "c1": "raise",
+   "c2": "lower"
+  }
+ },
+ "lvlife20_rare_dye_vine": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvlife23_song_stored": {
+  "kind": "cooperative"
+ },
+ "lvlife24_drum": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvlife25_hollow_reed": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "lvlife30_shell_robe": {
+  "nodes": {
+   "b1": "lower"
+  }
+ },
+ "lvlife32_spider_silk": {
+  "kind": "cooperative"
+ },
+ "lvlife36_fern_printed": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "lvlife44_cure_rare": {
+  "nodes": {
+   "a1": "raise",
+   "b2": "raise"
+  }
+ },
+ "lvmed02_gift_after": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvmed03_blood_another": {
+  "nodes": {
+   "a1": "lower"
+  }
+ },
+ "lvmed04_draught": {
+  "nodes": {
+   "a1": "lower",
+   "c2": "raise"
+  }
+ },
+ "lvmed05_limb_might": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvmed13_growing_lump": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvmed15_last_treatment": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvmed17_shrine_sickbed": {
+  "nodes": {
+   "a1": "raise",
+   "b2": "raise"
+  }
+ },
+ "lvmed23_painful_truth": {
+  "nodes": {
+   "a2": "lower",
+   "b2": "raise"
+  }
+ },
+ "lvmed25_patient_wants": {
+  "nodes": {
+   "b2": "raise",
+   "c2": "raise"
+  }
+ },
+ "lvmed26_scar_reopened": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "lvmed29_last_dose_hope": {
+  "nodes": {
+   "a2": "raise",
+   "b1": "raise",
+   "c1": "raise"
+  }
+ },
+ "lvppl01_red_hair": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "lvppl04_grey_hair": {
+  "kind": "cooperative"
+ },
+ "lvppl07_mask_felt": {
+  "nodes": {
+   "a1": "raise",
+   "a2": "raise"
+  }
+ },
+ "lvppl09_friend_across": {
+  "nodes": {
+   "a1": "raise",
+   "a2": "lower"
+  }
+ },
+ "lvppl10_two_children": {
+  "nodes": {
+   "b2": "lower",
+   "c1": "raise"
+  }
+ },
+ "lvppl11_heathen_helped": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvppl14_council_two": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "lower",
+   "c2": "lower"
+  }
+ },
+ "lvppl15_stranger_water": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "lvppl16_first_words": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvppl18_hunter": {
+  "nodes": {
+   "c1": "lower"
+  }
+ },
+ "lvppl23_quiet_border": {
+  "nodes": {
+   "b1": "lower"
+  }
+ },
+ "lvppl24_stolen_harvest": {
+  "nodes": {
+   "b2": "lower",
+   "c2": "lower"
+  }
+ },
+ "lvppl26_peace_offering": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvppl27_cost_hostility": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvppl28_shared_song": {
+  "kind": "cooperative"
+ },
+ "lvppl29_circle_people": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvppl30_visitor": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvppl31_color_would": {
+  "kind": "cooperative"
+ },
+ "lvppl32_family_both": {
+  "nodes": {
+   "a2": "lower",
+   "c2": "raise"
+  }
+ },
+ "lvppl33_mask_festival": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvppl36_trader_never": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvppl37_three_ways": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "lvuns02_boat_never": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvuns03_council_closed": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvuns05_stranger": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "lvuns06_unopened_chest": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvuns07_fear_being": {
+  "nodes": {
+   "b1": "raise",
+   "b2": "raise",
+   "c1": "raise"
+  }
+ },
+ "lvuns13_lake_two": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvuns16_scientist": {
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "lvuns18_whale_island": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvuns19_why_do_spirits": {
+  "nodes": {
+   "a2": "raise",
+   "c1": "raise"
+  }
+ },
+ "lvuns23_silence_after": {
+  "nodes": {
+   "a1": "raise",
+   "c1": "raise"
+  }
+ },
+ "lvuns24_shrine_miracle": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "lvuns25_prayer_seemed": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvuns26_four_answers": {
+  "kind": "cooperative"
+ },
+ "lvuns27_dream_dead": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvuns33_island_beyond": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "lvuns34_god_may_have": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "lvuns35_question_elder": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "lvuns36_empty_place": {
+  "kind": "cooperative"
+ },
+ "lvuns37_unproven": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "lvway01_flood_before": {
+  "nodes": {
+   "c1": "lower",
+   "c2": "lower"
+  }
+ },
+ "lvway02_dry_well": {
+  "nodes": {
+   "d2": "lower"
+  }
+ },
+ "lvway09_elder_wrong": {
+  "nodes": {
+   "a1": "lower",
+   "b1": "raise"
+  }
+ },
+ "lvway11_son_questioned": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "lvway12_prayer_did": {
+  "nodes": {
+   "a1": "raise",
+   "d1": "raise"
+  }
+ },
+ "lvway13_magic_failed": {
+  "kind": "cooperative"
+ },
+ "lvway14_animal_would": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "lvway16_song_dead": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "d1": "raise"
+  }
+ },
+ "lvway19_healing_debate": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "lvway20_hungry": {
+  "kind": "cooperative",
+  "nodes": {
+   "a2": "raise",
+   "c1": "raise",
+   "c2": "lower"
+  }
+ },
+ "lvway24_council_four": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "lvway25_villager_did": {
+  "nodes": {
+   "a1": "raise",
+   "b2": "raise"
+  }
+ },
+ "lvway26_elder_changed": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "lvway27_parent_knew": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "lvway28_cloth_isola": {
+  "nodes": {
+   "c1": "raise",
+   "d2": "lower"
+  }
+ },
+ "lvway29_orchard_bees": {
+  "nodes": {
+   "b2": "lower",
+   "c1": "lower"
+  }
+ },
+ "lvway31_choice": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "lvway32_night_without": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "lvway34_tradition": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "lvway35_cost_miracle": {
+  "nodes": {
+   "a2": "raise",
+   "d1": "raise"
+  }
+ },
+ "lvway36_young": {
+  "nodes": {
+   "c1": "raise",
+   "d1": "raise"
+  }
+ },
+ "lvway38_word_elder": {
+  "nodes": {
+   "a1": "raise",
+   "d2": "lower"
+  }
+ },
+ "nat05_seal_canoe": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat07_bird_nobody_has": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat08_frog_used_sing": {
+  "kind": "cooperative"
+ },
+ "nat10_goats_hillside": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat12_turtle_eggs": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat13_bat_cave": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat17_cleaning_rock": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat21_firefly_clearing": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat22_coconut_crab": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat25_starfish_short": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat29_strangest_thing": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat31_owl_pellets": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat33_sharks_lagoon": {
+  "nodes": {
+   "o1": "lower",
+   "o2": "raise"
+  }
+ },
+ "nat37_kingfisher": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "nat39_enormous_baby": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat40_wild_pigs_taro": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "nat41_gecko_tail": {
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "nat43_fish_puffed_up": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "nat44_song_under_canoe": {
+  "kind": "cooperative"
+ },
+ "rm03_promise_before": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "rm07_fisher_restraint": {
+  "nodes": {
+   "d2": "raise"
+  }
+ },
+ "rm08_unfamiliar_custom": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "rm11_missing_credit": {
+  "nodes": {
+   "a2": "lower",
+   "b2": "raise",
+   "c1": "raise"
+  }
+ },
+ "rm13_garden_flowers": {
+  "kind": "cooperative"
+ },
+ "rm15_different_answer": {
+  "nodes": {
+   "c2": "lower"
+  }
+ },
+ "rm16_newcomer_place": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "rm19_promise_forgotten": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "rm22_gift_without_name": {
+  "nodes": {
+   "b1": "raise",
+   "c1": "raise"
+  }
+ },
+ "rm23_shoreline_after": {
+  "kind": "cooperative",
+  "nodes": {
+   "b2": "lower"
+  }
+ },
+ "rm24_healer_honesty": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "rm25_builder_example": {
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "rm27_quiet_apology": {
+  "kind": "repair"
+ },
+ "rm29_different_prayer": {
+  "kind": "cooperative",
+  "nodes": {
+   "a2": "raise",
+   "d2": "raise"
+  }
+ },
+ "rm32_leader_listened": {
+  "nodes": {
+   "d2": "lower"
+  }
+ },
+ "rm34_unpopular_truth": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "rm36_family_shared": {
+  "nodes": {
+   "a1": "raise",
+   "b1": "lower"
+  }
+ },
+ "rm37_reef_fragile_edge": {
+  "kind": "cooperative"
+ },
+ "rm39_promise_shore": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "rm42_stray_dog_place": {
+  "nodes": {
+   "a2": "lower"
+  }
+ },
+ "rm43_last_canoe": {
+  "nodes": {
+   "b1": "raise",
+   "d2": "raise"
+  }
+ },
+ "rm44_only_shade": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "rm45_other_hand": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "rm46_seed_loan": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "rm47_generous_mistake": {
+  "nodes": {
+   "d1": "raise",
+   "d2": "raise"
+  }
+ },
+ "rm48_leader_stepped": {
+  "kind": "cooperative"
+ },
+ "rm49_rumor_stopped": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "rm50_rival_canoe": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "rm51_elder_asked": {
+  "kind": "cooperative"
+ },
+ "rm54_call_against": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "rm57_student_surpassed": {
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "rm58_hammering_next": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "rm59_parent_apology": {
+  "kind": "repair",
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "rm60_portions_set": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1": "raise",
+   "d1": "raise"
+  }
+ },
+ "rm63_rest_before_roof": {
+  "nodes": {
+   "b2": "raise"
+  }
+ },
+ "rm65_child_edge_crowd": {
+  "kind": "cooperative",
+  "nodes": {
+   "c1": "raise"
+  }
+ },
+ "rm66_strongest_pair": {
+  "nodes": {
+   "a1": "raise",
+   "b1": "raise"
+  }
+ },
+ "rm67_kind_refusal": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "rm70_swim_flat_rock": {
+  "nodes": {
+   "a1": "raise",
+   "d1": "raise"
+  }
+ },
+ "rm71_spinning_top": {
+  "nodes": {
+   "d1": "raise"
+  }
+ },
+ "rm75_thanks_nobody": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "rm76_missing_adze": {
+  "nodes": {
+   "b2": "lower",
+   "d1": "lower"
+  }
+ },
+ "rm77_last_red_dye": {
+  "kind": "cooperative"
+ },
+ "rm78_corrected_map": {
+  "nodes": {
+   "a1": "raise",
+   "b2": "raise"
+  }
+ },
+ "rm79_festival_doorway": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "rm80_dry_corner": {
+  "nodes": {
+   "a1": "raise",
+   "d2": "raise"
+  }
+ },
+ "rm81_dog_grew_old": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "rm83_rope_looked_fine": {
+  "nodes": {
+   "c2": "raise"
+  }
+ },
+ "rm84_borrowed_song": {
+  "kind": "cooperative",
+  "nodes": {
+   "b1": "raise",
+   "d2": "raise"
+  }
+ },
+ "rm86_fire_late_canoes": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "rm90_example_passed": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "sss001_cartographer": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss002_drum_heard": {
+  "kind": "cooperative"
+ },
+ "sss005_child_needs": {
+  "kind": "cooperative",
+  "nodes": {
+   "a": "raise",
+   "b": "raise",
+   "c": "raise"
+  }
+ },
+ "sss007_weaver_her": {
+  "kind": "cooperative",
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss008_two_fathers": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss009_friend_stopped": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss015_ceremony": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss019_pearl_diver": {
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "sss021_borrowed": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss030_stranger_prayer": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss031_child_foreign": {
+  "kind": "cooperative",
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss036_outsider_wants": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss038_biggles_tax": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss039_return_unknown": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss045_stone_hums": {
+  "kind": "cooperative"
+ },
+ "sss048_child_asked_why": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss049_dangerous_cure": {
+  "nodes": {
+   "b": "raise",
+   "c": "lower"
+  }
+ },
+ "sss050_mine_beneath": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss052_festival_hair": {
+  "kind": "cooperative"
+ },
+ "sss055_argument_chair": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss056_unsent_apology": {
+  "kind": "repair"
+ },
+ "sss057_was_wrong": {
+  "nodes": {
+   "a": "raise",
+   "b": "lower",
+   "c": "raise"
+  }
+ },
+ "sss058_friend_likes": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss059_broken_promise": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss062_shortcut": {
+  "nodes": {
+   "a": "lower"
+  }
+ },
+ "sss063_feast_nobody": {
+  "kind": "cooperative",
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "sss064_grave_without": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "sss065_nursing_mother": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss068_festival_loud": {
+  "kind": "cooperative"
+ },
+ "sss070_worry_would": {
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "sss074_storm_came_back": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss077_meal_left": {
+  "nodes": {
+   "c": "raise"
+  }
+ },
+ "sss081_memory_returned": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss084_unwanted": {
+  "nodes": {
+   "a": "lower",
+   "c": "raise"
+  }
+ },
+ "sss085_feast_after": {
+  "kind": "cooperative"
+ },
+ "sss089_cheerfulness": {
+  "nodes": {
+   "a": "raise",
+   "b": "raise"
+  }
+ },
+ "sss092_after_success": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "sss093_boy_could_stop": {
+  "nodes": {
+   "c": "lower"
+  }
+ },
+ "tim001_leaf_lantern": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim002_shells": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim003_mended_lantern": {
+  "kind": "repair",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim005_careful_lantern": {
+  "kind": "cooperative",
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim011_rain_roof": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim013_raindrop_races": {
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim014_thunder_beyond": {
+  "nodes": {
+   "e1": "raise",
+   "e2": "raise",
+   "e3": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim015_crafts_before": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim026_mending": {
+  "kind": "repair"
+ },
+ "tim028_butterflies": {
+  "kind": "cooperative"
+ },
+ "tim032_rehearsing_song": {
+  "kind": "cooperative",
+  "nodes": {
+   "e1": "raise",
+   "e2": "raise",
+   "e3": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim033_seasonal_table": {
+  "kind": "cooperative"
+ },
+ "tim034_sweeping": {
+  "kind": "cooperative"
+ },
+ "tim035_holidays": {
+  "kind": "cooperative",
+  "nodes": {
+   "e1": "raise",
+   "e2": "raise",
+   "e3": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim036_leaf_wrapped": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "tim037_shell_parent": {
+  "nodes": {
+   "e1": "lower"
+  }
+ },
+ "tim039_apprentice_gift": {
+  "nodes": {
+   "e4": "lower"
+  }
+ },
+ "tim040_fruit_neighbor": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "tim041_basket_promise": {
+  "nodes": {
+   "e2": "lower"
+  }
+ },
+ "tim042_pact_between": {
+  "nodes": {
+   "e2": "raise",
+   "e3": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim044_forgotten_visit": {
+  "nodes": {
+   "e4": "lower"
+  }
+ },
+ "tim045_shared": {
+  "nodes": {
+   "e3": "lower"
+  }
+ },
+ "tim046_splicing_rope": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim047_grandparent_net": {
+  "kind": "repair",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim049_difficult_weave": {
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim050_reading": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim051_sorting_roots": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim052_watching_parent": {
+  "kind": "repair",
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim054_breakfast": {
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim055_family_tools": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim057_gathering_twigs": {
+  "kind": "cooperative"
+ },
+ "tim071_twisting_strong": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim072_yesterday_knot": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim074_ropemaker_hands": {
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim075_tangled_cord": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim086_joining": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim087_room_meal": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim088_missing_friend": {
+  "kind": "cooperative"
+ },
+ "tim089_comfortable": {
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim090_place_game": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim091_heavy_morning": {
+  "nodes": {
+   "e1": "lower",
+   "e2": "raise"
+  }
+ },
+ "tim092_early_finish": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim093_wandering_mind": {
+  "nodes": {
+   "e4": "lower"
+  }
+ },
+ "tim094_builder_pause": {
+  "nodes": {
+   "e3": "lower",
+   "e4": "raise"
+  }
+ },
+ "tim095_waiting_supper": {
+  "nodes": {
+   "e2": "lower",
+   "e3": "raise"
+  }
+ },
+ "tim096_ceremonial": {
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim097_repairs_across": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim099_two_memories": {
+  "kind": "cooperative",
+  "nodes": {
+   "e4": "raise"
+  }
+ },
+ "tim100_carvings": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim111_drum_rehearsal": {
+  "kind": "cooperative"
+ },
+ "tim112_trading_dance": {
+  "kind": "cooperative"
+ },
+ "tim115_songs_after": {
+  "kind": "cooperative"
+ },
+ "tim116_tomorrow_shade": {
+  "nodes": {
+   "e2": "raise",
+   "e3": "lower",
+   "e4": "raise"
+  }
+ },
+ "tim117_longer_way_home": {
+  "nodes": {
+   "e1": "raise",
+   "e2": "lower",
+   "e3": "raise"
+  }
+ },
+ "tim118_watching_clouds": {
+  "nodes": {
+   "e1": "lower",
+   "e2": "raise"
+  }
+ },
+ "tim119_cup_solitude": {
+  "nodes": {
+   "e1": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim120_after_afternoon": {
+  "nodes": {
+   "e3": "raise",
+   "e4": "lower"
+  }
+ },
+ "tim121_mending_basket": {
+  "kind": "repair",
+  "nodes": {
+   "e2": "raise"
+  }
+ },
+ "tim122_supper_friend": {
+  "nodes": {
+   "e1": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim123_clearing_path": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim124_helping_carry": {
+  "nodes": {
+   "e2": "raise",
+   "e4": "raise"
+  }
+ },
+ "tim125_invitation": {
+  "nodes": {
+   "e1": "raise",
+   "e3": "raise"
+  }
+ },
+ "tim135_shadow_animals": {
+  "kind": "cooperative"
+ },
+ "tim154_driftwood_fish": {
+  "nodes": {
+   "e3": "raise"
+  }
+ },
+ "tim166_lullaby_through": {
+  "nodes": {
+   "e4": "lower"
+  }
+ },
+ "tim169_festival_mask": {
+  "kind": "cooperative"
+ },
+ "tim172_bone_earring": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "tim174_frog_chorus": {
+  "kind": "cooperative"
+ },
+ "tt03_afraid_anything": {
+  "nodes": {
+   "o2": "lower"
+  }
+ },
+ "tt05_official_taster": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise",
+   "o2": "raise"
+  }
+ },
+ "tt06_keeping_warm": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "tt08_wave": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt09_secret_ingredient": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt11_made_up_stars": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt12_farther_every": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt13_grand_entrance": {
+  "kind": "cooperative"
+ },
+ "tt14_tall_tale_contest": {
+  "nodes": {
+   "o2": "neutral"
+  }
+ },
+ "tt15_mango_both_them": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt16_stubbed_toe": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt18_best_shade": {
+  "kind": "repair",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "tt19_crispy_bits": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "tt23_brand_song": {
+  "kind": "cooperative",
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "tt26_rarest_shell": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt27_let_me_show_you": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt29_heroic_carving": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt31_gift_misses": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "tt35_bigger_half": {
+  "nodes": {
+   "o1": "lower",
+   "o2": "raise"
+  }
+ },
+ "tt40_fishing_spot": {
+  "nodes": {
+   "o1": "raise"
+  }
+ },
+ "tt45_story_grew_way": {
+  "nodes": {
+   "o2": "raise"
+  }
+ },
+ "tt46_sings_beans": {
+  "kind": "cooperative",
+  "nodes": {
+   "o2": "neutral"
+  }
+ },
+ "vv1_last_song_before": {
+  "kind": "cooperative"
+ },
+ "vv1_v14_06_song_isola": {
+  "kind": "cooperative"
+ },
+ "vv1_v14_08_tiny": {
+  "kind": "cooperative"
+ },
+ "vv1_v14_16_child_who": {
+  "nodes": {
+   "scene": "lower"
+  }
+ },
+ "vv1_v14_20_question": {
+  "nodes": {
+   "large": "raise",
+   "modest": "raise"
+  }
+ },
+ "vv1_v17_building": {
+  "kind": "cooperative"
+ },
+ "vv1_v17_children": {
+  "kind": "cooperative"
+ },
+ "vv1_v17_cooking": {
+  "kind": "cooperative"
+ },
+ "vv1_v17_story": {
+  "kind": "cooperative"
+ },
+ "vv2_cooking_contest": {
+  "nodes": {
+   "a1_27_1": "raise",
+   "a1_27_5": "raise",
+   "a1_29_4": "raise",
+   "a1_29_6": "raise"
+  }
+ },
+ "vv2_hospitals_most_difficult": {
+  "nodes": {
+   "a1": "raise",
+   "a3": "lower"
+  }
+ },
+ "vv2_secret_behind_waterfall": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "vv2_the_great_totem_dispute": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "b1": "raise"
+  }
+ },
+ "vv2_v17_story": {
+  "kind": "cooperative"
+ },
+ "vv2_veterinary_visitor": {
+  "nodes": {
+   "e1": "raise"
+  }
+ },
+ "vv3_chiefs_impossible_question": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "vv3_child_who_claimed_to_be": {
+  "nodes": {
+   "a3": "raise"
+  }
+ },
+ "vv3_duel_terrible_inventors": {
+  "kind": "repair"
+ },
+ "vv3_statue_that_judged_its": {
+  "nodes": {
+   "b3": "lower"
+  }
+ },
+ "vv3_weather_dance_that_went": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise"
+  }
+ },
+ "vv4_arbor_day_festival": {
+  "kind": "cooperative"
+ },
+ "vv4_lullaby": {
+  "kind": "cooperative"
+ },
+ "vv4_mask_that_wouldnt_stay": {
+  "nodes": {
+   "b1": "raise"
+  }
+ },
+ "vv4_the_dolphins_strange_gift": {
+  "nodes": {
+   "b3": "raise"
+  }
+ },
+ "vv4_the_great_water_argument": {
+  "nodes": {
+   "b1": "raise",
+   "b3": "raise"
+  }
+ },
+ "vv4_the_unwelcome_landscaper": {
+  "nodes": {
+   "a2": "raise"
+  }
+ },
+ "vv4_v17_cooking": {
+  "kind": "cooperative"
+ },
+ "vv5_feast_of_two_traditions": {
+  "kind": "cooperative",
+  "nodes": {
+   "a1": "raise",
+   "a3": "lower",
+   "b3": "raise"
+  }
+ },
+ "vv5_multicultural_festival": {
+  "kind": "cooperative",
+  "nodes": {
+   "quiet_food": "lower",
+   "quiet_tech": "lower"
+  }
+ },
+ "vv5_potluck_dispute": {
+  "kind": "cooperative"
+ },
+ "vv5_the_guardians_disagreement": {
+  "nodes": {
+   "a1": "neutral"
+  }
+ },
+ "vv5_v17_cooking": {
+  "kind": "cooperative"
+ },
+ "wd04_what_coconut": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "wd05_what_fish_doing": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "wd06_what_starfish": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "wd10_what_flower_doing": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "wd24_what_mushroom": {
+  "nodes": {
+   "a": "raise"
+  }
+ },
+ "wd25_what_egg_doing": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "wd27_what_bowl_fruit": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "wd29_what_crab_doing": {
+  "kind": "cooperative"
+ },
+ "wd35_what_bird_doing": {
+  "kind": "cooperative",
+  "nodes": {
+   "a": "raise",
+   "b": "raise"
+  }
+ },
+ "wd38_what_walking_roof": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "wd46_what_bright_fish": {
+  "nodes": {
+   "b": "raise"
+  }
+ },
+ "wd49_what_are_ants": {
+  "kind": "cooperative"
+ }
+}

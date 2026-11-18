@@ -43,6 +43,7 @@ import vv_translations
 import vv_translations_window
 import vv_vv2_totem_store
 import vv_vv2_totems
+import vv_village_scores
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
@@ -73,6 +74,8 @@ from vv_fun_patcher import (
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_unicode_font_face,
+    set_village_solidarity_strength,
+    village_solidarity_strength,
     set_unicode_font_file,
     unicode_font_file,
     patch_requirement_text,
@@ -247,6 +250,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # Village Solidarity (all five games; the owner, 2026-11-17): off by default and in Select All, on in Owner's
+    # Defaults.
+    + ["vv%d_village_solidarity" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -315,6 +321,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
+    + ["vv%d_village_solidarity" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -395,6 +403,14 @@ def saved_tech_cost_multiplier(settings: dict) -> int:
         return TECH_COST_MULTIPLIER_DEFAULT
     return value
 
+
+def saved_solidarity_strength(settings: dict) -> int | float:
+    """Village Solidarity's strength the settings file keeps (0.1 to 10), else 1 (the normal strength)."""
+    value = settings.get("village_solidarity_strength") if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or vv_village_scores.strength_tenths(
+            round(float(value), 1)) is None:
+        return vv_village_scores.STRENGTH_DEFAULT
+    return vv_village_scores.strength_number(round(float(value), 1))
 
 def saved_meal_multiplier(settings: dict) -> int:
     """Hungrier Villagers' multiplier a settings file holds: a whole number 2 to 10, else the default 2."""
@@ -1654,6 +1670,18 @@ class App(tk.Tk):
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.sickness_scale.pack(side="left")
         self._help_button(sickness_group, "sickness_multiplier").pack(side="left", padx=(2, 0))
+        # Village Solidarity's strength (the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x normal; only
+        # used with that row ticked).  Set in the patcher at once and written beside its companion at the next patch.
+        solidarity_group = ttk.Frame(fun_settings)
+        solidarity_group.pack(side="left", padx=(16, 0))
+        ttk.Label(solidarity_group, text="Village Solidarity strength:").pack(side="left", padx=(0, 4))
+        self.solidarity_var = tk.DoubleVar(value=float(vv_village_scores.STRENGTH_DEFAULT))
+        self.solidarity_scale = tk.Scale(
+            solidarity_group, variable=self.solidarity_var, orient="horizontal",
+            from_=vv_village_scores.STRENGTH_MIN_TENTHS / 10, to=vv_village_scores.STRENGTH_MAX_TENTHS / 10,
+            resolution=0.1, length=120, showvalue=True, command=lambda _value: self._solidarity_changed())
+        self.solidarity_scale.pack(side="left")
+        self._help_button(solidarity_group, "village_solidarity_strength").pack(side="left", padx=(2, 0))
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -2675,6 +2703,8 @@ class App(tk.Tk):
             self.meal_var.set(saved_meal_multiplier(data))
         if hasattr(self, "sickness_var"):
             self.sickness_var.set(saved_sickness_multiplier(data))
+        if hasattr(self, "solidarity_var"):
+            self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -2722,6 +2752,7 @@ class App(tk.Tk):
                                 else MEAL_MULTIPLIER_DEFAULT),
             "sickness_multiplier": (App._sickness_multiplier(self) if hasattr(self, "sickness_var")
                                     else SICKNESS_MULTIPLIER_DEFAULT),
+            "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -2735,6 +2766,14 @@ class App(tk.Tk):
         }
         SETTINGS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
+    def _solidarity_changed(self) -> None:
+        """The Village Solidarity slider: its number (0.1 to 10) for the next patch."""
+        try:
+            value = set_village_solidarity_strength(round(float(self.solidarity_var.get()), 1))
+        except Exception:  # noqa: BLE001 -- out of range: back to the normal strength
+            value = set_village_solidarity_strength(vv_village_scores.STRENGTH_DEFAULT)
+        self._save_settings()
+        return value
     def _tech_cost_multiplier(self) -> int:
         """The 2-10x Tech Cost slider's whole number, kept within 2 to 10."""
         try:

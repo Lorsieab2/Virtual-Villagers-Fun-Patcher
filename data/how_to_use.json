@@ -1294,6 +1294,14 @@
         "Owner's Defaults sets it to 2. It does nothing while 2-10x Sickness is not ticked."
       ]
     },
+    "village_solidarity_strength": {
+      "title": "Village Solidarity strength",
+      "guide": [
+        "How strongly the Village Solidarity score changes the odds of the new events and their endings: 0.1x to 10x in steps of 0.1, 1x (the normal strength) unless you move it.",
+        "At 1x each point the score is away from 50 adds 2% to a favoured event's or ending's own chance, so a score of 0 or 100 doubles it; at 2x it adds 4% a point, at 0.5x 1%. Nothing is ever forced and nothing else is made less likely.",
+        "It is written into each game the next time you patch with Village Solidarity ticked; patch again after changing it. It does nothing while Village Solidarity is not ticked."
+      ]
+    },
     "tech_cost_multiplier": {
       "title": "2-10x Tech Cost",
       "guide": [

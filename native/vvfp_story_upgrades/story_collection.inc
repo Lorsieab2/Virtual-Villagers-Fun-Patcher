@@ -82,6 +82,7 @@ typedef struct {
     char series[48];
     char description[160];             /* the Pick Island Event list's sentence ("" = none: the generic line) */
     int weight;
+    int favour;                        /* Village Solidarity: 1 a cooperative event, 2 a repair event, 0 neither */
 } sc_entry;
 
 static sc_state sc;
@@ -501,6 +502,13 @@ static int sc_scan(int game) {
         if (e->weight <= 0) {
             e->weight = 1;
         }
+        {
+            /* Village Solidarity (column 10): "cooperative" (and celebration) or "repair" (peace, apology). */
+            char kind[16];
+            sc_field_end(p, end, 9, kind, sizeof kind);
+            e->favour = lstrcmpA(kind, "cooperative") == 0 ? CG_SOL_FAVOUR_HIGH
+                      : lstrcmpA(kind, "repair") == 0 ? CG_SOL_FAVOUR_LOW : 0;
+        }
         ++sc_count;
     }
     return sc_count;
@@ -555,6 +563,12 @@ static int sc_arm_collection(int game, int i) {
     return sc_load_entry(i, &size) && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
+/* Entry `i`'s draw weight: its own, or (`unit` 1000: Village Solidarity's companion favours some entry) x its
+   factor. */
+static int sc_weight(int i, const int *factor, int unit) {
+    return unit == 1 ? sc_list[i].weight : sc_list[i].weight * factor[i];
+}
+
 /* The draw (see the header): 1 when an event was armed.  One draw over every candidate at once -- each More Island
    Events event weight 1, each collection event its weight (1 unless its manifest says otherwise), each series 1 with
    its members equally likely -- so every event is as likely as any other, whichever source it comes from.  A
@@ -565,7 +579,8 @@ static int sc_choose_and_arm(int game) {
     static unsigned char left[SC_MAX];
     static short head[SC_MAX];         /* the first entry of the same series (itself when none) */
     static short members_left[SC_MAX]; /* at a series' head: its members still left */
-    int n_more = 0, n_coll = 0, i, k;
+    static int factor[SC_MAX];         /* Village Solidarity: each entry's factor, per mille */
+    int n_more = 0, n_coll = 0, i, k, unit = 1;
     if (sc_more_on(game)) {
         sm_fill_more(game);
         for (i = 0; i < sm_list.count; ++i) {
@@ -602,33 +617,44 @@ static int sc_choose_and_arm(int game) {
             }
         }
     }
+    /* Village Solidarity: with its companion, a cooperative or repair event's weight x its factor and every other
+       candidate's x 1000 (their odds among themselves unchanged); without it (every factor 1000) the draw is
+       exactly the one before, with the same numbers. */
+    for (i = 0; i < sc_count && n_coll > 0; ++i) {
+        factor[i] = sc_list[i].series[0] != '\0' ? 1000 : cg_sol_factor(game, sc_list[i].favour);
+        if (factor[i] != 1000) {
+            unit = 1000;
+        }
+    }
     while (n_more > 0 || n_coll > 0) {
         int coll_total = 0, pick, chosen = -1;
         for (i = 0; i < sc_count && n_coll > 0; ++i) {
             if (sc_list[i].series[0] != '\0') {
-                coll_total += head[i] == i && members_left[i] > 0 ? lv_series_weight(i) : 0;
+                coll_total += head[i] == i && members_left[i] > 0 ? lv_series_weight(i) * unit : 0;
             } else if (left[i]) {
-                coll_total += sc_list[i].weight;
+                coll_total += sc_weight(i, factor, unit);
             }
         }
-        if (n_more + coll_total <= 0) {
+        if (n_more * unit + coll_total <= 0) {
             return 0;
         }
-        pick = sc_rand(game, n_more + coll_total);
-        if (pick < n_more) {
+        pick = unit == 1 ? sc_rand(game, n_more + coll_total)
+                         : cg_sol_random_below(ce_adapter_for(game), n_more * unit + coll_total);
+        if (pick < n_more * unit) {
+            pick /= unit;
             if (sc_arm_more(game, more[pick])) {
                 return 1;
             }
             more[pick] = more[--n_more];
             continue;
         }
-        pick -= n_more;
+        pick -= n_more * unit;
         for (i = 0; i < sc_count && chosen < 0; ++i) {
             int w;
             if (sc_list[i].series[0] != '\0') {
-                w = head[i] == i && members_left[i] > 0 ? lv_series_weight(i) : 0;
+                w = head[i] == i && members_left[i] > 0 ? lv_series_weight(i) * unit : 0;
             } else {
-                w = left[i] ? sc_list[i].weight : 0;
+                w = left[i] ? sc_weight(i, factor, unit) : 0;
             }
             if (pick < w) {
                 chosen = i;
