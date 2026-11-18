@@ -176,7 +176,7 @@ Help (name2) Find Words:
 LCB-13. The Empty Place at the Feast
 (picks two adults)
 
-(name1)'s mother died in the spring, and this is the first harvest feast without her. (name1) wants to leave her place empty at the family's mat, with her favorite bowl. (name2), (his/her) cousin, thinks an empty place will make everyone too sad to enjoy anything, and wants to invite a lonely neighbor to sit there instead. What should the family do?
+(name1)'s mother died in the spring, and this is the first harvest feast without her. (name1) wants to leave her place empty at the family's mat, with her favorite bowl. (name2), (his/her) oldest friend, thinks an empty place will make everyone too sad to enjoy anything, and wants to invite a lonely neighbor to sit there instead. What should the family do?
 
 Keep Her Place:
 
@@ -386,7 +386,7 @@ Encourage Singing:
 LCB-28. The Tradition That Hurt
 (picks two adults)
 
-By old custom, only someone born on Isola may light the festival fire. (name1) came to Isola as a baby, has lived here for thirty years, and was told again this year that (he/she) may not light it. (He/she) has asked the village to change the custom. (name2), who lit the fire last year, thinks the custom is about honoring the island, not about excluding anyone. What should the village do?
+By old custom, only someone born on Isola may light the festival fire. (name1) came to Isola as a baby, has lived here ever since, and was told again this year that (he/she) may not light it. (He/she) has asked the village to change the custom. (name2), who lit the fire last year, thinks the custom is about honoring the island, not about excluding anyone. What should the village do?
 
 Change the Custom:
 
@@ -642,7 +642,7 @@ LCB-46. The Bones of the Old Canoe
 
 Burn It With Ceremony:
 
-The village gathers at dusk and burns the old canoe on the sand, singing. (name1) throws in his friend's old fishing hook. The sparks go up and up. In the morning, (name2) finds the hook in the ashes, black but whole, and gives it back to (name1). [Solidarity: neutral]
+The village gathers at dusk and burns the old canoe on the sand, singing. (name1) throws in (his/her) friend's old fishing hook. The sparks go up and up. In the morning, (name2) finds the hook in the ashes, black but whole, and gives it back to (name1). [Solidarity: neutral]
 
 Rebuild It for the Young:
 

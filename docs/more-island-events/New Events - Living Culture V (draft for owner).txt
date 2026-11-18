@@ -8,7 +8,7 @@ All Isola rules apply. All five games unless noted. Marriages and matches are on
 LCE-01. The Arranged Match
 (picks an adult and an elder)
 
-(name2) has spent months talking with an old friend's family on the far side of the island, and has come home delighted: (he/she) has arranged a match for (name1), with the friend's eldest. (name1) is twenty-four, has never met this person, and had no idea any of this was happening. What should (name1) do?
+(name2) has spent months talking with an old friend's family on the far side of the island, and has come home delighted: (he/she) has arranged a match for (name1), with the friend's eldest. (name1) is a grown adult, has never met this person, and had no idea any of this was happening. What should (name1) do?
 
 Agree to Meet Them:
 

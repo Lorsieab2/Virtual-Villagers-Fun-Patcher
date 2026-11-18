@@ -39,7 +39,7 @@ REVIEW: 15/15 pass (consent in research; accountability)
 
 LCH-08
 DESC: Elders' memories of the forest disagree with the researcher's records: trust the memories, or the records.
-ROLES: name1=55+ name2=18+
+ROLES: name1=65+ name2=18+
 FIX O1: 1=2
 REVIEW: 15/15 pass (both knowledges useful)
 
@@ -91,7 +91,7 @@ REVIEW: 15/15 pass (chaotic joy)
 
 LCH-18
 DESC: An apprentice asks why the builders still tie roofs the old slow way: try the new way, or explain the old one.
-ROLES: name1=14-17 name2=18+
+ROLES: name1=14-17 name2=35+
 REVIEW: 15/15 pass (questions welcome; the old way may have reasons)
 
 LCH-19
@@ -107,6 +107,7 @@ REVIEW: 15/15 pass (language and place)
 LCH-21
 DESC: A villager asks to be known by a byname they chose for themselves: honor it, or ask why.
 ROLES: name1=18+ name2=55+
+REL: name2=grandparent_of:name1
 FIX S: 6=1 8=1
 FIX O1: 4=1
 FIX O2: 2=1

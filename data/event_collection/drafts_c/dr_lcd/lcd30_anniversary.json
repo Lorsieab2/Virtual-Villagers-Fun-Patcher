@@ -59,11 +59,11 @@
  "roles": {
   "subject": {
    "kind": "villager",
-   "min_age": 55
+   "min_age": 70
   },
   "friend": {
    "kind": "villager",
-   "min_age": 55,
+   "min_age": 70,
    "max_age_gap": {
     "role": "subject",
     "years": 15

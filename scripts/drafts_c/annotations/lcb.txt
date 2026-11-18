@@ -15,7 +15,7 @@ REVIEW: 15/15 pass (spiritual and practical views both respected)
 
 LCB-04
 DESC: A child asks why the river is so small, and an elder remembers it wide: take a walk upstream, or tell the old stories.
-ROLES: name1=55+ name2=5-13
+ROLES: name1=70+ name2=5-13
 REVIEW: 15/15 pass (environmental change shown honestly; no false fix)
 
 LCB-05
@@ -179,19 +179,21 @@ REVIEW: 15/15 pass (belief and non-belief respected; curiosity without pressure)
 
 LCB-35
 DESC: A child asks an elder what happens after people die: admit not knowing, or tell the stories people believe.
-ROLES: name1=5-13 name2=55+
+ROLES: name1=5-13 name2=70+
 FIX S: 2=1
 REVIEW: 15/15 pass (uncertainty honest; beliefs not ranked)
 
 LCB-36
 DESC: An elder wants no grand farewell when the time comes, but the family wants one: promise to honor it, or ask them to reconsider.
 ROLES: name1=55+ name2=18+
+REL: name2=grandchild_of:name1
 FIX S: 3=1
 REVIEW: 15/15 pass (the elder's wishes respected; no death shown)
 
 LCB-37
 DESC: A family wants to send their elder off the old way, with a night-long vigil fire: hold the vigil, or keep it short.
 ROLES: name1=18+ name2=18+
+FIX O2: 2=1
 REVIEW: 15/15 pass (respectful; tiredness is not disrespect)
 
 LCB-38

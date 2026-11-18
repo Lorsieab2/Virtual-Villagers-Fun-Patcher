@@ -62,8 +62,8 @@
   },
   "friend": {
    "kind": "villager",
-   "min_age": 14,
-   "max_age": 17
+   "min_age": 16,
+   "max_age": 16
   }
  },
  "start": "setup",

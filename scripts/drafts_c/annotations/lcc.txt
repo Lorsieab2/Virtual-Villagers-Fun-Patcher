@@ -5,7 +5,7 @@ REVIEW: 15/15 pass (no violence shown; fear and courage both valid)
 
 LCC-02
 DESC: The village builds watch fires on the headlands, and a teen wants to keep one: let them, or keep the watch to adults.
-ROLES: name1=18+ name2=14-17
+ROLES: name1=18+ name2=16-16
 FIX S: 2=2 3=2
 REVIEW: 15/15 pass (teen agency; no teen in combat)
 
@@ -175,6 +175,7 @@ REVIEW: 15/15 pass (impossible choice; no blame)
 LCC-33
 DESC: During a raid alarm a child ran across the village to warn the elders: praise them, or scold them for the danger.
 ROLES: name1=8-13 name2=18+
+REL: name2=parent_of:name1
 FIX S: 2=1
 FIX O1: 1=1 2=1
 FIX O2: 3=2 4=2
@@ -203,7 +204,7 @@ REVIEW: 15/15 pass (enemy dead treated with dignity; non-graphic)
 
 LCC-38
 DESC: An old warrior offers to teach the young ones how they fought long ago: learn the old ways, or learn new ones.
-ROLES: name1=55+ name2=18-25
+ROLES: name1=60+ name2=18-25
 REVIEW: 15/15 pass (elders can be wrong; respect without deference)
 
 LCC-39

@@ -1,6 +1,6 @@
 LCG-01
 DESC: An old traveler and a researcher disagree about a coming storm: trust the traveler's signs, or the researcher's records.
-ROLES: name1=55+ name2=18+
+ROLES: name1=65+ name2=18+
 REVIEW: 15/15 pass (both kinds of knowledge valued; neither infallible)
 
 LCG-02
@@ -10,7 +10,7 @@ REVIEW: 15/15 pass (fairness debated; no shaming of the poor)
 
 LCG-03
 DESC: A traveler comes home singing the farewell song with new verses: keep the new verses, or sing it as it was.
-ROLES: name1=55+ name2=18+
+ROLES: name1=55+ name2=35+
 REVIEW: 15/15 pass (living tradition; both choices respectful)
 
 LCG-04
@@ -52,6 +52,7 @@ REVIEW: 15/15 pass (the young can be right; nobody humiliated)
 LCG-11
 DESC: A trader offers a fortune for a family's carved paddle: sell it, or explain that some things have no price.
 ROLES: name1=18+ name2=55+
+REL: name2=grandparent_of:name1
 FIX S: 2=1
 REVIEW: 15/15 pass (the family decides)
 

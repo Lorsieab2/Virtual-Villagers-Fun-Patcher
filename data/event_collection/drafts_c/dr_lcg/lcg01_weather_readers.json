@@ -64,7 +64,7 @@
  "roles": {
   "subject": {
    "kind": "villager",
-   "min_age": 55
+   "min_age": 65
   },
   "friend": {
    "kind": "villager",

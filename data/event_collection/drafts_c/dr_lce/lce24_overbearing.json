@@ -57,7 +57,10 @@
   },
   "friend": {
    "kind": "villager",
-   "min_age": 45
+   "min_age": 45,
+   "relation": {
+    "parent_of": "subject"
+   }
   }
  },
  "start": "setup",

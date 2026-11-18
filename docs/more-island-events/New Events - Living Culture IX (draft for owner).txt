@@ -316,7 +316,7 @@ Ask Them to Give It a Chance:
 LCI-23. The Elder Who Became a Student
 (picks an elder and a young adult)
 
-(name1) has fished for fifty years and has decided (he/she) wants to learn to carve. The best carving teacher in the village is (name2), who is twenty. (name1) is not sure how it will feel to be a beginner again, taught by someone (he/she) once carried on (his/her) shoulders. What should (name1) do?
+(name1) has fished for fifty years and has decided (he/she) wants to learn to carve. The best carving teacher in the village is (name2), who is young enough to be (his/her) grandchild. (name1) is not sure how it will feel to be a beginner again, taught by someone (he/she) once carried on (his/her) shoulders. What should (name1) do?
 
 Go Ahead:
 

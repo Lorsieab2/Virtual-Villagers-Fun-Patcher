@@ -67,7 +67,7 @@ REVIEW: 15/15 pass (magic ambiguous; patience)
 
 LCF-13
 DESC: Villagers argue about where lavastones come from: let each tell their story, or ask the elder for the true one.
-ROLES: name1=55+ name2=18+ name3=18+
+ROLES: name1=70+ name2=18+ name3=18+
 REVIEW: 15/15 pass (origin never settled; every view respected)
 
 LCF-14
@@ -143,7 +143,7 @@ REVIEW: 15/15 pass (never settled)
 
 LCF-27
 DESC: A researcher's new theory about the tides contradicts the old fishers: test the theory, or trust the old fishers.
-ROLES: name1=18+ name2=18+
+ROLES: name1=18+ name2=55+
 REVIEW: 15/15 pass (both kinds of knowledge partly right)
 
 LCF-28
@@ -211,7 +211,7 @@ REVIEW: 15/15 pass (outcomes uncertain)
 
 LCF-40
 DESC: An old lavastone master is ready to stop: pass on their stone, or let it rest with them.
-ROLES: name1=55+ name2=18+
+ROLES: name1=65+ name2=18+
 FIX S: 3=1
 REVIEW: 15/15 pass (the elder's choice)
 

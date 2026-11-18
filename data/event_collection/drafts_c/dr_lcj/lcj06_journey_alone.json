@@ -58,7 +58,10 @@
   },
   "friend": {
    "kind": "villager",
-   "min_age": 35
+   "min_age": 35,
+   "relation": {
+    "parent_of": "subject"
+   }
   }
  },
  "start": "setup",
@@ -66,7 +69,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(subject) wants to walk alone to (subject.his/her) cousins on the far side of the island: two days' walk, through the forest and over the ridge. (subject.He/she) is sixteen and knows the path. (friend), (subject.his/her) parent, is frightened. What should (friend) do?",
+   "text": "(subject) wants to walk alone to (subject.his/her) cousins on the far side of the island: two days' walk, through the forest and over the ridge. (subject.He/she) is nearly grown and knows the path. (friend), (subject.his/her) parent, is frightened. What should (friend) do?",
    "src": "L81",
    "choices": [
     {

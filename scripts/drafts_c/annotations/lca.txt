@@ -83,7 +83,6 @@ LCA-15
 DESC: A villager has not come back from gathering: search with a calling chant, or search in silence to listen better.
 ROLES: name1=18+ name2=18+
 FIX S: 1=2
-FIX O2: 2=2
 REVIEW: 15/15 pass (found safe in both endings, but the worry and the injury are real)
 
 LCA-16
@@ -218,6 +217,7 @@ REVIEW: 15/15 pass (real tradeoff; neither choice wrong)
 LCA-39
 DESC: A teen's voice cracks in the middle of a solo at the festival: keep singing, or let the choir take over.
 ROLES: name1=14-17 name2=18+
+FIX S: 3=1
 REVIEW: 15/15 pass (embarrassment yes, humiliation no)
 
 LCA-40

@@ -69,7 +69,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(subject)'s mother died in the spring, and this is the first harvest feast without her. (subject) wants to leave her place empty at the family's mat, with her favorite bowl. (friend), (subject.his/her) cousin, thinks an empty place will make everyone too sad to enjoy anything, and wants to invite a lonely neighbor to sit there instead. What should the family do?",
+   "text": "(subject)'s mother died in the spring, and this is the first harvest feast without her. (subject) wants to leave her place empty at the family's mat, with her favorite bowl. (friend), (subject.his/her) oldest friend, thinks an empty place will make everyone too sad to enjoy anything, and wants to invite a lonely neighbor to sit there instead. What should the family do?",
    "src": "L179",
    "choices": [
     {

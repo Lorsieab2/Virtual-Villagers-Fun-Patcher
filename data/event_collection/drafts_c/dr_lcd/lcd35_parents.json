@@ -66,7 +66,10 @@
   },
   "third": {
    "kind": "villager",
-   "min_age": 45
+   "min_age": 45,
+   "relation": {
+    "parent_of": "subject"
+   }
   }
  },
  "start": "setup",
@@ -74,7 +77,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(subject) is courting (friend), and (subject)'s parent, (third), does not approve. (third) says (friend) is lazy, which is not true, and too loud, which is a bit true. (subject) is twenty-six and does not need permission. But (subject.he/she) loves (third) and wants peace. What should (subject) do?",
+   "text": "(subject) is courting (friend), and (subject)'s parent, (third), does not approve. (third) says (friend) is lazy, which is not true, and too loud, which is a bit true. (subject) is a grown adult and does not need permission. But (subject.he/she) loves (third) and wants peace. What should (subject) do?",
    "src": "L487",
    "choices": [
     {

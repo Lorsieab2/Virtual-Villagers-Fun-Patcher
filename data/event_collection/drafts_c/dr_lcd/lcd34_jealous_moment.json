@@ -61,6 +61,9 @@
    "max_age_gap": {
     "role": "subject",
     "years": 15
+   },
+   "relation": {
+    "spouse_of": "subject"
    }
   }
  },

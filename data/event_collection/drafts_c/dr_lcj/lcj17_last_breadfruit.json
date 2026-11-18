@@ -70,7 +70,10 @@
  "roles": {
   "subject": {
    "kind": "villager",
-   "min_age": 18
+   "min_age": 18,
+   "relation": {
+    "parent_of": "friend"
+   }
   },
   "friend": {
    "kind": "villager",

@@ -101,7 +101,7 @@
   },
   "o2": {
    "name": "Outcome B",
-   "text": "The searchers move slowly and quietly, stopping every few steps to listen. It takes hours. Then (subject) hears it: a tired, hoarse voice, calling (subject.his/her) name. (friend) is sitting under a tree, lost, cold and very glad to see (friend.him/her). (subject) gives (friend.him/her) (subject.his/her) own cloak.",
+   "text": "The searchers move slowly and quietly, stopping every few steps to listen. It takes hours. Then (subject) hears it: a tired, hoarse voice, calling (subject.his/her) name. (friend) is sitting under a tree, lost, cold and very glad to see (subject.him/her). (subject) gives (friend.him/her) (subject.his/her) own cloak.",
    "src": "L219"
   }
  }

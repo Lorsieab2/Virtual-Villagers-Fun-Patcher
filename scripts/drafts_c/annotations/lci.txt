@@ -104,6 +104,7 @@ REVIEW: 15/15 pass (autonomy; rumor accountable)
 LCI-20
 DESC: A young woman wants to navigate but her family expects pottery: support her choice, or ask her to do both.
 ROLES: name1=18-25/f name2=45+
+REL: name2=parent_of:name1
 REVIEW: 15/15 pass (autonomy; family not villainized)
 
 LCI-21
@@ -118,7 +119,8 @@ REVIEW: 15/15 pass (autonomy upheld)
 
 LCI-23
 DESC: An elder wants to start a new craft and take lessons from someone much younger: go ahead, or keep their dignity.
-ROLES: name1=55+ name2=18-25
+ROLES: name1=60+ name2=18-25
+FIX S: 2=1
 FIX O1: 1=1 2=1
 REVIEW: 15/15 pass (aging with growth)
 
@@ -152,6 +154,7 @@ REVIEW: 15/15 pass (voluntary; privacy respected)
 LCI-29
 DESC: A family does everything for an old relative who wants to do things themselves: step back, or keep helping.
 ROLES: name1=55+ name2=18+
+REL: name2=grandchild_of:name1
 FIX S: 6=1 7=1
 FIX O2: 4=1 5=1
 REVIEW: 15/15 pass (help without removing choice)

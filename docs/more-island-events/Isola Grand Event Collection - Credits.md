@@ -609,7 +609,7 @@ Written in the style of the owner's own events. The owner waived the review ("I'
 
 NEW EVENTS: LIVING CULTURE II
 
-Source: New Events - Living Culture II (draft for owner).txt (SHA-256 D5B4A53DE945E70F4E21C3C7F3E5A2AB296EB0C5667B137C6BEE47FD9DADDEC0). The texts below are copied from it verbatim.
+Source: New Events - Living Culture II (draft for owner).txt (SHA-256 3899798D8524D15D3B2EF2B75ADEABCA28DBA24206F141FF1769D0C10F4EE67E). The texts below are copied from it verbatim.
 
 NEW EVENTS: LIVING CULTURE II CREDIT: Living Culture II (its title and introduction) (source lines 1-3)
 
@@ -629,7 +629,7 @@ Written in the style of the owner's own events. The owner waived the review ("I'
 
 NEW EVENTS: LIVING CULTURE IV
 
-Source: New Events - Living Culture IV (draft for owner).txt (SHA-256 8E40BB3A3836B862B27579F3E04BDCE6D13E4F803DF286BB4C7ED61B15DD21BE). The texts below are copied from it verbatim.
+Source: New Events - Living Culture IV (draft for owner).txt (SHA-256 A5866DA1D8B4A04793E15D1FC234560D5DC426C7F4227A8DACAEE734A592D2C0). The texts below are copied from it verbatim.
 
 NEW EVENTS: LIVING CULTURE IV CREDIT: Living Culture IV (its title and introduction) (source lines 1-3)
 
@@ -639,7 +639,7 @@ Written in the style of the owner's own events. The owner waived the review ("I'
 
 NEW EVENTS: LIVING CULTURE V
 
-Source: New Events - Living Culture V (draft for owner).txt (SHA-256 4BAB30DCF9D440E8A9F58B281C69793B1C605763AB51626054BD0962E925191B). The texts below are copied from it verbatim.
+Source: New Events - Living Culture V (draft for owner).txt (SHA-256 2230A61D917B335E36F9620FDFE8B2CAA8E17590C14906940B78FEDEB8F15693). The texts below are copied from it verbatim.
 
 NEW EVENTS: LIVING CULTURE V CREDIT: Living Culture V (its title and introduction) (source lines 1-3)
 
@@ -679,7 +679,7 @@ Written in the style of the owner's own events. The owner waived the review ("I'
 
 NEW EVENTS: LIVING CULTURE IX
 
-Source: New Events - Living Culture IX (draft for owner).txt (SHA-256 8C366FCE65AE507BC71BD3830801DB144E84E0BD840894CCE4C47C2CE1BD6221). The texts below are copied from it verbatim.
+Source: New Events - Living Culture IX (draft for owner).txt (SHA-256 17B089DC5E1798E94F4E44AC4E412D77B7EE461CFB1D9135D63D27FF0CE04091). The texts below are copied from it verbatim.
 
 NEW EVENTS: LIVING CULTURE IX CREDIT: Living Culture IX (its title and introduction) (source lines 1-3)
 
@@ -689,7 +689,7 @@ Written in the style of the owner's own events. The owner waived the review ("I'
 
 NEW EVENTS: LIVING CULTURE X
 
-Source: New Events - Living Culture X (draft for owner).txt (SHA-256 CEC427E969FC64C140A3C0BF8026F26637C488841465BFBE76556AD134094C2C). The texts below are copied from it verbatim.
+Source: New Events - Living Culture X (draft for owner).txt (SHA-256 EE59AC36684033F1CA35A03D3E3A096CE2CD9FB9497CAD28DC939B46F87BD878). The texts below are copied from it verbatim.
 
 NEW EVENTS: LIVING CULTURE X CREDIT: Living Culture X (its title and introduction) (source lines 1-3)
 

@@ -59,7 +59,7 @@
   },
   "friend": {
    "kind": "villager",
-   "min_age": 18
+   "min_age": 55
   }
  },
  "start": "setup",

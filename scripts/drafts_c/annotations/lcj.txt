@@ -27,12 +27,13 @@ REVIEW: 15/15 pass (children heard)
 LCJ-06
 DESC: A teen wants to walk alone to the far side of the island for the first time: let them go, or send someone to follow at a distance.
 ROLES: name1=15-17 name2=35+
+REL: name2=parent_of:name1
 FIX S: 3=1
 REVIEW: 15/15 pass (teen autonomy; parental worry respected)
 
 LCJ-07
 DESC: The village debates whether adulthood comes with age, a test, or personal choice: keep the age, or let each person show it.
-ROLES: name1=55+ name2=14-17
+ROLES: name1=55+ name2=16-16
 REVIEW: 15/15 pass (traditions can change)
 
 LCJ-08
@@ -86,6 +87,7 @@ REVIEW: 15/15 pass (fairness debated)
 LCJ-17
 DESC: A family has one breadfruit left and a hungry neighbor: eat it, save the seeds, or share it.
 ROLES: name1=18+ name2=6-13
+REL: name1=parent_of:name2
 REVIEW: 15/15 pass (no choice shamed)
 
 LCJ-18
@@ -166,6 +168,7 @@ REVIEW: 15/15 pass (artistic freedom)
 LCJ-33
 DESC: A villager wears clothes that feel true to who they are, and a grandparent objects: support them, or ask for a compromise.
 ROLES: name1=18+ name2=55+
+REL: name2=grandparent_of:name1
 FIX S: 3=1
 FIX O1: 2=2
 REVIEW: 15/15 pass (autonomy over self-expression; the relative not villainized)

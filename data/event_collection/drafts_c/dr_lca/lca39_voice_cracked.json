@@ -71,7 +71,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(subject) has been practicing (subject.his/her) solo for the moon festival for weeks. Tonight, right in front of the whole village, on the highest note, (subject.his/her) voice cracks like a branch. There is a terrible silence. (friend), who leads the choir, catches (friend.his/her) eye. What should (subject) do?",
+   "text": "(subject) has been practicing (subject.his/her) solo for the moon festival for weeks. Tonight, right in front of the whole village, on the highest note, (subject.his/her) voice cracks like a branch. There is a terrible silence. (friend), who leads the choir, catches (subject.his/her) eye. What should (subject) do?",
    "src": "L547",
    "choices": [
     {

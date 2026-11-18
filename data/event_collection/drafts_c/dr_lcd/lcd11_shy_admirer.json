@@ -57,7 +57,10 @@
   },
   "friend": {
    "kind": "villager",
-   "min_age": 55
+   "min_age": 75,
+   "relation": {
+    "grandparent_of": "subject"
+   }
   },
   "other": {
    "kind": "stranger",

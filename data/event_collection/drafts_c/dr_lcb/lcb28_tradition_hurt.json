@@ -65,7 +65,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "By old custom, only someone born on Isola may light the festival fire. (subject) came to Isola as a baby, has lived here for thirty years, and was told again this year that (subject.he/she) may not light it. (subject.He/she) has asked the village to change the custom. (friend), who lit the fire last year, thinks the custom is about honoring the island, not about excluding anyone. What should the village do?",
+   "text": "By old custom, only someone born on Isola may light the festival fire. (subject) came to Isola as a baby, has lived here ever since, and was told again this year that (subject.he/she) may not light it. (subject.He/she) has asked the village to change the custom. (friend), who lit the fire last year, thinks the custom is about honoring the island, not about excluding anyone. What should the village do?",
    "src": "L389",
    "choices": [
     {

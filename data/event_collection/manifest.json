@@ -627,7 +627,7 @@
  },
  "draft_lcb": {
   "source": "docs/more-island-events/New Events - Living Culture II (draft for owner).txt",
-  "source_sha256": "d5b4a53de945e70f4e21c3c7f3e5a2ab296eb0c5667b137c6bee47fd9daddec0",
+  "source_sha256": "3899798d8524d15d3b2ef2b75adeabca28dba24206f141ff1769d0c10f4ee67e",
   "counts": {
    "rows": 52,
    "events": 50,
@@ -661,7 +661,7 @@
  },
  "draft_lcd": {
   "source": "docs/more-island-events/New Events - Living Culture IV (draft for owner).txt",
-  "source_sha256": "8e40bb3a3836b862b27579f3e04bdce6d13e4f803df286bb4c7ed61b15dd21be",
+  "source_sha256": "a5866da1d8b4a04793e15d1fc234560d5dc426c7f4227a8dacaee734a592d2c0",
   "counts": {
    "rows": 52,
    "events": 50,
@@ -678,7 +678,7 @@
  },
  "draft_lce": {
   "source": "docs/more-island-events/New Events - Living Culture V (draft for owner).txt",
-  "source_sha256": "4bab30dcf9d440e8a9f58b281c69793b1c605763ab51626054bd0962e925191b",
+  "source_sha256": "2230a61d917b335e36f9620fdfe8b2caa8e17590c14906940b78fedeb8f15693",
   "counts": {
    "rows": 52,
    "events": 50,
@@ -746,7 +746,7 @@
  },
  "draft_lci": {
   "source": "docs/more-island-events/New Events - Living Culture IX (draft for owner).txt",
-  "source_sha256": "8c366fce65ae507bc71bd3830801db144e84e0bd840894cce4c47c2ce1bd6221",
+  "source_sha256": "17b089dc5e1798e94f4e44ac4e412d77b7ee461cfb1d9135d63d27ff0ce04091",
   "counts": {
    "rows": 52,
    "events": 50,
@@ -763,7 +763,7 @@
  },
  "draft_lcj": {
   "source": "docs/more-island-events/New Events - Living Culture X (draft for owner).txt",
-  "source_sha256": "cec427e969fc64c140a3c0bf8026f26637c488841465bfbe76556ad134094c2c",
+  "source_sha256": "ee59ac36684033f1ca35a03d3e3a096ce2cd9fb9497cad28dc939b46f87bd878",
   "counts": {
    "rows": 52,
    "events": 50,

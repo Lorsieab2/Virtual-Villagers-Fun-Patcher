@@ -78,7 +78,7 @@ Treat It as a Game:
 LCJ-06. The First Journey Alone
 (picks a teen and a parent)
 
-(name1) wants to walk alone to (his/her) cousins on the far side of the island: two days' walk, through the forest and over the ridge. (He/she) is sixteen and knows the path. (name2), (his/her) parent, is frightened. What should (name2) do?
+(name1) wants to walk alone to (his/her) cousins on the far side of the island: two days' walk, through the forest and over the ridge. (He/she) is nearly grown and knows the path. (name2), (his/her) parent, is frightened. What should (name2) do?
 
 Let (name1) Go:
 

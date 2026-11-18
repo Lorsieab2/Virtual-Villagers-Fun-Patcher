@@ -94,7 +94,7 @@
   },
   "o1": {
    "name": "Outcome A",
-   "text": "The village gathers at dusk and burns the old canoe on the sand, singing. (subject) throws in his friend's old fishing hook. The sparks go up and up. In the morning, (friend) finds the hook in the ashes, black but whole, and gives it back to (subject).",
+   "text": "The village gathers at dusk and burns the old canoe on the sand, singing. (subject) throws in (subject.his/her) friend's old fishing hook. The sparks go up and up. In the morning, (friend) finds the hook in the ashes, black but whole, and gives it back to (subject).",
    "src": "L645"
   },
   "o2": {

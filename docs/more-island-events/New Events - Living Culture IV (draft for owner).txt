@@ -484,7 +484,7 @@ Keep It Quiet:
 LCD-35. The Parents Who Disapprove
 (picks two adults and an elder)
 
-(name1) is courting (name2), and (name1)'s parent, (name3), does not approve. (name3) says (name2) is lazy, which is not true, and too loud, which is a bit true. (name1) is twenty-six and does not need permission. But (he/she) loves (name3) and wants peace. What should (name1) do?
+(name1) is courting (name2), and (name1)'s parent, (name3), does not approve. (name3) says (name2) is lazy, which is not true, and too loud, which is a bit true. (name1) is a grown adult and does not need permission. But (he/she) loves (name3) and wants peace. What should (name1) do?
 
 Keep Courting Openly:
 

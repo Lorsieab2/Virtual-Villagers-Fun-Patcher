@@ -62,7 +62,10 @@
   },
   "friend": {
    "kind": "villager",
-   "min_age": 18
+   "min_age": 18,
+   "relation": {
+    "grandchild_of": "subject"
+   }
   }
  },
  "start": "setup",

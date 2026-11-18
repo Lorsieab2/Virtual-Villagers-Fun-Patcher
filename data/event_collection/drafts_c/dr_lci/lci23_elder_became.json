@@ -64,7 +64,7 @@
  "roles": {
   "subject": {
    "kind": "villager",
-   "min_age": 55
+   "min_age": 60
   },
   "friend": {
    "kind": "villager",
@@ -77,7 +77,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(subject) has fished for fifty years and has decided (subject.he/she) wants to learn to carve. The best carving teacher in the village is (friend), who is twenty. (subject) is not sure how it will feel to be a beginner again, taught by someone (subject.he/she) once carried on (subject.his/her) shoulders. What should (subject) do?",
+   "text": "(subject) has fished for fifty years and has decided (subject.he/she) wants to learn to carve. The best carving teacher in the village is (friend), who is young enough to be (subject.his/her) grandchild. (subject) is not sure how it will feel to be a beginner again, taught by someone (subject.he/she) once carried on (subject.his/her) shoulders. What should (subject) do?",
    "src": "L319",
    "choices": [
     {

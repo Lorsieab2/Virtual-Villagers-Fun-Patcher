@@ -65,7 +65,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(friend) has spent months talking with an old friend's family on the far side of the island, and has come home delighted: (friend.he/she) has arranged a match for (subject), with the friend's eldest. (subject) is twenty-four, has never met this person, and had no idea any of this was happening. What should (subject) do?",
+   "text": "(friend) has spent months talking with an old friend's family on the far side of the island, and has come home delighted: (friend.he/she) has arranged a match for (subject), with the friend's eldest. (subject) is a grown adult, has never met this person, and had no idea any of this was happening. What should (subject) do?",
    "src": "L11",
    "choices": [
     {
