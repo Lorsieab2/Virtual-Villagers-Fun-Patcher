@@ -166,8 +166,8 @@
 #define SACK_EV_CREDIT 0x77
 /* The awning: the left part of the hut picture, relative to the hut's place (the hut is drawn there, its
    finished frame 200 x 200; the awning's posts stand at about +5 and +45, the bolts of cloth from +45). */
-#define SACK_BOX_LEFT (-10)
-#define SACK_BOX_RIGHT 55
+#define SACK_BOX_LEFT (-26)                /* the owner (2026-11-18): "a bit wider": 16 more on each side */
+#define SACK_BOX_RIGHT 71
 #define SACK_BOX_TOP 40
 #define SACK_BOX_BOTTOM 135
 /* carrying.png's cells are 40 x 40, drawn at 1:1 with their top-left at the carried item's place; the fruit and
