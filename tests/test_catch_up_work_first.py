@@ -793,6 +793,21 @@ class NewBelieversUntrained(unittest.TestCase):
         m = decide(world("vv5", selected=g["parenting"], pick=g["building"], task=1))
         self.assertEqual(m.marks, [1])
 
+    def test_heathens_get_nothing_new(self):
+        # A Heathen (u8 record+0x1CEC) never gets job work in the game: no own job first, no lifted mark.
+        g = G["vv5"]
+        for task in (0, 1):
+            with self.subTest(task=task):
+                m = world("vv5", selected=g["healing"], pick=g["building"], task=task)
+                m.w8(RECORD + 0x1CEC, 1)
+                decide(m)
+                self.assertEqual(m.asked, [(g["pick_ret"], g["building"])])
+                self.assertEqual(m.marks, [task])
+                m = world("vv5", selected=g["healing"], pick=g["healing"], task=1)
+                m.w8(RECORD + 0x1CEC, 1)
+                decide(m)
+                self.assertEqual(m.marks, [1])
+
     def test_a_trained_villager_is_unchanged(self):
         g = G["vv5"]
         m = decide(world("vv5", selected=g["healing"], pick=g["healing"], task=0))

@@ -356,7 +356,7 @@ WORK_FIRST_EXTRA = {
     "vv5": (" Beginners practise too: the game never sent a villager to their selected job while that skill was 5 "
             "or less; now they go on the game's own terms (skill + 40 times in 100). A new villager is no longer "
             "held back by the game's \"untrained\" mark for their selected job (only that job: mating and every "
-            "other job still wait for training, as in the game). In catch-up a farmer may also harvest noni "
+            "other job still wait for training, as in the game). Heathens get nothing new. In catch-up a farmer may also harvest noni "
             "before the Hungry Totem is dismantled, as a farmer you dropped there already does."),
 }
 WORK_FIRST_CATCH_UP_FARMING = (
@@ -443,6 +443,7 @@ def work_first_row(game: str, sha: str) -> dict:
     if game == "vv5":
         behavior.append("Devotion (job 5) is put first like Healing: in catch-up always; while you play only when Easier Devotee Training's bytes are not at 0x46F1DD (stock 83B9FC1C00000D7554), so the two never double up. The dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing.")
         behavior.append("Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x46C565). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).")
+        behavior.append("Heathens (u8 record+0x1CEC non-zero) get nothing new: the dispatcher hook, the untrained mark, the beginners' gate and the noni offer all leave them to the stock game.")
     if game in ("vv3", "vv4", "vv5"):
         behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
     non_changes_catch_up = (

@@ -399,6 +399,9 @@ static const unsigned int VV3_CALLS[] = { 0x45C23Cu, 0x45C27Au, 0x45C28Fu, 0x45B
 static const unsigned int VV4_CALLS[] = { 0x4659D2u, 0x465A17u, 0x465A2Au, 0x46582Cu };
 static const unsigned int VV5_CALLS[] = { 0x46F291u, 0x46F2D6u, 0x46F2EAu, 0x46E9CEu };
 #define VV5_CATCH_UP_CALL 0x46E9CEu
+/* New Believers: a Heathen (u8 record+0x1CEC non-zero) never gets job work in the game, and nothing here
+   gives them any -- not their selected job, not the untrained mark, not the beginners' gate, not noni. */
+#define VV5_HEATHEN 0x1CECu
 
 /* Easier Devotee Training replaces New Believers' scheduler test at 0x46F1DD;
    while it is there the live scheduler leaves devotees to it. */
@@ -611,6 +614,7 @@ static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) 
     if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
     catch_up = ret == VV5_CATCH_UP_CALL;
     record = *(unsigned char *const *)(object + 0x1B88u);
+    if (record[VV5_HEATHEN] != 0) return -1;                /* Heathens get nothing new */
     own = builder_asked(&VV5_JOBS, *(const int *)(record + 0x1C74u), job);
     if (own == -2) {
         own = own_first(&VV5_JOBS, *(const int *)(record + 0x1C74u), job, 1,
@@ -716,7 +720,7 @@ static int __cdecl vv4_beginner(int job, const unsigned char *object) {
 static int __cdecl vv5_beginner(int job, const unsigned char *object) {
     const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
     return job >= 0 && job != VV5_JOBS.parenting && job == *(const int *)(record + 0x1C74u)
-        && decision_roll();
+        && record[VV5_HEATHEN] == 0 && decision_roll();
 }
 static const unsigned int vv4_gate_go = 0x461E6Eu, vv4_gate_fail = 0x461EB4u;
 static const unsigned int vv5_gate_go = 0x46A599u, vv5_gate_fail = 0x46A5DFu;
@@ -752,7 +756,7 @@ static int __cdecl vv4_farmer_offer(const unsigned char *object) {
 }
 static int __cdecl vv5_farmer_offer(const unsigned char *object) {
     const unsigned char *record = *(const unsigned char *const *)(object + 0x1B88u);
-    return *(const int *)(record + 0x1C74u) == VV5_JOBS.farming && decision_roll();
+    return *(const int *)(record + 0x1C74u) == VV5_JOBS.farming && record[VV5_HEATHEN] == 0 && decision_roll();
 }
 static const unsigned int vv4_offer_yes = 0x463A38u, vv4_offer_no = 0x463A43u;
 static const unsigned int vv5_offer_yes = 0x46C5D2u, vv5_offer_no = 0x46C5D8u;
