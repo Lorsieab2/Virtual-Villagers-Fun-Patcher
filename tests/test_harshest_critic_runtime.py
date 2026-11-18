@@ -58,6 +58,29 @@ class HarshestCriticRuns(unittest.TestCase):
                             self.assertLessEqual(len(text.encode("cp1252", "replace")), 2000)
                             for t in [text] + list(labels or []):
                                 self.assertIsNone(LEFTOVER.search(t), t)
+                        # the popups keep the event's own title (the lists number the six files)
+                        self.assertNotIn("of 6)", " ".join(t for _k, t, _l in shown))
+
+
+@emulated
+class HarshestCriticListed(unittest.TestCase):
+    """The owner (2026-11-18): Pick Island Event lists the six files as "The Harshest Critic (1 of 6)" ... "(6 of 6)"
+    (manifest.txt's title), in every game."""
+
+    def test_pick_island_event_numbers_the_six_files(self):
+        from test_pick_collection_list import GAMES, Picker, manifest_rows
+        if not GAMES:
+            self.skipTest("needs the stock executables and the Story TEST build")
+        for game in GAMES:
+            picker = Picker(game, 4)
+            rows = [r for r in manifest_rows(picker.n) if r[0] in FILES]
+            self.assertEqual(sorted(r[0] for r in rows), sorted(FILES))
+            for row in rows:
+                with self.subTest(game=game, event=row[0]):
+                    k = FILES.index(row[0]) + 1
+                    self.assertEqual(row[1], f"The Harshest Critic ({k} of 6)")
+                    cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+                    self.assertEqual(picker.entry(row, cieg)[1], f"The Harshest Critic ({k} of 6)")
 
 
 if __name__ == "__main__":

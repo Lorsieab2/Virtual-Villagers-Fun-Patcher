@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/vv4/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "C5401C25735E1C1D4843867FC6F1E3E7F09BA74B2CBAC01A99EBF3D7004E7AFF"
+      "sha256": "34955FA150799FADD6532D01031F1C3B7D71A8784AB2320F0883A77E1FA6B580"
     },
     {
       "source": "assets/event_collection/Credits.txt",
@@ -7894,32 +7894,32 @@
     {
       "source": "assets/event_collection/hc1_routes.cieg",
       "destination": "Island Event Collection/hc1_routes.cieg",
-      "sha256": "7974B1B2250BB020B572771312C81D20088B493FB5EBA39CEE9C95373DC8656F"
+      "sha256": "DF19FE1AB849EC14912AE1F890CCF3CAB99E7A099B19117C693706125C6ABB09"
     },
     {
       "source": "assets/event_collection/hc2_pleas.cieg",
       "destination": "Island Event Collection/hc2_pleas.cieg",
-      "sha256": "2DC9A7A66126B84D439FE577049E746444B53BD0713D28B04E176BC941E10E06"
+      "sha256": "DC29A5ADAEC061F77356AC23033F5F58966679EEC935D96498C7EB6E3B527629"
     },
     {
       "source": "assets/event_collection/hc3_disasters.cieg",
       "destination": "Island Event Collection/hc3_disasters.cieg",
-      "sha256": "2937E322F8B969089CBCF7B19391D660423D6E77034B7C7F15FD2A8E0A6A39AB"
+      "sha256": "7AE81481B479C785B3A554EECE8414FA1B1EB78142C671D542FF156EC54C75F8"
     },
     {
       "source": "assets/event_collection/hc4_noises.cieg",
       "destination": "Island Event Collection/hc4_noises.cieg",
-      "sha256": "3C5E6C5E779404F455FBA2649E2B02FB4B1A5917CACB6C26686A8CB8BCCD6D3F"
+      "sha256": "E4464FC72D439A9F5582AA25F54F7B0A0C047E6D11288DADBF125018DFD2BEAC"
     },
     {
       "source": "assets/event_collection/hc5_victories.cieg",
       "destination": "Island Event Collection/hc5_victories.cieg",
-      "sha256": "36F459682A82C68A906090A4D8CFB146B4DBA6434A274706E270598B6FCA6917"
+      "sha256": "044F3F3DD6CF245964F06772A39975FE4519BE3CE9EC8FD503673C46B544B6CE"
     },
     {
       "source": "assets/event_collection/hc6_sabotage.cieg",
       "destination": "Island Event Collection/hc6_sabotage.cieg",
-      "sha256": "9374556D9BBC2B6DB70B5425ACE6BAB3D4D9D6CBE79A1BCE17650EB7B8D80A29"
+      "sha256": "69494489936F78D67831D6D04F6FA5D7F41F8D963B4A79E1A8B4C656F665F427"
     },
     {
       "source": "assets/event_collection/hea01_count_four_count.cieg",

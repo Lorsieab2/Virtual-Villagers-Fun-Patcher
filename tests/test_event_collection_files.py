@@ -393,6 +393,9 @@ class FrozenCritic(unittest.TestCase):
             doc = json.loads(p.read_text(encoding="utf-8"))
             self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
             self.assertEqual(doc["title"], "(Name1)'s Harshest Critic")
+            # the lists' title (the owner, 2026-11-18); the popups keep the event's own
+            k = sorted(q.stem for q in files).index(p.stem) + 1
+            self.assertEqual(doc["collection"]["list_title"], f"The Harshest Critic ({k} of 6)")
             self.assertEqual(doc["collection"]["credit"], "Created by Lorsieab2, Claude and ChatGPT.")
             self.assertIn("hc_setup", doc["collection"]["addons"])
             self.assertIn("hc_variant2", doc["collection"]["addons"])

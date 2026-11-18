@@ -584,6 +584,13 @@ pronoun's owner; `OWNERS` fixes the ones the nearest name gets wrong).
   are left out in Variant 2 (the owner: "avoid having the mentor mock (name1) as a person"); a proposal or a marriage
   (K Devotion, Q) only when (name1) is 18 or older; "a (A)" and "(A)s" lines only on copies 1 and 2.
 - The credit is the owner's own line (2026-11-17), frozen as its own one-line file (`critic_credit`).
+- Lists (Pick Island Event, the library, Game Mechanics: manifest.txt's title) show the six files as "The Harshest
+  Critic (1 of 6)" ... "(6 of 6)" (`collection.list_title`, the owner 2026-11-18); the popups and the log keep the
+  event's own title, "(Name1)'s Harshest Critic".
+- Owner-approved (2026-11-18): the Variant 2 filter (the five person-insults only in Variant 1); kept exactly as
+  written: D's humiliating threats (the face posted, the "I tried" sign, the children's song), "Is this a basket or a
+  cry for help?", "Twenty children went to nap. Nineteen came back.", the deodorant and the whoopee cushion.
+- Grammar (the owner, 2026-11-18: "fix grammar mistakes"): the `critic` rows of grammar-fixes.md, grammar only.
 
 ## 15a. The Pick Island Event sentence
 

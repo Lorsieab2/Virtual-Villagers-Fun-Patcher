@@ -62,8 +62,26 @@ SENTENCE_SLOTS = {"(SA)": [2063, 2068, 2071, 2074, 2077, 2080, 2083, 2086, 2089,
                   "(SP)": [2203, 2206, 2209, 2212, 2215, 2218]}
 for _slot, _lines in SENTENCE_SLOTS.items():
     GRAMMAR += [{"src": f"L{n}", "before": _slot, "after": _slot + "."} for n in _lines]
-FILE_GRAMMAR = {"hc1_routes": ["L762"], "hc6_sabotage": sorted({f"L{n}" for v in SENTENCE_SLOTS.values() for n in v},
-                                                               key=lambda s: int(s[1:]))}
+# The owner (2026-11-18): "fix grammar mistakes" -- grammar only, the owner's words and jokes kept.
+GRAMMAR += [
+    {"src": "L154", "before": "(a legendary figure / creature / myth)",
+     "after": "(a legendary figure / a legendary creature / a legendary myth)"},
+    {"src": "L157", "before": "(an important person / their relative)'s wedding",
+     "after": "(an important person / (his/her) relative)'s wedding"},
+    {"src": "L365", "before": "that the (chief / mentor / gods) weep,",
+     "after": "that (the chief weeps / the mentor weeps / the gods weep),"},
+    {"src": "L397", "before": "(his/her) parent", "after": "their parent"},
+    {"src": "L590", "before": "always wanted", "after": "has always wanted"},
+    {"src": "L591", "before": "always wanted", "after": "has always wanted"},
+    {"src": "L592", "before": "always wanted", "after": "has always wanted"},
+    {"src": "L715", "before": "The (crowd / audience / panel / whole village / council / judges) holds its breath.",
+     "after": "(The crowd holds its breath. / The audience holds its breath. / The panel holds its breath. / "
+              "The whole village holds its breath. / The council holds its breath. / The judges hold their breath.)"},
+    {"src": "L809", "before": "the privilege (C)", "after": "the privilege of (C)"},
+    {"src": "L2036", "before": "a rival apprentice ((name2))", "after": "a rival apprentice, (name2),"},
+    {"src": "L1014", "before": "not a (sigil / sacred symbol / holy passage / prayer / ancestral mark)",
+     "after": "not (a sigil / a sacred symbol / a holy passage / a prayer / an ancestral mark)"},
+]
 
 
 def sentence_start(items: list[dict]) -> list[dict]:
@@ -834,7 +852,7 @@ def routes_sabotage(b: Builder) -> list:
     # R106: (S) and (SC) must name the same saboteur, so one page set per saboteur (never (name1) or the prankster,
     # who have no reason line here or cannot be caught by (name1))
     kids = []
-    for suf, s_item, sc, need in (("m", "(mentor)", "SCM", None), ("r", "a rival apprentice (rival)", "SCR", "rival"),
+    for suf, s_item, sc, need in (("m", "(mentor)", "SCM", None), ("r", "a rival apprentice, (rival),", "SCR", "rival"),
                                   ("o", "one of the officials or judges", "SCO", None)):
         b.pool(f"S{suf.upper()}", [item(s_item, "L2036")])
         sl = dict(SLOTS, S=f"S{suf.upper()}", SC=sc)
@@ -988,8 +1006,11 @@ def build_file(fid: str, rows: dict, review: bool) -> tuple[dict, Builder]:
         "format": "vvfp-cie-graph", "version": 6, "title": "(Name1)'s Harshest Critic", "games": games,
         "collection": {"id": fid, "source": SRC, "lines": row["lines"], "section": "hc", "credit": "",
                        "draw_weight": 1, "series": "hc_critic", "title_src": "L1", "ledger": ledger,
-                       "addons": addons, "description": desc, "label_case": "title"},
-        "grammar_fixes": [dict(f) for f in GRAMMAR if f["src"] in FILE_GRAMMAR.get(fid, [])],
+                       "addons": addons, "description": desc, "label_case": "title",
+                       # the owner (2026-11-18): lists show the six files as "The Harshest Critic (1 of 6)" ...; the
+                       # popups keep the event's own title, "(Name1)'s Harshest Critic"
+                       "list_title": f"The Harshest Critic ({list(FILES).index(fid) + 1} of {len(FILES)})"},
+        "grammar_fixes": [dict(f) for f in GRAMMAR if lib.src_lines(f["src"])[0] in own],
         "words": WORDS,
         "requirement": {"min_eligible": 2},
         "roles": roles,

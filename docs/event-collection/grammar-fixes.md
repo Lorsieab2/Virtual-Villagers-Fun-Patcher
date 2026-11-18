@@ -418,3 +418,14 @@ reads it after a lead-in. Rows start with `critic`.
 | critic L2212 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
 | critic L2215 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
 | critic L2218 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L154 | `(a legendary figure / creature / myth)` | `(a legendary figure / a legendary creature / a legendary myth)` | every file (setup) | each alternative stands alone after "sculpt a statue of": "a statue of creature" lacked its article |
+| critic L157 | `(an important person / their relative)'s wedding` | `(an important person / (his/her) relative)'s wedding` | every file (setup) | "their" named nobody: the relative is the student's own (pronoun slot) |
+| critic L365 | `that the (chief / mentor / gods) weep,` | `that (the chief weeps / the mentor weeps / the gods weep),` | every file (setup) | subject-verb agreement: "the village leader weep" / "the mentor weep" |
+| critic L397 | `(his/her) parent` | `their parent` | every file (setup) | "(his/her)" pointed at the student, not the teenager the line is about |
+| critic L590 | `always wanted` | `has always wanted` | every file (setup) | tense with "since": "has always wanted" |
+| critic L591 | `always wanted` | `has always wanted` | every file (setup) | tense with "since": "has always wanted" |
+| critic L592 | `always wanted` | `has always wanted` | every file (setup) | tense with "since": "has always wanted" |
+| critic L715 | `The (crowd / audience / panel / whole village / council / judges) holds its breath.` | `(The crowd holds its breath. / The audience holds its breath. / The panel holds its breath. / The whole village holds its breath. / The council holds its breath. / The judges hold their breath.)` | every file (setup) | subject-verb agreement: "The judges holds its breath" (the owner's own example) |
+| critic L809 | `the privilege (C)` | `the privilege of (C)` | hc1_routes | a missing word: "the privilege of (C)" (C is an -ing phrase) |
+| critic L2036 | `a rival apprentice ((name2))` | `a rival apprentice, (name2),` | hc6_sabotage | the saboteur's name as an appositive: "catches a rival apprentice, Kai, in the act" |
+| critic L1014 | `not a (sigil / sacred symbol / holy passage / prayer / ancestral mark)` | `not (a sigil / a sacred symbol / a holy passage / a prayer / an ancestral mark)` | hc1_routes | a/an before a slot: "not a ancestral mark" |

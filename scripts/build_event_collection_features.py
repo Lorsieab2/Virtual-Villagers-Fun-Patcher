@@ -294,6 +294,9 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "graph": g,
             "description": one_line(meta.get("description", "")),
             "description_variants": meta.get("description_variants") or [],
+            # the title the lists show (manifest.txt: Pick Island Event, the library, Game Mechanics) when it differs
+            # from the event's own popup title: one series' files told apart ("The Harshest Critic (1 of 6)")
+            "list_title": one_line(meta.get("list_title", "")),
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
             "cieg": cie.compile_graph(g),
@@ -313,11 +316,11 @@ def description_with(e: dict, patches: tuple[str, ...]) -> str:
 
 
 def manifest_line(game: int, e: dict) -> str:
-    title = one_line(cie.event_title(e["graph"], game))
+    title = e.get("list_title") or one_line(cie.event_title(e["graph"], game))
     description = e["description"]
     extra = ["", ""]
     if game == 5:
-        alt_title = one_line(cie.event_title(e["graph"], game, (GUARDIANS,)))
+        alt_title = e.get("list_title") or one_line(cie.event_title(e["graph"], game, (GUARDIANS,)))
         alt_description = description_with(e, (GUARDIANS,))
         extra = [alt_title if alt_title != title else "", alt_description if alt_description != description else ""]
     return "\t".join([e["id"], title, ",".join(str(n) for n in e["games"]), str(e["weight"]), e["series"],

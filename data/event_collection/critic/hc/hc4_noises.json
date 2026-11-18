@@ -567,8 +567,51 @@
    "hc_comic_pools"
   ],
   "description": "An apprentice's examination for a strict mentor is undone by a bang, a smell or a badly timed noise.",
-  "label_case": "title"
+  "label_case": "title",
+  "list_title": "The Harshest Critic (4 of 6)"
  },
+ "grammar_fixes": [
+  {
+   "src": "L154",
+   "before": "(a legendary figure / creature / myth)",
+   "after": "(a legendary figure / a legendary creature / a legendary myth)"
+  },
+  {
+   "src": "L157",
+   "before": "(an important person / their relative)'s wedding",
+   "after": "(an important person / (his/her) relative)'s wedding"
+  },
+  {
+   "src": "L365",
+   "before": "that the (chief / mentor / gods) weep,",
+   "after": "that (the chief weeps / the mentor weeps / the gods weep),"
+  },
+  {
+   "src": "L397",
+   "before": "(his/her) parent",
+   "after": "their parent"
+  },
+  {
+   "src": "L590",
+   "before": "always wanted",
+   "after": "has always wanted"
+  },
+  {
+   "src": "L591",
+   "before": "always wanted",
+   "after": "has always wanted"
+  },
+  {
+   "src": "L592",
+   "before": "always wanted",
+   "after": "has always wanted"
+  },
+  {
+   "src": "L715",
+   "before": "The (crowd / audience / panel / whole village / council / judges) holds its breath.",
+   "after": "(The crowd holds its breath. / The audience holds its breath. / The panel holds its breath. / The whole village holds its breath. / The council holds its breath. / The judges hold their breath.)"
+  }
+ ],
  "words": {
   "chief": {
    "3": "the Chief",
@@ -2595,7 +2638,7 @@
   "C2": {
    "items": [
     {
-     "text": "(Subject) always wanted to become a {PROF} since (subject.he/she) was a little child.",
+     "text": "(Subject) has always wanted to become a {PROF} since (subject.he/she) was a little child.",
      "src": "L590",
      "if": {
       "not": {
@@ -2641,7 +2684,7 @@
      }
     },
     {
-     "text": "(Subject) always wanted to become a {PROF} since (subject.he/she) saw (subject.his/her) {p591_0} do it.",
+     "text": "(Subject) has always wanted to become a {PROF} since (subject.he/she) saw (subject.his/her) {p591_0} do it.",
      "src": "L591",
      "if": {
       "not": {
@@ -2687,7 +2730,7 @@
      }
     },
     {
-     "text": "(Subject) always wanted to become a {PROF} since (subject.he/she) was in school.",
+     "text": "(Subject) has always wanted to become a {PROF} since (subject.he/she) was in school.",
      "src": "L592",
      "if": {
       "not": {
@@ -3852,7 +3895,7 @@
      "src": "L714"
     },
     {
-     "text": "The {p715_0} holds its breath.",
+     "text": "{p715_0}",
      "src": "L715"
     },
     {
@@ -6918,7 +6961,7 @@
      }
     },
     {
-     "text": "make a stew so perfect that the {p365_0} weep, using ingredients chosen by the children",
+     "text": "make a stew so perfect that {p365_0}, using ingredients chosen by the children",
      "src": "L365",
      "if": {
       "visited": "g_farm"
@@ -8010,7 +8053,7 @@
      }
     },
     {
-     "text": "get a teenager to admit (subject.his/her) parent was right",
+     "text": "get a teenager to admit their parent was right",
      "src": "L397",
      "if": {
       "visited": "g_par"
@@ -9247,11 +9290,11 @@
      "src": "L154"
     },
     {
-     "text": "creature",
+     "text": "a legendary creature",
      "src": "L154"
     },
     {
-     "text": "myth",
+     "text": "a legendary myth",
      "src": "L154"
     }
    ]
@@ -9275,7 +9318,7 @@
      "src": "L157"
     },
     {
-     "text": "their relative",
+     "text": "(subject.his/her) relative",
      "src": "L157"
     }
    ]
@@ -9683,15 +9726,15 @@
   "p365_0": {
    "items": [
     {
-     "text": "{@chiefw}",
+     "text": "{@chief} weeps",
      "src": "L365"
     },
     {
-     "text": "mentor",
+     "text": "the mentor weeps",
      "src": "L365"
     },
     {
-     "text": "gods",
+     "text": "the gods weep",
      "src": "L365"
     }
    ]
@@ -10621,27 +10664,27 @@
   "p715_0": {
    "items": [
     {
-     "text": "crowd",
+     "text": "The crowd holds its breath.",
      "src": "L715"
     },
     {
-     "text": "audience",
+     "text": "The audience holds its breath.",
      "src": "L715"
     },
     {
-     "text": "panel",
+     "text": "The panel holds its breath.",
      "src": "L715"
     },
     {
-     "text": "whole village",
+     "text": "The whole village holds its breath.",
      "src": "L715"
     },
     {
-     "text": "council",
+     "text": "The council holds its breath.",
      "src": "L715"
     },
     {
-     "text": "judges",
+     "text": "The judges hold their breath.",
      "src": "L715"
     }
    ]
