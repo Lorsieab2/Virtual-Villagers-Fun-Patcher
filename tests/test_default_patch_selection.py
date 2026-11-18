@@ -145,9 +145,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Breadfruit Refills Partially Every Time (off in Owner's Defaults too).
                   or p == "vv3_fruit_trees_refill_to_full"
                   or p == "vv4_yellow_fruit_refills_partially"
-                  # Cloth Sacks for Yellow Fruit and Cutting Tool Harvest Caption (the owner, 2026-11-17: on in
-                  # Owner's Defaults).
-                  or p in ("vv4_cloth_sacks_for_yellow_fruit", "vv4_cutting_tool_harvest_caption")
+                  # Cloth Sacks for Yellow Fruit (the owner, 2026-11-17: on in Owner's Defaults).
+                  or p == "vv4_cloth_sacks_for_yellow_fruit"
                   # Picked Up Collectibles Stay Collected When Dropped (the owner, 2026-11-12: on in Owner's
                   # Defaults only).
                   or p.endswith("_collectibles_stay_collected")

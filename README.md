@@ -25,7 +25,6 @@ prerequisite are rejected before any copied game folder or EXE is written.
 ## What's new in v1.35.97
 
 - **Cloth Sacks for Yellow Fruit** (The Tree of Life, off by default, on in Owner's Defaults): drop an adult on the left side of the finished Clothing Hut, under its awning, and they make a sack from one cloth bolt, gather yellow fruit in it and bring 30 food to the food bin (before Food Mastery), working like the cutting tool on the blackberries; only villagers you drop make sacks, farmers never do on their own. Art by Lorsieab2.
-- **Cutting Tool Harvest Caption** (The Tree of Life, off by default, on in Owner's Defaults): a villager harvesting blackberries with a cutting tool says "Harvesting berries with a cutting tool".
 
 ## What's new in v1.35.96
 
@@ -1417,12 +1416,6 @@ With "Yellow Fruit Trees are No Longer Unlimited", the yellow fruit tree is no l
 The Clothing Hut's extra cloth bolts get a use, for the yellow fruit only. Drop an adult on the left side of the finished Clothing Hut, under its awning, once the Cooking Pit is restored: the villager takes one cloth bolt, makes a sack at the hut ("Making a sack out of cloth"), carries the empty sack to the yellow fruit trees ("Gathering food in cloth sack"), shakes down and cooks the fruit as on any fruit trip, and carries the full sack to the food bin ("Carrying fruit to the food bin"): 30 food before Food Mastery. It works like the cutting tool on the blackberries: the cloth bolt is used when the villager starts (a failed Farming check or an interrupted trip loses it), no cloth means a refusal ("They need cloth for this!"), the food is 1 for each fruit, at most 30, paid at the food bin, and Food Mastery multiplies it exactly as for a blackberry harvest; a sack never goes into the stew and does not count toward The Grand Feast (neither does a cutting-tool harvest). **With "Yellow Fruit Trees are No Longer Unlimited" ticked too, each sack takes its fruit from the tree at the food bin (30, or what is left, even none, as a cutting tool harvests a nearly bare bush).** Without it every sack holds 30. Only a villager you drop at the hut makes a sack: farmers who decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are new pictures (`Images\vvfp_sack_empty.png`, `Images\vvfp_sack_yellow_fruit.png`, art by Lorsieab2) drawn by the companion "VVFP VV4 Cloth Sacks.dll", started by VVFP Startup.dll; nothing is written to the save. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **The in-game effect is not yet verified by a live test.**
 
 - Patch ID: `vv4_cloth_sacks_for_yellow_fruit`
-
-**Cutting Tool Harvest Caption** (The Tree of Life)
-
-A villager harvesting blackberries with a cutting tool says "Harvesting berries with a cutting tool" instead of "Harvesting blackberries" (the game's caption holds at most 39 letters, so "Harvesting blackberries with a cutting tool" would be cut). Picking blackberries and every other caption are unchanged. The companion is "VVFP VV4 Harvest Caption.dll", started by VVFP Startup.dll. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **The in-game effect is not yet verified by a live test.**
-
-- Patch ID: `vv4_cutting_tool_harvest_caption`
 
 **Island Events Scale With Population (like The Lost Children)** (A New Home, The Tree of Life, New Believers)
 

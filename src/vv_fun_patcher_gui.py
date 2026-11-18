@@ -226,9 +226,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Yellow Breadfruit Refills Partially Every Time (The Tree of Life; the owner, 2026-11-11): off by default and
     # off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv4_yellow_fruit_refills_partially"]
-    # Cloth Sacks for Yellow Fruit and Cutting Tool Harvest Caption (The Tree of Life; the owner, 2026-11-17): off by
-    # default, on in Owner's Defaults, which ticks them like every default-off patch it does not name.
-    + ["vv4_cloth_sacks_for_yellow_fruit", "vv4_cutting_tool_harvest_caption"]
+    # Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17): off by default, on in Owner's Defaults,
+    # which ticks it like every default-off patch it does not name.
+    + ["vv4_cloth_sacks_for_yellow_fruit"]
     # Picked Up Collectibles Stay Collected When Dropped (all five games; the owner, 2026-11-12): off by default,
     # on in Owner's Defaults, which ticks it like every default-off patch it does not name.
     + ["vv%d_collectibles_stay_collected" % game for game in range(1, 6)]

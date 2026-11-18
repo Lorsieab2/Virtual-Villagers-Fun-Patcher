@@ -60,8 +60,6 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Cloth Sacks for Yellow Fruit (The Tree of Life): a cloth bolt made into a sack for 30 yellow fruit, like the
        cutting tool on the blackberries. */
     "VVFP VV4 Cloth Sacks.dll",
-    /* Cutting Tool Harvest Caption (The Tree of Life): the cutting-tool blackberry harvest says so. */
-    "VVFP VV4 Harvest Caption.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

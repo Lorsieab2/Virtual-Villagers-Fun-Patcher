@@ -335,13 +335,6 @@
       ]
     },
     {
-      "ids": ["vv4_cutting_tool_harvest_caption"],
-      "guide": [
-        "Off by default; Owner's Defaults ticks it.",
-        "A villager harvesting blackberries with a cutting tool says \"Harvesting berries with a cutting tool\"; picking blackberries still says \"Harvesting blackberries\". Not yet tested in play."
-      ]
-    },
-    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",

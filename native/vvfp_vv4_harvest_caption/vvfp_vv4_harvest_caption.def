@@ -1,4 +1,0 @@
-LIBRARY "VVFP VV4 Harvest Caption"
-EXPORTS
-    VvfpStartup
-    VvfpHarvestCaptionInstalled

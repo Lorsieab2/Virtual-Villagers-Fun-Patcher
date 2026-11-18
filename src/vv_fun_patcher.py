@@ -336,12 +336,10 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
 # Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; off by default, on in Owner's Defaults): a
 # villager dropped under the Clothing Hut's awning makes a sack from a cloth bolt and brings 30 yellow fruit to the
-# food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll".  Cutting Tool
-# Harvest Caption (same day, same defaults): the cutting-tool blackberry harvest says so; companion only, "VVFP VV4
-# Harvest Caption.dll".  Both started by VVFP Startup.dll from its second word;
+# food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll", started by VVFP
+# Startup.dll from its second word;
 # scripts/build_vv4_cloth_sacks_features.py.
-CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_feature.json",
-                             ROOT / "data" / "vv4_cutting_tool_harvest_caption_feature.json")
+CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_feature.json",)
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -12741,7 +12739,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "08BF9ED28E64F9C2FAA6B7DE3B733A3688E96EE4F831207C5605DE5AAC41B3F5",
+    "sha256": "6CCE7376871A550876C8573B66777A6535FF935CC136845962E804A41E5C4625",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12843,8 +12841,6 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Collectibles Stay Collected.dll",
     # Cloth Sacks for Yellow Fruit (The Tree of Life): a cloth bolt made into a sack for 30 yellow fruit.
     "VVFP VV4 Cloth Sacks.dll",
-    # Cutting Tool Harvest Caption (The Tree of Life): the cutting-tool blackberry harvest says so.
-    "VVFP VV4 Harvest Caption.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

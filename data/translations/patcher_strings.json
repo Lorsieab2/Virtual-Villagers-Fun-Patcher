@@ -64487,17 +64487,6 @@
    "context": "VVFP VV4 Cloth Sacks.dll",
    "notes": "a patcher window",
    "route": "key"
-  },
-  {
-   "stem": "vvfp.harvest_caption/vvfp_vv4_harvest_caption.caption.s0",
-   "english": "Harvesting berries with a cutting tool",
-   "games": [
-    "vv4"
-   ],
-   "mechanism": "b",
-   "context": "VVFP VV4 Harvest Caption.dll",
-   "notes": "a patcher window",
-   "route": "key"
   }
  ]
 }

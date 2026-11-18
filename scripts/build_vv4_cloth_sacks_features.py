@@ -1,20 +1,17 @@
-"""Write The Tree of Life's "Cloth Sacks for Yellow Fruit" row (data/vv4_cloth_sacks_for_yellow_fruit_feature.json) and
-"Cutting Tool Harvest Caption" (data/vv4_cutting_tool_harvest_caption_feature.json).
+"""Write The Tree of Life's "Cloth Sacks for Yellow Fruit" row (data/vv4_cloth_sacks_for_yellow_fruit_feature.json).
 
 The owner (2026-11-17): the Clothing Hut's extra cloth bolts get a use -- an adult dropped on the left side of the
 Clothing Hut, under its awning, makes a sack from one bolt, gathers the yellow fruit in it and brings 30 fruit to
 the food bin, working "like the cutting tool on the blackberries in every respect".  Then: "farmers should never use cutting
 tools or sacks on their own" (only a villager the player drops makes a sack) and "if the cutting tools allow
 harvesting with less than 3 fruit, so should the sacks" (no fruit check at the drop).  Off by default, on in
-Owner's Defaults.  And: a villager harvesting blackberries with a cutting tool says
-so ("Harvesting berries with a cutting tool"), its own row, also off by default and on in Owner's Defaults.
+Owner's Defaults.
 
-"VVFP VV4 Cloth Sacks.dll" (native/vvfp_vv4_cloth_sacks) and "VVFP VV4 Harvest Caption.dll"
-(native/vvfp_vv4_harvest_caption) do it at run time, started by VVFP Startup.dll from its second word; each source
-says what it changes and why.  tests/test_vv4_cloth_sacks.py proves both by emulation.
+"VVFP VV4 Cloth Sacks.dll" (native/vvfp_vv4_cloth_sacks) does it at run time, started by VVFP Startup.dll from its
+second word; its source says what it changes and why.  tests/test_vv4_cloth_sacks.py proves it by emulation.
 
-One command after a DLL's source changes: this script builds both (scripts/build_vvfp_vv4_cloth_sacks.ps1,
-scripts/build_vvfp_vv4_harvest_caption.ps1) and pins them and the sack pictures by SHA-256.  --no-build pins what is
+One command after the DLL's source changes: this script builds it (scripts/build_vvfp_vv4_cloth_sacks.ps1)
+and pins it and the sack pictures by SHA-256.  --no-build pins what is
 already built.  The art (the owner's, 2026-11-17) is assets/cloth_sacks/vvfp_sack_empty.png (60 x 65) and
 vvfp_sack_yellow_fruit.png (60 x 87), 8-bit RGBA.
 """
@@ -38,13 +35,6 @@ LIMITED = "vv4_yellow_fruit_trees_limited"
 LIMITED_NAME = "Yellow Fruit Trees are No Longer Unlimited"
 SACK_FRUIT = 30
 
-CAPTION_ID = "vv4_cutting_tool_harvest_caption"
-CAPTION_NAME = "Cutting Tool Harvest Caption"
-CAPTION_DLL_NAME = "VVFP VV4 Harvest Caption.dll"
-CAPTION_DLL = ROOT / "assets" / "harvest_caption" / CAPTION_DLL_NAME
-CAPTION = "Harvesting berries with a cutting tool"
-CAPTION_INSTALLED_BY = f"{CAPTION_DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
-
 SITES = (
     (0x46E460, "83EC08568B742410",
      "the drop dispatcher 0x46E460 (a villager dropped: its place 0x45ED00, the map's area there 0x46C410, that "
@@ -60,11 +50,6 @@ SITES = (
      "the carried item's draw 0x466770, its call of the world draw 0x44C640: for a villager on a sack trip that "
      "carries the sack, the sack's picture at 45% instead of carrying.png's cell, then the same call"),
 )
-CAPTION_SITE = (0x451CF6, "6A27508D86E41C0000",
-                "the cutting-tool harvest 0x451CE0 (action 0xBE), copying its caption (push 0x27 / push eax, the looked-up "
-                "text 0x280 / lea eax, [esi+0x1CE4]; then push eax / call 0x4724E0 at 0x451CFF): the companion's "
-                "caption is pushed instead")
-
 
 def picture(name: str, width: int, height: int) -> dict:
     data = (ROOT / "assets" / "cloth_sacks" / name).read_bytes()
@@ -184,59 +169,6 @@ def row(dll_sha: str) -> dict:
     }
 
 
-def caption_description() -> str:
-    return (
-        "A villager harvesting blackberries with a cutting tool (dropped where the tribe's cutting tools are "
-        f"used on the blackberries) now says \"{CAPTION}\" instead of \"Harvesting blackberries\", so it can be "
-        "told apart from picking. Picking blackberries and every other caption are unchanged. The words are "
-        "shortened from \"Harvesting blackberries with a cutting tool\" because the game's caption holds at most "
-        "39 letters. **Needs no other patch.** **Off by default; Owner's Defaults ticks it.** **Unverified in "
-        f"play: the effect has not been tested live.** The companion is \"{CAPTION_DLL_NAME}\", started by VVFP "
-        "Startup.dll; if the DLL cannot be loaded, the stock caption shows."
-    )
-
-
-def caption_row(dll_sha: str) -> dict:
-    va, stock, routine = CAPTION_SITE
-    return {
-        "id": CAPTION_ID,
-        "enabled": True,
-        "catalog_enabled": True,
-        "catalog_hidden": False,
-        "game_id": "vv4",
-        "name": CAPTION_NAME,
-        "description": caption_description(),
-        "output_tag": "Cutting Tool Caption",
-        "dependencies": [],
-        "behavior_changes": [
-            "Picking (action 99, 0x451C30) and the cutting-tool harvest (action 0xBE, 0x451CE0) both copy text 0x280 "
-            "\"Harvesting blackberries\" into the villager's caption (+0x1CE4, 0x27 letters, 0x4724E0); the harvest's "
-            f"copy (0x451CF6) now copies \"{CAPTION}\" (38 letters), translated through VVFP Translations.dll (row "
-            "vvfp.harvest_caption/vvfp_vv4_harvest_caption.caption.s0).",
-        ],
-        "explicit_non_changes": [
-            "Picking, the harvest itself (the tool used, the berries, the food) and every other caption are the "
-            "game's own; the game's text table is not changed.",
-            "No executable byte is patched: the companion writes one jump at run time after verifying the site and "
-            "the code around it; a different build installs nothing. Nothing is written anywhere.",
-        ],
-        "evidence_status": ("implemented from exact-build disassembly; the harvest's and the pick's captions "
-                            "emulated in tests/test_vv4_cloth_sacks.py; runtime/player confirmation pending"),
-        "companion_files": [
-            {"source": f"assets/harvest_caption/{CAPTION_DLL_NAME}", "destination": CAPTION_DLL_NAME,
-             "sha256": dll_sha},
-        ],
-        "patches": [],
-        "runtime_detours": [{
-            "va": f"0x{va:X}",
-            "stock_bytes": stock,
-            "written_bytes": "E9XXXXXXXX" + "90" * (len(stock) // 2 - 5),
-            "routine": routine,
-            "installed_by": CAPTION_INSTALLED_BY,
-        }],
-    }
-
-
 def sha_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
@@ -247,13 +179,11 @@ def sha(path: Path) -> str:
 
 def main() -> None:
     if "--no-build" not in sys.argv[1:]:
-        for script in ("build_vvfp_vv4_cloth_sacks.ps1", "build_vvfp_vv4_harvest_caption.ps1"):
-            subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
-                            str(ROOT / "scripts" / script)], check=True)
-    for path, data in ((ROOT / "data" / f"{ID}_feature.json", row(sha(DLL))),
-                       (ROOT / "data" / f"{CAPTION_ID}_feature.json", caption_row(sha(CAPTION_DLL)))):
-        path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
-        print("wrote", path.relative_to(ROOT))
+        subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                        str(ROOT / "scripts" / "build_vvfp_vv4_cloth_sacks.ps1")], check=True)
+    path = ROOT / "data" / f"{ID}_feature.json"
+    path.write_text(json.dumps(row(sha(DLL)), indent=2) + "\n", encoding="utf-8", newline="\n")
+    print("wrote", path.relative_to(ROOT))
 
 
 if __name__ == "__main__":

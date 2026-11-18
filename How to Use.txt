@@ -637,13 +637,6 @@ without it every sack holds 30. Only villagers you drop make sacks: farmers
 never do on their own. The sacks are new pictures (art by Lorsieab2). Not yet
 tested in a running game.
 
-CUTTING TOOL HARVEST CAPTION (THE TREE OF LIFE)
-
-Off by default; Owner's Defaults ticks it. A villager harvesting blackberries
-with a cutting tool says "Harvesting berries with a cutting tool"; picking
-blackberries still says "Harvesting blackberries". Not yet tested in a
-running game.
-
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

@@ -1,7 +1,6 @@
-"""Cloth Sacks for Yellow Fruit and Cutting Tool Harvest Caption (The Tree of Life): "VVFP VV4 Cloth Sacks.dll" and
-"VVFP VV4 Harvest Caption.dll".
+"""Cloth Sacks for Yellow Fruit (The Tree of Life): "VVFP VV4 Cloth Sacks.dll".
 
-Everything here runs the shipped DLLs beside The Tree of Life's own code in unicorn (tests/farmers_emulation_vv4.py,
+Everything here runs the shipped DLL beside The Tree of Life's own code in unicorn (tests/farmers_emulation_vv4.py,
 with the companion mapped through tests/story_emulator.py's Process).  The drop dispatcher, the fruit trip, the job
 events, the food writer (Food Mastery inside it), the Farming dispatcher (untouched) and the carried item's draw are the game's
 own routines; only rand, the clock and the two singleton getters are stand-ins (farmers_emulation_vv4.py says why
@@ -40,8 +39,7 @@ try:
 except ImportError:  # pragma: no cover - environment dependent
     HAVE_EMULATOR = False
 
-ID, CAPTION_ID = builder.ID, builder.CAPTION_ID
-DLL, CAPTION_DLL = builder.DLL, builder.CAPTION_DLL
+ID, DLL = builder.ID, builder.DLL
 MODES = ("stock", "collection_progression", "immediate_fixed")
 
 DROP = 0x46E460                  # the drop dispatcher: (villager), ret 4
@@ -67,12 +65,12 @@ def builds():
 
 @functools.lru_cache(maxsize=None)
 def render(mode: str) -> bytes:
-    """The Tree of Life's public catalog (both rows in it) as the patcher renders it."""
+    """The Tree of Life's public catalog (this row in it) as the patcher renders it."""
     rows = [p for p in patcher.load_public_fun_patches()
             if p.game_id == "vv4" and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
             and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS]
     ids = patcher.resolve_fun_patch_ids([p.id for p in rows], game_id="vv4")
-    assert ID in ids and CAPTION_ID in ids
+    assert ID in ids
     data, _ = patcher.render_patched_bytes(fe.STOCK, builds()["vv4"], mode, ids)
     return bytes(data)
 
@@ -384,47 +382,25 @@ class SackTripTests(unittest.TestCase):
         self.assertEqual(picture()[0], "0xcafe0024")                          # the trip over: the game's own
 
 
-@unittest.skipUnless(HAVE_EMULATOR, "the stock executable, its map and unicorn are needed")
-class HarvestCaptionTests(unittest.TestCase):
-    def caption(self, patched: bool, action: int) -> str:
-        v = fe.Village(berries=1000, dll=CAPTION_DLL if patched else None)
-        if patched:
-            v.process.export("VvfpStartup", 4, 0)
-            self.assertEqual(v.process.export("VvfpHarvestCaptionInstalled"), 1)
-        r = v.villager()
-        v.start(action)
-        return bytes(v.uc.mem_read(r + REC_CAPTION, 40)).split(b"\0")[0].decode("latin-1")
-
-    def test_the_cutting_tool_harvest_says_so_and_picking_does_not(self) -> None:
-        self.assertEqual(self.caption(True, 0xBE), builder.CAPTION)
-        self.assertNotEqual(self.caption(True, 99), builder.CAPTION)
-        self.assertNotEqual(self.caption(False, 0xBE), builder.CAPTION)
-        self.assertLessEqual(len(builder.CAPTION), 38)
-
-
 class RowTests(unittest.TestCase):
     def test_the_rows_are_the_builders_and_pin_the_shipped_files(self) -> None:
-        for path, made in ((ROOT / "data" / f"{ID}_feature.json", builder.row(builder.sha(DLL))),
-                           (ROOT / "data" / f"{CAPTION_ID}_feature.json",
-                            builder.caption_row(builder.sha(CAPTION_DLL)))):
-            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), made)
+        path = ROOT / "data" / f"{ID}_feature.json"
+        self.assertEqual(json.loads(path.read_text(encoding="utf-8")), builder.row(builder.sha(DLL)))
         row = json.loads((ROOT / "data" / f"{ID}_feature.json").read_text(encoding="utf-8"))
         self.assertIn("**Needs no other patch.**", row["description"])
         self.assertIn("**Off by default; Owner's Defaults ticks it.**", row["description"])
         self.assertEqual([f["destination"] for f in row["companion_files"]],
                          ["VVFP VV4 Cloth Sacks.dll", "Images/vvfp_sack_empty.png", "Images/vvfp_sack_yellow_fruit.png"])
 
-    def test_vvfp_startup_starts_both(self) -> None:
+    def test_vvfp_startup_starts_it(self) -> None:
         self.assertIn("VVFP VV4 Cloth Sacks.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
-        self.assertIn("VVFP VV4 Harvest Caption.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('"VVFP VV4 Cloth Sacks.dll"', header)
 
     def test_off_by_default_and_on_in_owners_defaults(self) -> None:
         import vv_fun_patcher_gui as gui
-        for pid in (ID, CAPTION_ID):
-            self.assertIn(pid, gui.DEFAULT_OFF_FUN_PATCH_IDS)
-            self.assertNotIn(pid, gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertIn(ID, gui.DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertNotIn(ID, gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
 
     def test_the_captions_fit_the_villagers_caption_field(self) -> None:
         source = (ROOT / "native" / "vvfp_vv4_cloth_sacks" / "vvfp_vv4_cloth_sacks.c").read_text(encoding="utf-8")
@@ -433,26 +409,23 @@ class RowTests(unittest.TestCase):
             self.assertLessEqual(len(text), 38)
         strings = json.loads((ROOT / "data" / "translations" / "patcher_strings.json").read_text(encoding="utf-8"))
         english = json.dumps(strings)
-        for text in ("Making a sack out of cloth", "Gathering food in cloth sack", builder.CAPTION):
+        for text in ("Making a sack out of cloth", "Gathering food in cloth sack"):
             self.assertIn(text, english)
 
 
 @unittest.skipUnless(HAVE_EMULATOR, "the stock executable, its map and unicorn are needed")
 class RenderedTests(unittest.TestCase):
-    def test_the_rendered_executable_keeps_every_site_stock_and_both_install_in_every_mode(self) -> None:
+    def test_the_rendered_executable_keeps_every_site_stock_and_it_installs_in_every_mode(self) -> None:
         for mode in MODES:
             with self.subTest(mode=mode):
                 exe = render(mode)
-                for va, stock, _ in builder.SITES + (builder.CAPTION_SITE,):
+                for va, stock, _ in builder.SITES:
                     self.assertEqual(exe[va - 0x400000:va - 0x400000 + len(stock) // 2].hex().upper(), stock)
                 h = Hut(exe=exe)
                 self.assertEqual(h.installed(), 1)
                 r = h.villager()
                 self.assertEqual(h.drop(r), 1)
                 self.assertIn((0x13, EV_CREDIT), h.queue(r))
-                v = fe.Village(exe=exe, dll=CAPTION_DLL)
-                v.process.export("VvfpStartup", 4, 0)
-                self.assertEqual(v.process.export("VvfpHarvestCaptionInstalled"), 1)
 
 
 if __name__ == "__main__":
