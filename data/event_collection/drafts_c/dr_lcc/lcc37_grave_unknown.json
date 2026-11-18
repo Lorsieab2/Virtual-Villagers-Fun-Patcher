@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grave of the Unknown Raider",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc37_grave_unknown",
+  "source": "draft_lcc",
+  "lines": [
+   512,
+   523
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L519",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L523",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A raider fell on the beach and their people left them behind: bury them with care, or return them to their people.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The raiders fled in the night, and in the morning one of them was found lying still on the beach. Nobody knows whose spear it was. The raider's people did not come back for them. (subject) says the village must bury the raider with care, like anyone. (friend) says the raider's own people should do it, and wants to send the body back. What should the village do?",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Bury the Raider With Care",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Return Them to Their People",
+     "next": "o2",
+     "src": "L521"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village buries the raider above the beach, with a song for the dead that is meant for anyone. (subject) puts the raider's own spear on the grave. Some villagers stay away. Years later, a canoe from the raiders' island stops by the grave, and its paddlers leave flowers there.",
+   "src": "L519"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) and two warriors carry the raider home by canoe, under a white cloth, unarmed. The raiders' island receives them in silence. Nothing is said. But the next season, there are no raids. Nobody knows if that is why.",
+   "src": "L523"
+  }
+ }
+}

@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwanted Weapon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc46_unwanted_weapon",
+  "source": "draft_lcc",
+  "lines": [
+   638,
+   649
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L638",
+  "ledger": [
+   {
+    "src": "L639",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L645",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L645",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L649",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A trader offers strange metal blades for the warriors: buy them, or refuse them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader has come with blades made of a strange grey metal that never seems to dull. (other.He/she) will trade six of them for a canoe. (subject) says the warriors would be unbeatable. (friend) does not trust anything that comes from somewhere nobody can name, and does not want the village to need weapons it cannot make. What should the village do?",
+   "src": "L641",
+   "choices": [
+    {
+     "label": "Buy the Blades",
+     "next": "o1",
+     "src": "L643"
+    },
+    {
+     "label": "Refuse Them",
+     "next": "o2",
+     "src": "L647"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village trades a canoe for six blades. They are frighteningly sharp. One of the warriors cuts a hand badly on the first day. The blades are kept wrapped in the storehouse, mostly, and taken out only when the conch blows.",
+   "src": "L645",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L645"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village refuses. The trader shrugs and leaves. (subject) grumbles for a week. (friend) teaches the warriors to make better spearheads from the black stone on the far beach, and that, (friend.he/she) says, is a weapon nobody can take away.",
+   "src": "L649",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L649"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Warriors Return",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc17_warriors_return",
+  "source": "draft_lcc",
+  "lines": [
+   232,
+   243
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L239",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health; everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The warriors come home from the far beach, and one is badly hurt: celebrate their return, or tend the wounded quietly first.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The warriors have come home from guarding the far beach. They fought off a landing party on the last night, and (subject) is carried in on a litter with a deep wound in (subject.his/her) side. Everyone else is home, tired and proud. (friend) is in charge of the welcome. What should (friend) do?",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Celebrate Their Return",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Tend the Wounded First",
+     "next": "o2",
+     "src": "L241"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village sings the warriors home, and the healers take (subject) straight to the healing hut. The singing goes on into the night, and (subject) hears it from (subject.his/her) mat. (subject.He/she) asks the healers to leave the door open so (subject.he/she) can hear better.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L239"
+    },
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L239"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the village to wait. That night, everyone is quiet, and the healers work on (subject) until dawn. In the morning they say (subject.he/she) will live. Only then does the village sing, and (subject) sings too, very weakly, from the doorway of the healing hut.",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L243"
+    }
+   ]
+  }
+ }
+}

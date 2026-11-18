@@ -1,0 +1,758 @@
+NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)
+"If anyone comes to raid our homeland, we'll be ready." Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.
+Written in the style of the owner's own events. The owner waived the review ("I'm sure the draft events are fine"); every event passed the Isola rules and the final 15-point review, logged in the notes.
+(name1) to (name4) fill in with villagers' names; (he/she), (him/her), (his/her) follow the villager. Warriors are any adult 18 or older.
+All Isola rules apply. All five games unless noted. Raiders come from across the water and are never a named people. Violence is implied, never shown; nobody is tortured; nothing is sexual. A [Solidarity: raise/lower/neutral] tag marks how an ending feels for the village (a planned counter; no effect yet).
+
+==========================================================================
+LCC-01. We Will Defend Our Home
+(picks two adults)
+
+At dusk, (name1) spotted three canoes beyond the reef, full of people with painted faces, watching the village and not coming closer. Then they turned and paddled away. The village is frightened. (name2) wants to call everyone to the beach for the stamping dance, the one that is supposed to put fire in the belly. (name1) thinks a dance will only frighten the children more. What should the village do?
+
+Do the Stamping Dance:
+
+The whole village gathers on the sand, and the adults stamp and shout and slap their chests until the ground shakes and the children are shouting along. "This is our home!" (name2) roars, and every voice on the beach roars it back. Nobody sleeps much. But nobody is afraid anymore, either. [effect: everyone celebrates] [Solidarity: raise]
+
+Keep Calm and Keep Watch:
+
+(name1) organizes watches instead: two people on the headland, all night, every night, with a conch shell to blow. The village goes to bed uneasy. The canoes do not come back that week. Some people grumble that the watches are a waste of sleep. (name1) keeps them going anyway. [Solidarity: neutral]
+
+==========================================================================
+LCC-02. The Watch Fires
+(picks an adult and a teen)
+
+Since the raiders' canoes were seen, the village keeps fires ready on both headlands, to be lit if danger comes. (name2) has asked (name1), who runs the watch, to let (him/her) keep the north fire one night a week. (He/she) is sharp-eyed and steady. (He/she) is also only sixteen. What should (name1) do?
+
+Let (name2) Keep Watch:
+
+(name1) gives (name2) the north fire on calm nights, with an adult in calling distance. (name2) takes it very seriously, and on the third night spots a canoe that turns out to be two lost fishers from the next bay. (He/she) guides them in with the fire. (name1) is very proud. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Keep the Watch to Adults:
+
+(name1) says the watch is for grown warriors, and (name2) must wait two years. (name2) is furious. Instead, (he/she) spends every evening learning the signal calls, and by the time (he/she) is eighteen, (he/she) knows them better than anyone. [Solidarity: neutral]
+
+==========================================================================
+LCC-03. The Warriors' Practice
+(picks two adults)
+
+Every morning since the raiders were seen, (name1) has drilled the village's warriors on the beach: spears, shields of woven palm, and a great deal of running in the sand. (name2) thinks only a few people are being trained, and that if raiders come, everyone over eighteen should know how to defend themselves. What should they do?
+
+Keep Drilling the Warriors:
+
+(name1) keeps the drills small and hard. The warriors get faster and stronger. (name2) joins them, and on the third day takes a spear-butt to the shin and limps for a week. The warriors laugh, and then help (him/her) home. [effect: (name2) loses a little health] [Solidarity: neutral]
+
+Teach Every Adult a Little:
+
+(name1) opens the drills to every adult who wants to come. The beach is chaos: cooks, carvers and grandmothers all waving sticks. It is not very effective. But everyone knows what to do if the conch blows, and that, (name2) says, is the point. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCC-04. The Plan for the Children
+(picks an adult and an elder)
+
+If raiders ever come, the children must be safe. (name1) wants a hiding place: the sea caves under the north cliff, with water and food stored there. (name2) says caves can become traps, and the children should run inland to the high forest instead, where nobody will find them. What should the plan be?
+
+Prepare the Sea Caves:
+
+The village stocks the caves with water, dried fish and blankets, and every child practices running there when the conch blows. They treat it as a game, and get very fast. (name2) still worries about the tide. (name1) marks the high-water line on the cave wall. [effect: small food loss] [Solidarity: raise]
+
+The Path to the High Forest:
+
+The village clears a hidden path to the high forest and builds a shelter at the end of it. The children practice the run. The first time, it takes half the afternoon, because three of them stop to look at a beetle. By the tenth time, it takes no time at all. [Solidarity: raise]
+
+==========================================================================
+LCC-05. The War Chant
+(picks an elder and an adult)
+
+When (name1) was a child, raiders came, and the village drove them off with a chant that made the ground tremble. (name1) is one of the few left who remembers it. (name2) has asked (him/her) to teach it to the warriors now. (name1) has not sung it in sixty years, and does not want to remember why. What should (name1) do?
+
+Teach the Chant:
+
+(name1) teaches it, line by line, very quietly. Then the warriors sing it together, loud, and (name1) has to sit down. Afterwards, (he/she) tells (name2), just once, about the night the raiders came. Then (he/she) asks never to talk about it again. (name2) promises. [Solidarity: neutral]
+
+Let the Old Chant Rest:
+
+(name1) says the old chant belongs to the old night, and asks (name2) to make a new one. (name2) does, with the warriors. It is rougher and louder and full of things about fish. (name1) listens from the edge of the beach, and nods. [Solidarity: raise]
+
+==========================================================================
+LCC-06. Raiders at the Gardens
+(picks two adults)
+
+(name1) woke before dawn to the sound of voices in the far gardens: raiders, a dozen of them, pulling up the yams and filling sacks. (name2) is beside (him/her) with a spear, ready to wake the warriors. But the raiders are armed too, and the village's people are still asleep. What should they do?
+
+Wake the Warriors and Drive Them Off:
+
+The conch blows and the warriors come running with spears and torches, shouting the war chant. There is a short, ugly scuffle in the dark. The raiders flee to their canoes, leaving half the yams behind. (name2) has a long cut down (his/her) arm that the healers stitch at dawn. The gardens are trampled, but the village held. [effect: (name2) loses health; small food loss] [Solidarity: raise]
+
+Let Them Take It:
+
+(name1) holds (name2) back. They watch, silent and furious, while the raiders take what they can carry and paddle away. Nobody is hurt. The far gardens are bare. (name2) does not speak to (name1) for two days, then admits nobody would have been safe in the dark. [effect: normal food loss] [Solidarity: lower]
+
+==========================================================================
+LCC-07. The Night the Conch Blew
+(picks three adults)
+
+The conch on the headland blows three times: raiders, on the beach, now. (name1), (name2) and (name3) are the first warriors out of their huts. The raiders are already dragging their canoes onto the sand. (name1) wants to charge them at the waterline before they can form up. (name3) wants to fall back to the huts, where the children are. What should they do?
+
+Meet Them at the Waterline:
+
+They charge. The night is all shouting and torchlight and the crack of shields. The raiders were not expecting a fight so soon, and in the confusion they push their canoes back out and flee, dragging one of their own who does not get up. (name1) is badly hurt and carried to the healers. By morning (he/she) is still breathing, and the healers do not leave (his/her) side. [effect: (name1) loses health] [Solidarity: raise]
+
+Defend the Huts:
+
+They fall back and form a line in front of the huts with every adult who can hold a spear. The raiders come up the beach, see the line, see the torches, and stop. For a long moment nobody moves. Then the raiders take the drying fish from the racks and go. Nobody is hurt. The racks are empty. [effect: small food loss] [Solidarity: raise]
+
+==========================================================================
+LCC-08. The Captured Raider
+(picks two adults)
+
+The raiders fled in the night and left one of their own behind on the beach: a young raider with a wounded leg, glaring at everyone. (name1) wants to tend the wound and see what kind of person this is. (name2), whose garden was stripped, wants the raider bound and kept under guard until the village decides what to do. What should happen?
+
+Tend the Wound:
+
+(name1) takes the raider to the healers, who clean and bind the leg. The raider does not say a word for three days. On the fourth, (he/she) says (his/her) name, and that (he/she) did not want to come on the raid. Whether that is true, nobody can tell yet. [effect: small Healing skill for (name1)] [Solidarity: neutral]
+
+Bind and Guard Them:
+
+The raider is bound and kept in the old storehouse, with food, water and a guard at the door. The healers tend the leg there. (name2) visits once, to look the raider in the eye, and comes back quieter than (he/she) went. Nobody knows what to do next. [Solidarity: lower]
+
+==========================================================================
+LCC-09. The Prisoner Who Stayed
+(picks two adults)
+
+The raider who was captured after the last raid has been living among the village for a whole season now, working in the gardens, learning the songs, careful and quiet. Today (he/she) asked (name1) if (he/she) could stay for good. (name2) still remembers whose people stripped the gardens. What should the village decide?
+
+Welcome Them:
+
+The village gathers and, after a long and difficult night of talking, agrees. (name1) teaches the newcomer the welcome song. (name2) stands at the back with (his/her) arms folded, and does not sing. But a month later, (he/she) is the one who shows the newcomer where the best fishing rocks are. [Solidarity: raise]
+
+Send Them Home:
+
+The village decides the raider must go home. (name1) gives (him/her) a canoe, food and water for the journey. The raider paddles away at dawn and does not look back. Some villagers feel safer. (name1) wonders, for a long time, whether they did the right thing. [Solidarity: neutral]
+
+==========================================================================
+LCC-10. The Prisoner Who Ran
+(picks two adults)
+
+The raider the village took in, fed and tended has gone. Sometime in the night, (he/she) slipped away and took (name1)'s best canoe. (name1) is shaking with anger. (name2) says (he/she) is probably heading back to (his/her) own people, and might tell them everything about the village. What should they do?
+
+Chase Them:
+
+(name1) and (name2) paddle hard after the stolen canoe, following its wake. By noon they can see it, a speck on the horizon, and by mid-afternoon they have lost it. They come home exhausted and empty-handed. (name1) carves a new canoe that season, angrily, and it is the best (he/she) has ever made. [effect: small Building skill for (name1)] [Solidarity: lower]
+
+Let Them Go:
+
+(name2) says the sea is wide and the raider has chosen. The village doubles the watch on the headlands. Nothing happens for a long time. Then, one morning, (name1)'s canoe is found pulled up on the beach, with a carved shell inside it. Nobody knows what it means. [Solidarity: neutral]
+
+==========================================================================
+LCC-11. The Hostage Exchange
+(picks an elder and an adult)
+
+A canoe has come to the edge of the reef under a white cloth. The raiders have one of the village's fishers, taken at sea last week, and they want their own warrior back, the one the village has been holding since the raid. (name1) says a life for a life, and the sooner the better. (name2) thinks the village could ask for more: the fishing grounds back. What should they do?
+
+Make the Exchange:
+
+The two canoes meet on the reef. The prisoners are swapped without a word. The village's fisher is thin and silent, but whole, and the whole village is on the beach to bring (him/her) home. (name1) watches the raiders' canoe disappear and says that, for now, it is finished. [Solidarity: raise]
+
+Bargain for More:
+
+(name2) asks for the fishing grounds back as well. The raiders argue all afternoon. In the end they agree, and the fisher is returned. Whether the raiders will keep their word about the fishing grounds, nobody knows. (name1) says (name2) played a dangerous game with someone else's life. (name2) does not disagree. [effect: small food gain] [Solidarity: neutral]
+
+==========================================================================
+LCC-12. The Taken Child Returns
+(picks an elder and an adult)
+
+A stranger has come ashore, a grown adult with Isola's way of speaking under an accent nobody knows. (He/she) says that raiders took (him/her) from this beach as a small child, long ago, and that (he/she) has finally found the way home. (name1) remembers a child who was lost that year. (name2) thinks it could be a trick. What should the village do?
+
+Welcome Them Home:
+
+(name1) asks a single question about a song only that family sang, and the stranger sings it back, very quietly. (name1) holds (him/her) for a long time. The stranger does not talk about the years away, and nobody asks. A hut is built for (him/her) by the end of the month. [Solidarity: raise]
+
+Wait for Proof:
+
+(name2) asks the stranger to stay at the edge of the village until they are sure. The stranger agrees, looking very tired. The proof comes slowly, in small things: a scar, a word, a way of tying knots. By the end of the season, everyone is sure. (name2) apologizes. The stranger says (he/she) understands. [Solidarity: neutral]
+
+==========================================================================
+LCC-13. The Shields of the Village
+(picks two adults)
+
+The warriors' shields are old and cracked. (name1) wants to cut new ones from the wood set aside for the next canoe: hard, heavy, strong. (name2) says the fishers need that canoe, and shields of woven palm and bark are lighter and good enough. What should they do?
+
+Use the Canoe Wood:
+
+The shields are thick and heavy and could stop a falling coconut, which (name1) demonstrates. The fishers are grumpy about waiting another season for their canoe. The warriors are delighted with the shields and a little tired from carrying them. [effect: small Building skill for (name1)] [Solidarity: neutral]
+
+Weave Them From Palm:
+
+(name2) teaches a dozen villagers to weave shields, layer after layer, soaked and dried hard. They are light and tough and the children love making small ones. The fishers get their canoe. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCC-14. The Warrior Who Would Not Fight
+(picks two adults)
+
+(name1) is the strongest person in the village, and everyone expected (him/her) to train with the warriors. (He/she) has refused. (He/she) says (he/she) will not lift a spear against anyone, ever. (name2), who leads the warriors, is baffled and a little angry. What should (name2) do?
+
+Respect (name1)'s Choice:
+
+(name2) lets it go, though (he/she) does not understand. Some people call (name1) a coward behind (his/her) back. (name1) hears it and says nothing. When the next storm comes, (name1) carries more people out of a flooded hut than anyone, and the whispers stop. [Solidarity: neutral]
+
+Ask for Another Way to Serve:
+
+(name2) asks (name1) if (he/she) would carry the wounded instead, if it ever comes to that. (name1) agrees at once, and learns everything the healers can teach about binding wounds and carrying people safely. The warriors start calling (him/her) the Shield-Without-a-Spear. (name1) likes that. [effect: small Healing skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCC-15. The Ambush in the Forest
+(picks three adults)
+
+(name3) has found the raiders' camp in the forest, half a day's walk from the village: a dozen of them, sleeping by a fire, with the village's stolen pigs. (name1) wants to ambush them at dawn and finish it. (name2) wants to surround the camp and give them a chance to leave. What should the warriors do?
+
+Ambush Them at Dawn:
+
+The warriors fall on the camp at first light. It is over fast and it is not pretty: shouting, scattering, a spear thrown and a spear returned. The raiders run for the shore. (name3) takes a blow to the head and does not remember the walk home. The pigs are recovered, most of them. [effect: (name3) loses health] [Solidarity: neutral]
+
+Surround Them and Demand They Leave:
+
+The warriors surround the camp in the dark, and at dawn (name2) stands up and tells the raiders, loudly, that they are outnumbered and should go. There is a terrible pause. Then the raiders pick up their spears, back slowly to the shore and leave. They take two of the pigs. Nobody is hurt. [Solidarity: raise]
+
+==========================================================================
+LCC-16. The Feast Before the Watch
+(picks an adult and an elder)
+
+The warriors are leaving to guard the far beach for a whole moon, where the raiders landed last year. (name1) is going with them. (name2) wants to give them a feast tonight, with songs. (name1) thinks the village should save its food and pack it for the warriors instead. What should the village do?
+
+Give Them a Feast:
+
+The village feasts the warriors, and every family brings something. The songs go on late. (name1) leaves at dawn with a full belly, a bad head and a bag of dried fish from (name2). (He/she) says it was worth it. [effect: small food loss; everyone celebrates] [Solidarity: raise]
+
+Pack the Food Instead:
+
+The village packs the food: dried fish, breadfruit, coconut. (name2) sings a short song at the edge of the village as the warriors leave, and everyone joins in. It is not a feast. But out on the far beach, the warriors eat well for the whole moon. [Solidarity: raise]
+
+==========================================================================
+LCC-17. The Warriors Return
+(picks two adults)
+
+The warriors have come home from guarding the far beach. They fought off a landing party on the last night, and (name1) is carried in on a litter with a deep wound in (his/her) side. Everyone else is home, tired and proud. (name2) is in charge of the welcome. What should (name2) do?
+
+Celebrate Their Return:
+
+The village sings the warriors home, and the healers take (name1) straight to the healing hut. The singing goes on into the night, and (name1) hears it from (his/her) mat. (He/she) asks the healers to leave the door open so (he/she) can hear better. [effect: (name1) loses health; everyone celebrates] [Solidarity: raise]
+
+Tend the Wounded First:
+
+(name2) asks the village to wait. That night, everyone is quiet, and the healers work on (name1) until dawn. In the morning they say (he/she) will live. Only then does the village sing, and (name1) sings too, very weakly, from the doorway of the healing hut. [effect: (name1) loses health] [Solidarity: raise]
+
+==========================================================================
+LCC-18. The Honor Song for the Fallen
+(picks an elder and an adult)
+
+Word has come from the far beach: one of the village's warriors, (name2)'s brother, fell in the fight with the raiders. The warriors are bringing him home. (name1) knows the old honor song for those who fall defending the village. (name2) does not know if (he/she) can bear a song that calls it an honor. What should they do?
+
+Sing the Honor Song:
+
+The village sings the honor song on the beach as the canoe comes in. It is not a happy song. It is a song about what was lost. (name2) stands at the water's edge and does not sing, and nobody asks (him/her) to. When it ends, (name1) stays beside (him/her) until the sun goes down. [Solidarity: neutral]
+
+Mourn Quietly:
+
+(name2)'s family asks for quiet, and the village gives it. There is no song, only a long line of people on the beach, each touching the canoe as it passes. Later, the warriors sing the honor song alone, far down the shore, where the family cannot hear. [Solidarity: neutral]
+
+==========================================================================
+LCC-19. The Shell Necklace of the Defenders
+(picks two adults)
+
+After the raid was driven off, (name1) has carved a shell necklace for every warrior who stood on the beach. (name2) points out that the healers worked all night, the cooks fed everyone, and the old people kept the children calm in the caves. They all helped too. Who should get the necklaces?
+
+The Warriors Only:
+
+The necklaces go to the warriors, as (name1) planned. The warriors wear them proudly. The healers and cooks say they do not mind, and mostly mean it. (name2) quietly makes a few extra for the healers anyway. [Solidarity: neutral]
+
+Everyone Who Helped:
+
+(name1) sighs and gets carving. It takes the whole season. By the end, half the village is wearing a shell necklace, including a very small child who carried water all night. The warriors decide they like it better this way. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCC-20. The Raider's Gift
+(picks two adults)
+
+A canoe from the raiders' island has arrived with a single paddler, a bundle of fine rope and a message: their people want peace. (name1) thinks the village should accept: nobody wants another raid. (name2) remembers the empty gardens and says a little rope does not repay a whole harvest. What should the village answer?
+
+Accept the Peace:
+
+The village accepts the rope and sends back a basket of dried fish and a song. The paddler goes home. There are no raids that season, or the next. Some villagers still say the raiders got off lightly. (name2) is one of them. [effect: small tech gain] [Solidarity: neutral]
+
+Ask for the Harvest Back:
+
+(name2) sends the paddler home with a message: peace when the stolen food is repaid. A month later, three canoes arrive loaded with yams and taro. It is not quite a whole harvest. It is enough. (name2) accepts. [effect: small food gain] [Solidarity: raise]
+
+==========================================================================
+LCC-21. The Lookout's Mistake
+(picks a young adult and an adult)
+
+Last night, (name1), on watch at the headland, saw canoes in the dark and blew the conch three times. The whole village ran for the caves and the warriors grabbed their spears. It was three canoes of fishers from the next bay, lost in the dark. (name1) is mortified. (name2), who leads the watch, has to decide what to do. What should (name2) do?
+
+Forgive the Mistake:
+
+(name2) tells the village that a lookout who blows too early is better than one who blows too late. A few people grumble about lost sleep. (name1) keeps (his/her) post, and from then on waits one breath longer before blowing, and looks very carefully. [Solidarity: raise]
+
+Take a Break From the Watch:
+
+(name2) takes (name1) off the watch for a month, to learn the canoe shapes from the elders. (name1) is hurt, but goes. By the end of the month, (he/she) can tell a raider's canoe from a fisher's by its shadow alone. (He/she) goes back to the headland and never makes that mistake again. [effect: small Research skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCC-22. The Spearhead Makers
+(picks two adults)
+
+The warriors need more spearheads, and the best stone on the island is the black glassy stone around the old shrine, which some villagers hold sacred. (name1) says the village's safety matters more than old stones. (name2) says some things are not for taking, and there is ordinary flint on the far beach. What should they do?
+
+Use the Shrine Stone:
+
+(name1) takes the stone, with a quiet apology spoken over it. The spearheads are the sharpest the village has ever made. Some villagers will not touch them. Some villagers will not speak to (name1). The warriors are glad of them. [effect: small Building skill for (name1)] [Solidarity: lower]
+
+Search the Far Beach:
+
+(name2) and a team walk to the far beach and spend three days gathering and knapping ordinary flint. The spearheads are good enough. The shrine stays as it is. (name1) admits, privately, that (he/she) was relieved not to be the one to take it. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCC-23. The Canoe Wall
+(picks two adults)
+
+(name1) has a plan: drive sharpened stakes across the mouth of the lagoon, so no raider's canoe can get in at night. (name2) points out that the fishers' canoes would not get in or out either, and the lagoon fish would have nowhere to go. What should the village do?
+
+Build the Stake Wall:
+
+The village builds the wall, with a narrow gap that can be closed with a log at night. It takes a month. The fishers complain about the gap every single day. But the village sleeps better. [effect: small Building skill for (name1); small food loss] [Solidarity: neutral]
+
+Keep the Lagoon Open:
+
+The village leaves the lagoon open and puts more watchers on the headlands instead. (name1) is not convinced, and checks the lagoon mouth every night before bed. Nothing comes through. Nothing has to. [Solidarity: neutral]
+
+==========================================================================
+LCC-24. The Wounded Healer
+(picks a healer and an adult)
+
+During the raid, (name1), the village's best healer, ran out to help a fallen warrior and was struck by a thrown stone. Now (he/she) is lying in the healing hut with a bandaged head, and there are six other wounded to tend. (name2), (his/her) apprentice, is panicking. What should (name2) do?
+
+Let (name1) Rest:
+
+(name2) tells (name1) to rest, and does everything (him/her)self, for three days without sleep. (He/she) gets two dressings wrong and fixes them. Everyone recovers. (name1), when (he/she) can sit up, says (name2) is a healer now. [effect: (name1) loses a little health; small Healing skill for (name2)] [Solidarity: raise]
+
+Learn From the Mat:
+
+(name2) brings each patient to (name1)'s mat, and (name1) talks (him/her) through every wound, very slowly, with (his/her) eyes closed. It exhausts (name1). But (name2) learns more in those three days than in the year before. [effect: (name1) loses a little health; small Healing skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCC-25. The Peace Council
+(picks an elder and two adults)
+
+Word has come that the island the raiders come from is holding a peace council, and the village is invited. (name1) wants to go, with the other elders, unarmed, to show the village comes in peace. (name2) wants to send warriors with them. (name3) is worried that warriors will start a fight, and that no warriors will invite one. Who should go?
+
+Send the Elders Unarmed:
+
+The elders go alone. (name1) comes back a week later, sunburned and hoarse from talking, with a peace agreement and an invitation to the other island's harvest festival. Some of the warriors are sure it is a trick. It is not. [effect: small tech gain] [Solidarity: raise]
+
+Send Warriors With Them:
+
+The elders go with (name2) and four warriors. At the council, the other island's warriors stand on one side and the village's on the other, glaring, and the elders talk in the middle. They agree to a truce for a season. It is not peace, but it is a start. [Solidarity: neutral]
+
+==========================================================================
+LCC-26. The Truce Feast
+(picks two adults)
+
+The truce is agreed, and the village must host a feast for its former enemies. (name1) wants it grand, to show the village is strong and generous. (name2) lost a cousin in the last raid, and thinks a grand feast for raiders is more than (he/she) can stomach. What kind of feast should it be?
+
+A Grand Feast:
+
+The feast is enormous. The guests are astonished, and a little humbled. There are toasts and songs and one very awkward moment when a guest recognizes a canoe the village took from them years ago. (name2) leaves early. Nobody stops (him/her). [effect: small food loss; small tech gain] [Solidarity: neutral]
+
+A Modest Feast:
+
+The feast is simple: fish, breadfruit, a few songs. The guests eat, thank the village and leave before dark. (name2) stays to the end, and when the guests leave, (he/she) goes down to the beach and sits for a long time. Then (he/she) comes back and helps clean up. [Solidarity: neutral]
+
+==========================================================================
+LCC-27. The Long Spear Contest
+(picks two adults)
+
+The warriors want a spear-throwing contest at the harvest festival, to show the village how strong they have become. (name1) is the best thrower on the island and very much wants to win. (name2) suggests opening the contest to anyone who wants to try. (name1) suspects this is because (name2) cannot throw. What should they do?
+
+Warriors Only:
+
+The warriors throw. (name1) wins, by a hand's width, and is unbearable about it for a week. (name2) cheers loudly anyway, and is the first to carry (him/her) around the festival on (his/her) shoulders. [effect: (name1) celebrates] [Solidarity: raise]
+
+Anyone Can Throw:
+
+The contest is open. A grandmother throws further than half the warriors. A child throws the spear backwards. (name2) throws it into a tree and it stays there for the rest of the season. (name1) still wins, and laughs harder than anyone. [effect: everyone celebrates] [Solidarity: raise]
+
+==========================================================================
+LCC-28. The Watchers' Signal
+(picks two adults)
+
+(name1) says the conch is the only signal anyone needs: three blasts for raiders, two for a lost canoe, one for dinner. (name2) says the conch cannot be heard past the hills in a wind, and the village needs smoke by day and fire by night. They have been arguing about it at every watch for a month. What should the village use?
+
+The Conch:
+
+The village keeps the conch. During the next storm, (name2) blows three blasts from the north headland and nobody in the village hears it, because it was a false alarm anyway, a floating log. But (name1) is quiet for a while afterwards. [Solidarity: neutral]
+
+Smoke and Fire:
+
+The village builds smoke piles and fire piles on every headland, and keeps the conch for close warnings. The first time the smoke goes up, the whole village sees it at once. It turns out to be (name1) cooking lunch. The signals are kept. Lunch is moved. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCC-29. The Kept Secret of the Caves
+(picks an elder and an adult)
+
+(name1)'s family has kept a secret for generations: a hidden way through the caves under the cliff, which comes out on the far side of the island. In a raid, the whole village could escape that way. But a secret everyone knows is not a secret, and the raiders might learn it too. (name2) has asked (name1) to share it. What should (name1) do?
+
+Share It With Everyone:
+
+(name1) shows the whole village the hidden way, a few families at a time. It is a long, dark, cold walk, and a child gets lost in it for an hour. But now everyone knows it. (name1)'s family says the old ones would understand. (name1) hopes so. [Solidarity: raise]
+
+Only the Warriors:
+
+(name1) shows only the warriors and a few elders. The rest of the village knows there is a way, but not where. Some people resent being trusted less. (name1) says the secret has kept the village safe for a hundred years, and will keep it safe a little longer. [Solidarity: neutral]
+
+==========================================================================
+LCC-30. The Raid That Never Came
+(picks two adults)
+
+For a whole season, the village has kept watch, drilled its warriors and stocked the caves. The raiders never came. (name1) thinks they have gone for good, and wants the village to go back to normal: fishing, farming, festivals. (name2) thinks that is exactly what the raiders are waiting for. What should the village do?
+
+Keep the Watch:
+
+The village keeps the watch, but lighter: one lookout instead of three, drills once a moon instead of every day. Life goes back to almost normal. Every so often, someone on watch sees a strange canoe on the horizon, and it always turns out to be nothing. So far. [Solidarity: neutral]
+
+Back to Normal Life:
+
+The village stops the watch and holds the biggest festival anyone can remember. (name2) goes to the headland alone every evening anyway, and sits there until dark. Nobody tells (him/her) to stop. [effect: everyone celebrates] [Solidarity: raise]
+
+==========================================================================
+LCC-31. The Stolen Canoes
+(picks two adults)
+
+In the night, raiders cut the ropes and took three of the village's canoes. (name1) knows which island they came from. (He/she) wants to take the warriors and get the canoes back. (name2) says it would take a season to build three new canoes, but that is better than a war. What should the village do?
+
+Build New Canoes:
+
+The village builds three new canoes over the season. It is slow, hard work and the fishing suffers. But nobody is hurt, and the new canoes are better than the old ones. (name1) carves an angry face on the bow of each. [effect: small food loss; small Building skill for (name1)] [Solidarity: neutral]
+
+Take Them Back:
+
+(name1) and the warriors paddle to the raiders' island by night and slip the three canoes off the beach without waking anyone. They are home by dawn, exhausted and grinning. Nobody was hurt. The raiders will know who took them, though. The watch is doubled. [Solidarity: raise]
+
+==========================================================================
+LCC-32. The Fire Arrows
+(picks two adults)
+
+The raiders are gone, but they left fire behind: burning arrows in the thatch of the storehouse, and the flames are spreading to the huts beside it. (name1) wants to throw everyone at the storehouse, where the food for the dry season is. (name2) says the huts first, because people live there. There are not enough hands for both. What should they do?
+
+Save the Stores:
+
+The village forms a water line to the storehouse and saves most of the food. Two huts burn to the ground. Their families move in with neighbors. (name1) helps rebuild them, and does not sleep until they are done. [effect: small food loss; (name1) loses a little health] [Solidarity: neutral]
+
+Save the Huts:
+
+The village saves the huts. The storehouse burns, and half the dry-season food with it. It will be a hungry season. (name2) says it was the right choice. (name1) agrees, and then goes and sits by the ashes for a long time. [effect: normal food loss] [Solidarity: raise]
+
+==========================================================================
+LCC-33. The Brave Little Runner
+(picks a child and an adult)
+
+When the conch blew last night, every child was supposed to run to the caves. (name1) did not. (He/she) ran the other way, across the whole village, to wake the elders' hut, because the elders are a little deaf and did not hear the conch. It was a false alarm, in the end. (name2) is (his/her) parent. What should (name2) do?
+
+Praise (name1):
+
+(name2) hugs (name1) and tells (him/her) it was brave, and also tells (him/her) never, ever to do it again. The elders give (name1) a carved conch of (his/her) own, so that next time they will be woken properly. (name1) sleeps with it. [Solidarity: raise]
+
+Scold (name1):
+
+(name2) is so frightened that (he/she) shouts. (name1) cries. Later, when (name2) has calmed down, (he/she) sits on (name1)'s mat and explains that (he/she) shouted because (he/she) was scared, not because (name1) was bad. They make a new plan for the elders together. [Solidarity: neutral]
+
+==========================================================================
+LCC-34. The Message From the Other Island
+(picks two adults)
+
+A lone paddler from a neighboring island has arrived, exhausted, with a warning: the raiders are gathering canoes, and the village is their target. (name1) believes (him/her) completely. (name2) points out that nobody knows this paddler, and that the warning might be meant to draw the warriors away from the village. What should the village do?
+
+Trust the Warning:
+
+The village prepares: the children to the caves, the stores hidden, the warriors on the beach. The raiders come three nights later, see the village ready and waiting, and turn back without landing. The paddler is given a feast and a canoe full of food. [effect: small food loss] [Solidarity: raise]
+
+Suspect a Trick:
+
+(name2) keeps the warriors at home and sends scouts instead. The scouts come back with nothing. The raiders never come. Whether the warning was false, or whether the raiders saw the scouts and gave up, nobody ever learns. The paddler leaves quietly. [Solidarity: neutral]
+
+==========================================================================
+LCC-35. The Painted Faces
+(picks two adults)
+
+(name1) has made a red clay paint and wants every warrior to wear it on watch, in bold lines across the face, so the raiders will see the village is ready. (name2) points out that the last time the warriors came home painted, half the children hid under their mats. What should the warriors do?
+
+Wear the Paint:
+
+The warriors paint their faces. They look magnificent and terrifying. The children are frightened for exactly one day, until (name1) lets them paint the warriors themselves. After that the warriors have flowers and fish painted among the red lines, and nobody minds. [Solidarity: raise]
+
+Paint Only for the Watch:
+
+The warriors paint at the headland and wash it off in the sea before they come home. The children never see it. The raiders, if they are watching, see it every night. (name1) says that is the right audience. [Solidarity: neutral]
+
+==========================================================================
+LCC-36. The Two Warriors' Quarrel
+(picks two adults)
+
+Last night raiders slipped past the watch and took the drying fish. (name1) says (name2) fell asleep at the south post. (name2) says (name1) left the north post to fetch water. Both are probably a little bit right. The village is angry. What should happen?
+
+Hold a Hearing:
+
+The village hears both of them at the gathering. It turns out both of them made a mistake, and the raiders were very lucky. They are not punished, but the watch is changed: three people at each post, and nobody leaves until relieved. (name1) and (name2) do not look at each other for a month. [Solidarity: neutral]
+
+Make Them Watch Together:
+
+The watch leader puts (name1) and (name2) on the same post, every night, for a month. The first week they do not speak. The second week they argue. By the end of the month, they are the best watch pair in the village, and they know each other's family histories by heart. [Solidarity: raise]
+
+==========================================================================
+LCC-37. The Grave of the Unknown Raider
+(picks two adults)
+
+The raiders fled in the night, and in the morning one of them was found lying still on the beach. Nobody knows whose spear it was. The raider's people did not come back for them. (name1) says the village must bury the raider with care, like anyone. (name2) says the raider's own people should do it, and wants to send the body back. What should the village do?
+
+Bury the Raider With Care:
+
+The village buries the raider above the beach, with a song for the dead that is meant for anyone. (name1) puts the raider's own spear on the grave. Some villagers stay away. Years later, a canoe from the raiders' island stops by the grave, and its paddlers leave flowers there. [Solidarity: neutral]
+
+Return Them to Their People:
+
+(name2) and two warriors carry the raider home by canoe, under a white cloth, unarmed. The raiders' island receives them in silence. Nothing is said. But the next season, there are no raids. Nobody knows if that is why. [Solidarity: raise]
+
+==========================================================================
+LCC-38. The Old Warrior's Advice
+(picks an elder and a young adult)
+
+(name1) fought the raiders forty years ago, and has offered to teach the young warriors how it was done. (name2), who leads the young ones, has heard (name1)'s stories, and thinks half the old ways would get people killed today: the raiders now have longer spears and faster canoes. What should (name2) do?
+
+Learn the Old Ways:
+
+(name2) brings the young warriors to (name1). Some of what (name1) teaches is out of date. Some of it is brilliant: how to read the wind for a landing, how to hide a canoe in the mangroves, how to keep your nerve. (name2) takes the good and quietly drops the rest. (name1) notices, and says nothing. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Learn New Ways:
+
+(name2) thanks (name1) and says the young warriors will work things out for themselves. (name1) is stung, and goes home without a word. Later, (name2) comes back with a question about reading the wind, and (name1) answers it, slowly, without making (him/her) feel foolish. [Solidarity: neutral]
+
+==========================================================================
+LCC-39. The Night Swimmers
+(picks two adults)
+
+The raiders have anchored their canoes off the reef for the night, planning to land at dawn. (name1) and (name2) are the strongest swimmers in the village, and they want to swim out in the dark and cut the canoes loose, so the current carries them away. It is very dangerous. What should the village decide?
+
+Let Them Go:
+
+(name1) and (name2) slip into the black water. An hour later, there is shouting on the reef, and the raiders' canoes are drifting out to sea, the raiders swimming after them. (name1) and (name2) crawl up the beach at dawn, cut to pieces by coral, laughing like children. [effect: (name1) loses a little health; (name2) loses a little health] [Solidarity: raise]
+
+Forbid It:
+
+The village forbids it, and (name1) and (name2) are furious. At dawn, the raiders land. The warriors meet them at the waterline and, after a bitter morning, drive them off. The village is safe. (name1) and (name2) still think their plan would have worked. [effect: small food loss] [Solidarity: neutral]
+
+==========================================================================
+LCC-40. The Last Raid Story
+(picks an elder and a child)
+
+Every child on Isola knows there was a great raid long ago, and every child wants to hear about it. (name2) has asked (name1), who was there, to tell it. (name1) has a hero story ready, the one with the brave warriors and the clever trick with the fishing nets. (He/she) also knows the parts nobody puts in hero stories. What should (name1) tell?
+
+The Hero Story:
+
+(name1) tells the hero story, with the nets and the warriors and the raiders tumbling into the lagoon. (name2) is thrilled and acts it out for days. One day, (name1) thinks, (he/she) will tell (him/her) the rest. [Solidarity: raise]
+
+As It Was:
+
+(name1) tells the story as it was, gently: the nets and the courage, but also the fear, and the people who were missing afterwards. (name2) listens with big eyes. At the end, (he/she) asks if it could happen again. (name1) says (he/she) hopes not, and that is why everyone keeps watch. [Solidarity: neutral]
+
+==========================================================================
+LCC-41. The Guardian Dance at Dawn
+(picks two adults)
+
+Since the last raid, the warriors have started dancing the guardian dance on the beach at dawn: stamping, shouting, spears raised to the sunrise. (name1) loves it and wants it to become a custom. (name2), whose hut is right beside the beach, would like to sleep past dawn just once. What should the village do?
+
+Make It a Daily Custom:
+
+The guardian dance becomes part of every dawn. The children start joining in, then the elders, then (name2), who has given up on sleep and decided to join them. Visitors from other islands come to watch it. [effect: everyone celebrates] [Solidarity: raise]
+
+Keep It for Times of Danger:
+
+The village decides the guardian dance should be kept for times of danger, so it never becomes ordinary. (name1) is disappointed. (name2) sleeps until midmorning for the first time in months. When danger comes again, the dance means more. [Solidarity: neutral]
+
+==========================================================================
+LCC-42. The Ransom Demand
+(picks an elder and an adult)
+
+A raider has stood on the reef and shouted the demand: twenty baskets of food every moon, and the village will be left in peace. Otherwise, they will come. (name1) says twenty baskets is a price worth paying for peace. (name2) says pay once, and they will never stop asking. What should the village do?
+
+Pay Them:
+
+The village pays. The raiders take the baskets and go. The next moon, they come again, and the moon after that. It is a hungry season. But nobody is hurt, and (name1) says that is worth a great deal. (name2) starts quietly training more warriors. [effect: normal food loss] [Solidarity: lower]
+
+Refuse and Prepare:
+
+The village refuses. For a month, everyone waits, watches and drills. The raiders come once, at night, see the whole village waiting on the beach with torches, and do not land. They never ask again. [Solidarity: raise]
+
+==========================================================================
+LCC-43. The Wounded Raider's Child
+(picks two adults)
+
+The raiders fled and left behind a frightened teenager hiding in the mangroves, who says (he/she) was made to come and never wanted to. (He/she) has asked to stay on Isola. (name1) wants to take (him/her) in. (name2) says (his/her) family will be looking for (him/her) and (he/she) belongs with them. What should the village do?
+
+Take Them In:
+
+(name1) takes the teen into (his/her) own family. The teen is silent and watchful for a long time. Then one evening (he/she) laughs at something (name1) says, and keeps laughing. The village sends word to the teen's family that (he/she) is safe, and may visit whenever (he/she) likes. [Solidarity: raise]
+
+Return Them to Their Family:
+
+(name2) takes the teen home under a white cloth. (His/her) family weeps to see (him/her). The teen looks back at Isola from the beach. Whether (he/she) will ever come back, nobody knows. (name2) leaves (him/her) a carved fish, so (he/she) remembers the way. [Solidarity: neutral]
+
+==========================================================================
+LCC-44. The Signal Drums
+(picks two adults)
+
+(name1) has invented a drum code: different beats for raiders, fire, lost canoes, and dinner, so the people in the far gardens know what is happening without running back. (name2) points out that nobody can remember more than two beats. What should the village do?
+
+Learn the Drum Code:
+
+The village learns the code. For a while, it is chaos: someone drums fire when they mean dinner, and half the village runs for water. By the end of the season, everyone knows it, and the far gardens are never caught by surprise again. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+Keep Things Simple:
+
+The village keeps it simple: fast drumming means come quick. (name1) is disappointed. Every time someone drums fast, everyone comes running, and they find out why when they get there. It works well enough. [Solidarity: neutral]
+
+==========================================================================
+LCC-45. The Night of the Long Watch
+(picks three adults)
+
+Fires have been burning all night on the little islet off the north beach: raiders, camped, waiting. (name1), (name2) and (name3) are on watch. (name3) wants to swim over and count them. (name1) says nobody leaves the beach. (name2) is just trying to stay awake. What should they do?
+
+Watch Until Dawn:
+
+They watch all night, taking turns to sleep. At dawn, the fires on the islet go out, and the raiders' canoes leave in the other direction. The village never learns what they wanted. (name3) still wishes (he/she) had gone to see. [Solidarity: neutral]
+
+Send (name3) to See:
+
+(name3) swims over silently and comes back an hour later, shivering, with a count: twelve raiders, two canoes, and a great deal of arguing. The village has its warriors on the beach by dawn. The raiders see them and leave. [effect: (name3) loses a little health] [Solidarity: raise]
+
+==========================================================================
+LCC-46. The Unwanted Weapon
+(picks two adults)
+
+A trader has come with blades made of a strange grey metal that never seems to dull. (He/she) will trade six of them for a canoe. (name1) says the warriors would be unbeatable. (name2) does not trust anything that comes from somewhere nobody can name, and does not want the village to need weapons it cannot make. What should the village do?
+
+Buy the Blades:
+
+The village trades a canoe for six blades. They are frighteningly sharp. One of the warriors cuts a hand badly on the first day. The blades are kept wrapped in the storehouse, mostly, and taken out only when the conch blows. [effect: small tech gain] [Solidarity: neutral]
+
+Refuse Them:
+
+The village refuses. The trader shrugs and leaves. (name1) grumbles for a week. (name2) teaches the warriors to make better spearheads from the black stone on the far beach, and that, (he/she) says, is a weapon nobody can take away. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCC-47. The Healers' Bundle
+(picks a healer and an adult)
+
+(name1), the healer, wants a bundle of bandages and herbs ready in every hut, in case raiders come and the wounded cannot reach the healing hut. (name2) points out that the good cloth is needed for sails and clothes, and the healers have always managed with leaves and bark. What should they use?
+
+Use the Good Cloth:
+
+The village gives up some of its cloth, and (name1) makes neat bundles for every hut. People grumble about wearing patched clothes. Then a fishing accident happens far from the healing hut, and the bundle in the nearest hut is exactly what is needed. The grumbling stops. [effect: small Healing skill for (name1)] [Solidarity: raise]
+
+Use Leaves and Bark:
+
+(name1) makes the bundles from soft bark and big leaves, bound with fiber. They are not as good, and they need changing every few days. But every hut has one, and nobody has to give up their clothes. [effect: small Healing skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCC-48. The Speech After the Raid
+(picks an adult and an elder)
+
+The raid is over. The gardens are trampled, two warriors are hurt, and the village is gathered around the fire, furious. Some of the young warriors want to paddle to the raiders' island tonight and take revenge. (name1) has been asked to speak. So has (name2). What should be said?
+
+Speak for Revenge:
+
+(name1) speaks for revenge, and the young warriors roar. Then (name2) stands, slowly, and asks who will look after the children if the warriors do not come back. The fire goes quiet. Nobody paddles anywhere that night. In the morning, the anger is still there, but it has cooled into something more careful. [Solidarity: neutral]
+
+Speak for Patience:
+
+(name2) speaks first, for patience: guard the village, heal the wounded, and let the raiders wonder what Isola will do. (name1) agrees, though (his/her) hands are shaking. The village stays home. It is not satisfying. But nobody else is hurt. [Solidarity: raise]
+
+==========================================================================
+LCC-49. The Canoe of Peace
+(picks two adults)
+
+After two years of truce, (name1) has an idea: the village and the raiders' island should build a canoe together, half from each island's wood, to mark the peace. (name2) thinks it is a lovely idea that will end in a fight about whose wood is better. What should the village do?
+
+Build It Together:
+
+The two islands build the canoe together on a neutral beach. There is, in fact, a fight about whose wood is better, and another about the paint. But the canoe is finished, and both islands paddle it together at the harvest festival. It sinks a little at the stern. Nobody minds. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+Keep the Peace Simple:
+
+The village sends a song and a basket of fruit instead. The raiders' island sends back a basket of fish. That is the peace: small, careful, and kept. (name1) still thinks the canoe would have been better. (name2) says there is time. [Solidarity: neutral]
+
+==========================================================================
+LCC-50. The Day of the Defenders
+(picks an elder and an adult)
+
+The village has decided to hold a day every year to remember everyone who has ever defended it: the warriors, the watchers, the healers, and the ones who did not come home. (name1) wants it to be a feast, full of noise and life. (name2) thinks it should be quiet, for the ones who were lost. What should the day be?
+
+A Day of Feasting:
+
+The Day of the Defenders is loud and full: games, songs, the stamping dance, and a great feast. At the very end, the village falls silent for the names of the fallen, and then the drums start again. (name2) says it was right after all. [effect: everyone celebrates; small food loss] [Solidarity: raise]
+
+A Day of Quiet Remembrance:
+
+The day is quiet. The village walks to the headland, speaks the names of the fallen, and leaves flowers on the rocks. Then everyone goes home and eats a simple meal with their families. It is a gentle day. (name1) admits it suits it. [Solidarity: neutral]
+
+==========================================================================
+NOTES FOR THE OWNER
+- LCC-01: The owner's defense family ("We will defend our home!"; war dances to hype up the village). Inspiration: the purpose of pre-battle dances in many Pacific cultures; Isola's stamping dance is its own and copies no named dance. Review: 15/15 pass (no violence shown; fear and courage both valid)
+- LCC-02: The owner's "plans against raids". Teens 14-17 may help but warriors are 18+. Review: 15/15 pass (teen agency; no teen in combat)
+- LCC-03: The owner's "warriors = anyone 18 and older". Non-graphic practice. Review: 15/15 pass (warriors any sex 18+; injury minor)
+- LCC-04: The owner's "plans against raids/kidnapping". Protection of children; no harm to them shown. Review: 15/15 pass (children protected; plan not tested by harm)
+- LCC-05: The owner's "war rituals, chants". Past war implied only. Review: 15/15 pass (past harm implied; the elder's feelings respected)
+- LCC-06: The owner's raid family ("fend off attackers or fail"). Raiders from across the water, unnamed. Review: 15/15 pass (violence implied; both choices defensible; no victim blamed)
+- LCC-07: The owner's raid family. Implied violence; a raider's fate left offscreen. Review: 15/15 pass (the warriors are not glorified; injuries real; non-graphic)
+- LCC-08: The owner's "prisoners can join the village or betray it". Prisoners keep dignity and care (justice rules). Review: 15/15 pass (prisoner treated with dignity; mixed ending)
+- LCC-09: The owner's "prisoners can join our village"; inspiration: captives adopted into communities in several Indigenous traditions (purpose only). The former raider is a stranger role. Review: 15/15 pass (the former prisoner's dignity; the village's caution valid)
+- LCC-10: The owner's "prisoners can betray the village". No harm in the escape. Review: 15/15 pass (betrayal acknowledged; no revenge)
+- LCC-11: The owner's "hostages, bargains, exchanges". Adults only; implied. Review: 15/15 pass (no one harmed; bargaining shown as a hard choice)
+- LCC-12: The owner's "people can be kidnapped": kept in the past (the taking was decades ago), told from the survivor's view. Review: 15/15 pass (past harm implied; the survivor not doubted cruelly; no forced disclosure)
+- LCC-13: The owner's defense family; crafts count as Building (8c). Review: 15/15 pass (practical tradeoff)
+- LCC-14: The owner's defense family; freedom of conscience; refusing is not wrongdoing. Review: 15/15 pass (refusal respected; no shaming)
+- LCC-15: The owner's raid family. Implied violence; negotiation valued. Review: 15/15 pass (avoidance first where possible; injuries real)
+- LCC-16: The owner's "warriors going out to conduct duties, and everyone else in support". Supporters any sex and age. Review: 15/15 pass (support from the whole village)
+- LCC-17: The owner's defense family; 8e (homecoming). Review: 15/15 pass (joy and worry held together)
+- LCC-18: The owner's "funeral traditions" for those lost in raids. The fallen warrior is referred to, not a cast villager (no death effect). Review: 15/15 pass (grief, not glory; the family's wish decides)
+- LCC-19: The owner's defense family; supporters honored. Review: 15/15 pass (fairness question; nobody humiliated)
+- LCC-20: The owner's "bargains"; reconciliation not guaranteed. Review: 15/15 pass (repair needs more than gifts; both answers reasonable)
+- LCC-21: The owner's defense family; mistakes without humiliation. Review: 15/15 pass (accountability without humiliation)
+- LCC-22: The owner's defense family; craft = Building (8c); a sacred place respected. Review: 15/15 pass (belief respected; practical cost)
+- LCC-23: The owner's "plans against raids". Engineering = Building. Review: 15/15 pass (security vs livelihood; both reasonable)
+- LCC-24: The owner's raid aftermath. Injury non-graphic. Review: 15/15 pass (care for carers)
+- LCC-25: The owner's defense family; C100-XVI.1 (canoes of friendship). Unnamed island. Review: 15/15 pass (peace pursued without naivety)
+- LCC-26: The owner's defense family; hospitality; repair after harm. Review: 15/15 pass (hospitality without forgetting)
+- LCC-27: The owner's defense family; leisure. Original Isolan festival. Review: 15/15 pass (friendly competition)
+- LCC-28: The owner's "plans against raids". Signals and communication (Research). Review: 15/15 pass (practical; experts can disagree)
+- LCC-29: The owner's "plans against raids"; knowledge-sharing ethics (D5-3). Review: 15/15 pass (secrecy vs sharing; both reasonable)
+- LCC-30: The owner's defense family; ordinary life after fear. Review: 15/15 pass (preparedness without paranoia; no wrong answer)
+- LCC-31: The owner's raid family. Implied conflict; avoidance valued. Review: 15/15 pass (no revenge glorified)
+- LCC-32: The owner's raid family. Fire damage; injuries minor. Review: 15/15 pass (impossible choice; no blame)
+- LCC-33: The owner's defense family; a child acts, nobody is hurt. Review: 15/15 pass (child safe; feelings respected)
+- LCC-34: The owner's defense family; uncertainty. Review: 15/15 pass (uncertainty not resolved by magic)
+- LCC-35: The owner's defense family; Isola's own paint customs. Review: 15/15 pass (gentle; children's feelings)
+- LCC-36: The owner's defense family; accountability without humiliation. Review: 15/15 pass (no forced reconciliation; accountability)
+- LCC-37: The owner's raid family (a raider may die in self-defense, implied). Dignity for the dead. Review: 15/15 pass (enemy dead treated with dignity; non-graphic)
+- LCC-38: The owner's defense family; elders not automatically right. Review: 15/15 pass (elders can be wrong; respect without deference)
+- LCC-39: The owner's raid family. Risk implied; no deaths. Review: 15/15 pass (risk acknowledged; consent of the swimmers)
+- LCC-40: The owner's defense family; past war implied, age-appropriate. Review: 15/15 pass (children spoken to age-appropriately; war not glorified)
+- LCC-41: The owner's "war rituals, dances". Isola's own dance. Review: 15/15 pass (custom made by the people)
+- LCC-42: The owner's "bargains"; a hard choice, no harm shown. Review: 15/15 pass (no right answer; consequences follow the story)
+- LCC-43: The owner's "prisoners can join the village". A teen, protected; nothing harmful. Review: 15/15 pass (a young person treated with care; no harm)
+- LCC-44: The owner's "plans against raids"; inspiration: talking drums in many cultures (purpose only). Review: 15/15 pass (practical; humor)
+- LCC-45: The owner's defense family; fear and waiting. Review: 15/15 pass (waiting shown honestly)
+- LCC-46: The owner's defense family; found or traded objects' origins stay a guess. Review: 15/15 pass (no outsider confirmed; tech not superiority)
+- LCC-47: The owner's "plans against raids"; supplies. Cloth flavor only here. Review: 15/15 pass (preparation; practical tradeoff)
+- LCC-48: The owner's defense family; 8e speeches. No revenge shown. Review: 15/15 pass (anger validated; violence never glorified)
+- LCC-49: The owner's defense family; repair after conflict; peace is fragile. Review: 15/15 pass (peace earned; not guaranteed)
+- LCC-50: The owner's defense and funeral families; remembering without glorifying. Review: 15/15 pass (memory without glory; both forms respectful)

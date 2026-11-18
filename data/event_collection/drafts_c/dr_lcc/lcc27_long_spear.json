@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Spear Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc27_long_spear",
+  "source": "draft_lcc",
+  "lines": [
+   372,
+   383
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L372",
+  "ledger": [
+   {
+    "src": "L373",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L379",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L379",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L383",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The warriors want a spear-throwing contest at the festival: hold it, or make it a contest anyone can enter.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The warriors want a spear-throwing contest at the harvest festival, to show the village how strong they have become. (subject) is the best thrower on the island and very much wants to win. (friend) suggests opening the contest to anyone who wants to try. (subject) suspects this is because (friend) cannot throw. What should they do?",
+   "src": "L375",
+   "choices": [
+    {
+     "label": "Warriors Only",
+     "next": "o1",
+     "src": "L377"
+    },
+    {
+     "label": "Anyone Can Throw",
+     "next": "o2",
+     "src": "L381"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The warriors throw. (subject) wins, by a hand's width, and is unbearable about it for a week. (friend) cheers loudly anyway, and is the first to carry (subject.him/her) around the festival on (friend.his/her) shoulders.",
+   "src": "L379",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L379"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The contest is open. A grandmother throws further than half the warriors. A child throws the spear backwards. (friend) throws it into a tree and it stays there for the rest of the season. (subject) still wins, and laughs harder than anyone.",
+   "src": "L383",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L383"
+    }
+   ]
+  }
+ }
+}

@@ -642,6 +642,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "draft_lcc": {
+  "source": "docs/more-island-events/New Events - Living Culture III (draft for owner).txt",
+  "source_sha256": "e8f717bbefe6cf8ea6086371c01781abd26d829206d9da299c7b72839d50f84b",
+  "counts": {
+   "rows": 52,
+   "events": 50,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 50,
+   "series": {
+    "dr_lcc": 50
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "draft_rm2": {
   "source": "docs/more-island-events/New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
   "source_sha256": "a162ecbec360f51ee9e9e9053bd17bbd2f97770f41ef3ad9b4d6d581b40e6acc",
@@ -98465,6 +98482,1864 @@
    "source": "draft_lcb",
    "source_check": {
     "heading": "L694: LCB-50. The Laughter at the Grave",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_lcc_notes_intro",
+   "title": "Living Culture III: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_lcc_notes_end",
+   "title": "Living Culture III: notes for the owner",
+   "games": [],
+   "lines": [
+    708,
+    758
+   ],
+   "kind": "notes",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L708: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lcc01_we_will_defend",
+   "title": "We Will Defend Our Home",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    8,
+    19
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L8: LCC-01. We Will Defend Our Home",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc02_watch_fires",
+   "title": "The Watch Fires",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22,
+    33
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L22: LCC-02. The Watch Fires",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc03_warriors",
+   "title": "The Warriors' Practice",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    36,
+    47
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L36: LCC-03. The Warriors' Practice",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc04_plan_children",
+   "title": "The Plan for the Children",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    50,
+    61
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L50: LCC-04. The Plan for the Children",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc05_war_chant",
+   "title": "The War Chant",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    64,
+    75
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L64: LCC-05. The War Chant",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc06_raiders_gardens",
+   "title": "Raiders at the Gardens",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    78,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L78: LCC-06. Raiders at the Gardens",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc07_night_conch_blew",
+   "title": "The Night the Conch Blew",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    92,
+    103
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L92: LCC-07. The Night the Conch Blew",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc08_captured_raider",
+   "title": "The Captured Raider",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    106,
+    117
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L106: LCC-08. The Captured Raider",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc09_prisoner_stayed",
+   "title": "The Prisoner Who Stayed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    120,
+    131
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L120: LCC-09. The Prisoner Who Stayed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc10_prisoner_ran",
+   "title": "The Prisoner Who Ran",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    134,
+    145
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L134: LCC-10. The Prisoner Who Ran",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc11_hostage_exchange",
+   "title": "The Hostage Exchange",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    148,
+    159
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L148: LCC-11. The Hostage Exchange",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc12_taken_child",
+   "title": "The Taken Child Returns",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    162,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L162: LCC-12. The Taken Child Returns",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc13_shields_village",
+   "title": "The Shields of the Village",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    176,
+    187
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L176: LCC-13. The Shields of the Village",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc14_warrior_would",
+   "title": "The Warrior Who Would Not Fight",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    190,
+    201
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L190: LCC-14. The Warrior Who Would Not Fight",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc15_ambush_forest",
+   "title": "The Ambush in the Forest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    204,
+    215
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L204: LCC-15. The Ambush in the Forest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc16_feast_before",
+   "title": "The Feast Before the Watch",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    218,
+    229
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L218: LCC-16. The Feast Before the Watch",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc17_warriors_return",
+   "title": "The Warriors Return",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    232,
+    243
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L232: LCC-17. The Warriors Return",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc18_honor_song",
+   "title": "The Honor Song for the Fallen",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    246,
+    257
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L246: LCC-18. The Honor Song for the Fallen",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc19_shell_necklace",
+   "title": "The Shell Necklace of the Defenders",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    260,
+    271
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L260: LCC-19. The Shell Necklace of the Defenders",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc20_raider_gift",
+   "title": "The Raider's Gift",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    274,
+    285
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L274: LCC-20. The Raider's Gift",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc21_lookout_mistake",
+   "title": "The Lookout's Mistake",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    288,
+    299
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L288: LCC-21. The Lookout's Mistake",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc22_spearhead_makers",
+   "title": "The Spearhead Makers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    302,
+    313
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L302: LCC-22. The Spearhead Makers",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc23_canoe_wall",
+   "title": "The Canoe Wall",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    316,
+    327
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L316: LCC-23. The Canoe Wall",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc24_wounded_healer",
+   "title": "The Wounded Healer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    330,
+    341
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L330: LCC-24. The Wounded Healer",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc25_peace_council",
+   "title": "The Peace Council",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    344,
+    355
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L344: LCC-25. The Peace Council",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc26_truce_feast",
+   "title": "The Truce Feast",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    358,
+    369
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L358: LCC-26. The Truce Feast",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc27_long_spear",
+   "title": "The Long Spear Contest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    372,
+    383
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L372: LCC-27. The Long Spear Contest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc28_watchers_signal",
+   "title": "The Watchers' Signal",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    386,
+    397
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L386: LCC-28. The Watchers' Signal",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc29_kept_caves",
+   "title": "The Kept Secret of the Caves",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    400,
+    411
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L400: LCC-29. The Kept Secret of the Caves",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc30_raid_never_came",
+   "title": "The Raid That Never Came",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    414,
+    425
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L414: LCC-30. The Raid That Never Came",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc31_stolen_canoes",
+   "title": "The Stolen Canoes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    428,
+    439
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L428: LCC-31. The Stolen Canoes",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc32_fire_arrows",
+   "title": "The Fire Arrows",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    442,
+    453
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L442: LCC-32. The Fire Arrows",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc33_brave_runner",
+   "title": "The Brave Little Runner",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    456,
+    467
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L456: LCC-33. The Brave Little Runner",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc34_message_other",
+   "title": "The Message From the Other Island",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    470,
+    481
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L470: LCC-34. The Message From the Other Island",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc35_painted_faces",
+   "title": "The Painted Faces",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    484,
+    495
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L484: LCC-35. The Painted Faces",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc36_two_warriors",
+   "title": "The Two Warriors' Quarrel",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    498,
+    509
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L498: LCC-36. The Two Warriors' Quarrel",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc37_grave_unknown",
+   "title": "The Grave of the Unknown Raider",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    512,
+    523
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L512: LCC-37. The Grave of the Unknown Raider",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc38_warrior_advice",
+   "title": "The Old Warrior's Advice",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    526,
+    537
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L526: LCC-38. The Old Warrior's Advice",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc39_night_swimmers",
+   "title": "The Night Swimmers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    540,
+    551
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L540: LCC-39. The Night Swimmers",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc40_last_raid_story",
+   "title": "The Last Raid Story",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    554,
+    565
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L554: LCC-40. The Last Raid Story",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc41_guardian_dance",
+   "title": "The Guardian Dance at Dawn",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    568,
+    579
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L568: LCC-41. The Guardian Dance at Dawn",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc42_ransom_demand",
+   "title": "The Ransom Demand",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    582,
+    593
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L582: LCC-42. The Ransom Demand",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc43_wounded_raider",
+   "title": "The Wounded Raider's Child",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    596,
+    607
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L596: LCC-43. The Wounded Raider's Child",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc44_signal_drums",
+   "title": "The Signal Drums",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    610,
+    621
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L610: LCC-44. The Signal Drums",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc45_night_long_watch",
+   "title": "The Night of the Long Watch",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    624,
+    635
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L624: LCC-45. The Night of the Long Watch",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc46_unwanted_weapon",
+   "title": "The Unwanted Weapon",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    638,
+    649
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L638: LCC-46. The Unwanted Weapon",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc47_healers_bundle",
+   "title": "The Healers' Bundle",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    652,
+    663
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L652: LCC-47. The Healers' Bundle",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc48_speech_after",
+   "title": "The Speech After the Raid",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    666,
+    677
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L666: LCC-48. The Speech After the Raid",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc49_canoe_peace",
+   "title": "The Canoe of Peace",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    680,
+    691
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L680: LCC-49. The Canoe of Peace",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lcc50_day_defenders",
+   "title": "The Day of the Defenders",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    694,
+    705
+   ],
+   "kind": "event",
+   "section": "dr_lcc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_lcc",
+   "source": "draft_lcc",
+   "source_check": {
+    "heading": "L694: LCC-50. The Day of the Defenders",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

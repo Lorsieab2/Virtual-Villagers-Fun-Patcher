@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day of the Defenders",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc50_day_defenders",
+  "source": "draft_lcc",
+  "lines": [
+   694,
+   705
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L694",
+  "ledger": [
+   {
+    "src": "L695",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L701",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L701",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L705",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants a yearly day to remember its defenders: make it a day of feasting, or a day of quiet remembrance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has decided to hold a day every year to remember everyone who has ever defended it: the warriors, the watchers, the healers, and the ones who did not come home. (subject) wants it to be a feast, full of noise and life. (friend) thinks it should be quiet, for the ones who were lost. What should the day be?",
+   "src": "L697",
+   "choices": [
+    {
+     "label": "A Day of Feasting",
+     "next": "o1",
+     "src": "L699"
+    },
+    {
+     "label": "A Day of Quiet Remembrance",
+     "next": "o2",
+     "src": "L703"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The Day of the Defenders is loud and full: games, songs, the stamping dance, and a great feast. At the very end, the village falls silent for the names of the fallen, and then the drums start again. (friend) says it was right after all.",
+   "src": "L701",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L701"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L701"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The day is quiet. The village walks to the headland, speaks the names of the fallen, and leaves flowers on the rocks. Then everyone goes home and eats a simple meal with their families. It is a gentle day. (subject) admits it suits it.",
+   "src": "L705"
+  }
+ }
+}

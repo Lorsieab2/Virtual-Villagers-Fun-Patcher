@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Watchers' Signal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc28_watchers_signal",
+  "source": "draft_lcc",
+  "lines": [
+   386,
+   397
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L393",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L397",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L397",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two lookouts disagree about the signals: use the conch, or use smoke by day and fire by night.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) says the conch is the only signal anyone needs: three blasts for raiders, two for a lost canoe, one for dinner. (friend) says the conch cannot be heard past the hills in a wind, and the village needs smoke by day and fire by night. They have been arguing about it at every watch for a month. What should the village use?",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "The Conch",
+     "next": "o1",
+     "src": "L391"
+    },
+    {
+     "label": "Smoke and Fire",
+     "next": "o2",
+     "src": "L395"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village keeps the conch. During the next storm, (friend) blows three blasts from the north headland and nobody in the village hears it, because it was a false alarm anyway, a floating log. But (subject) is quiet for a while afterwards.",
+   "src": "L393"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village builds smoke piles and fire piles on every headland, and keeps the conch for close warnings. The first time the smoke goes up, the whole village sees it at once. It turns out to be (subject) cooking lunch. The signals are kept. Lunch is moved.",
+   "src": "L397",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L397"
+    }
+   ]
+  }
+ }
+}

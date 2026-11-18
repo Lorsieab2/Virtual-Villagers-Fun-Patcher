@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lookout's Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc21_lookout_mistake",
+  "source": "draft_lcc",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult and an adult)"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A young lookout blew the raid alarm for a canoe of lost fishers: forgive the mistake, or take them off the watch for a while.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last night, (subject), on watch at the headland, saw canoes in the dark and blew the conch three times. The whole village ran for the caves and the warriors grabbed their spears. It was three canoes of fishers from the next bay, lost in the dark. (subject) is mortified. (friend), who leads the watch, has to decide what to do. What should (friend) do?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Forgive the Mistake",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "Take a Break From the Watch",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tells the village that a lookout who blows too early is better than one who blows too late. A few people grumble about lost sleep. (subject) keeps (subject.his/her) post, and from then on waits one breath longer before blowing, and looks very carefully.",
+   "src": "L295"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) takes (subject) off the watch for a month, to learn the canoe shapes from the elders. (subject) is hurt, but goes. By the end of the month, (subject.he/she) can tell a raider's canoe from a fisher's by its shadow alone. (subject.He/she) goes back to the headland and never makes that mistake again.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L299"
+    }
+   ]
+  }
+ }
+}

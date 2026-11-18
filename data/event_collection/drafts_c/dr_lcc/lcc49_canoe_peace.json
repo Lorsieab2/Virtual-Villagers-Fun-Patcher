@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe of Peace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc49_canoe_peace",
+  "source": "draft_lcc",
+  "lines": [
+   680,
+   691
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L680",
+  "ledger": [
+   {
+    "src": "L681",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L687",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L687",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village and the raiders' island agree to build a canoe together as a sign of peace: build it, or keep the peace simple.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After two years of truce, (subject) has an idea: the village and the raiders' island should build a canoe together, half from each island's wood, to mark the peace. (friend) thinks it is a lovely idea that will end in a fight about whose wood is better. What should the village do?",
+   "src": "L683",
+   "choices": [
+    {
+     "label": "Build It Together",
+     "next": "o1",
+     "src": "L685"
+    },
+    {
+     "label": "Keep the Peace Simple",
+     "next": "o2",
+     "src": "L689"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The two islands build the canoe together on a neutral beach. There is, in fact, a fight about whose wood is better, and another about the paint. But the canoe is finished, and both islands paddle it together at the harvest festival. It sinks a little at the stern. Nobody minds.",
+   "src": "L687",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L687"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village sends a song and a basket of fruit instead. The raiders' island sends back a basket of fish. That is the peace: small, careful, and kept. (subject) still thinks the canoe would have been better. (friend) says there is time.",
+   "src": "L691"
+  }
+ }
+}
