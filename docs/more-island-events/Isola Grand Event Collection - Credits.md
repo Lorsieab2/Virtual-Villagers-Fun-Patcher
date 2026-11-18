@@ -609,7 +609,7 @@ Written in the style of the owner's own events. The owner waived the review ("I'
 
 NEW EVENTS: LIVING CULTURE II
 
-Source: New Events - Living Culture II (draft for owner).txt (SHA-256 3899798D8524D15D3B2EF2B75ADEABCA28DBA24206F141FF1769D0C10F4EE67E). The texts below are copied from it verbatim.
+Source: New Events - Living Culture II (draft for owner).txt (SHA-256 5B8409F0393839EA2069A8DB5186B44F74080F7FB1BFD2B2D79D5DCE9535D0A7). The texts below are copied from it verbatim.
 
 NEW EVENTS: LIVING CULTURE II CREDIT: Living Culture II (its title and introduction) (source lines 1-3)
 

@@ -29,7 +29,7 @@
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "80C9469BC2DB43E9E9846DAED6062F03AA83613A0069AA28E5F7C3E93D87B9C3"
+      "sha256": "6CBF393059C37FFD9FDA03913CFFF0763DFB8E13B877367735B8E4A65D0742DA"
     },
     {
       "source": "assets/event_collection/vv2/living.pak",
@@ -11849,7 +11849,7 @@
     {
       "source": "assets/event_collection/lcb50_laughter_grave.cieg",
       "destination": "Island Event Collection/lcb50_laughter_grave.cieg",
-      "sha256": "CDB4A2A408D7DCA27739C32EE98CAF1C66ECCFF71630358D67686E14DD4D6590"
+      "sha256": "B7C65246BF09D0DB16BC990247989F1BD18396F16D0A3EE1CC82F3B351FB4258"
     },
     {
       "source": "assets/event_collection/lcc01_we_will_defend.cieg",

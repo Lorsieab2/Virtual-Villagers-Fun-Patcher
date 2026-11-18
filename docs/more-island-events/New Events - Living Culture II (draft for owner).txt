@@ -694,7 +694,7 @@ Keep Them for Now:
 LCB-50. The Laughter at the Grave
 (picks two adults)
 
-At the burial of Old Auntie Pip, the funniest woman on Isola, (name1) suddenly remembers the time Auntie Pip hid a crab in the elders' meeting hut, and laughs out loud. Everyone turns. (name2), Auntie Pip's daughter, stares at (name1). What should (name2) do?
+At the burial of Old Auntie Pip, the funniest woman on Isola, (name1) suddenly remembers the time Auntie Pip hid a crab in the elders' meeting hut, and laughs out loud. Everyone turns. (name2), Auntie Pip's eldest child, stares at (name1). What should (name2) do?
 
 Laugh Along:
 

@@ -65,7 +65,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "At the burial of Old Auntie Pip, the funniest woman on Isola, (subject) suddenly remembers the time Auntie Pip hid a crab in the elders' meeting hut, and laughs out loud. Everyone turns. (friend), Auntie Pip's daughter, stares at (subject). What should (friend) do?",
+   "text": "At the burial of Old Auntie Pip, the funniest woman on Isola, (subject) suddenly remembers the time Auntie Pip hid a crab in the elders' meeting hut, and laughs out loud. Everyone turns. (friend), Auntie Pip's eldest child, stares at (subject). What should (friend) do?",
    "src": "L697",
    "choices": [
     {
