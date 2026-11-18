@@ -156,10 +156,39 @@ static int vs_parse_tenths(const char *text, int len) {
 
 /* ---- The scores file ------------------------------------------------------------------------------------------ */
 
+/* The pages already counted (EXACTLY ONCE: a page the game shows again after a restart, because the save it was
+   killed before lacks it, never moves the score twice): the last VS_APPLIED keys, kept in the file as
+   "Applied <16 hex>-<8 hex>" lines -- the event's purchase time and the page's place in its run. */
+#define VS_APPLIED 64
+
+typedef struct {
+    unsigned __int64 when;
+    unsigned int pos;
+} vs_key;
+
 typedef struct {
     int score[VS_COUNT];
     int found[VS_COUNT];
+    vs_key applied[VS_APPLIED];
+    int applied_count;
 } vs_parsed;
+
+static vs_key g_applied[VS_APPLIED];
+static int g_applied_count;            /* how many of g_applied hold a key (the newest last) */
+
+static int vs_hex(const char *p, int n, unsigned __int64 *out) {
+    int i;
+    *out = 0;
+    for (i = 0; i < n; ++i) {
+        char c = p[i];
+        int v = c >= '0' && c <= '9' ? c - '0' : c >= 'A' && c <= 'F' ? c - 'A' + 10 : -1;
+        if (v < 0) {
+            return 0;
+        }
+        *out = *out << 4 | (unsigned __int64)v;
+    }
+    return 1;
+}
 
 /* The file: its header line, then "<name> <0..100>" lines; a name this build does not know is ignored (a later
    build's score), a known one twice, out of range or not a number makes the file unreadable. */
@@ -171,6 +200,7 @@ static int vs_validate(const unsigned char *data, DWORD len, void *ctx) {
         out->score[k] = VS_START;
         out->found[k] = 0;
     }
+    out->applied_count = 0;
     for (; p < end; p = line_end < end ? line_end + 1 : end) {
         int n;
         for (line_end = p; line_end < end && *line_end != '\n'; ++line_end) {
@@ -187,6 +217,18 @@ static int vs_validate(const unsigned char *data, DWORD len, void *ctx) {
             continue;
         }
         if (n == 0) {
+            continue;
+        }
+        if (n == 8 + 16 + 1 + 8 && memcmp(p, "Applied ", 8) == 0 && p[24] == '-') {
+            unsigned __int64 when, pos;
+            if (!vs_hex(p + 8, 16, &when) || !vs_hex(p + 25, 8, &pos)) {
+                return 0;
+            }
+            if (out->applied_count < VS_APPLIED) {
+                out->applied[out->applied_count].when = when;
+                out->applied[out->applied_count].pos = (unsigned int)pos;
+                ++out->applied_count;
+            }
             continue;
         }
         for (k = 0; k < VS_COUNT; ++k) {
@@ -346,6 +388,8 @@ static int vs_load(void) {
     for (k = 0; k < VS_COUNT; ++k) {
         g_score[k] = result == VV_SIDECAR_LOAD_VALID ? parsed.score[k] : VS_START;
     }
+    g_applied_count = result == VV_SIDECAR_LOAD_VALID ? parsed.applied_count : 0;
+    memcpy(g_applied, parsed.applied, sizeof g_applied);
     g_slot = slot;
     if (result != VV_SIDECAR_LOAD_VALID) {
         /* The village's first moment with this patch: its file and its log, with the starting score. */
@@ -373,6 +417,10 @@ static int vs_publish(void) {
     n = wsprintfA(text, "%s\r\n", VS_FILE_HEADER);
     for (k = 0; k < VS_COUNT; ++k) {
         n += wsprintfA(text + n, "%s %d\r\n", VS_SCORES[k].name, g_score[k]);
+    }
+    for (k = 0; k < g_applied_count; ++k) {
+        n += wsprintfA(text + n, "Applied %08X%08X-%08X\r\n", (unsigned int)(g_applied[k].when >> 32),
+                       (unsigned int)g_applied[k].when, g_applied[k].pos);
     }
     parts[0] = text;
     sizes[0] = (DWORD)n;
@@ -508,6 +556,41 @@ int __stdcall VvfpVillageScoreTag(int game, int score_id, int tag, const char *e
     vs_log(g_slot, score_id, line);
     LeaveCriticalSection(&g_lock);
     return after;
+}
+
+/* VvfpVillageScoreTag EXACTLY ONCE for the page `when` (its event's purchase time, two dwords) and `pos` (its place
+   in the run) name: a page already counted (shown again after a restart, the save it was killed before lacking it)
+   changes nothing and returns the score as it is.  -1 as VvfpVillageScoreTag. */
+int __stdcall VvfpVillageScoreTagOnce(int game, int score_id, int tag, const char *event_title, unsigned int when_lo,
+                                      unsigned int when_hi, unsigned int pos) {
+    unsigned __int64 when = (unsigned __int64)when_hi << 32 | when_lo;
+    int k, score;
+    if (g_game == 0 || game != g_game || score_id < 0 || score_id >= VS_COUNT || tag < VS_TAG_RAISE
+        || tag > VS_TAG_NEUTRAL) {
+        return -1;
+    }
+    EnterCriticalSection(&g_lock);
+    if (!vs_load()) {
+        LeaveCriticalSection(&g_lock);
+        return -1;
+    }
+    for (k = 0; k < g_applied_count; ++k) {
+        if (g_applied[k].when == when && g_applied[k].pos == pos) {
+            score = g_score[score_id];
+            LeaveCriticalSection(&g_lock);
+            return score;
+        }
+    }
+    if (g_applied_count == VS_APPLIED) {
+        memmove(g_applied, g_applied + 1, sizeof g_applied - sizeof g_applied[0]);
+        --g_applied_count;
+    }
+    g_applied[g_applied_count].when = when;
+    g_applied[g_applied_count].pos = pos;
+    ++g_applied_count;
+    (void)vs_publish();                 /* the key kept, even for a move that changes nothing */
+    LeaveCriticalSection(&g_lock);
+    return VvfpVillageScoreTag(game, score_id, tag, event_title);
 }
 
 /* The factor, per mille (1000 = unchanged), for an event or ending favoured by `favour` (1 a high score: cooperative

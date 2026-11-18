@@ -383,6 +383,35 @@ if HAVE_EMULATOR:
                     got = r.p.export("VvfpStoryProbeCollectionChoose", 4, trace, 64)
                     self.assertEqual(r.p.u32(trace + 4 * ((got & 0xFF) - 1)) & 0xFFFF, entry)
 
+        def test_a_series_member_is_weighted_by_its_own_factor(self) -> None:
+            """A walk (solo), and a series of a cooperative and a plain member.  With cooperative x3 the series weighs
+            (3000 + 1000) / 2 = 2000 against the walk's 1000, and its member is drawn 3000 : 1000 -- the cooperative
+            member's share is its own share x3; without the companion: the series as one event, its members alike."""
+            manifest = "\n".join([
+                "# series",
+                "a_walk\tA Walk\t4\t1\t\tc\td\t\t",
+                "s_feast\tThe Feast\t4\t1\tser\tc\td\t\t\tcooperative",
+                "s_chat\tA Chat\t4\t1\tser\tc\td\t\t",
+            ]) + "\n"
+
+            def pick(rolls, solidarity):
+                r = Roll(4)
+                text = r.p.alloc(len(manifest) + 1)
+                r.p.write(text, manifest.encode() + b"\0")
+                r.p.export("VvfpStoryProbeCollectionManifest", text, 0, 0b111)
+                if solidarity:
+                    fake_solidarity(r.p, 3000, 1000, [], hook=False)
+                r.rolls(*rolls, 0, 0)
+                trace = r.p.alloc(64 * 4)
+                got = r.p.export("VvfpStoryProbeCollectionChoose", 4, trace, 64)
+                return r.p.u32(trace + 4 * ((got & 0xFF) - 1)) & 0xFFFF
+
+            for rolls, entry in (((0, 0), 0), ((999, 3999), 0), ((1000, 2999), 1), ((2999, 3000), 2)):
+                with self.subTest(rolls=rolls):
+                    self.assertEqual(pick(rolls, True), entry)
+            for rolls, entry in (((0, 0), 0), ((1, 0), 1), ((1, 1), 2)):
+                with self.subTest(off=rolls):
+                    self.assertEqual(pick(rolls, False), entry)
         def test_at_50_the_draw_is_as_before(self) -> None:
             for draw in range(6):
                 with self.subTest(draw=draw):

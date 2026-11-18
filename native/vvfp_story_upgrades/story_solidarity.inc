@@ -49,11 +49,23 @@ static int cg_sol_factor(int game, int favour) {
     return k >= 1000 && k <= 1000000 ? k : 1000;
 }
 
-/* A page reached with its effects made: its tag, if any, passed on. */
-static void cg_sol_reached(int game, const unsigned char *n, const char *title) {
+typedef int (__stdcall *cg_sol_tag_once_fn)(int game, int score_id, int tag, const char *title, unsigned int when_lo,
+                                            unsigned int when_hi, unsigned int pos);
+
+/* A page reached with its effects made: its tag, if any, passed on EXACTLY ONCE for this run (`when`, its purchase)
+   and this page (`pos`: its display and its place on the path) -- a page shown again after a restart, because the
+   save lacks it, is not counted twice. */
+static void cg_sol_reached(int game, const unsigned char *n, const char *title, unsigned __int64 when,
+                           unsigned int pos) {
+    cg_sol_tag_once_fn once;
     cg_sol_tag_fn f;
     int tag = cg_sol_tag(n);
     if (tag == 0) {
+        return;
+    }
+    once = (cg_sol_tag_once_fn)(void *)cg_sol_proc("VvfpVillageScoreTagOnce");
+    if (once != NULL) {
+        (void)once(game, 0, tag, title, (unsigned int)when, (unsigned int)(when >> 32), pos);
         return;
     }
     f = (cg_sol_tag_fn)(void *)cg_sol_proc("VvfpVillageScoreTag");

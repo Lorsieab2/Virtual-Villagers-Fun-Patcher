@@ -136,7 +136,18 @@ int main(void) {
     CHECK(VvfpVillageScoreGet(4, 0) == -1 && VvfpVillageScoreFactor(4, 0, VS_FAVOUR_LOW) == 1000,
           "no village: nothing, factor 1000");
     VvfpVillageScoreProbeStart(4, 2, 10);
-    CHECK(VvfpVillageScoreTag(4, 0, VS_TAG_RAISE, "Before Start Over") == 5, "the old village at 5");
+    CHECK(VvfpVillageScoreTagOnce(4, 0, VS_TAG_RAISE, "Once", 0x1234u, 0x1u, 0x00030007u) == 5
+          && VvfpVillageScoreTagOnce(4, 0, VS_TAG_RAISE, "Once", 0x1234u, 0x1u, 0x00030007u) == 5,
+          "a page counted once: shown again, no second move");
+    VvfpVillageScoreProbeStart(4, 2, 10);   /* a restart: the page shown again from the run's file */
+    CHECK(VvfpVillageScoreTagOnce(4, 0, VS_TAG_RAISE, "Once", 0x1234u, 0x1u, 0x00030007u) == 5,
+          "after a restart the same page is still counted once (the key kept in the file)");
+    CHECK(VvfpVillageScoreTagOnce(4, 0, VS_TAG_RAISE, "Once again", 0x1235u, 0x1u, 0x00030007u) == 10,
+          "another run's page counts");
+    VvfpVillageScoreProbeStart(4, 2, 10);
+    CHECK(VvfpVillageScoreTag(4, 0, VS_TAG_LOWER, "Down") == 5, "back to 5");
+    CHECK(VvfpVillageScoreTag(4, 0, VS_TAG_LOWER, "Down") == 0 && VvfpVillageScoreTag(4, 0, VS_TAG_RAISE,
+          "Before Start Over") == 5, "the old village at 5");
     VvfpVillageScoreReset(4, 2);           /* Start Over: told first, then the folder is deleted */
     DeleteFileA(path);
     CHECK(VvfpVillageScoreGet(4, 0) == 50, "after Start Over the new village starts at 50, not the old score");

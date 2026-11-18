@@ -569,6 +569,16 @@ static int sc_weight(int i, const int *factor, int unit) {
     return unit == 1 ? sc_list[i].weight : sc_list[i].weight * factor[i];
 }
 
+/* Series i's draw weight (at its head, with members left; else 0): its own, or (unit 1000) x its members' mean
+   factor, so each member's own share is x its factor. */
+static int sc_series_weight(int i, const short *head, const short *members_left, const int *series_sum, int unit) {
+    if (head[i] != i || members_left[i] <= 0) {
+        return 0;
+    }
+    return unit == 1 ? lv_series_weight(i)
+                     : (int)((__int64)lv_series_weight(i) * series_sum[i] / members_left[i]);
+}
+
 /* The draw (see the header): 1 when an event was armed.  One draw over every candidate at once -- each More Island
    Events event weight 1, each collection event its weight (1 unless its manifest says otherwise), each series 1 with
    its members equally likely -- so every event is as likely as any other, whichever source it comes from.  A
@@ -580,6 +590,7 @@ static int sc_choose_and_arm(int game) {
     static short head[SC_MAX];         /* the first entry of the same series (itself when none) */
     static short members_left[SC_MAX]; /* at a series' head: its members still left */
     static int factor[SC_MAX];         /* Village Solidarity: each entry's factor, per mille */
+    static int series_sum[SC_MAX];     /* ... at a series' head: its members' factors still left, summed */
     int n_more = 0, n_coll = 0, i, k, unit = 1;
     if (sc_more_on(game)) {
         sm_fill_more(game);
@@ -618,19 +629,28 @@ static int sc_choose_and_arm(int game) {
         }
     }
     /* Village Solidarity: with its companion, a cooperative or repair event's weight x its factor and every other
-       candidate's x 1000 (their odds among themselves unchanged); without it (every factor 1000) the draw is
-       exactly the one before, with the same numbers. */
+       candidate's x 1000 (their odds among themselves unchanged); a series' weight x its members' mean factor, and
+       its member drawn by their factors -- each member's own share x its factor; without it (every factor 1000) the
+       draw is exactly the one before, with the same numbers. */
     for (i = 0; i < sc_count && n_coll > 0; ++i) {
-        factor[i] = sc_list[i].series[0] != '\0' ? 1000 : cg_sol_factor(game, sc_list[i].favour);
+        factor[i] = cg_sol_factor(game, sc_list[i].favour);
         if (factor[i] != 1000) {
             unit = 1000;
         }
     }
     while (n_more > 0 || n_coll > 0) {
         int coll_total = 0, pick, chosen = -1;
+        for (i = 0; i < sc_count; ++i) {
+            series_sum[i] = 0;
+        }
+        for (i = 0; i < sc_count; ++i) {
+            if (sc_list[i].series[0] != '\0' && left[i]) {
+                series_sum[head[i]] += factor[i];
+            }
+        }
         for (i = 0; i < sc_count && n_coll > 0; ++i) {
             if (sc_list[i].series[0] != '\0') {
-                coll_total += head[i] == i && members_left[i] > 0 ? lv_series_weight(i) * unit : 0;
+                coll_total += sc_series_weight(i, head, members_left, series_sum, unit);
             } else if (left[i]) {
                 coll_total += sc_weight(i, factor, unit);
             }
@@ -652,7 +672,7 @@ static int sc_choose_and_arm(int game) {
         for (i = 0; i < sc_count && chosen < 0; ++i) {
             int w;
             if (sc_list[i].series[0] != '\0') {
-                w = head[i] == i && members_left[i] > 0 ? lv_series_weight(i) * unit : 0;
+                w = sc_series_weight(i, head, members_left, series_sum, unit);
             } else {
                 w = left[i] ? sc_weight(i, factor, unit) : 0;
             }
@@ -664,12 +684,24 @@ static int sc_choose_and_arm(int game) {
         if (chosen < 0) {
             return 0;
         }
-        if (sc_list[chosen].series[0] != '\0') {
+        if (sc_list[chosen].series[0] != '\0' && unit == 1) {
             int series_pick = sc_rand(game, members_left[chosen]), m;
             for (m = chosen; m < sc_count; ++m) {
                 if (left[m] && head[m] == chosen && series_pick-- == 0) {
                     chosen = m;
                     break;
+                }
+            }
+        } else if (sc_list[chosen].series[0] != '\0') {
+            /* Village Solidarity: the member by its factor (all 1000: each as likely, as above). */
+            int series_pick = cg_sol_random_below(ce_adapter_for(game), series_sum[chosen]), m;
+            for (m = chosen; m < sc_count; ++m) {
+                if (left[m] && head[m] == chosen) {
+                    if (series_pick < factor[m]) {
+                        chosen = m;
+                        break;
+                    }
+                    series_pick -= factor[m];
                 }
             }
         }

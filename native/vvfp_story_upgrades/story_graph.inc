@@ -5557,7 +5557,9 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
             int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
             cg_effect(a, game, eff, va, vb, &award_kind, &award, r);
         }
-        cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title));   /* Village Solidarity */
+        /* Village Solidarity: once per run (its purchase time) and page (its place on the path, its node). */
+        cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
+                       (unsigned int)i << 16 | (unsigned int)(unsigned short)h->node[i]);
     }
     if (cg.job_count[k] > 0) {
         cg.applied_when[k] = sq_clock();

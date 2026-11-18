@@ -7,6 +7,7 @@ EXPORTS
     VvfpVillageScoreStrength=_VvfpVillageScoreStrength@4
     VvfpVillageScoreCounterInstalled=_VvfpVillageScoreCounterInstalled@4
     VvfpVillageScoreReset=_VvfpVillageScoreReset@8
+    VvfpVillageScoreTagOnce=_VvfpVillageScoreTagOnce@28
     VvfpVillageScoreProbeMoved=_VvfpVillageScoreProbeMoved@8
     VvfpVillageScoreProbeFactor=_VvfpVillageScoreProbeFactor@12
     VvfpVillageScoreProbeParse=_VvfpVillageScoreProbeParse@8
