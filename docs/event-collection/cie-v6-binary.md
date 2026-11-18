@@ -507,6 +507,14 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
 - Without Scrolling Popups everything is as before (pages, button room, G1).
 
+### 19a. A fresh page without a question (`"new_page": true`, the owner, 2026-11-16)
+
+A popup node (popup "new") may carry `"new_page": true` (node flags bit 1, `0x02`): with Scrolling Popups it starts
+the event's one popup afresh, as an answer does, instead of joining the text before it -- so a long event never has
+to cut its words to fit the game's popup (1,990 bytes; 8,000 in A New Home and The Lost Children). Without
+Scrolling Popups it changes nothing (that node opens a popup of its own anyway). The fit check measures each part on
+its own (`one_popup`).
+
 ## 20. Sentence case
 
 The owner, 2026-11-14: the entire event text is shown in sentence case, the choices too ("Honesty", not

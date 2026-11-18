@@ -220,6 +220,12 @@ enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AG
    game's own room predicate says there is room (the adapters' conceive). */
 #define CG_FX_LITTER_ROLL 2u
 #define CG_FX_LITTER_TWINS 4u
+/* 28 / 29: flags bit 3, "the partner may carry" (the owner, 2026-11-16): with a partner role, as often as the player's setting says (0 to 100 percent,
+   10 unless moved: cg_partner_carry_percent; the game's random routine) the partner carries instead -- of any birth sex -- when they pass the carrier's checks (18
+   or more, not expecting already); else the carrier stays.  The carrier is recorded in the mother's place whatever
+   their sex, as every carrier is. */
+#define CG_FX_PARTNER_MAY_CARRY 8u
+static int cg_partner_carries(const ce_adapter *a);   /* the setting's chance (below) */
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_ROLE_HEATHEN 0x40u         /* ... bit 6: New Believers: the role is a Heathen's (an Isolan), cast as the game's
@@ -234,6 +240,7 @@ enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 
 #define CG_PREF_REMOVE 16u            /* ... the like or dislike is taken away (the named one, or with CG_PREF_RANDOM
                                          one the villager holds); held nowhere: nothing (the owner, 2026-11-15) */
 #define CG_NODE_AUTO_TEXT 1u          /* a node's flags (byte 3): its effects told in automatic lines (24) */
+#define CG_NODE_NEW_PAGE 2u           /* ... 19a: with Scrolling Popups, starts the event's one popup afresh */
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
@@ -1387,7 +1394,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_PREGNANT: case CGE_NURSING:
                 ok = (a == 0xFF || a == CG_ROLE_NEWEST || a == CG_ROLE_NEWEST2 || (a >= 0 && a < g->n_role)) && b == 0
                      && str == CG_NONE
-                     && (e[2] & ~(CG_FX_ANY_BIRTH_SEX | CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS)) == 0;
+                     && (e[2] & ~(CG_FX_ANY_BIRTH_SEX | CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS
+                                  | CG_FX_PARTNER_MAY_CARRY)) == 0;
                 break;
             case CGE_BODY_SWAP:
                 ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
@@ -1451,7 +1459,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int text = cg_u16(n + 6), vfirst = cg_u16(n + 8), vcount = cg_u16(n + 10);
         unsigned int cfirst = cg_u16(n + 12), ccount = cg_u16(n + 14), els = cg_u16(n + 16);
         unsigned int efirst = cg_u16(n + 18), ecount = cg_u16(n + 20);
-        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~CG_NODE_AUTO_TEXT) != 0u
+        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~(CG_NODE_AUTO_TEXT | CG_NODE_NEW_PAGE)) != 0u
+            || ((n[3] & CG_NODE_NEW_PAGE) && n[1] != 0u)
             || (n[3] != 0u && (g->version < 6 || n[0] != CG_POPUP))   /* 25: auto lines on a v6 popup only */
             || !cg_str_ok(g, cg_u16(n + 4), 0) || !cg_str_ok(g, text, 1)
             || (vcount > 0u && vfirst + vcount > (unsigned int)g->n_variant)
@@ -5756,8 +5765,16 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         }
         if (other != 0xFF) {
             int at = -1;
-            if (cg_target(a, other, &at) != NULL) {
+            unsigned char *mate = cg_target(a, other, &at);
+            if (mate != NULL) {
                 partner = at;
+                if ((e[2] & CG_FX_PARTNER_MAY_CARRY) && cg_partner_carries(a) && ce_age(a, mate) >= 18 * 20
+                    && *(const int *)(mate + a->off_pregnant) == 0) {
+                    /* the partner carries (any birth sex): the two change places */
+                    partner = index;
+                    index = at;
+                    record = mate;
+                }
             }
         }
         {
@@ -6718,7 +6735,8 @@ static void cg_group(int game, const cg_history *h, int from) {
             if (n[3] & CG_NODE_AUTO_TEXT) {
                 cg_auto_lines(game, h, n, fx0, award_kind, award, text, sizeof text);   /* 25 */
             }
-            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0) {
+            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
+                && !(n[3] & CG_NODE_NEW_PAGE)) {
                 /* ONE popup: every node up to the question (or the ending) joins the segment's one text; what was
                    a popup of its own (a question, a new popup) after a blank line (src/vv_cie_graph.py one_popup) */
                 p = &cg_pops[cg_pop_count - 1];
@@ -7879,6 +7897,36 @@ static int cg_installed_has(int game, const char *id) {
     return 0;
 }
 
+/* The player's "a man may carry the baby by chance" setting (the patcher writes "# partner_carry_percent=N" in the
+   installed patches' list; the owner, 2026-11-16): 0 to 100, 10 when the list has none. */
+static int cg_partner_carry_percent(void) {
+    static const char KEY[] = "# partner_carry_percent=";
+    const char *p;
+    int n = lstrlenA(KEY), value = 0, digits = 0;
+    cg_installed_load();
+    if (cg_installed_state != 1) {
+        return 10;
+    }
+    for (p = cg_installed; *p != '\0'; ++p) {
+        if ((p == cg_installed || p[-1] == '\n') && memcmp(p, KEY, (size_t)n) == 0) {
+            for (p += n; *p >= '0' && *p <= '9' && digits < 3; ++p, ++digits) {
+                value = value * 10 + (*p - '0');
+            }
+            return digits > 0 && value <= 100 ? value : 10;
+        }
+    }
+    return 10;
+}
+
+/* Whether the partner carries this time: the setting's chance (no roll at 0 or 100). */
+static int cg_partner_carries(const ce_adapter *a) {
+    int percent = cg_partner_carry_percent();
+    if (percent <= 0) {
+        return 0;
+    }
+    return percent >= 100 || ce_random_below(a, 100) < percent;
+}
+
 static int cg_no_safeguards(int game) {
     cg_installed_load();
     return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
@@ -9035,6 +9083,16 @@ static int cg_queue_origin(int game, const unsigned char *file, unsigned size, i
 
 #ifdef VVFP_TEST
 /* ---- Test build only --------------------------------------------------------------------------------------- */
+
+/* "A man may carry the baby by chance": the percent the installed patches' list gives (-1 in the high half of
+   nothing), and one draw of cg_partner_carries with the rolls VvfpStoryProbeSetRolls gives: percent | carries << 8. */
+__declspec(dllexport) int __stdcall VvfpStoryProbePartnerCarries(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL) {
+        return -1;
+    }
+    return cg_partner_carry_percent() | (cg_partner_carries(a) << 8);
+}
 
 /* Queue the .cieg `data` (`size` bytes) in `game` as the library's purchase does, without any dialog: NULL when
    queued, else the refusal.  `due` 1 makes the island event due (ce_arm_with), 0 only arms it. */

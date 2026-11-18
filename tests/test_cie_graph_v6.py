@@ -1651,6 +1651,37 @@ class NodeTitles(unittest.TestCase):
         next(iter(old["nodes"].values()))["title"] = "Older"
         self.assertTrue(any("unknown fields title" in p for p in t.problems_of(old)))
 
+    def test_new_page_starts_the_one_popup_afresh(self):
+        """19a: with Scrolling Popups a "new_page" popup starts the event's one popup afresh (no question needed), so
+        each part is measured on its own; the flag round-trips and is refused off a new popup."""
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Long Tale", "games": [4],
+             "roles": {"subject": {"kind": "villager"}}, "start": "a",
+             "nodes": {"a": {"text": "(Name) begins. " + "A word. " * 150, "children": [{"next": "b"}]},
+                       "b": {"text": "(Name) goes on. " + "A word. " * 150, "new_page": True}}}
+        lg = cg.load(copy.deepcopy(g))
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(lg))["nodes"]["b"].get("new_page"), True)
+        ctx = cg.contexts(lg, [4])[0]
+        pops = [pp for h in cg.walk(lg, ctx) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 2, "two scroll pages")
+        joined = copy.deepcopy(g)
+        del joined["nodes"]["b"]["new_page"]
+        lj = cg.load(joined)
+        pops = [pp for h in cg.walk(lj, cg.contexts(lj, [4])[0]) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 1, "without the flag: one popup")
+        bad = copy.deepcopy(g)
+        bad["nodes"]["b"]["popup"] = "append"
+        with self.assertRaises(cg.GraphError):
+            cg.load(bad)
+        # Codex (#772): a new_page node with a successor keeps its flag through the walk -- three pages, each
+        # measured on its own.
+        three = copy.deepcopy(g)
+        three["nodes"]["b"]["children"] = [{"next": "c"}]
+        three["nodes"]["c"] = {"text": "(Name) ends. " + "A word. " * 150, "new_page": True}
+        lt = cg.load(three)
+        pops = [pp for h in cg.walk(lt, cg.contexts(lt, [4])[0]) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 3, "three scroll pages")
+        self.assertEqual([p.nodes for p in pops], [["a"], ["b"], ["c"]])
+
     def test_simulate_titles_follow_the_choice_picked(self):
         """Codex P2 (PR #771): two choices leading to the same node -- the title is the label of the one picked."""
         g = copy.deepcopy(TITLES)
