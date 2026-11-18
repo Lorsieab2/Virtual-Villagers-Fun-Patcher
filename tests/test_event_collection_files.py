@@ -326,7 +326,9 @@ class FrozenDraftsD(unittest.TestCase):
                 for p in files:
                     doc = json.loads(p.read_text(encoding="utf-8"))
                     self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
-                    self.assertFalse(any(nd.get("effects") for nd in doc["nodes"].values()), p.name)
+                    # No effects, but the owner's supply audit of 2026-11-17 (scripts/supply_effects.py: tim133)
+                    self.assertFalse(any(e["do"] != "supply" for nd in doc["nodes"].values()
+                                         for e in nd.get("effects", [])), p.name)
                     for c in doc["nodes"]["setup"].get("choices", []):
                         self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
                     if sid in ("moments500", "draft_tim2"):
@@ -387,8 +389,9 @@ class FrozenAnthology(unittest.TestCase):
             for r in doc["roles"].values():
                 if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult woman
                     self.assertEqual((r["sex"], r["min_age"] >= 18), ("female", True), p.name)
-        # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
-        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
+        # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations; the
+        # owner's supply audit of 2026-11-17 (scripts/supply_effects.py): EXPR-61's retired blade
+        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4, "supply": 1})
 
 
 class Manifest(unittest.TestCase):
