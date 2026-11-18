@@ -54,7 +54,8 @@ SKILL_ORDER = {1: SKILL_NAMES, 2: SKILL_NAMES, 3: ("Farming", "Parenting", "Heal
                4: SKILL_NAMES, 5: SKILL_NAMES + ("Devotion",)}
 FOOD_SITES = {
     1: [(0x43AD8C, "berries", False), (0x43AECD, "crops", False), (0x43AF3C, "fish", False),
-        (0x43AF8E, "crab", False), (0x43AFF7, "mushroom", False)],
+        (0x43AF8E, "crab", False), (0x43AFF7, "mushroom", False),
+        (0x43B09B, "the Golden Child's +150 food", False)],
     2: [(0x463198, "coconuts", False), (0x463259, "crops", False), (0x463312, "fish", False),
         (0x463364, "the big catch", False),
         (0x4633CD, "mushroom (left alone while Super-Secret Golden Mushroom owns the call)", True)],
@@ -64,7 +65,8 @@ FOOD_SITES = {
         (0x434C06, "the rain lift's fruit (left alone while Fruit is Harvested at the Food Bin owns the call)", True),
         (0x434D7F, "the cliff top's fruit (likewise)", True),
         (0x434C77, "the rain lift's fruit delivered at the food bin (only with Fruit is Harvested at the Food Bin)",
-         True)],
+         True),
+        (0x459068, "the chief's food grant", False)],
     4: [(0x464492, "berries", False), (0x46450B, "the harvest", False),
         (0x464573, "yellow fruit (left alone while Yellow Fruit Trees are No Longer Unlimited owns the call)", True),
         (0x4645B0, "fish", False), (0x4645FB, "golden fish", False), (0x464A46, "crab", False),

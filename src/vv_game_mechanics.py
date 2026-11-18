@@ -709,7 +709,8 @@ SLIDER_LINES = (
      "appearance rolls passes {n} times as often (every time, once that reaches it)"),
     ("Food sources", "_food_gain", "VVFP Food Gain.txt",
      "each food source gives {n} times its normal food (on average: the rest of a whole food is a chance); what the "
-     "source itself loses, island events, rewards and purchases are the game's own"),
+     "source itself loses, island events, rewards and purchases are the game's own (the Golden Child's gift and the "
+     "chief's food grant are food sources here)"),
     ("Tech points and effects", "_tech_gain", "VVFP Tech Gain.txt",
      "research brings {n} times its normal tech points (on average: the rest of a whole point is a chance), with "
      "every research bonus counted first; island events, duplicate collectibles and rewards are the game's own"),

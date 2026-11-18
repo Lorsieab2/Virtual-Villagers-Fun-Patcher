@@ -349,6 +349,14 @@ class FoodGain(GainCompanions, _Emulated, unittest.TestCase):
     def sites(self, game: int) -> list[tuple[int, int]]:
         return [(va, 5) for va, _w, optional in self.SITES[game] if not optional]
 
+    def test_the_golden_childs_gift_and_the_chiefs_grant_are_scaled(self) -> None:
+        # The owner (2026-11-18), as the Origins Food Doubler (#805): A New Home's +150 and The Secret City's grant.
+        for game, va, amount in ((1, 0x43B09B, 150), (3, 0x459068, 600)):
+            with self.subTest(game=game):
+                self.assertIn(va, [s for s, _w, _o in gen.FOOD_SITES[game]])
+                m = self.machine(game, b"2")
+                self.assertEqual(self.start(m, game), 1)
+                self.assertEqual(self.gain(m, game, va, amount), (2 * amount, 0x5A5A5A5A, va + 5))
     def test_optional_sites_follow_the_rows_that_own_them(self) -> None:
         # Stock: every optional site that holds the call is written too; The Secret City's food-bin call is not a
         # call of the writer there, so it is left.

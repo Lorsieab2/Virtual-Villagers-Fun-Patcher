@@ -1288,7 +1288,7 @@
       "guide": [
         "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Each food source gives more or less food each time.",
         "0.1 to 10 times its normal food, set with the Food Gained per Food Source slider (1 unless you move it; 1 is the normal game).",
-        "Picking, harvesting, fishing, crabs, honey, noni and mushrooms count; island events, rewards, purchases and cheats do not.",
+        "Picking, harvesting, fishing, crabs, honey, noni, mushrooms, the Golden Child's gift and the chief's food grant count; island events and cheats do not.",
         "Farming levels and Food Mastery still count. What the bush or tree itself loses is the game's own. Not yet tested in play."
       ]
     },
