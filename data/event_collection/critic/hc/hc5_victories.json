@@ -299,239 +299,14 @@
     "why": "designer note, never displayed"
    },
    {
-    "src": "L1158",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1159",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1160",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1161",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1162",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1163",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1164",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1165",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1166",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1167",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1168",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1169",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
     "src": "L1170",
     "kind": "instruction",
     "why": "the route's heading and its EFFECT: made by the route's effects (subroute headings are never shown)"
    },
    {
-    "src": "L1172",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1173",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1174",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1175",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1176",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1177",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1178",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1179",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1180",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1181",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1182",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1183",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1184",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1185",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1186",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1187",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1188",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1189",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
     "src": "L1191",
     "kind": "structural",
     "why": "heading"
-   },
-   {
-    "src": "L1192",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1193",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1194",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1195",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1196",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1197",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1198",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1199",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1200",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1201",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1202",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1203",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1204",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1205",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
-   },
-   {
-    "src": "L1206",
-    "kind": "note",
-    "why": "a pool line this file's routes never draw (another file of the series does)"
    },
    {
     "src": "L1210",
@@ -2229,6 +2004,27 @@
     }
    ]
   },
+  "v2_subjectn": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{V2}",
+   "children": [
+    {
+     "next": "rw_subjectn"
+    }
+   ]
+  },
+  "cd_subjectn": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "v2_subjectn"
+    },
+    {
+     "next": "rw_subjectn"
+    }
+   ]
+  },
   "r74": {
    "text": "{Q} The officials confer for a very long time. Finally, {@chief} stands. \"You won... for the entirely wrong reason.\" {Z1} The judges award (subject) an unexpected prize, but (mentor) reminds (subject.him/her) that the original assignment still needs to be completed.",
    "src": "L1968",
@@ -2246,11 +2042,213 @@
    ],
    "children": [
     {
-     "next": "rw_subjectn"
+     "next": "cd_subjectn"
     }
    ],
    "popup": "append",
    "join": "paragraph"
+  },
+  "rw_subjects_farm": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_build": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_resp": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_resn": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_res": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "rw_subjects_resp",
+     "if": {
+      "visited": "c_res4"
+     },
+     "else": "rw_subjects_resn"
+    }
+   ]
+  },
+  "rw_subjects_healp": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_healn": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_heal": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "rw_subjects_healp",
+     "if": {
+      "visited": "c_heal4"
+     },
+     "else": "rw_subjects_healn"
+    }
+   ]
+  },
+  "rw_subjects_par": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects_dev": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Devotion",
+      "Research",
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10
+    }
+   ]
+  },
+  "rw_subjects": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "rw_subjects_farm",
+     "if": {
+      "visited": "g_farm"
+     }
+    },
+    {
+     "next": "rw_subjects_build",
+     "if": {
+      "visited": "g_build"
+     }
+    },
+    {
+     "next": "rw_subjects_res",
+     "if": {
+      "visited": "g_res"
+     }
+    },
+    {
+     "next": "rw_subjects_heal",
+     "if": {
+      "visited": "g_heal"
+     }
+    },
+    {
+     "next": "rw_subjects_par",
+     "if": {
+      "visited": "g_par"
+     }
+    },
+    {
+     "next": "rw_subjects_dev",
+     "if": {
+      "visited": "g_dev"
+     }
+    }
+   ]
+  },
+  "v2_none": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{V2}",
+   "children": [
+    {
+     "next": "rw_subjects"
+    }
+   ]
+  },
+  "cd_none": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "v2_none"
+    },
+    {
+     "next": "end"
+    }
+   ]
   },
   "r75": {
    "text": "{O} {Q} The audience is laughing too hard to hear the verdict. An official eventually announces, \"One thing is certain: you win BEST IN COMEDY.\" (Subject) accepts the imaginary trophy with a bow. (Mentor) demands that the next examination contain absolutely no jokes.",
@@ -2269,7 +2267,7 @@
    ],
    "children": [
     {
-     "next": "end"
+     "next": "cd_none"
     }
    ],
    "popup": "append",
@@ -2485,187 +2483,6 @@
    "popup": "append",
    "join": "paragraph"
   },
-  "rw_subjects_farm": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Farming"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_build": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Building"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_resp": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Research",
-      "Healing"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_resn": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_res": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "rw_subjects_resp",
-     "if": {
-      "visited": "c_res4"
-     },
-     "else": "rw_subjects_resn"
-    }
-   ]
-  },
-  "rw_subjects_healp": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Research",
-      "Healing"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_healn": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Healing"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_heal": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "rw_subjects_healp",
-     "if": {
-      "visited": "c_heal4"
-     },
-     "else": "rw_subjects_healn"
-    }
-   ]
-  },
-  "rw_subjects_par": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects_dev": {
-   "type": "branch",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Devotion",
-      "Research",
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10
-    }
-   ]
-  },
-  "rw_subjects": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "rw_subjects_farm",
-     "if": {
-      "visited": "g_farm"
-     }
-    },
-    {
-     "next": "rw_subjects_build",
-     "if": {
-      "visited": "g_build"
-     }
-    },
-    {
-     "next": "rw_subjects_res",
-     "if": {
-      "visited": "g_res"
-     }
-    },
-    {
-     "next": "rw_subjects_heal",
-     "if": {
-      "visited": "g_heal"
-     }
-    },
-    {
-     "next": "rw_subjects_par",
-     "if": {
-      "visited": "g_par"
-     }
-    },
-    {
-     "next": "rw_subjects_dev",
-     "if": {
-      "visited": "g_dev"
-     }
-    }
-   ]
-  },
   "r84": {
    "text": "A rival apprentice attempts to reproduce (subject)'s celebrated mistake and fails miserably. (Subject) is asked to explain why the accident cannot be reliably repeated. The resulting discussion turns out to be more educational than either demonstration.",
    "src": "L1998",
@@ -2736,7 +2553,7 @@
    ],
    "children": [
     {
-     "next": "end"
+     "next": "cd_none"
     }
    ],
    "popup": "append",
@@ -2805,7 +2622,7 @@
    ],
    "children": [
     {
-     "next": "end"
+     "next": "cd_none"
     }
    ],
    "popup": "append",
@@ -2828,7 +2645,7 @@
    ],
    "children": [
     {
-     "next": "rw_subjectn"
+     "next": "cd_subjectn"
     }
    ],
    "popup": "append",
@@ -3334,7 +3151,7 @@
    ],
    "children": [
     {
-     "next": "end"
+     "next": "cd_none"
     }
    ],
    "popup": "append",
@@ -9671,6 +9488,235 @@
     {
      "text": "evaluate whether (master)'s {NUMBER} supposed miracles can be independently verified",
      "src": "L1278",
+     "if": {
+      "visited": "g_dev"
+     }
+    }
+   ]
+  },
+  "V2": {
+   "items": [
+    {
+     "text": "\"You failed. You scrutinized yourself too hard.\"",
+     "src": "L1158"
+    },
+    {
+     "text": "\"I didn't get here overnight.\"",
+     "src": "L1159"
+    },
+    {
+     "text": "\"Remember this always. Your own harshest critic is yourself.\"",
+     "src": "L1160"
+    },
+    {
+     "text": "\"I will never admit this in public, but I was once like you.\"",
+     "src": "L1161"
+    },
+    {
+     "text": "\"You were watching yourself so hard you forgot to watch the work.\"",
+     "src": "L1162"
+    },
+    {
+     "text": "\"Nobody here was harder on you than you were.\"",
+     "src": "L1163"
+    },
+    {
+     "text": "\"The first statue I ever carved fell over in front of {@chief}. I still carved the second.\"",
+     "src": "L1164"
+    },
+    {
+     "text": "\"You're allowed to be bad at something before you're good at it.\"",
+     "src": "L1165"
+    },
+    {
+     "text": "\"I shout because I care. You whisper to yourself because you care too much.\"",
+     "src": "L1166"
+    },
+    {
+     "text": "\"Tomorrow, try being half as cruel to yourself as you were today.\"",
+     "src": "L1167"
+    },
+    {
+     "text": "\"If you talk to yourself like that again, you'll answer to me.\"",
+     "src": "L1168"
+    },
+    {
+     "text": "\"Mistakes are the price of learning. You've just paid a good amount.\"",
+     "src": "L1169"
+    },
+    {
+     "text": "\"You can be disappointed without deciding you are hopeless.\"",
+     "src": "L1172"
+    },
+    {
+     "text": "\"I asked you to make the work better, not to punish yourself.\"",
+     "src": "L1173"
+    },
+    {
+     "text": "\"A mistake is something you made. It is not everything you are.\"",
+     "src": "L1174"
+    },
+    {
+     "text": "\"If you knew how to do it perfectly already, you would not need a mentor.\"",
+     "src": "L1175"
+    },
+    {
+     "text": "\"You have the right to ask a question before the work goes wrong.\"",
+     "src": "L1176"
+    },
+    {
+     "text": "\"You noticed the error. That means you are learning to see.\"",
+     "src": "L1177"
+    },
+    {
+     "text": "\"I would rather hear an honest failure than a beautiful excuse.\"",
+     "src": "L1178"
+    },
+    {
+     "text": "\"Do not confuse being frightened with being unprepared.\"",
+     "src": "L1179"
+    },
+    {
+     "text": "\"Your hands are shaking because this matters to you. Now give them a rest.\"",
+     "src": "L1180"
+    },
+    {
+     "text": "\"The work is unfinished. That does not mean your future is.\"",
+     "src": "L1181"
+    },
+    {
+     "text": "\"I can teach you to repair a mistake. I cannot teach you if you hide it.\"",
+     "src": "L1182"
+    },
+    {
+     "text": "\"You are allowed to take pride in the parts you did well.\"",
+     "src": "L1183"
+    },
+    {
+     "text": "\"The others are watching the lesson, not judging your whole life.\"",
+     "src": "L1184"
+    },
+    {
+     "text": "\"I have ruined more projects than you have even attempted. That is how I learned.\"",
+     "src": "L1185"
+    },
+    {
+     "text": "\"Tomorrow we will try again, and tomorrow I expect you to speak kindly to yourself.\"",
+     "src": "L1186"
+    },
+    {
+     "text": "\"You listened to every criticism except the one that mattered: you needed rest.\"",
+     "src": "L1187"
+    },
+    {
+     "text": "\"One day you will teach someone who is as frightened as you are now. Remember this.\"",
+     "src": "L1188"
+    },
+    {
+     "text": "\"A careful worker knows when to begin again. A wise worker knows when to stop.\"",
+     "src": "L1189"
+    },
+    {
+     "text": "\"You can respect the ancestors without pretending to know what they meant.\"",
+     "src": "L1192",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"An unanswered question is not a personal failure.\"",
+     "src": "L1193",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"Even the oldest scriptures have passages we still debate.\"",
+     "src": "L1194",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"You were so afraid of being wrong that you stopped listening.\"",
+     "src": "L1195",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"A respectful doubt is worth more than a confident guess.\"",
+     "src": "L1196",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"You do not have to settle three centuries of argument in one afternoon.\"",
+     "src": "L1197",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"The purpose of a ceremony is not to prove that you are perfect.\"",
+     "src": "L1198",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"A forgotten verse can be learned again. A frightened apprentice needs kindness.\"",
+     "src": "L1199",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"You are allowed to ask what a symbol means before you explain it.\"",
+     "src": "L1200",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"I have misread inscriptions older than your grandparents. The stones survived.\"",
+     "src": "L1201",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"Do not mistake the silence of the room for the judgment of the ancestors.\"",
+     "src": "L1202",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"You listened to everyone except yourself.\"",
+     "src": "L1203",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"You are here to learn the traditions, not carry every tradition alone.\"",
+     "src": "L1204",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"The wisest answer today might simply be that we do not know.\"",
+     "src": "L1205",
+     "if": {
+      "visited": "g_dev"
+     }
+    },
+    {
+     "text": "\"Your work deserves care. You deserve patience.\"",
+     "src": "L1206",
      "if": {
       "visited": "g_dev"
      }

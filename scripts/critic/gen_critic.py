@@ -723,8 +723,8 @@ def routes_victories(b: Builder) -> list:
         b.pool(z, b.items([(a, e)]))
     b.pool("Z8", b.items([(1948, 1963)], default="mentor"))
     R = []
-    R.append(simple(b, "r74", [1968], k(("subject", N_)), fx=HAPPY))
-    R.append(simple(b, "r75", [1971], fx=HAPPY))
+    R.append(simple(b, "r74", [1968], k(("subject", N_)), True, fx=HAPPY))
+    R.append(simple(b, "r75", [1971], (), True, fx=HAPPY))
 
     def only(rid, line, g, skill, size, extra):
         lo, hi = SIZES[size]
@@ -742,15 +742,15 @@ def routes_victories(b: Builder) -> list:
     R.append(simple(b, "r83", [1995], k(("subject", N_))))
     R.append(simple(b, "r84", [1998], k(("subject", S)), fx=HAPPY))
     R.append(simple(b, "r85", [2001], k(("subject", N_)), fx=HAPPY))
-    R.append(simple(b, "r86", [2004], fx=HAPPY))
+    R.append(simple(b, "r86", [2004], (), True, fx=HAPPY))
     R.append(simple(b, "r87", [2007], k(("subject", S)), fx=HAPPY))
     R.append(simple(b, "r88", [2010], k(("subject", N_)), fx=HAPPY))
-    R.append(simple(b, "r89", [2013], fx=HAPPY))
-    R.append(simple(b, "r90", [2016], k(("subject", N_)), fx=HAPPY))
+    R.append(simple(b, "r89", [2013], (), True, fx=HAPPY))
+    R.append(simple(b, "r90", [2016], k(("subject", N_)), True, fx=HAPPY))
     R.append(simple(b, "r91", [2019], k(("subject", L_))))
     R.append(simple(b, "r92", [2022], k(("subject", N_)), fx=HAPPY))
     R.append(simple(b, "r93", [2025], k(("subject", N_), ("mentor", S))))
-    R.append(simple(b, "r94", [2028], fx=HAPPY))
+    R.append(simple(b, "r94", [2028], (), True, fx=HAPPY))
     R.append(simple(b, "r95", [2031], k(("subject", N_)), fx=HAPPY))
     return R
 

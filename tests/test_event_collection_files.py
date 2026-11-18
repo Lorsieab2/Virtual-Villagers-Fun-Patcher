@@ -466,7 +466,7 @@ class Manifest(unittest.TestCase):
         ids = [r["id"] for r in self.data["rows"]]
         self.assertEqual(len(ids), len(set(ids)))
         for r in self.data["rows"]:
-            with lib.use_source(r["source"]):
+            with lib.use_source(r["credit"].get("source", r["source"])):   # a credit file of its own (critic)
                 text = "\n".join(lib.line(n) for spec in r["credit"]["lines"] for n in lib.src_lines(spec))
             self.assertEqual(r["credit"]["text"], text, r["id"])
 

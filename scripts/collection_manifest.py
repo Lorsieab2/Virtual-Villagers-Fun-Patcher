@@ -1503,8 +1503,11 @@ def verify(row: dict) -> tuple[dict, list[str]]:
 def credit_text(key: str) -> dict:
     who, ranges, *src = CREDITS[key]
     with lib.use_source(src[0] if src else lib.SOURCE_ID):
-        return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges],
-                "text": "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))}
+        out = {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges],
+               "text": "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))}
+    if src and src[0] == lib.CRITIC_CREDIT_ID:
+        out["source"] = src[0]      # a credit kept in a file of its own, not in the row's source
+    return out
 
 
 def uncovered(rows: list[dict]) -> list[str]:
