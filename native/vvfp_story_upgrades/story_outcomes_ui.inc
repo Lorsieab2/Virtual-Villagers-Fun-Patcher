@@ -588,7 +588,7 @@ static void chooser_description(int index, char *out, int size) {
         }
     } else if (size >= 1100) {
         wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1", "%s\r\n\r\nNot possible right now: %s", 200),
-                  description, event_text(ev, EVENT_REQUIRES, ev->requires, 300));
+                  description, event_requires(ev));
     }
 }
 
