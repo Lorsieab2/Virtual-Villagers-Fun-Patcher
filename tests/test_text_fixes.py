@@ -88,6 +88,13 @@ EDITS = {
 }
 
 
+# The Tree of Life's cutting-tool harvest caption: the harvest's copy and picking's (start, the address after the copy).
+CAPTION = DATA["captions"][0]
+CAPTION_SITE = 0x451CF6
+HARVEST_COPY = (0x451CF2, 0x451D05)
+PICK_COPY = (0x451C42, 0x451C55)
+
+
 def fixes(game: int) -> list[dict]:
     return [f for f in DATA["fixes"] if f["game"] == game]
 
@@ -123,6 +130,20 @@ class TheData(unittest.TestCase):
                     self.assertEqual(english[f["stem"]], f["old"])
                     self.assertEqual(built_in[f["stem"]], f["old"])     # the executable's own text too
 
+    def test_the_caption_is_the_companions_and_the_templates(self) -> None:
+        self.assertEqual(len(DATA["captions"]), 1)
+        self.assertEqual((CAPTION["game"], int(CAPTION["site"], 16)), (4, CAPTION_SITE))
+        self.assertEqual(CAPTION["new"], "Harvesting berries with a cutting tool")
+        source = (ROOT / "native" / "vvfp_text_fixes" / "vvfp_text_fixes.c").read_text(encoding="utf-8")
+        self.assertIn(f'english[] = "{CAPTION["new"]}"', source)
+        self.assertIn(f'#define CAPTION_OLD "{CAPTION["old"]}"', source)
+        self.assertIn(f'vvfp_tr("{CAPTION["key"]}", english', source)
+        rows = [s for s in tr.load_patcher_strings() if s["stem"] == CAPTION["key"]]
+        self.assertEqual([(r["english"], r["games"]) for r in rows], [(CAPTION["new"], ["vv4"])])
+        if HAVE_STOCK:
+            english = tr.game_english(4, STOCK[4], STOCK_SM[4])
+            self.assertEqual(english[CAPTION["stock_stem"]], CAPTION["old"])
+
     def test_the_companions_table_is_generated_from_the_data(self) -> None:
         done = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_text_fixes_table.py"), "--check"],
                               cwd=ROOT, capture_output=True, text=True)
@@ -141,7 +162,10 @@ class TheRows(unittest.TestCase):
                 self.assertEqual(files.get(DLL_NAME), digest)
                 detours = [(int(d["va"], 16), d["stock_bytes"]) for d in r.get("runtime_detours", [])
                            if DLL_NAME in d["installed_by"]]
-                self.assertEqual(detours, [SITES[game][:2]] if game in SITES else [])
+                expected = [SITES[game][:2]] if game in SITES else []
+                if game == 4:
+                    expected.append((CAPTION_SITE, "6A27508D86E41C0000"))
+                self.assertEqual(detours, expected)
                 self.assertIn(DLL_NAME, r["description"])
                 if game in (4, 5):
                     self.assertIn("to collected food", r["description"])
@@ -353,6 +377,48 @@ class TheCompanion(unittest.TestCase):
                     self.assertEqual(p.export("VvfpTextFixesInstalled"), 0)
                     if not site <= at < site + n:
                         self.assertEqual(p.read(site, n).hex().upper(), stock)
+
+    # -- The Tree of Life: the cutting-tool harvest's caption -----------------------------------------------------
+    def caption_after(self, p, start: int, end: int, looked_up: bytes) -> bytes:
+        """Runs an action's caption copy (from `mov esi, [esp+8]` to after `call 0x4724E0`) with eax = the looked-up
+        text; returns the villager's caption (+0x1CE4)."""
+        villager = p.alloc(0x2000)
+        text = p.alloc(len(looked_up) + 1)
+        p.write(text, looked_up + b"\0")
+        p.call(start, [0, villager], regs={"eax": text}, until=end)
+        return self.cstring(p, villager + 0x1CE4)
+
+    def test_the_cutting_tool_harvest_says_so_and_picking_does_not(self) -> None:
+        old, new = CAPTION["old"].encode(), CAPTION["new"].encode()
+        self.assertLessEqual(len(new), 0x27)                      # the caption field holds 39 letters
+        stock = self.process(4, install=False)
+        self.assertEqual(self.caption_after(stock, *HARVEST_COPY, old), old)
+        p = self.process(4)
+        self.assertEqual(p.export("VvfpTextFixesCaptionInstalled"), 1)
+        self.assertEqual(p.read(CAPTION_SITE, 9).hex().upper()[:2], "E9")
+        self.assertEqual(self.caption_after(p, *HARVEST_COPY, old), new)
+        self.assertEqual(self.caption_after(p, *PICK_COPY, old), old)          # picking keeps the game's caption
+        self.assertEqual(p.read(PICK_COPY[0], 20), stock.read(PICK_COPY[0], 20))
+        for other in (b"Recolte des mures", old + b" ", b""):              # another patch's text is kept
+            with self.subTest(other=other):
+                self.assertEqual(self.caption_after(p, *HARVEST_COPY, other), other)
+
+    def test_the_caption_installs_only_with_its_stock_bytes(self) -> None:
+        for game in (3, 5):
+            p = self.process(game)
+            self.assertEqual(p.export("VvfpTextFixesCaptionInstalled"), 0)
+        for at in (0x451CE6, 0x451CEA, CAPTION_SITE, CAPTION_SITE + 8, 0x451CFF, 0x451D03):
+            with self.subTest(at=hex(at)):
+                data = bytearray(STOCK[4].read_bytes())
+                pe = pefile.PE(data=bytes(data), fast_load=True)
+                data[pe.get_offset_from_rva(at - 0x400000)] ^= 0xFF
+                p = self.process(4, bytes(data))
+                # all or none: neither the caption nor the loader's site
+                self.assertEqual(p.export("VvfpTextFixesInstalled"), 0)
+                self.assertEqual(p.export("VvfpTextFixesCaptionInstalled"), 0)
+                self.assertEqual(p.read(SITES[4][0], 5).hex().upper(), SITES[4][1])
+                if not CAPTION_SITE <= at < CAPTION_SITE + 9:
+                    self.assertEqual(p.read(CAPTION_SITE, 9).hex().upper(), "6A27508D86E41C0000")
 
 
 class TheTemplate(unittest.TestCase):

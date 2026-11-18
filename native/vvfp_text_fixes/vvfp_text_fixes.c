@@ -21,6 +21,15 @@
        VV4/VV5: the loader (0x44D750 / 0x450A60) ends with the C runtime's cookie check (call 0x47108D at 0x44D92E /
        call 0x47C00D at 0x450C3E) on both of its paths; that call comes here, and the step makes the check itself.
      Every register is kept.
+   * The Tree of Life's cutting-tool harvest caption (the owner, 2026-11-17): picking blackberries (action 99,
+     0x451C30) and the harvest with a cutting tool (action 0xBE, 0x451CE0) both copy text 0x280
+     (eSayHarvestingBlackberries, "Harvesting blackberries") into the villager's caption (+0x1CE4, at most 0x27
+     letters, 0x4724E0).  The harvest's own copy -- 0x451CF6, `push 0x27 / push eax / lea eax, [esi+0x1CE4]` --
+     jumps to tf_caption_stub, which pushes "Harvesting berries with a cutting tool" (38 letters; the owner's
+     "Harvesting blackberries with a cutting tool", 43, would be cut) when the looked-up text is exactly the stock
+     English, or the caption's own translation when the player's language has one (VVFP Translations.dll, row
+     vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0); any other text (another patch's) is kept.  Picking is the
+     game's own.  Installed with the loader's site, all or none.
 
    SAFETY.  The sites and the instructions around them must hold the stock bytes, or nothing is written (the shared
    all-or-none writer, native/shared/install_sites.h); a table row is written only when its pointer still points at
@@ -28,6 +37,7 @@
 #include <windows.h>
 #include <string.h>
 #include "../shared/install_sites.h"
+#include "../shared/vvfp_translate.h"
 
 typedef struct {
     int game;
@@ -67,8 +77,18 @@ static const tf_game GAMES[6] = {
       { 0x5D, 0x33, 0xCC, 0xE8, 0xCA, 0xB3, 0x02, 0x00, 0x81, 0xC4, 0xCC, 0x00, 0x00, 0x00, 0xC3, 0xCC } },
 };
 
+/* The Tree of Life's cutting-tool harvest caption (see the top). */
+#define CAPTION_SITE 0x451CF6u
+#define CAPTION_ON 0x451CFFu
+#define CAPTION_LOOKUP 0x451CE6u
+#define CAPTION_OLD "Harvesting blackberries"
+static const unsigned char CAPTION_STOCK[9] = { 0x6A, 0x27, 0x50, 0x8D, 0x86, 0xE4, 0x1C, 0x00, 0x00 };
+static const unsigned char CAPTION_ON_STOCK[5] = { 0x50, 0xE8, 0xDB, 0x07, 0x02 };   /* push eax / call 0x4724E0 */
+static const unsigned char CAPTION_LOOKUP_STOCK[5] = { 0x68, 0x80, 0x02, 0x00, 0x00 };   /* push 0x280 */
+
 static int g_game;
 static int g_installed;
+static int g_caption_installed;
 static int g_applied;                   /* texts this companion replaced (for the tests' emulation) */
 static unsigned int g_cookie;
 static char *g_copy[TF_FIX_COUNT];      /* each fixed text, in writable memory, for the whole session */
@@ -275,9 +295,49 @@ static void tf_fix_table(void) {
     }
 }
 
+/* The Tree of Life's cutting-tool harvest: the caption it copies instead of `looked_up` (text 0x280's). */
+static const char *__cdecl tf_caption(const char *looked_up) {
+    static const char english[] = "Harvesting berries with a cutting tool";
+    const char *text = looked_up;
+    __try {
+        const char *translated = vvfp_tr("vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0", english, 0x27u + 1u);
+        if (translated != english) {
+            text = translated;                    /* the player's language has the caption */
+        } else if (tf_same(looked_up, CAPTION_OLD)) {
+            text = english;                       /* the stock English is in place */
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        text = looked_up;
+    }
+    return text;
+}
+
+/* At CAPTION_SITE (eax the looked-up text, esi the villager): the stock three instructions with the caption pushed
+   instead, then on at CAPTION_ON (push eax / call the copy). */
+static __declspec(naked) void tf_caption_stub(void) {
+    __asm {
+        pushad
+        push eax
+        call tf_caption
+        add esp, 4
+        mov dword ptr [esp + 28], eax
+        popad
+        push 0x27
+        push eax
+        lea eax, [esi + 0x1CE4]
+        push CAPTION_ON
+        ret
+    }
+}
+
 /* 1 once VvfpStartup has set the fixes up for this game (for the tests' emulation), else 0. */
 int __stdcall VvfpTextFixesInstalled(void) {
     return g_installed;
+}
+
+/* 1 when The Tree of Life's cutting-tool harvest caption site is installed (for the tests' emulation), else 0. */
+int __stdcall VvfpTextFixesCaptionInstalled(void) {
+    return g_caption_installed;
 }
 
 /* How many texts this companion has replaced so far (for the tests' emulation). */
@@ -289,7 +349,8 @@ int __stdcall VvfpTextFixesApplied(void) {
    before its own start; the second call does nothing. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     const tf_game *g;
-    vvfp_site_write site;
+    vvfp_site_write site[2];
+    int n = 1;
     (void)shipped;
     if (g_installed || game < 1 || game > 5) {
         return;
@@ -309,13 +370,24 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     }
     g_game = game;
     g_cookie = g->cookie;
-    vvfp_site_branch(&site, g->site, g->length, g->around + g->before, game == 3 ? 0xE9 : 0xE8,
+    vvfp_site_branch(&site[0], g->site, g->length, g->around + g->before, game == 3 ? 0xE9 : 0xE8,
                      game == 3 ? (const void *)tf_after_loader_jmp : (const void *)tf_after_loader_call);
-    if (!vvfp_install_sites(&site, 1)) {
+    if (game == 4) {
+        /* the cutting-tool harvest's caption copy: its look-up and the copy after it must be stock too */
+        if (!vvfp_site_holds(CAPTION_LOOKUP, CAPTION_LOOKUP_STOCK, sizeof CAPTION_LOOKUP_STOCK)
+            || !vvfp_site_holds(CAPTION_ON, CAPTION_ON_STOCK, sizeof CAPTION_ON_STOCK)) {
+            return;
+        }
+        vvfp_site_branch(&site[1], CAPTION_SITE, sizeof CAPTION_STOCK, CAPTION_STOCK, 0xE9,
+                         (const void *)tf_caption_stub);
+        n = 2;
+    }
+    if (!vvfp_install_sites(site, n)) {
         g_game = 0;
         return;
     }
     g_installed = 1;
+    g_caption_installed = (n == 2);
     /* the string table was already made (never at game start): fix it now */
     if (tf_readable((const void *)(UINT_PTR)g->singleton, 4) && *(const unsigned int *)(UINT_PTR)g->singleton != 0) {
         tf_after_loader_c();

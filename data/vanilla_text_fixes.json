@@ -1,5 +1,5 @@
 {
- "about": "Fix Vanilla Bugs: the games' own typos the owner approved (2026-11-17), fixed in memory by \"VVFP Text Fixes.dll\" (native/vvfp_text_fixes) as each game's string table is filled. A fix applies only when the text the game would show is exactly `old` (so Optional Text Changes, Guardians of Isola and translations are left alone); `new` replaces it whole. Only text players see in normal play is listed (`shown`: where, static evidence from the stock executables). scripts/build_text_fixes_table.py writes native/vvfp_text_fixes/tf_fixes.inc from this file; src/vv_translations.py gives `new` as the template's English when the companion is installed.",
+ "about": "Fix Vanilla Bugs: the games' own typos the owner approved (2026-11-17), fixed in memory by \"VVFP Text Fixes.dll\" (native/vvfp_text_fixes) as each game's string table is filled. A fix applies only when the text the game would show is exactly `old` (so Optional Text Changes, Guardians of Isola and translations are left alone); `new` replaces it whole. Only text players see in normal play is listed (`shown`: where, static evidence from the stock executables). scripts/build_text_fixes_table.py writes native/vvfp_text_fixes/tf_fixes.inc from this file; src/vv_translations.py gives `new` as the template's English when the companion is installed. `captions`: a text the game shares between two actions, changed only at one action's own copy (`site`), when the looked-up text is exactly `old` or the caption has a translation (its own template row `key`).",
  "fixes": [
   {
    "game": 1,
@@ -80,6 +80,18 @@
    "shown": "Trick Or Trade (event slot 41): its result step gives eEventTrickOrTradeResultA + 1 (add eax, 0x3F5 at 0x416619), which is this text",
    "old": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for his honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points.",
    "new": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for {his/her} honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points."
+  }
+ ],
+ "captions": [
+  {
+   "game": 4,
+   "site": "0x451CF6",
+   "stock_stem": "sm/eSayHarvestingBlackberries",
+   "key": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
+   "old": "Harvesting blackberries",
+   "new": "Harvesting berries with a cutting tool",
+   "reason": "the owner (2026-11-17): a villager harvesting blackberries with a cutting tool says so; picking keeps \"Harvesting blackberries\" (both share text 0x280, so only the harvest's own copy changes; the caption field holds 39 letters, so \"Harvesting blackberries with a cutting tool\", 43, is shortened)",
+   "shown": "the villager's caption while harvesting with a cutting tool (action 0xBE, 0x451CE0: its copy of text 0x280 at 0x451CF6 into +0x1CE4)"
   }
  ]
 }
