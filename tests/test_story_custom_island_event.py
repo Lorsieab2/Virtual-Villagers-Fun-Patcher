@@ -605,6 +605,7 @@ class VillageOptionTests(unittest.TestCase):
                 if game == "vv1":
                     p.put32(w + 0xA2F4, 10)
                     p.put32(w + 0xA2F8, 5)
+                    p.put32(w + 0xA2FC, 1234)   # the tech points (0xA2FC is the crops only in a SAVE FILE, state + 4)
                     story.apply(Event(refill=1))
                     # The game's own ceiling, 5000 -- not a new village's 1900 (the owner, 2026-10-14).
                     self.assertEqual(p.u32(w + 0xA2F4), 5000)
@@ -612,6 +613,7 @@ class VillageOptionTests(unittest.TestCase):
                     p.put32(w + 0xA2E4, 2)
                     story.apply(Event(refill=1))
                     self.assertEqual(p.u32(w + 0xA2F8), 800)
+                    self.assertEqual(p.u32(w + 0xA2FC), 1234, "the tech points are never touched")
                 elif game == "vv2":
                     # The game's field test 0x425AC0 queues "Birds found your
                     # field" as a side effect: the refill never calls it.
