@@ -94,6 +94,11 @@ EDITS = {
 # The Tree of Life's cutting-tool harvest caption: the harvest's copy and picking's (start, the address after the copy).
 CAPTION = DATA["captions"][0]
 CAPTION_SITE = 0x451CF6
+# The villager panel's Action line (the field's only reader): `add edx, 0x1CE4 / push edx` before the set-text.
+SHOWN_SITE = 0x4404F3
+SHOWN_STOCK = "81C2E41C000052"
+SHOWN_RUN = (0x4404E9, 0x4404FA)               # mov edx, [esp+0x10] ... push edx; then the call 0x40D3E0
+FIELD, FIELD_BYTES = 0x1CE4, 0x27
 HARVEST_COPY = (0x451CF2, 0x451D05)
 PICK_COPY = (0x451C42, 0x451C55)
 # New Believers' lab equipment line: the ground click's format push and the Collections screen's two pushes.
@@ -140,11 +145,16 @@ class TheData(unittest.TestCase):
     def test_the_caption_is_the_companions_and_the_templates(self) -> None:
         self.assertEqual(len(DATA["captions"]), 1)
         self.assertEqual((CAPTION["game"], int(CAPTION["site"], 16)), (4, CAPTION_SITE))
-        self.assertEqual(CAPTION["new"], "Harvesting berries with a cutting tool")
+        # the owner's whole caption is shown; only the mark the field holds is shorter, and it fits the field
+        self.assertEqual(CAPTION["new"], "Harvesting blackberries with a cutting tool")
+        self.assertEqual(CAPTION["mark"], "Harvesting berries with a cutting tool")
+        self.assertLess(len(CAPTION["mark"]), FIELD_BYTES)
+        self.assertEqual(int(CAPTION["shown_site"], 16), SHOWN_SITE)
         source = (ROOT / "native" / "vvfp_text_fixes" / "vvfp_text_fixes.c").read_text(encoding="utf-8")
-        self.assertIn(f'english[] = "{CAPTION["new"]}"', source)
+        self.assertIn(f'caption_english[] = "{CAPTION["new"]}"', source)
+        self.assertIn(f'CAPTION_MARK[] = "{CAPTION["mark"]}"', source)
         self.assertIn(f'#define CAPTION_OLD "{CAPTION["old"]}"', source)
-        self.assertIn(f'vvfp_tr("{CAPTION["key"]}", english', source)
+        self.assertIn(f'vvfp_tr("{CAPTION["key"]}", caption_english, 0u)', source)   # drawn from a pointer
         rows = [s for s in tr.load_patcher_strings() if s["stem"] == CAPTION["key"]]
         self.assertEqual([(r["english"], r["games"]) for r in rows], [(CAPTION["new"], ["vv4"])])
         if HAVE_STOCK:
@@ -186,6 +196,7 @@ class TheRows(unittest.TestCase):
                 expected = [SITES[game][:2]] if game in SITES else []
                 if game == 4:
                     expected.append((CAPTION_SITE, "6A27508D86E41C0000"))
+                    expected.append((SHOWN_SITE, SHOWN_STOCK))
                 if game == 5:
                     expected.append((LAB_SITE, "6850A34900"))
                 self.assertEqual(detours, expected)
@@ -195,7 +206,9 @@ class TheRows(unittest.TestCase):
 
     @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK, "needs pefile and the stock executables")
     def test_no_other_row_writes_the_sites(self) -> None:
-        for game, (site, stock, *_rest) in SITES.items():
+        sites = [(game, site, stock) for game, (site, stock, *_rest) in SITES.items()]
+        sites += [(4, CAPTION_SITE, "6A27508D86E41C0000"), (4, SHOWN_SITE, SHOWN_STOCK)]
+        for game, site, stock in sites:
             n = len(bytes.fromhex(stock))
             for p in patcher._load_fun_patch_records():
                 if p.raw.get("game_id") != f"vv{game}":
@@ -411,20 +424,67 @@ class TheCompanion(unittest.TestCase):
         p.call(start, [0, villager], regs={"eax": text}, until=end)
         return self.cstring(p, villager + 0x1CE4)
 
+    def action_line(self, p, villager: int) -> tuple[bytes, int, int]:
+        """Runs the villager panel's own Action line code (0x4404E9 up to its `call 0x40D3E0`) for `villager`;
+        returns the text the label is handed, its address and the label (ecx)."""
+        panel = p.alloc(0x200)
+        p.put32(panel + 0xE4, 0x13572468)                         # the Action label
+        esp = p.alloc(0x400) + 0x200
+        p.put32(esp + 0x10, villager)
+        p.set_reg("esp", esp)
+        p.set_reg("ebp", panel)
+        p.run(*SHOWN_RUN)
+        text_va = p.u32(p.reg("esp"))
+        return self.cstring(p, text_va), text_va, p.reg("ecx")
+
+    def harvest_then_shown(self, p, start: int, end: int, looked_up: bytes) -> tuple[bytes, bytes, bytes]:
+        """An action's caption copy into a villager whose bytes are all 0xCC, then the Action line: returns the
+        field, the bytes past the field's 0x27, and the text the Action line shows."""
+        villager = p.alloc(0x2000)
+        p.write(villager, b"\xCC" * 0x2000)
+        text = p.alloc(len(looked_up) + 1)
+        p.write(text, looked_up + b"\0")
+        p.call(start, [0, villager], regs={"eax": text}, until=end)
+        field = self.cstring(p, villager + FIELD)
+        past = p.read(villager + FIELD + FIELD_BYTES, 0x2000 - FIELD - FIELD_BYTES)
+        return field, past, self.action_line(p, villager)[0]
+
     def test_the_cutting_tool_harvest_says_so_and_picking_does_not(self) -> None:
-        old, new = CAPTION["old"].encode(), CAPTION["new"].encode()
-        self.assertLessEqual(len(new), 0x27)                      # the caption field holds 39 letters
+        old, new, mark = CAPTION["old"].encode(), CAPTION["new"].encode(), CAPTION["mark"].encode()
+        self.assertGreater(len(new), FIELD_BYTES)                # the owner's caption does not fit the field...
+        self.assertLess(len(mark), FIELD_BYTES)                  # ...the mark does, with its NUL
+        untouched = b"\xCC" * (0x2000 - FIELD - FIELD_BYTES)
         stock = self.process(4, install=False)
         self.assertEqual(self.caption_after(stock, *HARVEST_COPY, old), old)
+        self.assertEqual(self.harvest_then_shown(stock, *HARVEST_COPY, old), (old, untouched, old))
         p = self.process(4)
         self.assertEqual(p.export("VvfpTextFixesCaptionInstalled"), 1)
         self.assertEqual(p.read(CAPTION_SITE, 9).hex().upper()[:2], "E9")
-        self.assertEqual(self.caption_after(p, *HARVEST_COPY, old), new)
-        self.assertEqual(self.caption_after(p, *PICK_COPY, old), old)          # picking keeps the game's caption
+        self.assertEqual(p.read(SHOWN_SITE, 7).hex().upper(), "E9" + p.read(SHOWN_SITE + 1, 4).hex().upper() + "9090")
+        # the harvest: the field holds the mark, nothing past it is written, the Action line shows the whole caption
+        self.assertEqual(self.harvest_then_shown(p, *HARVEST_COPY, old), (mark, untouched, new))
+        # picking keeps the game's caption, and its code is the game's own
+        self.assertEqual(self.harvest_then_shown(p, *PICK_COPY, old), (old, untouched, old))
         self.assertEqual(p.read(PICK_COPY[0], 20), stock.read(PICK_COPY[0], 20))
         for other in (b"Recolte des mures", old + b" ", b""):              # another patch's text is kept
             with self.subTest(other=other):
-                self.assertEqual(self.caption_after(p, *HARVEST_COPY, other), other)
+                self.assertEqual(self.harvest_then_shown(p, *HARVEST_COPY, other), (other, untouched, other))
+
+    def test_the_action_line_shows_the_whole_caption_only_for_the_mark(self) -> None:
+        mark, new = CAPTION["mark"].encode(), CAPTION["new"].encode()
+        for installed in (False, True):
+            p = self.process(4, install=installed)
+            for field in (mark, mark[:-1], mark + b"s", b"Harvesting blackberries", b"Sleeping", b""):
+                with self.subTest(installed=installed, field=field):
+                    villager = p.alloc(0x2000)
+                    p.write(villager + FIELD, field + b"\0")
+                    shown, at, label = self.action_line(p, villager)
+                    self.assertEqual(label, 0x13572468)               # the label the game set up is kept
+                    if installed and field == mark:
+                        self.assertEqual(shown, new)
+                    else:
+                        self.assertEqual((shown, at), (field, villager + FIELD))   # the field itself, as stock
+                    self.assertEqual(self.cstring(p, villager + FIELD), field)     # the field is only read
 
     # -- New Believers: the lab equipment line ------------------------------------------------------------------
     def lab_line(self, p, count: int) -> bytes:
@@ -483,7 +543,8 @@ class TheCompanion(unittest.TestCase):
         for game in (3, 5):
             p = self.process(game)
             self.assertEqual(p.export("VvfpTextFixesCaptionInstalled"), 0)
-        for at in (0x451CE6, 0x451CEA, CAPTION_SITE, CAPTION_SITE + 8, 0x451CFF, 0x451D03):
+        for at in (0x451CE6, 0x451CEA, CAPTION_SITE, CAPTION_SITE + 8, 0x451CFF, 0x451D03,
+                   SHOWN_SITE - 10, SHOWN_SITE - 1, SHOWN_SITE, SHOWN_SITE + 6, SHOWN_SITE + 7, SHOWN_SITE + 11):
             with self.subTest(at=hex(at)):
                 data = bytearray(STOCK[4].read_bytes())
                 pe = pefile.PE(data=bytes(data), fast_load=True)
@@ -495,6 +556,8 @@ class TheCompanion(unittest.TestCase):
                 self.assertEqual(p.read(SITES[4][0], 5).hex().upper(), SITES[4][1])
                 if not CAPTION_SITE <= at < CAPTION_SITE + 9:
                     self.assertEqual(p.read(CAPTION_SITE, 9).hex().upper(), "6A27508D86E41C0000")
+                if not SHOWN_SITE <= at < SHOWN_SITE + 7:
+                    self.assertEqual(p.read(SHOWN_SITE, 7).hex().upper(), SHOWN_STOCK)
 
 
 class TheTemplate(unittest.TestCase):

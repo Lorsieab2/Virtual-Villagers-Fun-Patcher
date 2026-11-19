@@ -70349,13 +70349,13 @@
   },
   {
    "stem": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
-   "english": "Harvesting berries with a cutting tool",
+   "english": "Harvesting blackberries with a cutting tool",
    "games": [
     "vv4"
    ],
    "mechanism": "a",
    "context": "VVFP Text Fixes.dll",
-   "notes": "drawn by the game's text routine; the villager's caption while harvesting blackberries with a cutting tool (at most 39 letters)",
+   "notes": "drawn by the game's text routine; the villager panel's Action line while harvesting blackberries with a cutting tool (any length)",
    "route": "key"
   }
  ]

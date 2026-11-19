@@ -97,9 +97,11 @@
    "stock_stem": "sm/eSayHarvestingBlackberries",
    "key": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
    "old": "Harvesting blackberries",
-   "new": "Harvesting berries with a cutting tool",
-   "reason": "the owner (2026-11-17): a villager harvesting blackberries with a cutting tool says so; picking keeps \"Harvesting blackberries\" (both share text 0x280, so only the harvest's own copy changes; the caption field holds 39 letters, so \"Harvesting blackberries with a cutting tool\", 43, is shortened)",
-   "shown": "the villager's caption while harvesting with a cutting tool (action 0xBE, 0x451CE0: its copy of text 0x280 at 0x451CF6 into +0x1CE4)"
+   "new": "Harvesting blackberries with a cutting tool",
+   "mark": "Harvesting berries with a cutting tool",
+   "shown_site": "0x4404F3",
+   "reason": "the owner (2026-11-17): a villager harvesting blackberries with a cutting tool says so; picking keeps \"Harvesting blackberries\" (both share text 0x280, so only the harvest's own copy changes). The caption field holds 39 letters, so the harvest writes the mark (38) there and the villager panel's Action line, the field's only reader, draws the full caption (43) for it; the owner's text is never shortened and nothing is written past the field",
+   "shown": "the villager panel's Action line while harvesting with a cutting tool (action 0xBE, 0x451CE0: its copy of text 0x280 at 0x451CF6 into +0x1CE4; the Action line's set-text at 0x4404F3)"
   }
  ],
  "formats": [

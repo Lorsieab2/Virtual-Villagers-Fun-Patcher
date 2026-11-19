@@ -24,12 +24,18 @@
    * The Tree of Life's cutting-tool harvest caption (the owner, 2026-11-17): picking blackberries (action 99,
      0x451C30) and the harvest with a cutting tool (action 0xBE, 0x451CE0) both copy text 0x280
      (eSayHarvestingBlackberries, "Harvesting blackberries") into the villager's caption (+0x1CE4, at most 0x27
-     letters, 0x4724E0).  The harvest's own copy -- 0x451CF6, `push 0x27 / push eax / lea eax, [esi+0x1CE4]` --
-     jumps to tf_caption_stub, which pushes "Harvesting berries with a cutting tool" (38 letters; the owner's
-     "Harvesting blackberries with a cutting tool", 43, would be cut) when the looked-up text is exactly the stock
-     English, or the caption's own translation when the player's language has one (VVFP Translations.dll, row
-     vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0); any other text (another patch's) is kept.  Picking is the
-     game's own.  Installed with the loader's site, all or none.
+     letters, 0x4724E0).  The owner's caption, "Harvesting blackberries with a cutting tool" (43 letters), does not
+     fit that field, so the field gets a short mark and the full caption is drawn in its place:
+       - the harvest's own copy -- 0x451CF6, `push 0x27 / push eax / lea eax, [esi+0x1CE4]` -- jumps to
+         tf_caption_stub, which pushes CAPTION_MARK ("Harvesting berries with a cutting tool", 38 letters, so the
+         game's own 0x27-byte copy holds it whole) when the looked-up text is exactly the stock English or the
+         player's language has the caption; any other text (another patch's) is kept;
+       - the field's one reader, the villager panel's Action line (0x4404F3, `add edx, 0x1CE4 / push edx` before
+         its label's set-text 0x40D3E0, which copies any length onto the heap), jumps to tf_caption_shown_stub,
+         which hands the label the full caption (or its translation, VVFP Translations.dll row
+         vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0) when the field holds exactly CAPTION_MARK, else the field.
+     Nothing is written past the field; the field is never saved (the save keeps only the record's windows).
+     Picking is the game's own.  Installed with the loader's site, all or none.
    * New Believers' lab equipment line (the owner, 2026-11-18): a click on the ground at place 35 writes
      "<n> of 12 pieces of lab equipment collected" (0x443AC0: sprintf of the format "%d%s12 %s" at 0x49A350, pushed
      at 0x443BB0, with strings 1183 " of " and 1184), but n counts all 24 pieces (0x413F50(0x50 ...)), so players
@@ -91,6 +97,18 @@ static const tf_game GAMES[6] = {
 static const unsigned char CAPTION_STOCK[9] = { 0x6A, 0x27, 0x50, 0x8D, 0x86, 0xE4, 0x1C, 0x00, 0x00 };
 static const unsigned char CAPTION_ON_STOCK[5] = { 0x50, 0xE8, 0xDB, 0x07, 0x02 };   /* push eax / call 0x4724E0 */
 static const unsigned char CAPTION_LOOKUP_STOCK[5] = { 0x68, 0x80, 0x02, 0x00, 0x00 };   /* push 0x280 */
+/* the villager panel's Action line: mov edx, [esp+0x10] / mov ecx, [ebp+0xE4] / [add edx, 0x1CE4 / push edx] /
+   call 0x40D3E0 */
+#define CAPTION_SHOWN_SITE 0x4404F3u
+#define CAPTION_SHOWN_ON 0x4404FAu
+#define CAPTION_SHOWN_BEFORE 10
+static const unsigned char CAPTION_SHOWN_AROUND[22] = { 0x8B, 0x54, 0x24, 0x10, 0x8B, 0x8D, 0xE4, 0x00, 0x00, 0x00,
+                                                        0x81, 0xC2, 0xE4, 0x1C, 0x00, 0x00, 0x52,
+                                                        0xE8, 0xE1, 0xCE, 0xFC, 0xFF };
+#define CAPTION_SHOWN_LENGTH 7
+/* what the harvest writes into the 0x27-byte field: the mark the Action line draws the full caption for */
+static const char CAPTION_MARK[] = "Harvesting berries with a cutting tool";
+static const char caption_english[] = "Harvesting blackberries with a cutting tool";
 
 /* New Believers' lab equipment line (see the top): the ground click's format push and the stock format. */
 #define LAB_SITE 0x443BB0u
@@ -313,21 +331,51 @@ static void tf_fix_table(void) {
     }
 }
 
-/* The Tree of Life's cutting-tool harvest: the caption it copies instead of `looked_up` (text 0x280's). */
+/* The full caption in the player's language (drawn from a pointer: any length). */
+static const char *tf_caption_full(void) {
+    return vvfp_tr("vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0", caption_english, 0u);
+}
+
+/* The Tree of Life's cutting-tool harvest: what it copies into the field instead of `looked_up` (text 0x280's). */
 static const char *__cdecl tf_caption(const char *looked_up) {
-    static const char english[] = "Harvesting berries with a cutting tool";
     const char *text = looked_up;
     __try {
-        const char *translated = vvfp_tr("vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0", english, 0x27u + 1u);
-        if (translated != english) {
-            text = translated;                    /* the player's language has the caption */
-        } else if (tf_same(looked_up, CAPTION_OLD)) {
-            text = english;                       /* the stock English is in place */
+        if (tf_caption_full() != caption_english || tf_same(looked_up, CAPTION_OLD)) {
+            text = CAPTION_MARK;                  /* the language has the caption, or the stock English is in place */
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         text = looked_up;
     }
     return text;
+}
+
+/* The villager panel's Action line: the text its label gets for the caption field `field`. */
+static const char *__cdecl tf_caption_shown(const char *field) {
+    const char *text = field;
+    __try {
+        if (tf_same(field, CAPTION_MARK)) {
+            text = tf_caption_full();
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        text = field;
+    }
+    return text;
+}
+
+/* At CAPTION_SHOWN_SITE (edx the villager, ecx the label): `add edx, 0x1CE4 / push edx` with the label's text
+   pushed instead, then on at CAPTION_SHOWN_ON (call the set-text). */
+static __declspec(naked) void tf_caption_shown_stub(void) {
+    __asm {
+        add edx, 0x1CE4
+        push ecx
+        push edx
+        call tf_caption_shown
+        add esp, 4
+        pop ecx
+        push eax
+        push CAPTION_SHOWN_ON
+        ret
+    }
 }
 
 /* At CAPTION_SITE (eax the looked-up text, esi the villager): the stock three instructions with the caption pushed
@@ -372,7 +420,7 @@ int __stdcall VvfpTextFixesApplied(void) {
    before its own start; the second call does nothing. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     const tf_game *g;
-    vvfp_site_write site[2];
+    vvfp_site_write site[3];
     int n = 1, lab = 0;
     (void)shipped;
     if (g_installed || game < 1 || game > 5) {
@@ -396,14 +444,19 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_branch(&site[0], g->site, g->length, g->around + g->before, game == 3 ? 0xE9 : 0xE8,
                      game == 3 ? (const void *)tf_after_loader_jmp : (const void *)tf_after_loader_call);
     if (game == 4) {
-        /* the cutting-tool harvest's caption copy: its look-up and the copy after it must be stock too */
+        /* the cutting-tool harvest's caption copy (its look-up and the copy after it must be stock too) and the
+           Action line that draws the field (the code round it must be stock too) */
         if (!vvfp_site_holds(CAPTION_LOOKUP, CAPTION_LOOKUP_STOCK, sizeof CAPTION_LOOKUP_STOCK)
-            || !vvfp_site_holds(CAPTION_ON, CAPTION_ON_STOCK, sizeof CAPTION_ON_STOCK)) {
+            || !vvfp_site_holds(CAPTION_ON, CAPTION_ON_STOCK, sizeof CAPTION_ON_STOCK)
+            || !vvfp_site_holds(CAPTION_SHOWN_SITE - CAPTION_SHOWN_BEFORE, CAPTION_SHOWN_AROUND,
+                                sizeof CAPTION_SHOWN_AROUND)) {
             return;
         }
         vvfp_site_branch(&site[1], CAPTION_SITE, sizeof CAPTION_STOCK, CAPTION_STOCK, 0xE9,
                          (const void *)tf_caption_stub);
-        n = 2;
+        vvfp_site_branch(&site[2], CAPTION_SHOWN_SITE, CAPTION_SHOWN_LENGTH,
+                         CAPTION_SHOWN_AROUND + CAPTION_SHOWN_BEFORE, 0xE9, (const void *)tf_caption_shown_stub);
+        n = 3;
     }
     if (game == 5) {
         /* the ground click's format: the push and the code round it, and the stock format text itself */
@@ -422,7 +475,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         return;
     }
     g_installed = 1;
-    g_caption_installed = (game == 4 && n == 2);
+    g_caption_installed = (game == 4 && n == 3);
     g_lab_installed = lab;
     /* the string table was already made (never at game start): fix it now */
     if (tf_readable((const void *)(UINT_PTR)g->singleton, 4) && *(const unsigned int *)(UINT_PTR)g->singleton != 0) {
