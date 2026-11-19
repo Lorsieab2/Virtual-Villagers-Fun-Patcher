@@ -484,6 +484,32 @@ static int sol_counter_text(char *out, unsigned int cap) {
     return sol_counter_text_of(0, out, cap);
 }
 
+/* THE "?" BUTTON'S POPUP (the owner, 2026-11-18): its title and its text, in the player's language when a
+   translation is chosen (each its own row: data/translations/patcher_strings.json), else English.  Paragraphs are
+   separated by "\n\n"; the counters' popups lay them out as the game's own info popup does.  PENDING THE OWNER'S OK
+   of the wording. */
+#define SOL_HELP_TITLE "Village Solidarity"
+#define SOL_HELP_TEXT                                                                                                \
+    "Village Solidarity shows how close and united your village feels, from 0 to 100. Every village starts at 50."  \
+    "\n\nThe patcher's new island events can raise it by 5 (songs and gatherings, fair solutions, helping each "    \
+    "other, welcoming newcomers, and happy, trusting or hopeful endings) or lower it by 5 (quarrels left "          \
+    "unsettled, unfairness, broken promises, and tense, fearful or resentful endings). Quiet or solemn moments "    \
+    "leave it as it is. It never goes below 0 or above 100."                                                        \
+    "\n\nIt only changes chances, and only for the patcher's added events. The higher it is, the more likely the "  \
+    "new cooperative and celebration events and the friendlier endings; the lower it is, the more likely the new "  \
+    "events about making peace and apologizing, and the tense endings. At normal strength each point away from 50 " \
+    "adds 2% to their chance. It never changes the game's own island events, or work, skills or health."           \
+    "\n\nThe \"Village Solidarity strength\" slider in the patcher sets how strong this is, from 0.1x to 10x (1x is " \
+    "normal).\n\nStart Over resets it to 50."
+
+static const char *sol_help_title(void) {
+    return vvfp_tr("vvfp.village_solidarity/vvfp_village_solidarity.sol_help_title.s0", SOL_HELP_TITLE, 0);
+}
+
+static const char *sol_help_text(void) {
+    return vvfp_tr("vvfp.village_solidarity/vvfp_village_solidarity.sol_help_text.s0", SOL_HELP_TEXT, 0);
+}
+
 #include "counter_vv1.inc"
 #include "counter_vv2.inc"
 #include "counter_vv3.inc"
