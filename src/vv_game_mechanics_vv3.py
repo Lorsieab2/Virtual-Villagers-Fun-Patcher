@@ -379,9 +379,10 @@ def _tree_steps(clock: Clock, now: int, due: int, interval: int, amount: int, cr
     comes at its due time (or as soon as the village is played, when it is overdue) and gains `gain(elapsed)` for all
     the time since `credited` -- the stock formula (0x434760, 0x4319B0) -- then `amount` every `interval` game
     seconds, in real time at the clock's speed."""
-    out = {"step": amount, "interval": gm.real_seconds(interval, clock.runs_at)}
+    out = {"step": amount, "interval": gm.real_seconds(interval, clock.runs_at),
+           # the play still needed to the next refill, also for one that cannot be dated (the owner, 2026-11-17)
+           "first_in": gm.real_seconds(max(0, due - now), clock.runs_at)}
     if clock.frozen:
-        out["first_in"] = gm.real_seconds(max(0, due - now), clock.runs_at)
         out["first_step"] = gain(max(0, due - credited))
     else:
         first = max(due, now)

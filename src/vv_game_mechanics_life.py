@@ -815,6 +815,8 @@ def _next_refill_words(ctx: Context, s: Source) -> str | None:
         return f"{s.name} after {gm.duration(s.first_in if s.first_in is not None else s.interval)} of play once you unpause"
     moment = s.next_refill if s.next_refill is not None else s.next_at
     if moment is None:
+        if s.first_in is not None:
+            return f"{s.name} after {gm.duration(s.first_in)} more of play"
         return f"{s.name} within {gm.duration(s.interval)} of play"
     if moment <= ctx.village.now:
         return f"{s.name} as soon as you play the village"
@@ -1177,6 +1179,10 @@ def fill_time(ctx: Context, s: Source) -> tuple[float | None, str]:
         first = s.first_in if s.first_in is not None else s.interval
         return None, f"full after {gm.duration(first + rest)} of real-life play once unpaused ({words}), with nobody picking"
     if s.next_at is None:
+        # Not dated: the play still needed to the next refill when the save gives it, never a whole interval
+        # (the owner, 2026-11-17: "full after about 6 hours 40 minutes ... (1 refill)" was wrong).
+        if s.first_in is not None:
+            return None, f"full after {gm.duration(s.first_in + rest)} of real-life play ({words}), with nobody picking"
         return None, f"full after {gm.about(s.interval + rest)} of real-life play ({words}), with nobody picking"
     moment = s.next_at + rest
     if moment <= ctx.village.now:
@@ -1204,6 +1210,13 @@ def fill_lines(ctx: Context) -> list[gm.Fact]:
         # The save's amounts and timers with the game's own refill steps: as sure as the refill rule itself (the
         # owner, 2026-10-24: no label on what live code or the save proves).
         ok = gm.SAVE if words == "full now" else (s.verified if s.unlimited else s.rule)
+        # The owner, 2026-11-17: every refillable source that is not full gives the time left to its next refill.
+        nxt = None if words == "full now" else _next_refill_words(ctx, s)
+        if nxt:
+            at = s.next_refill if s.next_refill is not None else s.next_at
+            ahead = at is not None and at > ctx.village.now and not ctx.paused
+            out.append(gm.Fact("Refills", f"{s.name}, next refill: {nxt[len(s.name) + 1:]}.", s.rule,
+                               due=at if ahead else None, due_kind="refill" if ahead else None))
         out.append(gm.Fact("Refills", f"{s.name}, time to full: {words}.", ok,
                            due=moment if live else None, due_kind="refill" if live else None))
         whole = empty_to_full(s)
