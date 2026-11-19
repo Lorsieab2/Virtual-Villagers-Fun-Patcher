@@ -164,5 +164,21 @@ class NothingWithheldElsewhere(unittest.TestCase):
         self.assertNotIn("not read from this save", source)
 
 
+class Birds(unittest.TestCase):
+    """The owner, 2026-11-18: the whole birds explanation, answer first, in every mode."""
+
+    def test_the_rule_is_on_the_general_page_without_a_live_line(self) -> None:
+        texts = [f.text for f in gm.general(2, 1_800_000_000.0) if f.group == "Food sources"]
+        self.assertFalse(any(t.startswith("The birds: ") for t in texts))
+        rule = next(t for t in texts if t.startswith("When the birds come they eat every crop on the field"))
+        self.assertIn("instead of refilling to 800 at every regrowth", rule)
+        self.assertIn("There is no chance roll", rule)
+        self.assertTrue(any("so it runs out after 100, 143 or 250 harvests" in t for t in texts))
+        self.assertTrue(any("(not only the first time)" in t for t in texts))
+
+    def test_harvests_to_use_up_the_allowance(self) -> None:
+        self.assertEqual([-(-vv2.BIRD_ALLOWANCE // n) for n in vv2.BIRD_HARVEST], [100, 143, 250])
+
+
 if __name__ == "__main__":
     unittest.main()
