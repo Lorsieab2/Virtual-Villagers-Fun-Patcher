@@ -518,18 +518,49 @@ static int cg_group_ok(const char *kind, int whole_village) {
     return d != NULL && (whole_village || d->words[1] != NULL);
 }
 
-/* Whether record `r`'s best skill is `skill` (ties count), with some of it: "listed as that skill's worker". */
-static int cg_skill_worker(const ce_adapter *a, const unsigned char *r, int skill) {
-    int mine = cg_skill_value(a, r, CG_WORK_SKILLS[skill]), k;
-    if (mine <= 0) {
-        return 0;
+/* The job ticked on record `r`'s Details screen (CG_WORK_SKILLS index), -1 none: the preference the game's own job
+   picker gives 86 times in 100 (rand(100) <= 85): A New Home [+0x3D0] 1..5 (0x439C40: 1 Farming, 2 Parenting,
+   3 Research, 4 Healing, 5 Building), The Lost Children [+0x7F8] 1..5 (0x449DCD: 1 Farming, 2 Parenting, 3 Healing,
+   4 Research, 5 Building), The Secret City [+0xEC0], The Tree of Life [+0x1C70], New Believers [+0x1C74] a skill
+   index, -1 none (0x45985B, 0x461E4A, 0x46A575: Farming, Parenting, Healing, Research, Building, Devotion). */
+static int cg_job_ticked(int game, const unsigned char *r) {
+    static const signed char OLD1[6] = { -1, 0, 4, 2, 3, 1 };      /* value -> CG_WORK_SKILLS */
+    static const signed char OLD2[6] = { -1, 0, 4, 3, 2, 1 };
+    static const signed char LATER[6] = { 0, 4, 3, 2, 1, 5 };      /* skill index -> CG_WORK_SKILLS */
+    int v;
+    switch (game) {
+    case 1: v = *(const int *)(r + 0x3D0); return v >= 1 && v <= 5 ? OLD1[v] : -1;
+    case 2: v = *(const int *)(r + 0x7F8); return v >= 1 && v <= 5 ? OLD2[v] : -1;
+    case 3: v = *(const int *)(r + 0xEC0); return v >= 0 && v <= 4 ? LATER[v] : -1;
+    case 4: v = *(const int *)(r + 0x1C70); return v >= 0 && v <= 4 ? LATER[v] : -1;
+    case 5: v = *(const int *)(r + 0x1C74); return v >= 0 && v <= 5 ? LATER[v] : -1;
+    default: return -1;
     }
-    for (k = 0; k < 6; ++k) {
-        if (k != skill && cg_skill_value(a, r, CG_WORK_SKILLS[k]) > mine) {
-            return 0;
+}
+
+/* Whether record `r` is a Master of `skill`, the game's own rank (A New Home 90, the others 88; New Believers' and The
+   Tree of Life's float skills compared as floats): the village lists it as that skill's worker. */
+static int cg_skill_master(const ce_adapter *a, int game, const unsigned char *r, int skill) {
+    int k;
+    for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
+        if (lstrcmpiA(a->skill_names[k], CG_WORK_SKILLS[skill]) == 0) {
+            const unsigned char *at = r + a->off_skills + 4u * (unsigned int)k;
+            return a->skills_float ? *(const float *)at >= 88.0f : *(const int *)at >= (game == 1 ? 90 : 88);
         }
     }
-    return 1;
+    return 0;
+}
+
+/* "That skill's worker" (the owner, 2026-11-18): the job ticked for it, or listed as its Master. */
+static int cg_skill_worker(const ce_adapter *a, int game, const unsigned char *r, int skill) {
+    int ticked = -1, master = 0;
+    __try {
+        ticked = cg_job_ticked(game, r);
+        master = cg_skill_master(a, game, r, skill);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+    return ticked == skill || master;
 }
 
 /* "group" kind "work:<Skill>": every listed adult who is that skill's worker does the game's own job action for it;
@@ -556,7 +587,7 @@ static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r)
             || !cg_in_ages(a, record, CGA_ADULTS)) {
             continue;
         }
-        use = cg_skill_worker(a, record, skill) ? work : rest;
+        use = cg_skill_worker(a, game, record, skill) ? work : rest;
         if (use < 0) {
             continue;
         }

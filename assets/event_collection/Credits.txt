@@ -619,7 +619,7 @@ Written in the style of the owner's own events. Edit anything and send it back; 
 
 NEW EVENTS: VILLAGE MOMENTS
 
-Source: New Events - Village Moments (draft for owner).txt (SHA-256 4A1DAED52B2ED69E93F789D3716016AE7BD076B43D2FE1A6F9105C42E2C9BD9C). The texts below are copied from it verbatim.
+Source: New Events - Village Moments (draft for owner).txt (SHA-256 9AEB75AF12C9EA9E1C16457CB47E0AE3A1965D7B4EBA7395CC4A2DE4CE067F84). The texts below are copied from it verbatim.
 
 NEW EVENTS: VILLAGE MOMENTS CREDIT: Village Moments (its title and introduction) (source lines 1-3)
 

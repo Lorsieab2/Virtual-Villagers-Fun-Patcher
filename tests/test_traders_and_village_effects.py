@@ -406,6 +406,10 @@ class GameSide(unittest.TestCase):
 WORK_RUSH = {"vv1": ((0x441E10, 4), (0x439D80, 8)), "vv2": ((0x456F70, 4), (0x44A1E0, 8)),
              "vv3": (0xB, 0x3A), "vv4": (0x63, 0x4F), "vv5": (0x6C, 0x55)}
 TEMP_SETTERS = {"vv3": ((0x4583A0, 20),), "vv4": ((0x437EC0, 8), (0x438CA0, 8), (0x460A90, 20))}
+# The job ticked on the Details screen (story_graph_village.inc cg_job_ticked): its field, and (Adam, Bea, Cal)'s
+# values: Farming, none, Research.
+JOB_TICKED = {"vv1": (0x3D0, (1, 0, 3)), "vv2": (0x7F8, (1, 0, 4)), "vv3": (0xEC0, (0, -1, 3)),
+              "vv4": (0x1C70, (0, -1, 3)), "vv5": (0x1C74, (0, -1, 3))}
 SPAWNER = {"vv3": (0x42D940, 0x58F428, 12), "vv4": (0x413EE0, 0x4CC838, 12), "vv5": (0x4141E0, 0x4DBFC8, 28)}
 
 
@@ -434,16 +438,28 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(Exception) as ctx:
                 cg.load(pages([[bad]], games), scrolling=True)
             self.assertIn(why, str(ctx.exception))
+        # clean and glow together are the Tree of Life's purification (0x45EBE0): no event may give both
+        with self.assertRaises(Exception) as ctx:
+            cg.load(pages([[{"do": "group", "kind": "effect", "effect": "clean", "who": "subject"}],
+                           [{"do": "group", "kind": "effect", "effect": "glow", "who": "all"}]], [4]), scrolling=True)
+        self.assertIn("clean and glow", str(ctx.exception))
 
     def test_work_rush_only_the_skills_workers_work(self):
-        people = [(0, "m", 30, "Adam", 50, False), (1, "f", 31, "Bea", 0, False), (2, "m", 8, "Kai", 0, False)]
+        """The owner's rule: the job ticked for the skill (the Details screen's preference), or listed as its Master,
+        works; everyone else rests.  Cal's best skill is Farming (50) but it is neither ticked nor a Master: Cal
+        rests (a best-skill rule would have sent Cal to work)."""
+        people = [(0, "m", 30, "Adam", 10, False), (1, "f", 31, "Bea", 90, False), (2, "m", 40, "Cal", 50, False),
+                  (3, "m", 8, "Kai", 0, False)]
         for game, (work, rest) in WORK_RUSH.items():
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 g = pages([[{"do": "group", "kind": "work", "skill": "Farming"}]], [int(game[2])])
+                off, ticked = JOB_TICKED[game]
 
-                def setup(r, game=game, work=work, rest=rest):
+                def setup(r, game=game, work=work, rest=rest, off=off, ticked=ticked):
+                    for i, value in enumerate(ticked):   # Adam: Farming ticked; Bea: none; Cal: Research ticked
+                        r.p.put32(r.v.record(i) + off, value & 0xFFFFFFFF)
                     if game in DO_ACTION:
                         r.record(DO_ACTION[game], 8)
                     else:
@@ -453,11 +469,11 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
                 r, _ = self.side.run_graph(game, g, setup, people=people)
                 if game in DO_ACTION:
                     started = sorted(c[1] for c in r.recorded.get(DO_ACTION[game], []))
-                    self.assertEqual(started, sorted([work, rest]), "the farmer works, the other adult rests, the "
-                                                                    "child is left as is")
+                    self.assertEqual(started, sorted([work, work, rest]), "Adam (ticked) and Bea (Master) work, Cal "
+                                                                          "rests, the child is left as is")
                 else:
-                    self.assertEqual([c[1] for c in r.recorded.get(work[0], [])], [0], "Adam (Farming) works")
-                    self.assertEqual([c[1] for c in r.recorded.get(rest[0], [])], [1], "Bea rests; Kai is a child")
+                    self.assertEqual([c[1] for c in r.recorded.get(work[0], [])], [0, 1], "Adam and Bea work")
+                    self.assertEqual([c[1] for c in r.recorded.get(rest[0], [])], [2], "Cal rests; Kai is a child")
 
     def test_spawn_fills_the_free_slots_by_the_games_own_spawner(self):
         for game, (va, this, pop) in SPAWNER.items():
@@ -485,7 +501,7 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
 
     def test_temporary_effects_by_each_games_setter(self):
         cases = {"vv3": ([("hiccups", None)], {0x4583A0: (20, [0x582610, 18, 0, 0, 0])}),
-                 "vv4": ([("clean", None), ("glow", None), ("gunk", None), ("stew_wait", None)],
+                 "vv4": ([("clean", None), ("gunk", None), ("stew_wait", None)],
                          {0x437EC0: (8, None), 0x438CA0: (8, None), 0x460A90: (20, [0x4D6F50, 8, 0, 0, 0])})}
         for game, (effects, setters) in cases.items():
             if not have_stock(game):
@@ -508,6 +524,10 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
                     self.assertEqual([c[1:] for c in r.recorded[0x437EC0]][0][1], 1, "clean first: the bath's mode 1")
                     self.assertEqual(r.recorded[0x437EC0][0][0], 0x4D8B18)
                     self.assertEqual(r.recorded[0x438CA0][0][0], 0x4D8CCC)
+                    # glow on its own event (never with clean): the meditation's mode 0
+                    g2 = pages([[{"do": "group", "kind": "effect", "effect": "glow", "who": "subject"}]], [4])
+                    r2, _ = self.side.run_graph(game, g2, lambda r: r.record(0x437EC0, 8))
+                    self.assertEqual(r2.recorded[0x437EC0][0][2], 0)
 
     def test_yellow_fruit_through_the_fruit_supply_companion(self):
         if not have_stock("vv4"):

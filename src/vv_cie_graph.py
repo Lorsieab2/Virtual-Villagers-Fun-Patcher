@@ -3389,6 +3389,13 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         if r["skill"] and not any(s in GAMES[gn].skills for s in r["skill"]["names"] for gn in g["games"]):
             problems.append(f"role {rid}: none of its skills is in the event's games")
     all_skills = {s for gm in GAMES.values() for s in gm.skills}
+    temps = {e.get("effect") for n in g["nodes"].values() for e in n["effects"]
+             if e["do"] == "group" and e.get("kind") == "effect"}
+    if {"clean", "glow"} <= temps:
+        # cie-v6-binary.md 36: both sparkles are what the Tree's purification test asks of a villager (0x45EBE0):
+        # no event gives both (an owner question)
+        problems.append("an event gives clean and glow: together they are the Tree of Life's purification (no event "
+                        "may give both)")
     for nid, n in g["nodes"].items():
         for i, e in enumerate(n["effects"]):
             where = f"node {nid} effect {i + 1}"

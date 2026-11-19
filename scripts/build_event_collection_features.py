@@ -192,7 +192,7 @@ DRAFTS_C_FILES = (   # (source id, topic, SHA-256)
     ("draft_sup", "Tree of Life Supplies", "0BDDD2D87DE344C9E42D246B218582F323FB809F5FE9C82ED59D6EC5B6415927"),
     # The owner's spec of 2026-11-16/17: traders (cie-v6-binary.md 33) and the village effects' showcase (34-35)
     ("draft_trd", "Island Traders", "799A6D6F5EDA095588F1186A1C9D04A61A6EC3C444A700670B885AE37664B678"),
-    ("draft_vfx", "Village Moments", "4A1DAED52B2ED69E93F789D3716016AE7BD076B43D2FE1A6F9105C42E2C9BD9C"),
+    ("draft_vfx", "Village Moments", "9AEB75AF12C9EA9E1C16457CB47E0AE3A1965D7B4EBA7395CC4A2DE4CE067F84"),
 )
 SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, topic, _ in DRAFTS_B_FILES + DRAFTS_C_FILES})
 # Group D (data/event_collection/drafts_d/, scripts/drafts_d/): (source id, file name, topic, SHA-256); each file's

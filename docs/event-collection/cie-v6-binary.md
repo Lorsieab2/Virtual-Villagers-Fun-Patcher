@@ -1029,15 +1029,19 @@ the whole village's only. No roll; no automatic line.
 ## 36. Work rush, a spawn burst, temporary effects, yellow fruit (the owner, 2026-11-18)
 
 - **Work rush** (`group`, string `work:<Skill>`, the whole village only): `{"do": "group", "kind": "work", "skill":
-  "Farming" | "Building" | "Research" | "Healing" | "Parenting" | "Devotion"}`. Every listed adult (14+; VV5 believers)
-  whose best skill is that skill (ties count; above 0) -- "listed as that skill's worker" -- takes the game's own job
-  action for it (`CG_WORK`, the adapters' labels: e.g. Foraging, Harvesting coconuts, Fishing (VV3), Harvesting
-  blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise; Healing someone / Studying
-  medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy state with no skill:
-  **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down", VV1 / VV2 "Sitting". Children are
-  left as they are. A game with no action for the skill leaves everyone as they are. None of the games keeps a job
-  assignment an event can read for every villager (VV1/VV2's dropped-job field is per drop, VV3-VV5 choose each trip),
-  so the best skill is the worker list.
+  "Farming" | "Building" | "Research" | "Healing" | "Parenting" | "Devotion"}`. **That skill's workers** (the owner,
+  2026-11-18) are every listed adult (14+; VV5 believers) who has that job ticked on the Details screen -- the
+  preference the game's own job picker takes 86 times in 100: VV1 [+0x3D0] 1..5 (1 Farming, 2 Parenting, 3 Research,
+  4 Healing, 5 Building; 0x439C40), VV2 [+0x7F8] 1..5 (1 Farming, 2 Parenting, 3 Healing, 4 Research, 5 Building;
+  0x449DCD), VV3 [+0xEC0], VV4 [+0x1C70], VV5 [+0x1C74] a skill index (-1 none; 0x45985B, 0x461E4A, 0x46A575) -- or
+  who is listed as that skill's Master (the game's own rank: VV1 90, the others 88; VV4/VV5's float skills compared as
+  floats). They take the game's own job action for it (`CG_WORK`, the adapters' labels: Foraging, Harvesting coconuts,
+  Fishing (VV3), Harvesting blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise;
+  Healing someone / Studying medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy
+  state with no skill: **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down" (0x4F /
+  0x55), VV1 / VV2 "Sitting". Children are left as they are; a game with no action for the skill leaves everyone as
+  they are. That the busy states give no skill is traced in the emulator (`tests/test_work_rush_rest_gives_no_skill.py`:
+  ten runs of each to its end change no skill, while ten Research / job trips do).
 - **Spawn burst** (`village`, `{"what": "spawn"}`): the game's own random spawner fills its free map spots: VV2 0x415490
   (one spot, only when empty, 0x4152D0), VV3 0x42D940 (-1, 0, 0) and VV4 0x413EE0 (-1, 0, 0) twice (two spots),
   VV5 0x4141E0 (-1, 0, 0, 1, 1, 1, 1) twice (random items take a spot only while fewer than two lie out). A New Home
@@ -1052,7 +1056,7 @@ the whole village's only. No roll; no automatic line.
   - VV4: `clean` (0x437EC0 on 0x4D8B18, mode 1: the soapy pond's sparkles, 240 s), `glow` (mode 0: the meditation's,
     240 s; research x3), `gunk` (0x438CA0 on 0x4D8CCC, 180 s; wiped off on the tree), `stew_wait` (0x460A90, the pit's
     source 0x4D6F50, stew 8: a little health and the 600 s "no more stew so soon" wait; a bare wait has no setter).
-    **Note for the owner:** `clean` and `glow` together are what purifying the Tree needs.
+    **Owner question:** `clean` and `glow` together are the two marks The Tree of Life's purification test asks of a villager (0x45EBE0 / 0x45EB90): a villager carrying both, dropped on the Tree within their 240 s, could skip the bath and the meditation steps. An effect alone never advances a puzzle; the patcher refuses any event that gives both.
 - **Yellow fruit** (`supply` / `trade` / `has_supply` word `yellow_fruit`, The Tree of Life): "VVFP VV4 Fruit
   Supply.dll"'s own count through its new export `VvfpYellowFruitAdd(delta)` (0..1,000; 0 reads; -1 not installed or
   no village; nothing written until the next save). Without "Yellow Fruit Trees are No Longer Unlimited" the tree has no
