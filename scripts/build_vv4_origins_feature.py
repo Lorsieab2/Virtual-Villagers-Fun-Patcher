@@ -2625,7 +2625,7 @@ def main() -> None:
             "food_eligible_returns": [f"0x{va:X}" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS],
             "companion_food_calls": {
                 "VVFP VV4 Fruit Supply.dll": "pushes the stock returns 0x464578 / 0x468AB7 and jumps to 0x41D920, so its fruit is doubled like the stock calls",
-                "VVFP VV4 Cloth Sacks.dll (#794, not merged)": "calls 0x41D920 from the DLL: not doubled; hook point in docs/doubler-composition-audit.md",
+                "VVFP VV4 Cloth Sacks.dll": "pays the sack through the food writer's return 0x464510 (the cutting-tool berries' whitelisted return, #805), so an owned Food Point Doubler doubles it once",
             },
             "tail_bypass_sites": {
                 "tech": ["0x4156F8", "0x415862", "0x41586F", "0x415A81", "0x415B46", "0x415D8C", "0x416722", "0x416735"],
