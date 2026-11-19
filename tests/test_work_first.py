@@ -232,6 +232,148 @@ class LiveScheduler(unittest.TestCase):
                 self.assertEqual(jobs(m)[0] == g["farming"], first)
 
 
+KEEP_MARK = {
+    "vv4": ((0x430251, UC_X86_REG_EDI), (0x430361, UC_X86_REG_ECX), (0x45C80D, UC_X86_REG_ESI),
+            (0x4644B8, UC_X86_REG_ECX), (0x464531, None)),
+    "vv5": ((0x434D61, UC_X86_REG_EDI), (0x434E8E, UC_X86_REG_ECX), (0x463D1B, UC_X86_REG_ESI),
+            (0x46D021, UC_X86_REG_EAX), (0x46D09A, UC_X86_REG_ECX)),
+}
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class TreeOfLifePuzzleOptions(unittest.TestCase):
+    """The owner (2026-11-19): once a puzzle is solved its work is never
+    blocked; only an unsolved puzzle's auto-start stays drop-only, and only
+    for that puzzle's option, never all Building.  Each "add option" site of
+    the Building case runs from its stub: in a Building dispatch this
+    companion causes, the option is left out only while its puzzle is
+    unsolved and unstarted; in every other dispatch it is added as stock."""
+
+    SITES = {5: (0x463DD1, 0x463DD8), 6: (0x463E1C, 0x463E27), 7: (0x463E3E, 0x463E49)}
+
+    def run_site(self, option, flag, **kw):
+        from unicorn.x86_const import UC_X86_REG_EBP
+        m = world("vv4", **kw.pop("world", {}))
+        for addr, leaf in kw.pop("leaves", {}).items():
+            m.leaves[addr] = leaf
+        for addr, value in kw.pop("words", {}).items():
+            m.w32(addr, value)
+        flag_at = m.u32(m.exports["work_first"]["VvfpWorkFirstBuildingFlag"])
+        m.w32(flag_at, flag)
+        va, after = self.SITES[option]
+        self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xE9")
+        esp = 0x0F000000 - 0x1000
+        m.mu.mem_write(esp + 0x5C + 4 * 2, b"\xEE" * 4)
+        reached = run_until(m, va, [after], {UC_X86_REG_EDI: 2, UC_X86_REG_EBP: 5})
+        self.assertEqual(reached, after)
+        added = m.mu.reg_read(UC_X86_REG_EDI) == 3
+        if added:
+            self.assertEqual(m.u32(esp + 0x5C + 4 * 2), option)
+        m.w32(flag_at, 0)
+        return added
+
+    def test_stock_dispatches_add_every_option(self):
+        for option in self.SITES:
+            with self.subTest(option=option):
+                self.assertTrue(self.run_site(option, 0))
+
+    def test_the_stream_until_the_stream_is_solved(self):
+        self.assertFalse(self.run_site(5, 1))
+        self.assertTrue(self.run_site(5, 1, world=dict(stream_solved=True)))
+
+    def test_the_piers_and_the_rubble_until_someone_started_them(self):
+        self.assertFalse(self.run_site(6, 1))
+        self.assertTrue(self.run_site(6, 1, leaves={0x421570: Leaf(0, lambda m, a, c, r: 12, name="piers")}))
+        self.assertFalse(self.run_site(7, 1))
+        self.assertTrue(self.run_site(7, 1, words={0x4D8A8C: 30}))
+
+    def test_the_export_is_quiet_outside_a_patch_dispatch(self):
+        m = world("vv4")
+        # VvfpWorkFirstPuzzleBlocked(4, 6) with no dispatch running: 0 (the Fix Huts companion's question).
+        self.assertIn("VvfpWorkFirstPuzzleBlocked", m.exports["work_first"])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class TheMarkStaysInTheSave(unittest.TestCase):
+    """The owner: with the patch off, stock -- so a task an untrained villager
+    does with the mark lifted never trains them in the save.  Each of the
+    game's own "drop the assignment" writes, run from its site, keeps a mark
+    of 1 and clears anything else as the stock game does."""
+
+    def test_each_reset_keeps_a_mark_of_1(self):
+        from unicorn.x86_const import UC_X86_REG_EDX
+        for game, sites in KEEP_MARK.items():
+            for va, reg in sites:
+                reg = UC_X86_REG_EDX if reg is None else reg
+                for before, after in ((1, 1), (6, 0), (0x1C, 0), (0, 0)):
+                    with self.subTest(game=game, va=hex(va), before=before):
+                        m = world(game, task=before)
+                        self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xE9", "the site is hooked")
+                        reached = run_until(m, va, [va + 10], {reg: RECORD})
+                        self.assertEqual(reached, va + 10)
+                        self.assertEqual(m.u32(RECORD + 0x1C54), after)
+
+    def test_the_sites_are_the_stock_resets(self):
+        for game, sites in KEEP_MARK.items():
+            for va, _ in sites:
+                with self.subTest(game=game, va=hex(va)):
+                    code = _stock_bytes_at(game, va, 10)
+                    self.assertEqual(code[0], 0xC7)
+                    self.assertEqual(code[2:], bytes.fromhex("541C000000000000"))
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class UntrainedMarkOff(unittest.TestCase):
+    """The owner (2026-11-19): "the untrained tag in vv4-vv5 sucks ... that
+    patch should disable those too" -- skilled adults work on their own like
+    VV1-VV3.  Every scheduler request reaches the dispatcher's body with the
+    mark lifted, and the mark is put back in the record.  (The body is
+    scripted from just after the displaced entry bytes, so the stock refusal
+    test inside it, 0x4639D2 / 0x46C565 `cmp [rec+0x1C54], 1; je refuse`, is
+    pinned by the mark it would read.)"""
+
+    def test_every_scheduler_request_is_trained(self):
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            for selected in (-1, g["parenting"], g["healing"]):
+                for job in (g["farming"], g["parenting"], g["healing"], g["research"], g["building"]):
+                    for ret in LIVE[game]:
+                        with self.subTest(game=game, selected=selected, job=job, ret=hex(ret)):
+                            m = live(world(game, selected=selected, task=1, force=FORCE_FAIL), game, ret, job)
+                            self.assertEqual(jobs(m), [job])
+                            self.assertEqual(m.marks, [0])
+                            self.assertEqual(m.u32(RECORD + 0x1C54), 1, "put back")
+
+    def test_stock_refuses_the_untrained(self):
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            with self.subTest(game=game):
+                m = live(world(game, rows=(), runtime=False, selected=-1, task=1), game, LIVE[game][0],
+                         g["healing"])
+                self.assertEqual(m.marks, [1], "the stock dispatcher's test refuses it")
+
+    def test_the_refusal_test_the_lift_relies_on(self):
+        for game, va, code in (("vv4", 0x4639D2, "39A9541C00000F84"), ("vv5", 0x46C565, "39A8541C00000F84")):
+            with self.subTest(game=game):
+                self.assertEqual(_stock_bytes_at(game, va, 8).hex().upper(), code)
+
+    def test_another_caller_still_sees_the_mark(self):
+        for game in ("vv4", "vv5"):
+            with self.subTest(game=game):
+                m = live(world(game, selected=-1, task=1), game, OTHER_CALLER[game], G[game]["healing"])
+                self.assertEqual(m.marks, [1])
+
+    def test_heathens_keep_the_mark(self):
+        g = G["vv5"]
+        m = world("vv5", selected=-1, task=1)
+        m.w8(RECORD + 0x1CEC, 1)
+        live(m, "vv5", LIVE["vv5"][0], g["healing"])
+        self.assertEqual(m.marks, [1])
+
+
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class NewBelieversDevotion(unittest.TestCase):
