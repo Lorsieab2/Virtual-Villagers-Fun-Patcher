@@ -523,7 +523,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # of fish", 0x454130): the owner, 2026-11-08: fish never run out once their puzzle is done.
     lake = _i32(data, PROJECTS + 8 * 10) >= PUZZLE_THRESHOLDS[10]
     ctx = life.Context(
-        village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000,
+        village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000, created=clock.created,
         sources=[life.Source("Noni bushes", noni, NONI_CAP, 2.0, noni_at if noni_at and noni_at > village.now else None,
                              f"+2 {life.every_real(UNIT, speed_value)}", verified=gm.SAVE,
                              step=2, interval=gm.real_seconds(UNIT, speed_value), next_at=real(NONI_NEXT),

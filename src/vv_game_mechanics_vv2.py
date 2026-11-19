@@ -540,6 +540,7 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
                              "found again pays is under Collectibles.")
     ctx = life.Context(
         village, speed_value, real_last(data), _i32(data, FOOD), low_food=150, extra_from=4001, sources=sources,
+        created=(struct.unpack_from("<I", data, 4)[0] + _i32(data, CREATED)) if _i32(data, CREATED) > 0 else None,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 5 at Science 1 to 3).",
         brown=6, red=35, red_share=0.10, mushrooms_an_hour=3600 / wait * share, golden=village.has(GOLDEN) is True,
         mushroom_words=f"At Exploration level {exploration} something appears about every {wait} real-life seconds "

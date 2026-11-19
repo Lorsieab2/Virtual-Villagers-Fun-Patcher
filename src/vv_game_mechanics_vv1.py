@@ -620,6 +620,7 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
     golden = village.has(GOLDEN) is True
     ctx = life.Context(
         village, speed_value, saved, _i32(data, FOOD), low_food=200, extra_from=2001, sources=sources,
+        created=epoch + _i32(data, CREATED) if _i32(data, CREATED) > 0 else None,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 7, ÷ 5 or ÷ 3 at Science 1 to 3, "
                                           "rounded down).",
         brown=8, red=45, red_share=0.05, mushrooms_an_hour=30.0, golden=golden,

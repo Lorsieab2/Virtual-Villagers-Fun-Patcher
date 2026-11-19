@@ -60,7 +60,7 @@ class MinimumDetail(unittest.TestCase):
             with self.subTest(name):
                 short = gm.minimum(facts)
                 # Every vital statistic stays (its answer), number or not; only the explanations among them go.
-                vital = [gm.first_sentence(f.text) for f in facts if f.group == VITAL]
+                vital = [gm.first_sentence(f.text) for f in facts if f.group == VITAL and not gm._TIPS.search(f.text)]
                 self.assertEqual([t for t in vital if not gm._EXPLAINS.search(t) and not t.endswith(":")],
                                  [f.text for f in short if f.group == VITAL and not f.text.endswith(":")])
                 # Every countdown stays.
@@ -74,6 +74,37 @@ class MinimumDetail(unittest.TestCase):
             self.assertIn(kept, text)
         for gone in ("Research brings them;", "farmers needed = the food eaten"):
             self.assertNotIn(gone, text)
+
+    def test_tutorial_and_random_tips_are_hidden(self) -> None:
+        # The owner, 2026-11-19: "tutorial and random tips should not be shown in minimal detail on".
+        for name, facts in self.pages:
+            with self.subTest(name):
+                short = gm.render(gm.minimum(facts))
+                for word in ("tutorial", "Tutorial", "random tip", "Random tip", "tip pop-up"):
+                    self.assertNotIn(word, short)
+        facts = [gm.Fact("Chances", "The tutorial's first embrace skips the food refusal and the roll (1 in 1).", gm.SAVE),
+                 gm.Fact("Chances", "Embraces: 1 in 3.", gm.SAVE)]
+        self.assertEqual([f.text for f in gm.minimum(facts)], ["Embraces: 1 in 3."])
+
+    def test_hours_since_last_played_is_a_vital_statistic(self) -> None:
+        # The owner, 2026-11-19: "the number of hours since the save was played should be shown in vital statistics".
+        for name, facts in self.pages:
+            if name.startswith("general"):
+                continue
+            with self.subTest(name):
+                span = r"[\d,]+\.\d hours = [\d,]+\.\d days( = [\d,]+\.\d years)?"
+                for page in (facts, gm.minimum(facts)):
+                    for label, tail in (("Time since save was last played", r"last saved [^)]+\)\.( .+ would count "
+                                                                              r"if it were played now\.)?"),
+                                        ("Time since save was created", r"created [^)]+\)\.")):
+                        hits = [f.text for f in page if f.group == VITAL and f.text.startswith(label + ": ")]
+                        self.assertEqual(len(hits), 1, (name, label))
+                        self.assertRegex(hits[0], rf"^{label}: {span} \(real time; {tail}$")
+
+    def test_hours_days_years(self) -> None:
+        self.assertEqual(gm.hours_days_years(547.6 * 3600), "547.6 hours = 22.8 days")
+        self.assertEqual(gm.hours_days_years(400 * 86400), "9,600.0 hours = 400.0 days = 1.1 years")
+        self.assertEqual(gm.hours_days_years(-5), "0.0 hours = 0.0 days")
 
     def test_first_sentence(self) -> None:
         self.assertEqual(gm.first_sentence("Tech points: 1,234. Research brings them."), "Tech points: 1,234.")
