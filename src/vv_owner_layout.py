@@ -465,8 +465,12 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
         carrier = ctx.need(who, min_age=18, carrier=True)
         if partner is not None:
             ctx.need(partner, min_age=18)
+        any_birth = any_sex or "magic" in note or "couple" in s
+        # A couple's pregnancy (a partner, no reason for any birth sex): the partner may carry by the player's chance
+        # (engine flags bit 3; the owner, 2026-11-16).  A reason-based one keeps its any_birth_sex alone.
         return [_fx(do="pregnant", role=carrier, partner=partner, babies=babies,
-                    any_birth_sex=True if (any_sex or "magic" in note or "couple" in s) else None)]
+                    any_birth_sex=True if any_birth else None,
+                    partner_may_carry=True if partner is not None and not any_birth else None)]
     m2 = re.match(r"becomes nursing (?:both|the two) [a-z' ]*?babies", s)
     if m2:
         s = s.replace(m2.group(0), "becomes nursing a baby", 1)

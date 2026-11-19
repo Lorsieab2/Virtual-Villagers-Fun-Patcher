@@ -150,6 +150,7 @@ EXPORTS
     VvfpStoryProbeGraphHeadLook=_VvfpStoryProbeGraphHeadLook@12
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
     VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
+    VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
     VvfpStoryProbeGraphSexLast=_VvfpStoryProbeGraphSexLast@8
     VvfpStoryProbeGraphFileLayout=_VvfpStoryProbeGraphFileLayout@4
     VvfpStoryProbeCollectionStep=_VvfpStoryProbeCollectionStep@4
@@ -159,6 +160,7 @@ EXPORTS
     VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
     VvfpStoryProbeCollectionPopulation=_VvfpStoryProbeCollectionPopulation@8
     VvfpStoryProbeProceduralFile=_VvfpStoryProbeProceduralFile@8
+    VvfpStoryProbePartnerCarries=_VvfpStoryProbePartnerCarries@4
     VvfpStoryProbeProceduralHarmful=_VvfpStoryProbeProceduralHarmful@4
     VvfpStoryProbeProceduralCompose=_VvfpStoryProbeProceduralCompose@24
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4

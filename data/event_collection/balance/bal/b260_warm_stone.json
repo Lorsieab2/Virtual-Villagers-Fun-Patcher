@@ -25,12 +25,12 @@
    {
     "src": "L12142",
     "kind": "instruction",
-    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other; twins or triplets, 50:50"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): one of the couple carries the baby, with the other; twins or triplets, 50:50"
    },
    {
     "src": "L12148",
     "kind": "instruction",
-    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other, one baby"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): one of the couple carries the baby, with the other, one baby"
    },
    {
     "src": "L12128",
@@ -186,7 +186,8 @@
     {
      "do": "pregnant",
      "role": "subject",
-     "partner": "friend"
+     "partner": "friend",
+     "partner_may_carry": true
     }
    ]
   },
@@ -229,7 +230,8 @@
      "do": "pregnant",
      "role": "subject",
      "partner": "friend",
-     "babies": 2
+     "babies": 2,
+     "partner_may_carry": true
     }
    ]
   },
@@ -240,7 +242,8 @@
      "do": "pregnant",
      "role": "subject",
      "partner": "friend",
-     "babies": 3
+     "babies": 3,
+     "partner_may_carry": true
     }
    ]
   }

@@ -220,6 +220,13 @@ enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AG
    game's own room predicate says there is room (the adapters' conceive). */
 #define CG_FX_LITTER_ROLL 2u
 #define CG_FX_LITTER_TWINS 4u
+/* 28 / 29: flags bit 3, "the partner may carry" (the owner, 2026-11-16): with a partner role, as often as the player's setting says (0 to 100 percent,
+   10 unless moved: cg_partner_carry_percent; the game's random routine) the partner carries instead -- of any birth sex -- when they pass the carrier's checks (18
+   or more, not expecting already); else the carrier stays.  The carrier is recorded in the mother's place whatever
+   their sex, as every carrier is.  Decided once at the cast, the two roles swapped for the whole run so the pages
+   name who carries (the owner, 2026-11-18: cg_partner_carry_decide). */
+#define CG_FX_PARTNER_MAY_CARRY 8u
+static int cg_partner_carries(const ce_adapter *a);   /* the setting's chance (below) */
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_ROLE_HEATHEN 0x40u         /* ... bit 6: New Believers: the role is a Heathen's (an Isolan), cast as the game's
@@ -234,6 +241,7 @@ enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 
 #define CG_PREF_REMOVE 16u            /* ... the like or dislike is taken away (the named one, or with CG_PREF_RANDOM
                                          one the villager holds); held nowhere: nothing (the owner, 2026-11-15) */
 #define CG_NODE_AUTO_TEXT 1u          /* a node's flags (byte 3): its effects told in automatic lines (24) */
+#define CG_NODE_NEW_PAGE 2u           /* ... 19a: with Scrolling Popups, starts the event's one popup afresh */
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
@@ -1387,7 +1395,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_PREGNANT: case CGE_NURSING:
                 ok = (a == 0xFF || a == CG_ROLE_NEWEST || a == CG_ROLE_NEWEST2 || (a >= 0 && a < g->n_role)) && b == 0
                      && str == CG_NONE
-                     && (e[2] & ~(CG_FX_ANY_BIRTH_SEX | CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS)) == 0;
+                     && (e[2] & ~(CG_FX_ANY_BIRTH_SEX | CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS
+                                  | CG_FX_PARTNER_MAY_CARRY)) == 0;
                 break;
             case CGE_BODY_SWAP:
                 ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
@@ -1451,7 +1460,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int text = cg_u16(n + 6), vfirst = cg_u16(n + 8), vcount = cg_u16(n + 10);
         unsigned int cfirst = cg_u16(n + 12), ccount = cg_u16(n + 14), els = cg_u16(n + 16);
         unsigned int efirst = cg_u16(n + 18), ecount = cg_u16(n + 20);
-        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~CG_NODE_AUTO_TEXT) != 0u
+        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~(CG_NODE_AUTO_TEXT | CG_NODE_NEW_PAGE)) != 0u
+            || ((n[3] & CG_NODE_NEW_PAGE) && n[1] != 0u)
             || (n[3] != 0u && (g->version < 6 || n[0] != CG_POPUP))   /* 25: auto lines on a v6 popup only */
             || !cg_str_ok(g, cg_u16(n + 4), 0) || !cg_str_ok(g, text, 1)
             || (vcount > 0u && vfirst + vcount > (unsigned int)g->n_variant)
@@ -1620,6 +1630,10 @@ typedef struct {
     int start_picks;                   /* the picks drawn at the purchase (a start question's own) */
     /* Each display's popup title (cie-v6-binary.md 14): a node title's string index + 1, 0 = the event's title. */
     unsigned short display_title[CG_MAX_DISPLAYS];
+    /* Run file version 5, after everything version 4 kept (a version 4 file is read with it 0: nobody swapped): the
+       carrier roles whose partner carries instead (28 / 29 CG_FX_PARTNER_MAY_CARRY, decided once at the cast,
+       cg_partner_carry_decide: the two roles' villagers swapped, so every page names who carries). */
+    unsigned int carry_swapped;
 } cg_state;
 
 
@@ -1907,6 +1921,7 @@ static int cg_carrier_role(int role) {
 #ifdef VVFP_TEST
 /* The birth sex as the test build sees it: -1 the real rule; else bit i set: record i was born male. */
 static int test_graph_born_male = -1;
+static int test_graph_no_deliver;      /* 1: a nursing effect conceives only (VvfpStoryProbeGraphNoDeliver) */
 #endif
 
 /* Was the villager in record `r` (record index `index`) born female?  "VVFP Gender Presentation.dll" keeps the birth
@@ -2906,6 +2921,56 @@ static void cg_new_name(const ce_adapter *a, int game, int r) {
 
 /* Bind every planned role (the game's random routine among those who keep the rest fillable), and each
    stranger's sex.  1 when bound. */
+/* 28 / 29, CG_FX_PARTNER_MAY_CARRY (the owner, 2026-11-18): who carries is decided ONCE, when the run starts (the
+   cast made and the aliases drawn -- an alias role is its member -- before any page is written), so every page (names, pronouns, carrier words) names the villager who actually
+   carries, and the effect makes the same one carry.  For each such effect with a partner role, in effect order, each
+   pair once: the carrier must pass the carrier's checks as the effect does (18 or more, not expecting, born female
+   unless any_birth_sex), the partner 18 or more and not expecting; then, at the player's chance
+   (cg_partner_carries: one roll, none at 0 or 100), the two roles' villagers change places for the rest of the run
+   (record, identity, sex, name) and the carrier role is marked in cg.carry_swapped (the run's file keeps both, so a
+   loaded run keeps the choice).  The effect then skips the born-female check for a swapped carrier: the partner may
+   carry whatever their birth sex.  Nothing else is rolled at the effect. */
+static unsigned char *cg_villager(const ce_adapter *a, int r);
+
+static void cg_partner_carry_decide(const ce_adapter *a, int game) {
+    unsigned int decided = 0u;
+    int i;
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        int written = (int)e[1], c, p, t;
+        unsigned char *cr, *pr;
+        unsigned int id;
+        char name[CG_NAME_BYTES];
+        if ((e[0] != CGE_PREGNANT && e[0] != CGE_NURSING) || !(e[2] & CG_FX_PARTNER_MAY_CARRY)
+            || written >= cg_g.n_role || cg_u32(e + 4) >= (unsigned int)cg_g.n_role) {
+            continue;
+        }
+        /* an alias (or "other") role is its member drawn (Codex on #814: the aliases are drawn before this) */
+        c = cg_resolve_role(written);
+        p = cg_resolve_role((int)cg_u32(e + 4));
+        if (c < 0 || p < 0 || c == p || (decided & ((1u << c) | (1u << p)))) {
+            continue;
+        }
+        decided |= (1u << c) | (1u << p);
+        cr = cg_villager(a, c);
+        pr = cg_villager(a, p);
+        if (cr == NULL || pr == NULL || !(a->caps & CAP_PREGNANT) || a->conceive == NULL
+            || ce_age(a, cr) < 18 * 20 || *(const int *)(cr + a->off_pregnant) != 0
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, cr, cg.record[c]))
+            || ce_age(a, pr) < 18 * 20 || *(const int *)(pr + a->off_pregnant) != 0
+            || !cg_partner_carries(a)) {
+            continue;
+        }
+        t = cg.record[c]; cg.record[c] = cg.record[p]; cg.record[p] = t;
+        id = cg.identity[c]; cg.identity[c] = cg.identity[p]; cg.identity[p] = id;
+        t = cg.female[c]; cg.female[c] = cg.female[p]; cg.female[p] = t;
+        memcpy(name, cg.name[c], sizeof name);
+        memcpy(cg.name[c], cg.name[p], sizeof name);
+        memcpy(cg.name[p], name, sizeof name);
+        cg.carry_swapped |= 1u << c;   /* the role itself (an alias's member): effects resolve their role first */
+    }
+}
+
 static int cg_bind(int game) {
     const ce_adapter *a = ce_adapter_for(game);
     unsigned char used[CE_MAX_RECORDS];
@@ -5749,14 +5814,26 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
     switch (e[0]) {
     case CGE_PREGNANT: case CGE_NURSING: {
         int partner = -1, early = 0, other = (int)cg_u32(e + 4), litter = 1;
+        /* the partner carries (any birth sex): decided at the cast, the roles already swapped
+           (cg_partner_carry_decide), so `record` is the partner who carries and `other` the villager the event named
+           as the carrier */
+        int resolved = cg_resolve_role((int)e[1]);   /* an alias: its member drawn */
+        int swapped_role = resolved >= 0 && resolved < 32 && ((cg.carry_swapped >> resolved) & 1u);
+        int partner_carries = (e[2] & CG_FX_PARTNER_MAY_CARRY) && swapped_role;
+        /* Codex on #814: the swap holds for the whole run, so another outcome's nursing baby for that role (a
+           foundling the couple takes in: b247, b356) goes to the villager the page names, whatever their birth sex,
+           as the owner's rules let a father care for a baby; an unflagged pregnancy keeps the born-female rule. */
+        int swapped_nursing = e[0] == CGE_NURSING && swapped_role;
         if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
             || *(const int *)(record + a->off_pregnant) != 0
-            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, record, index))) {
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !partner_carries && !swapped_nursing
+                && !cg_born_female(game, record, index))) {
             return;                    /* not a carrier these events may have, or expecting already: nothing */
         }
         if (other != 0xFF) {
             int at = -1;
-            if (cg_target(a, other, &at) != NULL) {
+            unsigned char *mate = cg_target(a, other, &at);
+            if (mate != NULL) {
                 partner = at;
             }
         }
@@ -5777,6 +5854,11 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
                 return;                /* no room (the game's own predicate): nothing */
             }
         }
+#ifdef VVFP_TEST
+        if (test_graph_no_deliver) {
+            return;                    /* the test build: the game's birth left out (the emulator has no sound) */
+        }
+#endif
         if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
             (void)a->deliver(index, &early);   /* born at once: nursing a newborn (the deliver_early path) */
         }
@@ -6718,7 +6800,8 @@ static void cg_group(int game, const cg_history *h, int from) {
             if (n[3] & CG_NODE_AUTO_TEXT) {
                 cg_auto_lines(game, h, n, fx0, award_kind, award, text, sizeof text);   /* 25 */
             }
-            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0) {
+            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
+                && !(n[3] & CG_NODE_NEW_PAGE)) {
                 /* ONE popup: every node up to the question (or the ending) joins the segment's one text; what was
                    a popup of its own (a question, a new popup) after a blank line (src/vv_cie_graph.py one_popup) */
                 p = &cg_pops[cg_pop_count - 1];
@@ -6994,6 +7077,7 @@ static void cg_start_run(const ce_adapter *a, int game) {
     cg.answers = 0;
     cg.choice = -1;
     cg_draw_aliases(a, cg.bound);      /* version 6: before the first node (at the purchase for a question) */
+    cg_partner_carry_decide(a, game);  /* who carries: the cast and the aliases made, no page yet written */
     cg_walk(a, game, cg_g.start, &first, NULL, NULL);   /* its picks are the path's own */
     cg_path_add(&first, NULL, 0);
     cg_layout_from(a, game, 0, 0);
@@ -7879,6 +7963,36 @@ static int cg_installed_has(int game, const char *id) {
     return 0;
 }
 
+/* The player's "a man may carry the baby by chance" setting (the patcher writes "# partner_carry_percent=N" in the
+   installed patches' list; the owner, 2026-11-16): 0 to 100, 10 when the list has none. */
+static int cg_partner_carry_percent(void) {
+    static const char KEY[] = "# partner_carry_percent=";
+    const char *p;
+    int n = lstrlenA(KEY), value = 0, digits = 0;
+    cg_installed_load();
+    if (cg_installed_state != 1) {
+        return 10;
+    }
+    for (p = cg_installed; *p != '\0'; ++p) {
+        if ((p == cg_installed || p[-1] == '\n') && memcmp(p, KEY, (size_t)n) == 0) {
+            for (p += n; *p >= '0' && *p <= '9' && digits < 3; ++p, ++digits) {
+                value = value * 10 + (*p - '0');
+            }
+            return digits > 0 && value <= 100 ? value : 10;
+        }
+    }
+    return 10;
+}
+
+/* Whether the partner carries this time: the setting's chance (no roll at 0 or 100). */
+static int cg_partner_carries(const ce_adapter *a) {
+    int percent = cg_partner_carry_percent();
+    if (percent <= 0) {
+        return 0;
+    }
+    return percent >= 100 || ce_random_below(a, 100) < percent;
+}
+
 static int cg_no_safeguards(int game) {
     cg_installed_load();
     return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
@@ -8438,12 +8552,14 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 4u                 /* 2: the run keeps its path and every question's answers; 3: and a
+#define CG_FILE_VERSION 5u                 /* 2: the run keeps its path and every question's answers; 3: and a
                                               question's third and fourth answers (cg_state.seg_more); 4 (format
                                               version 6): answers five to seven, the pool picks, the aliases, each
-                                              question's buttons, the origin and the cast */
+                                              question's buttons, the origin and the cast; 5: the partner-carry
+                                              swaps (cg_state.carry_swapped) */
 #define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more))   /* a version 2 file's state bytes */
 #define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6))     /* a version 3 file's */
+#define CG_FILE_V4_STATE ((unsigned int)offsetof(cg_state, carry_swapped))   /* a version 4 file's */
 
 typedef struct {
     unsigned int magic;
@@ -8464,6 +8580,7 @@ static cg_state cg_read_state;
    empty: cg_file_upgrade); 0 for any other. */
 static unsigned int cg_file_state_bytes(void) {
     return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 4u ? CG_FILE_V4_STATE
          : cg_head.version == 3u ? CG_FILE_V3_STATE
          : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
 }
@@ -8472,8 +8589,8 @@ static unsigned int cg_file_state_bytes(void) {
    shown as its version shows them, the cast strict). */
 static void cg_file_upgrade(cg_state *st) {
     int r;
-    if (cg_head.version >= CG_FILE_VERSION) {
-        return;
+    if (cg_head.version >= 4u) {
+        return;                        /* version 4's fields are there (a version 4 file: carry_swapped read 0) */
     }
     for (r = 0; r < CG_MAX_ROLES; ++r) {
         st->alias[r] = -1;
@@ -9036,6 +9153,16 @@ static int cg_queue_origin(int game, const unsigned char *file, unsigned size, i
 #ifdef VVFP_TEST
 /* ---- Test build only --------------------------------------------------------------------------------------- */
 
+/* "A man may carry the baby by chance": the percent the installed patches' list gives (-1 in the high half of
+   nothing), and one draw of cg_partner_carries with the rolls VvfpStoryProbeSetRolls gives: percent | carries << 8. */
+__declspec(dllexport) int __stdcall VvfpStoryProbePartnerCarries(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL) {
+        return -1;
+    }
+    return cg_partner_carry_percent() | (cg_partner_carries(a) << 8);
+}
+
 /* Queue the .cieg `data` (`size` bytes) in `game` as the library's purchase does, without any dialog: NULL when
    queued, else the refusal.  `due` 1 makes the island event due (ce_arm_with), 0 only arms it. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, const unsigned char *data,
@@ -9090,6 +9217,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
 /* The birth sex as the test build sees it: `born_male` -1 the real rule, else bit i: record i was born male. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) {
     test_graph_born_male = born_male;
+}
+
+/* A nursing effect's birth left out (`on` 1): the conception alone, which the emulator can run. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphNoDeliver(int on) {
+    test_graph_no_deliver = on;
 }
 
 /* "VVFP Gender Presentation.dll" as the test build sees it (29): `mode` -1 the real one, 0 none, 1 installed (and the

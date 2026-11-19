@@ -43,7 +43,7 @@ CONTROLS = {
     "check_logs_automatically", "check_for_updates", "family_tree_maker", "village_matchmaker",
     "game_mechanics", "stew_recipes", "custom_island_event_library", "copy_player_slot", "picture_studio", "translations", "unicode_font", "unicode_font_tool", "game_text", "tech_cost_multiplier", "meal_multiplier", "sickness_multiplier",
     "louder_flutes_multiplier", "island_frequency_multiplier",
-    "island_event_content_filters",  # the Island Events section's filters (the owner, 2026-11-15)
+    "island_event_content_filters", "partner_carry_percent",  # the Island Events section's filters (the owner, 2026-11-15)
 }
 
 # Words a player never sees in the patcher or the game.

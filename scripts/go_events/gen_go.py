@@ -104,12 +104,15 @@ def _pr(role, partner=None, babies=None, **kw):
         e["partner"] = partner
     if babies:
         e["babies"] = babies
+    if partner and not kw.get("any_birth_sex"):
+        e["partner_may_carry"] = True      # a couple's pregnancy (vv_owner_layout's rule; engine flags bit 3)
     return {**e, **kw}
 
 
 # EFFECT lines the phrase table cannot read, mapped by hand (the coordinator, 2026-11-16): (event id, line) -> (what,
-# [effects] or, for "one of these, 50:50", [[effects], [effects]] as equally likely branches after the page).  "The
-# carrier is cast born female" (cie-v6-binary.md 31), so "whichever was born female" is the carrier role.
+# [effects] or, for "one of these, 50:50", [[effects], [effects]] as equally likely branches after the page).  A
+# couple's pregnancy (b260, b336; the owner, 2026-11-18): one of the couple carries the baby, the other is the other
+# parent -- partner_may_carry, so whoever the engine has carry is named in the logs; nothing says born female.
 OVERRIDES: dict[tuple[str, int], tuple[str, list[list[dict]]]] = {
     ("s001_spring_talks_back", 27): (
         "one of two, 50:50: loses a dislike at random, or 10 to 20 in a random skill other than Farming",
@@ -134,9 +137,9 @@ OVERRIDES: dict[tuple[str, int], tuple[str, list[list[dict]]]] = {
         [[{"do": "new_villager", "age": "adult"}, {"do": "new_villager", "age": "adult", "sex": "female"},
           {"do": "nursing", "role": "$newest"}, {"do": "new_villager", "age": "teen"},
           {"do": "new_villager", "age": "child", "sex": "female"}]]),
-    ("b260_warm_stone", 12142): ("the carrier (cast born female) with the other; twins or triplets, 50:50",
+    ("b260_warm_stone", 12142): ("one of the couple carries the baby, with the other; twins or triplets, 50:50",
                                  [[_pr("subject", "friend", 2)], [_pr("subject", "friend", 3)]]),
-    ("b260_warm_stone", 12148): ("the carrier (cast born female) with the other, one baby",
+    ("b260_warm_stone", 12148): ("one of the couple carries the baby, with the other, one baby",
                                  [[_pr("subject", "friend")]]),
     ("b280_two_carved_totems", 13054): ("a body swap between the two", [[{"do": "body_swap", "role": "subject",
                                                                           "with": "friend"}]]),
@@ -149,7 +152,7 @@ OVERRIDES: dict[tuple[str, int], tuple[str, list[list[dict]]]] = {
                                  [[_pr("neighbour")]]),
     ("b324_hollow_log_drum", 15014): ("the young head look for (eldest name)",
                                       [[{"do": "young_look", "role": "eldest"}]]),
-    ("b336_lazy_river", 15551): ("the carrier (cast born female) with the other, one baby",
+    ("b336_lazy_river", 15551): ("one of the couple carries the baby, with the other, one baby",
                                  [[_pr("subject", "friend")]]),
 }
 
