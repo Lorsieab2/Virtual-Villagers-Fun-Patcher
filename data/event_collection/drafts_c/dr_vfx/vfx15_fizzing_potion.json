@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fizzing Potion",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vfx15_fizzing_potion",
+  "source": "draft_vfx",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L176",
+    "kind": "note",
+    "why": "the heading's \"(VV3 only)\": the event is The Secret City only"
+   }
+  ],
+  "description": "A fizzing potion by the alchemy table: take a sip, or pour it away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Someone left a pot of half-finished potion by the alchemy table, and it is fizzing in a way nobody likes the look of. (name1) is curious enough to want a taste.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Take a Sip",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Pour It Away",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) takes a sip. For the rest of the morning, every few words come out with a hiccup, and the children follow (him/her) around just to hear it.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) pours it into the bushes. The bushes fizz quietly for an hour and then seem perfectly happy.",
+   "src": "L185"
+  }
+ }
+}

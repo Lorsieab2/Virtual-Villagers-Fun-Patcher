@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Salt Trader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "trd01_salt_trader",
+  "source": "draft_trd",
+  "lines": [
+   8,
+   22
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L14",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 400 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L17",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 600 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L18",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 250 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A salt trader offers jars of salt for a share of the food: trade, haggle, or send the trader on.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "food",
+      "min": 150
+     }
+    },
+    {
+     "has_supply": {
+      "item": "tech",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "food",
+         "min": 150
+        }
+       },
+       {
+        "has_supply": {
+         "item": "tech",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A canoe slides onto the beach at low tide, so heavy with clay jars that it sits low in the water. Its owner is Tavi, a salt trader with sun-cracked hands and a laugh you can hear from the huts. (name1) is the first to reach the shore. Tavi lifts the lid of one jar to show white salt, ground fine, and says it will keep fish for a whole season. In return Tavi asks for a share of the village's food for the long paddle home. (name1) has to decide what the village can spare.",
+   "src": "L11",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L11"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L16"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L20"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) carries baskets down to the canoe, and Tavi fills a row of the village's pots with salt, telling (him/her) how to pack fish in it layer by layer. That evening the cooks try it on the catch and nobody can stop talking about it.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "tech",
+     "get_amount": 400,
+     "src": "L14"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) thanks Tavi and explains that the stores are needed at home this season. Tavi shrugs, shares a handful of salt anyway \"so you remember the taste,\" and is gone with the next tide.",
+   "src": "L21"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) points out, politely, that the paddle home is downwind. Tavi laughs so hard that a jar nearly slips, then adds two more jars to the deal \"for the nerve of it.\" The cooks are still using that salt long after the canoe has gone.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "tech",
+     "get_amount": 600,
+     "src": "L17"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) pushes a little too hard, and Tavi's smile thins. In the end Tavi trades, but only half a jar, sealed with a sniff. (name1) walks back up the beach knowing the village paid full price for a lesson in manners.",
+   "src": "L18",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "tech",
+     "get_amount": 250,
+     "src": "L18"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Tavi looks over the village's stores, sees there is little to spare, and paddles on with a friendly wave.",
+   "src": "L22"
+  }
+ }
+}

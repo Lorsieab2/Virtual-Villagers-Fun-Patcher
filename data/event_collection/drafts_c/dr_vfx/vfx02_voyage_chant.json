@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Voyage Chant",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx02_voyage_chant",
+  "source": "draft_vfx",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L26",
+    "kind": "instruction",
+    "text": "[effect: the whole village chants]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L29",
+    "kind": "instruction",
+    "text": "[effect: (name1) gives a speech]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The fishers head past the reef: send them off with the voyage chant, or a few quiet words.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The fishers are about to take the canoes past the reef for the first time this season, and the water beyond it is rough. Before they push off, (name1) asks whether the village should send them with the old chant for safe voyages, the one that keeps time with the paddles.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Chant Them Off",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "A Few Quiet Words",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village lines the beach and chants, low and steady, in time with the paddles. The canoes find the rhythm and slip through the gap in the reef as if the chant were pulling them. Every one of them comes home before dark.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "chant",
+     "who": "all",
+     "src": "L26"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) wades out to the canoes and speaks to the fishers quietly, one by one, reminding each of them who is waiting at home. They push off with steady hands.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "speech",
+     "who": "subject",
+     "src": "L29"
+    }
+   ]
+  }
+ }
+}

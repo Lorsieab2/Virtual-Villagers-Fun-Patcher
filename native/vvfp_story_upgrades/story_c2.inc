@@ -556,6 +556,42 @@ static int c2_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 36), as A New Home's c1_behave_at: the job's own
+   starter picks the place (its first walk step, type 3: Harvesting coconuts 0x456F70 the foot of a palm,
+   Exercising 0x455330 the first point of the run, Researching 0x457CC0 a point by the research spot, Telling a story
+   0x449F40 the storytelling place; Healing someone 0x45D580 has none), then the stop 0x4492A0, that walk queued again
+   (0x449B70, appended) and the busy starter after it, which starts the walk (0x44FBB0).  The tips the job's starter
+   may leave for the selected villager (0x44B2A0: the 10 slots at state +0x304C8) are put back. */
+static const ce_adapter C2_ADAPTER;
+
+static int c2_behave_at(int index, int job, int behaviour) {
+    unsigned char *pool = VV2_POOL();
+    unsigned char *state = *(unsigned char **)(pool + 0xE574D4);
+    const ce_action *act;
+    int tips[10], w[6];
+    if (behaviour < 0 || behaviour >= (int)(sizeof C2_BEHAVIOURS / sizeof C2_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C2_BEHAVIOURS[behaviour];
+    if (act->kind != ACT_CALL && act->kind != ACT_CALL_ARG) {
+        return c2_behave(index, behaviour);
+    }
+    memcpy(tips, state + 0x304C8, sizeof tips);
+    if (!ce_site_pick(&C2_ADAPTER, 2, index, job, (unsigned char *)w)) {
+        memcpy(state + 0x304C8, tips, sizeof tips);
+        return c2_behave(index, behaviour);
+    }
+    memcpy(state + 0x304C8, tips, sizeof tips);
+    TC1(0x4492A0u, pool, index);
+    TC7(0x449B70u, pool, index, w[0], w[1], w[2], w[3], 0, w[5]);
+    if (act->kind == ACT_CALL) {
+        TC1(act->routine, pool, index);
+    } else {
+        TC2(act->routine, pool, index, act->arg);
+    }
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": as the delivery (0x43BF6E) ends a pregnancy -- +0x540 and the
@@ -1011,7 +1047,8 @@ static const ce_adapter C2_ADAPTER = {
     46, 16, 46, 16, 1, 39, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
     NULL, NULL, 0, c2_set_health,
-    c2_deliver
+    c2_deliver,
+    c2_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

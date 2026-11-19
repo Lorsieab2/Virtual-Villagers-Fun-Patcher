@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Curio Seeker",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "trd08_curio_seeker",
+  "source": "draft_trd",
+  "lines": [
+   127,
+   141
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L127",
+  "ledger": [
+   {
+    "src": "L128",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L127",
+    "kind": "note",
+    "why": "the heading's \"(VV3 only)\": the event is The Secret City only"
+   },
+   {
+    "src": "L133",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 900 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L136",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 1300 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L137",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 500 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A scholar offers lore of the old city for a collectible the village found twice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "collectible",
+      "min": 1
+     }
+    },
+    {
+     "has_supply": {
+      "item": "tech",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "collectible",
+         "min": 1
+        }
+       },
+       {
+        "has_supply": {
+         "item": "tech",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A traveling scholar named Lani arrives, asking to see the village's collections. She studies old turtle carvings, coral, tablets and feathers, and she is delighted to hear the village has found the same piece twice. She offers to teach the village what she knows of the old city in exchange for the spare. (name1) has to decide.",
+   "src": "L130",
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L132"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L135"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L139"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) hands over the spare piece. Lani holds it up to the light, then spends the evening telling everything she knows about the people who made it.",
+   "src": "L133",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "tech",
+     "get_amount": 900,
+     "src": "L133"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) decides the village will keep its spare. Lani sketches the piece carefully on a leaf before she goes, so that she has it in some way.",
+   "src": "L140"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) asks Lani to show where she has traveled. She draws a map in the dirt and tells a story for every mark on it, long into the night.",
+   "src": "L136",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "tech",
+     "get_amount": 1300,
+     "src": "L136"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles, and Lani, who has studied traders as well as tablets, sees through it at once. She pays less and leaves earlier than she meant to.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "tech",
+     "get_amount": 500,
+     "src": "L137"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Lani sees the village has no spare pieces, admires the collections anyway, and leaves with only a sketch.",
+   "src": "L141"
+  }
+ }
+}

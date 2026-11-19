@@ -655,6 +655,23 @@ static int c5_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 36), as The Secret City's c3_behave_at; New
+   Believers' walk step is type 4 (80 steps of 0x58 bytes at record +0): Harvesting noni a point of the noni area,
+   Researching, Health chanting and Praising their own places; then "Needs to sit down" queues its steps, its walk is
+   taken out and the job's walk put first. */
+static int c5_behave_at(int index, int job, int behaviour) {
+    unsigned char *r = c5_record(index);
+    unsigned char w[0x58];
+    if (!ce_site_pick(&C5_ADAPTER, 5, index, job, w)) {
+        return c5_behave(index, behaviour);
+    }
+    if (!c5_behave(index, behaviour)) {
+        return 0;
+    }
+    ce_queue_at_site(r, 0x58, 80, 4, w);
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": the pregnancy +0x1C4C and its litter +0x1C50 cleared, then
@@ -1092,7 +1109,8 @@ static const ce_adapter C5_ADAPTER = {
     "or break those puzzles.",
     5,
     c5_set_health                                /* the note is for purple, the Chief and the Mommy */,
-    c5_deliver
+    c5_deliver,
+    c5_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

@@ -197,7 +197,9 @@ def _i32(data: bytes, state: int) -> int:
 # task itself (0x45E562) fish on with no limit and the count keeps falling below 0, as in the stock game; level 1
 # (0x45FDF4) only ever fishes while the count is above 0.  The other readers (0x45536B, 0x460970) also only test
 # "> 0" (signed); nothing else writes it.  Wrapping past -2^31 would take about 195 million more trips.
+# With Fix Vanilla Bugs (the owner, 2026-11-18) the catch and the harvest stop the fish and the allowance at 0.
 SUSTAINABLE_FISHING, FARMING_LEVEL = 0x2E7E8, 5
+FIX = "vv2_fix_vanilla_bugs"
 
 
 def _fishing(data: bytes) -> tuple[int, bool, bool]:
@@ -274,6 +276,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        gm.RUNNING, sub=True))
     out.append(gm.Fact("Food sources", "The game says: \"Oh my! Birds found your field and are relentlessly eating "
                                        "the young crops before your villagers can harvest them!\"", gm.RUNNING, sub=True))
+    if village.has(FIX) is True:
+        # data/builds.json vv2_fix_vanilla_bugs (the owner, 2026-11-18): `jns; and [..], 0` after 0x463264 / 0x463300
+        out.append(gm.Fact("Food sources", gm.patch_words(village, FIX, "the allowance and the fish stop at 0 instead "
+                                                                         "of going below it; the birds still find the "
+                                                                         "field at 0, and fishing still stops at 0 "
+                                                                         "until Sustainable Fishing is solved"),
+                           gm.RUNNING, sub=True))
     fish, fishing_solved, fishing_unlimited = _fishing(data)
     trip = f"a trip brings {(11, 8, 5)[pick]} on {on} speed (8 while catching up)."
     if fishing_unlimited:

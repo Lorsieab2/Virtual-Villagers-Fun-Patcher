@@ -1346,9 +1346,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             ok = g->version >= 6 && (int)a < g->n_role;
             break;
         case CGC_HAS_SUPPLY:
-            /* 33: a good's word, at least 1..9999 of it */
-            ok = g->version >= 6 && cg_str_ok(g, a, 0) && cg_good_word(cg_s(g, a)) && cg_u16(c + 4) >= 1u
-                 && cg_u16(c + 4) <= 9999u;
+            /* 33: a good's word, at least 0..9999 of it (0: the game keeps it now) */
+            ok = g->version >= 6 && cg_str_ok(g, a, 0) && cg_good_word(cg_s(g, a)) && cg_u16(c + 4) <= 9999u;
             break;
         case CGC_DREW:
             ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE
@@ -1728,7 +1727,7 @@ typedef struct {
        carrier roles whose partner carries instead (28 / 29 CG_FX_PARTNER_MAY_CARRY, decided once at the cast,
        cg_partner_carry_decide: the two roles' villagers swapped, so every page names who carries). */
     unsigned int carry_swapped;
-    /* Run file version 6 (cie-v6-binary.md 35), after everything version 5 kept: each role's words' sex (cg.female)
+    /* Run file version 6 (cie-v6-binary.md 37), after everything version 5 kept: each role's words' sex (cg.female)
        just before display k's effects were made, restored with identity_at when a quit rewinds to that page (a
        version 2-5 file is read with every display holding its cg.female). */
     unsigned char female_at[CG_MAX_DISPLAYS][CG_MAX_ROLES];
@@ -5959,7 +5958,7 @@ static void cg_supply(int game, const unsigned char *e, int delta) {
     }
 }
 
-#include "story_graph_village.inc"   /* cie-v6-binary.md 33-35: goods, trades, group behaviours, the village */
+#include "story_graph_village.inc"   /* cie-v6-binary.md 39-41: goods, trades, group behaviours, the village */
 
 /* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
 /* The age of a new villager of age class `cls` (0 any, 1 child 1..13, 2 teen 14..17, 3 adult 18..54, 4 elder
@@ -9116,7 +9115,7 @@ static void cg_tick(int game) {
                                               question's buttons, the origin and the cast; 5: the displays' words
                                               in CG_DISPLAY_BYTES (practically unlimited text), not 49,152; 6: the
                                               partner-carry swaps (cg_state.carry_swapped) and each display's words'
-                                              sex (female_at, cie-v6-binary.md 35) */
+                                              sex (female_at, cie-v6-binary.md 37) */
 /* Versions 2 to 4 kept CG_DISPLAY_BYTES_V4 bytes of displays: every field after them sits that much nearer. */
 #define CG_DISPLAY_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
 #define CG_ENTRY_GROWTH ((unsigned int)(CG_ENTRY_BYTES - CG_ENTRY_BYTES_V4))
@@ -10078,7 +10077,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
     test_graph_supply_cap = mode;
 }
 
-/* "has_supply" (cie-v6-binary.md 33): -1 the village's own goods, 0 / 1 forced. */
+/* The yellow fruit tree (cie-v6-binary.md 42) as "VVFP VV4 Fruit Supply.dll" would keep it: -2 the real companion,
+   -1 not loaded, 0..1000 its count (the events then change it here).  Returns the count before. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphYellowFruit(int mode) {
+    int now = test_graph_yellow;
+    test_graph_yellow = mode;
+    return now;
+}
+
+/* The last event_timer effect's applied change (cie-v6-binary.md 41): 0 none, -1 soon, else the hours after the cap. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphTimerApplied(void) {
+    return cg_timer_applied_hours;
+}
+
+/* "has_supply" (cie-v6-binary.md 39): -1 the village's own goods, 0 / 1 forced. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphGoods(int mode) {
     test_graph_goods = mode;
 }

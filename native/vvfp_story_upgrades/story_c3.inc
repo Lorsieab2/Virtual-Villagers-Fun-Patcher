@@ -478,6 +478,25 @@ static int c3_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 36): the job's own handler picks the place (its
+   first walk step, type 3 in the 80 steps of 0x2C bytes at record +0: Fishing 0x453440 a point of the sea, Researching
+   0x448640 a point of the research area, Doing exercise 0x4447E0 the first point of the run, Studying medicine
+   0x451890 the medicine garden, Telling a story 0x446930 the storytelling place), then the busy handler ("Working 'til
+   he/she drops!" 0x441460) queues its own steps, its walks are taken out and the job's walk is put first: the busy
+   steps are done where the job is.  Nothing of the job's queue is run. */
+static int c3_behave_at(int index, int job, int behaviour) {
+    unsigned char *r = c3_record(index);
+    unsigned char w[0x2C];
+    if (!ce_site_pick(&C3_ADAPTER, 3, index, job, w)) {
+        return c3_behave(index, behaviour);
+    }
+    if (!c3_behave(index, behaviour)) {
+        return 0;
+    }
+    ce_queue_at_site(r, 0x2C, 80, 3, w);
+    return 1;
+}
+
 /* ---- The Tribal Chief --------------------------------------------------- */
 
 static const char *const C3_STATUSES[] = {
@@ -1032,7 +1051,8 @@ static const ce_adapter C3_ADAPTER = {
     48, 11, 48, 11, 0, 39, c3_rand_below, NULL, c3_role,
     C3_PROBE, (int)(sizeof C3_PROBE / sizeof C3_PROBE[0]),
     NULL, NULL, 0, c3_set_health,
-    c3_deliver
+    c3_deliver,
+    c3_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

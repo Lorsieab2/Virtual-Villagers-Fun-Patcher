@@ -1,0 +1,234 @@
+NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)
+A trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.
+Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
+(name1) fills in with a villager's name; (he/she), (him/her), (his/her) follow the villager. Each trader's own name is part of the story.
+All Isola rules apply. Each [effect: ...] really changes the village's stores, never below 0; an offer is made only when the village has what it would give. Without enough, the trader moves on.
+
+==========================================================================
+TRD-01. The Salt Trader
+(picks an adult)
+
+A canoe slides onto the beach at low tide, so heavy with clay jars that it sits low in the water. Its owner is Tavi, a salt trader with sun-cracked hands and a laugh you can hear from the huts. (name1) is the first to reach the shore. Tavi lifts the lid of one jar to show white salt, ground fine, and says it will keep fish for a whole season. In return Tavi asks for a share of the village's food for the long paddle home. (name1) has to decide what the village can spare.
+
+Trade:
+(name1) carries baskets down to the canoe, and Tavi fills a row of the village's pots with salt, telling (him/her) how to pack fish in it layer by layer. That evening the cooks try it on the catch and nobody can stop talking about it. [effect: trade 150 food for 400 tech points]
+
+Haggle:
+(name1) points out, politely, that the paddle home is downwind. Tavi laughs so hard that a jar nearly slips, then adds two more jars to the deal "for the nerve of it." The cooks are still using that salt long after the canoe has gone. [effect: trade 150 food for 600 tech points]
+(name1) pushes a little too hard, and Tavi's smile thins. In the end Tavi trades, but only half a jar, sealed with a sniff. (name1) walks back up the beach knowing the village paid full price for a lesson in manners. [effect: trade 150 food for 250 tech points]
+
+Decline:
+(name1) thanks Tavi and explains that the stores are needed at home this season. Tavi shrugs, shares a handful of salt anyway "so you remember the taste," and is gone with the next tide.
+Tavi looks over the village's stores, sees there is little to spare, and paddles on with a friendly wave.
+
+==========================================================================
+TRD-02. The Star-Path Keeper
+(picks an adult)
+
+An old navigator named Hoku comes ashore to wait out a storm. Hoku has crossed more open water than anyone on Isola has ever seen, steering by the stars, and offers to teach someone the star paths in exchange for food for the next crossing. (name1) sits with Hoku by the fire as the rain comes down and has to decide whether the lessons are worth the baskets.
+
+Trade:
+For three nights, (name1) lies on the sand beside Hoku, learning the names of the bright stars and the paths between them. When the skies clear, Hoku leaves with the baskets, and (name1) is already drawing the star paths in the sand for anyone who will listen. [effect: trade 200 food for 500 tech points]
+
+Haggle:
+(name1) offers to help mend the canoe's lashings as part of the price. Hoku is so pleased with the work that the lessons run late every night, until (name1) knows more star paths than (he/she) can remember. [effect: trade 200 food for 750 tech points]
+(name1) bargains so long that the storm passes before they agree. Hoku has time for only one night of lessons before the tide turns, and most of it is spent on a single, very bright star. [effect: trade 200 food for 300 tech points]
+
+Decline:
+(name1) gives Hoku a dry place to sleep and a warm meal, and no more. Hoku leaves at dawn, pointing once at the fading morning star as a parting gift.
+Hoku sees how thin the village's stores are, refuses to take any food at all, and leaves at dawn with a wave.
+
+==========================================================================
+TRD-03. The Bush Mender (VV1 only)
+(picks an adult)
+
+A wiry traveler named Mele arrives with a bundle of cuttings wrapped in wet leaves. Mele says the berry bushes on this island are tired, and that grafting a few strong cuttings onto them will make them heavy with berries again. Mele asks for tech in return: the village's learning, shared over the fire. (name1) looks at the bushes, then at the cuttings, and has to decide.
+
+Trade:
+Mele and (name1) spend a whole day bent over the bushes, binding cuttings with strips of bark. Within weeks the branches are bowed with berries, and Mele has gone, carrying everything (name1) could teach about the island. [effect: trade 400 tech points for 900 berries]
+
+Haggle:
+(name1) bargains warmly and well. Mele, charmed, grafts every bush on the hill instead of just a few, and the berries come in so thick the children eat themselves sleepy. [effect: trade 400 tech points for 1400 berries]
+(name1) haggles until Mele grows impatient and grafts only the bushes nearest the path. They do fruit, eventually, and the rest of the hill looks on, a little tired. [effect: trade 400 tech points for 500 berries]
+
+Decline:
+(name1) decides the bushes will recover on their own. Mele leaves a single cutting in the ground anyway, "for luck," and walks on along the shore.
+Mele sees the village has little to share, gives (name1) a few tips about pruning for free, and walks on along the shore.
+
+==========================================================================
+TRD-04. The Net Weaver (VV2 only)
+(picks an adult)
+
+A woman named Rua comes ashore with a canoe full of nets and a basket of tiny live fish swimming in seawater. Rua says the village's cove has been overfished, and that the young fish in her basket, set free in the shallows, will grow and fill the waters again. She asks for food in return. (name1) watches the little fish dart around the basket and has to decide.
+
+Trade:
+(name1) wades out with Rua and tips the basket into the shallows. The tiny fish scatter like thrown pebbles. Months later the fishers swear the cove has never been so full. [effect: trade 150 food for 400 fish]
+
+Haggle:
+(name1) offers to help Rua repair a torn net while they talk. Rua is so grateful that she empties a second basket into the cove as well, and the shallows flicker silver for days. [effect: trade 150 food for 650 fish]
+(name1) haggles hard, and Rua only lets half the basket go, keeping the rest for the next island on her way. The cove fills slowly. [effect: trade 150 food for 200 fish]
+
+Decline:
+(name1) decides the cove will recover in its own time. Rua nods, and releases a handful of the little fish anyway before she goes. "For the cove," she says.
+Rua sees the village has little food to spare, lets a handful of little fish go in the shallows as a gift, and paddles on.
+
+==========================================================================
+TRD-05. The Shell Collector (VV2 only)
+(picks an adult)
+
+A cheerful man named Kaia arrives with strings of shells, pebbles and dried beetle wings rattling from his belt. Kaia collects the island's small wonders and trades them from canoe to canoe. He has one piece the village is still missing, and he asks for food for it. (name1) turns the piece over in (his/her) hands and has to decide.
+
+Trade:
+(name1) brings the baskets, and Kaia ties the piece into (his/her) palm with a little bow. The children crowd around to see it set in its place with the others. [effect: trade 200 food for 1 collectible]
+
+Haggle:
+(name1) and Kaia talk so long about shells and beetles that they become friends, and Kaia lets the piece go for less, along with a story of where he found it. [effect: trade 120 food for 1 collectible]
+(name1) haggles, and Kaia, who has heard every trick, simply raises his price and waits. (name1) pays it, slightly embarrassed. [effect: trade 300 food for 1 collectible]
+
+Decline:
+(name1) tells Kaia the village will find its own pieces in time. Kaia grins and says he hopes they do, and that he will come looking for theirs one day.
+Kaia sees the village has little to spare, shows the children his whole collection for free, and paddles on.
+
+==========================================================================
+TRD-06. The Honey Buyer (VV3 only)
+(picks an adult)
+
+A healer named Ina arrives from somewhere along the coast with an empty clay pot and a long list of ailments that only good honey will soothe. She has heard The Secret City's hive is the best on the island. She offers to teach the village her remedies in exchange for a pot of honey. (name1) eyes the hive and has to decide.
+
+Trade:
+(name1) fills Ina's pot to the brim, and in return Ina spends the afternoon showing (him/her) how honey cleans a cut and soothes a cough. The healers copy every word. [effect: trade 200 honey for 600 tech points]
+
+Haggle:
+(name1) bargains gently, and Ina, impressed, adds three more remedies to the lesson, including one for burns that the healers have been looking for. [effect: trade 200 honey for 900 tech points]
+(name1) haggles, and Ina, a little offended, teaches only the cough remedy before she leaves. It is a good remedy, but only one. [effect: trade 200 honey for 300 tech points]
+
+Decline:
+(name1) explains that the honey is needed for the village. Ina understands perfectly, writes down one remedy on a leaf as a gift, and leaves.
+Ina sees the hive has little honey to spare, teaches (name1) one remedy for free, and walks on.
+
+==========================================================================
+TRD-07. The Fruit Grafter (VV3 only)
+(picks an adult)
+
+A quiet old man named Pono comes up the path carrying a knife, a roll of bark twine and nothing else. He says he grafts fruit trees for a living, and that one afternoon's work will make the village's trees heavy with fruit. He asks only to be taught something new in return. (name1) and Pono stand under the trees, and (name1) has to decide.
+
+Trade:
+Pono climbs like a much younger man, binding new wood to old. Before long the trees are heavy with fruit, and Pono leaves with everything (name1) could teach him. [effect: trade 400 tech points for 400 fruit]
+
+Haggle:
+(name1) offers to climb the high branches so Pono need not. Pono, delighted, grafts every tree twice over, and the fruit comes in so thick the branches have to be propped up. [effect: trade 400 tech points for 700 fruit]
+(name1) haggles, and Pono, who hates haggling, grafts only the lowest branches before he goes home. The fruit comes, but only within easy reach. [effect: trade 400 tech points for 200 fruit]
+
+Decline:
+(name1) thanks Pono and says the trees will do as they are. Pono pats the nearest trunk, as if apologizing to it, and leaves.
+Pono sees the trees have nowhere for new fruit to go, and leaves with a nod and nothing taken.
+
+==========================================================================
+TRD-08. The Curio Seeker (VV3 only)
+(picks an adult)
+
+A traveling scholar named Lani arrives, asking to see the village's collections. She studies old turtle carvings, coral, tablets and feathers, and she is delighted to hear the village has found the same piece twice. She offers to teach the village what she knows of the old city in exchange for the spare. (name1) has to decide.
+
+Trade:
+(name1) hands over the spare piece. Lani holds it up to the light, then spends the evening telling everything she knows about the people who made it. [effect: trade 1 collectible for 900 tech points]
+
+Haggle:
+(name1) asks Lani to show where she has traveled. She draws a map in the dirt and tells a story for every mark on it, long into the night. [effect: trade 1 collectible for 1300 tech points]
+(name1) haggles, and Lani, who has studied traders as well as tablets, sees through it at once. She pays less and leaves earlier than she meant to. [effect: trade 1 collectible for 500 tech points]
+
+Decline:
+(name1) decides the village will keep its spare. Lani sketches the piece carefully on a leaf before she goes, so that she has it in some way.
+Lani sees the village has no spare pieces, admires the collections anyway, and leaves with only a sketch.
+
+==========================================================================
+TRD-09. The Sailmaker (VV4 only)
+(picks an adult)
+
+A tall sailmaker named Aru limps ashore with a torn sail over one shoulder. A storm ripped it on the crossing, and he needs good cloth to patch it before he can sail on. In return he offers blades he has sharpened from shell and stone. (name1) looks at the village's cloth and has to decide.
+
+Trade:
+(name1) brings a bolt of cloth, and they spend the afternoon stitching it into the sail together. Aru sets two fine cutting tools in (his/her) hands before he goes. [effect: trade 1 cloth bolts for 2 cutting tools]
+
+Haggle:
+(name1) offers to help stitch the sail, too. Aru, grateful for the extra hands, leaves three cutting tools instead of two. [effect: trade 1 cloth bolts for 3 cutting tools]
+(name1) haggles, and Aru, who is in a hurry, gives only one tool for the cloth and stitches the sail alone, muttering. [effect: trade 1 cloth bolts for 1 cutting tools]
+
+Decline:
+(name1) explains that the village needs every bolt of its cloth. Aru understands, patches the sail with leaves and twine as best he can, and sets off slowly.
+Aru sees the village has no cloth to spare, patches the sail with leaves and twine, and sets off slowly.
+
+==========================================================================
+TRD-10. The Washerwoman (VV4 only)
+(picks an adult)
+
+A cheerful woman named Mahina arrives carrying a basket of blackberries so ripe they stain her fingers purple. She has heard The Tree of Life makes soap that smells of flowers, and she would trade a whole basket of berries for a few bars. (name1) and Mahina compare purple hands, and (name1) has to decide.
+
+Trade:
+(name1) brings three bars of soap, and Mahina tips her berries into the village's baskets. She washes her hands in the stream on the spot and holds them up, delighted, as clean as new. [effect: trade 3 bars of soap for 200 blackberries]
+
+Haggle:
+(name1) offers to show Mahina how the soap is made. She is so pleased that she sends for a second basket of berries from her canoe. [effect: trade 3 bars of soap for 350 blackberries]
+(name1) haggles, and Mahina, who did not come to haggle, keeps half her berries for herself. [effect: trade 3 bars of soap for 100 blackberries]
+
+Decline:
+(name1) explains that the soap is needed at home. Mahina laughs, eats a handful of berries herself, and leaves the rest of the basket on the bank anyway.
+Mahina sees the village has no soap to spare, shares a handful of berries with (name1), and goes on her way.
+
+==========================================================================
+TRD-11. The Pattern Collector (VV4 only)
+(picks an adult)
+
+A collector named Keoni arrives with a satchel of small treasures: fish scales, glass pieces, painted plaster and little flutes. He hears the village has found one piece twice and offers food for the spare. (name1) has to decide whether to let it go.
+
+Trade:
+(name1) hands over the spare piece. Keoni wraps it carefully and leaves baskets of dried fruit and roots in its place. [effect: trade 1 collectible for 250 food]
+
+Haggle:
+(name1) and Keoni swap stories about where each piece was found, and Keoni is so taken with the stories that he adds two more baskets to the trade. [effect: trade 1 collectible for 400 food]
+(name1) haggles, and Keoni, who knows exactly what the piece is worth to him, pays less. [effect: trade 1 collectible for 150 food]
+
+Decline:
+(name1) decides the village will keep its spare. Keoni nods, a little sadly, and shows the children every piece in his satchel before he goes.
+Keoni sees the village has no spare pieces and shows the children his satchel anyway before he goes.
+
+==========================================================================
+TRD-12. The Noni Planter (VV5 only)
+(picks an adult)
+
+A soft-spoken planter named Malu arrives with a canoe full of young noni plants, their roots wrapped in wet moss. He says the village's bushes would bear far more if he set his young plants among them, and he asks for food for the journey home. (name1) has to decide.
+
+Trade:
+(name1) helps Malu plant every one. Within a season, the noni bushes around the village are heavy with fruit. [effect: trade 150 food for 300 noni]
+
+Haggle:
+(name1) offers to carry water to the new plants for Malu. He is so grateful that he plants his last bundle too, the ones he was saving for his own garden. [effect: trade 150 food for 450 noni]
+(name1) haggles, and Malu, who is tired, plants only half and leaves the rest in the canoe. [effect: trade 150 food for 150 noni]
+
+Decline:
+(name1) explains the village cannot spare food just now. Malu leaves one small plant by the path anyway, "to remember him by."
+Malu sees the village has little food to spare and leaves one small plant by the path as a gift.
+
+==========================================================================
+TRD-13. The Relic Keeper (VV5 only)
+(picks an adult)
+
+An elderly keeper of old things named Tama arrives at the village, asking quietly whether anyone has found two of the same relic or science piece. He keeps a small house of remembered things on another island and would give food for a spare. (name1) has to decide.
+
+Trade:
+(name1) hands over the spare piece. Tama holds it with great care, thanks the village, and leaves baskets of food in its place. [effect: trade 1 collectible for 200 food]
+
+Haggle:
+(name1) asks Tama to tell the story of his house of remembered things. Tama tells it so well that the village feeds him for three days, and he leaves more food than he promised. [effect: trade 1 collectible for 350 food]
+(name1) haggles, and Tama, who only came to keep the piece safe, gives what he can and no more. [effect: trade 1 collectible for 120 food]
+
+Decline:
+(name1) decides the village will keep its spare. Tama understands completely, and asks only to hold the piece for a moment before he goes.
+Tama sees the village has no spare pieces, and leaves with thanks and nothing taken.
+
+==========================================================================
+NOTES FOR THE OWNER
+- Every trade is all or nothing: the village gives and gets exactly what the [effect: ...] says, or nothing at all. An offer is made only when the village has what it would give; without it, the event shows its last line instead (the trader moves on). Nothing ever goes below 0, and a gain stops at the game's own ceiling.
+- Haggle is a coin toss: the better or the worse of the two Haggle lines, equally likely.
+- Collectibles: a trader only ever takes a spare (a piece found twice), never the last one; The Lost Children keeps no spares, so there a trader only gives.
+- Not traded, because the game keeps no count (words only): mushrooms; The Secret City's and New Believers' fish and crabs; The Tree of Life's fish, Golden Fish, crabs and hot rocks; potions, herbs, stews, firewood, dry grass and water.
+- Yellow fruit (The Tree of Life): kept inside the Yellow Fruit Trees patch, which has no way yet for an event to give or take fruit. Not offered until it does.

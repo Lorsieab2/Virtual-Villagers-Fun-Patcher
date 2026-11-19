@@ -1,0 +1,81 @@
+VFX-01
+DESC: A family arrives from across the island: welcome them with the old song, all together or sung alone.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-02
+DESC: The fishers head past the reef: send them off with the voyage chant, or a few quiet words.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-03
+DESC: The ground is dry: sing the old song for rain, or wait it out.
+ROLES: name1=55+
+REVIEW: ok
+
+VFX-04
+DESC: A free afternoon: everyone rests in the shade, or everyone runs for the water.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-05
+DESC: Restless children at dusk: the elders tell the old stories, or the children run and play.
+ROLES: name1=55+
+REVIEW: ok
+
+VFX-06
+DESC: A hole in the roof: patch it with a bolt of cloth, or with leaves.
+ROLES: name1=18+ name2=18+
+NEED: cloth=1
+REVIEW: ok
+
+VFX-07
+DESC: The new hut is nearly done: everyone helps, or the builders work at their own pace.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-08
+DESC: A visiting teacher: learn all she knows, or ask a few careful questions.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-09
+DESC: Nothing has happened for days: enjoy the quiet, or go looking for news.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-10
+DESC: A thick morning mist: let it settle, or light the fires to clear it.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-11
+DESC: A mild fever goes around: rest and boiled water, or carry on working.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-12
+DESC: The harvest is in: dance in thanks, or give a quiet thanks.
+ROLES: name1=18+
+REVIEW: ok
+
+
+VFX-13
+DESC: A storm is coming: the farmers rush the harvest in, or work at their own pace.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-14
+DESC: The sea leaves treasures on the shore: send everyone looking, or leave them for later.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-15
+DESC: A fizzing potion by the alchemy table: take a sip, or pour it away.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-16
+DESC: Covered in sap: wash in the soapy pond, or sit quietly under the great tree.
+ROLES: name1=18+
+REVIEW: ok

@@ -479,23 +479,29 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
 SUPPLY_ITEMS = {"cutting_tools": "The Cutting Tool", "soap": "Soap Invented", "cloth": "Cloth Invented"}
 SUPPLY_GAME = 4
 SUPPLY_MAX = 99               # an effect's change is 1..99 either way (the counts are kept 0..6, or 0..99)
-# Sections 33-35 (the owner's spec of 2026-11-16/17; docs/event-collection/traders-and-effects-research.md): every
+# Sections 39-41 (the owner's spec of 2026-11-16/17; docs/event-collection/traders-and-effects-research.md): every
 # game's goods a trader may give or take (story_graph_village.inc CG_GOODS) -> the games that keep each.  A word a
 # game does not keep is story only there.
 GOODS = {"food": (1, 2, 3, 4, 5), "tech": (1, 2, 3, 4, 5), "berries": (1,), "coconuts": (2,), "fish": (2,),
          "collectible": (2, 3, 4, 5), "honey": (3,), "fruit": (3,), "blackberries": (4,), "cutting_tools": (4,),
-         "soap": (4,), "cloth": (4,), "noni": (5,)}
+         "soap": (4,), "cloth": (4,), "noni": (5,),
+         "yellow_fruit": (4,)}    # 42: "VVFP VV4 Fruit Supply.dll"'s tree, only with Yellow Fruit Trees limited
 GOOD_MAX = 9999               # one supply / trade change of a good other than The Tree of Life's three supplies
 GROUP_KINDS = ("relax", "swim", "dance", "pray", "celebrate", "pond", "play", "stories", "song", "chant", "speech",
-               "sick", "cure")
-GROUP_WHOLE_ONLY = ("sick", "cure")            # the whole village's only
+               "sick", "cure", "work", "effect")
+GROUP_WHOLE_ONLY = ("sick", "cure", "work")    # the whole village's only
+# Section 42: a work rush's skill; the temporary effects (story_graph_village.inc CG_TEMPS) -> the game of each.
+WORK_SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting", "Devotion")
+TEMP_EFFECTS: dict[str, int] = {}   # the owner, 2026-11-18: no vanilla event makes any of these: words only
+TEMP_WORDS_ONLY = ("smarter", "inspired", "healing", "bouncy", "hiccups", "swift", "stinky_breath", "soapy_taste",
+                   "nonsense_talk", "clean", "glow", "gunk", "stew_wait")
 TECH_AREAS = {1: ("Spirituality", "Science", "Construction", "Medicine", "Fertility", "Farming"),
               2: ("Culture", "Science", "Engineering", "Medicine", "Exploration", "Farming"),
               3: ("Science", "Medicine", "Alchemy", "Restoration", "Leadership", "Nature", "Magic"),
               4: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Dendrology"),
               5: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Spirituality")}
 WEATHER = {"clear": (3, 4, 5), "sun": (4, 5), "rain": (3, 4, 5), "storm": (3, 4, 5), "fog": (3, 4, 5)}
-VILLAGE_WHAT = ("event_timer", "tech_level", "construction", "weather")
+VILLAGE_WHAT = ("event_timer", "tech_level", "weather")   # the owner's final list: construction and the spawn burst are words only
 EVENT_TIMER_HOURS = 72
 CONSTRUCTION_MAX = 2000
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
@@ -558,7 +564,7 @@ TITLE_CONDS = ("game", "patch", "not", "all", "any")   # a title variant's "if":
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
 NURSING_PARENT_MIN_AGE = 18          # years: children never carry in events (cie-v6-binary.md 22)
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
-# cie-v6-binary.md 35: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
+# cie-v6-binary.md 37: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
 # may take the role, else any villager the role takes.  Allowed in every game (the owner, 2026-11-16).
 PREFER_CODES = {"golden_child": 4, "tribal_chief": 5}
 POOL_LINKED = 2               # 35: a pool's flags bit: it draws the item number the first linked pool drawn drew
@@ -839,9 +845,9 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
             return {op: dict(arg)}
         if op == "has_supply":
             if not isinstance(arg, dict) or set(arg) != {"item", "min"} or arg["item"] not in GOODS \
-                    or not _int_in(arg["min"], 1, GOOD_MAX):
+                    or not _int_in(arg["min"], 0, GOOD_MAX):
                 problems.append(f"{where}: has_supply is {{\"item\": a good ({', '.join(GOODS)}), \"min\": "
-                                f"1..{GOOD_MAX}}}")
+                                f"0..{GOOD_MAX} (0: the game keeps it now)}}")
                 return None
             return {op: {"item": arg["item"], "min": arg["min"]}}
         if op == "drew":
@@ -1061,7 +1067,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             problems.append(f"{where}: no game of the event keeps {item} (games {GOODS[item]})")
         out.update(item=item, min=lo, max=hi)
     elif do == "trade":
-        # Section 33: give n of one good, get m of another, all or nothing.
+        # Section 39: give n of one good, get m of another, all or nothing.
         known |= {"give", "give_amount", "get", "get_amount"}
         for k in ("give", "get"):
             if e.get(k) not in GOODS:
@@ -1076,7 +1082,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         out.update(give=e.get("give"), give_amount=e.get("give_amount"), get=e.get("get"),
                    get_amount=e.get("get_amount"))
     elif do == "group":
-        # Section 34: the whole village (or one villager) takes the kind's action; sickness / cure.
+        # Section 40: the whole village (or one villager) takes the kind's action; sickness / cure.
         known |= {"kind", "who", "percent"}
         kind, who = e.get("kind"), e.get("who", "all")
         if kind not in GROUP_KINDS:
@@ -1092,9 +1098,27 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             out["percent"] = e.get("percent")
         elif "percent" in e:
             problems.append(f"{where}: only group sick takes a percent")
+        if kind == "work":
+            # 36: the skill's workers work, everyone else is busy with no skill
+            known.add("skill")
+            if e.get("skill") not in WORK_SKILLS:
+                problems.append(f"{where}: group work takes a skill, one of {', '.join(WORK_SKILLS)}")
+            out["skill"] = e.get("skill")
+        if kind == "effect":
+            # 36: a temporary effect through the game's own setter
+            known.add("effect")
+            eff = e.get("effect")
+            if eff in TEMP_WORDS_ONLY:
+                problems.append(f"{where}: {eff} is never an event's effect: words only (potions, baths, gunk and "
+                                "meditation are near puzzles)")
+            elif eff not in TEMP_EFFECTS:
+                problems.append(f"{where}: group effect is one of {', '.join(TEMP_EFFECTS)}")
+            elif games is not None and TEMP_EFFECTS[eff] not in games:
+                problems.append(f"{where}: {eff} is a game {TEMP_EFFECTS[eff]} effect: the event must list it")
+            out["effect"] = eff
         out.update(kind=kind, who=who)
     elif do == "village":
-        # Section 35: the next island event, a tech level, a construction, the weather.
+        # Section 41: the next island event, a tech level, a construction, the weather.
         what = e.get("what")
         known.add("what")
         if what not in VILLAGE_WHAT:
@@ -2658,19 +2682,41 @@ def _harmful(e: dict, games: Iterable[int]) -> bool:
 
 
 def village_args(e: dict) -> tuple[int, int, str]:
-    """Section 35: a "village" effect's a, b and string (the .cieg's)."""
+    """Section 41: a "village" effect's a, b and string (the .cieg's)."""
     what = e["what"]
     if what in ("event_timer", "construction"):
         return e["min"], e["max"], what
     if what == "tech_level":
         return e["step"], e["step"], f"tech_level:{e['area']}" if e.get("area") else "tech_level"
+    if what == "spawn":
+        return 0, 0, "spawn"
     return 0, 0, f"weather:{e['weather']}"
+
+
+def group_word(e: dict) -> str:
+    """Section 40/42: a "group" effect's string ("work:Farming", "effect:hiccups", or the kind)."""
+    if e["kind"] == "work":
+        return f"work:{e['skill']}"
+    if e["kind"] == "effect":
+        return f"effect:{e['effect']}"
+    return e["kind"]
+
+
+def group_from(words: str) -> dict:
+    """group_word reversed."""
+    if words.startswith("work:"):
+        return {"kind": "work", "skill": words[5:]}
+    if words.startswith("effect:"):
+        return {"kind": "effect", "effect": words[7:]}
+    return {"kind": words}
 
 
 def village_from(words: str, a: int, b: int) -> dict:
     """The JSON of a "village" effect from its string and a, b (village_args reversed)."""
     if words in ("event_timer", "construction"):
         return {"what": words, "min": a, "max": b}
+    if words == "spawn":
+        return {"what": "spawn"}
     if words.startswith("tech_level"):
         out: dict[str, Any] = {"what": "tech_level", "step": a}
         if ":" in words:
@@ -2825,7 +2871,7 @@ def chief_title_items(g: dict, word: str, per: dict[str, str], elder: bool) -> l
 def lower(g: dict) -> dict:
     """A normalized version 6 graph as the .cieg holds it: each inline pick its own pool _iN (the text says
     {_iN}), each game word the pool @word (one item per text, its condition the games using it; a chief's title word
-    every title, linked: cie-v6-binary.md 35), every pool's items as {"text", "weight", "if"}, and each child's harm
+    every title, linked: cie-v6-binary.md 37), every pool's items as {"text", "weight", "if"}, and each child's harm
     guard ("guard")."""
     out = without_names(g)
     pools: dict[str, dict] = {}
@@ -4428,7 +4474,7 @@ def _compile_v6(g: dict) -> bytes:
             elif do == "trade":
                 a, b, st = e["give_amount"], e["get_amount"], s(f"{e['give']},{e['get']}")
             elif do == "group":
-                a, st = e.get("percent") or 0, s(e["kind"])
+                a, st = e.get("percent") or 0, s(group_word(e))
             elif do == "village":
                 a, b, st = village_args(e)
                 st = s(st)
@@ -4713,7 +4759,7 @@ def _decompile_v6(data: bytes) -> dict:
                 give, get = s(st).split(",", 1)
                 e.update(give=give, give_amount=a, get=get, get_amount=b)
             elif do == "group":
-                e.update(kind=s(st), who="all" if role == 0xFF else role_ids[role])
+                e.update(group_from(s(st)), who="all" if role == 0xFF else role_ids[role])
                 if s(st) == "sick":
                     e["percent"] = a
             elif do == "village":

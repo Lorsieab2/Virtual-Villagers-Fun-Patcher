@@ -87,7 +87,7 @@ WORD_WHY = {
 
 
 def kinds(effects: list[dict]) -> set[str]:
-    return {cc.EFFECT_KIND.get(e["do"], e["do"]) for e in effects}
+    return set().union(*(cc.effect_kinds(e) for e in effects)) if effects else set()
 
 
 def text_only(text: str, effects: list[dict]) -> list[dict]:

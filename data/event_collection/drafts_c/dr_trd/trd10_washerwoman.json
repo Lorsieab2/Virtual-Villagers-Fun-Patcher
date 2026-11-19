@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Washerwoman",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "trd10_washerwoman",
+  "source": "draft_trd",
+  "lines": [
+   161,
+   175
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L161",
+  "ledger": [
+   {
+    "src": "L162",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L161",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L167",
+    "kind": "instruction",
+    "text": "[effect: trade 3 bars of soap for 200 blackberries]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L170",
+    "kind": "instruction",
+    "text": "[effect: trade 3 bars of soap for 350 blackberries]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L171",
+    "kind": "instruction",
+    "text": "[effect: trade 3 bars of soap for 100 blackberries]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A berry picker offers a basket of blackberries for a few bars of soap.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "soap",
+      "min": 3
+     }
+    },
+    {
+     "has_supply": {
+      "item": "blackberries",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "soap",
+         "min": 3
+        }
+       },
+       {
+        "has_supply": {
+         "item": "blackberries",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A cheerful woman named Mahina arrives carrying a basket of blackberries so ripe they stain her fingers purple. She has heard The Tree of Life makes soap that smells of flowers, and she would trade a whole basket of berries for a few bars. (name1) and Mahina compare purple hands, and (name1) has to decide.",
+   "src": "L164",
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L166"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L169"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L173"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) brings three bars of soap, and Mahina tips her berries into the village's baskets. She washes her hands in the stream on the spot and holds them up, delighted, as clean as new.",
+   "src": "L167",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "soap",
+     "give_amount": 3,
+     "get": "blackberries",
+     "get_amount": 200,
+     "src": "L167"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) explains that the soap is needed at home. Mahina laughs, eats a handful of berries herself, and leaves the rest of the basket on the bank anyway.",
+   "src": "L174"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) offers to show Mahina how the soap is made. She is so pleased that she sends for a second basket of berries from her canoe.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "soap",
+     "give_amount": 3,
+     "get": "blackberries",
+     "get_amount": 350,
+     "src": "L170"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles, and Mahina, who did not come to haggle, keeps half her berries for herself.",
+   "src": "L171",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "soap",
+     "give_amount": 3,
+     "get": "blackberries",
+     "get_amount": 100,
+     "src": "L171"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Mahina sees the village has no soap to spare, shares a handful of berries with (name1), and goes on her way.",
+   "src": "L175"
+  }
+ }
+}

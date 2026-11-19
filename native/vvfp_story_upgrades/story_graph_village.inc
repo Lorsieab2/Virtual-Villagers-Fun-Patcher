@@ -1,15 +1,15 @@
-/* ---- Traders and the village effects (cie-v6-binary.md 33-36; the owner's spec of 2026-11-16/17) --------------
+/* ---- Traders and the village effects (cie-v6-binary.md 39-43; the owner's spec of 2026-11-16/17) --------------
 
    Included by story_graph.inc before cg_effect.  docs/event-collection/traders-and-effects-research.md lists every
    address below with its evidence.
 
    - Goods (33): the counts a trader may give or take, by one word in every game: "supply" (code 25, PR #806's
-     effect, widened from The Tree of Life's three supplies to every game's goods), "trade" (code 26: give n of one,
-     get m of another, all or nothing) and the condition "has_supply" (op 18).  Never below 0; a gain stops at the
+     effect, widened from The Tree of Life's three supplies to every game's goods), "trade" (code 41: give n of one,
+     get m of another, all or nothing) and the condition "has_supply" (op 19).  Never below 0; a gain stops at the
      game's own ceiling; a word the game does not keep is story only there.
-   - Group behaviours (34, code 27): every living, listed villager (New Believers: its believers) of an age group,
+   - Group behaviours (34, code 42): every living, listed villager (New Believers: its believers) of an age group,
      or one role's villager, takes the game's closest real action; group sickness and cure.
-   - The village (35, code 28): the next island event sooner or later, a tech level up or down, a construction
+   - The village (35, code 43): the next island event sooner or later, a tech level up or down, a construction
      sped, the game's own weather. */
 
 #ifdef VVFP_TEST
@@ -18,9 +18,41 @@ static int test_graph_weather = -1;       /* the last weather type started */
 static int test_graph_weather_call = 1;   /* 0: record the type without calling the game */
 #endif
 
-/* ---- 33. Goods ------------------------------------------------------------------------------------------------ */
+static int cg_prefix(const char *s, const char *prefix) {
+    while (*prefix != '\0' && *s == *prefix) {
+        ++s;
+        ++prefix;
+    }
+    return *prefix == '\0';
+}
+/* ---- 39. Goods ------------------------------------------------------------------------------------------------ */
 
-enum { CGG_FOOD = 1, CGG_TECH, CGG_VALUE, CGG_FRUIT, CGG_COLLECTIBLE, CGG_SUPPLY4 };
+enum { CGG_FOOD = 1, CGG_TECH, CGG_VALUE, CGG_FRUIT, CGG_COLLECTIBLE, CGG_SUPPLY4, CGG_YELLOW_FRUIT };
+
+#ifdef VVFP_TEST
+static int test_graph_yellow = -2;        /* yellow fruit: -2 the real companion, -1 none, else its count */
+#endif
+
+/* The Tree of Life's yellow fruit tree (with "Yellow Fruit Trees are No Longer Unlimited"): "VVFP VV4 Fruit
+   Supply.dll"'s own count through its export VvfpYellowFruitAdd (0..1,000; `delta` 0 only reads it), -1 when the
+   companion is not loaded or has no village (the stock tree never runs out: no count). */
+static int cg_yellow_fruit(int delta) {
+    typedef int (__stdcall *add_fn)(int);
+    HMODULE module;
+    add_fn add;
+#ifdef VVFP_TEST
+    if (test_graph_yellow >= -1) {
+        if (test_graph_yellow >= 0) {
+            long long v = (long long)test_graph_yellow + delta;
+            test_graph_yellow = v < 0 ? 0 : v > 1000 ? 1000 : (int)v;
+        }
+        return test_graph_yellow;
+    }
+#endif
+    module = GetModuleHandleA("VVFP VV4 Fruit Supply.dll");
+    add = module != NULL ? (add_fn)GetProcAddress(module, "VvfpYellowFruitAdd") : NULL;
+    return add != NULL ? add(delta) : -1;
+}
 
 typedef struct {
     const char *word;
@@ -41,6 +73,7 @@ static const cg_good_def CG_GOODS[] = {
     { "collectible", 3, CGG_COLLECTIBLE, 0, "Collectibles" },
     { "food", 4, CGG_FOOD, 0, "Food" }, { "tech", 4, CGG_TECH, 0, "Tech points" },
     { "blackberries", 4, CGG_VALUE, 0, "Blackberries" },
+    { "yellow_fruit", 4, CGG_YELLOW_FRUIT, 0, "Yellow fruit" },
     { "cutting_tools", 4, CGG_SUPPLY4, 0, "Cutting tools" }, { "soap", 4, CGG_SUPPLY4, 1, "Bars of soap" },
     { "cloth", 4, CGG_SUPPLY4, 2, "Cloth bolts" },
     { "collectible", 4, CGG_COLLECTIBLE, 0, "Collectibles" },
@@ -110,6 +143,26 @@ static void cg_pieces(int game, int *owned, int *spare) {
     }
 }
 
+/* How many collectibles a gain may still add, by cg_piece_step's own rules (cg_piece_gain_ok): never a set's last
+   piece, never a VV3 Tablet piece; in VV3-VV5 an owned piece may count once more (a duplicate). */
+static int cg_piece_room(int game) {
+    int set, k, owned, room = 0;
+    for (set = 0; set < CG_COLLECTIBLE_PIECES; set += 12) {
+        if (game == 3 && set == 24) {
+            continue;                  /* the Tablet */
+        }
+        for (owned = 0, k = set; k < set + 12; ++k) {
+            owned += cg_piece_count(game, k) > 0;
+        }
+        if (game != 2 && owned > 0) {
+            return CG_GOOD_MAX;        /* a duplicate is always allowed */
+        }
+        room += owned < 11 ? 11 - owned : 0;
+    }
+    /* VV3-VV5: once one new piece is given, it may take duplicates without end (Codex P2) */
+    return game != 2 && room > 0 ? CG_GOOD_MAX : room;
+}
+
 /* VV3's planted trees (0x594844), 0..3. */
 static int cg_trees(void) {
     int n = *(int *)(uintptr_t)0x594844u;
@@ -126,7 +179,7 @@ static int cg_good_have(const ce_adapter *a, int game, const cg_good_def *d, int
     case CGG_FOOD: case CGG_TECH:
         now = d->kind == CGG_FOOD ? a->food() : a->tech();
         now = now < 0 ? 0 : now;
-        *room = CE_MAX_AMOUNT - now;
+        *room = now < CE_MAX_AMOUNT ? CE_MAX_AMOUNT - now : 0;   /* never negative: a gain never takes away */
         return now;
     case CGG_VALUE:
         if (a->value_get == NULL || d->which >= a->value_count || !a->value_get(d->which, &now)) {
@@ -150,8 +203,12 @@ static int cg_good_have(const ce_adapter *a, int game, const cg_good_def *d, int
         return now;
     case CGG_COLLECTIBLE:
         cg_pieces(game, &owned, &spare);
-        *room = game == 2 ? CG_COLLECTIBLE_PIECES - owned : CG_GOOD_MAX;
+        *room = cg_piece_room(game);   /* only the gains cg_piece_step may make (Codex P2) */
         return spare;
+    case CGG_YELLOW_FRUIT:
+        now = cg_yellow_fruit(0);
+        *room = now >= 0 && now < 1000 ? 1000 - now : 0;
+        return now;
     case CGG_SUPPLY4: {
         int big = c4_supply_cap_installed(), cap;
 #ifdef VVFP_TEST
@@ -197,13 +254,29 @@ static int cg_fruit_step(const ce_adapter *a, int gain) {
     return best >= 0 && a->value_set(best, best_n + (gain ? 1 : -1));
 }
 
+/* Whether a gain of piece k (count c) keeps clear of every puzzle (the owner, 2026-11-18): it never completes a set (a
+   new piece that would make its 12 whole is left out) and never gives The Secret City's Tablet pieces (The Ruins). */
+static int cg_piece_gain_ok(int game, int k, int c) {
+    int first = k - k % 12, j, owned = 0;
+    if (game == 3 && k >= 24 && k < 36) {
+        return 0;
+    }
+    if (c > 0) {
+        return 1;              /* a duplicate: the set is as it was */
+    }
+    for (j = first; j < first + 12; ++j) {
+        owned += cg_piece_count(game, j) > 0;
+    }
+    return owned < 11;
+}
+
 /* One collectible: a gain is +1 to a random piece (VV2: a piece not found yet); a loss -1 from a random
    duplicate.  0 when none can change. */
 static int cg_piece_step(const ce_adapter *a, int game, int gain) {
     int pick[CG_COLLECTIBLE_PIECES], n = 0, k;
     for (k = 0; k < CG_COLLECTIBLE_PIECES; ++k) {
         int c = cg_piece_count(game, k);
-        if (gain ? (game != 2 || c == 0) : (game != 2 && c > 1)) {
+        if (gain ? ((game != 2 || c == 0) && cg_piece_gain_ok(game, k, c)) : (game != 2 && c > 1)) {
             pick[n++] = k;
         }
     }
@@ -251,6 +324,9 @@ static int cg_good_change(const ce_adapter *a, int game, const cg_good_def *d, i
             *(int *)(uintptr_t)C4_SUPPLY_AT[d->which] = have + delta;
             done = delta;
             break;
+        case CGG_YELLOW_FRUIT:
+            done = cg_yellow_fruit(delta) >= 0 ? delta : 0;
+            break;
         default:
             for (step = 0; step < (delta > 0 ? delta : -delta); ++step) {
                 if (!(d->kind == CGG_FRUIT ? cg_fruit_step(a, delta > 0) : cg_piece_step(a, game, delta > 0))) {
@@ -273,7 +349,7 @@ static int cg_good_change(const ce_adapter *a, int game, const cg_good_def *d, i
     return done;
 }
 
-/* "has_supply" (op 18): the village has at least `n` of `word` to give now. */
+/* "has_supply" (op 19): the village has at least `n` of `word` to give now. */
 static int cg_has_good(int game, const char *word, int n) {
     const ce_adapter *a = ce_adapter_for(game);
     const cg_good_def *d = cg_good(game, word);
@@ -294,7 +370,7 @@ static void cg_supply_any(const ce_adapter *a, int game, const char *word, int d
     }
 }
 
-/* "trade" (code 26): `give` n and get m of `get` ("give,get"), all or nothing: nothing when the village has less
+/* "trade" (code 41): `give` n and get m of `get` ("give,get"), all or nothing: nothing when the village has less
    than n, when the game keeps either good not, or when the village has no room for any of what it gets. */
 static void cg_trade(const ce_adapter *a, int game, const char *words, int n, int m) {
     char give[32], *comma;
@@ -320,7 +396,7 @@ static void cg_trade(const ce_adapter *a, int game, const char *words, int n, in
     }
 }
 
-/* ---- 34. Group behaviours ------------------------------------------------------------------------------------ */
+/* ---- 40. Group behaviours ------------------------------------------------------------------------------------ */
 
 enum { CGA_ALL = 0, CGA_CHILDREN, CGA_ADULTS, CGA_ELDERS };
 
@@ -373,10 +449,170 @@ static const cg_group_def *cg_group_def_of(const char *kind) {
     return NULL;
 }
 
-/* Whether `kind` is a group's word: sickness and cure are the whole village's only. */
+static int cg_in_ages(const ce_adapter *a, const unsigned char *r, int ages);
+
+/* ---- 42. Work rush and temporary effects (the owner, 2026-11-18) ------------------------------------------------- */
+
+/* The work rush: each game's own job action for a skill (the adapter's labels, story_c1.inc .. story_c5.inc; ""
+   none: that game's workers are left as they are), and the busy state with no skill for everyone else. */
+static const char *const CG_WORK_SKILLS[6] = { "Farming", "Building", "Research", "Healing", "Parenting", "Devotion" };
+static const char *const CG_WORK[6][6] = {
+    /* Farming */ { "", "Foraging (Farming practice, food)", "Harvesting coconuts (Farming practice, food)",
+                    "Fishing (Farming practice, food)", "Harvesting blackberries (Farming practice, food) [The Lie]",
+                    "Harvesting noni (Farming practice, food)" },
+    /* Building */ { "", "Fixing hut (Building practice)", "Exercising (Building practice)",
+                     "Doing exercise (Building practice)", "Doing exercise (Building practice)", "" },
+    /* Research */ { "", "Researching (Research practice, tech points)", "Researching (Research practice, tech points)",
+                     "Researching (Research practice, tech points)", "Researching (Research practice, tech points)",
+                     "Researching (Research practice, tech points)" },
+    /* Healing */ { "", "Healing someone (Healing practice, cures nobody)",
+                    "Healing someone (Healing practice, cures nobody)", "Studying medicine (Healing practice)", "",
+                    "Health chanting (Healing practice)" },
+    /* Parenting */ { "", "", "Telling a story (Parenting practice)", "Telling a story (Parenting practice)", "", "" },
+    /* Devotion */ { "", "", "", "", "", "Praising" },
+};
+/* VV3's own "Working 'til he/she drops!" (action 0x3A); the other games' closest stock busy state, a rest. */
+static const char *const CG_WORK_REST[6] = { "", "Sitting", "Sitting", "Working 'til he drops! / Working 'til she drops!",
+                                             "Needs to sit down", "Needs to sit down" };
+
+static int cg_work_skill(const char *kind) {
+    int k;
+    if (!cg_prefix(kind, "work:")) {
+        return -1;
+    }
+    for (k = 0; k < 6; ++k) {
+        if (lstrcmpA(kind + 5, CG_WORK_SKILLS[k]) == 0) {
+            return k;
+        }
+    }
+    return -1;
+}
+
+/* Whether `kind` is a group's word: sickness, cure and a work rush are the whole village's only. */
 static int cg_group_kind_ok(const char *kind, int whole_village) {
     const cg_group_def *d = cg_group_def_of(kind);
+    if (cg_work_skill(kind) >= 0) {
+        return whole_village;
+    }
     return d != NULL && (whole_village || d->words[1] != NULL);
+}
+
+/* The job ticked on record `r`'s Details screen (CG_WORK_SKILLS index), -1 none: the preference the game's own job
+   picker gives 86 times in 100 (rand(100) <= 85): A New Home [+0x3D0] 1..5 (0x439C40: 1 Farming, 2 Parenting,
+   3 Research, 4 Healing, 5 Building), The Lost Children [+0x7F8] 1..5 (0x449DCD: 1 Farming, 2 Parenting, 3 Healing,
+   4 Research, 5 Building), The Secret City [+0xEC0], The Tree of Life [+0x1C70], New Believers [+0x1C74] a skill
+   index, -1 none (0x45985B, 0x461E4A, 0x46A575: Farming, Parenting, Healing, Research, Building, Devotion). */
+static int cg_job_ticked(int game, const unsigned char *r) {
+    static const signed char OLD1[6] = { -1, 0, 4, 2, 3, 1 };      /* value -> CG_WORK_SKILLS */
+    static const signed char OLD2[6] = { -1, 0, 4, 3, 2, 1 };
+    static const signed char LATER[6] = { 0, 4, 3, 2, 1, 5 };      /* skill index -> CG_WORK_SKILLS */
+    int v;
+    switch (game) {
+    case 1: v = *(const int *)(r + 0x3D0); return v >= 1 && v <= 5 ? OLD1[v] : -1;
+    case 2: v = *(const int *)(r + 0x7F8); return v >= 1 && v <= 5 ? OLD2[v] : -1;
+    case 3: v = *(const int *)(r + 0xEC0); return v >= 0 && v <= 4 ? LATER[v] : -1;
+    case 4: v = *(const int *)(r + 0x1C70); return v >= 0 && v <= 4 ? LATER[v] : -1;
+    case 5: v = *(const int *)(r + 0x1C74); return v >= 0 && v <= 5 ? LATER[v] : -1;
+    default: return -1;
+    }
+}
+
+/* Record `r`'s highest skill (CG_WORK_SKILLS index), -1 when every skill is 0: the skill the Village screen's Action
+   bar shows under "Skill" when no job is ticked (the owner, 2026-11-18: the highest number on the Details screen, a
+   tie the Action bar's own pick).  The Action bar's routine, each game: A New Home 0x43B520 (from 0x41FB34) and The
+   Lost Children 0x44B4D0 (from 0x429B75) read Parenting, Building, Healing, Farming, Research and keep the earlier on
+   a tie (`jle`), none when all are 0; The Secret City 0x462460 (from 0x468DDE) reads Farming, Parenting, Healing,
+   Research, Building, the earlier kept on a tie, none unless one is above 0; The Tree of Life 0x46AC20 (from
+   0x4402EA) and New Believers 0x4755C0 (from 0x442E8B; Devotion sixth) read the same order of float skills against
+   the best so far CUT TO A WHOLE NUMBER (_ftol): a skill wins when it is above that whole number, so 40.2 after 40.7
+   takes over (the best is 40), while 40.0 after 40.7 does not. */
+static int cg_highest_skill(const ce_adapter *a, int game, const unsigned char *r) {
+    static const signed char OLD_ORDER[5] = { 4, 1, 3, 0, 2 };     /* CG_WORK_SKILLS in 0x43B520's reading order */
+    static const signed char LATER_ORDER[6] = { 0, 4, 3, 2, 1, 5 };
+    const signed char *order = game <= 2 ? OLD_ORDER : LATER_ORDER;
+    int n = game <= 2 ? 5 : (game == 5 ? 6 : 5), i, k, best = -1, best_whole = 0;
+    double best_v = 0.0;
+    for (i = 0; i < n; ++i) {
+        for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
+            if (lstrcmpiA(a->skill_names[k], CG_WORK_SKILLS[order[i]]) == 0) {
+                const unsigned char *at = r + a->off_skills + 4u * (unsigned int)k;
+                if (a->skills_float) {
+                    float v = *(const float *)at;
+                    if ((double)v > (double)best_whole) {
+                        best_whole = (int)v;
+                        best = order[i];
+                    }
+                } else if ((double)*(const int *)at > best_v) {
+                    best_v = (double)*(const int *)at;
+                    best = order[i];
+                }
+            }
+        }
+    }
+    return best;
+}
+
+/* "That skill's worker" (the owner, 2026-11-18): the job ticked for it; or, with no job ticked at all, that skill
+   is the villager's highest (the title the village lists it by).  Another job ticked: never, whatever its skills. */
+static int cg_skill_worker(const ce_adapter *a, int game, const unsigned char *r, int skill) {
+    int ticked = -1, best = -1;
+    __try {
+        ticked = cg_job_ticked(game, r);
+        if (ticked < 0) {
+            best = cg_highest_skill(a, game, r);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+    return ticked == skill || (ticked < 0 && best == skill);
+}
+
+/* "group" kind "work:<Skill>": every listed adult who is that skill's worker does the game's own job action for it;
+   every other listed adult takes the busy state with no skill (VV3: "Working 'til he/she drops!") at the job's own
+   site: the game's own job starter picks the place for each one (its first walk), as it does for each worker, and
+   the busy steps are done there (the adapters' behave_at; nothing of the job is run).  Children are
+   left as they are; no worker is made of anyone.  Nothing in a game with no action for the skill. */
+static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r) {
+    int work = cg_behaviour_by_words(a, CG_WORK[skill][game]), rest = cg_behaviour_by_words(a, CG_WORK_REST[game]);
+    int i, pass;
+    ce_result one;
+    if (work < 0) {
+        return;
+    }
+    if (!(a->caps & CAP_BEHAVIOUR)) {
+        ce_refuse(r, CE_WHY_OTHER);
+        return;
+    }
+    memset(&cg_one, 0, sizeof cg_one);
+    cg_one.game = game;
+    /* the workers first, so every worker's spot is taken before a busy villager's is picked (ce_site_pick) */
+    for (pass = 0; pass < 2; ++pass) {
+        for (i = 0; i < a->record_count && i < CE_MAX_RECORDS && cg_one.change_count < CE_MAX_CHANGES; ++i) {
+            unsigned char *record = a->record(i);
+            int use;
+            ce_change *c;
+            if (record == NULL || !a->listed(record) || cg_heathen(game, record)
+                || (game == 3 && record[0xE94] != 0) || !cg_in_ages(a, record, CGA_ADULTS)) {
+                continue;
+            }
+            use = cg_skill_worker(a, game, record, skill) ? work : rest;
+            if (use < 0 || (use == work) != (pass == 0)) {
+                continue;
+            }
+            c = &cg_one.changes[cg_one.change_count++];
+            ce_change_init(c);
+            c->index = i;
+            c->fingerprint = ce_identity(a, record);
+            c->behaviour = use;
+        }
+    }
+    if (cg_one.change_count > 0) {
+        ce_site_count = 0;
+        ce_site_job = work;             /* everyone else takes the busy state at the job's own site (behave_at) */
+        ce_apply(a, &cg_one, &one);
+        ce_site_job = -1;
+        cg_merge_result(r, &one);
+    }
 }
 
 /* The sickness field each game's own sickness writes (sc_sick's). */
@@ -409,7 +645,7 @@ static int cg_in_ages(const ce_adapter *a, const unsigned char *r, int ages) {
     }
 }
 
-/* "group" (code 27): the kind's action for every living, listed villager of its ages (`only` >= 0: that record
+/* "group" (code 42): the kind's action for every living, listed villager of its ages (`only` >= 0: that record
    alone, any age), or the sickness: `percent` of the villagers no harm may reach not (rounded up, at least one),
    or every one cured. */
 static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int only, int percent, ce_result *r) {
@@ -418,7 +654,14 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
     int cure = d != NULL && lstrcmpA(d->kind, "cure") == 0, want = 0, n = 0;
     int pool[CE_MAX_RECORDS];
     ce_result one;
-    if (d == NULL || game < 1 || game > 5) {
+    if (game < 1 || game > 5) {
+        return;
+    }
+    if (cg_work_skill(kind) >= 0) {
+        cg_work_rush(a, game, cg_work_skill(kind), r);
+        return;
+    }
+    if (d == NULL) {
         return;
     }
     if (!sick && !cure) {
@@ -487,20 +730,43 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
     }
 }
 
-/* ---- 35. The village ----------------------------------------------------------------------------------------- */
+/* ---- 41. The village ----------------------------------------------------------------------------------------- */
 
 static int sc_clock(int game, unsigned int *now, unsigned int **timer);   /* story_collection.inc */
 
-/* The next island event `hours` sooner (below 0) or later; never before now. */
+/* The next island event sooner (`hours` below 0) or later, on each game's own island timer (sc_clock).  Sooner is
+   The Lost Children's Gong of Wonder "luck" (0x44ECE1: the timer set to now + 0x3C): the next event a minute from
+   now, never later than it was.  Later: `hours` more, never beyond now + the game's own longest gap after an event
+   (A New Home 23 h, rand(12) + 12; The Lost Children 19 h, rand(10) + 10; the later three 15 h, rand(8) + 8).
+   Which event comes and its odds are never touched: only when. */
+#define CG_GONG_SOONER 60u
+/* The change the last event_timer effect made, for the outcome line (story_graph's automatic text): 0 none, -1 "soon"
+   (the Gong's minute), else the hours it came later after the cap. */
+static int cg_timer_applied_hours;
 static void cg_event_timer(int game, int hours) {
+    static const int LONGEST[6] = { 0, 23, 19, 15, 15, 15 };
     unsigned int now = 0, *timer = NULL;
     long long due;
     char line[96];
-    if (hours == 0 || !sc_clock(game, &now, &timer) || timer == NULL) {
+    cg_timer_applied_hours = 0;
+    if (hours == 0 || game < 1 || game > 5 || !sc_clock(game, &now, &timer) || timer == NULL) {
         return;
     }
     __try {
-        due = (long long)*timer + (long long)hours * 3600;
+        if (hours < 0) {
+            due = (long long)now + CG_GONG_SOONER;
+            if (due > (long long)*timer) {
+                due = *timer;                       /* already sooner than that: unchanged */
+            }
+        } else {
+            due = (long long)*timer + (long long)hours * 3600;
+            if (due > (long long)now + (long long)LONGEST[game] * 3600) {
+                due = (long long)now + (long long)LONGEST[game] * 3600;
+            }
+            if (due < (long long)*timer) {
+                due = *timer;                       /* a later never brings it sooner */
+            }
+        }
         if (due < (long long)now) {
             due = now;
         }
@@ -510,11 +776,12 @@ static void cg_event_timer(int game, int hours) {
         if ((unsigned int)due == *timer) {
             return;
         }
+        cg_timer_applied_hours = hours < 0 ? -1 : (int)((due - (long long)*timer) / 3600);
         *timer = (unsigned int)due;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return;
     }
-    wsprintfA(line, "  The next island event: %d hours %s\n", hours < 0 ? -hours : hours, hours < 0 ? "sooner" : "later");
+    wsprintfA(line, "  The next island event: %s\n", hours < 0 ? "soon" : "later");
     if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
         lstrcatA(cg_extra_lines, line);
     }
@@ -611,69 +878,6 @@ static void cg_tech_level(const ce_adapter *a, int game, const char *which, int 
     }
 }
 
-/* Each game's huts being built: {progress, threshold or the threshold table, done flag offset (VV1/VV2)}. */
-typedef struct {
-    unsigned int progress;         /* VV1/VV2: a world offset; VV3-VV5: an address */
-    int threshold;                 /* 0 = read from the game's own table at `table` + 4 * id */
-    unsigned int done;             /* VV1/VV2: the done flag's world offset; 0 = none */
-} cg_build_def;
-
-/* `points` more on one hut a builder has begun (progress above 0, not finished), drawn at random; it stops one
-   short of the hut's total, so the builder's next trip finishes it the stock way (the game's own completion: the
-   map, the hours, the messages). */
-static void cg_construction(const ce_adapter *a, int game, int points) {
-    static const cg_build_def B1[] = { { 0x9FE4, 250, 0x9FE8 }, { 0x9FEC, 400, 0x9FF0 }, { 0x9FF4, 600, 0x9FF8 } };
-    static const cg_build_def B2[] = { { 0x2E814, 450, 0x2E818 }, { 0x2E81C, 700, 0x2E820 },
-                                       { 0x2E824, 900, 0x2E828 } };
-    int *prog[8], total[8], m = 0, i, k, before, after;
-    char line[96];
-    if (points <= 0) {
-        return;
-    }
-    __try {
-        if (game <= 2) {
-            unsigned char *world = game == 1 ? VV1_WORLD() : VV2_WORLD();
-            const cg_build_def *b = game == 1 ? B1 : B2;
-            if (world == NULL) {
-                return;
-            }
-            for (i = 0; i < 3; ++i) {
-                int p = *(int *)(world + b[i].progress);
-                if (p > 0 && p < b[i].threshold - 1 && *(int *)(world + b[i].done) == 0) {
-                    prog[m] = (int *)(world + b[i].progress);
-                    total[m++] = b[i].threshold;
-                }
-            }
-        } else {
-            /* the puzzle managers' {progress, solve time} pairs and their totals (story_cN.inc puzzles) */
-            unsigned int base = game == 3 ? 0x594990u : game == 4 ? 0x4D8BF8u : 0x51E008u;
-            unsigned int table = game == 3 ? 0x49D230u : game == 4 ? 0x4D8B20u : 0x51DF30u;
-            int first = game == 3 ? 21 : 19, last = game == 3 ? 24 : game == 4 ? 25 : 24;
-            for (i = first; i <= last; ++i) {
-                int *p = (int *)(uintptr_t)(base + 8u * (unsigned int)i);
-                int t = *(int *)(uintptr_t)(table + 4u * (unsigned int)i);
-                if (*p > 0 && t > 1 && *p < t - 1) {
-                    prog[m] = p;
-                    total[m++] = t;
-                }
-            }
-        }
-        if (m == 0) {
-            return;
-        }
-        k = ce_random_below(a, m);
-        before = *prog[k];
-        after = before + points > total[k] - 1 ? total[k] - 1 : before + points;
-        *prog[k] = after;
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        return;
-    }
-    wsprintfA(line, "  Construction: %d -> %d of %d\n", before, after, total[k]);
-    if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
-        lstrcatA(cg_extra_lines, line);
-    }
-}
-
 /* The weather words and each game's type for them (-1: the game has none).  A New Home and The Lost Children have
    no weather at all. */
 static const char *const CG_WEATHER_WORDS[5] = { "clear", "sun", "rain", "storm", "fog" };
@@ -727,13 +931,6 @@ logged:
     }
 }
 
-static int cg_prefix(const char *s, const char *prefix) {
-    while (*prefix != '\0' && *s == *prefix) {
-        ++s;
-        ++prefix;
-    }
-    return *prefix == '\0';
-}
 
 /* Whether `s` is a "village" effect's word ("event_timer", "tech_level" or "tech_level:<area>", "construction",
    "weather:<word>"), and the a..b it allows. */
@@ -741,9 +938,7 @@ static int cg_village_ok(const char *s, int a, int b) {
     if (lstrcmpA(s, "event_timer") == 0) {
         return a <= b && a >= -72 && b <= 72 && (b < 0 || a > 0);
     }
-    if (lstrcmpA(s, "construction") == 0) {
-        return a >= 1 && a <= b && b <= 2000;
-    }
+    /* "construction" and "spawn": words only (the owner's final list, 2026-11-18): refused. */
     if (lstrcmpA(s, "tech_level") == 0 || (cg_prefix(s, "tech_level:") && s[11] != '\0')) {
         return (a == 1 || a == -1) && b == a;
     }
@@ -753,15 +948,14 @@ static int cg_village_ok(const char *s, int a, int b) {
     return 0;
 }
 
-/* "village" (code 28) with its roll `va`. */
+/* "village" (code 43) with its roll `va`.  Only the words cg_village_ok lets load do anything: "construction" and
+   "spawn" (words only) and any other word change nothing here, whatever reaches this. */
 static void cg_village_fx(const ce_adapter *a, int game, const char *s, int va) {
     if (lstrcmpA(s, "event_timer") == 0) {
         cg_event_timer(game, va);
-    } else if (lstrcmpA(s, "construction") == 0) {
-        cg_construction(a, game, va);
-    } else if (s[0] == 't') {
+    } else if (lstrcmpA(s, "tech_level") == 0 || (cg_prefix(s, "tech_level:") && s[11] != '\0')) {
         cg_tech_level(a, game, s[10] == ':' ? s + 11 : "", va);
-    } else {
+    } else if (cg_prefix(s, "weather:")) {
         cg_weather(game, s + 8);
     }
 }

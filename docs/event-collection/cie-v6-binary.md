@@ -102,7 +102,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 
 ## 4. Pools and items
 
-- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct, **2 = linked**, section 35), B 0,
+- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct, **2 = linked**, section 37), B 0,
   H distinct_from (a string: the pool names, comma separated; NONE = none), H 0`.
 - `distinct_from` (G3): an instance of this pool never draws an item whose TEXT equals the text of an item already
   drawn on the run by any instance of a listed pool (see 6.3).
@@ -131,7 +131,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
   - v6 pronouns (male word, female word): `himself/herself`, `woman/man` (man, woman), `boy/girl`, `son/daughter`,
     each with an optional `role.` prefix and a capital form (`(Himself/Herself)`);
   - **role-sex words:** `mother/father`, `father/mother`, `mom/dad`, `sister/brother`, `aunt/uncle`, `girl/boy`,
-    `lady/gentleman`, **`headman/headwoman`** (section 35) -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
+    `lady/gentleman`, **`headman/headwoman`** (section 37) -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
     uncle, boy, gentleman), with the optional `role.` prefix, the capital form and ALL CAPS, exactly as the pronouns
     (worst case: the longer word). E.g. The Lullaby's nursing parent: `(parent.mother/father)`. In the engine they
     are `CG_PH_MOTHER` .. `CG_PH_LADY`, after `CG_PH_SON`;
@@ -258,13 +258,13 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 22 | sex_change | role index | 0, 0 | NONE (section 29) |
 | 23 | presentation | role index | a = 1 the other sex's look, 0 the villager's own again; b = 0 | NONE (section 31) |
 | 24 | deliver_early | role index | 0, 0, or a..b: the newborn's extra health loss (-99..-1) | NONE (section 30) |
-| 25 | supply | 0xFF | a..b the change, a gain 1..9999 or a loss -9999..-1 (the three VV4 supplies: 1..99) | a good's word (sections 32, 33) |
-| 26 | trade | 0xFF | a = given (1..9999), b = got (1..9999) | `give,get`: two goods' words (section 33) |
-| 27 | group | role index, or 0xFF = the whole village | a = the share made sick (1..100, `sick` only), else 0; b = 0 | the kind's word (section 34) |
-| 28 | village | 0xFF | a..b: hours (event_timer), points (construction), the step +1 / -1 (tech_level), 0, 0 (weather) | `event_timer`, `construction`, `tech_level` or `tech_level:<area>`, `weather:<word>` (section 35) |
+| 25 | supply | 0xFF | a..b the change, a gain 1..9999 or a loss -9999..-1 (the three VV4 supplies: 1..99) | a good's word (sections 38, 39) |
+| 41 | trade | 0xFF | a = given (1..9999), b = got (1..9999) | `give,get`: two goods' words (section 39) |
+| 42 | group | role index, or 0xFF = the whole village | a = the share made sick (1..100, `sick` only), else 0; b = 0 | the kind's word (section 40) |
+| 43 | village | 0xFF | a..b: hours (event_timer), points (construction), the step +1 / -1 (tech_level), 0, 0 (weather) | `event_timer`, `construction`, `tech_level` or `tech_level:<area>`, `weather:<word>` (section 41) |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
-code 22 section 29, code 23 section 31, code 24 section 30, code 25 section 32. **Numbering:** the new name of section 28 is a role kind
+code 22 section 29, code 23 section 31, code 24 section 30, code 25 section 38. **Numbering:** the new name of section 28 is a role kind
 (a stranger's flag), not an effect code.
 
 Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
@@ -272,8 +272,8 @@ Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NO
 | Op | cond | a | Holds when |
 |---|---|---|---|
 | 17 | has_dead_relative | role index | the role's villager is bound, not gone, and has lost a recorded parent or a co-parent (section 21a) |
-| 18 | is_special | role index | the role's villager is bound, not gone, and is A New Home's Golden Child or The Secret City's Tribal Chief (section 35) |
-| 19 | has_supply | the good's word (string); the next H = at least (1..9999) | the village has at least that much of the good to give now (section 39): a run-time fact, allowed in a child's, a variant's, an item's and the requirement's `if`, never a choice's |
+| 18 | is_special | role index | the role's villager is bound, not gone, and is A New Home's Golden Child or The Secret City's Tribal Chief (section 37) |
+| 19 | has_supply | the good's word (string); the next H = at least (0..9999) | the village has at least that much of the good to give now; 0: the game keeps the good now (section 39): a run-time fact, allowed in a child's, a variant's, an item's and the requirement's `if`, never a choice's |
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -1309,17 +1309,18 @@ docs/event-collection/traders-and-effects-research.md lists every address and it
   `blackberries`, `cutting_tools`, `soap`, `cloth` (VV4); `noni` (VV5); `collectible` (VV2-VV5). A word the game does
   not keep is story only there; the patcher refuses an effect no game of the event keeps.
 - **Never below 0; a gain stops at the game's own ceiling** (the adapter's value limits: berries 5000, coconuts 1500,
-  fish 2200, honey 3000, a tree 1000, blackberries 1000, noni 1000; The Tree of Life's three supplies as section 32).
+  fish 2200, honey 3000, a tree 1000, blackberries 1000, noni 1000; The Tree of Life's three supplies as section 38).
 - **Collectibles**: a gain is +1 to a random piece (VV2: a piece not found yet becomes found); a loss takes only a
   duplicate (a count above 1), never a piece's last one, so no set and no population room is ever lost. VV2 has no
   duplicates: it never gives one. The pickup's own messages and trophies are not paid (only the pickup pays them);
   each game reads a set's room live, so a piece that completes a set gives its room at once.
-- **`trade`** (code 26): `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}`. All or nothing:
+- **`trade`** (code 41): `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}`. All or nothing:
   nothing happens when the village has less than n of g, when the game keeps either good not, or when it has no room
   for any more of h. No roll.
-- **`has_supply`** (op 18): `{"has_supply": {"item": g, "min": n}}`: the village has at least n of g to give now
-  (collectibles: duplicates). A trader event offers a trade only behind it, so nothing is offered that the village
-  cannot give. In Python it is a fact (`has_supply:<item>:<n>`) taken either way.
+- **`has_supply`** (op 19): `{"has_supply": {"item": g, "min": n}}`: the village has at least n of g to give now
+  (collectibles: duplicates); `"min": 0` holds when the game keeps the good now (VV3's fruit with a tree planted, The
+  Tree of Life's supplies once invented). A trader event offers a trade only behind both (what it gives, n; what it
+  gets, 0), so nothing is offered that the village cannot give or the game cannot keep. In Python it is a fact (`has_supply:<item>:<n>`) taken either way.
 - **The log**: one line a change, `  Honey: 2990 -> 3000` (food and tech are in the entry's own comparison).
 - **No automatic line** (section 25).
 - Tests: `tests/test_traders_and_village_effects.py`.
@@ -1337,19 +1338,98 @@ the whole village's only. No roll; no automatic line.
 
 ## 41. The village (`village`, code 43)
 
-- `{"what": "event_timer", "min": a, "max": b}`: the next island event a..b hours sooner (-72..-1) or later
-  (1..72), never before now (each game's own timer and clock, `sc_clock`). Rolled as `damage`.
+- `{"what": "event_timer", "min": a, "max": b}`: below 0, the next island event comes as the Gong of Wonder's "luck" brings it (VV2 0x44ECE1: the timer set to now + 60 s), never later than it already was; above 0, a..b hours later (1..72), never past now + the game's own longest gap after an event (A New Home 23 h, The Lost Children 19 h, the later three 15 h). Never before now; which event comes and its odds are never touched. Each game's own timer and clock (`sc_clock`). Every stock write of the timer (VV1 0x41C4AE / 0x42386D..0x423A6F / 0x42E930, VV2 0x4252A2 / 0x42EF7D..0x42F17F / 0x43B6C8, VV3 0x4280B9 / 0x428C8B / 0x4687E5..0x4688D4, VV4 0x41F322 / 0x420359 / 0x43FAE7..0x43FBD0, VV5 0x42485B / 0x425E54 / 0x44279E..0x442834) is a new village's, the pause's shift, or the scheduler's when an event fires -- before its popup shows -- so an event's own write is never overwritten by the event that carries it.
 - `{"what": "tech_level", "step": 1 | -1, "area": name?}`: one area (named, or any that can move) up or down within
   1..3. Up by the game's own raise in The Secret City (0x426FD0), The Tree of Life (0x41E1D0) and New Believers
   (0x423610, no trophy); A New Home and The Lost Children by a plain write, as their island events do. Down is a plain
   write (no game lowers a level; every reader reads it live; what was built stays). The Secret City's Nature and Magic
   are never moved from 0 (that would choose the faction) nor back to it. An event with this effect is not gated on tech.
-- `{"what": "construction", "min": a, "max": b}`: a..b more points (1..2000) on one hut a builder has begun, at random;
+- (words only since the owner's final list) `{"what": "construction", "min": a, "max": b}`: a..b more points (1..2000) on one hut a builder has begun, at random;
   it stops one short of the hut's total so the builder's next trip finishes it the stock way.
 - `{"what": "weather", "weather": w}`: `clear`, `sun`, `rain`, `storm`, `fog` by the game's own starter, as its island
   events call it (type, 0): The Secret City 0x41FB40 (no sun), The Tree of Life 0x46BC30, New Believers 0x477060.
   **A New Home and The Lost Children have no weather**: nothing there.
 - Each change has its log line (`  Tech level (Science): 2 -> 3`, `  Construction: 1200 -> 1350 of 2000`,
   `  Weather: rain`, `  The next island event: 3 hours sooner`). No automatic line.
-- **Not built (owner list):** a fish run outside VV2 (no store: VV2's is `supply fish`), a mushroom/collectible spawn
-  burst, the work rush and the temporary VV3/VV4 effects; see the research file for why and what each would need.
+- **Not possible:** a fish run outside VV2 (no store: VV2's is `supply fish`). The spawn burst, the work rush and the
+  temporary effects are section 42.
+
+## 42. Work rush, a spawn burst, temporary effects, yellow fruit (the owner, 2026-11-18)
+
+> Merge note (v1.35.97): #813 numbered this section 36 and the next 37; sections 36-41 were taken, so they are 42
+> and 43 here.
+
+- **Work rush** (`group`, string `work:<Skill>`, the whole village only): `{"do": "group", "kind": "work", "skill":
+  "Farming" | "Building" | "Research" | "Healing" | "Parenting" | "Devotion"}`. **That skill's workers** (the owner,
+  2026-11-18) are every listed adult (14+; VV5 believers) who has that job ticked on the Details screen
+  (VV1 [+0x3D0] 1..5, VV2 [+0x7F8] 1..5, VV3 [+0xEC0], VV4 [+0x1C70], VV5 [+0x1C74] a skill index, -1 none), or who has
+  no job ticked and whose highest skill it is (the owner, 2026-11-18: the highest number on the Details screen; a tie
+  is the skill the Village screen's Action bar shows under "Skill", its own routine: VV1 0x43B520 (from 0x41FB34) and
+  VV2 0x44B4D0 (from 0x429B75) read Parenting, Building, Healing, Farming, Research, the earlier kept; VV3 0x462460
+  (from 0x468DDE) Farming, Parenting, Healing, Research, Building, the earlier kept; VV4 0x46AC20 (from 0x4402EA) and
+  VV5 0x4755C0 (from 0x442E8B, Devotion sixth) the same order of float skills, each against the best so far cut to a
+  whole number (_ftol): 40.2 after 40.7 wins, 40.0 does not). Another job ticked: never. They take the game's own job action for it (`CG_WORK`, the adapters' labels: Foraging, Harvesting coconuts,
+  Fishing (VV3), Harvesting blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise;
+  Healing someone / Studying medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy
+  state with no skill: **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down" (0x4F /
+  0x55), VV1 / VV2 "Sitting". Children are left as they are; a game with no action for the skill leaves everyone as
+  they are. That the busy states give no skill is traced in the emulator (`tests/test_work_rush_rest_gives_no_skill.py`:
+  ten runs of each to its end change no skill, while ten Research / job trips do).
+  **The busy state is done at the job's site** (the owner, 2026-11-18; the adapters' `behave_at`): the job's own
+  starter runs for the busy villager and picks the place it would give a worker (its first walk step: VV1-VV4 type 3,
+  VV5 type 4), none of its steps is kept; then VV1 / VV2 queue that walk (0x4399F0 / 0x449B70) before Sitting, and
+  VV3-VV5 queue the busy action and replace its own walks with that one walk, its other steps kept in order. A job that
+  walks nowhere (VV1 / VV2 Healing someone: it heals where the healer stands) leaves the busy villager where they
+  stand. The tips a VV1 / VV2 job starter leaves for the selected villager are put back. **Crowded:** a spot within 20
+  pixels of one already taken (every worker's first, then each busy villager's) is crowded; the busy villager is
+  given the nearest free spot among up to 8 of the job's own picks (its starter run again), or the first when every
+  pick is crowded (VV2's palm has one foot: they share it). Tests: `tests/test_work_rush_busy_at_job_site.py`.
+- **Spawn burst** (words only: the owner's final list, 2026-11-18) (`village`, `{"what": "spawn"}`): the game's own random spawner fills its free map spots: VV2 0x415490
+  (one spot, only when empty, 0x4152D0), VV3 0x42D940 (-1, 0, 0) and VV4 0x413EE0 (-1, 0, 0) twice (two spots),
+  VV5 0x4141E0 (-1, 0, 0, 1, 1, 1, 1) twice (random items take a spot only while fewer than two lie out). A New Home
+  makes its mushroom inline in its update: nothing there. One log line, `  Something new lies on the island`.
+- **Temporary effects** (words only: the owner's final list, 2026-11-18; no vanilla island event makes any; the compiler refuses them) (`group`, string `effect:<word>`; one role or the whole village): `{"do": "group", "kind":
+  "effect", "effect": w, "who": ...}`, each by its game's own setter, so each is an entry of the game's own effect list
+  and Fix Vanilla Bugs' effect timers (PRs #773/#782: paused with the game, kept only by the autosave, ended only by
+  its own action) cover it with no bookkeeping:
+  - VV3 potions, 0x4583A0 on the villager (the pot's source 0x582610, the potion's id; its own switch sets the length):
+    `smarter` 3, `inspired` 4, `healing` 9, `bouncy` 11, `hiccups` 18, `swift` 24, `stinky_breath` 36, `soapy_taste` 37,
+    `nonsense_talk` 38. Never 26/27 (the vial: The Sharks), never the harmful or owner-question ones.
+  - VV4: `clean` (0x437EC0 on 0x4D8B18, mode 1: the soapy pond's sparkles, 240 s), `glow` (mode 0: the meditation's,
+    240 s; research x3), `gunk` (0x438CA0 on 0x4D8CCC, 180 s; wiped off on the tree), `stew_wait` (0x460A90, the pit's
+    source 0x4D6F50, stew 8: a little health and the 600 s "no more stew so soon" wait; a bare wait has no setter).
+    **Allowed together (the owner, 2026-11-18):** `clean` and `glow` are the two marks The Tree of Life's purification test asks of a villager (0x45EBE0 / 0x45EB90), so a villager with both counts as pure of body for Purify Tree: dropped on the Tree within their 240 s (with Dendrology 3) it purifies it, the bath and the meditation skipped. An effect alone never advances a puzzle.
+- **Yellow fruit** (`supply` / `trade` / `has_supply` word `yellow_fruit`, The Tree of Life): "VVFP VV4 Fruit
+  Supply.dll"'s own count through its new export `VvfpYellowFruitAdd(delta)` (0..1,000; 0 reads; -1 not installed or
+  no village; nothing written until the next save). Without "Yellow Fruit Trees are No Longer Unlimited" the tree has no
+  count: words only. PRs #794 and #805 also change that DLL: this change only adds the export after the refill.
+- Tests: `tests/test_traders_and_village_effects.py` (`WorkRushSpawnTempEffects`), `tests/test_vv4_yellow_fruit_trees_limited.py`
+  (`IslandEventAdd`; it needs research/game-data/vv4).
+
+## 43. The owner's final list (2026-11-18): what is real, what is words only
+
+Anything not real is words only: an event may say it, the game never changes for it, and the patcher refuses it as an
+effect (`group` kinds and `village` whats not listed, `effect:<word>`).
+
+| Effect | Real? | Notes |
+|---|---|---|
+| `supply` / `trade` / `has_supply` (food, tech, items, collectibles; PR #806's VV4 supplies; yellow fruit) | real | never below 0; a gain never completes a collection set; never a VV3 Tablet piece |
+| Cloth as a material (VV4) | real | PR #806's `supply cloth` |
+| `group`: relax, swim, dance, pray, celebrate, pond, play, stories, song, chant, speech | real | actions only: the adapters' non-"Unsafe" stock actions, no stored value, no skill unless the stock action trains one |
+| `group`: sick / cure | real | as the vanilla events: protected villagers are never made sick |
+| `group work:<Skill>` (work rush) | real | the ticked job, or (none ticked) the highest skill, a tie the Action bar's pick; others take the busy state at the job's site with no skill; Parenting is storytelling only (VV2, VV3), nothing where there is none (VV1, VV4, VV5) |
+| `village tech_level` | real | exactly one level, within 1..3 |
+| `village weather` | real | VV3-VV5 only |
+| `food` / `tech` (pre-.97) | real | unchanged |
+| `damage` (hut damage, pre-#806) | real | any building, the owner's ruling |
+| `village event_timer` | real | sooner = the Gong of Wonder's luck (VV2 0x44ECE1: now + 60 s), never later than it was; later = the hours given, never past now + the game's longest gap (23 / 19 / 15 / 15 / 15 h); never before now; which event and its odds are untouched |
+| `effect:` potions, clean, gunk, glow, stew wait | words only | refused |
+| fish run, research progress | words only | no such effect is made (VV2's fish stays a trade good) |
+| `village construction`, `village spawn` | words only | refused |
+
+Effects the engine had before PRs #806 / #813 (codes 1-24 and conds 1-17: food, tech, pay_award, kill, vanish,
+status, health, preference, skill, sick, celebrate, action, mood, health_change, skill_set, damage, appearance,
+die_unrecovered, baby_lost, birth_then_die, old_look, sex_change, presentation, deliver_early) are not part of this
+cut and are unchanged.
+
+The work rush's busy villagers go to the job's site (section 42). Parenting rushes are storytelling only (VV2, VV3), nothing elsewhere, so the Birth Control patches are never bypassed.

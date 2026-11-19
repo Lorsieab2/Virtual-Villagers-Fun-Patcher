@@ -130,6 +130,10 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     # The owner's request of 2026-11-17 (The Tree of Life's cutting tools, soap and cloth; the "supply" effect,
     # docs/event-collection/cie-v6-binary.md 32): every event "(VV4 only)".
     "draft_sup": ("Tree of Life Supplies", 180, "dr_sup", "SUP"),
+    # The owner's spec of 2026-11-16/17: traders (the "trade" effect and "has_supply", cie-v6-binary.md 33), built by
+    # scripts/drafts_c/gen_traders.py, and the village effects' showcase (cie-v6-binary.md 34-35).
+    "draft_trd": ("Island Traders", 234, "dr_trd", "TRD"),
+    "draft_vfx": ("Village Moments", 206, "dr_vfx", "VFX"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
