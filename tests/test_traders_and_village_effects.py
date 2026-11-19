@@ -433,8 +433,9 @@ class GameSide(unittest.TestCase):
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
-                g = pages([[{"do": "village", "what": "event_timer", "min": 5, "max": 5}],
-                           [{"do": "village", "what": "event_timer", "min": -3, "max": -3}],
+                # sooner first (a minute from now, whatever the clock), then 5 hours on from there (under the cap)
+                g = pages([[{"do": "village", "what": "event_timer", "min": -3, "max": -3}],
+                           [{"do": "village", "what": "event_timer", "min": 5, "max": 5}],
                            [{"do": "group", "kind": "cure"}]], [int(game[2])])
                 for n in g["nodes"].values():
                     n["auto_text"] = True
@@ -448,8 +449,8 @@ class GameSide(unittest.TestCase):
 
                 _r, shown = self.run_graph(game, g, setup)
                 text = " ".join(" ".join(t for _kind, t, _labels in shown).split())
-                self.assertIn("Page 1. The next island event will come 5 hours later.", text)
-                self.assertIn("Page 2. The next island event will come in about a minute.", text)
+                self.assertIn("Page 1. The next island event will come in about a minute.", text)
+                self.assertIn("Page 2. The next island event will come 5 hours later.", text)
                 self.assertIn("Page 3. Every villager is cured.", text)
 
 # Section 36: the work rush's starters (VV1/VV2: the action routine, its argument count; VV3-VV5: the action ids)
