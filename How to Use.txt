@@ -1017,7 +1017,7 @@ the game's own study (without it, only a villager you dropped on the cactus
 does that). It works in normal play and during time catch-up and Time Warp,
 so doctors keep training Healing while you are away. Nothing is written to
 the villager's record. Normal healing, sickness, food and the study's own
-skill gains are unchanged. With Builders and Healers Work First also
+skill gains are unchanged. With Villagers Work Their Own Job First also
 selected, healers are given healing work more often, so they study more.
 
 VV1 REENABLE F6 CLOTHING CHANGE CHEAT
