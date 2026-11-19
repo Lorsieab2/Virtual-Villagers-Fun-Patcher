@@ -227,6 +227,48 @@ class Renders(unittest.TestCase):
                         self.assertTrue(va + n <= at or at + length <= va)
 
 
+STORY_TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Story Upgrades.test.dll"
+VV3_VILLAGER = "a villager the event can be about"
+EVERY = "nothing beyond an island event being possible"
+# (game, slot): (what Pick Island Event says without the row, with it)
+REQUIRES = {
+    (1, 64): ("the tribe's spirituality below its highest level (freeing the whale raises it)", EVERY),
+    (1, 68): ("the tribe's medicine below its highest level (the visitor raises it)", EVERY),
+    (2, 64): ("the tribe's culture below the level the gold coin gives", EVERY),
+    (2, 82): ("the tribe's exploration below the level the spyglass gives", EVERY),
+    (3, 19): (VV3_VILLAGER + ", and Science technology below level 2", VV3_VILLAGER),
+    (3, 20): (VV3_VILLAGER + ", and Science technology level 2 or more", VV3_VILLAGER),
+    (3, 21): (VV3_VILLAGER + ", and Science technology below level 2", VV3_VILLAGER),
+    (3, 22): (VV3_VILLAGER + ", Science technology level 2 or more, and Alchemy technology below level 3",
+              VV3_VILLAGER),
+    (3, 36): (VV3_VILLAGER + ", and Medicine technology level 2 or more", VV3_VILLAGER),
+    (3, 18): (VV3_VILLAGER, VV3_VILLAGER),        # no level gate: its own row either way
+}
+
+
+@unittest.skipUnless(HAVE_EMULATOR and STORY_TEST_DLL.is_file(), "needs unicorn, pefile and the Story TEST build")
+class PickSaysWhatIsStillAsked(unittest.TestCase):
+    """Pick Island Event's "Not possible right now: ..." (and the message after a pick that could not happen) names
+    a technology level only while the game still asks it: the REAL Story companion (TEST build) loaded with each
+    rendered executable, without and with the row, in every mode."""
+
+    def test_requires_follows_the_row(self) -> None:
+        if not have_inputs():
+            self.skipTest("stock inputs not present")
+        sys.path.insert(0, str(ROOT / "tests"))
+        from story_emulator import Process
+        for game in (1, 2, 3):
+            for mode in MODES:
+                for with_row in (False, True):
+                    p = Process(render(game, mode, (fid(game),) if with_row else ()), STORY_TEST_DLL)
+                    for (g, slot), texts in REQUIRES.items():
+                        if g != game:
+                            continue
+                        with self.subTest(game=game, mode=mode, row=with_row, slot=slot):
+                            self.assertEqual(p.cstring(p.export("VvfpStoryProbeRequires", game, slot)),
+                                             texts[with_row])
+
+
 class Machine:
     """One rendered executable in an emulator.  `hooks`: address -> (return value or callable, bytes the callee
     pops); a callable gets the machine and returns the value."""

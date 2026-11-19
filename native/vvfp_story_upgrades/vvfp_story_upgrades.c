@@ -1249,6 +1249,67 @@ static const char *event_text(const story_event *e, int field, const char *engli
     return english;
 }
 
+/* What `e` needs, as the picker says it ("Not possible right now: ...", and
+   the message after a pick that could not happen): its own row, except where
+   Every Island Event Can Happen (vv<N>_every_island_event_can_happen) decides
+   whether a technology level is asked.  The row's bytes decide, as they do for
+   the pick itself (vv1_possible, vv2_possible; VV3 calls the game's own
+   conditions):
+   - VV1 The Trapped Whale / The Visitor, VV2 The Ancient Gold Coin / The
+     Spyglass: with the row the level is not asked, and nothing else is.
+   - VV3 The Bitter Brown Beans, The Ancient Tablet, The Medical Emergency:
+     the level is named only while the game's own level test is there (its
+     stock bytes); with the row only the villager is asked. */
+static const unsigned char VV3_LEVEL_LOW_STOCK[5] = { 0x75, 0x03, 0x32, 0xC0, 0xC3 };  /* 0x4157FB, Science < 2 */
+static const unsigned char VV3_LEVEL_GT1_STOCK[3] = { 0x83, 0xF8, 0x01 };              /* 0x4159DC, Science > 1 */
+static const unsigned char VV3_LEVEL_LT3_STOCK[3] = { 0x83, 0xF8, 0x03 };              /* 0x415C69, Alchemy < 3 */
+static const unsigned char VV3_LEVEL_GE2_STOCK[3] = { 0x83, 0xF8, 0x02 };              /* 0x415C7F, 0x417215: >= 2 */
+
+static const char *event_requires(const story_event *e) {
+    if (e >= GAMES[1].events && e < GAMES[1].events + GAMES[1].event_count) {
+        if ((e->slot == 64 && vv1_every_event(0x41895Bu)) || (e->slot == 68 && vv1_every_event(0x41896Fu))) {
+            return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.every_event",
+                           "nothing beyond an island event being possible", 300);
+        }
+    } else if (e >= GAMES[2].events && e < GAMES[2].events + GAMES[2].event_count) {
+        if ((e->slot == 64 && vv2_every_event(0x41F5C5u)) || (e->slot == 82 && vv2_every_event(0x41F659u))) {
+            return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.every_event",
+                           "nothing beyond an island event being possible", 300);
+        }
+    } else if (e >= GAMES[3].events && e < GAMES[3].events + GAMES[3].event_count) {
+        switch (e->slot) {
+        case 19: case 21:
+            if (mem_matches(0x4157FBu, VV3_LEVEL_LOW_STOCK, 5)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_low",
+                               "a villager the event can be about, and Science technology below level 2", 300);
+            }
+            break;
+        case 20:
+            if (mem_matches(0x4159DCu, VV3_LEVEL_GT1_STOCK, 3)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_high",
+                               "a villager the event can be about, and Science technology level 2 or more", 300);
+            }
+            break;
+        case 22:
+            if (mem_matches(0x415C69u, VV3_LEVEL_LT3_STOCK, 3) && mem_matches(0x415C7Fu, VV3_LEVEL_GE2_STOCK, 3)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_tablet_research",
+                    "a villager the event can be about, Science technology level 2 or more, and Alchemy technology below level 3",
+                    300);
+            }
+            break;
+        case 36:
+            if (mem_matches(0x417215u, VV3_LEVEL_GE2_STOCK, 3)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_medicine",
+                               "a villager the event can be about, and Medicine technology level 2 or more", 300);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return event_text(e, EVENT_REQUIRES, e->requires, 300);
+}
+
 /* "Title (variant)"; a title the game itself ends with a space (The Tree
    of Life's "The Abandoned Infants ") keeps one space before the bracket.
    Each part is its own row's translation. */
@@ -1348,7 +1409,7 @@ static int story_pick_island_event(int game, HWND owner) {
                       vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s4",
                               "The last island event you picked, %s, could not happen when it was due (it needs %s), so the island event the game chose happened instead.",
                               600),
-                      label, event_text(last_failed_event, EVENT_REQUIRES, last_failed_event->requires, 300));
+                      label, event_requires(last_failed_event));
         }
         vvfp_message_box(owner, message, "Pick Island Event",
                          MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -1766,6 +1827,20 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeTitleSet(int game, int index, 
 
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeTitleOf(int game, const unsigned char *record) {
     return titles_lookup(game, record);
+}
+
+/* What Pick Island Event says event `slot` of `game` needs (event_requires). */
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeRequires(int game, int slot) {
+    int i;
+    if (game < 1 || game > 5) {
+        return NULL;
+    }
+    for (i = 0; i < GAMES[game].event_count; ++i) {
+        if (GAMES[game].events[i].slot == slot) {
+            return event_requires(&GAMES[game].events[i]);
+        }
+    }
+    return NULL;
 }
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeTitleCount(void) {
