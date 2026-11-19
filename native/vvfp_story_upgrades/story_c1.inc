@@ -962,7 +962,9 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
         TC2(0x428470u, event, type, magnitude);
         return;
     }
-    if (ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+    if (ce_deliver(1, su_long_text, (int)sizeof su_long_text)) {
+        /* the dialog's field holds the text's start when it is longer (Scrolling Popups draws the whole) */
+        su_put_long((char *)event + 0x277F, 0x270F);
         return;
     }
     /* A pick of an island event: the event is chosen (the case roll) and
@@ -1087,7 +1089,7 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     void *villagers = *(void **)(d + 0x50A8u);   /* the ctor's villager array (0x41A4EE) */
     int featured;
     (void)unused_edx;
-    if (!ce_choice_begin(1, (char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_begin(1, su_long_text, (int)sizeof su_long_text)) {
         c1_choice_dialog = NULL;
         return (char)TC0(0x4189E0u, dialog);
     }
@@ -1098,6 +1100,7 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
         cs12_op_setup(1, d, C1_DLG_QUESTION, C1_DLG_SUBJECT, C1_DLG_VARIANT, villagers, 0x43A160u);
         return 1;
     }
+    su_put_long((char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES);   /* paged: it always fits */
     featured = ce_choice_featured(1);
     choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title,
                        featured);

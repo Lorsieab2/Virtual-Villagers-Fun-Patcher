@@ -792,6 +792,9 @@ static const char *lv_refusal(int game, int v, int cast, int origin) {
     const unsigned char *blob = lv_blob(v, &size);
     const char *refusal;
     int keep_cast = cg_cast_now, keep_origin = cg_origin_now;
+    if (!cg_bytes_room(size)) {
+        return "the event can not be read";
+    }
     memcpy(cg_bytes, blob, size);
     cg_bytes_size = size;
     if (!cg_load(&cg_g, cg_bytes, size)) {

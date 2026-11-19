@@ -490,7 +490,7 @@ static int sc_read_manifest(const wchar_t *path, unsigned int *size, unsigned in
     *size = got;
     return 1;
 }
-static unsigned char sc_bytes[CG_MAX_FILE];
+static unsigned char sc_bytes[CG_SHIPPED_FILE];
 
 /* Field `n` (0-based, tab-separated) of the line [p, end) into `out`. */
 static void sc_field(const char *p, const char *end, int n, char *out, int cap) {
@@ -762,7 +762,7 @@ __declspec(dllexport) int __stdcall VvfpStoryNoSafeguards(int game) {
 
 /* Whether the compiled event `data` can kill a villager, make one disappear or lose a pregnancy. */
 static int sc_graph_deadly(const unsigned char *data, unsigned int size) {
-    static unsigned char copy[CG_MAX_FILE];
+    static unsigned char copy[CG_SHIPPED_FILE];
     static cg_graph g;
     int k;
     if (size > sizeof copy) {

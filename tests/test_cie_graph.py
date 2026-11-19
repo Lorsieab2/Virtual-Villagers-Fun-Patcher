@@ -262,8 +262,13 @@ class Checks(unittest.TestCase):
         sentence = " ".join(["word"] * 150) + "."           # one sentence taller than a page
         self.assertProblem(tiny(b={"text": sentence}), "runs off the screen without scrolling")
         self.assertEqual(problems_of(tiny(b={"text": sentence}), scrolling=True), [])
-        long = "\n".join(["Short words here."] * 120)       # more bytes than the popup holds
-        self.assertProblem(tiny(b={"text": long}), "longer than", scrolling=True)
+        long = "\n".join(["Short words here."] * 120)       # more bytes than the popup holds without scrollbars
+        self.assertProblem(tiny(b={"text": long}), "longer than")
+        # With Scrolling Popups a popup's length is practically unlimited (the owner, 2026-11-16): only the sanity
+        # cap counts.
+        self.assertEqual(problems_of(tiny(b={"text": long}), scrolling=True), [])
+        huge = "\n".join(["Short words here."] * (cg.LONG_TEXT_MAX // 17 + 10))
+        self.assertProblem(tiny(b={"text": huge}), f"longer than {cg.LONG_TEXT_MAX}", scrolling=True)
 
     def test_too_many_popups(self):
         nodes = {"b": {"text": "1", "children": [{"next": "p2"}]}}

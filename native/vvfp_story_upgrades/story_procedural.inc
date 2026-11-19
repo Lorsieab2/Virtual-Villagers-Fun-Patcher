@@ -1114,7 +1114,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
 
 /* ---- Composing and queueing -------------------------------------------------------------------------------- */
 
-static unsigned char pc_graph[CG_MAX_FILE];
+static unsigned char pc_graph[CG_SHIPPED_FILE];
 
 /* A composition from the loaded group `g` in `game`, with the setup `fixed` (-1: drawn, up to PC_TRIES setups),
    written into pc_graph and handed to `arm` (which queues or checks it).  1 when `arm` took one. */
@@ -1167,6 +1167,9 @@ static int pc_arm_check(int game, unsigned int size) {
         pc_last_refusal = "another branching island event is still running";
         return 0;
     }
+    if (!cg_bytes_room(size)) {
+        return 0;
+    }
     memcpy(cg_bytes, pc_graph, size);
     cg_bytes_size = size;
     if (!cg_load(&cg_g, cg_bytes, size)) {
@@ -1192,6 +1195,9 @@ static int pc_arm_library(int game, unsigned int size) {
     unsigned int planned = 0;
     const char *refusal;
     int keep_cast = cg_cast_now, keep_origin = cg_origin_now;
+    if (!cg_bytes_room(size)) {
+        return 0;
+    }
     memcpy(cg_bytes, pc_graph, size);
     cg_bytes_size = size;
     if (!cg_load(&cg_g, cg_bytes, size)) {
