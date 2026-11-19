@@ -1295,7 +1295,8 @@
   },
   "anexp61_market_repairs": {
    "harm": [],
-   "section": "an_expr"
+   "section": "an_expr",
+   "supply": true
   },
   "anexp62_question_mercy": {
    "harm": [],
@@ -12108,7 +12109,8 @@
   },
   "living_mc_dis_14": {
    "harm": [],
-   "section": "living_engine"
+   "section": "living_engine",
+   "supply": true
   },
   "living_mc_dis_15": {
    "harm": [],
@@ -12132,7 +12134,8 @@
   },
   "living_mc_isl_05": {
    "harm": [],
-   "section": "living_engine"
+   "section": "living_engine",
+   "supply": true
   },
   "living_mc_isl_06": {
    "harm": [],
@@ -12841,7 +12844,8 @@
   },
   "lvlife20_rare_dye_vine": {
    "harm": [],
-   "section": "lv_life"
+   "section": "lv_life",
+   "supply": true
   },
   "lvlife21_story_tablet": {
    "harm": [],
@@ -14165,7 +14169,8 @@
   },
   "nat36_hornets_path": {
    "harm": [],
-   "section": "dr_nat"
+   "section": "dr_nat",
+   "supply": true
   },
   "nat37_kingfisher": {
    "harm": [],
@@ -15799,6 +15804,76 @@
    "harm": [],
    "section": "sss"
   },
+  "sup01_blackberry_blade": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup02_soap_smelled": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup03_bubbles_stream": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup04_sack_yellow": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup05_bundle_tide": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup06_pile_fish_bones": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup07_keeps_taking": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup08_torn_sail": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup09_first_bolt": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup10_blades_among": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup11_many_cooks_soap": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup12_tool_basket": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup13_washing_day_pond": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup14_cloth_blades": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
   "tim001_leaf_lantern": {
    "harm": [],
    "section": "dr_tim"
@@ -16329,7 +16404,8 @@
   },
   "tim133_rhythm_bark": {
    "harm": [],
-   "section": "dr_tim2"
+   "section": "dr_tim2",
+   "supply": true
   },
   "tim134_coconut_water": {
    "harm": [],

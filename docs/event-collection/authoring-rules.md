@@ -153,6 +153,7 @@ effect of that kind, or a `text_only` entry for that line.
 | the child survives but the mother dies | `{"do": "birth_then_die", "role": r, "cause": "unknown"}` on a `"special": "nursing_parent"` role with `"protected": "allow"` (cie-v6-binary.md 23: the baby is born now, then the parent dies with a grave) |
 | looks older, the old head look | `{"do": "old_look", "role": r}` (cie-v6-binary.md 27) |
 | a gender transition that changes the villager's recorded sex (explicitly chosen) | `{"do": "sex_change", "role": r}` (cie-v6-binary.md 29: refused while carrying or nursing, for special villagers, and while a companion that keeps data by the sex is in the game; the text still shows) |
+| The Tree of Life's cutting tools, soap, cloth (a sack is a cloth bolt) gained, lost, used, broken or found | `{"do": "supply", "item": "cutting_tools" \| "soap" \| "cloth", "min": a, "max": b}` (cie-v6-binary.md 32: a gain 1..99 or a loss -99..-1; tools and cloth kept 0..6, 0..99 with Up to 99 Cutting Tools/Soap/Cloth, soap 0..99; nothing before the item is invented or outside The Tree of Life). An existing event's is listed in `scripts/supply_effects.py` (`--format` adds it) |
 | a chosen name, "asks to be called ..." | a new-name role, `{"kind": "stranger", "new_name_for": r, "sex": "same" \| "other" \| "random", "last_name": "same" \| "different" \| "random"}`, shown as `(Chosen)` (cie-v6-binary.md 28: nobody is renamed) |
 
 - "(large award) food" shown in the text is `(award)`: give `"defer": true` on the food and a `{"do": "pay_award"}`
@@ -625,6 +626,19 @@ pronoun's owner; `OWNERS` fixes the ones the nearest name gets wrong).
   written: D's humiliating threats (the face posted, the "I tried" sign, the children's song), "Is this a basket or a
   cry for help?", "Twenty children went to nap. Nineteen came back.", the deodorant and the whoopee cushion.
 - Grammar (the owner, 2026-11-18: "fix grammar mistakes"): the `critic` rows of grammar-fixes.md, grammar only.
+## 15k. Tree of Life Supplies (the owner's request of 2026-11-17)
+
+"New Events - Tree of Life Supplies (draft for owner).txt" (SUP-01..14) is a ninth group C file
+(`collection_lib.DRAFTS_C`, source id `draft_sup`, section and series `dr_sup`, SHA-256 in `DRAFT_SUP.sha256`), built by
+`scripts/drafts_c/gen_drafts_c.py` with `scripts/drafts_c/annotations/sup.txt`. Every heading ends "(VV4 only)": the row
+is The Tree of Life only (`collection_manifest.DRAFTS_C_VV4_TAG`, cut from the title, a ledger note). An "[effect: the
+village gains / loses N cutting tools / bars of soap / cloth bolts]" is the `supply` effect (cie-v6-binary.md 32); one
+bracket may hold several effects separated by "; ". Like every new added event: off by default, on in Owner's
+Defaults (the collection's rows).
+
+The existing added events whose words give or take these items (the owner's audit, the same day) keep their text and
+get the effect from `scripts/supply_effects.py` (applied by `--format`; the check refuses a listed file without it);
+the Living mixer's outcome lines from `scripts/living_bank_build.py` `SUPPLY`.
 
 ## 15a. The Pick Island Event sentence
 

@@ -258,9 +258,10 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 22 | sex_change | role index | 0, 0 | NONE (section 29) |
 | 23 | presentation | role index | a = 1 the other sex's look, 0 the villager's own again; b = 0 | NONE (section 31) |
 | 24 | deliver_early | role index | 0, 0, or a..b: the newborn's extra health loss (-99..-1) | NONE (section 30) |
+| 25 | supply | 0xFF | a..b the change, a gain 1..99 or a loss -99..-1 | `cutting_tools`, `soap` or `cloth` (section 32) |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
-code 22 section 29, code 23 section 31, code 24 section 30. **Numbering:** the new name of section 28 is a role kind
+code 22 section 29, code 23 section 31, code 24 section 30, code 25 section 32. **Numbering:** the new name of section 28 is a role kind
 (a stranger's flag), not an effect code.
 
 Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
@@ -1262,3 +1263,29 @@ a role that is or prefers the Tribal Chief, the sex they are DRAWN as with "VVFP
 `sex_change` (section 29) and a `presentation` effect (section 34) set the role's words again, so later pages follow
 the change (pages are laid out with the longer word). The Golden Child's words are his recorded sex (his presentation
 is never changed).
+## 38. The Tree of Life's supplies (`supply`, code 25; the owner, 2026-11-17)
+
+JSON (v6): `{"do": "supply", "item": "cutting_tools" | "soap" | "cloth", "min": a, "max": b}` (the village's; role
+byte 0xFF; a..b a gain 1..99 or a loss -99..-1, `min <= max`; the string is the item word). The walk rolls the change
+as `damage`'s percent (a..b, each equally likely). An island event's words about The Tree of Life's cutting tools,
+bars of soap or cloth bolts change the real count: **a "sack" in an event is a cloth bolt** (the sacks are made per
+trip, "Cloth Sacks for Yellow Fruit").
+
+- **The counts** (story_c4.inc `C4_SUPPLY_*`): each object's own saved dword, cutting tools [0x4D8618], bars of soap
+  [0x4D8D98], cloth bolts [0x4D8ACC] (`native/vvfp_vv4_supply_cap/vvfp_vv4_supply_cap.c` lists the stock code).
+- **The limits:** cutting tools and cloth bolts 0..6, the stock game's own cap; 0..99 when Up to 99 Cutting
+  Tools/Soap/Cloth is in place ("VVFP VV4 Supply Cap.dll" loaded and its export `VvfpSupplyCapInstalled` says 1, every
+  site written). Soap has no stock cap: an event keeps it within 0..99. Never below 0. A gain never lowers a count
+  already above its cap (a save made with the cap raised, opened without it, keeps its count as the stock game does).
+- **Not invented yet:** before the item's puzzle is solved (The Cutting Tool, Soap Invented, Cloth Invented; the
+  adapter's `puzzle_solved`, the flag the game's Puzzles screen reads) the effect changes nothing: the words are
+  story only.
+- **Other games:** nothing (the effect is The Tree of Life's). The patcher refuses it in an event whose games do not
+  include 4; an event for all five games keeps its words as story elsewhere.
+- **The log:** one line in the event's Island Events log entry, `  Cutting tools: 4 -> 6` (`Bars of soap`, `Cloth
+  bolts`), only when the count changed.
+- **No automatic line** (section 25): whether it changes anything is known only in the game, so the event's own words
+  say it.
+- **Harmless** (section 7): nobody is changed.
+- Tests: `tests/test_vv4_supply_effect.py` (the stock The Tree of Life executable in the emulator: 6 and 99, never
+  below 0, the cap kept, nothing before the puzzle, the log line; every new supply event, every choice).

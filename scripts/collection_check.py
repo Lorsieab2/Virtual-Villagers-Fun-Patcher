@@ -52,6 +52,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import collection_lib as lib  # noqa: E402
+import supply_effects  # noqa: E402
 
 sys.path.insert(0, str(lib.ROOT / "src"))
 
@@ -1588,6 +1589,8 @@ def check_file(path: Path, rows: dict | None = None) -> Report:
         check_engine(doc, rep)
         check_description(doc, rep)
         check_guardians(doc, rep)
+    for x in supply_effects.missing(doc):          # the owner's audit of 2026-11-17 (scripts/supply_effects.py)
+        rep.add("e EFFECTS", f"{x}: the supply effect scripts/supply_effects.py lists is missing (--format adds it)")
     text = path.read_text(encoding="utf-8")
     if text != canonical(doc):
         rep.add("g ROUND", "the file is not in canonical form (python scripts/collection_check.py --format FILE)")
@@ -1705,6 +1708,7 @@ def main(argv=None) -> int:
         if args.format:
             doc = json.loads(p.read_text(encoding="utf-8"))
             fill_from_manifest(doc, rows)
+            supply_effects.apply(doc)                  # the existing events' supply effects (the owner, 2026-11-17)
             p.write_text(canonical(doc), encoding="utf-8", newline="\n")
         rep = check_file(p, rows)
         status = "OK" if rep.ok else f"{len(rep.problems)} PROBLEMS"

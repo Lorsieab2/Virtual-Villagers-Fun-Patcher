@@ -246,25 +246,31 @@ class FrozenDraftsB(unittest.TestCase):
 
 class FrozenDraftsC(unittest.TestCase):
     """The owner-approved draft event files, group C (2026-11-15), wired as group B: eight files, 50 events each, one
-    series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py."""
+    series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py.  A ninth, Tree of Life
+    Supplies (the owner's request of 2026-11-17): 14 events, every one The Tree of Life only."""
+
+    EVENTS = {"draft_sup": 14}           # the rest: 50
 
     def test_sha256_rows_and_files(self):
         data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
-        self.assertEqual(len(lib.DRAFTS_C), 8)
-        vv5_only = set()
+        self.assertEqual(len(lib.DRAFTS_C), 9)
+        vv5_only, vv4_only = set(), set()
         for sid, (topic, n, section, prefix) in lib.DRAFTS_C.items():
             with self.subTest(sid):
+                want = self.EVENTS.get(sid, 50)
                 self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
                 path = lib.SOURCES[sid][0]
                 self.assertEqual(path.read_bytes().count(b"\n"), n)
                 self.assertEqual(data[sid]["uncovered_lines"], [])
                 self.assertEqual(data[sid]["overlaps"], [])
-                self.assertEqual(data[sid]["counts"]["series"], {section: 50})
+                self.assertEqual(data[sid]["counts"]["series"], {section: want})
                 rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
-                self.assertEqual(len(rows), 50)
+                self.assertEqual(len(rows), want)
                 for r in rows:
                     self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
-                    if r["games"] != [1, 2, 3, 4, 5]:
+                    if r["games"] == [4]:
+                        vv4_only.add(r["id"][:5])
+                    elif r["games"] != [1, 2, 3, 4, 5]:
                         self.assertEqual(r["games"], [5], r["id"])
                         vv5_only.add(r["id"][:5])
                 files = [p for p in cc.collection_files() if lib.DRAFTS_C_DIR / section in p.parents]
@@ -276,6 +282,23 @@ class FrozenDraftsC(unittest.TestCase):
                         for c in nd.get("choices", []):
                             self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
         self.assertEqual(vv5_only, {"blf26", "blf27"})
+        self.assertEqual(vv4_only, {f"sup{k:02d}" for k in range(1, 15)})
+
+    def test_the_supply_events_change_the_supplies(self):
+        """Every SUP event has a supply effect on at least one outcome, and the existing events of the owner's audit
+        (scripts/supply_effects.py) carry theirs."""
+        import supply_effects
+        for p in sorted((lib.DRAFTS_C_DIR / "dr_sup").glob("*.json")):
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            dos = [e["do"] for nd in doc["nodes"].values() for e in nd.get("effects", [])]
+            self.assertIn("supply", dos, p.name)
+        found = set()
+        for p in cc.collection_files():
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            if doc.get("collection", {}).get("id") in supply_effects.SUPPLY:
+                found.add(doc["collection"]["id"])
+                self.assertEqual(supply_effects.missing(doc), [], p.name)
+        self.assertEqual(found, set(supply_effects.SUPPLY))
 
 
 class FrozenDraftsD(unittest.TestCase):
@@ -303,7 +326,9 @@ class FrozenDraftsD(unittest.TestCase):
                 for p in files:
                     doc = json.loads(p.read_text(encoding="utf-8"))
                     self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
-                    self.assertFalse(any(nd.get("effects") for nd in doc["nodes"].values()), p.name)
+                    # No effects, but the owner's supply audit of 2026-11-17 (scripts/supply_effects.py: tim133)
+                    self.assertFalse(any(e["do"] != "supply" for nd in doc["nodes"].values()
+                                         for e in nd.get("effects", [])), p.name)
                     for c in doc["nodes"]["setup"].get("choices", []):
                         self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
                     if sid in ("moments500", "draft_tim2"):
@@ -367,7 +392,8 @@ class FrozenAnthology(unittest.TestCase):
                     # the villager -- collection_lib.carrier_words)
                     self.assertEqual(("sex" in r, r["min_age"] >= 18), (False, True), p.name)
         # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
-        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
+        # ... and the owner's supply audit of 2026-11-17 (scripts/supply_effects.py): EXPR-61's retired blade
+        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4, "supply": 1})
 
 
 class FrozenCritic(unittest.TestCase):

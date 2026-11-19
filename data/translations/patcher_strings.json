@@ -71676,6 +71676,16 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_c4.C4_SUPPLY_NAMES.s0",
+   "english": "Cloth bolts",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

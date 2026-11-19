@@ -408,7 +408,8 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "presentation",                                                # ... 31
               "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 31 (codes 27-32)
               "lose_name", "change_name", "change_age",                      # ... 31 (33, 34)
-              "cure", "repair", "young_look")                                # ... 32 (35-37)
+              "cure", "repair", "young_look",
+              "supply")                                # ... 32 (35-37)
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
@@ -425,7 +426,8 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
                      "cure": 35, "repair": 36, "young_look": 37,
                      # 25 is reserved (a rest period once; the owner took the rest periods out, 2026-11-15)
                      # 26: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
-                     "trait": TRAIT_EFFECT_CODE})
+                     "trait": TRAIT_EFFECT_CODE,
+                     "supply": 25})        # 38: The Tree of Life's cutting tools, soap and cloth bolts (the reserved 25)
 NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
 ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
 # 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
@@ -465,7 +467,12 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
                     "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
                     "lose_name": 0, "change_name": 0, "change_age": 0,              # 32: known only at run time
                     "cure": 0, "repair": 0, "young_look": 0,
-                    "trait": 0})
+                    "trait": 0,
+                    "supply": 0})          # 38: The Tree of Life only; its puzzle solved, known only at run time
+# Section 38: the supplies (the item word the .cieg holds) -> the puzzle that invents each in The Tree of Life.
+SUPPLY_ITEMS = {"cutting_tools": "The Cutting Tool", "soap": "Soap Invented", "cloth": "Cloth Invented"}
+SUPPLY_GAME = 4
+SUPPLY_MAX = 99               # an effect's change is 1..99 either way (the counts are kept 0..6, or 0..99)
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early", "presentation", "pregnant", "nursing", "clone",
@@ -1002,6 +1009,20 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             age = "any"
         if age != "any":
             out["age"] = age
+    elif do == "supply":
+        # Section 38: the village's cutting tools, soap or cloth bolts (The Tree of Life), min..max a gain or a loss.
+        known |= {"item", "min", "max"}
+        item = e.get("item")
+        if item not in SUPPLY_ITEMS:
+            problems.append(f"{where}: supply item is one of {', '.join(SUPPLY_ITEMS)}")
+        lo, hi = e.get("min"), e.get("max")
+        if not (_int_in(lo, -SUPPLY_MAX, SUPPLY_MAX) and _int_in(hi, -SUPPLY_MAX, SUPPLY_MAX) and lo <= hi
+                and (lo >= 1 or hi <= -1)):
+            problems.append(f"{where}: supply min..max is a gain (1..{SUPPLY_MAX}) or a loss (-{SUPPLY_MAX}..-1), "
+                            "min <= max")
+        if games is not None and SUPPLY_GAME not in games:
+            problems.append(f"{where}: supply changes The Tree of Life's supplies: the event must list game 4")
+        out.update(item=item, min=lo, max=hi)
     else:
         known.add("role")
         out["role"] = e.get("role", default_role)
@@ -3160,6 +3181,8 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         return [_auto_fill("repair", None)]
     if do == "skill" and e.get("best"):
         return [_auto_fill("skill_best", r)]
+    if do == "supply":
+        return []                                       # 38: whether it changes anything is known only in the game
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
@@ -4263,6 +4286,8 @@ def _compile_v6(g: dict) -> bytes:
                 a, b = e["min"], e["max"]
                 if do == "damage":
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
+            elif do == "supply":
+                a, b, st = e["min"], e["max"], s(e["item"])
             elif do == "preference":
                 flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
                                                                  else 0) | (PREF_REMOVE_FLAG if e.get("remove") else 0)
@@ -4536,6 +4561,8 @@ def _decompile_v6(data: bytes) -> dict:
                     e["sex"] = sex
                 if flags & CHILD_OF_NEWEST_FLAG:
                     e["child_of_newest"] = True
+            elif do == "supply":
+                e.update(item=s(st), min=a, max=b)
             elif do != "pay_award":
                 if target is None:
                     e["role"] = rn(role)
@@ -5035,7 +5062,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if hi != 0:
                 lo += below(hi - lo + 1)
             return [lo, 0]
-        if do in ("health", "health_change", "damage") or (do == "deliver_early" and "min" in e):
+        if do in ("health", "health_change", "damage", "supply") or (do == "deliver_early" and "min" in e):
             return [e["min"] + below(e["max"] - e["min"] + 1), 0]
         if do == "skill":
             have = [s for s in e["skills"] if s in gm.skills]

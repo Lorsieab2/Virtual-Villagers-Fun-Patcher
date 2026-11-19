@@ -185,7 +185,8 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_PRESENTATION = 23,
        /* cie-v6-binary.md 30 */
        CGE_DELIVER_EARLY = 24,
-       /* 25: reserved (a rest period once; the owner took the rest periods out, 2026-11-15) */
+       /* cie-v6-binary.md 38: The Tree of Life's cutting tools, soap and cloth bolts (25 was reserved) */
+       CGE_SUPPLY = 25,
        /* cie-v6-binary.md 32: a story trait kept for the villager (The Quiet Hands: mute), never a change */
        CGE_TRAIT = 26,
        /* cie-v6-binary.md (the data agent documents it): a new villager -- role 255 a random one, else a duplicate of
@@ -1370,7 +1371,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                        || e[0] == CGE_FAITH || e[0] == CGE_JOIN || e[0] == CGE_APOSTASY;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
-                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
+                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT || e[0] == CGE_SUPPLY
                                          || (e[0] >= CGE_NEW_VILLAGER && e[0] <= CGE_APOSTASY)));
         if (ok && e[1] != CG_ROLE_GROUP && e[3] != 0) {
             ok = 0;                    /* byte 3 is a group's selector only */
@@ -1482,6 +1483,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_DAMAGE:
                 ok = e[1] == CG_ROLE_ALIAS_ALL && a >= 1 && b >= a && b <= 100 && str != CG_NONE
                      && cg_str_ok(g, str, 0);
+                break;
+            case CGE_SUPPLY:
+                /* 32: the village's; a..b a gain (1..99) or a loss (-99..-1); the supply's word. */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a <= b && ((a >= 1 && b <= 99) || (a >= -99 && b <= -1))
+                     && str != CG_NONE && cg_str_ok(g, str, 0) && c4_supply_item(cg_s(g, str)) >= 0;
                 break;
             default: break;
             }
@@ -3658,7 +3664,7 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = lo + ce_random_below(a, hi - lo + 1);   /* version 6: a loss too (lo..hi below 0) */
         break;
     }
-    case CGE_HEALTH_CHANGE: case CGE_DAMAGE:
+    case CGE_HEALTH_CHANGE: case CGE_DAMAGE: case CGE_SUPPLY:
         va = lo + ce_random_below(a, hi - lo + 1);
         break;
     case CGE_DELIVER_EARLY:
@@ -5559,6 +5565,7 @@ static char cg_extra_lines[4096];
 #ifdef VVFP_TEST
 static int test_graph_structures = -1;  /* the finished structures (bit k), -1 = as the game says */
 static int test_graph_damaged[SD_MAX_STRUCTURES];   /* each structure's loss the test build recorded */
+static int test_graph_supply_cap = -1;  /* "VVFP VV4 Supply Cap.dll" (32): -1 as it is, 0 none, 1 installed */
 #endif
 
 #ifdef VVFP_TEST
@@ -5875,6 +5882,40 @@ static unsigned char *cg_target(const ce_adapter *a, int who, int *index) {
     }
     *index = cg.record[role];
     return rec;
+}
+
+/* cie-v6-binary.md 38: "supply": The Tree of Life's cutting tools, bars of soap or cloth bolts (story_c4.inc
+   C4_SUPPLY_*) changed by `delta` (the walk's roll), kept within 0..6 (99 with Up to 99 Cutting Tools/Soap/Cloth;
+   soap always 99) and never below 0.  Nothing in another game, and nothing before the supply's own puzzle is solved
+   (the event's words are then story only).  The change has one line in the event's log entry. */
+static void cg_supply(int game, const unsigned char *e, int delta) {
+    int item = c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))), big, before = 0, after = 0;
+    int *count;
+    char line[96];
+    if (game != 4 || item < 0 || delta == 0 || !cg_puzzle_solved(game, C4_SUPPLY_PUZZLES[item])) {
+        return;
+    }
+    big = c4_supply_cap_installed();
+#ifdef VVFP_TEST
+    if (test_graph_supply_cap >= 0) {
+        big = test_graph_supply_cap;
+    }
+#endif
+    count = (int *)(uintptr_t)C4_SUPPLY_AT[item];
+    __try {
+        before = *count;
+        after = c4_supply_after(before, delta, c4_supply_cap(item, big));
+        *count = after;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return;
+    }
+    if (after == before) {
+        return;
+    }
+    wsprintfA(line, "  %s: %d -> %d\n", C4_SUPPLY_NAMES[item], before, after);
+    if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
+        lstrcatA(cg_extra_lines, line);
+    }
 }
 
 /* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
@@ -6294,6 +6335,9 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         }
         return;
     }
+    case CGE_SUPPLY:
+        cg_supply(game, e, va);
+        return;
     case CGE_BODY_SWAP: {
         int orole = cg_resolve_role((int)cg_u32(e + 4));
         unsigned char *other = orole >= 0 ? cg_villager(a, orole) : NULL;
@@ -9964,6 +10008,11 @@ __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeInstalledPatches(int 
 /* The puzzles solved for the graph's checks (bit = the adapter's puzzle index; -1 = as the game says). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphPuzzles(int solved) {
     test_graph_puzzles = solved;
+}
+
+/* "VVFP VV4 Supply Cap.dll" as the "supply" effect sees it (cie-v6-binary.md 32): -1 the real check, 0 none, 1 in. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
+    test_graph_supply_cap = mode;
 }
 
 /* The run: out[0] phase, [1] display_next, [2] display_count, [3] display armed, [4] choice, [5] bound roles,
