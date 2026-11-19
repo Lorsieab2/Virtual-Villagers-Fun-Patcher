@@ -32,7 +32,7 @@ MAX_LINE_CHARS = 180
 # 1,250 since 2026-11-16, when the island event controls (Content Notes, the Content Filters, No Safeguards for Island
 # Events) joined it.
 # (1,250 also covers Every Island Event Can Happen, 2026-11-17.)
-# (and Village Solidarity, 2026-11-17.)
+# (and Village Solidarity, 2026-11-17; and Birth Control in The Tree of Life and New Believers, 2026-11-19.)
 MAX_GUIDE_CHARS = 1250
 
 
