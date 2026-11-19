@@ -125,10 +125,11 @@ static int sc_count, sc_cap;
 static short *lv_entry_seed;           /* story_living.inc: each sc_list entry's pack seed, -1 when not a living row */
 static unsigned char *sc_left;         /* the draw's working arrays (sc_choose_and_arm), one per entry */
 static short *sc_head, *sc_members_left;
+static int *sc_factor, *sc_series_sum;   /* Village Solidarity: each entry's factor (per mille); a series' sum */
 
 /* The entry tables grown to `need` entries (together); 1 when they hold them. */
 static int sc_reserve(int need) {
-    int cap = sc_cap, c1 = sc_cap, c2 = sc_cap, c3 = sc_cap, c4 = sc_cap;
+    int cap = sc_cap, c1 = sc_cap, c2 = sc_cap, c3 = sc_cap, c4 = sc_cap, c5 = sc_cap, c6 = sc_cap;
     if (need <= sc_cap) {
         return 1;
     }
@@ -136,7 +137,9 @@ static int sc_reserve(int need) {
         || !story_grow((void **)&lv_entry_seed, &c1, need, sizeof(short))
         || !story_grow((void **)&sc_left, &c2, need, 1)
         || !story_grow((void **)&sc_head, &c3, need, sizeof(short))
-        || !story_grow((void **)&sc_members_left, &c4, need, sizeof(short))) {
+        || !story_grow((void **)&sc_members_left, &c4, need, sizeof(short))
+        || !story_grow((void **)&sc_factor, &c5, need, sizeof(int))
+        || !story_grow((void **)&sc_series_sum, &c6, need, sizeof(int))) {
         return 0;
     }
     sc_cap = cap;
@@ -808,6 +811,22 @@ static int sc_arm_collection(int game, int i) {
            && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
+/* Entry `i`'s draw weight: its own, or (`unit` 1000: Village Solidarity's companion favours some entry) x its
+   factor (#804). */
+static int sc_weight(int i, const int *factor, int unit) {
+    return unit == 1 ? sc_list[i].weight : sc_list[i].weight * factor[i];
+}
+
+/* Series i's draw weight (at its head, with members left; else 0): its own, or (unit 1000) x its members' mean
+   factor, so each member's own share is x its factor (#804). */
+static int sc_series_weight(int i, const short *head, const short *members_left, const int *series_sum, int unit) {
+    if (head[i] != i || members_left[i] <= 0) {
+        return 0;
+    }
+    return unit == 1 ? lv_series_weight(i)
+                     : (int)((__int64)lv_series_weight(i) * series_sum[i] / members_left[i]);
+}
+
 /* The draw inside the group sc_scan_group loaded (`n_coll` entries): every event as likely as any other, a series
    one event with its members equally likely, the Living Event Engine's recency and moods; a candidate that cannot be
    armed is left out and the draw made again.  1 when an event was armed. */
@@ -815,7 +834,8 @@ static int sc_draw_group(int game, int n_coll) {
     unsigned char *left = sc_left;
     short *head = sc_head;             /* the first entry of the same series (itself when none) */
     short *members_left = sc_members_left;   /* at a series' head: its members still left */
-    int i, k;
+    int *factor = sc_factor, *series_sum = sc_series_sum;   /* Village Solidarity (#804) */
+    int i, k, unit = 1;
     for (i = 0; i < n_coll; ++i) {
         left[i] = 1;
         head[i] = (short)i;
@@ -839,19 +859,35 @@ static int sc_draw_group(int game, int n_coll) {
             ++members_left[head[i]];
         }
     }
+    /* Village Solidarity (#804): with its companion, a cooperative or repair event's weight x its factor and every
+       other candidate's x 1000; without it (every factor 1000) the draw is exactly the one before. */
+    for (i = 0; i < sc_count; ++i) {
+        factor[i] = cg_sol_factor(game, sc_list[i].favour);
+        if (factor[i] != 1000) {
+            unit = 1000;
+        }
+    }
     while (n_coll > 0) {
         int total = 0, pick, chosen = -1;
         for (i = 0; i < sc_count; ++i) {
+            series_sum[i] = 0;
+        }
+        for (i = 0; i < sc_count; ++i) {
+            if (sc_list[i].series[0] != '\0' && left[i]) {
+                series_sum[head[i]] += factor[i];
+            }
+        }
+        for (i = 0; i < sc_count; ++i) {
             if (sc_list[i].series[0] != '\0') {
-                total += head[i] == i && members_left[i] > 0 ? lv_series_weight(i) : 0;
+                total += sc_series_weight(i, head, members_left, series_sum, unit);
             } else if (left[i]) {
-                total += sc_list[i].weight;
+                total += sc_weight(i, factor, unit);
             }
         }
         if (total <= 0) {
             return 0;
         }
-        pick = sc_rand(game, total);
+        pick = unit == 1 ? sc_rand(game, total) : cg_sol_random_below(ce_adapter_for(game), total);
         for (i = 0; i < sc_count && chosen < 0; ++i) {
             int w;
             if (sc_list[i].series[0] != '\0') {

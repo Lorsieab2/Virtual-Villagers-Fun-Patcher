@@ -6436,32 +6436,6 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         }
         return;
     }
-    case CGE_SUPPLY:
-        if (c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))) >= 0) {
-            cg_supply(game, e, va);        /* 32: The Tree of Life's three supplies, as PR #806 made them */
-            if (va != 0) {
-                cg_after_line(va > 0 ? "supply+" : "supply-", cg_s(&cg_g, cg_u16(e + 12)), va);
-            }
-        } else {
-            cg_supply_any(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);   /* 33 */
-        }
-        return;
-    case CGE_TRADE:
-        cg_trade(a, game, cg_s(&cg_g, cg_u16(e + 12)), (int)cg_u32(e + 4), (int)cg_u32(e + 8));
-        return;
-    case CGE_VILLAGE:
-        cg_village_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);
-        return;
-    case CGE_GROUP:
-        if (e[1] == CG_ROLE_ALIAS_ALL) {
-            cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), -1, (int)cg_u32(e + 4), r);
-        } else {
-            role = cg_resolve_role(e[1]);
-            if (role >= 0 && cg_villager(a, role) != NULL) {
-                cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), cg.record[role], 0, r);
-            }
-        }
-        return;
     case CGE_BODY_SWAP: {
         int orole = cg_resolve_role((int)cg_u32(e + 4));
         unsigned char *other = orole >= 0 ? cg_villager(a, orole) : NULL;
@@ -7108,6 +7082,32 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
                 cg_pref_word = CG_MUTE_WORD;
                 cg_effect(a, game, pref, -1, 0, award_kind, award, r);
                 cg_pref_word = NULL;
+            }
+        }
+        return;
+    case CGE_SUPPLY:
+        if (c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))) >= 0) {
+            cg_supply(game, e, va);        /* 38: The Tree of Life's three supplies, as PR #806 made them */
+            if (va != 0) {
+                cg_after_line(va > 0 ? "supply+" : "supply-", cg_s(&cg_g, cg_u16(e + 12)), va);
+            }
+        } else {
+            cg_supply_any(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);   /* 39 */
+        }
+        return;
+    case CGE_TRADE:
+        cg_trade(a, game, cg_s(&cg_g, cg_u16(e + 12)), (int)cg_u32(e + 4), (int)cg_u32(e + 8));
+        return;
+    case CGE_VILLAGE:
+        cg_village_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);
+        return;
+    case CGE_GROUP:
+        if (e[1] == CG_ROLE_ALIAS_ALL) {
+            cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), -1, (int)cg_u32(e + 4), r);
+        } else {
+            role = cg_resolve_role(e[1]);
+            if (role >= 0 && cg_villager(a, role) != NULL) {
+                cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), cg.record[role], 0, r);
             }
         }
         return;
