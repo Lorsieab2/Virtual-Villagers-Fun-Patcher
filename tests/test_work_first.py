@@ -130,6 +130,24 @@ class SiteTests(unittest.TestCase):
                     self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
                     self.assertEqual(code[5:], b"\x90" * (len(stock) - 5))
 
+    def test_a_new_home_installs_beside_birth_control(self):
+        # Birth Control (vv1_birth_control) already makes the picker gate cmp esi, 5 and routes its jle
+        # into its own page: the gate is left as it is and every other site still installs (it used to
+        # refuse the whole install, so Work First did nothing in A New Home with Birth Control ticked).
+        from test_builders_decision_roll import ROWS
+        m = world("vv1", rows=tuple(ROWS["vv1"]) + ("vv1_birth_control",))
+        gate = bytes(m.mu.mem_read(0x439C80, 9))
+        self.assertEqual(gate[:3], bytes.fromhex("83FE05"))
+        self.assertEqual(gate[3], 0xE9, "Birth Control's jmp into its page, untouched")
+        for site in _manifest("vv1")["runtime_detours"]:
+            va = int(site["va"], 16)
+            if va == 0x439C80:
+                continue
+            with self.subTest(va=hex(va)):
+                code = bytes(m.mu.mem_read(va, 5))
+                target = (va + 5 + struct.unpack("<i", code[1:5])[0]) & 0xFFFFFFFF
+                self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
+
     def test_the_scheduler_call_sites(self):
         for game, rets in LIVE.items():
             for ret in rets:

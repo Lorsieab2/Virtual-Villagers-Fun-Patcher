@@ -29,7 +29,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "44E76457EBA8E9F947EB3C01709CD3E790A04CB5544E58D91C9151F13378D0A4"
+      "sha256": "9BB73952BF578E53139D161DA909DA79833839F670CB7A9CE75736399169DC5A"
     }
   ],
   "patches": [],
@@ -49,7 +49,7 @@
     {
       "va": "0x439C80",
       "stock_bytes": "83FE010F8E99FEFFFF",
-      "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05)",
+      "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05); when Birth Control has already made it cmp esi, 5 (and routed the jle into its page) it is left as it is and the rest installs",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
     }
   ]

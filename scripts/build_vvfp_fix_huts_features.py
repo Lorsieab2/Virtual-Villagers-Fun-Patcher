@@ -401,7 +401,7 @@ PICKER_RUNTIME = {
             {"va": "0x44753C", "stock_bytes": "E84FABFFFF",
              "routine": "the Building case's hut start (call 0x442090, huts 9 and 10): called only when the hut has been worked on (hut 9 progress 1 or more, hut 10 2 or more) or this villager was dropped on it (activity 0xB / 0xC); otherwise the dispatcher's 'nothing' exit 0x447901"},
             {"va": "0x439C80", "stock_bytes": "83FE010F8E99FEFFFF",
-             "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05)"}],
+             "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05); when Birth Control has already made it cmp esi, 5 (and routed the jle into its page) it is left as it is and the rest installs"}],
     "vv2": [{"va": "0x45FBF0", "stock_bytes": "8B44240885C0",
              "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x461A08, 0x461A35) and the catch-up worker's pick dispatch (0x43B588)"},
             {"va": "0x4602B0", "stock_bytes": "6A04E8E92EFAFF",
