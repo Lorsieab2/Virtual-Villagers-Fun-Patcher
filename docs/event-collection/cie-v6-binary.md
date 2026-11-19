@@ -258,7 +258,10 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 22 | sex_change | role index | 0, 0 | NONE (section 29) |
 | 23 | presentation | role index | a = 1 the other sex's look, 0 the villager's own again; b = 0 | NONE (section 31) |
 | 24 | deliver_early | role index | 0, 0, or a..b: the newborn's extra health loss (-99..-1) | NONE (section 30) |
-| 25 | supply | 0xFF | a..b the change, a gain 1..99 or a loss -99..-1 | `cutting_tools`, `soap` or `cloth` (section 32) |
+| 25 | supply | 0xFF | a..b the change, a gain 1..9999 or a loss -9999..-1 (the three VV4 supplies: 1..99) | a good's word (sections 32, 33) |
+| 26 | trade | 0xFF | a = given (1..9999), b = got (1..9999) | `give,get`: two goods' words (section 33) |
+| 27 | group | role index, or 0xFF = the whole village | a = the share made sick (1..100, `sick` only), else 0; b = 0 | the kind's word (section 34) |
+| 28 | village | 0xFF | a..b: hours (event_timer), points (construction), the step +1 / -1 (tech_level), 0, 0 (weather) | `event_timer`, `construction`, `tech_level` or `tech_level:<area>`, `weather:<word>` (section 35) |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
 code 22 section 29, code 23 section 31, code 24 section 30, code 25 section 32. **Numbering:** the new name of section 28 is a role kind
@@ -270,6 +273,7 @@ Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NO
 |---|---|---|---|
 | 17 | has_dead_relative | role index | the role's villager is bound, not gone, and has lost a recorded parent or a co-parent (section 21a) |
 | 18 | is_special | role index | the role's villager is bound, not gone, and is A New Home's Golden Child or The Secret City's Tribal Chief (section 35) |
+| 19 | has_supply | the good's word (string); the next H = at least (1..9999) | the village has at least that much of the good to give now (section 39): a run-time fact, allowed in a child's, a variant's, an item's and the requirement's `if`, never a choice's |
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -1289,3 +1293,63 @@ trip, "Cloth Sacks for Yellow Fruit").
 - **Harmless** (section 7): nobody is changed.
 - Tests: `tests/test_vv4_supply_effect.py` (the stock The Tree of Life executable in the emulator: 6 and 99, never
   below 0, the cap kept, nothing before the puzzle, the log line; every new supply event, every choice).
+
+## 39. Goods and traders (`supply`, `trade`, `has_supply`; the owner, 2026-11-16/17)
+
+> Merge note (v1.35.97): #813 numbered these sections 33-35 and its codes trade 26, group 27, village 28 and
+> cond has_supply 18; round 6 already held those numbers, so they are sections 39-41, codes 41, 42, 43 and
+> cond 19 here. Any other 26/27/28/18 below that means trade/group/village/has_supply reads 41/42/43/19.
+
+
+docs/event-collection/traders-and-effects-research.md lists every address and its evidence; the engine is
+`native/vvfp_story_upgrades/story_graph_village.inc` (`CG_GOODS`).
+
+- **The goods** (`vv_cie_graph.GOODS`): `food`, `tech` (every game); `berries` (VV1); `coconuts`, `fish` (VV2);
+  `honey`, `fruit` (VV3: the three trees, a gain to the emptiest planted tree, a loss from the fullest);
+  `blackberries`, `cutting_tools`, `soap`, `cloth` (VV4); `noni` (VV5); `collectible` (VV2-VV5). A word the game does
+  not keep is story only there; the patcher refuses an effect no game of the event keeps.
+- **Never below 0; a gain stops at the game's own ceiling** (the adapter's value limits: berries 5000, coconuts 1500,
+  fish 2200, honey 3000, a tree 1000, blackberries 1000, noni 1000; The Tree of Life's three supplies as section 32).
+- **Collectibles**: a gain is +1 to a random piece (VV2: a piece not found yet becomes found); a loss takes only a
+  duplicate (a count above 1), never a piece's last one, so no set and no population room is ever lost. VV2 has no
+  duplicates: it never gives one. The pickup's own messages and trophies are not paid (only the pickup pays them);
+  each game reads a set's room live, so a piece that completes a set gives its room at once.
+- **`trade`** (code 26): `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}`. All or nothing:
+  nothing happens when the village has less than n of g, when the game keeps either good not, or when it has no room
+  for any more of h. No roll.
+- **`has_supply`** (op 18): `{"has_supply": {"item": g, "min": n}}`: the village has at least n of g to give now
+  (collectibles: duplicates). A trader event offers a trade only behind it, so nothing is offered that the village
+  cannot give. In Python it is a fact (`has_supply:<item>:<n>`) taken either way.
+- **The log**: one line a change, `  Honey: 2990 -> 3000` (food and tech are in the entry's own comparison).
+- **No automatic line** (section 25).
+- Tests: `tests/test_traders_and_village_effects.py`.
+
+## 40. Group behaviours (`group`, code 42)
+
+`{"do": "group", "kind": k, "who": "all" | role}`, and `"percent": p` for `sick`. Every living, listed villager (VV5:
+believers; never The Secret City's stand-in record) of the kind's ages takes the game's closest real action
+(`CG_GROUPS`): `relax`, `swim`, `dance`, `pray` (VV5 Praising), `celebrate`, `pond`, `play` (children only),
+`stories` (elders 55+ tell, children listen), and **songs, chants and speeches** -- `song`, `chant`, `speech` -- through
+each game's celebration, dance, Chief's Address (VV3), praising or honoring (VV5): the song itself is the event's
+words. With a role, that villager alone takes the kind's action. `sick` makes p% (rounded up) of the villagers no harm
+may reach not (section 7) sick by the adapter's own sickening; `cure` clears every villager's sickness field. Both are
+the whole village's only. No roll; no automatic line.
+
+## 41. The village (`village`, code 43)
+
+- `{"what": "event_timer", "min": a, "max": b}`: the next island event a..b hours sooner (-72..-1) or later
+  (1..72), never before now (each game's own timer and clock, `sc_clock`). Rolled as `damage`.
+- `{"what": "tech_level", "step": 1 | -1, "area": name?}`: one area (named, or any that can move) up or down within
+  1..3. Up by the game's own raise in The Secret City (0x426FD0), The Tree of Life (0x41E1D0) and New Believers
+  (0x423610, no trophy); A New Home and The Lost Children by a plain write, as their island events do. Down is a plain
+  write (no game lowers a level; every reader reads it live; what was built stays). The Secret City's Nature and Magic
+  are never moved from 0 (that would choose the faction) nor back to it. An event with this effect is not gated on tech.
+- `{"what": "construction", "min": a, "max": b}`: a..b more points (1..2000) on one hut a builder has begun, at random;
+  it stops one short of the hut's total so the builder's next trip finishes it the stock way.
+- `{"what": "weather", "weather": w}`: `clear`, `sun`, `rain`, `storm`, `fog` by the game's own starter, as its island
+  events call it (type, 0): The Secret City 0x41FB40 (no sun), The Tree of Life 0x46BC30, New Believers 0x477060.
+  **A New Home and The Lost Children have no weather**: nothing there.
+- Each change has its log line (`  Tech level (Science): 2 -> 3`, `  Construction: 1200 -> 1350 of 2000`,
+  `  Weather: rain`, `  The next island event: 3 hours sooner`). No automatic line.
+- **Not built (owner list):** a fish run outside VV2 (no store: VV2's is `supply fish`), a mushroom/collectible spawn
+  burst, the work rush and the temporary VV3/VV4 effects; see the research file for why and what each would need.

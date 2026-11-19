@@ -118,6 +118,8 @@ EXPORTS
     VvfpStoryProbeGraphForce=_VvfpStoryProbeGraphForce@16
     VvfpStoryProbeGraphPuzzles=_VvfpStoryProbeGraphPuzzles@4
     VvfpStoryProbeGraphSupplyCap=_VvfpStoryProbeGraphSupplyCap@4
+    VvfpStoryProbeGraphGoods=_VvfpStoryProbeGraphGoods@4
+    VvfpStoryProbeGraphWeather=_VvfpStoryProbeGraphWeather@4
     VvfpStoryProbeGraphState=_VvfpStoryProbeGraphState@4
     VvfpStoryProbeGraphPath=_VvfpStoryProbeGraphPath@12
     VvfpStoryProbeGraphDisplay=_VvfpStoryProbeGraphDisplay@4
