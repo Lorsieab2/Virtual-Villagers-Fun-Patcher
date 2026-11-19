@@ -345,6 +345,34 @@ class PartnerCarryNamesFollow(unittest.TestCase):
                     shown = r.walk_through()
                     self.check(r, game, carrier, partner, shown)
 
+    def test_the_other_outcomes_foundling_follows_the_swap(self):
+        """Codex on #814 (b247, b356): the swap holds for the run, so the other answer's unflagged nursing baby for
+        the carrier role goes to the villager the page names (a father may care for a baby)."""
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            g = carry_graph(game)
+            g["start"] = "q"
+            g["nodes"]["q"] = {"type": "question", "text": "(Subject) and (friend) talk about a family.",
+                               "choices": [{"label": "Wait", "next": "p0"}, {"label": "Take In", "next": "f"}]}
+            g["nodes"]["f"] = {"text": "A baby is left with (subject), and (subject.he/she) keeps it.",
+                               "effects": [{"do": "nursing", "role": "subject", "partner": "friend"}]}
+            for percent, carer in ((0, 0), (100, 1)):
+                with self.subTest(game=game, percent=percent):
+                    r = V6(game, self.PEOPLE)
+                    text = f"vv{r.n}\n# partner_carry_percent={percent}\n"
+                    buf = r.p.alloc(len(text) + 1)
+                    r.p.write(buf, text.encode("ascii") + b"\0")
+                    r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+                    r.rolls([0] * 40)
+                    r.p.export("VvfpStoryProbeGraphNoDeliver", 1)   # the conception only: no sound to play here
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    words = " ".join(norm(s[1]) for s in r.walk_through(answers=[1]))
+                    name, pron = ("Ann", "she") if carer == 0 else ("Bob", "he")
+                    self.assertIn(f"A baby is left with {name}, and {pron} keeps it.", words)
+                    self.assertNotEqual(r.v.i32(carer, r.v.L["pregnant"]), 0, f"{name} nurses the baby")
+                    self.assertEqual(r.v.i32(1 - carer, r.v.L["pregnant"]), 0)
+
     def test_a_loaded_run_keeps_the_choice(self):
         for game in GAME_IDS:
             if not have_stock(game):

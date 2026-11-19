@@ -1921,6 +1921,7 @@ static int cg_carrier_role(int role) {
 #ifdef VVFP_TEST
 /* The birth sex as the test build sees it: -1 the real rule; else bit i set: record i was born male. */
 static int test_graph_born_male = -1;
+static int test_graph_no_deliver;      /* 1: a nursing effect conceives only (VvfpStoryProbeGraphNoDeliver) */
 #endif
 
 /* Was the villager in record `r` (record index `index`) born female?  "VVFP Gender Presentation.dll" keeps the birth
@@ -5811,10 +5812,16 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         /* the partner carries (any birth sex): decided at the cast, the roles already swapped
            (cg_partner_carry_decide), so `record` is the partner who carries and `other` the villager the event named
            as the carrier */
-        int partner_carries = (e[2] & CG_FX_PARTNER_MAY_CARRY) && e[1] < 32u && ((cg.carry_swapped >> e[1]) & 1u);
+        int swapped_role = e[1] < 32u && ((cg.carry_swapped >> e[1]) & 1u);
+        int partner_carries = (e[2] & CG_FX_PARTNER_MAY_CARRY) && swapped_role;
+        /* Codex on #814: the swap holds for the whole run, so another outcome's nursing baby for that role (a
+           foundling the couple takes in: b247, b356) goes to the villager the page names, whatever their birth sex,
+           as the owner's rules let a father care for a baby; an unflagged pregnancy keeps the born-female rule. */
+        int swapped_nursing = e[0] == CGE_NURSING && swapped_role;
         if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
             || *(const int *)(record + a->off_pregnant) != 0
-            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !partner_carries && !cg_born_female(game, record, index))) {
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !partner_carries && !swapped_nursing
+                && !cg_born_female(game, record, index))) {
             return;                    /* not a carrier these events may have, or expecting already: nothing */
         }
         if (other != 0xFF) {
@@ -5841,6 +5848,11 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
                 return;                /* no room (the game's own predicate): nothing */
             }
         }
+#ifdef VVFP_TEST
+        if (test_graph_no_deliver) {
+            return;                    /* the test build: the game's birth left out (the emulator has no sound) */
+        }
+#endif
         if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
             (void)a->deliver(index, &early);   /* born at once: nursing a newborn (the deliver_early path) */
         }
@@ -9198,6 +9210,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
 /* The birth sex as the test build sees it: `born_male` -1 the real rule, else bit i: record i was born male. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) {
     test_graph_born_male = born_male;
+}
+
+/* A nursing effect's birth left out (`on` 1): the conception alone, which the emulator can run. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphNoDeliver(int on) {
+    test_graph_no_deliver = on;
 }
 
 /* "VVFP Gender Presentation.dll" as the test build sees it (29): `mode` -1 the real one, 0 none, 1 installed (and the
