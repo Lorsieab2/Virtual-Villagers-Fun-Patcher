@@ -125,7 +125,7 @@ longer than this room: vv_last_names.ROOM, pinned equal in tests/test_cie_graph.
 pronoun, and the award's widest amount.  Without scrolling a popup is shown in pages (whole paragraphs where they fit,
 else whole sentences, as the shipped Aspiring Adventurer pages its text): a sentence taller than a page, or more than
 MAX_PAGES pages, runs off the screen.  With scrolling (v1.35.97's popup scrollbars) any height fits and only the bytes
-the game's popup holds (POPUP_TEXT_MAX) count.
+one popup holds (ONE_POPUP_TEXT_MAX, every game) count.
 
 THE BINARY .cieg (version 1 or 2, little-endian) -- see compile_graph / decompile_graph.  Version 2 is laid out exactly as
 version 1; its number says a question may be any node (and text may hold "), so a companion that reads only version 1
@@ -3236,8 +3236,9 @@ def _check_text(where: str, text: str, problems: list[str], version: int = 1, g:
 
 
 ONE_POPUP_JOIN = "\n\n"        # what joins two parts of one popup's text that were once popups of their own
-ONE_POPUP_TEXT_MAX_12 = 8000  # one popup's bytes in A New Home and The Lost Children (their dialog holds 9,999;
-                              # story_graph.inc CG_TEXT_MAX_12); the later games' popups hold POPUP_TEXT_MAX
+ONE_POPUP_TEXT_MAX = 8000     # one popup's bytes with Scrolling Popups, every game (story_graph.inc CG_TEXT_MAX_ONE): A New
+                              # Home's and The Lost Children's dialog holds 9,999; the later games' holds 2,000, its first
+                              # 1,999 bytes, and Scrolling Popups draws the whole text (VvfpStoryPopupFullText)
 
 
 def chosen_label(label: str, lg: dict, game: Game, v6: bool) -> str:
@@ -3294,7 +3295,7 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
             done.add(key)
             layout = getattr(game, pop.layout)
             nodes = "+".join(pop.nodes)
-            cap = ONE_POPUP_TEXT_MAX_12 if scrolling and game.number <= 2 else POPUP_TEXT_MAX
+            cap = ONE_POPUP_TEXT_MAX if scrolling else POPUP_TEXT_MAX
             if len(pop.worst.encode("ascii", "replace")) > cap:
                 problems.append(f"{game.name}: the popup of {nodes} is longer than {cap} bytes "
                                 "with the longest names")

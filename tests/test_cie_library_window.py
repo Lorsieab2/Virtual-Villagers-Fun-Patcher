@@ -232,7 +232,7 @@ class Helpers(unittest.TestCase):
             self.assertGreaterEqual(fit.used, 1)
         chars = w.fit_meter(g, "intro", True)
         for fit in chars.values():
-            self.assertEqual((fit.unit, fit.limit), ("characters", cg.POPUP_TEXT_MAX))
+            self.assertEqual((fit.unit, fit.limit), ("characters", cg.ONE_POPUP_TEXT_MAX))
         self.assertIsNone(w.fit_meter(g, "deadly", False)[1])                    # a silent split shows nothing
         g["nodes"]["intro"]["text"] = " ".join(["(Name) waits."] * 160)
         over = w.fit_meter(g, "intro", False)[3]

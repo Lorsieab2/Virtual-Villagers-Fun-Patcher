@@ -500,9 +500,12 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   next trigger after its intro page and the village's opening event took it) cannot happen.
 - **Effects** are made when the text that tells them is shown (an answer's at its click, with its text); the Island
   Events log keeps ONE entry (a "Choice:" line for each answer). Island Events Seen counts the event once.
-- **Bytes.** A text may hold at most 1990 bytes at its widest (the later games' popup holds 2,000), 8000 in A New
-  Home and The Lost Children (their dialog holds 9,999; `CG_TEXT_MAX_12`, `ONE_POPUP_TEXT_MAX_12`). Lines do not
-  count: the popup scrolls.
+- **Bytes.** A text may hold at most 8000 bytes at its widest, in every game (`CG_TEXT_MAX_ONE`,
+  `ONE_POPUP_TEXT_MAX`). A New Home's and The Lost Children's dialog holds 9,999. The later games' dialog holds 2,000:
+  Story Upgrades gives it the text's first 1,999 bytes (`ce_popup_text`; the game's own copy ends in a strncat that
+  writes one byte past the field for a text of 2,000 or more), and Scrolling Popups draws and measures the whole text,
+  which Story Upgrades hands it for that field (`VvfpStoryPopupFullText`). Lines do not count: the popup scrolls.
+  Without Scrolling Popups a page holds at most 1990 bytes, as before.
 - **The popup's size**: the constructor's own, for its first text, with the rows and the room OK keeps below them
   (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
 - Without Scrolling Popups everything is as before (pages, button room, G1).

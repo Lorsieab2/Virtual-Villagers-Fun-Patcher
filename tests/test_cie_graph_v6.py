@@ -1142,16 +1142,18 @@ class EngineFollowups(unittest.TestCase):
             h = cg.walk(g, cg.contexts(g, [gn])[0])
             self.assertIn(f"now likes {longest}.", h[0].popups[0].worst)
             self.assertIn("W" * game.name_room + " feels less sure of", h[0].popups[0].worst)
-        # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes).
+        # A text that fits alone but not with its lines is refused (a page of The Secret City's popup holds 1990
+        # bytes without Scrolling Popups; with it one popup holds 8000, cie-v6-binary.md 19).
         w = copy.deepcopy(AUTO)
         w["games"] = [3]
         w["nodes"]["p"]["text"] = "(Name) wakes up feeling odd. " + "It is a very odd morning. " * 70
         plain = copy.deepcopy(w)
         for n in plain["nodes"].values():
             n.pop("auto_text")
-        self.assertEqual(cg.validate(plain, True)[1], [])
-        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, True)[1]),
-                        cg.validate(w, True)[1])
+        self.assertEqual([p for p in cg.validate(plain, False)[1] if "bytes" in p], [])
+        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, False)[1]),
+                        cg.validate(w, False)[1])
+        self.assertEqual([p for p in cg.validate(w, True)[1] if "bytes" in p], [], "one popup holds 8000")
 
     def test_random_preference(self):
         g = cg.load(copy.deepcopy(AUTO), True)
@@ -1616,7 +1618,8 @@ class Fit(unittest.TestCase):
     def test_longest_pool_item_is_measured(self):
         d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x" * 1500]}})
         d["nodes"]["p"]["text"] = "{X.1} {X.2}"
-        self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, True)))
+        # (Without Scrolling Popups: a page holds 1990 bytes; with it one popup holds 8000.)
+        self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, False)))
 
 
 class NodeTitles(unittest.TestCase):

@@ -6,7 +6,8 @@
    the knob and clicking the track scroll it.  A popup whose text fits is drawn exactly as the game draws it (the
    same single call, nothing else).  Stage 1: the island-event dialog of The Secret City, The Tree of Life and New
    Believers (native/shared/scroll_popup.h has the rows; more popups and games are rows to add).  The dialog's text
-   field keeps the game's 2000-byte size.
+   field keeps the game's 2000-byte size; a longer island-event text of Story Upgrades is drawn and measured whole
+   from that companion's copy (sp_full_text, VvfpStoryPopupFullText).
 
    A WORD WIDER THAN THE BOX (a long unbroken word).  The game's justified paragraph never places such a word: it
    backs off to an empty line and tries it again, for ever, so the stock game hangs on it.  The constructor's
@@ -865,13 +866,34 @@ static void sp_draw_justified(void *holder, void *data, int x, int y) {
                                                             d->colour, d->font, 0);
 }
 
-/* The body text, scrolled when it does not fit; returns what the game's call returns (its height). */
-static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
-    const char *text = (const char *)(UINT_PTR)a[0];
+/* THE WHOLE TEXT.  The island-event dialog's text field holds 2,000 bytes; a longer text of an island event of
+   "VVFP Story Upgrades.dll" (one popup, up to 8,000 counted bytes) is put in it as its first 1,999 bytes, and the
+   companion gives the whole text for that field (VvfpStoryPopupFullText: the text the field is the start of, else
+   NULL).  The dialog's draw and measures (and the size site's widest word) use the whole text; without the export
+   (an older or no Story Upgrades) the field is the text, as before. */
+typedef const char *(__stdcall *sp_full_fn)(const char *shown);
+
+static const char *sp_full_text(const char *shown) {
+    HMODULE module = GetModuleHandleA("VVFP Story Upgrades.dll");
+    sp_full_fn fn = module != NULL ? (sp_full_fn)(void *)GetProcAddress(module, "VvfpStoryPopupFullText") : NULL;
+    const char *full = NULL;
+    if (fn != NULL && shown != NULL) {
+        __try {
+            full = fn(shown);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            full = NULL;
+        }
+    }
+    return full != NULL ? full : shown;
+}
+
+/* The body text (`text`: the whole text of the field a[0]), scrolled when it does not fit; returns what the game's
+   call returns (its height). */
+static int sp_body(const sp_class *c, void *holder, const unsigned int *a, const char *text) {
     int x = (int)a[1], y = (int)a[2], w = (int)a[3];
     unsigned int colour = a[4];
     void *font = (void *)(UINT_PTR)a[5];
-    unsigned char *popup = (unsigned char *)text - c->text;
+    unsigned char *popup = (unsigned char *)(UINT_PTR)a[0] - c->text;
     const int *panel = (const int *)(popup + c->panel);
     int reserve, box_h, content_h, content_w, line, op = 0, text_h, gap = 0, by = y;
     sp_justify_draw d;
@@ -944,19 +966,24 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
    arguments. */
 static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int *a) {
     const sp_class *c = sp_class_at(ret - 5u, 1);
+    const sp_class *measured = c == NULL ? sp_class_at(ret - 5u, 2) : NULL;
+    const char *text = (const char *)(UINT_PTR)a[0];
     int r = -1;
-    if (c == NULL && (sp_class_at(ret - 5u, 2) != NULL || ret - 5u == g_game->widen_site)) {
+    if (c != NULL || measured != NULL) {
+        text = sp_full_text(text);          /* the island-event dialog's whole text */
+    }
+    if (c == NULL && (measured != NULL || ret - 5u == g_game->widen_site)) {
         int width = (int)a[3];
         __try {
-            int widest = sp_widest_word(holder, (const char *)(UINT_PTR)a[0], a[4], (void *)(UINT_PTR)a[5]);
+            int widest = sp_widest_word(holder, text, a[4], (void *)(UINT_PTR)a[5]);
             if (widest > width) {
                 width = widest;             /* the paragraph never gets stuck on a word wider than its box */
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             width = (int)a[3];
         }
-        return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, (const char *)(UINT_PTR)a[0], (int)a[1],
-                                                           (int)a[2], width, a[4], (void *)(UINT_PTR)a[5], (int)a[6]);
+        return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, text, (int)a[1], (int)a[2], width, a[4],
+                                                           (void *)(UINT_PTR)a[5], (int)a[6]);
     }
     if (c != NULL) {
         int *clip = NULL, old[4] = {0, 0, 0, 0};
@@ -965,7 +992,7 @@ static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int 
             if (clip != NULL) {
                 old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
             }
-            r = sp_body(c, holder, a);
+            r = sp_body(c, holder, a, text);
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             r = -1;
             g_op_draw.on = 0;
@@ -990,15 +1017,15 @@ static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int 
     {
         int width = (int)a[3];
         __try {
-            int widest = sp_widest_word(holder, (const char *)(UINT_PTR)a[0], a[4], (void *)(UINT_PTR)a[5]);
+            int widest = sp_widest_word(holder, text, a[4], (void *)(UINT_PTR)a[5]);
             if (widest > width) {
                 width = widest;             /* never stuck on a word wider than the box */
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             width = (int)a[3];
         }
-        return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, (const char *)(UINT_PTR)a[0], (int)a[1],
-                                                           (int)a[2], width, a[4], (void *)(UINT_PTR)a[5], (int)a[6]);
+        return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, text, (int)a[1], (int)a[2], width, a[4],
+                                                           (void *)(UINT_PTR)a[5], (int)a[6]);
     }
 }
 
@@ -1217,7 +1244,7 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
             a[2] = (unsigned int)((int)a[2] - (stock > 0 ? stock : 0) + g_op.r.reserve + sp_rows_h(g_op.r.rows));
         }
         if (holder != NULL && box_w > 0 && sp_art_ready()
-            && sp_widest_word(holder, (const char *)(p + c->text), 0, *(void **)(p + c->font)) > box_w) {
+            && sp_widest_word(holder, sp_full_text((const char *)(p + c->text)), 0, *(void **)(p + c->font)) > box_w) {
             a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());
         }
         if (cap > 0 && (int)a[2] > cap) {

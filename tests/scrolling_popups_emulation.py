@@ -210,6 +210,9 @@ class Dialog:
         self.watch = None
         self.multi_answer = None          # see _story_room
         self.one_popup = None             # see _op_rows
+        self.full_text = None             # see _full_text
+        self.full_va = 0
+        self.full_asks: list[int] = []
         self.picks: list[int] = []
         self._story_methods: dict = {}
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGBA", (0, _map_rgba))
@@ -325,7 +328,8 @@ class Dialog:
                     ret(SDL_MODULE, 4)
                     return
                 if text.lower() == "vvfp story upgrades.dll" and (harness.multi_answer is not None
-                                                                   or harness.one_popup is not None):
+                                                                   or harness.one_popup is not None
+                                                                   or harness.full_text is not None):
                     ret(STORY_MODULE, 4)
                     return
             if name == "GetProcAddress" and arg(0) == SDL_MODULE:
@@ -339,7 +343,8 @@ class Dialog:
                                               "VvfpMultiAnswerGameVtable":
                                                   harness._method(harness._story_game_vtable, 8),
                                               "VvfpOnePopupRows": harness._method(harness._op_rows, 8),
-                                              "VvfpOnePopupPick": harness._method(harness._op_pick, 8)}
+                                              "VvfpOnePopupPick": harness._method(harness._op_pick, 8),
+                                              "VvfpStoryPopupFullText": harness._method(harness._full_text, 4)}
                 ret(harness._story_methods.get(proc, 0), 8)
                 return
             if name == "GetSystemTimeAsFileTime":
@@ -404,6 +409,37 @@ class Dialog:
         if op.get("on_pick"):
             op["on_pick"](args[1])
         return 1
+
+    # -- a long island-event text of "VVFP Story Upgrades.dll" (story_objects.inc ce_popup_text) -------------------
+    # full_text = the whole text: VvfpStoryPopupFullText(shown) answers its copy at full_va when `shown` is its first
+    # 1,999 bytes (a strict prefix, cut where the dialog cuts it), as the companion does; else 0.  Every ask is kept.
+    def set_full_text(self, text: bytes | None) -> None:
+        self.full_text = text
+        self.full_va = self._cstr(text) if text is not None else 0
+        self.full_asks = []
+
+    def _full_text(self, args):
+        self.full_asks.append(args[0])
+        if self.full_text is None or not args[0]:
+            return 0
+        shown = bytes(self.mu.mem_read(args[0], 2100)).split(b"\0")[0]
+        if len(shown) == 1999 and len(self.full_text) > len(shown) and self.full_text.startswith(shown):
+            return self.full_va
+        return 0
+
+    def record_justify(self) -> list:
+        """Every call of the game's justified paragraph from now on: (text, measure_only), in order."""
+        if not hasattr(self, "justified"):
+            self.justified: list[tuple[int, int]] = []
+
+            def _called(mu, address, size, user):
+                sp = mu.reg_read(UC_X86_REG_ESP)
+                args = struct.unpack("<7I", mu.mem_read(sp + 4, 28))
+                self.justified.append((args[0], args[6]))
+
+            self.mu.hook_add(UC_HOOK_CODE, _called, begin=self.g["justify"], end=self.g["justify"])
+        self.justified.clear()
+        return self.justified
 
     def view_rows(self) -> dict:
         """The one-popup rows the companion drew last: count, first row's x and top, width, height, step."""

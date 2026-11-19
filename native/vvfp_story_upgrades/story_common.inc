@@ -370,4 +370,8 @@ static int story_log_conception(int game, const void *records, const void *mothe
 /* ---- Text into a game string table entry -------------------------------- */
 
 static char ce_title_text[CE_TITLE_BYTES];
-static char ce_body_text[2048];
+/* A popup's whole text: with Scrolling Popups one popup holds up to 8,000 counted bytes in every game (story_graph.inc
+   CG_TEXT_MAX_ONE), with its title, label line and refusal lines on top.  The later three games' dialog copies only
+   its first 1,999 bytes (story_objects.inc ce_popup_text); Scrolling Popups draws the whole (VvfpStoryPopupFullText). */
+#define CE_POPUP_TEXT_BYTES 10240
+static char ce_body_text[CE_POPUP_TEXT_BYTES];

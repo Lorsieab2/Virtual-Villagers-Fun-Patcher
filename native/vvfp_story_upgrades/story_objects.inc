@@ -37,6 +37,27 @@ static story_string ce_strings[2];
 static unsigned int ce_vtable[17];       /* [0] = the source's RTTI locator */
 static story_event_object ce_object;
 
+/* THE DIALOG'S 2,000 BYTES.  The dialog's text routine (The Secret City 0x4185A0, The Tree of Life 0x416F60, New
+   Believers 0x417700) formats the text of a string id into its own field (+0x58, 2,000 bytes) with the game's
+   formatter (0x42F1D0 / 0x44D410 / 0x450710, `push 0x7d0`), and the constructor's plain path (0x4197A0 / 0x417C49 /
+   0x4184D0) copies it raw; both end in the C runtime's strncat(field, text, 2000), which writes 2,000 bytes AND the
+   NUL after them -- one byte past the field -- for a text of 2,000 bytes or more.  So the string-table entry is
+   never given more than 1,999 bytes: a longer text is entered as its first 1,999 (ce_popup_text), which the dialog
+   copies whole, and Scrolling Popups asks for the rest (VvfpStoryPopupFullText) to draw and measure the whole text.
+   The text never holds '{' (the game's placeholders): the names are filled in already, so the copy is the text's
+   own first 1,999 bytes. */
+#define CE_SHOWN_BYTES 2000
+static char ce_shown_text[CE_SHOWN_BYTES];
+
+/* What the string-table entry carries for `text`: itself, or its first 1,999 bytes. */
+static const char *ce_popup_text(const char *text) {
+    if (lstrlenA(text) < CE_SHOWN_BYTES) {
+        return text;
+    }
+    lstrcpynA(ce_shown_text, text, CE_SHOWN_BYTES);
+    return ce_shown_text;
+}
+
 static void __fastcall ce_object_nothing(void *self, void *unused_edx) {
     (void)self;
     (void)unused_edx;
@@ -97,9 +118,10 @@ static void *ce_deliver_object(int game, unsigned int string_table, int title_id
     if (!ce_install_strings(string_table, title_id, body_id, replace_existing)) {
         return NULL;
     }
-    if (!ce_deliver(game, ce_body_text, 2000)) {
+    if (!ce_deliver(game, ce_body_text, sizeof ce_body_text)) {
         return NULL;
     }
+    ce_strings[1].text = ce_popup_text(ce_body_text);
     lstrcpynA(ce_title_text, ce_armed_event.title, sizeof ce_title_text);
     return (void *)1;
 }
@@ -136,7 +158,7 @@ static void *ce_deliver_object(int game, unsigned int string_table, int title_id
 
 static char choice_labels[MA_MAX_ANSWERS][96];   /* a format 6 label: 95 bytes (story_graph.inc CG_LABEL_V6) */
 static char choice_tallest[MA_MAX_ANSWERS][2000];
-static char choice_result[2000];
+static char choice_result[CE_POPUP_TEXT_BYTES];
 static int choice_answered;
 static int choice_game;
 static int choice_answers;               /* 2, or a branching event's question's 3 to 7 (format 4: 3 or 4) */
@@ -156,7 +178,7 @@ static int cs_op;                        /* ... a one-popup event (vvfp_multi_an
 static int __fastcall choice_object_question(void *self, void *unused_edx) {
     (void)self;
     (void)unused_edx;
-    ce_strings[1].text = ce_body_text;
+    ce_strings[1].text = ce_popup_text(ce_body_text);
     return ce_strings[1].id;
 }
 
@@ -196,7 +218,7 @@ static int __fastcall choice_object_result(void *self, void *unused_edx, int cho
     (void)self;
     (void)unused_edx;
     if (cs_op) {
-        ce_strings[1].text = ce_body_text;     /* one popup: its panel is sized for the text shown first */
+        ce_strings[1].text = ce_popup_text(ce_body_text);   /* one popup: its panel is sized for the text shown first */
         return ce_strings[1].id;
     }
     if (!choice_answered && choice_answers > 2) {
@@ -210,7 +232,7 @@ static int __fastcall choice_object_result(void *self, void *unused_edx, int cho
         ce_strings[1].text = text;
         return ce_strings[1].id;
     }
-    ce_strings[1].text = choice_answered ? choice_result : choice_tallest[choice != 0];
+    ce_strings[1].text = ce_popup_text(choice_answered ? choice_result : choice_tallest[choice != 0]);
     return ce_strings[1].id;
 }
 
@@ -259,9 +281,10 @@ static int cs_op_rows(void *dialog, op_rows *out) {
     return 1;
 }
 
-/* The text just made (choice_result) shown: the dialog's own field, and the title in force on it. */
+/* The text just made (choice_result) shown: the dialog's own field (its first 1,999 bytes: Scrolling Popups draws the
+   whole, VvfpStoryPopupFullText), and the title in force on it. */
 static void cs_op_show(void *dialog) {
-    lstrcpynA((char *)dialog + 0x58, choice_result, 2000);
+    lstrcpynA((char *)dialog + 0x58, choice_result, CE_SHOWN_BYTES);
     lstrcpynA(ce_title_text, cg_op_title(), sizeof ce_title_text);
 }
 
@@ -287,7 +310,7 @@ static const ma_op_client CS_OP_CLIENT = { cs_op_rows, cs_op_pick, cs_op_ok };
 /* ---- The shared multi-answer popup's client ---- */
 
 static int cs_text_id(const char *text) {
-    ce_strings[1].text = text;
+    ce_strings[1].text = ce_popup_text(text);
     return ce_strings[1].id;
 }
 
@@ -334,11 +357,34 @@ static void __cdecl cs_after_ctor(void *dialog) {
             words[k] = choice_labels[k];
         }
         if (ma_attach(choice_game, &CS_CLIENT, dialog, choice_answers, words)) {
-            ce_strings[1].text = ce_body_text;
+            ce_strings[1].text = ce_popup_text(ce_body_text);
             ((ma_v1_fn)(uintptr_t)g->set_text)(dialog, NULL, ce_strings[1].id);
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
+}
+
+/* For Scrolling Popups: the whole text of the island-event popup whose dialog field holds `shown` -- the text it was
+   made from when `shown` is that text's first 1,999 bytes (a strict prefix, cut where the dialog cuts it:
+   ce_popup_text, cs_op_show); NULL for any other text (the field is the whole text, or not ours). */
+__declspec(dllexport) const char *__stdcall VvfpStoryPopupFullText(const char *shown) {
+    const char *const whole[2] = { ce_body_text, choice_result };
+    const char *found = NULL;
+    int k;
+    if (shown == NULL) {
+        return NULL;
+    }
+    __try {
+        int n = lstrlenA(shown);
+        for (k = 0; k < 2 && found == NULL && n == CE_SHOWN_BYTES - 1; ++k) {
+            if (lstrlenA(whole[k]) > n && memcmp(whole[k], shown, (size_t)n) == 0) {
+                found = whole[k];
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        found = NULL;
+    }
+    return found;
 }
 
 /* The room the extra buttons of the question on screen take, for Scrolling Popups: 0 for any other popup. */
@@ -394,9 +440,10 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     if (!ce_install_strings(string_table, title_id, body_id, replace_existing)) {
         return NULL;
     }
-    if (!ce_choice_begin(game, ce_body_text, 2000)) {
+    if (!ce_choice_begin(game, ce_body_text, sizeof ce_body_text)) {
         return NULL;
     }
+    ce_strings[1].text = ce_popup_text(ce_body_text);
     if (cg_op_begun_take(game)) {
         /* One popup: the whole event in the presenter's dialog (cs_after_ctor), its choices drawn by Scrolling
            Popups; nothing to size for but the text shown first. */

@@ -720,7 +720,7 @@ def fit_meter(g: dict, nid: str, scrolling: bool) -> dict[int, Fit | None]:
                         continue
                     if scrolling:
                         used = len(pop.worst.encode("ascii", "replace"))
-                        fit = Fit(used, cg.POPUP_TEXT_MAX, "characters", used > cg.POPUP_TEXT_MAX)
+                        fit = Fit(used, cg.ONE_POPUP_TEXT_MAX, "characters", used > cg.ONE_POPUP_TEXT_MAX)
                     else:
                         layout = getattr(game, pop.layout)
                         pages, why = cg.paginate(layout, cg.widest_title(g, pop.titles, layout, game), pop.worst,

@@ -135,8 +135,10 @@
 #define CG_MAX_PAGES 24
 #define CG_NAME_BYTES 32
 #define CG_TEXT_MAX 1990                /* a popup's (and a page's) bytes: the later games build theirs in 2,000 */
-#define CG_TEXT_MAX_12 8000             /* ... A New Home's and The Lost Children's ONE popup (their dialogs hold 9,999;
-                                           src/vv_cie_graph.py ONE_POPUP_TEXT_MAX_12) */
+#define CG_TEXT_MAX_ONE 8000            /* ... ONE popup's, with Scrolling Popups, in every game: A New Home's and The Lost
+                                           Children's dialogs hold 9,999; the later games' dialog holds the first 1,999
+                                           and Scrolling Popups draws the whole (story_objects.inc ce_popup_text,
+                                           VvfpStoryPopupFullText); src/vv_cie_graph.py ONE_POPUP_TEXT_MAX */
 #define CG_RAW_BYTES 8192
 #define CG_PAGE_BYTES 8200
 #define CG_DISPLAY_BYTES 49152
@@ -3894,7 +3896,7 @@ typedef struct {
 
 /* Whether "VVFP Scrolling Popups.dll" is installed in the game (VvfpScrollingPopupsInstalled: every one of its sites,
    which include every game's island-event popups): then a popup scrolls, so its text is never split into pages --
-   each popup is ONE page, as tall as its text, limited only by the bytes the game's popup holds (CG_TEXT_MAX), as
+   each popup is ONE page, as tall as its text, limited only by the bytes one popup holds (cg_text_max), as
    the patcher's own fit check counts it with scrolling (src/vv_cie_graph.py).  Without it the text is paged to fit
    the screen, as before. */
 static int cg_scrolls(void) {
@@ -3922,10 +3924,11 @@ static int cg_one_popup(void) {
 
 static int ce_game_of(const ce_adapter *a);
 
-/* The bytes one popup's text may hold: A New Home's and The Lost Children's encounter dialog holds 9,999, the later
-   games' popups 2,000. */
+/* The bytes one popup's text may hold: with Scrolling Popups (one popup) 8,000 in every game -- A New Home's and The
+   Lost Children's encounter dialog holds 9,999; the later games' dialog holds 2,000, of which Scrolling Popups draws
+   the whole text all the same (story_objects.inc) --, without it a page of the later games' 2,000. */
 static int cg_text_max(const ce_adapter *a) {
-    return cg_one_popup() && ce_game_of(a) >= 1 && ce_game_of(a) <= 2 ? CG_TEXT_MAX_12 : CG_TEXT_MAX;
+    return cg_one_popup() && ce_game_of(a) >= 1 ? CG_TEXT_MAX_ONE : CG_TEXT_MAX;
 }
 
 /* `text` (raw: names not filled) fits page `pages->count` at its widest: its bytes, and -- unless the popup

@@ -350,7 +350,7 @@ class Process:
 
     def _api_lstrcpynA(self):
         out, source, size = self.arg(0), self.arg(1), self.arg(2)
-        raw = self.cstring(source).encode("latin-1")[: max(size - 1, 0)]
+        raw = self.cstring(source, max(size - 1, 0)).encode("latin-1")[: max(size - 1, 0)]
         if size > 0:
             self.write(out, raw + b"\0")
         return out, 12
@@ -360,12 +360,12 @@ class Process:
         return self.arg(0), 8
 
     def _api_lstrcatA(self):
-        joined = self.cstring(self.arg(0)) + self.cstring(self.arg(1))
+        joined = self.cstring(self.arg(0), 1 << 20) + self.cstring(self.arg(1), 1 << 20)
         self.write(self.arg(0), joined.encode("latin-1") + b"\0")
         return self.arg(0), 8
 
     def _api_lstrlenA(self):
-        return len(self.cstring(self.arg(0))), 4
+        return len(self.cstring(self.arg(0), 1 << 20)), 4
 
     # The wide folder helpers (native/shared, e.g. the save-folder length checks) measure a path.
     def _api_lstrlenW(self):

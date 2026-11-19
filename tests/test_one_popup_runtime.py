@@ -317,19 +317,34 @@ class ThePatchersMirror(unittest.TestCase):
             self.assertFalse(pops[0].worst.startswith("Open door"), "the first text has none")
 
     def test_the_label_line_counts_in_the_bytes(self):
+        # The answer's text: four parts of 1,980 bytes and a short one, one popup (every game holds 8,000 with Scrolling Popups).
+        part = ("tech " * 400)[:1979].strip() + "."
+        rest = 20
+
         def graph(label):
-            body = ("tech " * 400)[:cg.POPUP_TEXT_MAX - 10].strip() + "."
+            body = ("tech " * 400)[:rest - 1].strip() + "."
             return {"format": "vvfp-cie-graph", "version": 6, "title": "Long", "games": [3],
                     "roles": {}, "start": "q", "nodes": {
                         "q": {"type": "question", "text": "Pick one.", "choices": [
                             {"label": label, "next": "a"}, {"label": "B", "next": "b"}]},
-                        "a": {"text": body}, "b": {"text": "Short."}}}
+                        "a": {"text": part, "children": [{"next": "a2"}]},
+                        "a2": {"text": part, "children": [{"next": "a3"}]},
+                        "a3": {"text": part, "children": [{"next": "a4"}]},
+                        "a4": {"text": part, "children": [{"next": "a5"}]},
+                        "a5": {"text": body}, "b": {"text": "Short."}}}
+        def longest(label):
+            g, _problems = cg.validate(graph(label), True)
+            return max(len(pop.worst) for ctx in cg.contexts(g) for h in cg.walk(g, ctx)
+                       for pop in cg.one_popup(h.popups))
+
+        rest += cg.ONE_POPUP_TEXT_MAX - 6 - longest("A")      # the answer's popup a few bytes under the limit
+        self.assertTrue(cg.ONE_POPUP_TEXT_MAX - 10 < longest("A") <= cg.ONE_POPUP_TEXT_MAX, longest("A"))
         _g, problems = cg.validate(graph("A"), True)
         self.assertEqual([x for x in problems if "bytes" in x], [], "label and blank line still fit")
         _g, problems = cg.validate(graph("Open the long door"), True)
-        self.assertTrue(any("longer than 1990 bytes" in x for x in problems), problems)
+        self.assertTrue(any("longer than 8000 bytes" in x for x in problems), problems)
         _g, problems = cg.validate(graph("Open the long door"), False)
-        self.assertFalse(any("longer than 1990 bytes" in x for x in problems), "without Scrolling Popups: no label")
+        self.assertFalse(any("longer than 8000 bytes" in x for x in problems), "without Scrolling Popups: no label")
 
 
 if __name__ == "__main__":
