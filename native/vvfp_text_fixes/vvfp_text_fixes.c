@@ -30,6 +30,12 @@
      English, or the caption's own translation when the player's language has one (VVFP Translations.dll, row
      vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0); any other text (another patch's) is kept.  Picking is the
      game's own.  Installed with the loader's site, all or none.
+   * New Believers' lab equipment line (the owner, 2026-11-18): a click on the ground at place 35 writes
+     "<n> of 12 pieces of lab equipment collected" (0x443AC0: sprintf of the format "%d%s12 %s" at 0x49A350, pushed
+     at 0x443BB0, with strings 1183 " of " and 1184), but n counts all 24 pieces (0x413F50(0x50 ...)), so players
+     read "13 of 12".  The Collections screen formats "%d%s24" (0x49A0E4).  That one push gets this companion's
+     "%d%s24 %s" when the format there is exactly the stock "%d%s12 %s"; the words stay the game's string rows (and
+     their translations).  Installed with the loader's site, all or none.
 
    SAFETY.  The sites and the instructions around them must hold the stock bytes, or nothing is written (the shared
    all-or-none writer, native/shared/install_sites.h); a table row is written only when its pointer still points at
@@ -86,9 +92,21 @@ static const unsigned char CAPTION_STOCK[9] = { 0x6A, 0x27, 0x50, 0x8D, 0x86, 0x
 static const unsigned char CAPTION_ON_STOCK[5] = { 0x50, 0xE8, 0xDB, 0x07, 0x02 };   /* push eax / call 0x4724E0 */
 static const unsigned char CAPTION_LOOKUP_STOCK[5] = { 0x68, 0x80, 0x02, 0x00, 0x00 };   /* push 0x280 */
 
+/* New Believers' lab equipment line (see the top): the ground click's format push and the stock format. */
+#define LAB_SITE 0x443BB0u
+#define LAB_FORMAT_VA 0x49A350u
+#define LAB_OLD "%d%s12 %s"
+static const char LAB_NEW[] = "%d%s24 %s";
+/* push eax / lea ecx, [esp+0x18] / [push 0x49A350] / push ecx / call 0x47C046 */
+static const unsigned char LAB_AROUND[17] = { 0x50, 0x8D, 0x4C, 0x24, 0x18, 0x68, 0x50, 0xA3, 0x49, 0x00, 0x51,
+                                              0xE8, 0x8B, 0x84, 0x03, 0x00, 0x83 };
+#define LAB_BEFORE 5
+
 static int g_game;
 static int g_installed;
 static int g_caption_installed;
+static int g_lab_installed;
+static unsigned int g_lab_format;       /* the operand the site gets: LAB_NEW's address */
 static int g_applied;                   /* texts this companion replaced (for the tests' emulation) */
 static unsigned int g_cookie;
 static char *g_copy[TF_FIX_COUNT];      /* each fixed text, in writable memory, for the whole session */
@@ -340,6 +358,11 @@ int __stdcall VvfpTextFixesCaptionInstalled(void) {
     return g_caption_installed;
 }
 
+/* 1 when New Believers' lab equipment line site is installed (for the tests' emulation), else 0. */
+int __stdcall VvfpTextFixesLabInstalled(void) {
+    return g_lab_installed;
+}
+
 /* How many texts this companion has replaced so far (for the tests' emulation). */
 int __stdcall VvfpTextFixesApplied(void) {
     return g_applied;
@@ -350,7 +373,7 @@ int __stdcall VvfpTextFixesApplied(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     const tf_game *g;
     vvfp_site_write site[2];
-    int n = 1;
+    int n = 1, lab = 0;
     (void)shipped;
     if (g_installed || game < 1 || game > 5) {
         return;
@@ -382,12 +405,25 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
                          (const void *)tf_caption_stub);
         n = 2;
     }
+    if (game == 5) {
+        /* the ground click's format: the push and the code round it, and the stock format text itself */
+        if (!vvfp_site_holds(LAB_SITE - LAB_BEFORE, LAB_AROUND, sizeof LAB_AROUND)
+            || !tf_same((const char *)(UINT_PTR)LAB_FORMAT_VA, LAB_OLD)) {
+            return;
+        }
+        g_lab_format = (unsigned int)(UINT_PTR)LAB_NEW;
+        vvfp_site_bytes(&site[1], LAB_SITE + 1u, 4, LAB_AROUND + LAB_BEFORE + 1,
+                        (const unsigned char *)&g_lab_format);
+        n = 2;
+        lab = 1;
+    }
     if (!vvfp_install_sites(site, n)) {
         g_game = 0;
         return;
     }
     g_installed = 1;
-    g_caption_installed = (n == 2);
+    g_caption_installed = (game == 4 && n == 2);
+    g_lab_installed = lab;
     /* the string table was already made (never at game start): fix it now */
     if (tf_readable((const void *)(UINT_PTR)g->singleton, 4) && *(const unsigned int *)(UINT_PTR)g->singleton != 0) {
         tf_after_loader_c();
