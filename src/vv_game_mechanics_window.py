@@ -57,6 +57,8 @@ AUTO_REFRESH_SECONDS = 30
 AUTO_REFRESH = "Auto-refresh every 30 seconds"
 RUNNING_RED = LABEL_RED
 SETTINGS_KEY = "game_mechanics_exes"
+# Minimum Detail (the owner, 2026-11-17; gm.minimum): off by default, kept in the patcher's own settings like the exes.
+MINIMUM_KEY = "game_mechanics_minimum"
 
 clock = time.time               # real now (Unix seconds); the tests replace it
 PROCESSES = None                # a vv_save_backup.ProcessController; None: Windows' own list
@@ -73,25 +75,31 @@ def _ask_exe(parent, folder: Path, current: Path | None) -> str:
 ask_exe = _ask_exe
 
 
+def shown(facts: list[gm.Fact], minimum: bool) -> list[gm.Fact]:
+    """The facts as the page shows them: all, or only the vital statistics and numbers (gm.minimum)."""
+    return gm.minimum(facts) if minimum else facts
+
+
 def page(folder: Path, game: int, slot: int, game_folders: list[Path], exe: Path | None = None,
-         now: float | None = None) -> tuple[str, list[gm.Countdown]]:
-    """The page for one save slot and its countdowns; a save or file it cannot read is said on the page."""
+         now: float | None = None, minimum: bool = False) -> tuple[str, list[gm.Countdown]]:
+    """The page for one save slot and its countdowns; a save or file it cannot read is said on the page.
+    `minimum`: Minimum Detail (gm.minimum)."""
     now = clock() if now is None else now
     try:
-        return gm.render_live(gm.read(folder, game, slot, game_folders, now=now, exe=exe), now)
+        return gm.render_live(shown(gm.read(folder, game, slot, game_folders, now=now, exe=exe), minimum), now)
     except Exception as exc:  # noqa: BLE001 -- shown, never fatal: the window only reads
         return f"The game mechanics could not be read ({exc}). Nothing was changed.", []
 
 
-def page_text(folder: Path, game: int, slot: int, game_folders: list[Path]) -> str:
+def page_text(folder: Path, game: int, slot: int, game_folders: list[Path], minimum: bool = False) -> str:
     """The page for one save slot as text."""
-    return page(folder, game, slot, game_folders)[0]
+    return page(folder, game, slot, game_folders, minimum=minimum)[0]
 
 
-def general_text(game: int) -> str:
+def general_text(game: int, minimum: bool = False) -> str:
     """A game's general rules, when no save of it is found."""
     try:
-        return gm.GENERAL_NOTE + "\n\n" + gm.render(gm.general(game, clock()))
+        return gm.GENERAL_NOTE + "\n\n" + gm.render(shown(gm.general(game, clock()), minimum))
     except Exception as exc:  # noqa: BLE001 -- shown, never fatal
         return f"The game mechanics could not be shown ({exc})."
 
@@ -110,6 +118,16 @@ def remember_exe(app, folder: Path, exe: Path) -> None:
         store = {}
         setattr(app, SETTINGS_KEY, store)
     store[str(folder)] = str(exe)
+    _save(app)
+
+
+def remember_minimum(app, on: bool) -> None:
+    """Keep the Minimum Detail choice in the patcher's own settings file."""
+    setattr(app, MINIMUM_KEY, bool(on))
+    _save(app)
+
+
+def _save(app) -> None:
     save = getattr(app, "_save_settings", None)
     if callable(save):
         try:
@@ -187,6 +205,7 @@ def open_game_mechanics(app, build) -> tk.Toplevel | None:
     jobs: dict[str, str] = {}               # every callback the window has scheduled, by name
     live = {"last_refresh": clock(), "closed": False}
     auto_var = tk.BooleanVar(master=window, value=False)
+    window.mechanics_minimum = tk.BooleanVar(master=window, value=getattr(app, MINIMUM_KEY, False) is True)
     window.mechanics_tabs = tabs            # for the tests
     window.mechanics_notebook = notebook
     window.mechanics_parts = (top, intro, buttons, label_note)
@@ -288,6 +307,24 @@ def open_game_mechanics(app, build) -> tk.Toplevel | None:
     auto_button = ttk.Checkbutton(buttons, text=AUTO_REFRESH, variable=auto_var, command=auto_changed)
     auto_button.pack(side="left", padx=(8, 0))
     window.mechanics_auto_button = auto_button
+
+    def minimum_changed() -> None:
+        """Minimum Detail ticked or unticked: kept in the settings; the tab shown again, the others when next shown."""
+        remember_minimum(app, window.mechanics_minimum.get())
+        shown_tab = current()
+        for number, record in tabs.items():
+            if number != shown_tab and record["loaded"]:
+                record["stale"] = True
+        record = tabs[shown_tab]
+        if record["loaded"]:
+            record["show"]()
+            record["page"].yview_moveto(0)
+
+    import vv_translations
+    minimum_button = ttk.Checkbutton(buttons, text=vv_translations.display_text(first, gm.MINIMUM_DETAIL),
+                                     variable=window.mechanics_minimum, command=minimum_changed)
+    minimum_button.pack(side="left", padx=(8, 0))
+    window.mechanics_minimum_button = minimum_button
     ttk.Button(buttons, text="Close", command=close).pack(side="right")
     window.mechanics_refresh = refresh
     window.mechanics_tick = tick
@@ -354,8 +391,9 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
         spans: list[gm.Countdown] = []
         save = None
         exe = chosen_exe(app, where) if where is not None else None
+        minimum = window.mechanics_minimum.get()
         if not state["folders"]:
-            text = general_text(saves.number)
+            text = general_text(saves.number, minimum)
             status.configure(text="No save folder was found for this game: these are its general rules.",
                              foreground="")
         elif info is None:
@@ -363,7 +401,7 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
             status.configure(text="", foreground="")
         else:
             places = getattr(app, "_game_folders_for", None)
-            text, spans = page(where, saves.number, info.slot, places(where) if places else [], exe)
+            text, spans = page(where, saves.number, info.slot, places(where) if places else [], exe, minimum=minimum)
             save = gm.save_path(where, saves.number, info.slot)
         if save is not None:
             running = game_running(where, exe)
