@@ -194,6 +194,19 @@ class EveryCouplePregnancyIsFlagged(unittest.TestCase):
                     flagged += self.check([j], f"{p.name} {piece.id}")[0]
         self.assertGreater(flagged, 0)
 
+    def test_b260_and_b336_one_of_the_couple_carries(self) -> None:
+        """The owner (2026-11-18): the two hand-mapped couples are flagged, and nothing of theirs says the carrier
+        is born female (the shown pages name no carrier; the ledger says one of the couple carries)."""
+        for name, n in (("b260_warm_stone", 3), ("b336_lazy_river", 1)):
+            doc = json.loads((COLLECTION / "balance" / "bal" / f"{name}.json").read_text(encoding="utf-8"))
+            couples = [e for e in births(doc) if couple(e)]
+            self.assertEqual(len(couples), n, name)
+            self.assertTrue(all(e.get("partner_may_carry") is True for e in couples), name)
+            self.assertNotIn("born female", json.dumps(doc), name)
+            self.assertIn("one of the couple carries the baby", json.dumps(doc["collection"]), name)
+        go = (ROOT / "scripts" / "go_events" / "gen_go.py").read_text(encoding="utf-8")
+        self.assertNotIn("cast born female", go)
+
     def test_the_owner_layout_rule(self) -> None:
         """vv_owner_layout (the GO files and the Player Events importer's owner layout): one EFFECT phrase each."""
         def fx(phrase: str) -> dict:
