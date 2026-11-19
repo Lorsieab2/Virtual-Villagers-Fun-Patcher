@@ -1214,8 +1214,9 @@ class ManifestTests(unittest.TestCase):
         # Upgrades companion reads; 81 with More Frequent Island Events (vv2_more_frequent_island_events), no
         # executable byte -- its companion writes the trigger's three wait draws at run time; 82-86 the five
         # 0.1x-10x sliders (vv2_collectible_frequency, _food_gain, _tech_gain, _skill_success, _age_speed),
-        # no executable byte -- each companion writes its sites at run time.
-        self.assertEqual(len(feature_ids), 86)
+        # no executable byte -- each companion writes its sites at run time; 87 with Every Island Event Can Happen
+        # (vv2_every_island_event_can_happen), two technology tests and two raises re-encoded in place.
+        self.assertEqual(len(feature_ids), 87)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4162,6 +4163,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_fix_vanilla_bugs",
                 "vv2_cause_of_death",
                 "vv2_restore_missing_island_events",
+                "vv2_every_island_event_can_happen",
                 "vv2_last_names",
                 "vv2_details_full_names",
                 "vv2_island_events",

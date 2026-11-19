@@ -183,6 +183,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_age_speed")
                   # One-Time Collectibles Appear Again (the owner, 2026-11-17: on in Owner's Defaults only).
                   or p.endswith("_one_time_collectibles_again")
+                  # Every Island Event Can Happen (the owner, 2026-11-17: off by default, on in Owner's Defaults).
+                  or p.endswith("_every_island_event_can_happen")
                   # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
                   # Defaults only; the 28 content filters and No Safeguards for Island Events off everywhere.
                   or p.endswith("_island_event_content_notes")

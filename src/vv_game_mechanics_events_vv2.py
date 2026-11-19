@@ -37,7 +37,7 @@ record in index order that is present, alive, older than 280 age units and doing
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line, share
+from vv_game_mechanics_events import Event, Line, share, with_every_event
 
 RESTORE = "vv2_restore_missing_island_events"
 FIX = "vv2_fix_vanilla_bugs"
@@ -339,6 +339,16 @@ EXTRA = (
              "instead.", only_with=GONG_FIX),
     )),
 )
+
+# Every Island Event Can Happen (the owner, 2026-11-17): the technology tests 0x41F5C5 / 0x41F659 pass, the Gold
+# Coin's raise stops at 3 (0x420524) and "Keep it" adds 1 up to 3 (0x421E74), in
+# scripts/build_every_island_event_can_happen_features.py.
+EVENTS = with_every_event(2, EVENTS, {
+    "The Ancient Gold Coin": "it can happen at any Culture level, 3 included; \"Use it to adorn clothing\" raises "
+                             "Culture 1 level, up to 3 (at 3 the level stays 3).",
+    "The Spyglass": "it can happen at any Exploration level, 3 included; \"Keep it\" raises Exploration 1 level, up "
+                    "to 3, instead of setting it to 2 (at 3 the level stays 3).",
+})
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
 # The Climb (the owner, 2026-11-12, The Lost Children only): the same companion.

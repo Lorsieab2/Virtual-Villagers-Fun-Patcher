@@ -681,6 +681,15 @@
       ]
     },
     {
+      "ids": ["vv1_every_island_event_can_happen", "vv2_every_island_event_can_happen", "vv3_every_island_event_can_happen", "vv5_every_island_event_can_happen"],
+      "guide": [
+        "Island events that used to stop once a technology reached a certain level keep coming at every level, even with everything researched.",
+        "An event that raises a technology raises it by 1 level, up to 3. At level 3 the event still comes and shows its text; the level stays at 3.",
+        "Nothing else about the events changes: they still need their villagers, puzzles, food and the rest, and they come as often as before.",
+        "With Story / Cheat Upgrades, Pick Island Event can choose them at every level too."
+      ]
+    },
+    {
       "ids": ["vv1_show_parents"],
       "guide": [
         "Villagers born from now on remember their mother and father.",
@@ -1388,7 +1397,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full, More Frequent Island Events,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited, The Golden Child May Be Born Female (50:50),",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "both Island Events Scale patches, One-Time Collectibles Appear Again, the 0.1-10x sliders and the island event controls.",
+        "Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again, the 0.1-10x sliders and the island event controls.",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },

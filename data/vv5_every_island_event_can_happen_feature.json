@@ -1,0 +1,54 @@
+{
+  "id": "vv5_every_island_event_can_happen",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Every Island Event Can Happen",
+  "description": "You're Doing It Wrong! (it needed Science below level 2), The Advanced Artifacts (Science exactly 2) and The Migrating Fruit Bats (Food Mastery below level 2) can now happen at any technology level, even with everything researched. \"Teach them\" raises Science by 1 level up to 3 (it stopped at 2); the other two raise theirs by 1 level up to 3 as before; at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**",
+  "output_tag": "Every Island Event",
+  "behavior_changes": [
+    "You're Doing It Wrong! qualifies at every Science level; \"Teach them\": Science + 1 level, up to 3 (was: only below 2).",
+    "The Advanced Artifacts qualifies at every Science level; its raise is the game's own (+1, never past 3).",
+    "The Migrating Fruit Bats qualifies at every Food Mastery level; its raise is the game's own (+1, never past 3)."
+  ],
+  "explicit_non_changes": [
+    "Only technology-level requirements are dropped; every other requirement of every event is the game's own.",
+    "The time between island events, the family weights, the re-rolls and every event's text are unchanged.",
+    "No save data changes."
+  ],
+  "evidence_status": "static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x15FD8",
+      "before": "83F802",
+      "after": "83F87F",
+      "purpose": "You're Doing It Wrong!, condition 0x415F60: Science below 2 (cmp eax, 2 / jge no) -> cmp eax, 127"
+    },
+    {
+      "offset": "0x1608D",
+      "before": "83F802",
+      "after": "83F803",
+      "purpose": "You're Doing It Wrong!, \"Teach them\": Science + 1 only below 2 -> only below 3 (the top; 0x423610 stops at 3 too)"
+    },
+    {
+      "offset": "0x1643F",
+      "before": "83F802",
+      "after": "83F880",
+      "purpose": "The Advanced Artifacts, condition 0x416430: Science 2 or more (cmp eax, 2 / jge) -> cmp eax, -128"
+    },
+    {
+      "offset": "0x16496",
+      "before": "83F803",
+      "after": "83F87F",
+      "purpose": "The Advanced Artifacts: Science below 3 (cmp eax, 3 / setl) -> cmp eax, 127 (its raise 0x423610 stops at 3)"
+    },
+    {
+      "offset": "0x16733",
+      "before": "83F802",
+      "after": "83F87F",
+      "purpose": "The Migrating Fruit Bats, condition 0x4166F0: Food Mastery below 2 (cmp eax, 2 / setl) -> cmp eax, 127 (its raise 0x423610 stops at 3)"
+    }
+  ]
+}

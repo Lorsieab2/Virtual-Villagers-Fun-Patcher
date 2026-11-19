@@ -1,8 +1,33 @@
 EVERY ISLAND EVENT CAN HAPPEN - REQUIREMENTS TABLE (v1.35.97)
 =============================================================
 
-Research only. Nothing is implemented. Planned patch: "Every Island Event Can Happen" (working name),
-its own patch, all 5 games, ON in Owner's Defaults.
+IMPLEMENTED (2026-11-17) as "Every Island Event Can Happen" (vv1/vv2/vv3/vv5_every_island_event_can_happen;
+off by default, on in Owner's Defaults), by the owner's final decisions, which replace the classes below where
+they differ:
+  1. The ONLY requirements dropped are the technology-level gates.
+  2. Every event that raises a technology raises it by 1 up to 3 (the top in every game) instead of setting it.
+  3. Everything else stays stock, including Q2 (Locusts' Farming 2), Q9 (the Ghostly Dreams' Nature / Magic),
+     Q4, Q5, Q6, Q7, Q8, Q10-Q15; Q1 (the timer) and Q16 (never-happening events) are out of scope.
+What the rows change (scripts/build_every_island_event_can_happen_features.py has the stock code read):
+  A New Home       The Trapped Whale 0x41895B and The Visitor 0x41896F: the re-roll jge -> nops.  Raises unchanged
+                   (already +1 below 3: 0x4193F4, 0x41981B).
+  The Lost Children The Ancient Gold Coin 0x41F5C5 and The Spyglass 0x41F659: setl bl -> mov bl, 1.  Gold Coin
+                   raise 0x420524: cmp eax, 2 -> 3.  Spyglass "Keep it" 0x421E74..0x421E8E: Exploration = 2 ->
+                   +1 below 3 (cmp 3 / adc 0), then the resolve's shared exit 0x422256 (Q3 answered by +1).
+  The Secret City  Beans (taste or dye) / Tablet (laundry or decoration): 0x4157FB + 0x415817 skip the Science read
+                   (level 0 into the shared test; the safety patch's record check still runs).  Beans (brew)
+                   0x4159DC, Tablet (research) 0x415C69 (Alchemy) and 0x415C7F (Science), Medical Emergency 0x417215:
+                   the compare's immediate -> -128 / 127.  Raise 0x426FD0 unchanged (stops at 3).
+  The Tree of Life Nothing: no condition reads a level and every raise (0x41E1D0) stops at 3 -- no row.
+  New Believers    You're Doing It Wrong! 0x415FD8, The Advanced Artifacts 0x41643F / 0x416496, The Migrating Fruit
+                   Bats 0x416733: the compare's immediate -> -128 / 127.  "Teach them" 0x41608D: cmp eax, 2 -> 3
+                   (it raised Science only below 2).  Raise 0x423610 unchanged (stops at 3).
+With No Safeguards for Island Events: no byte is shared (its sites are the setcc/jcc after these compares, or
+other instructions), so both apply in either order; together they drop the union of their lists.  With Restore
+Missing Island Events (A New Home, The Lost Children): no shared byte and no shared event.  Pick Island Event (Story
+/ Cheat Upgrades) asks the row's bytes for its own A New Home / The Lost Children condition copy.
+
+The research text below is kept as it was written (before the decisions).
 
 The three classes (owner's rules)
   SAFETY       Kept, unless the separate "No Safeguards" patch is also on. Villager, population, room,

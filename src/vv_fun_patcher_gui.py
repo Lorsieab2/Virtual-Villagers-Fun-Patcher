@@ -388,6 +388,10 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + NEW_SLIDER_ROW_IDS
     # One-Time Collectibles Appear Again (The Secret City, The Tree of Life; the owner, 2026-11-17): likewise.
     + ONE_TIME_COLLECTIBLES_IDS
+    # Every Island Event Can Happen (A New Home, The Lost Children, The Secret City, New Believers; the owner,
+    # 2026-11-17): off by default, on in Owner's Defaults, which ticks it like every default-off patch it does not
+    # name.
+    + ["vv%d_every_island_event_can_happen" % game for game in (1, 2, 3, 5)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]

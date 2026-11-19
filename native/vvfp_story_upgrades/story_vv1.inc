@@ -269,6 +269,14 @@ static int vv1_restored_possible(unsigned char *world, unsigned int entry,
     return vv1_restored(entry, entry_bytes, stub, stub_bytes) && *(int *)(world + 0xA2EC) > 0;
 }
 
+/* Every Island Event Can Happen (vv1_every_island_event_can_happen) makes the Whale's and the Visitor's
+   technology re-rolls (jge 0x418930 at 0x41895B and 0x41896F) nops: with that row the game asks no level. */
+static const unsigned char VV1_EVERY_EVENT_NOPS[2] = { 0x90, 0x90 };
+
+static int vv1_every_event(unsigned int site) {
+    return mem_matches(site, VV1_EVERY_EVENT_NOPS, 2);
+}
+
 static int vv1_possible(const story_event *e) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
     unsigned char *records = *(unsigned char **)(uintptr_t)VV1_VILLAGERS_GLOBAL;
@@ -290,8 +298,8 @@ static int vv1_possible(const story_event *e) {
     }
     if (family == VV1_FAMILY_ENCOUNTER) {
         switch (index) {
-        case 0: return *(int *)(world + 0xA2BC) < 3;
-        case 4: return *(int *)(world + 0xA2D4) < 3;
+        case 0: return vv1_every_event(0x41895Bu) || *(int *)(world + 0xA2BC) < 3;
+        case 4: return vv1_every_event(0x41896Fu) || *(int *)(world + 0xA2D4) < 3;
         case 5:             /* The Furry Food: its class (0x4189A9 = 4) re-rolls in the base game */
             return vv1_restored_possible(world, 0x4189A0u, VV1_FURRY_ENTRY, 0x456670u, VV1_FURRY_STUB);
         case 7: case 9: return vv1_any_villager(records, -1, VV1_CHILD_AGE);

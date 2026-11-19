@@ -278,6 +278,10 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' zero-length line fix (no divide by zero in the rain): putting its
     # two sites (0x3EB9..0x3EC5, 0x45A4..0x45AE) back to stock and restoring the previous CheckSum
     # gives the previous digest in all three modes.
+    # Re-pinned for Every Island Event Can Happen (vv3_every_island_event_can_happen): without it the render equals
+    # the pins before it (B8B3AC4E..., B099D35A..., 8F040287...); with it 15/15/14 bytes differ, every one inside the
+    # row's own sites (0x157FB..0x157FF, 0x15817..0x1581A, 0x159DD, 0x15C6B, 0x15C81, 0x17217) or the PE CheckSum
+    # (0x160..0x163); the length is unchanged.
 }
 
 

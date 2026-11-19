@@ -653,6 +653,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 89; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv1mc` (executable code), `.vv1md` (writable data) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Every Island Event Can Happen (`vv1_every_island_event_can_happen`)
+
+The Trapped Whale (it needed Spirituality below level 3) and The Visitor (Medicine below level 3) can now happen at any technology level, even with everything researched. "Help free the whale" and "Allow him to gather samples" still raise that technology by 1 level, up to 3; at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Trapped Whale can be chosen by the encounter roll at every Spirituality level, 3 included. The Visitor can be chosen by the encounter roll at every Medicine level, 3 included. Their raises are the game's own: +1 level, never past 3.
+- Explicit non-changes/exclusions: Only technology-level requirements are dropped; every other requirement of every event is the game's own. The time between island events, the family weights, the re-rolls and every event's text are unchanged. A Plague of Locusts still needs Farming level 2 (its crops). No save data changes.
+- Dependencies: none
+- Evidence status: static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Faster Village-Scrolling (`vv1_faster_village_scrolling`)
 
 Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
@@ -1747,6 +1759,18 @@ In the stock game every Esteemed Elder's totem statue takes one of the village's
 - Evidence status: static exact-build verification of every site and emulator tests of each hook against the stock executable; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Every Island Event Can Happen (`vv2_every_island_event_can_happen`)
+
+The Ancient Gold Coin (it needed Culture below level 2) and The Spyglass (Exploration below level 2) can now happen at any technology level, even with everything researched. "Use it to adorn clothing" raises Culture by 1 level up to 3 (it stopped at 2), and "Keep it" raises Exploration by 1 level up to 3 instead of setting it to 2 (which lowered a village at level 3); at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Ancient Gold Coin can be chosen by the two-choice roll at every Culture level. The Spyglass can be chosen by the two-choice roll at every Exploration level. "Use it to adorn clothing": Culture + 1 level, up to 3 (was: only below 2). "Keep it": Exploration + 1 level, up to 3 (was: Exploration set to 2).
+- Explicit non-changes/exclusions: Only technology-level requirements are dropped; every other requirement of every event is the game's own. The time between island events, the family weights, the re-rolls and every event's text are unchanged. No save data changes.
+- Dependencies: none
+- Evidence status: static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Faster Village-Scrolling (`vv2_faster_village_scrolling`)
 
 Updates the slow scrolling when selecting villagers and dragging the screen to VV3-VV5's behavior.
@@ -2762,6 +2786,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 29; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv3mc` (executable code), `.vv3md` (writable data) -- and rewrites 3 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
+
+#### Every Island Event Can Happen (`vv3_every_island_event_can_happen`)
+
+The Bitter Brown Beans (both versions: Science below level 2, or 2 or more), The Ancient Tablet (both versions: Science below 2; Science 2 or more and Alchemy below 3) and The Medical Emergency (Medicine 2 or more) can now happen at any technology level, even with everything researched. "Focus research on tablet" still raises Alchemy by 1 level, up to 3; at level 3 the event still happens, shows its own text, and the level stays at 3. The Ghostly Dreams keep their Nature / Magic need. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Bitter Brown Beans (taste or dye) and The Ancient Tablet (laundry or decoration) qualify at every Science level; the always-applied record check of their shared condition still runs. The Bitter Brown Beans (brew or fertilizer) qualifies at every Science level. The Ancient Tablet (research or display) qualifies at every Science and Alchemy level. The Medical Emergency qualifies at every Medicine level. "Focus research on tablet" is the game's own raise: +1 level, never past 3.
+- Explicit non-changes/exclusions: Only technology-level requirements are dropped; every other requirement of every event is the game's own. The time between island events, the family weights, the re-rolls and every event's text are unchanged. The Ghostly Dreams still need Nature level 1 / Magic level 1. No save data changes.
+- Dependencies: none
+- Evidence status: static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
@@ -4761,6 +4797,18 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 32768 bytes as 1 new PE section -- `.vv5t9` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - Mode-specific guarded edits: experimental_expanded_256=6, experimental_expanded_256_progression=6, collection_progression=8, immediate_fixed=8, stock=8; these rows are selected only for the named population mode.
+
+#### Every Island Event Can Happen (`vv5_every_island_event_can_happen`)
+
+You're Doing It Wrong! (it needed Science below level 2), The Advanced Artifacts (Science exactly 2) and The Migrating Fruit Bats (Food Mastery below level 2) can now happen at any technology level, even with everything researched. "Teach them" raises Science by 1 level up to 3 (it stopped at 2); the other two raise theirs by 1 level up to 3 as before; at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: You're Doing It Wrong! qualifies at every Science level; "Teach them": Science + 1 level, up to 3 (was: only below 2). The Advanced Artifacts qualifies at every Science level; its raise is the game's own (+1, never past 3). The Migrating Fruit Bats qualifies at every Food Mastery level; its raise is the game's own (+1, never past 3).
+- Explicit non-changes/exclusions: Only technology-level requirements are dropped; every other requirement of every event is the game's own. The time between island events, the family weights, the re-rolls and every event's text are unchanged. No save data changes.
+- Dependencies: none
+- Evidence status: static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Faith Loss is Doubled/Gains Halved (`vv5_faith_loss_doubled_gains_halved`)
 

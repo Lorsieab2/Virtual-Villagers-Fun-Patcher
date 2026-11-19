@@ -16,7 +16,7 @@ and the picker 0x471870 are as docs/reports/island-event-conditions.txt (New Bel
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line, scaling_rules, with_scaling
+from vv_game_mechanics_events import Event, Line, scaling_rules, with_every_event, with_scaling
 
 STORY = "vv5_story_cheat_upgrades"
 SLOTS = 55
@@ -255,6 +255,18 @@ EVENTS = with_scaling(5, EVENTS, frozenset({
     "The Pesky Critter", "Mushroom Day!", "News From Another Tribe (a message)", "Spying on the Heathens",
     "You're Doing It Wrong!", "Outreach?", "The Advanced Artifacts", "Trick Or Trade", "The Aphids in the Noni Bush",
     "The Defector", "The Straw Hat", "The Strange Nectar"}))
+
+# Every Island Event Can Happen (the owner, 2026-11-17): the technology tests 0x415FD8, 0x41643F, 0x416496 and
+# 0x416733 always pass and "Teach them" raises Science below 3 (0x41608D), in
+# scripts/build_every_island_event_can_happen_features.py; the raise 0x423610 stops at 3.
+EVENTS = with_every_event(5, EVENTS, {
+    "You're Doing It Wrong!": "it can happen at any Science level; \"Teach them to reduce explosions.\" raises Science "
+                              "1 level, up to 3 (at 3 the level stays 3).",
+    "The Advanced Artifacts": "it can happen at any Science level; \"Prepare an independent report.\" still raises "
+                              "Science 1 level, up to 3 (at 3 the level stays 3).",
+    "The Migrating Fruit Bats": "it can happen at any Food Mastery level; \"Observe them\" still raises Food Mastery 1 "
+                                "level, up to 3 (at 3 the level stays 3).",
+})
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
 from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402

@@ -31,6 +31,7 @@ MAX_LINE_CHARS = 180
 # Scrolling Popups joined it; 1,200 the same day, when The Aspiring Adventurer (More Island Events) joined it.
 # 1,250 since 2026-11-16, when the island event controls (Content Notes, the Content Filters, No Safeguards for Island
 # Events) joined it.
+# (1,250 also covers Every Island Event Can Happen, 2026-11-17.)
 MAX_GUIDE_CHARS = 1250
 
 
