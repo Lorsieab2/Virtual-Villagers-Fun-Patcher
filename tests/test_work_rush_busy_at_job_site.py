@@ -95,6 +95,7 @@ class CompanionQueues(unittest.TestCase):
                     self.assertEqual(qs[i][1], SIT, "Sitting, nothing of the job")
                 for i in (0, 1):
                     self.assertGreater(len(qs[i]), 2, "the workers keep the job")
+                self.assertEqual(queue(r.p.read, r.v.record(4), g), [], "Kai (8) neither works nor sits")
                 if g == 1:
                     for i in (2, 3):
                         x, y = spots[i]
@@ -141,6 +142,8 @@ class CompanionQueues(unittest.TestCase):
                 who = [r.v.record(i) for i in range(4)]
                 self.assertEqual([c for c in calls if c[0] == who[2]], [(who[2], work)] * 8 + [(who[2], rest)])
                 self.assertEqual([c for c in calls if c[0] == who[3]], [(who[3], work), (who[3], rest)])
+                self.assertEqual([c for c in calls if c[0] == r.v.record(4)], [], "Kai (8): no job, no busy state")
+                self.assertEqual(queue(r.p.read, r.v.record(4), g), [], "Kai's queue is untouched")
                 keep = [s for s in busy_steps[g] if s[0] != walk]
                 for i, spot in ((2, (530, 505)), (3, (900, 900))):
                     q = queue(r.p.read, who[i], g)
@@ -379,6 +382,130 @@ class StockBusyAtTheSite(unittest.TestCase):
                 name, job, args = jobs[0]
                 site, busy_at, _before, _after = StockVillage(game).trip(job, args, at_site=False)
                 self.assertGreater(math.dist(site, busy_at), NEAR, "without the change the villager is elsewhere")
+
+
+@emulated
+class SharingASpotIsSafe(unittest.TestCase):
+    def test_two_villagers_on_one_spot(self):
+        """The owner (2026-11-19): villagers may share a spot when every pick is crowded, if that is safe.  Two
+        villagers given the same site (the first rushable job's walk, then the busy steps) both walk there and both
+        do the busy steps there: the game's walk and stand code has no lock and no clash for two on one spot (the
+        stock games send several workers to one point themselves, e.g. The Lost Children's palm foot)."""
+        for game, jobs in JOBS.items():
+            with self.subTest(game=game):
+                try:
+                    s = StockVillage(game)
+                except unittest.SkipTest as e:
+                    self.skipTest(str(e))
+                v, fe = s.v, s.fe
+                off, size, cap, walk, x_at, y_at = SHAPE[game]
+                _name, job, args = jobs[0]
+                s.stop()
+                s.start(job, args)
+                w = next(x for x in queue(s.read, s.rec, game) if x[0] == walk)
+                site = (w[x_at // 4], w[y_at // 4])
+                s.stop()
+                packed = struct.pack(f"<{size // 4}i", *w)
+                if game in (1, 2):
+                    v.call(ADDER[game], fe.MGR, 0, *w[:4], 0, w[5])
+                    v.call(BUSY[game][0], fe.MGR, 0, BUSY[game][1])
+                else:
+                    s.start(BUSY[game])
+                    v.uc.mem_write(s.rec + off, rebuild(s.read(s.rec + off, size * cap), size, cap, walk, packed))
+                stride = 0x2F44 if game == 5 else fe.REC
+                r0, r1 = s.rec, s.rec + stride
+                if game == 4:                                   # a record of its own (the constructor's), same steps
+                    v.villager(index=1, skills={n: 50 for n in fe.SKILLS})
+                    v.call(STOP[4], r1)
+                    v.start(BUSY[4], index=1)
+                    v.uc.mem_write(r1 + off, rebuild(s.read(r1 + off, size * cap), size, cap, walk, packed))
+                elif game == 5:                                 # the game's own maker, as for the first believer
+                    v.call(fe.MAKE_VILLAGER, fe.VILLAGERS, 1, 0, 5, 0, 600)
+                    v.call(STOP[5], r1)
+                    v.w8(fe.FLAG, 0)
+                    v.call(fe.SET_BEHAVIOUR, r1, BUSY[5], fe.FLAG)
+                    v.uc.mem_write(r1 + off, rebuild(s.read(r1 + off, size * cap), size, cap, walk, packed))
+                else:
+                    v.uc.mem_write(r1, s.read(r0, stride))
+                    if game == 1:
+                        v.w32(r0 + 2 * stride, 0)               # the end of A New Home's villager list
+
+                def pos(r, game=game, v=v, fe=fe):
+                    if game == 4:
+                        out = fe.HEAP + 0x1000
+                        v.call(fe.POSITION, r, out)
+                        return v.r32(out), v.r32(out + 4)
+                    if game == 3:
+                        return v.feet(r)
+                    if game == 5:
+                        return v.r32(r + fe.X) + 20, v.r32(r + fe.Y) + 55
+                    return v.r32(r + fe.X) + 20, v.r32(r + fe.Y) + 65
+
+                busy = [None, None]
+                for _f in range(12_000):
+                    heads = [struct.unpack("<i", s.read(r + off, 4))[0] for r in (r0, r1)]
+                    for k, (h, r) in enumerate(zip(heads, (r0, r1))):
+                        if busy[k] is None and h not in (0, walk) and h not in DETOUR[game]:
+                            busy[k] = pos(r)
+                    if None not in busy:
+                        break
+                    if game == 3:
+                        v.call(fe.UPDATE, r0)
+                        v.call(fe.UPDATE, r1)
+                        v.t += fe.FRAME_MS / 1000.0
+                    elif game == 4:
+                        v.step_frame(0)
+                        v.step_frame(1)
+                    else:
+                        v.step_frame()
+                for k in (0, 1):
+                    self.assertIsNotNone(busy[k], f"villager {k} reached the busy steps")
+                    self.assertLessEqual(math.dist(site, busy[k]), NEAR, f"villager {k} at the shared spot")
+
+
+class GameMechanicsLines(unittest.TestCase):
+    """The Game Mechanics pages' work rush lines (src/vv_game_mechanics_collection.py work_rush_lines), all five games:
+    plain words, and each job and busy state the companion's own tables name (story_graph_village.inc CG_WORK,
+    CG_WORK_REST)."""
+
+    def native_tables(self):
+        import re
+        src = (ROOT / "native" / "vvfp_story_upgrades" / "story_graph_village.inc").read_text(encoding="utf-8")
+        work = src[src.index("CG_WORK[6][6] = {"):src.index("};", src.index("CG_WORK[6][6] = {"))]
+        rows = {}
+        for skill in ("Farming", "Building", "Research", "Healing", "Parenting", "Devotion"):
+            row = work[work.index(f"/* {skill} */"):]
+            row = row[:row.index("}")]
+            rows[skill] = re.findall(r'"([^"]*)"', row)
+        rest = src[src.index("CG_WORK_REST[6] = {"):]
+        rest = re.findall(r'"([^"]*)"', rest[:rest.index("};")])
+        return rows, rest
+
+    def test_every_game(self):
+        import vv_game_mechanics_collection as gmc
+        rows, rest = self.native_tables()
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                text = " ".join(gmc.work_rush_lines(game))
+                self.assertNotIn("0x", text, "no addresses")
+                self.assertIn("Children never take part: they neither work nor stop what they are doing.", text)
+                self.assertIn("ticked on the Details screen", text)
+                self.assertIn("Action bar shows under \"Skill\"", text)
+                self.assertIn("within 20 pixels", text)
+                self.assertIn("up to 8 of the job's other spots", text)
+                self.assertIn("share a spot", text)
+                self.assertEqual("Healing someone has no place of its own" in text, game in (1, 2))
+                self.assertIn("Birth Control is never bypassed", text)
+                self.assertEqual("Parenting rush does nothing" in text, game not in (2, 3))
+                for skill, labels in rows.items():
+                    job = labels[game].split(" (")[0]
+                    if not job:
+                        self.assertNotIn(f"{skill}: ", text)
+                    else:
+                        self.assertIn(f"{skill}: {job}", text)
+                for word in rest[game].replace("Working 'til he drops! / Working 'til she drops!",
+                                                "Working 'til he drops!").split(" / "):
+                    self.assertIn(word, text, "the game's own busy state")
 
 
 if __name__ == "__main__":
