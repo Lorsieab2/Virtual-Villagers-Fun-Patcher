@@ -1,8 +1,8 @@
 """The Lost Children and New Believers install the runtime companions before
 the first catch-up.
 
-The runtime companions (Builders Fix Huts When Idle, which loads Builders and
-Healers Work First; in The Lost Children also Healers Study Plants Regardless
+The runtime companions (Builders Fix Huts When Idle, which loads Villagers Work Their Own
+Job First; in The Lost Children also Healers Study Plants Regardless
 of Food, Improved Pathfinding and the lesson cap) are installed by bridges in
 the Origins companion.  A New Home and The Tree of Life call those bridges
 from the screen-present hook, which runs from the first frame.  The Lost
@@ -66,10 +66,10 @@ ORIGINS_PRESENT = all(p.is_file() for _, p, _, _ in ORIGINS.values())
 # Where the companions write their detours (stock bytes before, E9 after).
 DETOURS = {
     "vv2": {0x461850: "Fix Huts: the idle scheduler's entry", 0x45FBF0: "Work First: the dispatcher",
-            0x43B52D: "Work First: the catch-up research pick", 0x461A22: "Healers Study: the scheduler",
+            0x4602B0: "Work First: the sewing-hut examine pick", 0x461A22: "Healers Study: the scheduler",
             0x43B581: "Healers Study: the catch-up worker"},
     "vv5": {0x46F070: "Fix Huts: the idle scheduler's entry", 0x46C540: "Work First: the dispatcher",
-            0x46E92F: "Work First: the catch-up research pick"},
+            0x46C5CA: "Work First: the catch-up noni offer"},
 }
 
 
@@ -210,17 +210,17 @@ class CompanionsInstallBeforeCatchUp(unittest.TestCase):
         for game, mode in SETUPS:
             g = G[game]
             with self.subTest(game=game, mode=mode):
-                m = early_world(game, mode, selected=g["healing"], pick=g["other"])
+                m = early_world(game, mode, selected=g["healing"], pick=g["building"])
                 HOOK[game](m)
                 m.roll_force(1)
                 decide(m)
                 self.assertEqual(jobs(m), [g["healing"]])
-                # ... and the research pick, through the catch-up site.
-                m = early_world(game, mode, selected=g["healing"], pick=g["research"])
+                # ... while the Parenting pick (the catch-up conception attempt) stays the worker's own.
+                m = early_world(game, mode, selected=g["healing"], pick=g["parenting"])
                 HOOK[game](m)
                 m.roll_force(1)
                 decide(m)
-                self.assertEqual(jobs(m), [g["healing"]])
+                self.assertEqual(jobs(m), [])
 
     def test_new_believers_slot_capture_is_the_same_in_every_mode(self):
         """Every population mode carries slot_capture whole: the slot is

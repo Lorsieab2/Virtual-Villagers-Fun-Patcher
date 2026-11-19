@@ -390,7 +390,7 @@
       "guide": [
         "Villagers who already have some Devotion skill sometimes go Honoring on their own.",
         "Beginners with no Devotion still learn by being dropped on a statue.",
-        "Only while you play; for time away, tick Builders and Healers Work First."
+        "Only while you play; for time away, tick Villagers Work Their Own Job First."
       ]
     },
     {
@@ -664,6 +664,7 @@
       "ids": ["vv1_storytelling", "vv2_storytelling"],
       "guide": [
         "Drag an adult (18+) onto a child (under 18): the adult tells that child a story.",
+        "In A New Home the two walk to the centre of the village first.",
         "The adult gets a Parenting (Breeding) practice roll; the child listens. Parenting 50+ in VV2: teaching.",
         "Only your own drop does this; other drops are unchanged. Tick it, patch, and play."
       ]
@@ -713,19 +714,21 @@
     {
       "ids": ["vv1_builders_and_healers_work_first", "vv2_builders_and_healers_work_first", "vv3_builders_and_healers_work_first", "vv4_builders_and_healers_work_first"],
       "guide": [
-        "Villagers whose job is Building or Healing do their own work first, about three times in four, whatever the food level.",
+        "Tick a villager's job on the Details screen: farmers, researchers, healers and builders practise it on their own (3 times in 4) once that skill is above 5.",
         "It also works while the game catches up on time away (and in Time Warp), so they keep gaining skill.",
-        "When they have nothing of their own to do, they do what the game picks.",
+        "Builders only carry on work that was started: drop a builder on a new project or hut once to start it.",
+        "Parenting is left to the game and the Birth Control patches. With nothing of their own to do, villagers do what the game picks.",
         "Needs Builders Fix Huts When Idle; ticking this ticks it for you."
       ]
     },
     {
       "ids": ["vv5_builders_and_healers_work_first"],
       "guide": [
-        "Villagers whose job is Building or Healing do their own work first, about three times in four, whatever the food level.",
+        "Tick a villager's job on the Details screen: farmers, researchers, healers, builders and devotees practise it (3 times in 4) once that skill is above 5.",
+        "New villagers practise their ticked job without being dropped on it first.",
         "It also works while the game catches up on time away (and in Time Warp), so they keep gaining skill.",
-        "During that catch-up, devotees also go Honoring first.",
-        "When they have nothing of their own to do, they do what the game picks.",
+        "Builders only carry on work that was started: drop a builder on a new project once to start it.",
+        "Parenting is left to the game and the Birth Control patches. With nothing of their own to do, villagers do what the game picks.",
         "Needs Builders Fix Huts When Idle; ticking this ticks it for you."
       ]
     },

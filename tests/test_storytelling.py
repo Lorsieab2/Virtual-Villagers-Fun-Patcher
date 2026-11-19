@@ -408,12 +408,17 @@ JUST_UNDER_18 = Villager(age=359)
 DEAD_CHILD = Villager(age=200, health=0)
 TEACHER = Villager(age=400, skill=50)
 
-# A New Home: rand(10) -> 4 then 6 (child), rand(8) -> 5 then 2, rand(3) -> 1, rand(5) -> 3.
-STORY_RNG = {10: [4, 6], 8: [5, 2], 3: [1], 5: [3]}
-# Step entry: (type, a, b, c, 0, d); c is the duration for steps 2 and 7.
-V1_CHILD = [(2, 0, 0, 14, 0, 0), (2, 0, 0, 19, 0, 0)]
-V1_TELLER = [(15, 3, 3, 0, 0, 0), (2, 0, 0, 3, 0, 0), (7, 0, 0, 8, 0, 0), (15, 3, 0, 0, 0, 0),
-             (2, 0, 0, 4, 0, 0), (6, 0, 0, 0, 0, 2), (7, 0, 0, 5, 0, 0), (2, 0, 0, 6, 0, 0)]
+# A New Home: rand(0x40) -> 5 and rand(0x50) -> 7 (the spot at the village centre: x 3*(5+0x106) = 801,
+# y 3*(7+0xC8) = 621), rand(10) -> 4, 6 then 2 (child), rand(8) -> 5 then 2, rand(3) -> 1, rand(5) -> 3.
+STORY_RNG = {0x40: [5], 0x50: [7], 10: [4, 6, 2], 8: [5, 2], 3: [1], 5: [3]}
+# Step entry: (type, a, b, c, 0, d); c is the duration for steps 2 and 7.  The owner (2026-11-17, skill
+# practice item 24): both walk to the centre of the village (step 3 to a, b; d the speed, which the game's
+# push raises from 0x64 to 0x12C for a child), face each other (step 15), and the adult tells the story with
+# the researching animation (step 7, Researching's gesture) and never its sound (Researching's step 0x12).
+V1_CHILD = [(3, 849, 621, 0, 0, 0x12C), (15, 2, 2, 0, 0, 0), (2, 0, 0, 14, 0, 0), (2, 0, 0, 19, 0, 0),
+            (2, 0, 0, 17, 0, 0)]
+V1_TELLER = [(3, 801, 621, 0, 0, 0x64), (15, 1, 1, 0, 0, 0), (7, 0, 0, 3, 0, 0), (7, 0, 0, 8, 0, 0),
+             (7, 0, 0, 4, 0, 0), (6, 0, 0, 0, 0, 2), (7, 0, 0, 5, 0, 0), (7, 0, 0, 6, 0, 0)]
 
 
 @functools.lru_cache(maxsize=None)
@@ -525,8 +530,14 @@ class CompanionTests(unittest.TestCase):
     def assert_vv1_story(self, run, language=0):
         self.assertEqual(run.labels[TELLER], TELLING[language], "the game's own string 0xA7")
         self.assertEqual(run.labels[CHILD], LISTEN[language])
-        self.assertEqual(run.queues[CHILD], V1_CHILD)
+        # The walk's speed is the game's: its push raises 0x64 for a young child (0x43CCF0); the rest is fixed.
+        walk, *rest = run.queues[CHILD]
+        self.assertEqual(walk[:5], V1_CHILD[0][:5])
+        self.assertIn(walk[5], (0x64, 0x12C))
+        self.assertEqual(rest, V1_CHILD[1:])
         self.assertEqual(run.queues[TELLER], V1_TELLER)
+        # The researching animation, never Researching's sound (0x12), tech points or lab accident (0xE).
+        self.assertFalse({step[0] for step in run.queues[TELLER]} & {0x12, 0x13, 0xE})
 
     def test_a_new_home_wherever_the_drop_lands(self):
         for mouse in (OVER_THE_CHILD, ON_ITS_HEAD):
