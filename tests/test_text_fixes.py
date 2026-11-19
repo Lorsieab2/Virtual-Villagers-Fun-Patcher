@@ -82,6 +82,9 @@ EDITS = {
     (3, "sm/eEventTheObsidianPhialResultA3"): [("unusal", "unusual")],
     (3, "sm/eSaySeesMountain"): [("mountaineous", "mountainous")],
     (4, "sm/eEventThePrettyShellDesc"): [("shell.{name}", "shell. {name}")],
+    # The owner, 2026-11-19: "there should be a text fix for the vv4 ending" (some words are omitted).
+    (4, "sm/eEndGamePage3Line2"): [("thrive, they", "thrive here, they"),
+                                   ("the mysterious tree", "the ancient, mysterious tree")],
     (5, "sm/eEventMysteriousStorytellerResultB"): [("island.Others", "island. Others"),
                                                    ("nature.They", "nature. They")],
     (5, "sm/eEventTheSealedBoxResultB"): [("for his honest", "for {his/her} honest")],
