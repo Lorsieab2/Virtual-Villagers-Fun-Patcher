@@ -124,6 +124,19 @@ class CompilerTakesPartnerMayCarry(unittest.TestCase):
             self.assertNotEqual(data, cg.compile_graph(cg.load(tiny({k: v for k, v in e.items()
                                                                      if k != "partner_may_carry"}))))
 
+    def test_the_python_mirror_of_the_cast_time_decision(self) -> None:
+        """story_graph.inc cg_partner_carry_decide: each flagged pair once, before any page; the swap renames."""
+        doc = json.loads((COLLECTION / "balance" / "bal" / "b260_warm_stone.json").read_text(encoding="utf-8"))
+        g, problems = cg.validate(cc.graph_for_engine(doc), scrolling=True)
+        self.assertEqual(problems, [])
+        self.assertEqual(cg.partner_carry_pairs(g), [("subject", "friend")], "three effects, one pair, rolled once")
+        self.assertEqual(cg.partner_carry_swap({"subject": "Ann", "friend": "Bob", "midwife": "Cy"},
+                                               cg.partner_carry_pairs(g)),
+                         {"subject": "Bob", "friend": "Ann", "midwife": "Cy"})
+        engine = (ROOT / "native" / "vvfp_story_upgrades" / "story_graph.inc").read_text(encoding="utf-8")
+        self.assertIn("cg_partner_carry_decide(a, game);", engine, "decided at the cast")
+        self.assertIn("unsigned int carry_swapped;", engine, "kept in the run's file")
+
     def test_with_the_other_flags(self) -> None:
         e = {"do": "pregnant", "role": "subject", "partner": "friend", "partner_may_carry": True, "babies": 3}
         back = cg.decompile_graph(cg.compile_graph(cg.load(tiny(e))))["nodes"]["a"]["effects"][0]

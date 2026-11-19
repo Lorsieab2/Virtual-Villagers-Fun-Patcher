@@ -290,6 +290,93 @@ class PartnerMayCarry(unittest.TestCase):
                 self.assertEqual(self.carries(game, "# partner_carry_percent=55", [55]), (55, 0))
 
 
+def carry_graph(game: str) -> dict:
+    """A couple's pregnancy whose partner may carry: a page naming them, then the pregnancy's page naming the carrier."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Two Hearts", "games": [int(game[2])],
+            "roles": {"subject": {"kind": "villager", "min_age": 18}, "friend": {"kind": "villager", "min_age": 18}},
+            "start": "p0",
+            "nodes": {"p0": {"text": "(Subject) and (friend) sit by the fire.", "children": [{"next": "p1"}]},
+                      "p1": {"text": "(Subject) is pregnant, and (subject.he/she) beams at (friend).",
+                             "effects": [{"do": "pregnant", "role": "subject", "partner": "friend",
+                                          "partner_may_carry": True}]}}}
+
+
+@emulated
+class PartnerCarryNamesFollow(unittest.TestCase):
+    """The owner (2026-11-18, Codex on #814): who carries is decided at the cast, before any page, so every page
+    names the villager who actually carries; the effect makes that villager carry; a loaded run keeps the choice."""
+
+    PEOPLE = [(0, "f", 30, "Ann", 0, False), (1, "m", 31, "Bob", 0, False)]
+
+    def start(self, game: str, percent: int, session: bool = False):
+        r = V6(game, self.PEOPLE)
+        text = f"vv{r.n}\n# partner_carry_percent={percent}\n"
+        buf = r.p.alloc(len(text) + 1)
+        r.p.write(buf, text.encode("ascii") + b"\0")
+        r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+        r.rolls([0] * 40)                      # Ann is cast as the carrier, Bob as the partner
+        if session:
+            r.facts(unicode=0, structures=0)
+            r.p.export("VvfpStoryProbeQueueSession", 0, 0, 1, 0)
+        self.assertIsNone(r.queue6(compiled(carry_graph(game))))
+        return r
+
+    def check(self, r, game: str, carrier: int, partner: int, shown: list) -> None:
+        names = {0: "Ann", 1: "Bob"}
+        words = " ".join(norm(s[1]) for s in shown)
+        self.assertIn(f"{names[carrier]} and {names[partner]} sit by the fire.", words)
+        pron = "she" if carrier == 0 else "he"
+        self.assertIn(f"{names[carrier]} is pregnant, and {pron} beams at {names[partner]}.", words)
+        L = r.v.L
+        self.assertNotEqual(r.v.i32(carrier, L["pregnant"]), 0, f"{names[carrier]} carries")
+        self.assertEqual(r.v.i32(partner, L["pregnant"]), 0, f"{names[partner]} does not")
+        if game in EXPECTED_FATHER:            # the conception's record: the partner is the other parent
+            at = EXPECTED_FATHER[game][0]
+            got = r.p.read(r.v.record(carrier) + at, 24).split(b"\0")[0].decode("ascii", "replace")
+            self.assertEqual(got, names[partner])
+
+    def test_0_and_100_percent(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for percent, carrier, partner in ((0, 0, 1), (100, 1, 0)):
+                with self.subTest(game=game, percent=percent):
+                    r = self.start(game, percent)
+                    shown = r.walk_through()
+                    self.check(r, game, carrier, partner, shown)
+
+    def test_a_loaded_run_keeps_the_choice(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = self.start(game, 100, session=True)
+                if not r.state()["armed"]:
+                    assert r.p.export("VvfpStoryProbeGraphArmNext", r.n) == 1
+                r.p.write(TEXT_BUF, b"\0")
+                assert r.p.export("VvfpStoryProbeDeliver", r.n, TEXT_BUF, 9000) == 1
+                first = norm(r.p.cstring(TEXT_BUF))
+                r.tick()
+                file = r.graph_file()
+                self.assertEqual(struct.unpack_from("<I", file, 4)[0], 5, "written as version 5")
+                again = V6(game, self.PEOPLE)
+                text = f"vv{again.n}\n# partner_carry_percent=0\n"   # the setting moved since: the run keeps its own
+                buf = again.p.alloc(len(text) + 1)
+                again.p.write(buf, text.encode("ascii") + b"\0")
+                again.p.export("VvfpStoryProbeInstalledPatches", again.n, buf)
+                again.rolls([5] * 40)
+                again.facts(unicode=0, structures=0)
+                again.p.export("VvfpStoryProbeQueueSession", 0, 0, 0x7FFFFFF0, 0)
+                buf = again.p.alloc(len(file) + 16)
+                again.p.write(buf, file)
+                again.p.export("VvfpStoryProbeGraphSession", buf, len(file))
+                again.tick()
+                self.assertNotEqual(again.state()["phase"], IDLE, "put back")
+                self.assertEqual(list(again.state()["records"][:2]), [1, 0], "Bob still carries")
+                rest = again.walk_through()
+                self.check(again, game, 1, 0, [("page", first, None)] + rest)
+
+
 @emulated
 class SharedVectors(unittest.TestCase):
     """The engine's walk is the patcher's walk: path, effect rolls, picks, aliases and the words read."""
@@ -494,7 +581,7 @@ class ResumeAndFile(unittest.TestCase):
         file = bytearray(r.graph_file())
         r.p.export("VvfpStoryProbeGraphFileLayout", LAYOUT_BUF)
         v3, head, whole = struct.unpack("<3i", r.p.read(LAYOUT_BUF, 12))
-        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 4, "written as version 4")
+        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 5, "written as version 5")
         old = bytes(file[:head]) + bytes(file[head:head + v3]) + bytes(file[head + whole:])
         old = bytearray(old)
         struct.pack_into("<I", old, 4, 3)

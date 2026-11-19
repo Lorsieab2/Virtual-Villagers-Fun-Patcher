@@ -223,7 +223,8 @@ enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AG
 /* 28 / 29: flags bit 3, "the partner may carry" (the owner, 2026-11-16): with a partner role, as often as the player's setting says (0 to 100 percent,
    10 unless moved: cg_partner_carry_percent; the game's random routine) the partner carries instead -- of any birth sex -- when they pass the carrier's checks (18
    or more, not expecting already); else the carrier stays.  The carrier is recorded in the mother's place whatever
-   their sex, as every carrier is. */
+   their sex, as every carrier is.  Decided once at the cast, the two roles swapped for the whole run so the pages
+   name who carries (the owner, 2026-11-18: cg_partner_carry_decide). */
 #define CG_FX_PARTNER_MAY_CARRY 8u
 static int cg_partner_carries(const ce_adapter *a);   /* the setting's chance (below) */
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
@@ -1629,6 +1630,10 @@ typedef struct {
     int start_picks;                   /* the picks drawn at the purchase (a start question's own) */
     /* Each display's popup title (cie-v6-binary.md 14): a node title's string index + 1, 0 = the event's title. */
     unsigned short display_title[CG_MAX_DISPLAYS];
+    /* Run file version 5, after everything version 4 kept (a version 4 file is read with it 0: nobody swapped): the
+       carrier roles whose partner carries instead (28 / 29 CG_FX_PARTNER_MAY_CARRY, decided once at the cast,
+       cg_partner_carry_decide: the two roles' villagers swapped, so every page names who carries). */
+    unsigned int carry_swapped;
 } cg_state;
 
 
@@ -2915,6 +2920,50 @@ static void cg_new_name(const ce_adapter *a, int game, int r) {
 
 /* Bind every planned role (the game's random routine among those who keep the rest fillable), and each
    stranger's sex.  1 when bound. */
+/* 28 / 29, CG_FX_PARTNER_MAY_CARRY (the owner, 2026-11-18): who carries is decided ONCE, when the cast is made --
+   before any page is written -- so every page (names, pronouns, carrier words) names the villager who actually
+   carries, and the effect makes the same one carry.  For each such effect with a partner role, in effect order, each
+   pair once: the carrier must pass the carrier's checks as the effect does (18 or more, not expecting, born female
+   unless any_birth_sex), the partner 18 or more and not expecting; then, at the player's chance
+   (cg_partner_carries: one roll, none at 0 or 100), the two roles' villagers change places for the rest of the run
+   (record, identity, sex, name) and the carrier role is marked in cg.carry_swapped (the run's file keeps both, so a
+   loaded run keeps the choice).  The effect then skips the born-female check for a swapped carrier: the partner may
+   carry whatever their birth sex.  Nothing else is rolled at the effect. */
+static unsigned char *cg_villager(const ce_adapter *a, int r);
+
+static void cg_partner_carry_decide(const ce_adapter *a, int game) {
+    unsigned int decided = 0u;
+    int i;
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        int c = (int)e[1], p = (int)cg_u32(e + 4), t;
+        unsigned char *cr, *pr;
+        unsigned int id;
+        char name[CG_NAME_BYTES];
+        if ((e[0] != CGE_PREGNANT && e[0] != CGE_NURSING) || !(e[2] & CG_FX_PARTNER_MAY_CARRY)
+            || c >= cg_g.n_role || p >= cg_g.n_role || c == p || (decided & ((1u << c) | (1u << p)))) {
+            continue;
+        }
+        decided |= (1u << c) | (1u << p);
+        cr = cg_villager(a, c);
+        pr = cg_villager(a, p);
+        if (cr == NULL || pr == NULL || !(a->caps & CAP_PREGNANT) || a->conceive == NULL
+            || ce_age(a, cr) < 18 * 20 || *(const int *)(cr + a->off_pregnant) != 0
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, cr, cg.record[c]))
+            || ce_age(a, pr) < 18 * 20 || *(const int *)(pr + a->off_pregnant) != 0
+            || !cg_partner_carries(a)) {
+            continue;
+        }
+        t = cg.record[c]; cg.record[c] = cg.record[p]; cg.record[p] = t;
+        id = cg.identity[c]; cg.identity[c] = cg.identity[p]; cg.identity[p] = id;
+        t = cg.female[c]; cg.female[c] = cg.female[p]; cg.female[p] = t;
+        memcpy(name, cg.name[c], sizeof name);
+        memcpy(cg.name[c], cg.name[p], sizeof name);
+        memcpy(cg.name[p], name, sizeof name);
+        cg.carry_swapped |= 1u << c;
+    }
+}
+
 static int cg_bind(int game) {
     const ce_adapter *a = ce_adapter_for(game);
     unsigned char used[CE_MAX_RECORDS];
@@ -3008,6 +3057,7 @@ static int cg_bind(int game) {
             cg_new_name(a, game, r);           /* 28: in role order, after every villager */
         }
     }
+    cg_partner_carry_decide(a, game);
     return 1;
 }
 
@@ -5758,9 +5808,13 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
     switch (e[0]) {
     case CGE_PREGNANT: case CGE_NURSING: {
         int partner = -1, early = 0, other = (int)cg_u32(e + 4), litter = 1;
+        /* the partner carries (any birth sex): decided at the cast, the roles already swapped
+           (cg_partner_carry_decide), so `record` is the partner who carries and `other` the villager the event named
+           as the carrier */
+        int partner_carries = (e[2] & CG_FX_PARTNER_MAY_CARRY) && e[1] < 32u && ((cg.carry_swapped >> e[1]) & 1u);
         if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
             || *(const int *)(record + a->off_pregnant) != 0
-            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, record, index))) {
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !partner_carries && !cg_born_female(game, record, index))) {
             return;                    /* not a carrier these events may have, or expecting already: nothing */
         }
         if (other != 0xFF) {
@@ -5768,13 +5822,6 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
             unsigned char *mate = cg_target(a, other, &at);
             if (mate != NULL) {
                 partner = at;
-                if ((e[2] & CG_FX_PARTNER_MAY_CARRY) && cg_partner_carries(a) && ce_age(a, mate) >= 18 * 20
-                    && *(const int *)(mate + a->off_pregnant) == 0) {
-                    /* the partner carries (any birth sex): the two change places */
-                    partner = index;
-                    index = at;
-                    record = mate;
-                }
             }
         }
         {
@@ -8486,12 +8533,14 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 4u                 /* 2: the run keeps its path and every question's answers; 3: and a
+#define CG_FILE_VERSION 5u                 /* 2: the run keeps its path and every question's answers; 3: and a
                                               question's third and fourth answers (cg_state.seg_more); 4 (format
                                               version 6): answers five to seven, the pool picks, the aliases, each
-                                              question's buttons, the origin and the cast */
+                                              question's buttons, the origin and the cast; 5: the partner-carry
+                                              swaps (cg_state.carry_swapped) */
 #define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more))   /* a version 2 file's state bytes */
 #define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6))     /* a version 3 file's */
+#define CG_FILE_V4_STATE ((unsigned int)offsetof(cg_state, carry_swapped))   /* a version 4 file's */
 
 typedef struct {
     unsigned int magic;
@@ -8512,6 +8561,7 @@ static cg_state cg_read_state;
    empty: cg_file_upgrade); 0 for any other. */
 static unsigned int cg_file_state_bytes(void) {
     return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 4u ? CG_FILE_V4_STATE
          : cg_head.version == 3u ? CG_FILE_V3_STATE
          : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
 }
@@ -8520,8 +8570,8 @@ static unsigned int cg_file_state_bytes(void) {
    shown as its version shows them, the cast strict). */
 static void cg_file_upgrade(cg_state *st) {
     int r;
-    if (cg_head.version >= CG_FILE_VERSION) {
-        return;
+    if (cg_head.version >= 4u) {
+        return;                        /* version 4's fields are there (a version 4 file: carry_swapped read 0) */
     }
     for (r = 0; r < CG_MAX_ROLES; ++r) {
         st->alias[r] = -1;
