@@ -41,6 +41,9 @@
         the new sex, every other byte kept; a parent recorded in the father's
         (mother's) place whose line now has the other sex still has their own
         rule -- only when the slot's "Sex Changes" log names them.
+    16. A villager who arrives (the owner, 2026-11-19): a one-word name gets
+        a last name drawn from the list; a name with a last name keeps it; a
+        last name that would not fit is not given.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -731,6 +734,31 @@ int main(int argc, char **argv) {
               "a name the log does not name: the village's rule");
         DeleteFileA(log_path);
         DeleteFileA(g_path);
+    }
+
+    printf("16. A villager who arrives (the owner, 2026-11-19): a random last name of the list, or theirs kept\n");
+    {
+        int g;
+        for (g = 1; g <= GAMES; ++g) {
+            char name[32];
+            int j, listed = 0;
+            g_game = g;
+            strcpy(name, "Ago");
+            give_arrival_last_name(name, SITES[g].room);
+            for (j = 0; j < FAMILIES; ++j) {
+                listed |= strncmp(name, "Ago ", 4) == 0 && strcmp(name + 4, g_last[j]) == 0;
+            }
+            check(listed, "a one-word name gets a last name of the list");
+            strcpy(name, "Ago Akikai");
+            give_arrival_last_name(name, SITES[g].room);
+            check(strcmp(name, "Ago Akikai") == 0, "a name that has a last name keeps it");
+            strcpy(name, "Abcdefghijklmnopqrstuv");     /* 22 letters: no " Lnxx" fits in 24 or 28 */
+            if (SITES[g].room > 24) {
+                strcat(name, "wxy");
+            }
+            give_arrival_last_name(name, SITES[g].room);
+            check(strchr(name, ' ') == NULL, "a last name that would not fit is not given");
+        }
     }
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
