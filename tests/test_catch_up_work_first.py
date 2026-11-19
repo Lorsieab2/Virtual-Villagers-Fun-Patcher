@@ -656,20 +656,15 @@ class BuildersNeverStartAnUndroppedProject(unittest.TestCase):
     """Decision 4: the owner's rule -- builders never START a project nobody
     was dropped on; they may continue one in progress."""
 
-    def test_the_tree_of_life_puzzle_work(self):
+    def test_the_tree_of_life_builder_is_always_put_first(self):
+        # The owner (2026-11-19): a puzzle never blocks all Building -- only its own option is left out
+        # (tests/test_work_first.py::TreeOfLifePuzzleOptions); the builder is put first whatever is on offer.
         g = G["vv4"]
-        cases = [
-            (dict(), True),                                     # no puzzle work on offer
-            (dict(stream=50), False),                           # the stream before The Stream
-            (dict(stream=50, stream_solved=True), True),        # keeping it clear once cleared (item 73)
-            (dict(stream=0x62), True),                          # not offered
-            (dict(piers_stage=1), False),                       # the piers before Fishing Nets
-            (dict(rubble_stage=0), False),                      # the rubble before the Cooking Pit
-        ]
-        for kw, first in cases:
+        for kw in (dict(), dict(stream=50), dict(stream=50, stream_solved=True), dict(piers_stage=1),
+                   dict(rubble_stage=0)):
             with self.subTest(**kw):
                 m = decide(world("vv4", selected=g["building"], pick=g["healing"], **kw))
-                self.assertEqual(jobs(m)[0] == g["building"], first)
+                self.assertEqual(jobs(m)[0], g["building"])
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
@@ -811,16 +806,14 @@ class Untrained(unittest.TestCase):
                 m = decide(world(game, rows=(), runtime=False, selected=-1, pick=g["healing"], task=1))
                 self.assertEqual(m.marks, [1])
 
-    def test_tree_of_life_puzzle_work_keeps_the_mark(self):
-        # Builders never start a project nobody was dropped on: an untrained villager's Building pick keeps
-        # the mark while the Building case could start puzzle work by itself.
+    def test_tree_of_life_building_is_lifted_whatever_puzzle_is_on_offer(self):
+        # The owner (2026-11-19): only the unsolved puzzle's own option is left out, never all Building.
         g = G["vv4"]
-        for kw, lifted in ((dict(), True), (dict(stream=50), False), (dict(piers_stage=1), False),
-                           (dict(rubble_stage=0), False), (dict(stream=50, stream_solved=True), True)):
+        for kw in (dict(), dict(stream=50), dict(piers_stage=1), dict(rubble_stage=0)):
             with self.subTest(**kw):
                 m = decide(world("vv4", selected=-1, pick=g["building"], task=1, **kw))
                 self.assertEqual(jobs(m), [g["building"]])
-                self.assertEqual(m.marks, [0 if lifted else 1])
+                self.assertEqual(m.marks, [0])
 
     def test_heathens_get_nothing_new(self):
         # A Heathen (u8 record+0x1CEC) never gets job work in the game: no own job first, no lifted mark.

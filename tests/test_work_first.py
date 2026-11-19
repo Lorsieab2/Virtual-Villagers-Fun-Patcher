@@ -130,6 +130,24 @@ class SiteTests(unittest.TestCase):
                     self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
                     self.assertEqual(code[5:], b"\x90" * (len(stock) - 5))
 
+    def test_a_new_home_installs_beside_birth_control(self):
+        # Birth Control (vv1_birth_control) already makes the picker gate cmp esi, 5 and routes its jle
+        # into its own page: the gate is left as it is and every other site still installs (it used to
+        # refuse the whole install, so Work First did nothing in A New Home with Birth Control ticked).
+        from test_builders_decision_roll import ROWS
+        m = world("vv1", rows=tuple(ROWS["vv1"]) + ("vv1_birth_control",))
+        gate = bytes(m.mu.mem_read(0x439C80, 9))
+        self.assertEqual(gate[:3], bytes.fromhex("83FE05"))
+        self.assertEqual(gate[3], 0xE9, "Birth Control's jmp into its page, untouched")
+        for site in _manifest("vv1")["runtime_detours"]:
+            va = int(site["va"], 16)
+            if va == 0x439C80:
+                continue
+            with self.subTest(va=hex(va)):
+                code = bytes(m.mu.mem_read(va, 5))
+                target = (va + 5 + struct.unpack("<i", code[1:5])[0]) & 0xFFFFFFFF
+                self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
+
     def test_the_scheduler_call_sites(self):
         for game, rets in LIVE.items():
             for ret in rets:
@@ -179,6 +197,19 @@ class LiveScheduler(unittest.TestCase):
                     self.assertEqual(m.asked, [(ret, g["healing"])])
                     self.assertEqual(m.draws("fix_huts"), 0)
 
+    def test_the_games_own_parenting_pick_is_never_displaced(self):
+        # Review on #807: a worker with a ticked job whose own pick is Parenting (an embrace attempt) must
+        # still make that attempt -- never their job instead -- so births stay the game's and Birth Control's.
+        for game in GAMES:
+            g = G[game]
+            for who, own in _own_jobs(game):
+                for ret in LIVE[game]:
+                    with self.subTest(game=game, who=who, ret=hex(ret)):
+                        m = live(world(game, selected=own, force=FORCE_PASS), game, ret, g["parenting"])
+                        self.assertEqual(jobs(m), [g["parenting"]])
+                        self.assertEqual(m.asked[0][0], ret, "the scheduler's own request, unchanged")
+                        self.assertEqual(m.draws("fix_huts"), 0)
+
     def test_research_never_takes_the_place_of_farming(self):
         # The later games' low-food scheduler asks for Farming first.
         for game in GAMES:
@@ -199,6 +230,98 @@ class LiveScheduler(unittest.TestCase):
                 m.w32(STATE + 0xA2F4, forage)
                 live(m, "vv1", LIVE["vv1"][0], g["healing"])
                 self.assertEqual(jobs(m)[0] == g["farming"], first)
+
+
+KEEP_MARK = {
+    "vv4": ((0x430251, UC_X86_REG_EDI), (0x430361, UC_X86_REG_ECX), (0x45C80D, UC_X86_REG_ESI),
+            (0x4644B8, UC_X86_REG_ECX), (0x464531, None)),
+    "vv5": ((0x434D61, UC_X86_REG_EDI), (0x434E8E, UC_X86_REG_ECX), (0x463D1B, UC_X86_REG_ESI),
+            (0x46D021, UC_X86_REG_EAX), (0x46D09A, UC_X86_REG_ECX)),
+}
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class TreeOfLifePuzzleOptions(unittest.TestCase):
+    """The owner (2026-11-19): once a puzzle is solved its work is never
+    blocked; only an unsolved puzzle's auto-start stays drop-only, and only
+    for that puzzle's option, never all Building.  Each "add option" site of
+    the Building case runs from its stub: in a Building dispatch this
+    companion causes, the option is left out only while its puzzle is
+    unsolved and unstarted; in every other dispatch it is added as stock."""
+
+    SITES = {5: (0x463DD1, 0x463DD8), 6: (0x463E1C, 0x463E27), 7: (0x463E3E, 0x463E49)}
+
+    def run_site(self, option, flag, **kw):
+        from unicorn.x86_const import UC_X86_REG_EBP
+        m = world("vv4", **kw.pop("world", {}))
+        for addr, leaf in kw.pop("leaves", {}).items():
+            m.leaves[addr] = leaf
+        for addr, value in kw.pop("words", {}).items():
+            m.w32(addr, value)
+        flag_at = m.u32(m.exports["work_first"]["VvfpWorkFirstBuildingFlag"])
+        m.w32(flag_at, flag)
+        va, after = self.SITES[option]
+        self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xE9")
+        esp = 0x0F000000 - 0x1000
+        m.mu.mem_write(esp + 0x5C + 4 * 2, b"\xEE" * 4)
+        reached = run_until(m, va, [after], {UC_X86_REG_EDI: 2, UC_X86_REG_EBP: 5})
+        self.assertEqual(reached, after)
+        added = m.mu.reg_read(UC_X86_REG_EDI) == 3
+        if added:
+            self.assertEqual(m.u32(esp + 0x5C + 4 * 2), option)
+        m.w32(flag_at, 0)
+        return added
+
+    def test_stock_dispatches_add_every_option(self):
+        for option in self.SITES:
+            with self.subTest(option=option):
+                self.assertTrue(self.run_site(option, 0))
+
+    def test_the_stream_until_the_stream_is_solved(self):
+        self.assertFalse(self.run_site(5, 1))
+        self.assertTrue(self.run_site(5, 1, world=dict(stream_solved=True)))
+
+    def test_the_piers_and_the_rubble_until_someone_started_them(self):
+        self.assertFalse(self.run_site(6, 1))
+        self.assertTrue(self.run_site(6, 1, leaves={0x421570: Leaf(0, lambda m, a, c, r: 12, name="piers")}))
+        self.assertFalse(self.run_site(7, 1))
+        self.assertTrue(self.run_site(7, 1, words={0x4D8A8C: 30}))
+
+    def test_the_export_is_quiet_outside_a_patch_dispatch(self):
+        m = world("vv4")
+        # VvfpWorkFirstPuzzleBlocked(4, 6) with no dispatch running: 0 (the Fix Huts companion's question).
+        self.assertIn("VvfpWorkFirstPuzzleBlocked", m.exports["work_first"])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class TheMarkStaysInTheSave(unittest.TestCase):
+    """The owner: with the patch off, stock -- so a task an untrained villager
+    does with the mark lifted never trains them in the save.  Each of the
+    game's own "drop the assignment" writes, run from its site, keeps a mark
+    of 1 and clears anything else as the stock game does."""
+
+    def test_each_reset_keeps_a_mark_of_1(self):
+        from unicorn.x86_const import UC_X86_REG_EDX
+        for game, sites in KEEP_MARK.items():
+            for va, reg in sites:
+                reg = UC_X86_REG_EDX if reg is None else reg
+                for before, after in ((1, 1), (6, 0), (0x1C, 0), (0, 0)):
+                    with self.subTest(game=game, va=hex(va), before=before):
+                        m = world(game, task=before)
+                        self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xE9", "the site is hooked")
+                        reached = run_until(m, va, [va + 10], {reg: RECORD})
+                        self.assertEqual(reached, va + 10)
+                        self.assertEqual(m.u32(RECORD + 0x1C54), after)
+
+    def test_the_sites_are_the_stock_resets(self):
+        for game, sites in KEEP_MARK.items():
+            for va, _ in sites:
+                with self.subTest(game=game, va=hex(va)):
+                    code = _stock_bytes_at(game, va, 10)
+                    self.assertEqual(code[0], 0xC7)
+                    self.assertEqual(code[2:], bytes.fromhex("541C000000000000"))
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

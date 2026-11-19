@@ -11,7 +11,7 @@
     "vv3_builders_fix_huts"
   ],
   "behavior_changes": [
-    "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x45BFC0 returning to 0x45BFC5) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building (Farming 0, Parenting 1, Healing 2, Research 3, Building 4), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
+    "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x45BFC0 returning to 0x45BFC5) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building (Farming 0, Parenting 1, Healing 2, Research 3, Building 4), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first, and a request for Parenting (the game's own embrace attempt) is never displaced: it runs unchanged. Research never displaces a Farming request.",
     "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
     "Builders never start a project nobody was dropped on: The Secret City's Building case only continues projects above 0%, so a builder is always put first.",
     "Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them (its own gate, cmp esi, 5).",
@@ -29,7 +29,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "44E76457EBA8E9F947EB3C01709CD3E790A04CB5544E58D91C9151F13378D0A4"
+      "sha256": "03CD74821230C40371168B3C981263146E349B83DDFE2315B34315915016F54C"
     }
   ],
   "patches": []

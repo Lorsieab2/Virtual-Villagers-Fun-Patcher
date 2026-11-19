@@ -11,7 +11,7 @@
     "vv5_builders_fix_huts"
   ],
   "behavior_changes": [
-    "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x46E9C9 returning to 0x46E9CE) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building or Devotion (Farming 0, Parenting 1, Healing 2, Research 3, Building 4, Devotion 5), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
+    "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x46E9C9 returning to 0x46E9CE) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building or Devotion (Farming 0, Parenting 1, Healing 2, Research 3, Building 4, Devotion 5), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first, and a request for Parenting (the game's own embrace attempt) is never displaced: it runs unchanged. Research never displaces a Farming request.",
     "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
     "Builders never start a project nobody was dropped on: New Believers' Building case only continues projects above 0%, so a builder is always put first.",
     "Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them (its own gate, cmp esi, 5).",
@@ -32,7 +32,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "44E76457EBA8E9F947EB3C01709CD3E790A04CB5544E58D91C9151F13378D0A4"
+      "sha256": "03CD74821230C40371168B3C981263146E349B83DDFE2315B34315915016F54C"
     }
   ],
   "patches": [],
@@ -47,6 +47,36 @@
       "va": "0x46C5CA",
       "stock_bytes": "3898107E01007506",
       "routine": "the Farming case's catch-up test before noni (cmp byte [game+0x17E10], bl; jne): in catch-up a villager whose selected job is Farming is offered noni on the decision's roll, before the Hungry Totem as a dropped farmer already is",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x434D61",
+      "stock_bytes": "C787541C000000000000",
+      "routine": "the build step's end: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x434E8E",
+      "stock_bytes": "C781541C000000000000",
+      "routine": "the build step's end (second exit): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x463D1B",
+      "stock_bytes": "C786541C000000000000",
+      "routine": "the wood-hater builder's 40% walk-off: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x46D021",
+      "stock_bytes": "C780541C000000000000",
+      "routine": "the noni bushes running low (job event 12): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x46D09A",
+      "stock_bytes": "C781541C000000000000",
+      "routine": "the noni bushes running low (job event 13): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
     }
   ]

@@ -327,9 +327,11 @@ WORK_FIRST_BUILDERS = {
             "on as usual. A builder also sometimes examines the finished sewing hut, as they already examine "
             "the other huts (Building practice)."),
     "vv3": ".",
-    "vv4": (". While the Building work could start puzzle work on its own -- the stream before The Stream is "
-            "cleared, the piers before Fishing Nets, the rubble before the Cooking Pit -- builders are not put "
-            "first; once The Stream is cleared, keeping it clear counts as building practice."),
+    "vv4": (". Builders are always put first; only the three puzzle chores the Building work could start on its "
+            "own are left out of the work this patch sends them to while that puzzle is unsolved and nobody has "
+            "started it -- clearing the stream until The Stream is solved, fixing the piers and clearing the "
+            "rubble until someone has worked on them -- and every other building job goes on. Once The Stream is "
+            "solved, keeping it clear counts as building practice."),
     "vv5": ".",
 }
 WORK_FIRST_HEALERS = {
@@ -367,8 +369,7 @@ WORK_FIRST_UNTRAINED = (
     "The mark is kept in the save, so without this patch the game behaves as it always has."
 )
 WORK_FIRST_UNTRAINED_BUILDERS = {
-    "vv4": (" An untrained villager is never sent to puzzle work the Building work could start on its own "
-            "(above)."),
+    "vv4": (" An untrained villager's building work follows the same puzzle rule (above)."),
     "vv5": "",
 }
 WORK_FIRST_CATCH_UP_FARMING = (
@@ -401,7 +402,7 @@ PICKER_RUNTIME = {
             {"va": "0x44753C", "stock_bytes": "E84FABFFFF",
              "routine": "the Building case's hut start (call 0x442090, huts 9 and 10): called only when the hut has been worked on (hut 9 progress 1 or more, hut 10 2 or more) or this villager was dropped on it (activity 0xB / 0xC); otherwise the dispatcher's 'nothing' exit 0x447901"},
             {"va": "0x439C80", "stock_bytes": "83FE010F8E99FEFFFF",
-             "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05)"}],
+             "routine": "the job picker's skill gate (cmp esi, 1; jle): cmp esi, 5, so a job is chosen only above skill 5 as in the other four games (3 bytes written: 83FE05); when Birth Control has already made it cmp esi, 5 (and routed the jle into its page) it is left as it is and the rest installs"}],
     "vv2": [{"va": "0x45FBF0", "stock_bytes": "8B44240885C0",
              "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x461A08, 0x461A35) and the catch-up worker's pick dispatch (0x43B588)"},
             {"va": "0x4602B0", "stock_bytes": "6A04E8E92EFAFF",
@@ -417,6 +418,33 @@ PICKER_RUNTIME = {
             {"va": "0x46C5CA", "stock_bytes": "3898107E01007506",
              "routine": "the Farming case's catch-up test before noni (cmp byte [game+0x17E10], bl; jne): in catch-up a villager whose selected job is Farming is offered noni on the decision's roll, before the Hungry Totem as a dropped farmer already is"}],
 }
+# The untrained mark stays in the save: the game's own "drop the assignment" writes (mov dword
+# [rec+0x1C54], 0) leave a mark of 1 as it is.
+_KEEP_MARK = {
+    "vv4": (("0x430251", "C787541C000000000000", "the build step's end (0x430210)"),
+            ("0x430361", "C781541C000000000000", "the build step's end (second exit)"),
+            ("0x45C80D", "C786541C000000000000", "the wood-hater builder's 40% walk-off"),
+            ("0x4644B8", "C781541C000000000000", "the berry bush running low (job event)"),
+            ("0x464531", "C782541C000000000000", "the berry bush running low (second job event)")),
+    "vv5": (("0x434D61", "C787541C000000000000", "the build step's end"),
+            ("0x434E8E", "C781541C000000000000", "the build step's end (second exit)"),
+            ("0x463D1B", "C786541C000000000000", "the wood-hater builder's 40% walk-off"),
+            ("0x46D021", "C780541C000000000000", "the noni bushes running low (job event 12)"),
+            ("0x46D09A", "C781541C000000000000", "the noni bushes running low (job event 13)")),
+}
+PICKER_RUNTIME["vv4"] += [
+    {"va": "0x463DD1", "stock_bytes": "896CBC5C83C701",
+     "routine": "the Building case adding option 5, the stream: left out of a Building dispatch this companion causes until The Stream (project 1) is solved"},
+    {"va": "0x463E1C", "stock_bytes": "C744BC5C0600000083C701",
+     "routine": "the Building case adding option 6, the piers: left out of a Building dispatch this companion causes while nobody has worked on them (0x421570 on 0x4D86A8 is 0)"},
+    {"va": "0x463E3E", "stock_bytes": "C744BC5C0700000083C701",
+     "routine": "the Building case adding option 7, the rubble: left out of a Building dispatch this companion causes while nobody has worked on it ([0x4D8A8C] is 0)"},
+]
+for _game, _sites in _KEEP_MARK.items():
+    for _va, _stock, _what in _sites:
+        PICKER_RUNTIME[_game].append({
+            "va": _va, "stock_bytes": _stock,
+            "routine": f"{_what}: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game"})
 
 
 def work_first_description(game: str) -> str:
@@ -435,13 +463,13 @@ def work_first_row(game: str, sha: str) -> dict:
     cu = CATCH_UP[game]
     jobs_text = ", ".join(f"{name.capitalize()} {number}" for name, number in jobs.items())
     behavior = [
-        f"Whenever the adult scheduler (or the catch-up worker's pick dispatch, {cu['call']} returning to {cu['ret']}) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building{' or Devotion' if game == 'vv5' else ''} ({jobs_text}), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
+        f"Whenever the adult scheduler (or the catch-up worker's pick dispatch, {cu['call']} returning to {cu['ret']}) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building{' or Devotion' if game == 'vv5' else ''} ({jobs_text}), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first, and a request for Parenting (the game's own embrace attempt) is never displaced: it runs unchanged. Research never displaces a Farming request.",
         "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
         "Builders never start a project nobody was dropped on: " + {
             "vv1": "a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built), and the Building case's hut start (0x44753C) runs only for a hut worked on (hut 9 progress 1 or more, hut 10 2 or more; progress [state+0x9F9C+8*id], 1 is the drawing routine's scaffold mark) or by a villager dropped on it; Builders Fix Huts When Idle's new-hut test and choices need the same.",
             "vv2": "a builder is put first only while it has hut work (a population hut unbuilt, or below Building level 3 any hut built), and the Building case's hut-24 start (0x45FF11) runs only for hut 24 worked on (progress [state+0x2E814] 1 or more; a new village starts it at 205) or by a villager dropped on it (task 0xB); Builders Fix Huts When Idle's new-hut test needs huts 25 / 26 at progress 2 or more.",
             "vv3": "The Secret City's Building case only continues projects above 0%, so a builder is always put first.",
-            "vv4": "a builder is put first only while the Building case offers no puzzle work it can start by itself: the stream (0x430FD0 on 0x4D8CF0 between 1 and 97) while The Stream (project 1) is unsolved, the piers (0x4396D0 on 0x4D86A8 below 2 and 0x421570 below 100), the rubble (0x4396D0 on 0x4D8720 at 0 and [0x4D8A8C] below 100). Its construction only continues projects above 0%.",
+            "vv4": "a builder is always put first; in the Building dispatches this companion causes (a builder put first, or an untrained villager's request run with the mark lifted) the Building case's three puzzle options are left out only while that puzzle is unsolved and unstarted (the owner, 2026-11-19: a solved puzzle's work is never blocked; only an unsolved puzzle's auto-start stays drop-only, for that option alone): option 5, the stream (added at 0x463DD1), until The Stream (project 1) is solved; option 6, the piers (0x463E1C), while 0x421570 on 0x4D86A8 is 0; option 7, the rubble (0x463E3E), while [0x4D8A8C] is 0. Builders Fix Huts When Idle never puts option 6 back then either (VvfpWorkFirstPuzzleBlocked). Its construction only continues projects above 0%.",
             "vv5": "New Believers' Building case only continues projects above 0%, so a builder is always put first.",
         }[game],
     ]
@@ -452,7 +480,7 @@ def work_first_row(game: str, sha: str) -> dict:
         behavior.append(f"Plants: once Herb Mastery is solved, a healer whose Healing work started nothing studies a random understood plant through the game's own starter ({plants}); a re-study's step is the stock Healing practice roll.")
     behavior.append("Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them " + ("(A New Home's picker gate 0x439C80, cmp esi, 1, becomes cmp esi, 5)." if game == "vv1" else "(its own gate, cmp esi, 5)."))
     if game == "vv4":
-        behavior.append("Untrained mark off (the owner, 2026-11-19): every new villager starts with [record+0x1C54] = 1 (0x45F534), and the dispatcher refuses every job while it is 1 (0x4639D2) -- its only gate; the scheduler's and worker's assigned-site tests (0x46597F, 0x4657C9) and the end-of-action reset (0x45E6DB) treat 1 as nothing assigned. Every request of the scheduler (returns 0x4659D2, 0x465A17, 0x465A2A) and of the catch-up worker (0x46582C, and the low-food Farming dispatch 0x46580F) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0); the job is the stock picker's (0x461CC0: above skill 5, then (skill + 40)%), Parenting only when it picks it. Not lifted for a Building request while the Building case offers puzzle work it can start by itself (as above).")
+        behavior.append("Untrained mark off (the owner, 2026-11-19): every new villager starts with [record+0x1C54] = 1 (0x45F534), and the dispatcher refuses every job while it is 1 (0x4639D2) -- its only gate; the scheduler's and worker's assigned-site tests (0x46597F, 0x4657C9) and the end-of-action reset (0x45E6DB) treat 1 as nothing assigned. Every request of the scheduler (returns 0x4659D2, 0x465A17, 0x465A2A) and of the catch-up worker (0x46582C, and the low-food Farming dispatch 0x46580F) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0); the job is the stock picker's (0x461CC0: above skill 5, then (skill + 40)%), Parenting only when it picks it. A Building request run this way follows the puzzle rule above.")
     if game == "vv5":
         behavior.append("Devotion (job 5) is put first like Healing: in catch-up always; while you play only when Easier Devotee Training's bytes are not at 0x46F1DD (stock 83B9FC1C00000D7554), so the two never double up. The dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing.")
         behavior.append("Untrained mark off (the owner, 2026-11-19): every new villager starts with [record+0x1C54] = 1 (0x4687D3), and the dispatcher refuses every job while it is 1 (0x46C565) -- its only gate; the scheduler's and worker's assigned-site tests (0x46F240, 0x46E96B) and the end-of-action resets (0x452D15, 0x455235, 0x465D2B) treat 1 as nothing assigned. Every request of the scheduler (returns 0x46F291, 0x46F2D6, 0x46F2EA) and of the catch-up worker (0x46E9CE, and the low-food Farming dispatch 0x46E9B1) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0); the job is the stock picker's (0x46A3C0: above skill 5, then (skill + 40)%), Parenting only when it picks it.")
