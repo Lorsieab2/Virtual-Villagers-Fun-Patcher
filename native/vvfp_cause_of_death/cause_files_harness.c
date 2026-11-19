@@ -376,7 +376,7 @@ static int write_file(const char *path, const unsigned char *buf, long n) {
 static int unaccounted(void) { return stats[9]; }
 
 /* WriteVillageRecord's stand-in (VvfpCauseTestWriter): the last record's text. */
-static char cie_last[1024];
+static char cie_last[8192];        /* (a Custom Island Event's own words: up to 4,095 characters) */
 
 static int __stdcall cie_writer(int game, int kind, const void *record, int check, const char *before,
                                 const char *after, int detail) {
@@ -940,6 +940,68 @@ int main(int argc, char **argv) {
                 save_done(3, save_block);
                 n = read_file(words_file, buf, sizeof buf);
                 CHECK(n == 16, "used up: the next save keeps no words (%ld bytes)", n);
+                /* Version 2 (the owner, 2026-11-17): with Scrolling Popups a death's own words are practically
+                   unlimited -- kept whole (here 2,000 characters) in the file, across a new session, and in the Death
+                   record; and a version 1 file (written before) is still read. */
+                {
+                    static char long_words[4096];
+                    static unsigned char v1[16 + 68];
+                    unsigned int fp;
+                    int i, round;
+                    for (i = 0; i < 2000; ++i) {
+                        long_words[i] = "Fell from the Great Falls and "[i % 30];
+                    }
+                    long_words[1999] = '.';
+                    long_words[2000] = 0;
+                    for (round = 0; round < 2; ++round) {
+                        r[0xF10] = 1;
+                        *(int *)(r + 0xE78) = 0;
+                        *(int *)(r + 0xE7C) = -1;
+                        *(int *)(r + 0xDC4) = 800;
+                        strcpy((char *)r + 0xDD4, "Third");
+                        killed_by(3, 7, long_words);
+                        save_done(3, save_block);
+                        n = read_file(words_file, buf, sizeof buf);
+                        CHECK(n == 16 + 8 + 2000 && *(unsigned int *)buf == 0x31574356u
+                              && *(unsigned int *)(buf + 4) == 2u && *(unsigned int *)(buf + 12) == 1u
+                              && *(unsigned int *)(buf + 20) == 2000u && memcmp(buf + 24, long_words, 2000) == 0,
+                              "words past 63 characters: the save writes version 2, whole (%ld bytes)", n);
+                        fp = *(unsigned int *)(buf + 16);
+                        if (round == 0) {
+                            /* A version 1 file of the same body (an older companion's): read as it was. */
+                            memset(v1, 0, sizeof v1);
+                            *(unsigned int *)v1 = 0x31574356u;
+                            *(unsigned int *)(v1 + 4) = 1u;
+                            *(unsigned int *)(v1 + 8) = 3u;
+                            *(unsigned int *)(v1 + 12) = 1u;
+                            *(unsigned int *)(v1 + 16) = fp;
+                            strcpy((char *)v1 + 20, "Swept away by the old tide");
+                            CHECK(write_file(words_file, v1, (long)sizeof v1), "a version 1 words file written");
+                        }
+                        FreeLibrary(dll);
+                        dll = LoadLibraryA(dll_path);
+                        setup = (setup_t)GetProcAddress(dll, "VvfpCauseTestSetup");
+                        save_done = (save_done_t)GetProcAddress(dll, "VvfpCauseTestSaveDone");
+                        decayed = (index_t)GetProcAddress(dll, "VvfpCauseTestDecayed");
+                        set_writer = (writer_t)GetProcAddress(dll, "VvfpCauseTestWriter");
+                        killed_by = (killed_by_t)GetProcAddress(dll, "VvfpCauseKilledBy");
+                        setup(3, &host, later);
+                        set_writer((void *)cie_writer);
+                        cie_last[0] = 0;
+                        decayed(7);
+                        if (round == 0) {
+                            CHECK(strstr(cie_last, "Cause of death: Swept away by the old tide\n") != NULL,
+                                  "a version 1 words file is still read: %.80s", cie_last);
+                        } else {
+                            char *line = strstr(cie_last, "Cause of death: ");
+                            CHECK(line != NULL && strncmp(line + 16, long_words, 2000) == 0 && line[16 + 2000] == '\n',
+                                  "a new session reads version 2: the Death record has all 2,000 characters");
+                        }
+                        save_done(3, save_block);
+                        n = read_file(words_file, buf, sizeof buf);
+                        CHECK(n == 16, "used up again (%ld bytes)", n);
+                    }
+                }
                 /* VvfpCauseDiedUnrecovered (cie-v6-binary.md 22): a death with no body is a Death record,
                    "Unknown causes", and no grave. */
                 {

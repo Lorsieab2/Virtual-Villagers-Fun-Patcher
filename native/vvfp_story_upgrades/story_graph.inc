@@ -144,8 +144,15 @@
 #define CG_DISPLAY_BYTES 0x100000           /* every display's words of a run (run file version 5; 4 kept 49,152) */
 #define CG_DISPLAY_BYTES_V4 49152
 #define CG_MAX_DISPLAYS 96
-#define CG_CAUSE_BYTES 64
+#define CG_CAUSE_BYTES 64               /* a death's own cause words WITHOUT Scrolling Popups, NUL included */
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
+
+/* The bytes (NUL included) a death's own cause words may hold: with Scrolling Popups practically any (the owner,
+   2026-11-17: the grave's popup scrolls; "VVFP Cause of Death.dll" keeps them whole, its words file version 2), else
+   the old 63 characters (src/vv_cie_graph.py CAUSE_BYTES / LONG_LINE_BYTES). */
+static int cg_cause_bytes(void) {
+    return cg_scrolls() ? CE_LONG_LINE_BYTES : CG_CAUSE_BYTES;
+}
 #define CG_ENTRY_BYTES 0x20000             /* the run's Island Events log entry: 16 questions' choices of up to
                                               CE_LONG_LINE_BYTES each and every change (run file 5; 4 kept 8,192) */
 #define CG_ENTRY_BYTES_V4 8192
@@ -1385,7 +1392,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 break;
             case CGE_KILL: case CGE_DIE_UNRECOVERED: case CGE_BIRTH_THEN_DIE: {
                 const char *cause = cg_s(g, str);
-                ok = str != CG_NONE && cause[0] != '\0' && lstrlenA(cause) < CG_CAUSE_BYTES && ce_text_ok(cause, 0)
+                /* With Scrolling Popups practically any length (the owner, 2026-11-17: the grave's popup scrolls
+                   too), else the old 63 characters. */
+                ok = str != CG_NONE && cause[0] != '\0' && lstrlenA(cause) < cg_cause_bytes() && ce_text_ok(cause, 0)
                      && (e[0] == CGE_KILL || (a == 0 && b == 0));
                 break;
             }
@@ -1665,8 +1674,20 @@ static cg_graph cg_g;
 static char cg_labels[CG_MAX_ANSWERS][CE_LONG_LINE_BYTES];   /* the asked question's button labels, names filled
                                                                   in (with Scrolling Popups: practically any length) */
 
+static int cg_active(int game);
+
+/* The one popup on screen is the simple editor's question (story_custom.inc ce_op_simple), not a library event's: a
+   run of the same game is never going while it is (the event slot is one). */
+static int cg_op_is_simple(void) {
+    return ce_op_simple != 0 && !cg_active(ce_op_simple);
+}
+
 /* The asked question's label for `button` (ce_choice_label, for a graph's question). */
 static const char *cg_label(int button) {
+    if (cg_op_is_simple()) {
+        /* The simple editor's question in one popup (story_custom.inc ce_choice_begin): its own two labels, whole. */
+        return button >= 0 && button < 2 ? ce_choice_store[ce_asked_store].labels[button] : "";
+    }
     return button >= 0 && button < CG_MAX_ANSWERS ? cg_labels[button] : "";
 }
 /* A buffer as large as a file needs (at most CG_MAX_FILE), grown in the process heap: NULL when it cannot be. */
@@ -1770,10 +1791,18 @@ static int cg_op_begun_take(int game) {
     return r;
 }
 
+/* ce_choice_begin just opened the simple editor's question of `game` as a one-popup event (ce_op_simple). */
+static void cg_op_begin_simple(int game) {
+    cg_op_begun = game;
+}
+
 static char cg_shown_title[CE_LONG_LINE_BYTES * 4];   /* (defined below) */
 
-/* One popup: the title in force on the text shown last. */
+/* One popup: the title in force on the text shown last (the simple editor's question: its own title). */
 static const char *cg_op_title(void) {
+    if (cg_op_is_simple()) {
+        return ce_asked_title;
+    }
     return cg_shown_title;
 }
 
@@ -7793,6 +7822,10 @@ static int cg_op_ok(int game, char *text, int size) {
 /* One popup: the choices the popup shows now (0 while OK shows), their words cg_label(0..). */
 static int cg_op_rows(int game) {
     unsigned char map[CG_MAX_ANSWERS];
+    if (game != 0 && ce_op_simple == game && cg_op_is_simple()) {
+        /* The simple editor's question: its two choices while it is asked, then OK (its result shown). */
+        return cg_one_popup() && ce_choice_asked(game) ? 2 : 0;
+    }
     if (!cg_one_popup() || cg.game != game || cg.phase != CG_ASKED || cg.asking < 0 || cg.asking >= cg.display_count) {
         return 0;
     }

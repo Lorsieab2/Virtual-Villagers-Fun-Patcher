@@ -337,11 +337,17 @@ class Event:
     revives: list = field(default_factory=list)     # (index, identity, health, cure)
 
     SPAWN_SIZE = 236
-    SIZE = (4 + 48 + 600 + 4 * 7 + 8 * SPAWN_SIZE + 4 + 256 * Change.SIZE
-            + 4 + 16 * 8 + 4 + 32 * 8 + 4 + 256 * 16)
+    # story_custom.h CE_TEXT_STORE: the text field (practically unlimited with Scrolling Popups, 2026-11-17);
+    # TEXT_BYTES_V1 = CE_TEXT_BYTES, the field before (the queue file's version 1, story_queue.inc ce_event_v1).
+    TEXT_BYTES = 100000
+    TEXT_BYTES_V1 = 600
+    TAIL = (4 * 7 + 8 * SPAWN_SIZE + 4 + 256 * Change.SIZE + 4 + 16 * 8 + 4 + 32 * 8 + 4 + 256 * 16)
+    SIZE = 4 + 48 + TEXT_BYTES + TAIL
+    SIZE_V1 = 4 + 48 + TEXT_BYTES_V1 + TAIL
 
-    def pack(self) -> bytes:
-        out = struct.pack("<i", self.game) + _s(self.title, 48) + _s(self.text, 600)
+    def pack(self, v1: bool = False) -> bytes:
+        out = struct.pack("<i", self.game) + _s(self.title, 48) + _s(self.text, self.TEXT_BYTES_V1 if v1
+                                                                       else self.TEXT_BYTES)
         out += struct.pack("<7i", self.food_op, self.food_amount, self.tech_op, self.tech_amount,
                            self.refill, self.village, len(self.spawns))
         spawns = b"".join(s.pack() for s in self.spawns)
@@ -355,7 +361,7 @@ class Event:
         out += struct.pack("<i", len(self.puzzles)) + puzzles + bytes(32 * 8 - len(puzzles))
         revives = b"".join(struct.pack("<iIii", *r) for r in self.revives)
         out += struct.pack("<i", len(self.revives)) + revives + bytes(256 * 16 - len(revives))
-        assert len(out) == self.SIZE
+        assert len(out) == (self.SIZE_V1 if v1 else self.SIZE)
         return out
 
 
@@ -367,9 +373,10 @@ class Outcome:
     effects: Event = field(default_factory=lambda: Event(title="", text="It happened."))
 
     SIZE = 4 + Event.SIZE
+    SIZE_V1 = 4 + Event.SIZE_V1
 
-    def pack(self) -> bytes:
-        return struct.pack("<i", self.chance) + self.effects.pack()
+    def pack(self, v1: bool = False) -> bytes:
+        return struct.pack("<i", self.chance) + self.effects.pack(v1)
 
 
 @dataclass
@@ -385,22 +392,26 @@ class Choice:
     featured: int | None = None
 
     MAX_OUTCOMES = 4
-    BUTTON_BYTES = 40
+    # story_custom.h CE_LABEL_STORE: a label's field (practically unlimited with Scrolling Popups, 2026-11-17);
+    # BUTTON_BYTES_V1 = CE_BUTTON_BYTES, the field before (the queue file's version 1).
+    BUTTON_BYTES = 4096
+    BUTTON_BYTES_V1 = 40
     SIZE = 4 + 2 * BUTTON_BYTES + 2 * 4 + 2 * 4 * Outcome.SIZE + 8
+    SIZE_V1 = 4 + 2 * BUTTON_BYTES_V1 + 2 * 4 + 2 * 4 * Outcome.SIZE_V1 + 8
 
-    def pack(self) -> bytes:
+    def pack(self, v1: bool = False) -> bytes:
         out = struct.pack("<i", self.enabled)
-        out += b"".join(_s(label, self.BUTTON_BYTES) for label in self.labels)
+        out += b"".join(_s(label, self.BUTTON_BYTES_V1 if v1 else self.BUTTON_BYTES) for label in self.labels)
         counts = self.counts if self.counts is not None else tuple(len(o) for o in self.outcomes)
         out += struct.pack("<2i", *counts)
-        empty = bytes(Outcome.SIZE)
+        empty = bytes(Outcome.SIZE_V1 if v1 else Outcome.SIZE)
         for button in self.outcomes:
             assert len(button) <= self.MAX_OUTCOMES
             for o in button:
-                out += o.pack()
+                out += o.pack(v1)
             out += empty * (self.MAX_OUTCOMES - len(button))
         out += struct.pack("<iI", 0 if self.featured is None else self.featured + 1, 0)
-        assert len(out) == self.SIZE
+        assert len(out) == (self.SIZE_V1 if v1 else self.SIZE)
         return out
 
 

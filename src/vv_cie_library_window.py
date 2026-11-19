@@ -717,6 +717,15 @@ def text_count(used: int, scrolling: bool) -> tuple[str, int]:
             f"{cg.LONG_TEXT_MAX:,})", cg.NODE_TEXT_MAX)
 
 
+def cause_count(used: int, scrolling: bool) -> tuple[str, int]:
+    """A death's own cause words' counter and its limit: practically unlimited with the Scrolling Popups patch (the
+    owner, 2026-11-17: the grave's popup scrolls too), else the old 63, saying so."""
+    if scrolling:
+        return f"{used:,} of {cg.LONG_LINE_BYTES:,} (Scrolling Popups: practically unlimited)", cg.LONG_LINE_BYTES
+    return (f"{used} of {cg.CAUSE_BYTES} (without the Scrolling Popups patch; with it up to "
+            f"{cg.LONG_LINE_BYTES:,})", cg.CAUSE_BYTES)
+
+
 def fit_meter(g: dict, nid: str, scrolling: bool) -> dict[int, Fit | None]:
     """For each game the event is made for: how much of the screen the popup holding part `nid` takes at its
     longest (the longest names, every history); None when the part shows no popup on any history."""
@@ -2583,8 +2592,8 @@ class Library:
 
                 def write_cause(*_a):
                     words = own.get()
-                    count.configure(text=f"{len(words)} of {cg.CAUSE_BYTES}",
-                                    foreground=RED if len(words) > cg.CAUSE_BYTES else "")
+                    said, cap = cause_count(len(words), bool(self.scrolling.get()))
+                    count.configure(text=said, foreground=RED if len(words) > cap else "")
                     e["cause"] = choice.get() if choice.get() != "own" else words
                     self._effect_changed()
                 ttk.Label(form, text="The death is recorded as:").grid(row=row, column=0, sticky="w", pady=(6, 2))

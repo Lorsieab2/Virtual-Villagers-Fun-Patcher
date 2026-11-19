@@ -2377,7 +2377,7 @@ static void ui_update_counts(HWND window) {
     const ce_adapter *a = ui.a;
     ce_layout l = ui_layout(window);
     char title[CE_TITLE_BYTES];
-    char body[CE_TEXT_BYTES];
+    static char body[CE_TEXT_STORE];
     char out[200];
     int title_chars;
     int lines;
@@ -2387,10 +2387,16 @@ static void ui_update_counts(HWND window) {
     wsprintfA(out, title_chars > a->title_width ? "%d / %d characters - too long" : "%d / %d characters",
               title_chars, a->title_width);
     SetDlgItemTextA(window, IDC_CE_TITLE_COUNT, out);
-    lines = ce_lines_used_in(&l, title, body);
-    wsprintfA(out, "%d words, %d characters - %d of %d lines used (%d characters a line)%s",
-              ce_word_count(body), ce_char_count(body), lines, l.lines, l.width,
-              lines > l.lines ? " - too long" : "");
+    if (cg_scrolls()) {
+        /* The owner (2026-11-17): with Scrolling Popups the popup scrolls, so the text is practically unlimited. */
+        wsprintfA(out, "%d words, %d characters - the popup scrolls (Scrolling Popups): no line limit",
+                  ce_word_count(body), ce_char_count(body));
+    } else {
+        lines = ce_lines_used_in(&l, title, body);
+        wsprintfA(out, "%d words, %d characters - %d of %d lines used (%d characters a line)%s",
+                  ce_word_count(body), ce_char_count(body), lines, l.lines, l.width,
+                  lines > l.lines ? " - too long without Scrolling Popups" : "");
+    }
     SetDlgItemTextA(window, IDC_CE_TEXT_NOTE, out);
 }
 
@@ -2438,11 +2444,16 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         int i;
         SetWindowLongPtrA(window, DWLP_USER, (LONG_PTR)lparam);
         SendDlgItemMessageA(window, IDC_CE_TITLE, EM_LIMITTEXT, CE_TITLE_BYTES - 1, 0);
-        SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, CE_TEXT_BYTES - 1, 0);
+        /* Practically unlimited with Scrolling Popups, else the panel's old cap (ce_text_cap). */
+        SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, (WPARAM)(ce_text_cap() - 1), 0);
         if (lparam == UI_MODE_OUTCOME) {
-            char caption[96];
-            wsprintfA(caption, "Outcome %d of the \"%s\" button", ui.outcome_index + 1,
-                      ui.choice.labels[ui.outcome_button]);
+            char caption[128];
+            char label[48];
+            lstrcpynA(label, ui.choice.labels[ui.outcome_button], sizeof label);   /* a long label's start */
+            if (lstrlenA(ui.choice.labels[ui.outcome_button]) >= (int)sizeof label) {
+                lstrcpyA(label + sizeof label - 4, "...");
+            }
+            wsprintfA(caption, "Outcome %d of the \"%s\" button", ui.outcome_index + 1, label);
             SetWindowTextA(window, caption);
             SetDlgItemTextA(window, IDOK, "OK");
             SetDlgItemTextA(window, IDC_CE_TITLE, ui.main_draft.title);
@@ -2795,7 +2806,7 @@ static void ui_choice_read_labels(HWND window) {
     int b;
     int featured = ui_combo_data(window, IDC_CC_FEATURED);
     for (b = 0; b < 2; ++b) {
-        GetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b], CE_BUTTON_BYTES);
+        GetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b], sizeof ui.choice.labels[b]);
     }
     /* The villager in the picture: record index + 1, 0 = a random one (its
        identity is taken again when the event is queued). */
@@ -2841,19 +2852,22 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
     int b;
     (void)lparam;
     if (message == WM_INITDIALOG) {
-        char text[160];
-        int width = ce_label_width(ui.a);
-        if (width > CE_BUTTON_BYTES - 1) {
-            width = CE_BUTTON_BYTES - 1;
-        }
+        char text[320];
+        int width = ce_label_cap(ui.a);    /* practically unlimited with Scrolling Popups, else the button's */
         for (b = 0; b < 2; ++b) {
             SendDlgItemMessageA(window, IDC_CC_LABEL_FIRST + b, EM_LIMITTEXT, (WPARAM)width, 0);
             SetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b]);
             SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_LIMITTEXT, 3, 0);
             ui_choice_fill(window, b, ui.choice.outcome_count[b] > 0 ? 0 : -1);
         }
-        wsprintfA(text, "A label is up to %d characters in %s. A chance is 1-100: each outcome's "
-                        "share is its chance out of the button's total.", width, ui.a->game_name);
+        if (cg_scrolls()) {
+            wsprintfA(text, "With Scrolling Popups a label can be practically unlimited: it wraps in its own row. "
+                            "A chance is 1-100: each outcome's share is its chance out of the button's total.");
+        } else {
+            wsprintfA(text, "A label is up to %d characters in %s without the Scrolling Popups patch (with it, "
+                            "practically unlimited). A chance is 1-100: each outcome's share is its chance out of "
+                            "the button's total.", width, ui.a->game_name);
+        }
         SetDlgItemTextA(window, IDC_CC_LIMIT, text);
         ui_choice_fill_featured(window);
         return TRUE;
