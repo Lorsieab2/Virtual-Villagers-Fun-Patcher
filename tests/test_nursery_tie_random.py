@@ -103,6 +103,9 @@ class Manifest(unittest.TestCase):
             row = next(p for p in load_fun_patches() if p.id == f"{game}_fix_vanilla_bugs").raw
             pinned = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                       for p in row["patches"]]
+            if game == "vv5":                   # tests/test_vv5_nursery_foundation_caption.py comes after it
+                from test_vv5_nursery_foundation_caption import foundation_caption_fixes
+                pinned = pinned[:-len(foundation_caption_fixes())]
             self.assertEqual(pinned[-len(FIXES[game]):], list(FIXES[game]))
             self.assertIn("a tie is broken at random", row["description"])
 
