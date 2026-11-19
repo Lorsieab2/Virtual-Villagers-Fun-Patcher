@@ -71,7 +71,8 @@ HIDDEN_LINES = (
      '7 at skill 0, then doubled for a villager who likes learning and halved for one who dislikes it; how often '
      'the check succeeds, liked or disliked, is under Chances.', gm.RUNNING),
     ('Parenting: a failed check gives 4 at any Parenting except 0, where the other skills give 4 only at 0 (at '
-     "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the normal game's behaviour.", gm.RUNNING),
+     "Parenting 10 and Learning level 1: 56% fail for +4, 44% succeed for +6). This is the normal game's "
+     "behaviour.", gm.RUNNING),
     ('Liking work skips the 15% chance of doing nothing and keeps a player-given task 99% of the time (86% '
      'otherwise); disliking it, 70% of job picks end in doing nothing, a player-given task is kept 63% of the '
      'time, and while catching up 78% find no job (29% otherwise).', gm.RUNNING),

@@ -1044,25 +1044,25 @@
           "offset": "0x3D5E0",
           "before": "7E7C",
           "after": "EB7C",
-          "purpose": "make the Building success target unconditional"
+          "purpose": "make the Parenting success target unconditional"
         },
         {
           "offset": "0x3D72A",
           "before": "7E19",
           "after": "EB19",
-          "purpose": "make the Researching success target unconditional"
+          "purpose": "make the Healing success target unconditional"
         },
         {
           "offset": "0x3D7F8",
           "before": "0F8F2EFFFFFF",
           "after": "909090909090",
-          "purpose": "remove the Healing failure branch and fall through to stock skill gain"
+          "purpose": "remove the Building failure branch and fall through to stock skill gain"
         },
         {
           "offset": "0x3D8AC",
           "before": "7E77",
           "after": "EB77",
-          "purpose": "make the Parenting success target unconditional"
+          "purpose": "make the Researching success target unconditional"
         }
       ]
     },
@@ -1092,25 +1092,25 @@
           "offset": "0x4E37B",
           "before": "0F8E8D000000",
           "after": "E98E00000090",
-          "purpose": "make the Building success target unconditional"
+          "purpose": "make the Parenting success target unconditional"
         },
         {
           "offset": "0x4E4E2",
           "before": "7E2D",
           "after": "EB2D",
-          "purpose": "make the Researching success target unconditional"
+          "purpose": "make the Healing success target unconditional"
         },
         {
           "offset": "0x4E5E5",
           "before": "7E2D",
           "after": "EB2D",
-          "purpose": "make the Healing success target unconditional"
+          "purpose": "make the Building success target unconditional"
         },
         {
           "offset": "0x4E6EA",
           "before": "0F8E8C000000",
           "after": "E98D00000090",
-          "purpose": "make the Parenting success target unconditional"
+          "purpose": "make the Researching success target unconditional"
         }
       ]
     },
@@ -1188,25 +1188,25 @@
           "offset": "0x62D9F",
           "before": "0F8EED000000",
           "after": "E9EE00000090",
-          "purpose": "make the Building success target unconditional"
+          "purpose": "make the Parenting success target unconditional"
         },
         {
           "offset": "0x62FAA",
           "before": "7E73",
           "after": "EB73",
-          "purpose": "make the Researching success target unconditional"
+          "purpose": "make the Healing success target unconditional"
         },
         {
           "offset": "0x63136",
           "before": "7E5F",
           "after": "EB5F",
-          "purpose": "make the Healing success target unconditional"
+          "purpose": "make the Building success target unconditional"
         },
         {
           "offset": "0x632AF",
           "before": "0F8ED2000000",
           "after": "E9D300000090",
-          "purpose": "make the Parenting success target unconditional"
+          "purpose": "make the Researching success target unconditional"
         }
       ]
     },
@@ -1236,25 +1236,25 @@
           "offset": "0x6B4DD",
           "before": "0F8E9D000000",
           "after": "E99E00000090",
-          "purpose": "make the Building success target unconditional"
+          "purpose": "make the Parenting success target unconditional"
         },
         {
           "offset": "0x6B6C7",
           "before": "7E73",
           "after": "EB73",
-          "purpose": "make the Researching success target unconditional"
+          "purpose": "make the Healing success target unconditional"
         },
         {
           "offset": "0x6B853",
           "before": "7E5F",
           "after": "EB5F",
-          "purpose": "make the Healing success target unconditional"
+          "purpose": "make the Building success target unconditional"
         },
         {
           "offset": "0x6B9CC",
           "before": "0F8E95000000",
           "after": "E99600000090",
-          "purpose": "make the Parenting success target unconditional"
+          "purpose": "make the Researching success target unconditional"
         },
         {
           "offset": "0x6BB7F",

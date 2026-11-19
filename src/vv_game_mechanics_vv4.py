@@ -193,6 +193,13 @@ LIFE_LINES = (
      "one of 51.05%, then a roll of 0 to 99 at or above the skill; otherwise nothing. The odds of the check itself "
      "are under Chances.",
      gm.RUNNING),
+    # A failure: 0x461930 (the skill is exactly 0.0) then +4.0 (0x4AA908) through the writer 0x46AD80 -- je past
+    # it in Farming (0x462B98), Healing (0x462FE0), Building (0x46316C) and Research (0x46335D), jne in Parenting
+    # (0x462E29), as in New Believers (0x46B517) and The Secret City (0x45A55C).
+    ("A failed check gives nothing, except 4 points to a villager whose Farming, Healing, Research or Building is "
+     "exactly 0; Parenting is the other way round: a failed check gives 4 at any Parenting except 0 (at "
+     "Parenting 10 and Learning level 1: 56% fail for +4, 44% succeed for +6). This is the normal game's "
+     "behaviour.", gm.RUNNING),
     ("Building: every building needs 2,000 build points; each build step adds 12 to Hut 1, 4 to Hut 2, 1 to Hut 3, "
      "12 to the Clothing Hut, 200 to the Love Shack and 50 to the Nursery School and the Hospital.", gm.RUNNING),
     ("The Fire Pit stays lit 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "
