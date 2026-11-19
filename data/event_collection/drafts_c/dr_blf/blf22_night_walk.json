@@ -74,6 +74,31 @@
    "src": "L266"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Be careful,\" says (friend), and lets (subject.him/her) go. (subject) climbs the hill, sits, and watches the moon. It's quiet and enormous up there. (subject.He/she) comes back at dawn and finds (friend) dozing outside (subject.his/her) hut with a torch. \"You waited?\" \"I couldn't sleep,\" says (friend). \"I didn't come up, though.\" (subject) is grateful for both things.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L269"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Be careful,\" says (friend), and lets (subject.him/her) go. (subject) climbs the hill, sits, and watches the moon. It's quiet and enormous up there. (subject.He/she) comes back at dawn and finds (friend) dozing outside (subject.his/her) hut with a torch. \"You waited?\" \"I couldn't sleep,\" says (friend). \"I didn't come up, though.\" (subject) is grateful for both things.",
    "src": "L269"

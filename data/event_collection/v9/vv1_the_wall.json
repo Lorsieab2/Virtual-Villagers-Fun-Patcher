@@ -645,13 +645,14 @@
    ]
   },
   "s2": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L4670-4671",
-   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "unresolved"
+     "next": "s2__fx"
+    },
+    {
+     "next": "s2__text"
     }
    ]
   },
@@ -990,6 +991,42 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "s2__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4670-4671",
+   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L4670-4671"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L4670-4671"
+    }
+   ]
+  },
+  "s2__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4670-4671",
+   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
   }
  }
 }

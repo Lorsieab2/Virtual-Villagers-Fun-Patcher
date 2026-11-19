@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Two siblings float leaf boats along a shallow stream. One boat spins in circles, to the delight of its maker.",
-   "src": "L99"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -109,6 +116,49 @@
    "src": "L107"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Two siblings float leaf boats along a shallow stream. One boat spins in circles, to the delight of its maker.",
+   "src": "L99",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L99"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Two siblings float leaf boats along a shallow stream. One boat spins in circles, to the delight of its maker.",
+   "src": "L99"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two siblings float leaf boats along a shallow stream. The smallest boat travels farthest, provoking delighted disbelief.",
+   "src": "L111",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L111"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Two siblings float leaf boats along a shallow stream. The smallest boat travels farthest, provoking delighted disbelief.",
    "src": "L111"

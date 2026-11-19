@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) backs out and leaves the door wide open. That night, the owl leaves. The next morning (subject) finds that the little mice that used to nibble at the grain have gone too, and there's not one nibbled basket in the whole storehouse. (subject) is not sure whether to thank the owl or not. (subject.He/She) does it anyway, out loud, at the doorway.",
-   "src": "L158"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) fetches (friend). (friend) opens the door, sees the eyes, and closes it again. \"That's an owl,\" (friend.he/she) says. \"I know it's an owl.\" \"It's a big owl.\" They stand outside for a while. Eventually they decide that the grain can wait, and the owl can stay, and they eat fish for dinner instead.",
    "src": "L161"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) backs out and leaves the door wide open. That night, the owl leaves. The next morning (subject) finds that the little mice that used to nibble at the grain have gone too, and there's not one nibbled basket in the whole storehouse. (subject) is not sure whether to thank the owl or not. (subject.He/She) does it anyway, out loud, at the doorway.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L158"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) backs out and leaves the door wide open. That night, the owl leaves. The next morning (subject) finds that the little mice that used to nibble at the grain have gone too, and there's not one nibbled basket in the whole storehouse. (subject) is not sure whether to thank the owl or not. (subject.He/She) does it anyway, out loud, at the doorway.",
+   "src": "L158"
   }
  }
 }

@@ -137,9 +137,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The gathering becomes a cheerful reunion.",
-   "src": "L28887"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -167,6 +174,30 @@
    "name": "Outcome D2",
    "text": "One friend secretly appreciates the lack of ceremony.",
    "src": "L28891"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The gathering becomes a cheerful reunion.",
+   "src": "L28887",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L28887"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L28887"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The gathering becomes a cheerful reunion.",
+   "src": "L28887"
   }
  }
 }

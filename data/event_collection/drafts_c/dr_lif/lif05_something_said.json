@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The person still lives in the village, and (name1) goes and finds them. It's awkward. They don't even remember it at first. Then they do. \"Oh. That.\" They're quiet for a moment. \"Thank you for saying so.\" That's all. It doesn't fix anything that happened back then. (name1) walks home feeling lighter anyway, and a little foolish, and glad.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) doesn't know if the person would even remember, or want to be reminded. So (he/she) just goes through the rest of the day more carefully, watching what (he/she) says. It's harder than (he/she) expected. At one point (he/she) opens (his/her) mouth to say something sharp and clever, and closes it again. (He/she) thinks that might be the closest thing to sorry (he/she) can manage today.",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The person still lives in the village, and (name1) goes and finds them. It's awkward. They don't even remember it at first. Then they do. \"Oh. That.\" They're quiet for a moment. \"Thank you for saying so.\" That's all. It doesn't fix anything that happened back then. (name1) walks home feeling lighter anyway, and a little foolish, and glad.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The person still lives in the village, and (name1) goes and finds them. It's awkward. They don't even remember it at first. Then they do. \"Oh. That.\" They're quiet for a moment. \"Thank you for saying so.\" That's all. It doesn't fix anything that happened back then. (name1) walks home feeling lighter anyway, and a little foolish, and glad.",
+   "src": "L62"
   }
  }
 }

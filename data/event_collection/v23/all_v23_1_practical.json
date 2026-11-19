@@ -169,8 +169,16 @@
    ]
   },
   "a2": {
-   "text": "An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",
-   "src": "L9986-9987"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "a3": {
    "text": "(Target) anticipated everything and replaces the surprise with a carved sign reading, \"TRY AGAIN.\"",
@@ -289,6 +297,22 @@
      "next": "c4"
     }
    ]
+  },
+  "a2__fx": {
+   "text": "An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",
+   "src": "L9986-9987",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "target",
+     "mood": "good",
+     "src": "L9986-9987"
+    }
+   ]
+  },
+  "a2__text": {
+   "text": "An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",
+   "src": "L9986-9987"
   }
  },
  "grammar_fixes": [

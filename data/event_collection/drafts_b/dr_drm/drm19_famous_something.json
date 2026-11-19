@@ -70,11 +70,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"What about being famous for being helpful?\" says (friend). (subject) is skeptical, but tries it. (subject.He/she) carries water for an elder, fixes a loose roof, and finds a child's lost sandal. Nobody makes a fuss. But by the end of the week three people have said, \"Oh, ask (subject), (subject.he/she)'ll help.\" It isn't fame. It's a bit better than fame.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"What about being famous for being helpful?\" says (friend). (subject) is skeptical, but tries it. (subject.He/she) carries water for an elder, fixes a loose roof, and finds a child's lost sandal. Nobody makes a fuss. But by the end of the week three people have said, \"Oh, ask (subject), (subject.he/she)'ll help.\" It isn't fame. It's a bit better than fame.",
    "src": "L230"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Famous for the biggest hat,\" says (friend). (subject)'s eyes light up. The hat takes two days and is made of palm leaves, flowers and one small, offended lizard \\(released\\). It is enormous. (subject) wears it to dinner, and the whole fire bursts out laughing, and for one whole evening (subject) is, without question, famous.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L233"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Famous for the biggest hat,\" says (friend). (subject)'s eyes light up. The hat takes two days and is made of palm leaves, flowers and one small, offended lizard \\(released\\). It is enormous. (subject) wears it to dinner, and the whole fire bursts out laughing, and for one whole evening (subject) is, without question, famous.",
    "src": "L233"

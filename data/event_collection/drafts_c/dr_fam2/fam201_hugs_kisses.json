@@ -72,14 +72,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Then tell me what you like,\" says (friend). (subject), relieved, explains: hugs, yes. Holding hands, yes. Sitting close by the fire, very yes. Kisses, now and then, not much. (friend) nods and gives (subject.him/her) an enormous hug right there in the doorway. \"Better?\" \"Much,\" says (subject), muffled. They work it out from there. It's easy, once it's said.",
-   "src": "L14"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) is quiet for a moment. \"I'm glad you told me,\" (friend.he/she) says. \"I think I need a little while to get used to it, that's all.\" \"That's fair,\" says (subject). (friend) goes off fishing and thinks. That evening (friend.he/she) comes back and just opens (friend.his/her) arms. (subject) walks into the hug. Neither of them says anything else about it. Neither of them needs to.",
    "src": "L17"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Then tell me what you like,\" says (friend). (subject), relieved, explains: hugs, yes. Holding hands, yes. Sitting close by the fire, very yes. Kisses, now and then, not much. (friend) nods and gives (subject.him/her) an enormous hug right there in the doorway. \"Better?\" \"Much,\" says (subject), muffled. They work it out from there. It's easy, once it's said.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Then tell me what you like,\" says (friend). (subject), relieved, explains: hugs, yes. Holding hands, yes. Sitting close by the fire, very yes. Kisses, now and then, not much. (friend) nods and gives (subject.him/her) an enormous hug right there in the doorway. \"Better?\" \"Much,\" says (subject), muffled. They work it out from there. It's easy, once it's said.",
+   "src": "L14"
   }
  }
 }

@@ -103,14 +103,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Oh, them?\" says (neighbor). \"That's how they talk. If they ever stop arguing, THEN worry.\" (third) watches. (subject) says the fish was smaller. (friend) says it was bigger. They both laugh, and (subject) gives (friend) a quick kiss on the cheek and keeps arguing. (third) decides that people love each other in all sorts of ways.",
-   "src": "L434"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(third) works up the courage to ask. \"Are you two alright?\" (subject) and (friend) look at each other, confused. \"We're having a lovely time,\" says (subject). \"Why?\" \"You're arguing,\" says (third). \"Oh! That's not arguing,\" says (friend). \"That's just talking very loudly.\" They invite (third) to dinner. It's very loud. (third) has a wonderful time.",
    "src": "L437"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Oh, them?\" says (neighbor). \"That's how they talk. If they ever stop arguing, THEN worry.\" (third) watches. (subject) says the fish was smaller. (friend) says it was bigger. They both laugh, and (subject) gives (friend) a quick kiss on the cheek and keeps arguing. (third) decides that people love each other in all sorts of ways.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L434"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L434"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Oh, them?\" says (neighbor). \"That's how they talk. If they ever stop arguing, THEN worry.\" (third) watches. (subject) says the fish was smaller. (friend) says it was bigger. They both laugh, and (subject) gives (friend) a quick kiss on the cheek and keeps arguing. (third) decides that people love each other in all sorts of ways.",
+   "src": "L434"
   }
  }
 }

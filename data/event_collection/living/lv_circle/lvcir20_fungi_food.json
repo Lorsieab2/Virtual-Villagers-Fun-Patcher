@@ -125,19 +125,14 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The fungi spread through dead leaves and enrich the scientist's notes.",
-   "src": "L21497",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "scientist",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L21497"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -175,6 +170,46 @@
    "name": "Outcome C2",
    "text": "The growing bed fails during a dry spell.",
    "src": "L21501"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The fungi spread through dead leaves and enrich the scientist's notes.",
+   "src": "L21497",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21497"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21497"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The fungi spread through dead leaves and enrich the scientist's notes.",
+   "src": "L21497",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21497"
+    }
+   ]
   }
  }
 }

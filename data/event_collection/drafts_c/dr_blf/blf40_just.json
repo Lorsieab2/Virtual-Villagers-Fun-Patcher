@@ -71,14 +71,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) uses the new name straight away, without even blinking. A few others follow. Some forget and use the old one, and (subject) corrects them, and they apologize. It takes a while for everyone to get used to it. (subject) has never felt so much like (subject.him/her)self. (subject.He/she) catches (friend)'s eye and grins.",
-   "src": "L482"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Why that name?\" asks (friend), curious. (subject) shrugs. \"It just feels like mine.\" (friend) nods. \"Then that's your name.\" (friend.He/she) uses it from then on. Some of the family take longer. One of the elders never quite manages it, but tries, which (subject) decides counts for a lot.",
    "src": "L485"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) uses the new name straight away, without even blinking. A few others follow. Some forget and use the old one, and (subject) corrects them, and they apologize. It takes a while for everyone to get used to it. (subject) has never felt so much like (subject.him/her)self. (subject.He/she) catches (friend)'s eye and grins.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L482"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) uses the new name straight away, without even blinking. A few others follow. Some forget and use the old one, and (subject) corrects them, and they apologize. It takes a while for everyone to get used to it. (subject) has never felt so much like (subject.him/her)self. (subject.He/she) catches (friend)'s eye and grins.",
+   "src": "L482"
   }
  }
 }

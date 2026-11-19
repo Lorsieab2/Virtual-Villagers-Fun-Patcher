@@ -74,6 +74,31 @@
    "src": "L362"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Not tonight,\" says (subject), smiling. \"But thank you.\" (friend) shrugs and dances off. (subject) stays at the edge, tapping (subject.his/her) foot, enjoying the music. Later, alone in (subject.his/her) hut, (subject.he/she) dances every dance (subject.he/she) saw tonight. Nobody sees. That's alright. The dancing is for (subject.him/her).",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L365"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Not tonight,\" says (subject), smiling. \"But thank you.\" (friend) shrugs and dances off. (subject) stays at the edge, tapping (subject.his/her) foot, enjoying the music. Later, alone in (subject.his/her) hut, (subject.he/she) dances every dance (subject.he/she) saw tonight. Nobody sees. That's alright. The dancing is for (subject.him/her).",
    "src": "L365"

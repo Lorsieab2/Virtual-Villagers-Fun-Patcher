@@ -100,14 +100,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"I'm so sorry,\" says (subject). \"I'm terrible with faces. Remind me?\" (visitor) laughs. \"The harvest feast, years ago! You helped me carry a pot of stew, and you fell over, and we both ended up covered in it.\" (subject) remembers instantly. They spend the afternoon catching up. (subject.His/Her) knee, it turns out, was the one (subject.he/she) landed on.",
-   "src": "L38"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"Oh, it's fine, thank you! And you?\" (visitor) talks happily for some time about people and places (subject) doesn't recognize. (subject) nods in all the right places. Just as (visitor) leaves, (visitor.he/she) says, \"Give my love to the stew pot!\" and (subject) suddenly remembers everything. (visitor) is already gone.",
    "src": "L41"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"I'm so sorry,\" says (subject). \"I'm terrible with faces. Remind me?\" (visitor) laughs. \"The harvest feast, years ago! You helped me carry a pot of stew, and you fell over, and we both ended up covered in it.\" (subject) remembers instantly. They spend the afternoon catching up. (subject.His/Her) knee, it turns out, was the one (subject.he/she) landed on.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    },
+    {
+     "do": "mood",
+     "role": "visitor",
+     "mood": "good",
+     "src": "L38"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"I'm so sorry,\" says (subject). \"I'm terrible with faces. Remind me?\" (visitor) laughs. \"The harvest feast, years ago! You helped me carry a pot of stew, and you fell over, and we both ended up covered in it.\" (subject) remembers instantly. They spend the afternoon catching up. (subject.His/Her) knee, it turns out, was the one (subject.he/she) landed on.",
+   "src": "L38"
   }
  }
 }

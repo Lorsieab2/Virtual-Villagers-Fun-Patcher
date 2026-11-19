@@ -119,9 +119,16 @@
    "src": "L23174"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The villagers discover a reliable source of deadwood.",
-   "src": "L23175"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -166,6 +173,24 @@
    "name": "Outcome D2",
    "text": "The new hearth takes time and materials to finish.",
    "src": "L23181"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The villagers discover a reliable source of deadwood.",
+   "src": "L23175",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23175"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The villagers discover a reliable source of deadwood.",
+   "src": "L23175"
   }
  }
 }

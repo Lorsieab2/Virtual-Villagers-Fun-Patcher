@@ -75,6 +75,31 @@
    "src": "L153"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Thank you,\" says (subject). The conversation moves on. Later, while washing (subject.his/her) hands, (subject) remembers the compliment and smiles. The day feels a little better.",
+   "src": "L157",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L157"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"Thank you,\" says (subject). The conversation moves on. Later, while washing (subject.his/her) hands, (subject) remembers the compliment and smiles. The day feels a little better.",
    "src": "L157"

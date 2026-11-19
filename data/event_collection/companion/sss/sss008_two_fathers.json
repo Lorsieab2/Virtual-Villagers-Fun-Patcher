@@ -116,6 +116,39 @@
    ]
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "A trusted relative babysits so the tired fathers can rest; the neighbor learns not to assume roles.",
+   "src": "L6150",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "father1",
+     "min": 5,
+     "max": 15,
+     "src": "L6150"
+    },
+    {
+     "do": "health_change",
+     "role": "father2",
+     "min": 5,
+     "max": 15,
+     "src": "L6150"
+    }
+   ]
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "A trusted relative babysits so the tired fathers can rest; the neighbor learns not to assume roles.",
    "src": "L6150"

@@ -89,14 +89,39 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "They find a comforting rhythm.",
-   "src": "L1481"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "They remember a distant journey.",
    "src": "L1482"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They find a comforting rhythm.",
+   "src": "L1481",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1481"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They find a comforting rhythm.",
+   "src": "L1481"
   }
  }
 }

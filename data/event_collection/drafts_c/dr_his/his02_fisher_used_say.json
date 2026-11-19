@@ -70,9 +70,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"You said yesterday the Old Fisher said 'Go out early, the fish are hungry,' and today you said 'Go out late, the fish are lazy,'\" says (friend). (subject) thinks about this for a long time. \"The Old Fisher,\" (subject.he/she) says at last, \"was a very complicated person.\" (friend) laughs. They spend the evening trying to sort the sayings into ones that make sense and ones that don't. The second pile is much bigger.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
@@ -85,6 +92,24 @@
      "src": "L29"
     }
    ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"You said yesterday the Old Fisher said 'Go out early, the fish are hungry,' and today you said 'Go out late, the fish are lazy,'\" says (friend). (subject) thinks about this for a long time. \"The Old Fisher,\" (subject.he/she) says at last, \"was a very complicated person.\" (friend) laughs. They spend the evening trying to sort the sayings into ones that make sense and ones that don't. The second pile is much bigger.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"You said yesterday the Old Fisher said 'Go out early, the fish are hungry,' and today you said 'Go out late, the fish are lazy,'\" says (friend). (subject) thinks about this for a long time. \"The Old Fisher,\" (subject.he/she) says at last, \"was a very complicated person.\" (friend) laughs. They spend the evening trying to sort the sayings into ones that make sense and ones that don't. The second pile is much bigger.",
+   "src": "L26"
   }
  }
 }

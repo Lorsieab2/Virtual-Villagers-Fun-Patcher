@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) keeps singing, out of conviction. (friend) quietly starts singing to (friend.his/her) own beans too, just in case. The next season both gardens do well. (subject) credits the singing. (friend) credits the compost. For the sake of peace, they agree it was probably both.",
-   "src": "L554"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) sings to one half of the row and leaves the other half in silence. At the end of the season, the beans are exactly the same on both sides. \"...The quiet half could hear,\" (subject) concludes. (friend) gives up arguing and helps (subject.him/her) pick them.",
    "src": "L557"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) keeps singing, out of conviction. (friend) quietly starts singing to (friend.his/her) own beans too, just in case. The next season both gardens do well. (subject) credits the singing. (friend) credits the compost. For the sake of peace, they agree it was probably both.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L554"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) keeps singing, out of conviction. (friend) quietly starts singing to (friend.his/her) own beans too, just in case. The next season both gardens do well. (subject) credits the singing. (friend) credits the compost. For the sake of peace, they agree it was probably both.",
+   "src": "L554"
   }
  }
 }

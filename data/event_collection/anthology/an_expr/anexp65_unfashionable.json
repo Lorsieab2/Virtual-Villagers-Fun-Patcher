@@ -205,6 +205,31 @@
    "src": "L32285"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(elder) laughs at a joke they started themself.",
+   "src": "L32286",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L32286"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(elder) laughs at a joke they started themself.",
    "src": "L32286"

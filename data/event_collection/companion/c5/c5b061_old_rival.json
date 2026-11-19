@@ -89,14 +89,45 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "They share an easy laugh.",
-   "src": "L1673"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "They acknowledge how much they have changed.",
    "src": "L1674"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They share an easy laugh.",
+   "src": "L1673",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "rival1",
+     "mood": "good",
+     "src": "L1673"
+    },
+    {
+     "do": "mood",
+     "role": "rival2",
+     "mood": "good",
+     "src": "L1673"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They share an easy laugh.",
+   "src": "L1673"
   }
  }
 }

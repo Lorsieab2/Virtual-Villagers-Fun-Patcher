@@ -129,9 +129,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The novice gains confidence and teaches a memorable lesson.",
-   "src": "L23724"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -151,14 +158,57 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The students design a useful observation.",
-   "src": "L23727"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The disagreement persists longer than necessary.",
    "src": "L23728"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The novice gains confidence and teaches a memorable lesson.",
+   "src": "L23724",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "novice",
+     "mood": "good",
+     "src": "L23724"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The novice gains confidence and teaches a memorable lesson.",
+   "src": "L23724"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The students design a useful observation.",
+   "src": "L23727",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23727"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The students design a useful observation.",
+   "src": "L23727"
   }
  }
 }

@@ -91,14 +91,51 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) decides to try, at last, to climb the tall palm (friend.he/she) has never managed. (friend.He/She) gets further up than ever before, though not to the top. (cook), another villager, tries a new recipe, which is mostly good. A third, (third), finally asks (pal), a friend, to go fishing, and (pal) says yes. Was it a lucky day? Everyone has their own opinion. Most of them had a very good day, at least.",
-   "src": "L363"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "Most people carry on as normal. It's a normal sort of day: some good things happen, some bad things happen. At dinner, (subject) asks if everyone had a lucky day. One person says yes. One person says no. Most say \"about average.\" (subject) nods wisely. \"Lucky days come in all sizes,\" (subject.he/she) says. Nobody is sure what that means.",
    "src": "L366"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) decides to try, at last, to climb the tall palm (friend.he/she) has never managed. (friend.He/She) gets further up than ever before, though not to the top. (cook), another villager, tries a new recipe, which is mostly good. A third, (third), finally asks (pal), a friend, to go fishing, and (pal) says yes. Was it a lucky day? Everyone has their own opinion. Most of them had a very good day, at least.",
+   "src": "L363",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L363"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L363"
+    },
+    {
+     "do": "mood",
+     "role": "pal",
+     "mood": "good",
+     "src": "L363"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) decides to try, at last, to climb the tall palm (friend.he/she) has never managed. (friend.He/She) gets further up than ever before, though not to the top. (cook), another villager, tries a new recipe, which is mostly good. A third, (third), finally asks (pal), a friend, to go fishing, and (pal) says yes. Was it a lucky day? Everyone has their own opinion. Most of them had a very good day, at least.",
+   "src": "L363"
   }
  }
 }

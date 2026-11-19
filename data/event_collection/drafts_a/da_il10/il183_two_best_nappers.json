@@ -66,11 +66,70 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) lies down beside (friend), at a respectful distance, and closes (subject.his/her) eyes. When the grown-ups come looking, they find the two of them asleep side by side in exactly the same position, arms out, mouths open, both snoring softly. Somebody fetches a blanket for each. Nobody wakes either of them.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L38"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L38"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) lies down beside (friend), at a respectful distance, and closes (subject.his/her) eyes. When the grown-ups come looking, they find the two of them asleep side by side in exactly the same position, arms out, mouths open, both snoring softly. Somebody fetches a blanket for each. Nobody wakes either of them.",
    "src": "L38"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) studies (friend) for a while: the perfect stillness, the tiny snore, the leaf stuck to (friend.his/her) cheek that (friend.he/she) hasn't even noticed. \"Well,\" (subject) murmurs, \"you're better than me.\" (subject.He/She) finds another tree and naps there instead. It's a good nap. But (subject.he/she) knows, in (subject.his/her) heart, it isn't the best one in the village today.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L41"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) studies (friend) for a while: the perfect stillness, the tiny snore, the leaf stuck to (friend.his/her) cheek that (friend.he/she) hasn't even noticed. \"Well,\" (subject) murmurs, \"you're better than me.\" (subject.He/She) finds another tree and naps there instead. It's a good nap. But (subject.he/she) knows, in (subject.his/her) heart, it isn't the best one in the village today.",
    "src": "L41"

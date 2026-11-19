@@ -64,11 +64,68 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) gets out of the hammock and walks down to the tree. A child is up in the branches, eating. An elder is resting in the shade. A goat is trying to reach the low fruit. (name1) stands there and watches, enormously pleased with (him/her)self, until the goat gets the fruit. (He/she) decides one good thing done well is quite a lot.",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L152"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) gets out of the hammock and walks down to the tree. A child is up in the branches, eating. An elder is resting in the shade. A goat is trying to reach the low fruit. (name1) stands there and watches, enormously pleased with (him/her)self, until the goat gets the fruit. (He/she) decides one good thing done well is quite a lot.",
    "src": "L152"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) stays in the hammock and lists the other mistakes, just to keep (him/her)self humble. It's a long list. Then (he/she) thinks of the tree again and smiles. It's not a fair trade, a whole list of mistakes for one tree. But (he/she) likes the tree better than (he/she) dislikes the mistakes. (He/she) falls asleep content.",
+   "src": "L155",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the draft's notes: everything but the marked effects is story only",
+     "src": "L155"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L155"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) stays in the hammock and lists the other mistakes, just to keep (him/her)self humble. It's a long list. Then (he/she) thinks of the tree again and smiles. It's not a fair trade, a whole list of mistakes for one tree. But (he/she) likes the tree better than (he/she) dislikes the mistakes. (He/she) falls asleep content.",
    "src": "L155",

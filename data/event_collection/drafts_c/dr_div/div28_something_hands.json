@@ -69,14 +69,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I'm listening,\" says (subject). \"I listen better when I'm moving. If I sit still, all I can think about is sitting still.\" (friend) looks doubtful. So (subject) repeats, word for word, the last three things the council said. (friend) blinks. Next meeting, (friend) silently hands (subject) a hank of fiber to braid. (subject) braids a whole rope by the end. (subject.He/she) remembers everything.",
-   "src": "L338"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) gets up, walks twice around the meeting hut, and comes back in. (friend) glares. But (subject) sits through the rest of the meeting much more calmly. Afterward (friend) asks, grudgingly, if that helped. (subject) says it did. (friend) thinks about this, and at the next meeting suggests a short walking break halfway through. Half the elders are secretly relieved.",
    "src": "L341"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm listening,\" says (subject). \"I listen better when I'm moving. If I sit still, all I can think about is sitting still.\" (friend) looks doubtful. So (subject) repeats, word for word, the last three things the council said. (friend) blinks. Next meeting, (friend) silently hands (subject) a hank of fiber to braid. (subject) braids a whole rope by the end. (subject.He/she) remembers everything.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L338"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm listening,\" says (subject). \"I listen better when I'm moving. If I sit still, all I can think about is sitting still.\" (friend) looks doubtful. So (subject) repeats, word for word, the last three things the council said. (friend) blinks. Next meeting, (friend) silently hands (subject) a hank of fiber to braid. (subject) braids a whole rope by the end. (subject.He/she) remembers everything.",
+   "src": "L338"
   }
  }
 }

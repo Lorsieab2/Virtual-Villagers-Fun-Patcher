@@ -103,9 +103,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The wound closes, but the vine population is badly damaged.",
-   "src": "L20469"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -183,6 +190,25 @@
    "name": "Outcome C2",
    "text": "The cuttings fail, and the village debates whether the plant should be left untouched.",
    "src": "L20476"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The wound closes, but the vine population is badly damaged.",
+   "src": "L20469",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L20469"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The wound closes, but the vine population is badly damaged.",
+   "src": "L20469"
   }
  }
 }

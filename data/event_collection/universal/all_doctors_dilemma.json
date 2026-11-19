@@ -716,19 +716,14 @@
    ]
   },
   "recovery": {
+   "type": "branch",
    "name": "Full recovery",
-   "src": "L1601-1606",
-   "text": "After several difficult days, (patient)'s condition begins to improve. The fever subsides, (patient.his/her) strength returns, and the healers are finally able to breathe a sigh of relief.\n(patient.He/She) eventually makes a full recovery. The village celebrates quietly, grateful that the treatment worked.",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L1606"
-    }
-   ],
    "children": [
     {
-     "next": "rewards"
+     "next": "recovery__fx"
+    },
+    {
+     "next": "recovery__text"
     }
    ]
   },
@@ -764,20 +759,14 @@
    ]
   },
   "death": {
+   "type": "branch",
    "name": "Death",
-   "src": "L1627-1639",
-   "text": "Despite the healers' efforts, (patient) grows weaker. One evening, (patient.he/she) dies.\nThe village is devastated. (Healer1) wonders whether another decision might have changed the outcome. (Healer2) reminds (healer1.him/her) that uncertainty cannot always be eliminated.\nThe villagers gather to remember (patient). Some are angry. Some are silent. Others simply sit together.\nThe healers review the case carefully - not to find someone to blame automatically, but to understand whether anything could have been done differently.",
-   "effects": [
-    {
-     "do": "kill",
-     "role": "patient",
-     "cause": "unknown",
-     "src": "L1628"
-    }
-   ],
    "children": [
     {
-     "next": "rewards"
+     "next": "death__fx"
+    },
+    {
+     "next": "death__text"
     }
    ]
   },
@@ -930,6 +919,107 @@
     },
     {
      "next": "pair6"
+    }
+   ]
+  },
+  "recovery__fx": {
+   "name": "Full recovery",
+   "src": "L1601-1606",
+   "text": "After several difficult days, (patient)'s condition begins to improve. The fever subsides, (patient.his/her) strength returns, and the healers are finally able to breathe a sigh of relief.\n(patient.He/She) eventually makes a full recovery. The village celebrates quietly, grateful that the treatment worked.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L1606"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L1601-1606"
+    },
+    {
+     "do": "mood",
+     "role": "healer1",
+     "mood": "good",
+     "src": "L1601-1606"
+    },
+    {
+     "do": "mood",
+     "role": "healer2",
+     "mood": "good",
+     "src": "L1601-1606"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
+    }
+   ]
+  },
+  "recovery__text": {
+   "name": "Full recovery",
+   "src": "L1601-1606",
+   "text": "After several difficult days, (patient)'s condition begins to improve. The fever subsides, (patient.his/her) strength returns, and the healers are finally able to breathe a sigh of relief.\n(patient.He/She) eventually makes a full recovery. The village celebrates quietly, grateful that the treatment worked.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L1606"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
+    }
+   ]
+  },
+  "death__fx": {
+   "name": "Death",
+   "src": "L1627-1639",
+   "text": "Despite the healers' efforts, (patient) grows weaker. One evening, (patient.he/she) dies.\nThe village is devastated. (Healer1) wonders whether another decision might have changed the outcome. (Healer2) reminds (healer1.him/her) that uncertainty cannot always be eliminated.\nThe villagers gather to remember (patient). Some are angry. Some are silent. Others simply sit together.\nThe healers review the case carefully - not to find someone to blame automatically, but to understand whether anything could have been done differently.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L1628"
+    },
+    {
+     "do": "mood",
+     "role": "healer1",
+     "mood": "bad",
+     "src": "L1627-1639"
+    },
+    {
+     "do": "mood",
+     "role": "healer2",
+     "mood": "bad",
+     "src": "L1627-1639"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
+    }
+   ]
+  },
+  "death__text": {
+   "name": "Death",
+   "src": "L1627-1639",
+   "text": "Despite the healers' efforts, (patient) grows weaker. One evening, (patient.he/she) dies.\nThe village is devastated. (Healer1) wonders whether another decision might have changed the outcome. (Healer2) reminds (healer1.him/her) that uncertainty cannot always be eliminated.\nThe villagers gather to remember (patient). Some are angry. Some are silent. Others simply sit together.\nThe healers review the case carefully - not to find someone to blame automatically, but to understand whether anything could have been done differently.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L1628"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
     }
    ]
   }

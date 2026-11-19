@@ -75,6 +75,31 @@
    "src": "L314"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) comforts (friend), and (friend) runs back to the rocks, already over it, and leaps into the sea with a shriek. (subject) watches. Yes, being young was hard. But (subject.he/she) still misses those knees. (subject.He/she) goes home and tries jumping off a small rock into the stream. It's undignified. It's also wonderful. (subject.He/she) doesn't tell anyone.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L317"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) comforts (friend), and (friend) runs back to the rocks, already over it, and leaps into the sea with a shriek. (subject) watches. Yes, being young was hard. But (subject.he/she) still misses those knees. (subject.He/she) goes home and tries jumping off a small rock into the stream. It's undignified. It's also wonderful. (subject.He/she) doesn't tell anyone.",
    "src": "L317"

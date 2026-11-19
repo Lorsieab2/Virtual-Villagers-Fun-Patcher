@@ -92,9 +92,16 @@
    "src": "L21747"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The villager feels relieved to remain recognizable.",
-   "src": "L21748"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -139,6 +146,24 @@
    "name": "Outcome C2",
    "text": "The speaker admits not everyone agrees about the custom.",
    "src": "L21754"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The villager feels relieved to remain recognizable.",
+   "src": "L21748",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21748"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The villager feels relieved to remain recognizable.",
+   "src": "L21748"
   }
  }
 }

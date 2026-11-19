@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) reads the list and laughs until (friend.he/she) cries. \"Did you do any of these?\" (subject) thinks. \"I'm a decent fisher. I eat beans all the time. No Captain.\" \"So one out of three?\" \"Half out of three.\" They agree that's a perfectly respectable score for a whole life so far.",
-   "src": "L224"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) reads the whole list slowly. Some of it makes (subject.him/her) laugh. Some of it makes (subject.him/her) a little wistful. Some of it (subject.he/she) doesn't remember wanting at all. (subject.He/She) doesn't feel like a failure or a success, just like someone who used to be fifteen. (subject.He/She) tucks the list away again. The seabird, (subject.he/she) thinks, is still technically possible.",
    "src": "L227"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) reads the list and laughs until (friend.he/she) cries. \"Did you do any of these?\" (subject) thinks. \"I'm a decent fisher. I eat beans all the time. No Captain.\" \"So one out of three?\" \"Half out of three.\" They agree that's a perfectly respectable score for a whole life so far.",
+   "src": "L224",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L224"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L224"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) reads the list and laughs until (friend.he/she) cries. \"Did you do any of these?\" (subject) thinks. \"I'm a decent fisher. I eat beans all the time. No Captain.\" \"So one out of three?\" \"Half out of three.\" They agree that's a perfectly respectable score for a whole life so far.",
+   "src": "L224"
   }
  }
 }

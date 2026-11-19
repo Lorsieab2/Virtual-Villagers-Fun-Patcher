@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Thank you,\" says (subject). It's still nice to be praised. Even for bowls. Later, (subject.he/she) mentions the clever thing to (friend), who is impressed and says so. Now (subject) has been praised twice. Once for the right thing. It's a good evening after all.",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Thank you,\" says (subject). \"Also, I fixed the water channel today. It took all morning.\" There's a pause. \"Oh!\" says (friend). \"I wondered why the water was running better.\" Everyone is interested. They ask questions. They also, a moment later, go back to talking about the bowls.",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject). It's still nice to be praised. Even for bowls. Later, (subject.he/she) mentions the clever thing to (friend), who is impressed and says so. Now (subject) has been praised twice. Once for the right thing. It's a good evening after all.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject). It's still nice to be praised. Even for bowls. Later, (subject.he/she) mentions the clever thing to (friend), who is impressed and says so. Now (subject) has been praised twice. Once for the right thing. It's a good evening after all.",
+   "src": "L374"
   }
  }
 }

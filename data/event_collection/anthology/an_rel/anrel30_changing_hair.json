@@ -141,15 +141,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(villager) loves the bright result.",
-   "src": "L27455",
-   "effects": [
+   "children": [
     {
-     "do": "appearance",
-     "role": "villager",
-     "head": "random",
-     "src": "L27455"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -244,6 +243,38 @@
      "what": "\"celebration\"",
      "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
      "src": "L27465"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(villager) loves the bright result.",
+   "src": "L27455",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L27455"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27455"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(villager) loves the bright result.",
+   "src": "L27455",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L27455"
     }
    ]
   }

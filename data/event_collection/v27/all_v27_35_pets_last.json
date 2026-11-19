@@ -73,16 +73,14 @@
    "src": "L10764"
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The pet dies peacefully; its guardian grieves and remembers it.",
-   "src": "L10765",
-   "text_only": [
+   "children": [
     {
-     "what": "dies",
-     "reason": "the pet dies, not a villager",
-     "src": "L10765"
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
     }
    ]
   },
@@ -97,6 +95,42 @@
      "what": "disappears",
      "reason": "the animal disappears, not a villager",
      "src": "L10766"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The pet dies peacefully; its guardian grieves and remembers it.",
+   "src": "L10765",
+   "text_only": [
+    {
+     "what": "dies",
+     "reason": "the pet dies, not a villager",
+     "src": "L10765"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "guardian",
+     "mood": "bad",
+     "src": "L10765"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The pet dies peacefully; its guardian grieves and remembers it.",
+   "src": "L10765",
+   "text_only": [
+    {
+     "what": "dies",
+     "reason": "the pet dies, not a villager",
+     "src": "L10765"
     }
    ]
   }

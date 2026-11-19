@@ -94,14 +94,39 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "The mentor is delighted.",
-   "src": "L1901"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "The mentor admits the apprentice has taught them too.",
    "src": "L1902"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "The mentor is delighted.",
+   "src": "L1901",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mentor",
+     "mood": "good",
+     "src": "L1901"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "The mentor is delighted.",
+   "src": "L1901"
   }
  }
 }

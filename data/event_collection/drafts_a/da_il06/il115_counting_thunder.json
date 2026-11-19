@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "Eight. Seven. Seven. Five. The gaps are getting shorter. \"I think the storm's coming closer,\" (subject) says. (friend) looks at the sky, then at (subject). \"How do you know?\" \"The counting told me.\" They move the drying fish inside, just in case. A little later, the rain arrives right on time.",
-   "src": "L176"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(friend) has noticed, (friend.he/she) just never thought about it. \"Maybe the thunder is slower than the light,\" (friend.he/she) suggests. \"Maybe it walks and the light runs.\" (subject) likes that very much. They sit under the eaves together, counting and guessing, until the storm drifts off the other way.",
    "src": "L179"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Eight. Seven. Seven. Five. The gaps are getting shorter. \"I think the storm's coming closer,\" (subject) says. (friend) looks at the sky, then at (subject). \"How do you know?\" \"The counting told me.\" They move the drying fish inside, just in case. A little later, the rain arrives right on time.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L176"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Eight. Seven. Seven. Five. The gaps are getting shorter. \"I think the storm's coming closer,\" (subject) says. (friend) looks at the sky, then at (subject). \"How do you know?\" \"The counting told me.\" They move the drying fish inside, just in case. A little later, the rain arrives right on time.",
+   "src": "L176"
   }
  }
 }

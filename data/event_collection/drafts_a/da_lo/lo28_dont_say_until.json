@@ -76,6 +76,50 @@
    "src": "L339"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"You said it,\" says (subject). \"You bring it in.\" (friend), terrified, takes the line, and with a great deal of splashing and shouting, hauls the fish into the canoe. It's enormous. They both collapse laughing. \"So it's not bad luck to say it?\" \"Apparently not. Or you were lucky.\"",
+   "src": "L342",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L342"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L342"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L342"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing collapses in the story (a tower of shells, a pile); no building is damaged",
+     "src": "L342"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"You said it,\" says (subject). \"You bring it in.\" (friend), terrified, takes the line, and with a great deal of splashing and shouting, hauls the fish into the canoe. It's enormous. They both collapse laughing. \"So it's not bad luck to say it?\" \"Apparently not. Or you were lucky.\"",
    "src": "L342",

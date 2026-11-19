@@ -74,6 +74,32 @@
    "src": "L269"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "In the end (subject) decides (subject.he/she) doesn't want the blessing, just company. (friend) doesn't mind in the least. They sit in the shade with a cool wet cloth over (subject)'s eyes, and (friend) talks quietly about nothing much. The headache stays a while, then goes. \"Thank you,\" says (subject). \"I didn't do anything,\" says (friend). \"You did,\" says (subject).",
+   "src": "L272",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L272"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "In the end (subject) decides (subject.he/she) doesn't want the blessing, just company. (friend) doesn't mind in the least. They sit in the shade with a cool wet cloth over (subject)'s eyes, and (friend) talks quietly about nothing much. The headache stays a while, then goes. \"Thank you,\" says (subject). \"I didn't do anything,\" says (friend). \"You did,\" says (subject).",
    "src": "L272"

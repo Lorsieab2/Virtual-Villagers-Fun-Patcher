@@ -90,11 +90,61 @@
    ]
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Their detailed oral descriptions reveal knowledge the instructor overlooked.",
+   "src": "L6168",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6168"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "Their detailed oral descriptions reveal knowledge the instructor overlooked.",
    "src": "L6168"
   },
-  "c": {
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The teen creates a symbol-based reference board that benefits several learners.",
+   "src": "L6170",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6170"
+    }
+   ]
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "The teen creates a symbol-based reference board that benefits several learners.",
    "src": "L6170"

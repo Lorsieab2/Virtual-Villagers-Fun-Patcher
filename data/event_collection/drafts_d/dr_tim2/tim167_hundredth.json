@@ -96,9 +96,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The family laughs at the same spot they always do.",
-   "src": "L297,L298"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -111,6 +118,49 @@
    "src": "L297,L300"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The family laughs at the same spot they always do.",
+   "src": "L297,L298",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L297,L298"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The family laughs at the same spot they always do.",
+   "src": "L297,L298"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The grandparent laughs so hard that they cannot finish it.",
+   "src": "L297,L301",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L297,L301"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a grandparent, tells the same funny story for the hundredth time. The grandparent laughs so hard that they cannot finish it.",
    "src": "L297,L301"

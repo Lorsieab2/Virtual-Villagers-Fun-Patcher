@@ -75,14 +75,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Sweethearts? Us?\" (subject) laughs so hard (subject.he/she) has to stop walking. \"No, no. Just friends. Very old friends.\" \"But you hold hands,\" says (third). \"Of course we do,\" says (friend). \"You hold hands with people you love. That's not only for sweethearts.\" (third) thinks about this all day. The next morning, (third.he/she) holds (third.his/her) friend's hand on the way to the stream.",
-   "src": "L350"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"We're friends,\" says (friend). \"Have been for sixty years. Holding hands is just how we walk.\" (third) nods slowly. \"That's nice,\" (third.he/she) says. \"It is,\" says (subject). They carry on to the beach, slow and steady, still holding hands, arguing gently about which of them is slowing the other down.",
    "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Sweethearts? Us?\" (subject) laughs so hard (subject.he/she) has to stop walking. \"No, no. Just friends. Very old friends.\" \"But you hold hands,\" says (third). \"Of course we do,\" says (friend). \"You hold hands with people you love. That's not only for sweethearts.\" (third) thinks about this all day. The next morning, (third.he/she) holds (third.his/her) friend's hand on the way to the stream.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Sweethearts? Us?\" (subject) laughs so hard (subject.he/she) has to stop walking. \"No, no. Just friends. Very old friends.\" \"But you hold hands,\" says (third). \"Of course we do,\" says (friend). \"You hold hands with people you love. That's not only for sweethearts.\" (third) thinks about this all day. The next morning, (third.he/she) holds (third.his/her) friend's hand on the way to the stream.",
+   "src": "L350"
   }
  }
 }

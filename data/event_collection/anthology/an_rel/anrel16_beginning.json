@@ -173,9 +173,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(teen) feels relieved and more at ease with friends.",
-   "src": "L27245"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -247,6 +254,24 @@
    "name": "Outcome D2",
    "text": "(teen) later decides to share the news with a close friend.",
    "src": "L27255"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(teen) feels relieved and more at ease with friends.",
+   "src": "L27245",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L27245"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(teen) feels relieved and more at ease with friends.",
+   "src": "L27245"
   }
  }
 }

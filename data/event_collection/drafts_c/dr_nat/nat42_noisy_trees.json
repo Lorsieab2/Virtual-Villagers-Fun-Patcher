@@ -74,6 +74,35 @@
    "src": "L500"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They build the hut. The herons do not leave. They shriek, they squabble, they drop fish bits on the roof. The new hut becomes known as the noisiest, smelliest hut on Isola. (subject) moves in anyway and swears (subject.he/she) will get used to it. After a season (subject.he/she) says (subject.he/she) has. Nobody believes (subject.him/her), but (subject.he/she) does seem to sleep fine.",
+   "src": "L503",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L503"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They build the hut. The herons do not leave. They shriek, they squabble, they drop fish bits on the roof. The new hut becomes known as the noisiest, smelliest hut on Isola. (subject) moves in anyway and swears (subject.he/she) will get used to it. After a season (subject.he/she) says (subject.he/she) has. Nobody believes (subject.him/her), but (subject.he/she) does seem to sleep fine.",
    "src": "L503"

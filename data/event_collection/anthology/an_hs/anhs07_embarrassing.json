@@ -151,14 +151,14 @@
    "src": "L29533"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "They forget the words and both collapse into laughter.",
-   "src": "L29534",
-   "text_only": [
+   "children": [
     {
-     "what": "\"collapse\"",
-     "reason": "a thing breaks or collapses in the story; no building is damaged -- the volume's outcomes are story text unless an effect is marked",
-     "src": "L29534"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -180,9 +180,16 @@
    "src": "L29536"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "They find a private moment to sing together afterward.",
-   "src": "L29537"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -227,6 +234,68 @@
    "name": "Outcome D2",
    "text": "Nobody pays much attention, though (young) remains mortified.",
    "src": "L29543"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "They forget the words and both collapse into laughter.",
+   "src": "L29534",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a thing breaks or collapses in the story; no building is damaged -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29534"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "young",
+     "mood": "good",
+     "src": "L29534"
+    },
+    {
+     "do": "mood",
+     "role": "grandparent",
+     "mood": "good",
+     "src": "L29534"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "They forget the words and both collapse into laughter.",
+   "src": "L29534",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a thing breaks or collapses in the story; no building is damaged -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29534"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "They find a private moment to sing together afterward.",
+   "src": "L29537",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "young",
+     "mood": "good",
+     "src": "L29537"
+    },
+    {
+     "do": "mood",
+     "role": "grandparent",
+     "mood": "good",
+     "src": "L29537"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "They find a private moment to sing together afterward.",
+   "src": "L29537"
   }
  }
 }

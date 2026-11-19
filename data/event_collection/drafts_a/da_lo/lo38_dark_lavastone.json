@@ -127,6 +127,63 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) carries the stone back to the jungle edge and buries it where (he/she) found it. Was it the stone? Was it just a bad week? (He/She) doesn't know. But that night (he/she) sleeps, and in the morning the food tastes like food again. (name1) doesn't go back to that spot. (He/She) doesn't feel (he/she) needs to.",
+   "src": "L467",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L467"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L467"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) carries the stone back to the jungle edge and buries it where (he/she) found it. Was it the stone? Was it just a bad week? (He/She) doesn't know. But that night (he/she) sleeps, and in the morning the food tastes like food again. (name1) doesn't go back to that spot. (He/She) doesn't feel (he/she) needs to.",
+   "src": "L467",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L467"
+    }
+   ]
+  },
+  "a__fx": {
    "name": "Answer A",
    "text": "(name1) decides it's probably just a bad week, and keeps the stone. The heavy feeling gets worse, and then one morning (he/she) wakes with a fever.",
    "src": "L462",
@@ -141,17 +198,29 @@
      "weight": 3,
      "odds": "About 3 in 10"
     }
+   ],
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject",
+     "src": "L462"
+    }
    ]
   },
-  "b": {
-   "name": "Answer B",
-   "text": "(name1) carries the stone back to the jungle edge and buries it where (he/she) found it. Was it the stone? Was it just a bad week? (He/She) doesn't know. But that night (he/she) sleeps, and in the morning the food tastes like food again. (name1) doesn't go back to that spot. (He/She) doesn't feel (he/she) needs to.",
-   "src": "L467",
-   "text_only": [
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) decides it's probably just a bad week, and keeps the stone. The heavy feeling gets worse, and then one morning (he/she) wakes with a fever.",
+   "src": "L462",
+   "children": [
     {
-     "what": "\"food\"",
-     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
-     "src": "L467"
+     "next": "a1",
+     "weight": 7,
+     "odds": "About 7 in 10"
+    },
+    {
+     "next": "a2",
+     "weight": 3,
+     "odds": "About 3 in 10"
     }
    ]
   }

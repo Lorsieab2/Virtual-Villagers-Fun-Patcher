@@ -69,6 +69,38 @@
    "src": "L74"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) walks one more bend. Then one more. Eventually the visitor laughs and says, \"At this rate you're coming home with me.\" (name1) laughs too, and finally stops. (He/she) watches the visitor go until the trees close behind them. It is dark when (he/she) gets home, and (his/her) feet are very sore, and (he/she) doesn't mind at all.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) walks one more bend. Then one more. Eventually the visitor laughs and says, \"At this rate you're coming home with me.\" (name1) laughs too, and finally stops. (He/she) watches the visitor go until the trees close behind them. It is dark when (he/she) gets home, and (his/her) feet are very sore, and (he/she) doesn't mind at all.",
    "src": "L77"

@@ -104,9 +104,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The friends exchange songs and strengthen their trust.",
-   "src": "L21775"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -156,6 +163,24 @@
    "name": "Outcome C2",
    "text": "The two find another way to remain in contact.",
    "src": "L21782"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The friends exchange songs and strengthen their trust.",
+   "src": "L21775",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21775"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The friends exchange songs and strengthen their trust.",
+   "src": "L21775"
   }
  },
  "patches": [

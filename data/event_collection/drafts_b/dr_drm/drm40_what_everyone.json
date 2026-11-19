@@ -97,14 +97,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I'm not, I think,\" says (subject). (elder) looks surprised, then a little disappointed. (subject) waits to feel guilty. It doesn't come. (subject.He/she) goes fishing that afternoon and catches nothing, and is perfectly happy. (elder), a few days later, asks how the fishing is going. That's something.",
-   "src": "L482"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I don't know,\" says (subject). \"I like the water. I liked building too. Maybe both.\" (elder) grumbles that you can't do both. (subject) shrugs. (subject.He/she) spends the morning fixing a roof and the afternoon fishing, and is not entirely sure which part (subject.he/she) liked better. (subject.He/she) doesn't need to know yet.",
    "src": "L485"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm not, I think,\" says (subject). (elder) looks surprised, then a little disappointed. (subject) waits to feel guilty. It doesn't come. (subject.He/she) goes fishing that afternoon and catches nothing, and is perfectly happy. (elder), a few days later, asks how the fishing is going. That's something.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L482"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm not, I think,\" says (subject). (elder) looks surprised, then a little disappointed. (subject) waits to feel guilty. It doesn't come. (subject.He/she) goes fishing that afternoon and catches nothing, and is perfectly happy. (elder), a few days later, asks how the fishing is going. That's something.",
+   "src": "L482"
   }
  }
 }

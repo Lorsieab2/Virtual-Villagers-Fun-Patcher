@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Oh, hello,\" says (friend), as if (subject) has just popped out for a moment. \"Good timing. Stew's nearly ready.\" (subject) is so grateful (subject.he/she) could cry. They eat together and talk about everything except the walk. Much later, (subject) admits, \"I missed home.\" \"I know,\" says (friend). \"Have some more stew.\"",
-   "src": "L254"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"You're back!\" says (friend). \"Good. It's been too quiet.\" (subject) braces for teasing, and none comes. (subject.He/she) explains, a bit sheepishly, about missing home. (friend) shrugs. \"Sounds like you found out something about yourself.\" (subject) thinks about that. Maybe (subject.he/she) did. (subject.He/she) might try the walk again someday. Or not.",
    "src": "L257"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Oh, hello,\" says (friend), as if (subject) has just popped out for a moment. \"Good timing. Stew's nearly ready.\" (subject) is so grateful (subject.he/she) could cry. They eat together and talk about everything except the walk. Much later, (subject) admits, \"I missed home.\" \"I know,\" says (friend). \"Have some more stew.\"",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L254"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Oh, hello,\" says (friend), as if (subject) has just popped out for a moment. \"Good timing. Stew's nearly ready.\" (subject) is so grateful (subject.he/she) could cry. They eat together and talk about everything except the walk. Much later, (subject) admits, \"I missed home.\" \"I know,\" says (friend). \"Have some more stew.\"",
+   "src": "L254"
   }
  }
 }

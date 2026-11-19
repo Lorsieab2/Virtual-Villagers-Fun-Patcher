@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They keep finding shapes. A canoe. A dog chasing its tail. A face that looks exactly like one of the elders, which makes them both laugh until they cry. The afternoon slips away. Nobody comes looking for them. When they finally get up, they have done no work and seen eleven animals, three boats and an elder.",
-   "src": "L518"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Right,\" says (subject), sitting up. \"Work.\" They go back to work. But all afternoon (subject) keeps glancing up at the sky, and so does (friend). Whenever their eyes meet, one of them points up and mouths a shape. The work gets done. It takes twice as long. It's much more fun.",
    "src": "L521"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They keep finding shapes. A canoe. A dog chasing its tail. A face that looks exactly like one of the elders, which makes them both laugh until they cry. The afternoon slips away. Nobody comes looking for them. When they finally get up, they have done no work and seen eleven animals, three boats and an elder.",
+   "src": "L518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L518"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L518"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They keep finding shapes. A canoe. A dog chasing its tail. A face that looks exactly like one of the elders, which makes them both laugh until they cry. The afternoon slips away. Nobody comes looking for them. When they finally get up, they have done no work and seen eleven animals, three boats and an elder.",
+   "src": "L518"
   }
  }
 }

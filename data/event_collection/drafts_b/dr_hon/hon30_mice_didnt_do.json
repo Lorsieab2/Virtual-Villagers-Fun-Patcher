@@ -74,6 +74,31 @@
    "src": "L362"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) helps set traps, feeling worse with every one. No mouse is caught, of course. The next morning (friend) says thoughtfully, \"Funny sort of mouse. Only took the sweet ones, and tied the bag up again afterward.\" (friend.He/she) doesn't look at (subject). That afternoon a basket of fresh nuts appears in the storehouse. (friend) quietly takes up the traps.",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L365"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) helps set traps, feeling worse with every one. No mouse is caught, of course. The next morning (friend) says thoughtfully, \"Funny sort of mouse. Only took the sweet ones, and tied the bag up again afterward.\" (friend.He/she) doesn't look at (subject). That afternoon a basket of fresh nuts appears in the storehouse. (friend) quietly takes up the traps.",
    "src": "L365"

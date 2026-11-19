@@ -69,6 +69,31 @@
    "src": "L422"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'm still working that out,\" says (name1), with a smile. The visitor laughs. \"Me too. I'm forty.\" The fire laughs with them, warmly. (name1) realizes (he/she) isn't the only one. Several people, later, quietly admit that they're not sure either.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L425"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'm still working that out,\" says (name1), with a smile. The visitor laughs. \"Me too. I'm forty.\" The fire laughs with them, warmly. (name1) realizes (he/she) isn't the only one. Several people, later, quietly admit that they're not sure either.",
    "src": "L425"

@@ -74,6 +74,31 @@
    "src": "L434"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Someone might be missing it,\" says (friend). They walk the pig gently out to the edge of the forest. It looks back once, then trots off into the trees. (subject) is a bit sad. The next morning there are pig tracks all round (subject.his/her) hut, as if something had come back to check on (subject.him/her). (subject) is absurdly pleased.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L437"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Someone might be missing it,\" says (friend). They walk the pig gently out to the edge of the forest. It looks back once, then trots off into the trees. (subject) is a bit sad. The next morning there are pig tracks all round (subject.his/her) hut, as if something had come back to check on (subject.him/her). (subject) is absurdly pleased.",
    "src": "L437"

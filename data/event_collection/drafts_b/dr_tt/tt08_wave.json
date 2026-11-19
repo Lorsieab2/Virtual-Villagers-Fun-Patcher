@@ -75,6 +75,31 @@
    "src": "L98"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing and listens. The wave gets bigger. Now there was a second wave, even bigger. (friend) giggles. Afterward (subject) catches (friend.his/her) eye and winks. That afternoon they go down to the beach together, and (subject) teaches (friend) to ride a knee-sized wave, which turns out to be quite exciting enough.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L101"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) says nothing and listens. The wave gets bigger. Now there was a second wave, even bigger. (friend) giggles. Afterward (subject) catches (friend.his/her) eye and winks. That afternoon they go down to the beach together, and (subject) teaches (friend) to ride a knee-sized wave, which turns out to be quite exciting enough.",
    "src": "L101"

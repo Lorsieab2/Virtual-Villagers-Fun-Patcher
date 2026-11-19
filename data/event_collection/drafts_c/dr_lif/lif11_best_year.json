@@ -86,6 +86,31 @@
    "src": "L128"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Why?\" says everyone. (subject) just smiles. \"It was a very good year.\" (subject.He/she) won't say any more. People guess for weeks. (friend) is convinced it was a secret love affair. (villager) is sure (subject) found treasure. It was the roof. (subject) enjoys the guessing almost as much as (subject.he/she) enjoyed the year.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L131"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Why?\" says everyone. (subject) just smiles. \"It was a very good year.\" (subject.He/she) won't say any more. People guess for weeks. (friend) is convinced it was a secret love affair. (villager) is sure (subject) found treasure. It was the roof. (subject) enjoys the guessing almost as much as (subject.he/she) enjoyed the year.",
    "src": "L131"

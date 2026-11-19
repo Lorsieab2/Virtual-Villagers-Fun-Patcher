@@ -73,9 +73,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The expedition remains a future ambition while coastal surveys improve knowledge.",
-   "src": "L6354"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -83,6 +90,49 @@
    "src": "L6356"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The expedition remains a future ambition while coastal surveys improve knowledge.",
+   "src": "L6354",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6354"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The expedition remains a future ambition while coastal surveys improve knowledge.",
+   "src": "L6354"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "A nearshore voyage teaches useful lessons, but proves nothing about distant lands.",
+   "src": "L6358",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6358"
+    }
+   ]
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "A nearshore voyage teaches useful lessons, but proves nothing about distant lands.",
    "src": "L6358"

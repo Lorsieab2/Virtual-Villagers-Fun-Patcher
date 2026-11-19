@@ -66,14 +66,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Do you ever think about how your life turned out?\" asks (subject). (friend) sits down. \"Turned out? I'm not finished yet.\" They talk until the stars come out: about things they wanted at fifteen, things they're glad they didn't get, and one or two things they still might try. Nothing is decided. (subject) goes to bed feeling oddly comfortable.",
-   "src": "L188"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"Just thinking,\" says (subject), and (friend) leaves (subject.him/her) to it. (subject) sits a while longer. (subject.He/She) can't decide whether (subject.his/her) life so far has been good, or ordinary, or strange, or all three. In the end (subject.he/she) decides it doesn't need a verdict tonight. (subject.He/She) goes inside and makes some tea.",
    "src": "L191"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Do you ever think about how your life turned out?\" asks (subject). (friend) sits down. \"Turned out? I'm not finished yet.\" They talk until the stars come out: about things they wanted at fifteen, things they're glad they didn't get, and one or two things they still might try. Nothing is decided. (subject) goes to bed feeling oddly comfortable.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L188"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Do you ever think about how your life turned out?\" asks (subject). (friend) sits down. \"Turned out? I'm not finished yet.\" They talk until the stars come out: about things they wanted at fifteen, things they're glad they didn't get, and one or two things they still might try. Nothing is decided. (subject) goes to bed feeling oddly comfortable.",
+   "src": "L188"
   }
  }
 }

@@ -147,9 +147,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(mentor) proudly recognizes the achievement.",
-   "src": "L28896"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -213,14 +220,57 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(apprentice) laughs about early failures.",
-   "src": "L28905"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(mentor) apologizes for having once been too demanding.",
    "src": "L28906"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(mentor) proudly recognizes the achievement.",
+   "src": "L28896",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mentor",
+     "mood": "good",
+     "src": "L28896"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(mentor) proudly recognizes the achievement.",
+   "src": "L28896"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(apprentice) laughs about early failures.",
+   "src": "L28905",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L28905"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(apprentice) laughs about early failures.",
+   "src": "L28905"
   }
  }
 }

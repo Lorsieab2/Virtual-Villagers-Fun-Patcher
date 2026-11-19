@@ -58,26 +58,28 @@
    ]
   },
   "a1": {
-   "text": "It works; the village celebrates a major medical discovery.",
-   "src": "L8974",
-   "effects": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L8974"
+     "next": "a1__fx"
     },
     {
-     "do": "health_change",
-     "role": "patient",
-     "min": 10,
-     "max": 30,
-     "src": "L8974"
+     "next": "a1__text"
     }
    ]
   },
   "a2": {
-   "text": "It relieves symptoms but does not cure the illness.",
-   "src": "L8975"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "a3": {
    "text": "The experiment fails and the patient dies.",
@@ -127,8 +129,16 @@
    ]
   },
   "b1": {
-   "text": "A fatal flaw is discovered before anyone is harmed.",
-   "src": "L8979"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "text": "The scholars devise a safer approach.",
@@ -179,6 +189,81 @@
      "weight": 20
     }
    ]
+  },
+  "a1__fx": {
+   "text": "It works; the village celebrates a major medical discovery.",
+   "src": "L8974",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L8974"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8974"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8974"
+    }
+   ]
+  },
+  "a1__text": {
+   "text": "It works; the village celebrates a major medical discovery.",
+   "src": "L8974",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L8974"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8974"
+    }
+   ]
+  },
+  "a2__fx": {
+   "text": "It relieves symptoms but does not cure the illness.",
+   "src": "L8975",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L8975"
+    }
+   ]
+  },
+  "a2__text": {
+   "text": "It relieves symptoms but does not cure the illness.",
+   "src": "L8975"
+  },
+  "b1__fx": {
+   "text": "A fatal flaw is discovered before anyone is harmed.",
+   "src": "L8979",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8979"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "A fatal flaw is discovered before anyone is harmed.",
+   "src": "L8979"
   }
  },
  "requirement": {

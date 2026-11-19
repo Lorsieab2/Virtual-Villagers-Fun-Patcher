@@ -72,14 +72,28 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "Work is slow and expensive; the team finds a modest but workable deposit.",
-   "src": "L6250"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "The miner is disappointed but later discovers recycled silver can meet most orders.",
-   "src": "L6252"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c1": {
    "name": "Answer C (1)",
@@ -153,6 +167,48 @@
      "rarity": "very_rare"
     }
    ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Work is slow and expensive; the team finds a modest but workable deposit.",
+   "src": "L6250",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6250"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Work is slow and expensive; the team finds a modest but workable deposit.",
+   "src": "L6250"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The miner is disappointed but later discovers recycled silver can meet most orders.",
+   "src": "L6252",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "miner",
+     "mood": "bad",
+     "src": "L6252"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6252"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The miner is disappointed but later discovers recycled silver can meet most orders.",
+   "src": "L6252"
   }
  }
 }

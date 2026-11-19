@@ -167,14 +167,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The new method saves fiber and earns a careful second look.",
-   "src": "L30225"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The trial fails, but (mentor) praises (apprentice) for testing rather than arguing.",
-   "src": "L30226"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -233,14 +247,75 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(apprentice) keeps a useful comparison of both techniques.",
-   "src": "L30234"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The delay frustrates (apprentice), who learns how to ask for a specific time to revisit the issue.",
    "src": "L30235"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The new method saves fiber and earns a careful second look.",
+   "src": "L30225",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L30225"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The new method saves fiber and earns a careful second look.",
+   "src": "L30225"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The trial fails, but (mentor) praises (apprentice) for testing rather than arguing.",
+   "src": "L30226",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L30226"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The trial fails, but (mentor) praises (apprentice) for testing rather than arguing.",
+   "src": "L30226"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(apprentice) keeps a useful comparison of both techniques.",
+   "src": "L30234",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L30234"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(apprentice) keeps a useful comparison of both techniques.",
+   "src": "L30234"
   }
  }
 }

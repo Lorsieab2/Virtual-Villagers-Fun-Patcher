@@ -65,11 +65,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) dances. For a while, at least. (He/she) is out of breath much sooner than (he/she) used to be, but (he/she) has better moves than (he/she) remembered. Then (he/she) sits on the end of the elders' log for a rest. The elders shift to make room. Nobody says anything. (name1) decides the middle is the best place to be: you get to do both.",
+   "src": "L284",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L284"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) dances. For a while, at least. (He/she) is out of breath much sooner than (he/she) used to be, but (he/she) has better moves than (he/she) remembered. Then (he/she) sits on the end of the elders' log for a rest. The elders shift to make room. Nobody says anything. (name1) decides the middle is the best place to be: you get to do both.",
    "src": "L284"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) sits on the end of the log. The elders welcome (him/her) with a nod. The commentary is excellent: who's dancing with whom, who's going to fall over next, who used to dance exactly like that in their day. (name1) laughs harder than (he/she) has all year. Halfway through, (he/she) gets up and dances one dance, just to prove (he/she) can.",
+   "src": "L287",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L287"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) sits on the end of the log. The elders welcome (him/her) with a nod. The commentary is excellent: who's dancing with whom, who's going to fall over next, who used to dance exactly like that in their day. (name1) laughs harder than (he/she) has all year. Halfway through, (he/she) gets up and dances one dance, just to prove (he/she) can.",
    "src": "L287"

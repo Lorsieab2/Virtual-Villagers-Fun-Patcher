@@ -110,6 +110,31 @@
    "src": "L86"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) laughs. \"Fallen out? We've barely said a word to each other in years!\" (villager) looks alarmed. (subject) waves (subject.his/her) hand. \"No, no. That's how we are. We like it.\" The next day (subject) tells (friend) about it, and (friend) laughs so hard (friend.he/she) nearly falls off the rock. That's the most either of them has said in weeks.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L89"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) laughs. \"Fallen out? We've barely said a word to each other in years!\" (villager) looks alarmed. (subject) waves (subject.his/her) hand. \"No, no. That's how we are. We like it.\" The next day (subject) tells (friend) about it, and (friend) laughs so hard (friend.he/she) nearly falls off the rock. That's the most either of them has said in weeks.",
    "src": "L89"

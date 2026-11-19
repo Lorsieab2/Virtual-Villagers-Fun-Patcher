@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) takes (subject.his/her) work outside and sits near the post. The bird doesn't mind. It sings. (subject) mends. The afternoon passes like that, slow and pleasant. In the evening the bird flies off. The next morning (subject) looks for it. It doesn't come back. It was one day. It was a good one.",
-   "src": "L242"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) tries to whistle the bird's song. It's close, but not quite. The bird stops, tips its head, then sings it again, slower, as if correcting (subject.him/her). (subject) tries again. They go back and forth like this for some time. (friend), passing, decides not to ask.",
    "src": "L245"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes (subject.his/her) work outside and sits near the post. The bird doesn't mind. It sings. (subject) mends. The afternoon passes like that, slow and pleasant. In the evening the bird flies off. The next morning (subject) looks for it. It doesn't come back. It was one day. It was a good one.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L242"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes (subject.his/her) work outside and sits near the post. The bird doesn't mind. It sings. (subject) mends. The afternoon passes like that, slow and pleasant. In the evening the bird flies off. The next morning (subject) looks for it. It doesn't come back. It was one day. It was a good one.",
+   "src": "L242"
   }
  }
 }

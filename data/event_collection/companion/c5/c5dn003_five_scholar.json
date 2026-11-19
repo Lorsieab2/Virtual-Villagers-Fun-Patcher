@@ -74,13 +74,68 @@
    "src": "L2686"
   },
   "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Become exhausted and take a break.",
+   "src": "L2687",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen",
+     "min": -15,
+     "max": -5,
+     "src": "L2687"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Outcome 2",
    "popup": "append",
    "join": "paragraph",
    "text": "Become exhausted and take a break.",
    "src": "L2687"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Accidentally invent a new cross-disciplinary job.",
+   "src": "L2688",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2688"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "popup": "append",
    "join": "paragraph",

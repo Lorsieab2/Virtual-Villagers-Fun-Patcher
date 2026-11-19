@@ -127,9 +127,16 @@
    "src": "L29079"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "Its shape makes sitting awkward and everyone laughs.",
-   "src": "L29080"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -174,6 +181,30 @@
    "name": "Outcome D2",
    "text": "The accounts disagree on whether the inventor was real.",
    "src": "L29086"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "Its shape makes sitting awkward and everyone laughs.",
+   "src": "L29080",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "scholar",
+     "mood": "good",
+     "src": "L29080"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29080"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "Its shape makes sitting awkward and everyone laughs.",
+   "src": "L29080"
   }
  }
 }

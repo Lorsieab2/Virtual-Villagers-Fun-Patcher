@@ -91,14 +91,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The apprentice receives deserved recognition and grows more confident.",
-   "src": "L25",
-   "text_only": [
+   "children": [
     {
-     "what": "\"experience\"",
-     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
-     "src": "L25"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -218,6 +218,38 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The builders debate how to recognize contributions without turning cooperation into competition.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The apprentice receives deserved recognition and grows more confident.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L25"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The apprentice receives deserved recognition and grows more confident.",
    "src": "L25",
    "text_only": [
     {

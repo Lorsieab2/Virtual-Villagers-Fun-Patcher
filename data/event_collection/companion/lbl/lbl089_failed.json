@@ -121,6 +121,41 @@
    "src": "L4976"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "An apprentice spots a useful unexpected effect.",
+   "src": "L4977",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4977"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L4977"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "An apprentice spots a useful unexpected effect.",
    "src": "L4977",

@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Have I been saying your name wrong this whole time?\" (friend) bursts out laughing. \"Since the day we met.\" \"Why didn't you SAY?\" \"I liked it. And by the time I thought about it, it was too late.\" They agree to start again. (subject) says it right every time after that, very carefully, and (friend) secretly misses the old way a little.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L122"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Have I been saying your name wrong this whole time?\" (friend) bursts out laughing. \"Since the day we met.\" \"Why didn't you SAY?\" \"I liked it. And by the time I thought about it, it was too late.\" They agree to start again. (subject) says it right every time after that, very carefully, and (friend) secretly misses the old way a little.",
    "src": "L122"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The next morning (subject) says (friend)'s name properly, as if (subject.he/she) always had. (friend) stops and looks at (subject.him/her). Says nothing. Smiles a very small smile. Neither of them ever mentions it.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L125"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The next morning (subject) says (friend)'s name properly, as if (subject.he/she) always had. (friend) stops and looks at (subject.him/her). Says nothing. Smiles a very small smile. Neither of them ever mentions it.",
    "src": "L125"

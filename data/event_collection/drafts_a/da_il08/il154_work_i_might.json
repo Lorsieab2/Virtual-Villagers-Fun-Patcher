@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend), it turns out, has wondered the same thing. (friend.He/She) always thought (friend.he/she) might have been a fisher. They laugh about it, then get quieter. \"I think I'd still be me,\" says (subject), finally. \"Just with different calluses.\" (friend) holds up (friend.his/her) hands. They compare calluses. It's a strangely nice way to end the conversation.",
-   "src": "L164"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) keeps mending. (subject.He/She) doesn't come to any conclusion. Some of the other lives sound wonderful. Some sound exhausting. This one is (subject.his/her) own, knots and all. It's not the only life (subject.he/she) could have had. It's the one (subject.he/she) has. (subject.He/She) ties off the last knot and decides that's alright, today at least.",
    "src": "L167"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend), it turns out, has wondered the same thing. (friend.He/She) always thought (friend.he/she) might have been a fisher. They laugh about it, then get quieter. \"I think I'd still be me,\" says (subject), finally. \"Just with different calluses.\" (friend) holds up (friend.his/her) hands. They compare calluses. It's a strangely nice way to end the conversation.",
+   "src": "L164",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L164"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L164"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend), it turns out, has wondered the same thing. (friend.He/She) always thought (friend.he/she) might have been a fisher. They laugh about it, then get quieter. \"I think I'd still be me,\" says (subject), finally. \"Just with different calluses.\" (friend) holds up (friend.his/her) hands. They compare calluses. It's a strangely nice way to end the conversation.",
+   "src": "L164"
   }
  },
  "grammar_fixes": [

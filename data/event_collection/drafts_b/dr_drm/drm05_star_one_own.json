@@ -70,11 +70,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They look for ages. (subject) finally picks a small, faint star just to the left of a bright one. \"That one. It's not showing off.\" (friend) agrees it's an excellent choice. After that, every clear night, (subject) checks that it's still there. It always is. (subject.He/she) finds this deeply reassuring.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They look for ages. (subject) finally picks a small, faint star just to the left of a bright one. \"That one. It's not showing off.\" (friend) agrees it's an excellent choice. After that, every clear night, (subject) checks that it's still there. It always is. (subject.He/she) finds this deeply reassuring.",
    "src": "L62"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Which one is yours?\" asks (subject). (friend) has never thought about it. (friend.He/she) points at a random bright one. (subject) frowns. \"That one's too busy.\" They spend the rest of the evening choosing a better star for (friend), one that is \"sensible but nice.\" (friend) is surprisingly pleased with it.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L65"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Which one is yours?\" asks (subject). (friend) has never thought about it. (friend.He/she) points at a random bright one. (subject) frowns. \"That one's too busy.\" They spend the rest of the evening choosing a better star for (friend), one that is \"sensible but nice.\" (friend) is surprisingly pleased with it.",
    "src": "L65"

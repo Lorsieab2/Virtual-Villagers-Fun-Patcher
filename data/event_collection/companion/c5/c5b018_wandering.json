@@ -68,13 +68,68 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return with a surprising idea.",
+   "src": "L1295",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1295"
+    }
+   ]
+  },
+  "e1__text": {
    "name": "Ending 1",
    "popup": "append",
    "join": "paragraph",
    "text": "They return with a surprising idea.",
    "src": "L1295"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Their supervisor finds them asleep in the grass.",
+   "src": "L1296",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "worker",
+     "min": 5,
+     "max": 15,
+     "src": "L1296"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

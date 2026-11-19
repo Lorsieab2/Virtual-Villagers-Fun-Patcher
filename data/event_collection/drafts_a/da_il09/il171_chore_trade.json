@@ -72,6 +72,37 @@
    "src": "L134"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"I'll fetch water,\" says (subject), \"if you sweep AND give me your fruit at lunch.\" (friend) narrows (friend.his/her) eyes. The negotiations go on so long that both of them are late with their chores, and the grown-ups have to do them. The two children spend the rest of the afternoon blaming each other cheerfully.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L137"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"I'll fetch water,\" says (subject), \"if you sweep AND give me your fruit at lunch.\" (friend) narrows (friend.his/her) eyes. The negotiations go on so long that both of them are late with their chores, and the grown-ups have to do them. The two children spend the rest of the afternoon blaming each other cheerfully.",
    "src": "L137"

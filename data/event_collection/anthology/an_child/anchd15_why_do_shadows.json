@@ -165,9 +165,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(child) laughs while making unusual shapes.",
-   "src": "L27788"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -217,6 +224,24 @@
    "name": "Outcome D2",
    "text": "Clouds interrupt the experiment, teaching patience.",
    "src": "L27795"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(child) laughs while making unusual shapes.",
+   "src": "L27788",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L27788"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(child) laughs while making unusual shapes.",
+   "src": "L27788"
   }
  }
 }

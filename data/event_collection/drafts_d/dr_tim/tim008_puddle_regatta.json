@@ -99,9 +99,16 @@
    "src": "L131"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "A group of children marks a finish line beside a puddle. The smallest boat travels farthest, provoking delighted disbelief.",
-   "src": "L135"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -109,6 +116,49 @@
    "src": "L139"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "A group of children marks a finish line beside a puddle. The smallest boat travels farthest, provoking delighted disbelief.",
+   "src": "L135",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L135"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "A group of children marks a finish line beside a puddle. The smallest boat travels farthest, provoking delighted disbelief.",
+   "src": "L135"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "A group of children marks a finish line beside a puddle. One boat spins in circles, to the delight of its maker.",
+   "src": "L143",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L143"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "A group of children marks a finish line beside a puddle. One boat spins in circles, to the delight of its maker.",
    "src": "L143"

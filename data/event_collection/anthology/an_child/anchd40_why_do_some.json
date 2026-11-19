@@ -235,14 +235,39 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(child) feels relieved not to decide today.",
-   "src": "L28169"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(child) returns later with a new question.",
    "src": "L28170"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved not to decide today.",
+   "src": "L28169",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28169"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved not to decide today.",
+   "src": "L28169"
   }
  }
 }

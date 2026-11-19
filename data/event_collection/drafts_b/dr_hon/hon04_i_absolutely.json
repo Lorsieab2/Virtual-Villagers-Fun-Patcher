@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) wears it the next day, out of loyalty. (friend) is overjoyed. A week later, (friend) arrives with a second hat, even taller, with two knots, \"because you loved the first one so much.\" (subject) now owns two hats (subject.he/she) has no idea what to do with, and is privately starting to feel quite fond of the first one.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L50"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) wears it the next day, out of loyalty. (friend) is overjoyed. A week later, (friend) arrives with a second hat, even taller, with two knots, \"because you loved the first one so much.\" (subject) now owns two hats (subject.he/she) has no idea what to do with, and is privately starting to feel quite fond of the first one.",
    "src": "L50"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "That evening (subject) goes back. \"I said I loved it. It's very... bold. I'm not sure it's me.\" (friend)'s face falls a little. \"Oh.\" Then: \"Can I have it back, then? Because I love it.\" (subject) hands it over. (friend) wears it everywhere, and somehow it suits (friend.him/her) perfectly. (subject) is relieved and, oddly, a little jealous.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L53"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "That evening (subject) goes back. \"I said I loved it. It's very... bold. I'm not sure it's me.\" (friend)'s face falls a little. \"Oh.\" Then: \"Can I have it back, then? Because I love it.\" (subject) hands it over. (friend) wears it everywhere, and somehow it suits (friend.him/her) perfectly. (subject) is relieved and, oddly, a little jealous.",
    "src": "L53"

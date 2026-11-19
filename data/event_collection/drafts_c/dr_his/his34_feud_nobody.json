@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They sit down on the rocks and try to work it out. Something about a net. Or a pig. Or a wedding that went wrong. Or a canoe somebody borrowed and returned with a hole in it. Neither of them actually knows. They start laughing. They fish together all afternoon. Their families are scandalized for about a week. Then they're mostly just curious.",
-   "src": "L410"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) offers to leave. (friend) says no, (friend.he/she) will. They argue politely about who should leave until the tide turns and the fish are gone. On the way home (subject) realizes it's the longest conversation anyone from the shore has had with anyone from the hill in years. (subject.He/she) tells (subject.his/her) family. They're horrified. (subject.He/she) does it again the next week.",
    "src": "L413"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They sit down on the rocks and try to work it out. Something about a net. Or a pig. Or a wedding that went wrong. Or a canoe somebody borrowed and returned with a hole in it. Neither of them actually knows. They start laughing. They fish together all afternoon. Their families are scandalized for about a week. Then they're mostly just curious.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L410"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They sit down on the rocks and try to work it out. Something about a net. Or a pig. Or a wedding that went wrong. Or a canoe somebody borrowed and returned with a hole in it. Neither of them actually knows. They start laughing. They fish together all afternoon. Their families are scandalized for about a week. Then they're mostly just curious.",
+   "src": "L410"
   }
  }
 }

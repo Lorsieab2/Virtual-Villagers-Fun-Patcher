@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. A small victory makes (Name1) eager to practice again.",
-   "src": "L1255"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -132,11 +139,79 @@
    "src": "L1259"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. A small victory makes (Name1) eager to practice again.",
+   "src": "L1255",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1255"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. A small victory makes (Name1) eager to practice again.",
+   "src": "L1255"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. The finished knot holds, much to everyone's relief.",
+   "src": "L1263",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1263"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. The finished knot holds, much to everyone's relief.",
    "src": "L1263"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. Someone remembers a different method and demonstrates it.",
+   "src": "L1267",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1267"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), an elder, untangles a hopeless-looking bundle of cord. Someone remembers a different method and demonstrates it.",
    "src": "L1267"

@@ -107,6 +107,51 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "Conflicting measurements produce an amusingly distorted coastline.",
+   "src": "L1050"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "An ancient marker suggests the map is missing a settlement.",
+   "src": "L1052"
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "The map reveals a promising unexplored route.",
+   "src": "L1048",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "mapmaker",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1048"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1048"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome 1",
    "text": "The map reveals a promising unexplored route.",
    "src": "L1048",
@@ -122,16 +167,6 @@
      "src": "L1048"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome 2",
-   "text": "Conflicting measurements produce an amusingly distorted coastline.",
-   "src": "L1050"
-  },
-  "o3": {
-   "name": "Outcome 3",
-   "text": "An ancient marker suggests the map is missing a settlement.",
-   "src": "L1052"
   }
  }
 }

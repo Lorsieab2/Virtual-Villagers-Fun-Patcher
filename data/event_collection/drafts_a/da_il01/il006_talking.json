@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) turns around, sees (friend), and makes a noise like a startled bird. \"...I'm sorry I broke your bowl,\" (subject.he/she) manages. (friend) raises an eyebrow. \"It WAS already cracked,\" (subject.he/she) admits. They both burst out laughing.",
-   "src": "L77"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(friend) slips off before (subject) notices. An hour later (subject) finally knocks, says \"I'm sorry I broke your bowl,\" exactly as practiced, and (friend) says \"Thank you,\" with a perfectly straight face. (friend.He/She) never mentions overhearing the rehearsal. Not even once. Not even a little.",
    "src": "L80"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) turns around, sees (friend), and makes a noise like a startled bird. \"...I'm sorry I broke your bowl,\" (subject.he/she) manages. (friend) raises an eyebrow. \"It WAS already cracked,\" (subject.he/she) admits. They both burst out laughing.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L77"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) turns around, sees (friend), and makes a noise like a startled bird. \"...I'm sorry I broke your bowl,\" (subject.he/she) manages. (friend) raises an eyebrow. \"It WAS already cracked,\" (subject.he/she) admits. They both burst out laughing.",
+   "src": "L77"
   }
  }
 }

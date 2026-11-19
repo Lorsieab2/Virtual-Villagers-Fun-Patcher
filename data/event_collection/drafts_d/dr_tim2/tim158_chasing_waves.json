@@ -89,9 +89,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. One wave catches them all, and they shriek with delight.",
-   "src": "L234,L235"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -107,6 +114,24 @@
    "name": "Ending 4",
    "text": "Children run back and forth along the shore, chasing the waves and fleeing them. An elder watches from the dry sand, remembering playing the same game.",
    "src": "L234,L238"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. One wave catches them all, and they shriek with delight.",
+   "src": "L234,L235",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L234,L235"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. One wave catches them all, and they shriek with delight.",
+   "src": "L234,L235"
   }
  }
 }

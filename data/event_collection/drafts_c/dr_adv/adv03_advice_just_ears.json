@@ -74,6 +74,31 @@
    "src": "L38"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) bites (friend.his/her) tongue and listens. Nods. Says \"Hmm\" in the right places. When (subject) finally stops, (friend) says, \"That sounds annoying.\" \"It IS annoying,\" says (subject), clearly relieved. That's all. (subject) goes back to the crew. Nothing about the crew has changed. (subject) has.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) bites (friend.his/her) tongue and listens. Nods. Says \"Hmm\" in the right places. When (subject) finally stops, (friend) says, \"That sounds annoying.\" \"It IS annoying,\" says (subject), clearly relieved. That's all. (subject) goes back to the crew. Nothing about the crew has changed. (subject) has.",
    "src": "L41"

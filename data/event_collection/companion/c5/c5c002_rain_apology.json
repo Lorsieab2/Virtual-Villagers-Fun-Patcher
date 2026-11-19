@@ -92,14 +92,45 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "They laugh at how ridiculous their quarrel sounds in the rain.",
-   "src": "L2061"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "Neither is ready to apologize, but they walk home together.",
    "src": "L2062"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They laugh at how ridiculous their quarrel sounds in the rain.",
+   "src": "L2061",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "sibling1",
+     "mood": "good",
+     "src": "L2061"
+    },
+    {
+     "do": "mood",
+     "role": "sibling2",
+     "mood": "good",
+     "src": "L2061"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They laugh at how ridiculous their quarrel sounds in the rain.",
+   "src": "L2061"
   }
  }
 }

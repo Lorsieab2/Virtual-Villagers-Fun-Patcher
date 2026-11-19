@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) holds it to (subject.his/her) ear. Suddenly there are birds. Lots of birds. Very loud birds. And the children, oh, the children are so LOUD. (subject.He/she) uses it at meals, to hear the stories, and puts it down the rest of the time. \"It's lovely,\" (subject.he/she) tells (friend). \"I'll use it when I want to hear. Which is not always.\" (friend) thinks that's a perfectly good way to use it.",
-   "src": "L437"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"It's beautiful,\" says (subject). \"But I've got used to the quiet. I like it. People who want to talk to me lean in and talk properly.\" (friend) isn't hurt. \"Then keep it as an ornament,\" (friend.he/she) says. (subject) hangs it by the door. Nobody ever tries to persuade (subject.him/her) otherwise. People just lean in.",
    "src": "L440"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) holds it to (subject.his/her) ear. Suddenly there are birds. Lots of birds. Very loud birds. And the children, oh, the children are so LOUD. (subject.He/she) uses it at meals, to hear the stories, and puts it down the rest of the time. \"It's lovely,\" (subject.he/she) tells (friend). \"I'll use it when I want to hear. Which is not always.\" (friend) thinks that's a perfectly good way to use it.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L437"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) holds it to (subject.his/her) ear. Suddenly there are birds. Lots of birds. Very loud birds. And the children, oh, the children are so LOUD. (subject.He/she) uses it at meals, to hear the stories, and puts it down the rest of the time. \"It's lovely,\" (subject.he/she) tells (friend). \"I'll use it when I want to hear. Which is not always.\" (friend) thinks that's a perfectly good way to use it.",
+   "src": "L437"
   }
  }
 }

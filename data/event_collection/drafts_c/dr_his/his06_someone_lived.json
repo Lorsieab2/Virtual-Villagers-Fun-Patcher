@@ -75,6 +75,35 @@
    "src": "L74"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) holds the bowl for a long time. Then (friend.he/she) puts it back, exactly where it was, under the root. \"It's theirs,\" (friend.he/she) says. (subject) doesn't argue. They walk home without saying much. Later (friend) makes a tiny clay bowl of (friend.his/her) own and fires it in the cooking fire. (friend.He/she) uses that one every day.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L77"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) holds the bowl for a long time. Then (friend.he/she) puts it back, exactly where it was, under the root. \"It's theirs,\" (friend.he/she) says. (subject) doesn't argue. They walk home without saying much. Later (friend) makes a tiny clay bowl of (friend.his/her) own and fires it in the cooking fire. (friend.He/she) uses that one every day.",
    "src": "L77"

@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Two children cooperate to carry a basket neither could lift alone. They finish laughing about a mistake from earlier in the day.",
-   "src": "L1003"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -112,6 +119,24 @@
    "name": "Ending 4",
    "text": "Two children cooperate to carry a basket neither could lift alone. (Name1) feels unexpectedly grown-up afterward.",
    "src": "L1015"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Two children cooperate to carry a basket neither could lift alone. They finish laughing about a mistake from earlier in the day.",
+   "src": "L1003",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1003"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Two children cooperate to carry a basket neither could lift alone. They finish laughing about a mistake from earlier in the day.",
+   "src": "L1003"
   }
  }
 }

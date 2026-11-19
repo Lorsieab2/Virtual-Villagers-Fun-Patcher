@@ -69,6 +69,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'd like to do this bit alone,\" says (subject). (friend) nods and sits back to watch. (subject) pushes it in, climbs in, and paddles out, and the canoe holds. Out on the water, by (subject.him/her)self, (subject) lifts the paddle and just sits for a while in the thing (subject.he/she) made. Then (subject.he/she) comes back for lunch.",
+   "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Shall we?\" asks (friend). They push it in together. It floats. It floats a little crooked, leaning to one side, so that paddling it takes a strange sort of skill. (subject) paddles it round the lagoon twice, leaning, grinning, wet to the waist. \"It works,\" (subject.he/she) says. \"It's terrible, and it works.\"",
+   "src": "L182",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- the draft's notes: everything but the marked effects is story only",
+     "src": "L182"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Shall we?\" asks (friend). They push it in together. It floats. It floats a little crooked, leaning to one side, so that paddling it takes a strange sort of skill. (subject) paddles it round the lagoon twice, leaning, grinning, wet to the waist. \"It works,\" (subject.he/she) says. \"It's terrible, and it works.\"",
    "src": "L182",
@@ -79,11 +116,6 @@
      "src": "L182"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "\"I'd like to do this bit alone,\" says (subject). (friend) nods and sits back to watch. (subject) pushes it in, climbs in, and paddles out, and the canoe holds. Out on the water, by (subject.him/her)self, (subject) lifts the paddle and just sits for a while in the thing (subject.he/she) made. Then (subject.he/she) comes back for lunch.",
-   "src": "L185"
   }
  }
 }

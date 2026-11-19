@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They pull two grass stems from a bundle. (subject) gets the long one. (subject.He/she) can't quite hide how pleased (subject.he/she) is, and (friend) can't quite hide how disappointed (friend.he/she) is, and they both pretend not to notice either. When the canoe comes back, (subject) has brought (friend) the best shell (subject.he/she) found. It helps a little.",
-   "src": "L218"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) steps back. \"You go.\" (friend) protests, but not very hard. The canoe leaves, and (subject) watches it go with mixed feelings and no regrets, both at once. When (friend) gets back, (friend.he/she) talks about the trip for two days. (subject) listens to every word, and makes (friend.him/her) promise: next time, it's (subject)'s turn.",
    "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They pull two grass stems from a bundle. (subject) gets the long one. (subject.He/she) can't quite hide how pleased (subject.he/she) is, and (friend) can't quite hide how disappointed (friend.he/she) is, and they both pretend not to notice either. When the canoe comes back, (subject) has brought (friend) the best shell (subject.he/she) found. It helps a little.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L218"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They pull two grass stems from a bundle. (subject) gets the long one. (subject.He/she) can't quite hide how pleased (subject.he/she) is, and (friend) can't quite hide how disappointed (friend.he/she) is, and they both pretend not to notice either. When the canoe comes back, (subject) has brought (friend) the best shell (subject.he/she) found. It helps a little.",
+   "src": "L218"
   }
  }
 }

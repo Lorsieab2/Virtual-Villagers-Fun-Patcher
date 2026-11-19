@@ -69,11 +69,77 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Aaagh!\" says (friend), staggering back. \"The colors!\" (subject) laughs and spins round. \"Isn't it wonderful?\" \"It's TERRIFYING,\" says (friend), grinning. \"I love it.\" Everyone at the gathering finds (subject) instantly, all night. Several villagers ask how (subject.he/she) made the purple. (subject) refuses to tell anyone.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L350"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Aaagh!\" says (friend), staggering back. \"The colors!\" (subject) laughs and spins round. \"Isn't it wonderful?\" \"It's TERRIFYING,\" says (friend), grinning. \"I love it.\" Everyone at the gathering finds (subject) instantly, all night. Several villagers ask how (subject.he/she) made the purple. (subject) refuses to tell anyone.",
    "src": "L350"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) stares. \"Can you make me one?\" (subject) is delighted. \"What colors?\" \"All of them,\" says (friend). (subject) spends the next week dyeing. When (friend) wears it, the two of them stand together at the fire and it's like looking into the sun. Nobody minds. Several more villagers put in orders.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L353"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L353"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) stares. \"Can you make me one?\" (subject) is delighted. \"What colors?\" \"All of them,\" says (friend). (subject) spends the next week dyeing. When (friend) wears it, the two of them stand together at the fire and it's like looking into the sun. Nobody minds. Several more villagers put in orders.",
    "src": "L353"

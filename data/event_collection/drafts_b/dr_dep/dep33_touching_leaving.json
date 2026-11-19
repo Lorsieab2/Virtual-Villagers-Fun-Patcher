@@ -64,11 +64,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) puts a hand on the stone. It's warm from the sun. Nothing happens. (He/she) isn't going anywhere. But it feels like joining something, all the same: everyone who ever left and everyone who came home. (He/she) walks on, a little lighter, to the gardens.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) puts a hand on the stone. It's warm from the sun. Nothing happens. (He/she) isn't going anywhere. But it feels like joining something, all the same: everyone who ever left and everyone who came home. (He/she) walks on, a little lighter, to the gardens.",
    "src": "L398"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) takes (his/her) hand back. That stone is for leaving. (He/she) isn't leaving. (He/she) likes it here. (He/she) walks on to the gardens and works all morning, and feels perfectly content, and doesn't think about the stone again until the next time (he/she) walks past it, which is tomorrow.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) takes (his/her) hand back. That stone is for leaving. (He/she) isn't leaving. (He/she) likes it here. (He/she) walks on to the gardens and works all morning, and feels perfectly content, and doesn't think about the stone again until the next time (he/she) walks past it, which is tomorrow.",
    "src": "L401"

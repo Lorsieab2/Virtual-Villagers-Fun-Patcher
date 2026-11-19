@@ -311,20 +311,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "A1",
-   "src": "L6683-6687",
-   "text": "The council's first proposal is a better way to tie bundles of firewood. Nobody is impressed until the farmers discover that the knot saves time. (Subject) unveils a grand banner reading THE DEPARTMENT OF TERRIBLE IDEAS. (Friend) asks whether the name is still appropriate. \"More than ever,\" (Subject) says. \"We have proved that terrible ideas deserve investigation.\"",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Building",
-      "Farming"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L6688"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -352,24 +346,26 @@
    ]
   },
   "a4": {
+   "type": "branch",
    "name": "A4",
-   "src": "L6708-6712",
-   "text": "(Subject) discovers that the council requires records, receipts, and meetings. (subject.He/she) spends the entire week writing proposals about how to reduce the amount of writing required for proposals. The first suggestion is to appoint a second secretary. The second secretary immediately resigns. (Friend) quietly enjoys the spectacle."
+   "children": [
+    {
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
+    }
+   ]
   },
   "a5": {
+   "type": "branch",
    "name": "A5",
-   "src": "L6716-6720",
-   "text": "Most proposals fail, but the villagers learn to ask better questions and to record what happened rather than what they hoped would happen. At the season's end, (Subject) presents a book containing twenty-nine failures and one useful discovery. \"A poor record,\" (subject.he/she) admits. \"A splendid beginning,\" replies (Friend).",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Research"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L6721"
+     "next": "a5__fx"
+    },
+    {
+     "next": "a5__text"
     }
    ]
   },
@@ -464,6 +460,176 @@
    ]
   },
   "c1": {
+   "type": "branch",
+   "name": "C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "C2",
+   "src": "L6779-6783",
+   "text": "(Subject) proposes putting a roof over the ocean to prevent rain from wetting the fish. (Friend) asks how much wood this would require. (Subject) answers, \"All of it.\" The council rejects the proposal. (Subject) accuses them of lacking ambition. The builders accuse (Subject) of lacking an understanding of oceans."
+  },
+  "c3": {
+   "type": "branch",
+   "name": "C3",
+   "children": [
+    {
+     "next": "c3__fx"
+    },
+    {
+     "next": "c3__text"
+    }
+   ]
+  },
+  "c4": {
+   "type": "branch",
+   "name": "C4",
+   "children": [
+    {
+     "next": "c4__fx"
+    },
+    {
+     "next": "c4__text"
+    }
+   ]
+  },
+  "c5": {
+   "name": "C5",
+   "src": "L6804-6809",
+   "text": "The council rejects the proposal but asks (Subject) to return next season with a better-tested version. (Subject) agrees, then produces a second bundle of sketches from beneath (subject.his/her) cloak. (Friend) stares in horror. \"I thought we were only considering one idea!\" \"We are,\" says (Subject). \"These are merely its forty-seven improvements.\" The meeting ends immediately."
+  },
+  "a1__fx": {
+   "name": "A1",
+   "src": "L6683-6687",
+   "text": "The council's first proposal is a better way to tie bundles of firewood. Nobody is impressed until the farmers discover that the knot saves time. (Subject) unveils a grand banner reading THE DEPARTMENT OF TERRIBLE IDEAS. (Friend) asks whether the name is still appropriate. \"More than ever,\" (Subject) says. \"We have proved that terrible ideas deserve investigation.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6688"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6683-6687"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "A1",
+   "src": "L6683-6687",
+   "text": "The council's first proposal is a better way to tie bundles of firewood. Nobody is impressed until the farmers discover that the knot saves time. (Subject) unveils a grand banner reading THE DEPARTMENT OF TERRIBLE IDEAS. (Friend) asks whether the name is still appropriate. \"More than ever,\" (Subject) says. \"We have proved that terrible ideas deserve investigation.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6688"
+    }
+   ]
+  },
+  "a4__fx": {
+   "name": "A4",
+   "src": "L6708-6712",
+   "text": "(Subject) discovers that the council requires records, receipts, and meetings. (subject.He/she) spends the entire week writing proposals about how to reduce the amount of writing required for proposals. The first suggestion is to appoint a second secretary. The second secretary immediately resigns. (Friend) quietly enjoys the spectacle.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L6708-6712"
+    }
+   ]
+  },
+  "a4__text": {
+   "name": "A4",
+   "src": "L6708-6712",
+   "text": "(Subject) discovers that the council requires records, receipts, and meetings. (subject.He/she) spends the entire week writing proposals about how to reduce the amount of writing required for proposals. The first suggestion is to appoint a second secretary. The second secretary immediately resigns. (Friend) quietly enjoys the spectacle."
+  },
+  "a5__fx": {
+   "name": "A5",
+   "src": "L6716-6720",
+   "text": "Most proposals fail, but the villagers learn to ask better questions and to record what happened rather than what they hoped would happen. At the season's end, (Subject) presents a book containing twenty-nine failures and one useful discovery. \"A poor record,\" (subject.he/she) admits. \"A splendid beginning,\" replies (Friend).",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6721"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6716-6720"
+    }
+   ]
+  },
+  "a5__text": {
+   "name": "A5",
+   "src": "L6716-6720",
+   "text": "Most proposals fail, but the villagers learn to ask better questions and to record what happened rather than what they hoped would happen. At the season's end, (Subject) presents a book containing twenty-nine failures and one useful discovery. \"A poor record,\" (subject.he/she) admits. \"A splendid beginning,\" replies (Friend).",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6721"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "C1",
+   "src": "L6772-6775",
+   "text": "The single proposal is a simple tool for lifting hot cooking pots without burning one's hands. The cook tests it and approves. (Subject) is so shocked that (subject.he/she) forgets to make a speech. (Friend) quietly writes down the date for future generations.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6776"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6772-6775"
+    }
+   ]
+  },
+  "c1__text": {
    "name": "C1",
    "src": "L6772-6775",
    "text": "The single proposal is a simple tool for lifting hot cooking pots without burning one's hands. The cook tests it and approves. (Subject) is so shocked that (subject.he/she) forgets to make a speech. (Friend) quietly writes down the date for future generations.",
@@ -481,12 +647,37 @@
     }
    ]
   },
-  "c2": {
-   "name": "C2",
-   "src": "L6779-6783",
-   "text": "(Subject) proposes putting a roof over the ocean to prevent rain from wetting the fish. (Friend) asks how much wood this would require. (Subject) answers, \"All of it.\" The council rejects the proposal. (Subject) accuses them of lacking ambition. The builders accuse (Subject) of lacking an understanding of oceans."
+  "c3__fx": {
+   "name": "C3",
+   "src": "L6787-6792",
+   "text": "A shy villager suggests hanging small bells along a path to help people find their way in darkness. The council initially laughs, imagining an entire forest of bells. Then a healer points out that a few bells near an important turn might genuinely help. The idea is tested on a short, safe path. (Subject) is delighted that someone else's absurdity has become useful.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "shy",
+     "skills": [
+      "Building",
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6793"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6787-6792"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L6787-6792"
+    }
+   ]
   },
-  "c3": {
+  "c3__text": {
    "name": "C3",
    "src": "L6787-6792",
    "text": "A shy villager suggests hanging small bells along a path to help people find their way in darkness. The council initially laughs, imagining an entire forest of bells. Then a healer points out that a few bells near an important turn might genuinely help. The idea is tested on a short, safe path. (Subject) is delighted that someone else's absurdity has become useful.",
@@ -504,7 +695,36 @@
     }
    ]
   },
-  "c4": {
+  "c4__fx": {
+   "name": "C4",
+   "src": "L6796-6800",
+   "text": "The proposal is presented with great ceremony. An elder recognizes it immediately as a tool used by (elder.his/her) grandparents. (Subject) is crushed. \"So I invented nothing?\" (subject.he/she) asks. \"You rediscovered something worth remembering,\" replies the elder. The villagers invite the elder to teach the forgotten method.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6801"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6796-6800"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L6796-6800"
+    }
+   ]
+  },
+  "c4__text": {
    "name": "C4",
    "src": "L6796-6800",
    "text": "The proposal is presented with great ceremony. An elder recognizes it immediately as a tool used by (elder.his/her) grandparents. (Subject) is crushed. \"So I invented nothing?\" (subject.he/she) asks. \"You rediscovered something worth remembering,\" replies the elder. The villagers invite the elder to teach the forgotten method.",
@@ -520,11 +740,6 @@
      "src": "L6801"
     }
    ]
-  },
-  "c5": {
-   "name": "C5",
-   "src": "L6804-6809",
-   "text": "The council rejects the proposal but asks (Subject) to return next season with a better-tested version. (Subject) agrees, then produces a second bundle of sketches from beneath (subject.his/her) cloak. (Friend) stares in horror. \"I thought we were only considering one idea!\" \"We are,\" says (Subject). \"These are merely its forty-seven improvements.\" The meeting ends immediately."
   }
  }
 }

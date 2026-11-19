@@ -72,14 +72,47 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) looks at the second hammock, then at (friend). \"Is this... is it something I did?\" \"Yes,\" says (friend). \"The snoring. And I kick. This isn't about loving you less. It's about sleeping.\" They try it. They both sleep beautifully. In the morning they have breakfast together, rested and cheerful. A neighbor raises an eyebrow at the two hammocks. They don't mind at all.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Let me try something first,\" says (subject). (subject.He/she) gives (friend) two little plugs of soft wax for (friend.his/her) ears. That night, (friend) sleeps through the snoring. Unfortunately, (friend.he/she) still kicks, and at midnight (subject) ends up on the floor. In the morning they look at the second hammock and quietly hang it up. Love is love. Sleep is sleep.",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) looks at the second hammock, then at (friend). \"Is this... is it something I did?\" \"Yes,\" says (friend). \"The snoring. And I kick. This isn't about loving you less. It's about sleeping.\" They try it. They both sleep beautifully. In the morning they have breakfast together, rested and cheerful. A neighbor raises an eyebrow at the two hammocks. They don't mind at all.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L62"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) looks at the second hammock, then at (friend). \"Is this... is it something I did?\" \"Yes,\" says (friend). \"The snoring. And I kick. This isn't about loving you less. It's about sleeping.\" They try it. They both sleep beautifully. In the morning they have breakfast together, rested and cheerful. A neighbor raises an eyebrow at the two hammocks. They don't mind at all.",
+   "src": "L62"
   }
  }
 }

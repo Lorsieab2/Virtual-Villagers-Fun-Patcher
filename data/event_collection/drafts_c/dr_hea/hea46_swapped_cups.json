@@ -95,14 +95,47 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They hobble over to (healer), the healer, together, holding the cups. (healer) listens, sniffs both and laughs. \"You'll be fine. (subject) will sleep like a rock and (friend)'s knees may feel very nice indeed.\" Both of these things happen. (friend) gets up in the morning, bends right down to touch the floor, and says, \"Again tonight?\" \"Absolutely not,\" says (healer).",
-   "src": "L557"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"It's only tea,\" says (friend). \"We'll see what happens.\" What happens is that (subject) falls asleep in the middle of a sentence and snores until morning, and (friend) lies awake with wonderfully loose knees, wondering if (friend.he/she) should wake (subject.him/her). In the morning (subject) says, \"Best sleep I've had in years.\" They swap back anyway. Mostly.",
    "src": "L560"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They hobble over to (healer), the healer, together, holding the cups. (healer) listens, sniffs both and laughs. \"You'll be fine. (subject) will sleep like a rock and (friend)'s knees may feel very nice indeed.\" Both of these things happen. (friend) gets up in the morning, bends right down to touch the floor, and says, \"Again tonight?\" \"Absolutely not,\" says (healer).",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L557"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L557"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They hobble over to (healer), the healer, together, holding the cups. (healer) listens, sniffs both and laughs. \"You'll be fine. (subject) will sleep like a rock and (friend)'s knees may feel very nice indeed.\" Both of these things happen. (friend) gets up in the morning, bends right down to touch the floor, and says, \"Again tonight?\" \"Absolutely not,\" says (healer).",
+   "src": "L557"
   }
  }
 }

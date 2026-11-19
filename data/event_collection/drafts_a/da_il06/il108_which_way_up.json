@@ -71,6 +71,47 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) waits. All six seeds come up, perfectly normal, pointing at the sky. (subject.He/She) can't tell which ones were upside down anymore. (friend) suggests that maybe the seeds just turned round when nobody was looking. (subject) thinks that's exactly what happened, and wishes (subject.he/she) had been looking.",
+   "src": "L101"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) carefully uncovers all six. Every one of them, even the upside-down ones, has sent its shoot curling round to point straight up, and its root straight down. (subject) sits back on (subject.his/her) heels, amazed. The seeds know. (subject.He/She) has no idea how. That's somehow even better.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L98"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) carefully uncovers all six. Every one of them, even the upside-down ones, has sent its shoot curling round to point straight up, and its root straight down. (subject) sits back on (subject.his/her) heels, amazed. The seeds know. (subject.He/She) has no idea how. That's somehow even better.",
    "src": "L98",
@@ -87,11 +128,6 @@
      "src": "L98"
     }
    ]
-  },
-  "b": {
-   "name": "Answer B",
-   "text": "(subject) waits. All six seeds come up, perfectly normal, pointing at the sky. (subject.He/She) can't tell which ones were upside down anymore. (friend) suggests that maybe the seeds just turned round when nobody was looking. (subject) thinks that's exactly what happened, and wishes (subject.he/she) had been looking.",
-   "src": "L101"
   }
  }
 }

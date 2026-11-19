@@ -87,6 +87,31 @@
    "src": "L266"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) looks closely, thinks hard, and says, \"...Have you washed your sandals?\" (subject) gives up and heads home. On the way, (child), a small child, stops dead in the path and says, \"Your HAIR is so PRETTY.\" (subject) walks the rest of the way home a good deal taller.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L269"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) looks closely, thinks hard, and says, \"...Have you washed your sandals?\" (subject) gives up and heads home. On the way, (child), a small child, stops dead in the path and says, \"Your HAIR is so PRETTY.\" (subject) walks the rest of the way home a good deal taller.",
    "src": "L269"

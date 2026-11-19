@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The council says (subject) may choose whom (subject.he/she) fishes with, and needn't explain it. But (subject) mustn't stop others from fishing with (friend), or spread stories about (friend.him/her). (subject) agrees. (friend) is hurt, and says so, and finds other people to fish with. Whether the two of them ever fish together again is up to them.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The council asks (subject) directly. (subject) admits (subject.he/she) told two friends why. The council asks (subject.him/her) to stop: (subject.his/her) boundaries are (subject.his/her) own, but they shouldn't become everyone's. (subject) agrees. (friend) is told, plainly, that if (friend.he/she) wants (subject)'s trust back, it will take time and straight stories. Some weeks later, (friend) tells a perfectly straight story about a small catch. (subject) notices.",
    "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The council says (subject) may choose whom (subject.he/she) fishes with, and needn't explain it. But (subject) mustn't stop others from fishing with (friend), or spread stories about (friend.him/her). (subject) agrees. (friend) is hurt, and says so, and finds other people to fish with. Whether the two of them ever fish together again is up to them.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L182"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The council says (subject) may choose whom (subject.he/she) fishes with, and needn't explain it. But (subject) mustn't stop others from fishing with (friend), or spread stories about (friend.him/her). (subject) agrees. (friend) is hurt, and says so, and finds other people to fish with. Whether the two of them ever fish together again is up to them.",
+   "src": "L182"
   }
  },
  "grammar_fixes": [

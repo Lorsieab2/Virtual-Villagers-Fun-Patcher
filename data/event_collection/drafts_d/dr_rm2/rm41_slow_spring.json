@@ -151,6 +151,31 @@
    "src": "L21"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The clearing makes no difference, but the workers learn where the water truly rises.",
+   "src": "L22",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L22"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The clearing makes no difference, but the workers learn where the water truly rises.",
    "src": "L22"

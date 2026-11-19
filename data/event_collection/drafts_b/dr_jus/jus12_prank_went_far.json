@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The elders tell (subject) that a joke the other person didn't agree to isn't a joke, and ask (subject.him/her) to play no pranks at all for the rest of the season. (subject) thinks that's too strict, and says so. The elders listen, and don't change their minds. (subject) keeps to it, grudgingly. (friend) stays a little wary of (subject.him/her) for a while.",
-   "src": "L146"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The elders ask (subject) what (subject.he/she) thinks would make it right. (subject) thinks for a long time. That evening (subject.he/she) sits outside the children's hut and shows them exactly how (subject.he/she) made the noises, with a hollow gourd and a wet finger, until they're laughing instead of scared. (friend) watches from (friend.his/her) doorway. (friend.He/she) isn't laughing yet. Maybe later.",
    "src": "L149"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders tell (subject) that a joke the other person didn't agree to isn't a joke, and ask (subject.him/her) to play no pranks at all for the rest of the season. (subject) thinks that's too strict, and says so. The elders listen, and don't change their minds. (subject) keeps to it, grudgingly. (friend) stays a little wary of (subject.him/her) for a while.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L146"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders tell (subject) that a joke the other person didn't agree to isn't a joke, and ask (subject.him/her) to play no pranks at all for the rest of the season. (subject) thinks that's too strict, and says so. The elders listen, and don't change their minds. (subject) keeps to it, grudgingly. (friend) stays a little wary of (subject.him/her) for a while.",
+   "src": "L146"
   }
  }
 }

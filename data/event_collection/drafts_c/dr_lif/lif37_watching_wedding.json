@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) raises (his/her) cup to the couple, and means it. Whatever (his/her) own life has held, (he/she) hopes theirs is good. The couple see it and raise their tied hands. (name1) feels a twinge of something, maybe longing, maybe relief, maybe both, and lets it be. Then (he/she) goes and dances very badly with an elder. It's a lovely wedding.",
-   "src": "L434"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) slips away and walks along the beach in the evening light. The music fades behind (him/her). (He/she) thinks about the roads (he/she) took and the ones (he/she) didn't. (He/she) doesn't feel sad, exactly. Wistful. Full. When (he/she) comes back, the dancing has started, and (he/she) joins in. Some feelings don't need deciding about.",
    "src": "L437"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) raises (his/her) cup to the couple, and means it. Whatever (his/her) own life has held, (he/she) hopes theirs is good. The couple see it and raise their tied hands. (name1) feels a twinge of something, maybe longing, maybe relief, maybe both, and lets it be. Then (he/she) goes and dances very badly with an elder. It's a lovely wedding.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L434"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) raises (his/her) cup to the couple, and means it. Whatever (his/her) own life has held, (he/she) hopes theirs is good. The couple see it and raise their tied hands. (name1) feels a twinge of something, maybe longing, maybe relief, maybe both, and lets it be. Then (he/she) goes and dances very badly with an elder. It's a lovely wedding.",
+   "src": "L434"
   }
  }
 }

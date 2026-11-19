@@ -77,14 +77,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) plants (subject.his/her) feet and stays completely still, like a tree. (friend) edges past. \"Thank you,\" (friend.he/she) says. \"Sorry,\" says (subject). \"No, sorry,\" says (friend). They both start laughing halfway through apologizing for apologizing. The rest of the day, every time they pass each other, they do a tiny step left and right, just for fun.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "On the next step, (subject) adds a twirl. (friend), without missing a beat, twirls too. They do a little shuffle, a bow, and swap places. (child), a child who happens to be watching, applauds wildly. (subject) bows again. (friend) curtsies. Then they both go on their way, as though nothing happened at all.",
    "src": "L77"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) plants (subject.his/her) feet and stays completely still, like a tree. (friend) edges past. \"Thank you,\" (friend.he/she) says. \"Sorry,\" says (subject). \"No, sorry,\" says (friend). They both start laughing halfway through apologizing for apologizing. The rest of the day, every time they pass each other, they do a tiny step left and right, just for fun.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) plants (subject.his/her) feet and stays completely still, like a tree. (friend) edges past. \"Thank you,\" (friend.he/she) says. \"Sorry,\" says (subject). \"No, sorry,\" says (friend). They both start laughing halfway through apologizing for apologizing. The rest of the day, every time they pass each other, they do a tiny step left and right, just for fun.",
+   "src": "L74"
   }
  }
 }

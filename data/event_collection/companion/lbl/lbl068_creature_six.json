@@ -118,6 +118,41 @@
    "src": "L4695"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "The apprentice discovers it helps control crop pests.",
+   "src": "L4696",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4696"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L4696"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "The apprentice discovers it helps control crop pests.",
    "src": "L4696",

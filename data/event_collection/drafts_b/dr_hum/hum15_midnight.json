@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Three coconuts,\" whispers (friend). \"Final offer.\" The sleeping (subject) considers this for a long time. \"...Two and a mango.\" \"Done,\" says (friend). (subject) sighs contentedly and starts to snore. In the morning (subject.he/she) remembers nothing at all, but wakes up looking extremely pleased with (subject.him/her)self.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) reports everything over breakfast. (subject) is embarrassed and fascinated. \"Did I win?\" \"Hard to say. It went on for a long time.\" (subject) thinks about it all day. That night, on the beach again, (friend) hears (subject.him/her) say, quite clearly and with great reluctance, \"Fine. Three.\"",
    "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Three coconuts,\" whispers (friend). \"Final offer.\" The sleeping (subject) considers this for a long time. \"...Two and a mango.\" \"Done,\" says (friend). (subject) sighs contentedly and starts to snore. In the morning (subject.he/she) remembers nothing at all, but wakes up looking extremely pleased with (subject.him/her)self.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Three coconuts,\" whispers (friend). \"Final offer.\" The sleeping (subject) considers this for a long time. \"...Two and a mango.\" \"Done,\" says (friend). (subject) sighs contentedly and starts to snore. In the morning (subject.he/she) remembers nothing at all, but wakes up looking extremely pleased with (subject.him/her)self.",
+   "src": "L182"
   }
  }
 }

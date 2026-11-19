@@ -201,9 +201,16 @@
    "src": "L27623"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "(child) discovers other enjoyable friendships.",
-   "src": "L27624"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -248,6 +255,24 @@
    "name": "Outcome D2",
    "text": "(other) joins the game without romantic expectations.",
    "src": "L27630"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(child) discovers other enjoyable friendships.",
+   "src": "L27624",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L27624"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(child) discovers other enjoyable friendships.",
+   "src": "L27624"
   }
  }
 }

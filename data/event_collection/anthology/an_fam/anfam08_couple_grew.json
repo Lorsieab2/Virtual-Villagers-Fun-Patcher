@@ -105,9 +105,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They find one goal they still share and begin again.",
-   "src": "L28408"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -127,9 +134,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A new routine restores some closeness.",
-   "src": "L28411"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -149,9 +163,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They part sadly without blaming each other.",
-   "src": "L28414"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -179,6 +200,78 @@
    "name": "Outcome D2",
    "text": "The advice feels too traditional, and the couple decides for themselves.",
    "src": "L28418"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They find one goal they still share and begin again.",
+   "src": "L28408",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L28408"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L28408"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They find one goal they still share and begin again.",
+   "src": "L28408"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A new routine restores some closeness.",
+   "src": "L28411",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L28411"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L28411"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A new routine restores some closeness.",
+   "src": "L28411"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They part sadly without blaming each other.",
+   "src": "L28414",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "bad",
+     "src": "L28414"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "bad",
+     "src": "L28414"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They part sadly without blaming each other.",
+   "src": "L28414"
   }
  }
 }

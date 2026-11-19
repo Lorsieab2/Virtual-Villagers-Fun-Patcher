@@ -110,9 +110,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "Unexpected collaborations produce several useful ideas.",
-   "src": "L1108"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome 2",
@@ -120,6 +127,49 @@
    "src": "L1110"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "Unexpected collaborations produce several useful ideas.",
+   "src": "L1108",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1108"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "Unexpected collaborations produce several useful ideas.",
+   "src": "L1108"
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The children propose a simple solution the masters overlooked.",
+   "src": "L1112",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1112"
+    }
+   ]
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "The children propose a simple solution the masters overlooked.",
    "src": "L1112"

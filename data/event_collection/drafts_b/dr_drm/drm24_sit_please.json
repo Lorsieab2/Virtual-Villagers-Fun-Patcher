@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) holds up a bit of fish. \"Sit.\" The dog lies down. \"Sit.\" The dog rolls over. \"SIT.\" The dog barks once. (friend) is crying with laughter. Then, very slowly, the dog sits. Both villagers freeze. The dog, looking deeply pleased with itself, immediately lies down again. It counts. (subject) has decided it counts.",
-   "src": "L290"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Why don't you teach it the thing it's good at?\" says (friend). So (subject) teaches the dog to roll over when asked. It learns in an afternoon. The dog is clearly delighted with this arrangement. (subject) decides that a dog who rolls over on request is, in fact, what (subject.he/she) wanted all along.",
    "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) holds up a bit of fish. \"Sit.\" The dog lies down. \"Sit.\" The dog rolls over. \"SIT.\" The dog barks once. (friend) is crying with laughter. Then, very slowly, the dog sits. Both villagers freeze. The dog, looking deeply pleased with itself, immediately lies down again. It counts. (subject) has decided it counts.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L290"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L290"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) holds up a bit of fish. \"Sit.\" The dog lies down. \"Sit.\" The dog rolls over. \"SIT.\" The dog barks once. (friend) is crying with laughter. Then, very slowly, the dog sits. Both villagers freeze. The dog, looking deeply pleased with itself, immediately lies down again. It counts. (subject) has decided it counts.",
+   "src": "L290"
   }
  }
 }

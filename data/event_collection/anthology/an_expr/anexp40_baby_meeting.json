@@ -151,9 +151,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "Her practical idea changes the plan.",
-   "src": "L31882"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -181,6 +188,24 @@
    "name": "Outcome D2",
    "text": "She leaves early without losing her voice in the decision.",
    "src": "L31886"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Her practical idea changes the plan.",
+   "src": "L31882",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L31882"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Her practical idea changes the plan.",
+   "src": "L31882"
   }
  }
 }

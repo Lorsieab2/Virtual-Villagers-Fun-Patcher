@@ -74,6 +74,37 @@
    "src": "L182"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They pick it together and cut it exactly in half, very carefully, measuring with a stick. It's the best mango either of them has ever eaten, and they agree it's because of all the waiting. Then each of them secretly starts watching a different mango.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L185"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L185"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They pick it together and cut it exactly in half, very carefully, measuring with a stick. It's the best mango either of them has ever eaten, and they agree it's because of all the waiting. Then each of them secretly starts watching a different mango.",
    "src": "L185"

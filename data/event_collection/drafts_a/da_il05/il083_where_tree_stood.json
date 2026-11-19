@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) describes the old tree to (friend): the branch that was shaped like a seat, the knothole where (subject.he/she) kept treasures. (friend) looks at the little sapling. \"Maybe someone will hide treasures in this one someday.\" (subject) smiles. \"Maybe. It'll need to grow first.\"",
-   "src": "L38"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) fetches a little water and pours it carefully around the sapling's roots. It doesn't look anything like the old tree. It's thin and wobbly and has about nine leaves. (subject) likes it anyway. (subject.He/She) decides to check on it now and then.",
    "src": "L41"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) describes the old tree to (friend): the branch that was shaped like a seat, the knothole where (subject.he/she) kept treasures. (friend) looks at the little sapling. \"Maybe someone will hide treasures in this one someday.\" (subject) smiles. \"Maybe. It'll need to grow first.\"",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) describes the old tree to (friend): the branch that was shaped like a seat, the knothole where (subject.he/she) kept treasures. (friend) looks at the little sapling. \"Maybe someone will hide treasures in this one someday.\" (subject) smiles. \"Maybe. It'll need to grow first.\"",
+   "src": "L38"
   }
  }
 }

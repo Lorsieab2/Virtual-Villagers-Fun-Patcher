@@ -79,6 +79,31 @@
    "src": "L188"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets two saplings and plants one in each place. \"We'll see,\" (subject.he/she) says. The elders nod, satisfied. Over the years, the shade tree grows big but gives little fruit, and the hill tree stays small but gives a lot. Both elders feel completely proven right. (subject) gets fruit from both and doesn't mention it to either.",
+   "src": "L191",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L191"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) gets two saplings and plants one in each place. \"We'll see,\" (subject.he/she) says. The elders nod, satisfied. Over the years, the shade tree grows big but gives little fruit, and the hill tree stays small but gives a lot. Both elders feel completely proven right. (subject) gets fruit from both and doesn't mention it to either.",
    "src": "L191"

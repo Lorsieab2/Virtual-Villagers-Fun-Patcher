@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"The fish is good tonight,\" says (subject). \"Very good,\" says (friend). Silence. Then (friend) says, \"I always think fish look a bit surprised, don't you?\" (subject) laughs before (subject.he/she) can stop (subject.him/her)self. They spend the rest of the evening agreeing about which animals look surprised. It's a start.",
-   "src": "L86"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "Neither of them says much. But when the fire needs more wood, (friend) passes the wood, and when (subject)'s bowl is empty, (subject) passes it to be filled. At the end of the night (friend) says, \"Good sitting with you.\" (subject) thinks about that all the way home. It was good sitting with (friend.him/her), too.",
    "src": "L89"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"The fish is good tonight,\" says (subject). \"Very good,\" says (friend). Silence. Then (friend) says, \"I always think fish look a bit surprised, don't you?\" (subject) laughs before (subject.he/she) can stop (subject.him/her)self. They spend the rest of the evening agreeing about which animals look surprised. It's a start.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L86"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L86"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"The fish is good tonight,\" says (subject). \"Very good,\" says (friend). Silence. Then (friend) says, \"I always think fish look a bit surprised, don't you?\" (subject) laughs before (subject.he/she) can stop (subject.him/her)self. They spend the rest of the evening agreeing about which animals look surprised. It's a start.",
+   "src": "L86"
   }
  }
 }

@@ -74,6 +74,31 @@
    "src": "L38"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is on top of the woodpile before anyone sees (subject.him/her) move. \"Except spiders,\" (subject.he/she) says from up there. \"I forgot about spiders.\" (friend) laughs and carries the spider away. (subject) climbs down. \"Storms, though. Not a bit afraid of storms.\" \"I believe you,\" says (friend), and very nearly does.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L41"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is on top of the woodpile before anyone sees (subject.him/her) move. \"Except spiders,\" (subject.he/she) says from up there. \"I forgot about spiders.\" (friend) laughs and carries the spider away. (subject) climbs down. \"Storms, though. Not a bit afraid of storms.\" \"I believe you,\" says (friend), and very nearly does.",
    "src": "L41"

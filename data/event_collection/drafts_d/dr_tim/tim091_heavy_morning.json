@@ -99,19 +99,69 @@
    "src": "L1527"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) wakes with a task already weighing on their mind. (Name1) is proud of the progress nobody else can see.",
-   "src": "L1531"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) wakes with a task already weighing on their mind. A cheerful interruption is welcome for once.",
-   "src": "L1535"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) wakes with a task already weighing on their mind. The afternoon feels unusually long, despite the simple work.",
    "src": "L1539"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) wakes with a task already weighing on their mind. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1531",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1531"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) wakes with a task already weighing on their mind. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1531"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes with a task already weighing on their mind. A cheerful interruption is welcome for once.",
+   "src": "L1535",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1535"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes with a task already weighing on their mind. A cheerful interruption is welcome for once.",
+   "src": "L1535"
   }
  }
 }

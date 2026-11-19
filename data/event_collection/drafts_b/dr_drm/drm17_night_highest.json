@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They stay. Neither of them sleeps much. But late in the night the clouds clear and the stars come out, more of them than (subject) has ever seen, and a shooting star goes right across the sky, and they both shout at the same moment. They come down at dawn, stiff and bitten and delighted.",
-   "src": "L206"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I've done it,\" says (subject) around midnight. \"I've slept on the rock. Technically.\" (friend) agrees this counts. They climb down by starlight and are in their own beds before the moon is high. (subject) is pleased (subject.he/she) tried, and very pleased (subject.he/she) won't have to do it again.",
    "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They stay. Neither of them sleeps much. But late in the night the clouds clear and the stars come out, more of them than (subject) has ever seen, and a shooting star goes right across the sky, and they both shout at the same moment. They come down at dawn, stiff and bitten and delighted.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They stay. Neither of them sleeps much. But late in the night the clouds clear and the stars come out, more of them than (subject) has ever seen, and a shooting star goes right across the sky, and they both shout at the same moment. They come down at dawn, stiff and bitten and delighted.",
+   "src": "L206"
   }
  }
 }

@@ -124,9 +124,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The family cheers and (toddler) giggles.",
-   "src": "L28701"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -198,6 +205,24 @@
    "name": "Outcome D2",
    "text": "The adults realize the word refers to a favorite fruit.",
    "src": "L28711"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family cheers and (toddler) giggles.",
+   "src": "L28701",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "toddler",
+     "mood": "good",
+     "src": "L28701"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family cheers and (toddler) giggles.",
+   "src": "L28701"
   }
  }
 }

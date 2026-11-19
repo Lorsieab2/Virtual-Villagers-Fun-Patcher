@@ -70,11 +70,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "With help, (friend) climbs up and stands very tall. Then (friend.he/she) takes one step, and then a lot more steps, very fast, in a circle, unable to stop, shouting, \"How do I stop?\" while (subject) runs alongside shouting, \"Lean back! No, the other back!\" (friend) stops by stepping off, quite gently, into a pile of drying seaweed. (friend.He/she) is unhurt and delighted.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L554"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "With help, (friend) climbs up and stands very tall. Then (friend.he/she) takes one step, and then a lot more steps, very fast, in a circle, unable to stop, shouting, \"How do I stop?\" while (subject) runs alongside shouting, \"Lean back! No, the other back!\" (friend) stops by stepping off, quite gently, into a pile of drying seaweed. (friend.He/she) is unhurt and delighted.",
    "src": "L554"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) teaches (friend.him/her) slowly and very strictly: lean, step, breathe, lean, step, breathe. (friend) wobbles a great deal. By evening (friend.he/she) can manage ten steps in a row. (subject) is the proudest teacher on Isola. The next morning, (friend) gets up early to practice in secret.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L557"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) teaches (friend.him/her) slowly and very strictly: lean, step, breathe, lean, step, breathe. (friend) wobbles a great deal. By evening (friend.he/she) can manage ten steps in a row. (subject) is the proudest teacher on Isola. The next morning, (friend) gets up early to practice in secret.",
    "src": "L557"

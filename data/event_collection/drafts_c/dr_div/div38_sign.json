@@ -70,11 +70,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) shows it: one hand flipping over, quick, with a little shake at the end. \"What is it?\" asks (friend). (subject) signs and says it: \"A fish flopping on the sand. Because of how you laugh.\" (friend) is not sure whether to be flattered. Then (friend.he/she) laughs, exactly like a fish flopping on the sand, and has to admit it's perfect.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L458"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) shows it: one hand flipping over, quick, with a little shake at the end. \"What is it?\" asks (friend). (subject) signs and says it: \"A fish flopping on the sand. Because of how you laugh.\" (friend) is not sure whether to be flattered. Then (friend.he/she) laughs, exactly like a fish flopping on the sand, and has to admit it's perfect.",
    "src": "L458"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) guesses. A wave? A bird? A leaf? (subject) shakes (subject.his/her) head at every guess, grinning wider and wider. Finally (subject.he/she) tells: it's (friend) tripping over (friend.his/her) own feet, which (friend.he/she) did on the very first day. (friend) groans. (subject) says it's a sign of affection. It is. (friend) uses it for (friend.him/her)self proudly within a week.",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L461"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) guesses. A wave? A bird? A leaf? (subject) shakes (subject.his/her) head at every guess, grinning wider and wider. Finally (subject.he/she) tells: it's (friend) tripping over (friend.his/her) own feet, which (friend.he/she) did on the very first day. (friend) groans. (subject) says it's a sign of affection. It is. (friend) uses it for (friend.him/her)self proudly within a week.",
    "src": "L461"

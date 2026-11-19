@@ -94,6 +94,42 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) talk to the wall and gets on with it. By the time the story's over, (subject) has already found the problem, strapped the shoulder and made up a poultice. (friend) turns around. \"Did you get all that?\" (subject) smiles. \"None of it. But your shoulder told me everything.\"",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 10,
+     "max": 30,
+     "src": "L317"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L317"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) lets (friend) talk to the wall and gets on with it. By the time the story's over, (subject) has already found the problem, strapped the shoulder and made up a poultice. (friend) turns around. \"Did you get all that?\" (subject) smiles. \"None of it. But your shoulder told me everything.\"",
    "src": "L317",

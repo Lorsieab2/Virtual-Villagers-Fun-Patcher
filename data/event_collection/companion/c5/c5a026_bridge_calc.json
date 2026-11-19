@@ -136,6 +136,31 @@
    "src": "L645"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The team discovers that the shortest bridge is not the safest.",
+   "src": "L647",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L647"
+    }
+   ]
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "The team discovers that the shortest bridge is not the safest.",
    "src": "L647"

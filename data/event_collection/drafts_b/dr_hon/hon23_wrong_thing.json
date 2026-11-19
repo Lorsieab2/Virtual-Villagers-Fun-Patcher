@@ -96,11 +96,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend). \"I got it wrong. They're sun berries, and you can eat them.\" (friend) stares. \"But I TOLD everyone.\" \"So now you can tell them again.\" (friend) does, very importantly, with a basket of sun berries for everyone to try. (friend.He/she) seems to enjoy being the expert twice.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L278"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L278"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) finds (friend). \"I got it wrong. They're sun berries, and you can eat them.\" (friend) stares. \"But I TOLD everyone.\" \"So now you can tell them again.\" (friend) does, very importantly, with a basket of sun berries for everyone to try. (friend.He/she) seems to enjoy being the expert twice.",
    "src": "L278"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) takes (friend) to (elder), who explains it kindly, and adds that it was good to be careful, because there are other red berries on Isola that really aren't safe. (friend) listens very seriously. So does (subject), who now learns exactly which ones those are.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L281"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) takes (friend) to (elder), who explains it kindly, and adds that it was good to be careful, because there are other red berries on Isola that really aren't safe. (friend) listens very seriously. So does (subject), who now learns exactly which ones those are.",
    "src": "L281"

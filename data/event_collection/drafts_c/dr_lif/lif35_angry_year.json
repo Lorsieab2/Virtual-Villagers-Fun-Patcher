@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) asks (friend), who knew (subject.him/her) then. (friend) thinks hard. \"A pig, I think? Or a fence? Something to do with a pig and a fence.\" (subject) is appalled. A whole year. Over a pig and a fence. They both laugh until they can't breathe. (subject) still can't remember the details. (subject.He/she) decides (subject.he/she) doesn't want to.",
-   "src": "L410"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) wonders what (subject.he/she) is angry about now that (subject.he/she) won't remember in twenty years. There are a couple of things. (subject.He/she) tries to imagine forgetting them. It's hard. They feel enormous. But so did the pig, probably. (subject.He/she) lets go of one of them, just a little, that very afternoon. (subject.He/she) keeps the other. It might be important.",
    "src": "L413"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) asks (friend), who knew (subject.him/her) then. (friend) thinks hard. \"A pig, I think? Or a fence? Something to do with a pig and a fence.\" (subject) is appalled. A whole year. Over a pig and a fence. They both laugh until they can't breathe. (subject) still can't remember the details. (subject.He/she) decides (subject.he/she) doesn't want to.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L410"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) asks (friend), who knew (subject.him/her) then. (friend) thinks hard. \"A pig, I think? Or a fence? Something to do with a pig and a fence.\" (subject) is appalled. A whole year. Over a pig and a fence. They both laugh until they can't breathe. (subject) still can't remember the details. (subject.He/she) decides (subject.he/she) doesn't want to.",
+   "src": "L410"
   }
  }
 }

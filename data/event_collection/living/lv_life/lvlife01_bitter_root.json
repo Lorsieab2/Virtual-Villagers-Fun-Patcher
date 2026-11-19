@@ -107,9 +107,16 @@
    ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The root has little effect, and the healer records the disappointing result.",
-   "src": "L20646"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -153,14 +160,57 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The song comforts the patient without removing the pain.",
-   "src": "L20651"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The patient asks for silence instead, and the family respects the request.",
    "src": "L20652"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The root has little effect, and the healer records the disappointing result.",
+   "src": "L20646",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20646"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The root has little effect, and the healer records the disappointing result.",
+   "src": "L20646"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The song comforts the patient without removing the pain.",
+   "src": "L20651",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L20651"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The song comforts the patient without removing the pain.",
+   "src": "L20651"
   }
  }
 }

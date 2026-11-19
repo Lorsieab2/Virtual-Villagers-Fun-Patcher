@@ -60,27 +60,28 @@
  "start": "setup",
  "nodes": {
   "setup": {
+   "type": "branch",
    "name": "The setup",
-   "text": "After a difficult series of cases, a healer watches a patient recover.",
-   "src": "L3042",
    "children": [
     {
-     "next": "e1"
+     "next": "setup__fx"
     },
     {
-     "next": "e2"
-    },
-    {
-     "next": "e3"
+     "next": "setup__text"
     }
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Feel joy mixed with exhaustion.",
-   "src": "L3044"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -102,6 +103,69 @@
    "join": "paragraph",
    "text": "Recognize that one recovery cannot erase every loss.",
    "src": "L3046"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Feel joy mixed with exhaustion.",
+   "src": "L3044",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "healer",
+     "mood": "good",
+     "src": "L3044"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Feel joy mixed with exhaustion.",
+   "src": "L3044"
+  },
+  "setup__fx": {
+   "name": "The setup",
+   "text": "After a difficult series of cases, a healer watches a patient recover.",
+   "src": "L3042",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L3042"
+    }
+   ]
+  },
+  "setup__text": {
+   "name": "The setup",
+   "text": "After a difficult series of cases, a healer watches a patient recover.",
+   "src": "L3042",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
   }
  }
 }

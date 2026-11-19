@@ -99,19 +99,69 @@
    "src": "L367"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) records the changing color of a plant infusion. A nearby villager offers a surprisingly useful observation.",
-   "src": "L371"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) records the changing color of a plant infusion. The notes are messy, but the discovery feels exciting.",
-   "src": "L375"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) records the changing color of a plant infusion. Nobody is sure what happened, so they agree to repeat the test.",
    "src": "L379"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) records the changing color of a plant infusion. A nearby villager offers a surprisingly useful observation.",
+   "src": "L371",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L371"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) records the changing color of a plant infusion. A nearby villager offers a surprisingly useful observation.",
+   "src": "L371"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) records the changing color of a plant infusion. The notes are messy, but the discovery feels exciting.",
+   "src": "L375",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L375"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) records the changing color of a plant infusion. The notes are messy, but the discovery feels exciting.",
+   "src": "L375"
   }
  }
 }

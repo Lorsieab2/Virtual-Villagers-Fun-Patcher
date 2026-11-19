@@ -69,11 +69,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The village hosts a seafood supper after careful sorting and cooking.",
-   "src": "L3407"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",
@@ -81,6 +86,28 @@
    "join": "paragraph",
    "text": "A healer advises leaving suspicious shellfish uneaten.",
    "src": "L3408"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The village hosts a seafood supper after careful sorting and cooking.",
+   "src": "L3407",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3407"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The village hosts a seafood supper after careful sorting and cooking.",
+   "src": "L3407"
   }
  }
 }

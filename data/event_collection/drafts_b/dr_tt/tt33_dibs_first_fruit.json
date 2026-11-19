@@ -69,11 +69,77 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (friend). \"Then you can help water it.\" (subject) agrees. (subject.He/she) waters it every few days, season after season, and by the time the first breadfruit appears, it is as much (subject)'s tree as (friend)'s. (subject) cuts the first fruit in two and gives (friend) the bigger half.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L398"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L398"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Fine,\" says (friend). \"Then you can help water it.\" (subject) agrees. (subject.He/she) waters it every few days, season after season, and by the time the first breadfruit appears, it is as much (subject)'s tree as (friend)'s. (subject) cuts the first fruit in two and gives (friend) the bigger half.",
    "src": "L398"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Then I'll have the second,\" says (friend), \"and every one after that.\" (subject) realizes (subject.he/she) has been outsmarted. \"...Dibs on the third, then.\" They spend the rest of the afternoon dividing up fruit that won't exist for years, and both enjoy it enormously.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L401"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Then I'll have the second,\" says (friend), \"and every one after that.\" (subject) realizes (subject.he/she) has been outsmarted. \"...Dibs on the third, then.\" They spend the rest of the afternoon dividing up fruit that won't exist for years, and both enjoy it enormously.",
    "src": "L401"

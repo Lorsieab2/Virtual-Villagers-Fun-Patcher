@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "That evening the dancing begins, and (subject)'s favorite song starts, and (subject.he/she) forgets all about the toe and dances all night. The next morning (friend) brings (subject.him/her) a drink, raises an eyebrow, and asks, \"How's the toe?\" \"...Much better,\" says (subject). \"Amazing,\" says (friend), and leaves the drink anyway.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "That evening the dancing begins, and (subject)'s favorite song starts, and (subject.he/she) forgets all about the toe and dances all night. The next morning (friend) brings (subject.him/her) a drink, raises an eyebrow, and asks, \"How's the toe?\" \"...Much better,\" says (subject). \"Amazing,\" says (friend), and leaves the drink anyway.",
    "src": "L194"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "By midday (subject) stops limping and goes back to carrying (subject.his/her) own things. It's a little disappointing to be ordinary again. Then (friend) turns up with a drink anyway, \"for being brave about the toe.\" (subject) decides that this is the best of both worlds.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L197"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "By midday (subject) stops limping and goes back to carrying (subject.his/her) own things. It's a little disappointing to be ordinary again. Then (friend) turns up with a drink anyway, \"for being brave about the toe.\" (subject) decides that this is the best of both worlds.",
    "src": "L197"

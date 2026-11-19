@@ -83,6 +83,59 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder withdraws and misses a gathering; a friend later apologizes.",
+   "src": "L6852"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "A healer notices aching joints and helps the elder rest more comfortably.",
+   "src": "L6848",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6848"
+    },
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 5,
+     "max": 15,
+     "src": "L6848"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "A healer notices aching joints and helps the elder rest more comfortably.",
    "src": "L6848",
@@ -99,15 +152,24 @@
     }
    ]
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The elder accepts later mornings and feels less exhausted.",
+   "src": "L6850",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 5,
+     "max": 15,
+     "src": "L6850"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "The elder accepts later mornings and feels less exhausted.",
    "src": "L6850"
-  },
-  "c": {
-   "name": "Answer C",
-   "text": "The elder withdraws and misses a gathering; a friend later apologizes.",
-   "src": "L6852"
   }
  }
 }

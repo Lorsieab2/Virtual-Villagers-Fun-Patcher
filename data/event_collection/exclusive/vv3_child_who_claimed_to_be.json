@@ -122,8 +122,16 @@
    ]
   },
   "a4": {
-   "src": "L7887",
-   "text": "Two quarrelling adults are ordered to share their tools. The solution works, much to the Chief's delight and the adults' embarrassment."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
+    }
+   ]
   },
   "b1": {
    "src": "L7889",
@@ -167,6 +175,22 @@
      "next": "b3"
     }
    ]
+  },
+  "a4__fx": {
+   "src": "L7887",
+   "text": "Two quarrelling adults are ordered to share their tools. The solution works, much to the Chief's delight and the adults' embarrassment.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "chief",
+     "mood": "good",
+     "src": "L7887"
+    }
+   ]
+  },
+  "a4__text": {
+   "src": "L7887",
+   "text": "Two quarrelling adults are ordered to share their tools. The solution works, much to the Chief's delight and the adults' embarrassment."
   }
  }
 }

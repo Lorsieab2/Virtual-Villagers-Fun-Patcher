@@ -70,6 +70,31 @@
    "src": "L62"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) decides that (friend) is allowed to be quiet. After a while (friend) stretches, says \"That was a good meal,\" and goes home humming. Whatever (friend.he/she) was thinking about, it seems to have been a nice thing.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L65"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) decides that (friend) is allowed to be quiet. After a while (friend) stretches, says \"That was a good meal,\" and goes home humming. Whatever (friend.he/she) was thinking about, it seems to have been a nice thing.",
    "src": "L65"

@@ -122,12 +122,14 @@
    ]
   },
   "contest": {
-   "src": "L8239-8242",
-   "text": "A scholar claims a weather pattern is entirely predictable; a practitioner of another tradition challenges the method. The Chief orders both sides to record observations. One may be vindicated, both may learn, or a child may notice that neither measured the wind.",
+   "type": "branch",
    "name": "Magic, Nature and Measurement",
    "children": [
     {
-     "next": "u"
+     "next": "contest__fx"
+    },
+    {
+     "next": "contest__text"
     }
    ]
   },
@@ -363,6 +365,34 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "contest__fx": {
+   "src": "L8239-8242",
+   "text": "A scholar claims a weather pattern is entirely predictable; a practitioner of another tradition challenges the method. The Chief orders both sides to record observations. One may be vindicated, both may learn, or a child may notice that neither measured the wind.",
+   "name": "Magic, Nature and Measurement",
+   "children": [
+    {
+     "next": "u"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8239-8242"
+    }
+   ]
+  },
+  "contest__text": {
+   "src": "L8239-8242",
+   "text": "A scholar claims a weather pattern is entirely predictable; a practitioner of another tradition challenges the method. The Chief orders both sides to record observations. One may be vindicated, both may learn, or a child may notice that neither measured the wind.",
+   "name": "Magic, Nature and Measurement",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
   }
  },
  "include_pools": [

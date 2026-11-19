@@ -113,6 +113,31 @@
    "src": "L74"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) dries (friend), checks (third)'s blue tongue \\(berries, thank goodness\\), feeds them both, tells a story and gets them into bed. Then (subject.he/she) sits on the step with a cup of tea and doesn't move for a long time. (subject.He/she) is too tired to think. (subject.He/she) is also, under the tiredness, very happy. Both of those are true at the same time.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) dries (friend), checks (third)'s blue tongue \\(berries, thank goodness\\), feeds them both, tells a story and gets them into bed. Then (subject.he/she) sits on the step with a cup of tea and doesn't move for a long time. (subject.He/she) is too tired to think. (subject.He/she) is also, under the tiredness, very happy. Both of those are true at the same time.",
    "src": "L77"

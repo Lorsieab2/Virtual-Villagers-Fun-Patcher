@@ -272,12 +272,28 @@
    "text": "The judges award it low marks for craftsmanship. The villagers, however, adore it and begin leaving flowers at its feet. The organizers establish a separate People's Favorite award."
   },
   "a2": {
-   "src": "L7315-7318",
-   "text": "The sculptor wins. A rival demands to know whether the judges have eyes. The Master Carver replies, \"Unfortunately, yes. I shall never forget what I have seen.\" The award stands after a fair vote."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "a3": {
-   "src": "L7320-7323",
-   "text": "The elder depicted in the sculpture sees the enormous nose and bursts into laughter. \"You have captured my finest feature!\" (sculptor) is relieved. The elder requests a second statue for home."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a3__fx"
+    },
+    {
+     "next": "a3__text"
+    }
+   ]
   },
   "a4": {
    "src": "L7325-7328",
@@ -364,6 +380,38 @@
      "next": "c3"
     }
    ]
+  },
+  "a2__fx": {
+   "src": "L7315-7318",
+   "text": "The sculptor wins. A rival demands to know whether the judges have eyes. The Master Carver replies, \"Unfortunately, yes. I shall never forget what I have seen.\" The award stands after a fair vote.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "sculptor",
+     "mood": "good",
+     "src": "L7315-7318"
+    }
+   ]
+  },
+  "a2__text": {
+   "src": "L7315-7318",
+   "text": "The sculptor wins. A rival demands to know whether the judges have eyes. The Master Carver replies, \"Unfortunately, yes. I shall never forget what I have seen.\" The award stands after a fair vote."
+  },
+  "a3__fx": {
+   "src": "L7320-7323",
+   "text": "The elder depicted in the sculpture sees the enormous nose and bursts into laughter. \"You have captured my finest feature!\" (sculptor) is relieved. The elder requests a second statue for home.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "sculptor",
+     "mood": "good",
+     "src": "L7320-7323"
+    }
+   ]
+  },
+  "a3__text": {
+   "src": "L7320-7323",
+   "text": "The elder depicted in the sculpture sees the enormous nose and bursts into laughter. \"You have captured my finest feature!\" (sculptor) is relieved. The elder requests a second statue for home."
   }
  }
 }

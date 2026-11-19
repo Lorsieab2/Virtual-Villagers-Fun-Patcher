@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) has a hunch, and the hunch leads to the old fig tree above the cliff, where the goat is standing on a high branch, chewing calmly, with no idea how to get down. (friend) climbs up. (subject) shouts instructions. The goat ignores both of them, then hops down on its own, lands neatly next to (subject), and eats the end of one of (subject.his/her) crutches. (subject) is outraged. Everyone else is delighted.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L578"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) has a hunch, and the hunch leads to the old fig tree above the cliff, where the goat is standing on a high branch, chewing calmly, with no idea how to get down. (friend) climbs up. (subject) shouts instructions. The goat ignores both of them, then hops down on its own, lands neatly next to (subject), and eats the end of one of (subject.his/her) crutches. (subject) is outraged. Everyone else is delighted.",
    "src": "L578"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) insists the goat will be in the gardens. It isn't. They check the stream. It isn't. They check the beach. It isn't. They come back exhausted to find the goat asleep in (subject)'s hut, on (subject.his/her) sleeping mat. (subject) leans on (subject.his/her) crutches in the doorway and stares at it for a long time. \"Out,\" (subject.he/she) says. The goat doesn't move.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L581"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -15,
+     "max": -5,
+     "src": "L581"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) insists the goat will be in the gardens. It isn't. They check the stream. It isn't. They check the beach. It isn't. They come back exhausted to find the goat asleep in (subject)'s hut, on (subject.his/her) sleeping mat. (subject) leans on (subject.his/her) crutches in the doorway and stares at it for a long time. \"Out,\" (subject.he/she) says. The goat doesn't move.",
    "src": "L581"

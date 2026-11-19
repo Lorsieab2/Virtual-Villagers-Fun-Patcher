@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) folds broad leaves around a small lantern frame. The crooked edges make (Name1) smile more than the perfect ones.",
-   "src": "L15"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -104,6 +111,61 @@
    "src": "L19"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1) folds broad leaves around a small lantern frame. (Name1) is looking forward to showing the finished work to a friend.",
+   "src": "L27"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) folds broad leaves around a small lantern frame. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L15"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) folds broad leaves around a small lantern frame. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L15"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) folds broad leaves around a small lantern frame. The warm glow makes the ordinary evening feel like a celebration.",
+   "src": "L23",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L23"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L23"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1) folds broad leaves around a small lantern frame. The warm glow makes the ordinary evening feel like a celebration.",
    "src": "L23",
@@ -114,11 +176,6 @@
      "src": "L23"
     }
    ]
-  },
-  "e4": {
-   "name": "Ending 4",
-   "text": "(Name1) folds broad leaves around a small lantern frame. (Name1) is looking forward to showing the finished work to a friend.",
-   "src": "L27"
   }
  }
 }

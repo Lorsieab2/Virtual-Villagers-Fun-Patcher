@@ -79,14 +79,39 @@
    "src": "L6086"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "Dancers use vibrations and hand cues; a new festival tradition begins.",
-   "src": "L6088"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "They create a visual sequence everyone enjoys, though some rehearsals go hilariously wrong.",
    "src": "L6090"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Dancers use vibrations and hand cues; a new festival tradition begins.",
+   "src": "L6088",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L6088"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Dancers use vibrations and hand cues; a new festival tradition begins.",
+   "src": "L6088"
   }
  }
 }

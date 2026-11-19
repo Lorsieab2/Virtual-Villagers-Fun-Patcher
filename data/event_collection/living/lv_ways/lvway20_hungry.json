@@ -109,9 +109,16 @@
    ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The feast inspires neighbors to share hidden supplies.",
-   "src": "L23012"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -212,6 +219,24 @@
      "src": "L23021"
     }
    ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The feast inspires neighbors to share hidden supplies.",
+   "src": "L23012",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L23012"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The feast inspires neighbors to share hidden supplies.",
+   "src": "L23012"
   }
  }
 }

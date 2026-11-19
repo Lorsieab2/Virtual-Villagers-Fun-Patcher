@@ -70,6 +70,37 @@
    "src": "L26"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(friend) is not delighted to be woken. (friend.He/She) comes anyway, wrapped in a blanket and grumbling. They crouch over the pool together. \"Are they asleep?\" whispers (subject). \"I was,\" whispers (friend). Then (friend.he/she) sees a fish slowly bump into a rock and drift away without noticing. They both have to cover their mouths so they don't laugh and wake it.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L29"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(friend) is not delighted to be woken. (friend.He/She) comes anyway, wrapped in a blanket and grumbling. They crouch over the pool together. \"Are they asleep?\" whispers (subject). \"I was,\" whispers (friend). Then (friend.he/she) sees a fish slowly bump into a rock and drift away without noticing. They both have to cover their mouths so they don't laugh and wake it.",
    "src": "L29"

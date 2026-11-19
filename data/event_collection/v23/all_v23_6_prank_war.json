@@ -93,20 +93,44 @@
    ]
   },
   "b1": {
-   "text": "The entire village laughs at a brilliantly timed surprise.",
-   "src": "L10103"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
-   "text": "The joke fails spectacularly and the pranksters are embarrassed.",
-   "src": "L10104"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "b3": {
    "text": "A valuable clay vessel is broken; the pranksters repair or replace it.",
    "src": "L10105"
   },
   "b4": {
-   "text": "An elaborate trick accidentally helps solve a practical problem.",
-   "src": "L10106"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b4__fx"
+    },
+    {
+     "next": "b4__text"
+    }
+   ]
   },
   "set_b": {
    "type": "branch",
@@ -157,6 +181,66 @@
      "next": "c3"
     }
    ]
+  },
+  "b1__fx": {
+   "text": "The entire village laughs at a brilliantly timed surprise.",
+   "src": "L10103",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "prankster1",
+     "mood": "good",
+     "src": "L10103"
+    },
+    {
+     "do": "mood",
+     "role": "prankster2",
+     "mood": "good",
+     "src": "L10103"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "The entire village laughs at a brilliantly timed surprise.",
+   "src": "L10103"
+  },
+  "b2__fx": {
+   "text": "The joke fails spectacularly and the pranksters are embarrassed.",
+   "src": "L10104",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "prankster1",
+     "mood": "bad",
+     "src": "L10104"
+    },
+    {
+     "do": "mood",
+     "role": "prankster2",
+     "mood": "bad",
+     "src": "L10104"
+    }
+   ]
+  },
+  "b2__text": {
+   "text": "The joke fails spectacularly and the pranksters are embarrassed.",
+   "src": "L10104"
+  },
+  "b4__fx": {
+   "text": "An elaborate trick accidentally helps solve a practical problem.",
+   "src": "L10106",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10106"
+    }
+   ]
+  },
+  "b4__text": {
+   "text": "An elaborate trick accidentally helps solve a practical problem.",
+   "src": "L10106"
   }
  },
  "requirement": {

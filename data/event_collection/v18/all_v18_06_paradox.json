@@ -186,11 +186,14 @@
    ]
   },
   "b3": {
-   "text": "One villager solves the paradox by eating the grain used to demonstrate it. The philosophers are furious; the farmers are delighted.",
-   "src": "L8690",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
     }
    ]
   },
@@ -439,6 +442,33 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "b3__fx": {
+   "text": "One villager solves the paradox by eating the grain used to demonstrate it. The philosophers are furious; the farmers are delighted.",
+   "src": "L8690",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L8690"
+    }
+   ]
+  },
+  "b3__text": {
+   "text": "One villager solves the paradox by eating the grain used to demonstrate it. The philosophers are furious; the farmers are delighted.",
+   "src": "L8690",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  },
  "include_pools": [

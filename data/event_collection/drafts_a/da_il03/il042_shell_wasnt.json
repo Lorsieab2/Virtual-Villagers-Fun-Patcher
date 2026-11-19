@@ -61,14 +61,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) holds it up to the light for a long time. Then (he/she) puts it in (his/her) pocket. It isn't number twelve. It's eleven-and-a-half. (He/She) finds (he/she) likes it best of all.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) sets it carefully back on the sand. Somewhere on Isola there's someone who collects shells with tiny chips in them. (name1) hopes they find it.",
    "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) holds it up to the light for a long time. Then (he/she) puts it in (his/her) pocket. It isn't number twelve. It's eleven-and-a-half. (He/She) finds (he/she) likes it best of all.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L26"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) holds it up to the light for a long time. Then (he/she) puts it in (his/her) pocket. It isn't number twelve. It's eleven-and-a-half. (He/She) finds (he/she) likes it best of all.",
+   "src": "L26"
   }
  }
 }

@@ -65,11 +65,67 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) takes a careful bite. Then another. Then the whole thing is gone. \"That,\" (subject.he/she) says, \"was very good.\" (friend) beams. (subject) then eats half a coconut, three slices of fruit and a handful of nuts, in that order, because the cake was lovely but breakfast is breakfast.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L26"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) takes a careful bite. Then another. Then the whole thing is gone. \"That,\" (subject.he/she) says, \"was very good.\" (friend) beams. (subject) then eats half a coconut, three slices of fruit and a handful of nuts, in that order, because the cake was lovely but breakfast is breakfast.",
    "src": "L26"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"It smells wonderful,\" (subject) says, \"but I'll stick with mine, thank you.\" (friend) shrugs and eats the cake (friend.him/her)self, making a lot of happy noises about it. (subject) does not regret (subject.his/her) decision. Mostly. By lunchtime (subject.he/she) is still thinking about the cake.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L29"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"It smells wonderful,\" (subject) says, \"but I'll stick with mine, thank you.\" (friend) shrugs and eats the cake (friend.him/her)self, making a lot of happy noises about it. (subject) does not regret (subject.his/her) decision. Mostly. By lunchtime (subject.he/she) is still thinking about the cake.",
    "src": "L29"

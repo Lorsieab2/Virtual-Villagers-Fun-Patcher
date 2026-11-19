@@ -116,9 +116,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(child) proudly admits to making them.",
-   "src": "L31271"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -168,6 +175,24 @@
    "name": "Outcome D2",
    "text": "A painted marker is removed after it confuses travelers.",
    "src": "L31278"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(child) proudly admits to making them.",
+   "src": "L31271",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L31271"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(child) proudly admits to making them.",
+   "src": "L31271"
   }
  }
 }

@@ -81,24 +81,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Discover a genuine passion.",
-   "src": "L2668",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "teen",
-     "skills": [
-      "Farming",
-      "Building",
-      "Healing",
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L2668"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -124,6 +114,56 @@
    "join": "paragraph",
    "text": "Realize that not choosing yet is acceptable.",
    "src": "L2670"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a genuine passion.",
+   "src": "L2668",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Farming",
+      "Building",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2668"
+    },
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L2668"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a genuine passion.",
+   "src": "L2668",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Farming",
+      "Building",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2668"
+    }
+   ]
   }
  }
 }

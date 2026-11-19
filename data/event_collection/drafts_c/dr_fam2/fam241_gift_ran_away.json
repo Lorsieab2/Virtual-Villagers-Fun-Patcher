@@ -69,11 +69,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They chase the crab across the whole village, through two gardens and under a hut, laughing so hard they can barely run. Finally (friend) catches it in (friend.his/her) hands. (friend.He/she) is grinning. \"I'll keep it,\" (friend.he/she) says. \"And I'll go for a walk with you tomorrow, if you like.\" (subject) does like. Very much. The crab gets a name.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L494"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They chase the crab across the whole village, through two gardens and under a hut, laughing so hard they can barely run. Finally (friend) catches it in (friend.his/her) hands. (friend.He/she) is grinning. \"I'll keep it,\" (friend.he/she) says. \"And I'll go for a walk with you tomorrow, if you like.\" (subject) does like. Very much. The crab gets a name.",
    "src": "L494"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They watch the crab scuttle off towards the sea. (subject) looks devastated. (friend) starts to laugh. \"That was the best gift anyone's ever tried to give me,\" (friend.he/she) says. \"But I'm not looking to be courted. I'm sorry.\" (subject) nods. \"That's alright.\" Then: \"Do you want to go and look for another crab? Just for fun?\" They do.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L497"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They watch the crab scuttle off towards the sea. (subject) looks devastated. (friend) starts to laugh. \"That was the best gift anyone's ever tried to give me,\" (friend.he/she) says. \"But I'm not looking to be courted. I'm sorry.\" (subject) nods. \"That's alright.\" Then: \"Do you want to go and look for another crab? Just for fun?\" They do.",
    "src": "L497"

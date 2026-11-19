@@ -72,11 +72,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They talk late into the night. (friend) explains what (friend.he/she) believes. (subject) explains why (subject.he/she) doesn't. They don't change each other's minds. They don't try. At the end (subject) says, \"How did we never talk about this?\" \"It never got in the way,\" says (friend). They go to bed exactly as close as before. Maybe a little closer.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L278"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They talk late into the night. (friend) explains what (friend.he/she) believes. (subject) explains why (subject.he/she) doesn't. They don't change each other's minds. They don't try. At the end (subject) says, \"How did we never talk about this?\" \"It never got in the way,\" says (friend). They go to bed exactly as close as before. Maybe a little closer.",
    "src": "L278"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They both start laughing. \"All this time!\" \"It never came up!\" \"It clearly never mattered!\" They leave it there. Over the next few weeks they notice the little things they never noticed before: (friend)'s quiet words at meals, (subject)'s silence at the same moments. Neither of them minds. They just see each other a little more clearly.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L281"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They both start laughing. \"All this time!\" \"It never came up!\" \"It clearly never mattered!\" They leave it there. Over the next few weeks they notice the little things they never noticed before: (friend)'s quiet words at meals, (subject)'s silence at the same moments. Neither of them minds. They just see each other a little more clearly.",
    "src": "L281"

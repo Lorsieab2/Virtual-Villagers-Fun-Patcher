@@ -94,14 +94,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The warning prevents an illness, though the elder feels humiliated.",
-   "src": "L22835"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The apprentice is mistaken and must apologize.",
-   "src": "L22836"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -178,6 +192,42 @@
      "src": "L22845"
     }
    ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The warning prevents an illness, though the elder feels humiliated.",
+   "src": "L22835",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "bad",
+     "src": "L22835"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The warning prevents an illness, though the elder feels humiliated.",
+   "src": "L22835"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The apprentice is mistaken and must apologize.",
+   "src": "L22836",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "bad",
+     "src": "L22836"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The apprentice is mistaken and must apologize.",
+   "src": "L22836"
   }
  }
 }

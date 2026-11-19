@@ -69,9 +69,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "Their careful idea is heard.",
-   "src": "L6878"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -82,6 +89,24 @@
    "name": "Answer C",
    "text": "Their drawing changes the village plan.",
    "src": "L6882"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Their careful idea is heard.",
+   "src": "L6878",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L6878"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Their careful idea is heard.",
+   "src": "L6878"
   }
  }
 }

@@ -65,11 +65,68 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) runs through the rain to (friend)'s hut and arrives soaking wet. (friend) is also restless. They play a game with pebbles that neither of them really knows the rules to, and argue about the rules, and make up new rules. By the time the rain stops, they have invented a whole new game, and they keep playing anyway.",
+   "src": "L212",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L212"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L212"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) runs through the rain to (friend)'s hut and arrives soaking wet. (friend) is also restless. They play a game with pebbles that neither of them really knows the rules to, and argue about the rules, and make up new rules. By the time the rain stops, they have invented a whole new game, and they keep playing anyway.",
    "src": "L212"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) gives up trying to be useful and lies down to listen to the rain. It drums on the roof, then softens, then drums again. (subject.He/She) doesn't fall asleep. (subject.He/She) doesn't think about anything much. When the rain finally stops, (subject.he/she) is surprised to find the whole day has gone, and (subject.he/she) doesn't mind at all.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L215"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) gives up trying to be useful and lies down to listen to the rain. It drums on the roof, then softens, then drums again. (subject.He/She) doesn't fall asleep. (subject.He/She) doesn't think about anything much. When the rain finally stops, (subject.he/she) is surprised to find the whole day has gone, and (subject.he/she) doesn't mind at all.",
    "src": "L215"

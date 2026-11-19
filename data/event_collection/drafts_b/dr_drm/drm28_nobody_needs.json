@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) slips out early to a hidden spot by the rocks and stays there until sunset, eating fruit and watching the sea. Nobody finds (subject.him/her). It is glorious. When (subject.he/she) comes back, there's a small line of people waiting with questions. (subject) doesn't mind at all. (subject.He/she) has had (subject.his/her) day.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L338"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) slips out early to a hidden spot by the rocks and stays there until sunset, eating fruit and watching the sea. Nobody finds (subject.him/her). It is glorious. When (subject.he/she) comes back, there's a small line of people waiting with questions. (subject) doesn't mind at all. (subject.He/she) has had (subject.his/her) day.",
    "src": "L338"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stays home and waits. Midday comes. Nobody. Afternoon. Nobody. It's lovely. Then, at dusk, (friend) knocks. \"Sorry to bother you. I just wanted to say I've not bothered you all day, on purpose.\" (subject) laughs so much (subject.he/she) has to sit down. That, (subject.he/she) decides, doesn't count.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) stays home and waits. Midday comes. Nobody. Afternoon. Nobody. It's lovely. Then, at dusk, (friend) knocks. \"Sorry to bother you. I just wanted to say I've not bothered you all day, on purpose.\" (subject) laughs so much (subject.he/she) has to sit down. That, (subject.he/she) decides, doesn't count.",
    "src": "L341"

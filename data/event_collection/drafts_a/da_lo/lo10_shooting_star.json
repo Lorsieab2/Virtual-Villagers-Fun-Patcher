@@ -65,11 +65,61 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) closes (subject.his/her) eyes and wishes, very hard, for something (subject.he/she) doesn't tell anyone. The next day nothing happens. The next week nothing happens. Then, months later, a small thing happens that (subject) has wanted for a long time, and (subject.he/she) stops in the middle of the path and thinks of the shooting star. Was it the wish? (subject.He/She) will never know. (subject.He/She) is glad (subject.he/she) made it.",
+   "src": "L123",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L123"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) closes (subject.his/her) eyes and wishes, very hard, for something (subject.he/she) doesn't tell anyone. The next day nothing happens. The next week nothing happens. Then, months later, a small thing happens that (subject) has wanted for a long time, and (subject.he/she) stops in the middle of the path and thinks of the shooting star. Was it the wish? (subject.He/She) will never know. (subject.He/She) is glad (subject.he/she) made it.",
    "src": "L123"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) thinks about it, and then gives the wish away. (subject.He/She) wishes for something for (friend), who has been having a hard time. (subject.He/She) doesn't tell (friend). Things don't suddenly get better. But a few days later, (friend) laughs properly for the first time in weeks, and (subject) decides that's more than enough.",
+   "src": "L126",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L126"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) thinks about it, and then gives the wish away. (subject.He/She) wishes for something for (friend), who has been having a hard time. (subject.He/She) doesn't tell (friend). Things don't suddenly get better. But a few days later, (friend) laughs properly for the first time in weeks, and (subject) decides that's more than enough.",
    "src": "L126"

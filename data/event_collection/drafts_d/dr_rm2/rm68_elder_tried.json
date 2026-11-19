@@ -89,9 +89,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The elder finds it faster and says so in front of everyone.",
-   "src": "L417"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -111,9 +118,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The elder understands the idea and suggests an improvement.",
-   "src": "L420"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -133,9 +147,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "Both roofs survive the next storm, and both methods are kept.",
-   "src": "L423"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -155,14 +176,93 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The teenager feels encouraged to keep inventing.",
-   "src": "L426"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The praise is welcome, but the teenager wanted the method used, and says so; the elder agrees to try it.",
    "src": "L427"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The elder finds it faster and says so in front of everyone.",
+   "src": "L417",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L417"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The elder finds it faster and says so in front of everyone.",
+   "src": "L417"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The elder understands the idea and suggests an improvement.",
+   "src": "L420",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L420"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The elder understands the idea and suggests an improvement.",
+   "src": "L420"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Both roofs survive the next storm, and both methods are kept.",
+   "src": "L423",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L423"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Both roofs survive the next storm, and both methods are kept.",
+   "src": "L423"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The teenager feels encouraged to keep inventing.",
+   "src": "L426",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L426"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The teenager feels encouraged to keep inventing.",
+   "src": "L426"
   }
  }
 }

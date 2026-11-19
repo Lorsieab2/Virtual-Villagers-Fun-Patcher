@@ -138,9 +138,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(elder) rests with (companion), a trusted companion.",
-   "src": "L30851"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -219,6 +226,25 @@
    "name": "Outcome D2",
    "text": "(young), a younger villager, learns that survival is only one part of a person.",
    "src": "L30861"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(elder) rests with (companion), a trusted companion.",
+   "src": "L30851",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 5,
+     "max": 15,
+     "src": "L30851"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(elder) rests with (companion), a trusted companion.",
+   "src": "L30851"
   }
  }
 }

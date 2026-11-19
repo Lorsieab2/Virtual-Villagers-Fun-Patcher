@@ -223,8 +223,16 @@
    ]
   },
   "c4": {
-   "text": "an actual strange phenomenon occurs. The researchers record it without claiming to understand it.",
-   "src": "L10058-10060"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c4__fx"
+    },
+    {
+     "next": "c4__text"
+    }
+   ]
   },
   "set_c": {
    "type": "branch",
@@ -247,6 +255,22 @@
      "rarity": "exceptionally_rare"
     }
    ]
+  },
+  "c4__fx": {
+   "text": "an actual strange phenomenon occurs. The researchers record it without claiming to understand it.",
+   "src": "L10058-10060",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10058-10060"
+    }
+   ]
+  },
+  "c4__text": {
+   "text": "an actual strange phenomenon occurs. The researchers record it without claiming to understand it.",
+   "src": "L10058-10060"
   }
  }
 }

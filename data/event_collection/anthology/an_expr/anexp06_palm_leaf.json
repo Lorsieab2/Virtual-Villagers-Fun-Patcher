@@ -142,9 +142,16 @@
    "src": "L31332"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(elder) offers a new weaving method.",
-   "src": "L31333"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -211,6 +218,24 @@
    "name": "Outcome D2",
    "text": "Some scraps are returned to compost rather than wasted.",
    "src": "L31342"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(elder) offers a new weaving method.",
+   "src": "L31333",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L31333"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(elder) offers a new weaving method.",
+   "src": "L31333"
   }
  }
 }

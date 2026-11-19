@@ -70,6 +70,35 @@
    "src": "L110"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) decides to ask one real question. \"What's your favorite knot?\" (friend) lights up and shows (subject.him/her), and it turns out there's a knot that ties itself if you shake it the right way. That one, (subject) admits, is actually quite good. (subject.He/She) practices it all evening, to (subject.his/her) great annoyance.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L113"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) decides to ask one real question. \"What's your favorite knot?\" (friend) lights up and shows (subject.him/her), and it turns out there's a knot that ties itself if you shake it the right way. That one, (subject) admits, is actually quite good. (subject.He/She) practices it all evening, to (subject.his/her) great annoyance.",
    "src": "L113"

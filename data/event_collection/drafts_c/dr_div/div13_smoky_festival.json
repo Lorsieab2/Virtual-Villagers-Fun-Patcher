@@ -69,6 +69,50 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) gets a few people to help carry the drums and food baskets to the other side of the fires, where the wind blows the smoke away. Nobody asks why. The party moves. (subject)'s breathing slowly eases. (subject.He/she) spends the rest of the night upwind, dancing badly and happily. Next year, the festival is set up that way from the start.",
+   "src": "L158",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L158"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) gets a few people to help carry the drums and food baskets to the other side of the fires, where the wind blows the smoke away. Nobody asks why. The party moves. (subject)'s breathing slowly eases. (subject.He/she) spends the rest of the night upwind, dancing badly and happily. Next year, the festival is set up that way from the start.",
    "src": "L158",
@@ -80,7 +124,20 @@
     }
    ]
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) brings (subject) a cup of the steamy herb tea the healers make, and sits with (subject.him/her) at the edge of the trees, away from the smoke. They can still hear the music. It's not the festival (subject) wanted. It's still a good evening. They talk about everything and nothing until the fires burn low and the air clears.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L161"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) brings (subject) a cup of the steamy herb tea the healers make, and sits with (subject.him/her) at the edge of the trees, away from the smoke. They can still hear the music. It's not the festival (subject) wanted. It's still a good evening. They talk about everything and nothing until the fires burn low and the air clears.",
    "src": "L161"

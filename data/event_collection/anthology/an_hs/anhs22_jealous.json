@@ -199,14 +199,14 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(villager) discovers satisfaction in a skill of their own.",
-   "src": "L29764",
-   "text_only": [
+   "children": [
     {
-     "what": "\"skill\"",
-     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
-     "src": "L29764"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
@@ -236,6 +236,38 @@
    "name": "Outcome D2",
    "text": "The request feels awkward, yet it opens a useful conversation.",
    "src": "L29768"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers satisfaction in a skill of their own.",
+   "src": "L29764",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29764"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29764"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers satisfaction in a skill of their own.",
+   "src": "L29764",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29764"
+    }
+   ]
   }
  }
 }

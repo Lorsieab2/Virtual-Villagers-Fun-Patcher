@@ -610,11 +610,14 @@
    ]
   },
   "d3": {
-   "text": "Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
-   "src": "L9764-9766",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "d3__fx"
+    },
+    {
+     "next": "d3__text"
     }
    ]
   },
@@ -758,13 +761,14 @@
    ]
   },
   "coda_v22_3": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "A useful, carefully studied preparation enters the healers' records.",
-   "src": "L9957-9958",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda_v82"
+     "next": "coda_v22_3__fx"
+    },
+    {
+     "next": "coda_v22_3__text"
     }
    ]
   },
@@ -1026,6 +1030,62 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "d3__fx": {
+   "text": "Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
+   "src": "L9764-9766",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9764-9766"
+    }
+   ]
+  },
+  "d3__text": {
+   "text": "Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
+   "src": "L9764-9766",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_v22_3__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A useful, carefully studied preparation enters the healers' records.",
+   "src": "L9957-9958",
+   "children": [
+    {
+     "next": "coda_v82"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9957-9958"
+    }
+   ]
+  },
+  "coda_v22_3__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A useful, carefully studied preparation enters the healers' records.",
+   "src": "L9957-9958",
+   "children": [
+    {
+     "next": "coda_v82"
+    }
+   ]
   }
  },
  "include_pools": [

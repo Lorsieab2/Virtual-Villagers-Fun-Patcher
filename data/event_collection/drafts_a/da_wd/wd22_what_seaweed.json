@@ -78,6 +78,31 @@
    "src": "L266"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) leaves it. All day villagers stop to look, and laugh, and wonder who did it. Nobody owns up. (child), a child, giggles a little too much whenever anyone mentions it, but (subject) can't prove anything. By evening, the seaweed has dried in the sun and looks even sillier. It stays until the rain comes.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L269"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) leaves it. All day villagers stop to look, and laugh, and wonder who did it. Nobody owns up. (child), a child, giggles a little too much whenever anyone mentions it, but (subject) can't prove anything. By evening, the seaweed has dried in the sun and looks even sillier. It stays until the rain comes.",
    "src": "L269"

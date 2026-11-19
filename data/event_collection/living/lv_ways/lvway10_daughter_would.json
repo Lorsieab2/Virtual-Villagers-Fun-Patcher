@@ -108,14 +108,28 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "She discovers an interest in making fishing nets.",
-   "src": "L22854"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The double workload leaves her unhappy.",
-   "src": "L22855"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -160,6 +174,46 @@
    "name": "Outcome D2",
    "text": "The elder sides with tradition, deepening the disagreement.",
    "src": "L22861"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "She discovers an interest in making fishing nets.",
+   "src": "L22854",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "daughter",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L22854"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "She discovers an interest in making fishing nets.",
+   "src": "L22854"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The double workload leaves her unhappy.",
+   "src": "L22855",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "daughter",
+     "mood": "bad",
+     "src": "L22855"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The double workload leaves her unhappy.",
+   "src": "L22855"
   }
  }
 }

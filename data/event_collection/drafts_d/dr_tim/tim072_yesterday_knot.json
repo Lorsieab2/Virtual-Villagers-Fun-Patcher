@@ -94,21 +94,161 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) practices a knot learned only yesterday. The finished knot holds, much to everyone's relief.",
+   "src": "L1207",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1207"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1207"
+    }
+   ]
+  },
+  "e1__text": {
    "name": "Ending 1",
    "text": "(Name1) practices a knot learned only yesterday. The finished knot holds, much to everyone's relief.",
    "src": "L1207"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) practices a knot learned only yesterday. Someone remembers a different method and demonstrates it.",
+   "src": "L1211",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1211"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1211"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "(Name1) practices a knot learned only yesterday. Someone remembers a different method and demonstrates it.",
    "src": "L1211"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) practices a knot learned only yesterday. The task is surprisingly soothing once a rhythm develops.",
+   "src": "L1215",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1215"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1215"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1) practices a knot learned only yesterday. The task is surprisingly soothing once a rhythm develops.",
    "src": "L1215"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) practices a knot learned only yesterday. A small victory makes (Name1) eager to practice again.",
+   "src": "L1219",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1219"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1219"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) practices a knot learned only yesterday. A small victory makes (Name1) eager to practice again.",
    "src": "L1219"

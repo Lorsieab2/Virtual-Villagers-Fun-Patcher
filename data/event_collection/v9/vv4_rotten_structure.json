@@ -262,13 +262,14 @@
    ]
   },
   "wrongful": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L5063-5064",
-   "text": "The builder must retract the accusation. The apprentice says, 'I trusted you.' The builder cannot find an answer.\n{WRONG}",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "wrongful__fx"
+    },
+    {
+     "next": "wrongful__text"
     }
    ]
   },
@@ -388,6 +389,36 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "wrongful__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5063-5064",
+   "text": "The builder must retract the accusation. The apprentice says, 'I trusted you.' The builder cannot find an answer.\n{WRONG}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "bad",
+     "src": "L5063-5064"
+    }
+   ]
+  },
+  "wrongful__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5063-5064",
+   "text": "The builder must retract the accusation. The apprentice says, 'I trusted you.' The builder cannot find an answer.\n{WRONG}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  },
  "include_pools": [

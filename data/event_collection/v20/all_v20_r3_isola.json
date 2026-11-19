@@ -223,11 +223,14 @@
    ]
   },
   "b1": {
-   "text": "Explorers discover an old wreck with more impossible objects.",
-   "src": "L9296",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -285,11 +288,14 @@
    ]
   },
   "c2": {
-   "text": "A researcher records the discovery despite an order of silence.",
-   "src": "L9303",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
     }
    ]
   },
@@ -486,6 +492,58 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "b1__fx": {
+   "text": "Explorers discover an old wreck with more impossible objects.",
+   "src": "L9296",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9296"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "Explorers discover an old wreck with more impossible objects.",
+   "src": "L9296",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c2__fx": {
+   "text": "A researcher records the discovery despite an order of silence.",
+   "src": "L9303",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9303"
+    }
+   ]
+  },
+  "c2__text": {
+   "text": "A researcher records the discovery despite an order of silence.",
+   "src": "L9303",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  }
 }

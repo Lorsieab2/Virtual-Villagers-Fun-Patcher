@@ -74,6 +74,31 @@
    "src": "L212"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"That doesn't work on me,\" says (subject). \"I'm much nicer to other people than to myself.\" (friend) laughs. \"Then be nicer to yourself.\" \"I'll think about it,\" says (subject). (subject.He/she) doesn't decide anything that night. But walking home, (subject.he/she) hears (subject.him/her)self thinking, \"I'd tell a friend it's alright to want something different.\" It sticks.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L215"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"That doesn't work on me,\" says (subject). \"I'm much nicer to other people than to myself.\" (friend) laughs. \"Then be nicer to yourself.\" \"I'll think about it,\" says (subject). (subject.He/she) doesn't decide anything that night. But walking home, (subject.he/she) hears (subject.him/her)self thinking, \"I'd tell a friend it's alright to want something different.\" It sticks.",
    "src": "L215"

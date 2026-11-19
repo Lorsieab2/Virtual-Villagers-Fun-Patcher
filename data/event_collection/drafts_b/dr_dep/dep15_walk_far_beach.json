@@ -90,11 +90,68 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) asks some questions. Which way? What if it rains? When will they be back? (subject) has an answer for almost all of them, and the ones (subject.he/she) doesn't, (subject.he/she) works out. They agree on a time to be home. Two days later (subject) comes back sunburnt, exhausted, triumphant, and an hour early, which (subject.he/she) mentions several times.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L182"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) asks some questions. Which way? What if it rains? When will they be back? (subject) has an answer for almost all of them, and the ones (subject.he/she) doesn't, (subject.he/she) works out. They agree on a time to be home. Two days later (subject) comes back sunburnt, exhausted, triumphant, and an hour early, which (subject.he/she) mentions several times.",
    "src": "L182"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Not this time,\" says (friend). \"The weather's turning. When the storms have passed, yes.\" (subject) is furious and says so. (friend) doesn't change (friend.his/her) mind, but doesn't pretend it's an easy answer either. That night a storm rolls in and rain hammers on the roof. (subject) says nothing about it. Neither does (friend). They go when the weather clears.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L185"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Not this time,\" says (friend). \"The weather's turning. When the storms have passed, yes.\" (subject) is furious and says so. (friend) doesn't change (friend.his/her) mind, but doesn't pretend it's an easy answer either. That night a storm rolls in and rain hammers on the roof. (subject) says nothing about it. Neither does (friend). They go when the weather clears.",
    "src": "L185"

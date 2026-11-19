@@ -74,6 +74,41 @@
    "src": "L218"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says, \"Leave it. Its story is that someone stopped.\" (subject) is disappointed, but agrees. (subject.He/she) carves a small piece of (subject.his/her) own instead and sets it beside the old log. Children play around both. Every so often, (subject) catches (subject.him/her)self running a hand over the rough end of the log, wondering what it was going to be.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L221"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L221"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) says, \"Leave it. Its story is that someone stopped.\" (subject) is disappointed, but agrees. (subject.He/she) carves a small piece of (subject.his/her) own instead and sets it beside the old log. Children play around both. Every so often, (subject) catches (subject.him/her)self running a hand over the rough end of the log, wondering what it was going to be.",
    "src": "L221"

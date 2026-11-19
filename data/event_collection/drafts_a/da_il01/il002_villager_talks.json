@@ -71,9 +71,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Have they answered yet?\" (friend) asks. (subject) doesn't even turn around. \"They're shy today.\" (friend) sits down and starts talking to the fish too. Neither of them catches anything, but it's the best morning either has had all week.",
-   "src": "L29"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -87,6 +94,30 @@
      "src": "L32"
     }
    ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Have they answered yet?\" (friend) asks. (subject) doesn't even turn around. \"They're shy today.\" (friend) sits down and starts talking to the fish too. Neither of them catches anything, but it's the best morning either has had all week.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L29"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Have they answered yet?\" (friend) asks. (subject) doesn't even turn around. \"They're shy today.\" (friend) sits down and starts talking to the fish too. Neither of them catches anything, but it's the best morning either has had all week.",
+   "src": "L29"
   }
  }
 }

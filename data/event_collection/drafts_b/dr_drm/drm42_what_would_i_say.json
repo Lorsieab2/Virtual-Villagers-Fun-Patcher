@@ -76,6 +76,37 @@
    "src": "L506"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) walks up and says, in a very strange voice, \"Greetings. I come from far away.\" (subject) bursts out laughing, then plays along. They have an entire made-up conversation about fruit, fish and whether the moon looks the same. It's silly. It's also the first time (subject) has felt this dream was something other people could share.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L509"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) walks up and says, in a very strange voice, \"Greetings. I come from far away.\" (subject) bursts out laughing, then plays along. They have an entire made-up conversation about fruit, fish and whether the moon looks the same. It's silly. It's also the first time (subject) has felt this dream was something other people could share.",
    "src": "L509"

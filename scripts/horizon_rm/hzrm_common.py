@@ -305,6 +305,6 @@ def write_and_check(docs: list[tuple[Path, dict]]) -> int:
     paths = []
     for p, doc in docs:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(cc.with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
         paths.append(str(p))
     return subprocess.call([sys.executable, str(ROOT / "scripts" / "collection_check.py"), "--format", *paths])

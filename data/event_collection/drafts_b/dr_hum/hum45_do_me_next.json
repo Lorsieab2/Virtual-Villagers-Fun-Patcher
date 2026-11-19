@@ -93,14 +93,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) stands like (friend), waves (subject.his/her) hands like (friend), and says (friend)'s favorite saying exactly the way (friend) says it. It is uncannily good. (friend) stares. \"I don't do that.\" \"You do,\" says everyone. That night at dinner (friend) catches (friend.him/her)self doing it, and laughs so hard that (friend.he/she) spills (friend.his/her) bowl.",
-   "src": "L542"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) does an impression of (subject) doing impressions. It is terrible. It is also, somehow, perfect. (subject) is speechless for the first time anyone can remember. They spend the rest of the evening doing each other doing each other, until nobody is quite sure who is who.",
    "src": "L545"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) stands like (friend), waves (subject.his/her) hands like (friend), and says (friend)'s favorite saying exactly the way (friend) says it. It is uncannily good. (friend) stares. \"I don't do that.\" \"You do,\" says everyone. That night at dinner (friend) catches (friend.him/her)self doing it, and laughs so hard that (friend.he/she) spills (friend.his/her) bowl.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L542"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) stands like (friend), waves (subject.his/her) hands like (friend), and says (friend)'s favorite saying exactly the way (friend) says it. It is uncannily good. (friend) stares. \"I don't do that.\" \"You do,\" says everyone. That night at dinner (friend) catches (friend.him/her)self doing it, and laughs so hard that (friend.he/she) spills (friend.his/her) bowl.",
+   "src": "L542"
   }
  }
 }

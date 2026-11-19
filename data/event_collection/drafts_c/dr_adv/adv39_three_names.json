@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Little Turtle,\" says (subject) firmly. \"Final answer.\" (subject.He/she) paints it on the side. That night (subject.he/she) lies awake thinking it should have been \"Swift Fish.\" In the morning (subject.he/she) goes down to the beach, looks at the canoe and decides (subject.he/she) loves \"Little Turtle\" after all. (subject.He/she) is going to stop thinking about it now. Mostly.",
-   "src": "L458"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"It can wait,\" says (subject). \"It'll tell me.\" (friend) raises an eyebrow, but leaves it. The canoe goes out unnamed for a month. Then one day it rides a wave so beautifully that (subject) shouts \"SEABIRD!\" without thinking. And that's its name. Nobody remembers the other three.",
    "src": "L461"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Little Turtle,\" says (subject) firmly. \"Final answer.\" (subject.He/she) paints it on the side. That night (subject.he/she) lies awake thinking it should have been \"Swift Fish.\" In the morning (subject.he/she) goes down to the beach, looks at the canoe and decides (subject.he/she) loves \"Little Turtle\" after all. (subject.He/she) is going to stop thinking about it now. Mostly.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L458"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Little Turtle,\" says (subject) firmly. \"Final answer.\" (subject.He/she) paints it on the side. That night (subject.he/she) lies awake thinking it should have been \"Swift Fish.\" In the morning (subject.he/she) goes down to the beach, looks at the canoe and decides (subject.he/she) loves \"Little Turtle\" after all. (subject.He/she) is going to stop thinking about it now. Mostly.",
+   "src": "L458"
   }
  }
 }

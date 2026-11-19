@@ -82,6 +82,39 @@
    "src": "L1785"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They sit together in comfortable silence.",
+   "src": "L1786",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L1786"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L1786"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

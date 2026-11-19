@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tells (friend), laughing. (friend) laughs too, then admits (friend.he/she) was exactly the same: (friend.he/she) was so scared before (friend.his/her) first day that (friend.he/she) hid in a tree. \"Did they find you?\" \"Eventually. I'd fallen asleep.\" They spend the evening trading things they used to be terrified of. Most of them are very silly now. A few still aren't.",
-   "src": "L80"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) wonders what (subject.he/she) is worrying about now that (subject.he/she) will laugh at in twenty years. (subject.He/she) can think of three things right away. (subject.He/she) tries laughing at them now, to save time. It doesn't quite work. But it makes them a little smaller. (subject.He/she) decides that's progress.",
    "src": "L83"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend), laughing. (friend) laughs too, then admits (friend.he/she) was exactly the same: (friend.he/she) was so scared before (friend.his/her) first day that (friend.he/she) hid in a tree. \"Did they find you?\" \"Eventually. I'd fallen asleep.\" They spend the evening trading things they used to be terrified of. Most of them are very silly now. A few still aren't.",
+   "src": "L80",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L80"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L80"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend), laughing. (friend) laughs too, then admits (friend.he/she) was exactly the same: (friend.he/she) was so scared before (friend.his/her) first day that (friend.he/she) hid in a tree. \"Did they find you?\" \"Eventually. I'd fallen asleep.\" They spend the evening trading things they used to be terrified of. Most of them are very silly now. A few still aren't.",
+   "src": "L80"
   }
  }
 }

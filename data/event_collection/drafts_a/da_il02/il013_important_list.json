@@ -82,6 +82,31 @@
    "src": "L57"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) folds the list and goes for a walk. Along the way (subject.he/she) helps (neighbor), a neighbor, finds a beautiful shell, and enjoys an excellent lunch. None of these things were on the list. (subject) decides it was a good day anyway.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L61"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) folds the list and goes for a walk. Along the way (subject.he/she) helps (neighbor), a neighbor, finds a beautiful shell, and enjoys an excellent lunch. None of these things were on the list. (subject) decides it was a good day anyway.",
    "src": "L61"

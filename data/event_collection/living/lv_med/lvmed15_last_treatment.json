@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The patient spends their remaining days sharing stories and resting.",
-   "src": "L20407"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -140,6 +147,24 @@
    "name": "Outcome C2",
    "text": "The patient requests a limited trial with a clear promise to stop if it becomes unbearable.",
    "src": "L20411"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient spends their remaining days sharing stories and resting.",
+   "src": "L20407",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L20407"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient spends their remaining days sharing stories and resting.",
+   "src": "L20407"
   }
  }
 }

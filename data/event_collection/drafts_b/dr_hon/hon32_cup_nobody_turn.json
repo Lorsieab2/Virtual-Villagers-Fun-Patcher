@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I had the last one,\" says (subject). \"So did I,\" says (friend). They look at each other, pick up the jar between them, and carry it down to the stream. On the way back they invent a rule: whoever empties the jar fills it. They tell everyone. Everyone agrees. The jar is empty again two days later.",
-   "src": "L386"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Whose turn is it?\" \"Nobody's.\" \"Then let's make it somebody's.\" They scratch marks on the doorpost: one for each person, a day each. It works beautifully for nearly a week. Then the doorpost gets rained on, and everyone remembers the marks differently.",
    "src": "L389"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I had the last one,\" says (subject). \"So did I,\" says (friend). They look at each other, pick up the jar between them, and carry it down to the stream. On the way back they invent a rule: whoever empties the jar fills it. They tell everyone. Everyone agrees. The jar is empty again two days later.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L386"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I had the last one,\" says (subject). \"So did I,\" says (friend). They look at each other, pick up the jar between them, and carry it down to the stream. On the way back they invent a rule: whoever empties the jar fills it. They tell everyone. Everyone agrees. The jar is empty again two days later.",
+   "src": "L386"
   }
  }
 }

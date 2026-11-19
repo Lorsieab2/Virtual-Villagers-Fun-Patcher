@@ -107,9 +107,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Weavers teach each other variations.",
-   "src": "L32199"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -159,6 +166,24 @@
    "name": "Outcome D2",
    "text": "Both acknowledge influence without surrendering identity.",
    "src": "L32206"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Weavers teach each other variations.",
+   "src": "L32199",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L32199"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Weavers teach each other variations.",
+   "src": "L32199"
   }
  }
 }

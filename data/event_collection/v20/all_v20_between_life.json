@@ -423,8 +423,16 @@
    ]
   },
   "b1": {
-   "text": "Flowers open around (Patient), whose breathing returns; (patient.he/she) recovers completely.",
-   "src": "L9107-9108"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "text": "Living roots enclose the motionless patient in suspended animation. Days later (patient.he/she) awakens, weak but alive.",
@@ -633,8 +641,16 @@
    ]
   },
   "e1": {
-   "text": "An apprentice improvises a rescue with available supplies and skilled guidance; (Patient) fully recovers.",
-   "src": "L9134-9135"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "text": "(Patient) survives with limited stamina and a permanent dislike of running.",
@@ -725,8 +741,16 @@
    ]
   },
   "f3": {
-   "text": "(Patient) recovers fully, but the healer who saved (patient.him/her) is accused of violating sacred laws.",
-   "src": "L9149-9150"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "f3__fx"
+    },
+    {
+     "next": "f3__text"
+    }
+   ]
   },
   "f4": {
    "text": "(Patient) dies; the healer faces a public hearing over the forbidden intervention.",
@@ -780,14 +804,14 @@
    ]
   },
   "g1": {
-   "text": "(Patient) recovers fully.",
-   "src": "L9157",
-   "effects": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "do": "tech",
-     "size": "large",
-     "scaled": true,
-     "src": "L9157"
+     "next": "g1__fx"
+    },
+    {
+     "next": "g1__text"
     }
    ]
   },
@@ -873,6 +897,147 @@
    ]
   },
   "a1_h": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a1_h__fx"
+    },
+    {
+     "next": "a1_h__text"
+    }
+   ]
+  },
+  "a1_n": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a1_n__fx"
+    },
+    {
+     "next": "a1_n__text"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_h",
+     "if": {
+      "role": "healer"
+     },
+     "else": "a1_n"
+    }
+   ]
+  },
+  "b1__fx": {
+   "text": "Flowers open around (Patient), whose breathing returns; (patient.he/she) recovers completely.",
+   "src": "L9107-9108",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L9107-9108"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "Flowers open around (Patient), whose breathing returns; (patient.he/she) recovers completely.",
+   "src": "L9107-9108"
+  },
+  "e1__fx": {
+   "text": "An apprentice improvises a rescue with available supplies and skilled guidance; (Patient) fully recovers.",
+   "src": "L9134-9135",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L9134-9135"
+    }
+   ]
+  },
+  "e1__text": {
+   "text": "An apprentice improvises a rescue with available supplies and skilled guidance; (Patient) fully recovers.",
+   "src": "L9134-9135"
+  },
+  "f3__fx": {
+   "text": "(Patient) recovers fully, but the healer who saved (patient.him/her) is accused of violating sacred laws.",
+   "src": "L9149-9150",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L9149-9150"
+    }
+   ]
+  },
+  "f3__text": {
+   "text": "(Patient) recovers fully, but the healer who saved (patient.him/her) is accused of violating sacred laws.",
+   "src": "L9149-9150"
+  },
+  "g1__fx": {
+   "text": "(Patient) recovers fully.",
+   "src": "L9157",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9157"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L9157"
+    }
+   ]
+  },
+  "g1__text": {
+   "text": "(Patient) recovers fully.",
+   "src": "L9157",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9157"
+    }
+   ]
+  },
+  "a1_h__fx": {
+   "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
+   "src": "L9098-9099",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9099"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L9098-9099"
+    }
+   ]
+  },
+  "a1_h__text": {
    "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
    "src": "L9098-9099",
    "effects": [
@@ -888,7 +1053,7 @@
     }
    ]
   },
-  "a1_n": {
+  "a1_n__fx": {
    "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
    "src": "L9098-9099",
    "text_only": [
@@ -897,17 +1062,25 @@
      "what": "Healing experience gained",
      "reason": "no healer is cast in this village (the role is optional), so nobody gains it"
     }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L9098-9099"
+    }
    ]
   },
-  "a1": {
-   "type": "branch",
-   "children": [
+  "a1_n__text": {
+   "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
+   "src": "L9098-9099",
+   "text_only": [
     {
-     "next": "a1_h",
-     "if": {
-      "role": "healer"
-     },
-     "else": "a1_n"
+     "src": "L9099",
+     "what": "Healing experience gained",
+     "reason": "no healer is cast in this village (the role is optional), so nobody gains it"
     }
    ]
   }

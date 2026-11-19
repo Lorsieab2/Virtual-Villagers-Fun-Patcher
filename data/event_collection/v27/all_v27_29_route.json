@@ -66,11 +66,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "A supervised party finds a useful shortcut.",
-   "src": "L10716"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Outcome B",
@@ -85,6 +90,28 @@
    "join": "paragraph",
    "text": "The elder's memory conflicts with records, starting a respectful investigation.",
    "src": "L10718"
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A supervised party finds a useful shortcut.",
+   "src": "L10716",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10716"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A supervised party finds a useful shortcut.",
+   "src": "L10716"
   }
  }
 }

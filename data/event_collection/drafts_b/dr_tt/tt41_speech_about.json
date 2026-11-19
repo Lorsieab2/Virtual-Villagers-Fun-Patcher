@@ -87,6 +87,43 @@
    "src": "L494"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "Halfway through a sentence about the heaviest basket, (subject) stops. \"...Which (friend) helped me carry,\" (subject.he/she) says. Then (subject.he/she) starts naming everybody else: every farmer, every cook, every child who fetched water. It takes even longer than the first way. Everyone is thrilled to hear their name.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L497"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L497"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L497"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "Halfway through a sentence about the heaviest basket, (subject) stops. \"...Which (friend) helped me carry,\" (subject.he/she) says. Then (subject.he/she) starts naming everybody else: every farmer, every cook, every child who fetched water. It takes even longer than the first way. Everyone is thrilled to hear their name.",
    "src": "L497"

@@ -69,11 +69,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) has a flute carved too. Now there are two terrible flutes behind the hut every evening. They are terrible together for a whole season. Then, one evening, they play three notes in a row that sound almost like music, and both of them stop and stare at each other in astonishment.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L134"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) has a flute carved too. Now there are two terrible flutes behind the hut every evening. They are terrible together for a whole season. Then, one evening, they play three notes in a row that sound almost like music, and both of them stop and stare at each other in astonishment.",
    "src": "L134"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) sits and listens to the whole practice. (subject) plays a long, wobbly tune that might be a song (subject.he/she) knew as a child. It isn't good. It isn't meant to be. When it's over, (friend) claps. (subject) bows deeply. (subject.He/she) will be out here again tomorrow, whether anyone listens or not.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) sits and listens to the whole practice. (subject) plays a long, wobbly tune that might be a song (subject.he/she) knew as a child. It isn't good. It isn't meant to be. When it's over, (friend) claps. (subject) bows deeply. (subject.He/she) will be out here again tomorrow, whether anyone listens or not.",
    "src": "L137"

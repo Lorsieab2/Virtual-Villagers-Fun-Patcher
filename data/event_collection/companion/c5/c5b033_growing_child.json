@@ -92,19 +92,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "They feel proud and wistful.",
-   "src": "L1428",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L1428"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -122,6 +117,46 @@
      "min": 5,
      "max": 10,
      "src": "L1429"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They feel proud and wistful.",
+   "src": "L1428",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1428"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L1428"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They feel proud and wistful.",
+   "src": "L1428",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1428"
     }
    ]
   }

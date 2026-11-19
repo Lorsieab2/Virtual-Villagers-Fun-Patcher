@@ -83,6 +83,37 @@
    "src": "L6634"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "They discover they enjoy talking together more than sitting alone.",
+   "src": "L6636",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "coworker1",
+     "mood": "good",
+     "src": "L6636"
+    },
+    {
+     "do": "mood",
+     "role": "coworker2",
+     "mood": "good",
+     "src": "L6636"
+    }
+   ]
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "They discover they enjoy talking together more than sitting alone.",
    "src": "L6636"

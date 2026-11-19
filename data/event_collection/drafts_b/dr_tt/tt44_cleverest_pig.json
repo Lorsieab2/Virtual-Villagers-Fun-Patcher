@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Come here!\" calls (subject). The pig lies down in the shade and goes to sleep. \"It's thinking,\" explains (subject). Everyone waits. The pig snores. People start to drift away. Then the pig gets up, trots straight to the garden gate, opens it with its nose and walks inside. Everyone is deeply impressed, except the gardeners.",
-   "src": "L530"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) buries a sweet root while the pig watches. The pig digs up three other roots that nobody knew were there, eats them all, and completely ignores the one (subject) buried. \"Well,\" says (friend) slowly, \"it IS good at finding roots.\" (subject) decides to count this as a win.",
    "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Come here!\" calls (subject). The pig lies down in the shade and goes to sleep. \"It's thinking,\" explains (subject). Everyone waits. The pig snores. People start to drift away. Then the pig gets up, trots straight to the garden gate, opens it with its nose and walks inside. Everyone is deeply impressed, except the gardeners.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L530"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Come here!\" calls (subject). The pig lies down in the shade and goes to sleep. \"It's thinking,\" explains (subject). Everyone waits. The pig snores. People start to drift away. Then the pig gets up, trots straight to the garden gate, opens it with its nose and walks inside. Everyone is deeply impressed, except the gardeners.",
+   "src": "L530"
   }
  }
 }

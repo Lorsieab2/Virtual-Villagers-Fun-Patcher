@@ -75,9 +75,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The builders design a harmless wooden joint and learn why balance is difficult.",
-   "src": "L650"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -127,6 +134,24 @@
    "name": "Outcome C2",
    "text": "A friend asks whether such a companion could offer affection or merely imitate it.",
    "src": "L657"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The builders design a harmless wooden joint and learn why balance is difficult.",
+   "src": "L650",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L650"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The builders design a harmless wooden joint and learn why balance is difficult.",
+   "src": "L650"
   }
  }
 }

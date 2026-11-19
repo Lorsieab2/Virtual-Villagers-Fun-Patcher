@@ -74,6 +74,31 @@
    "src": "L212"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't tell anyone. (subject.He/she) just keeps walking, smiling a little, with the sound of that laugh in (subject.his/her) ears. It's still sore underneath. Maybe it always will be. But somewhere along the way, without (subject.him/her) noticing, missing them has turned into something (subject.he/she) can carry around without dropping everything else. (subject.He/she) doesn't know when that happened.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L215"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) doesn't tell anyone. (subject.He/she) just keeps walking, smiling a little, with the sound of that laugh in (subject.his/her) ears. It's still sore underneath. Maybe it always will be. But somewhere along the way, without (subject.him/her) noticing, missing them has turned into something (subject.he/she) can carry around without dropping everything else. (subject.He/she) doesn't know when that happened.",
    "src": "L215"

@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) joins in, stamping and waving. They dance until they're out of breath. The sky stays blue. That evening, quite late, a few fat drops fall on the roofs. Just a few. (subject) runs out and stands in them with (subject.his/her) arms spread wide. (friend) doesn't know what to think, and decides not to try.",
-   "src": "L590"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Some people believe dancing helps,\" says (friend). \"Some don't. I'm not sure. Rain comes when it's ready, I think.\" (subject) considers this and decides to keep dancing, just in case. It doesn't rain today. (subject) is undeterred. \"Tomorrow,\" (subject.he/she) says. \"It's getting ready.\"",
    "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) joins in, stamping and waving. They dance until they're out of breath. The sky stays blue. That evening, quite late, a few fat drops fall on the roofs. Just a few. (subject) runs out and stands in them with (subject.his/her) arms spread wide. (friend) doesn't know what to think, and decides not to try.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) joins in, stamping and waving. They dance until they're out of breath. The sky stays blue. That evening, quite late, a few fat drops fall on the roofs. Just a few. (subject) runs out and stands in them with (subject.his/her) arms spread wide. (friend) doesn't know what to think, and decides not to try.",
+   "src": "L590"
   }
  }
 }

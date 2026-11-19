@@ -162,18 +162,14 @@
    ]
   },
   "d": {
+   "type": "branch",
    "name": "Answer D",
-   "text": "A study compares planting methods and conditions.",
-   "src": "L5807",
    "children": [
     {
-     "next": "r1"
+     "next": "d__fx"
     },
     {
-     "next": "r2"
-    },
-    {
-     "next": "r3"
+     "next": "d__text"
     }
    ]
   },
@@ -204,6 +200,46 @@
    "join": "paragraph",
    "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
    "src": "L5810"
+  },
+  "d__fx": {
+   "name": "Answer D",
+   "text": "A study compares planting methods and conditions.",
+   "src": "L5807",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L5807"
+    }
+   ]
+  },
+  "d__text": {
+   "name": "Answer D",
+   "text": "A study compares planting methods and conditions.",
+   "src": "L5807",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
   }
  }
 }

@@ -71,14 +71,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) goes through every single island, with stories. One is where the fish are biggest. One is where nobody is allowed to be sad. One on (subject.his/her) knee is a volcano, and it's erupting, which is why it itches. (friend) is enchanted. (friend.He/she) asks if (friend.he/she) can visit. \"You need a canoe,\" (subject) says gravely. They build one out of a leaf.",
-   "src": "L50"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) doesn't have any islands, so (friend.he/she) borrows some charcoal and draws freckle-sized ones all over (friend.his/her) own arms. They compare maps. (subject) is extremely clear that (subject.his/her) own are real and (friend)'s are pretend. (friend) agrees. By evening (friend)'s islands have mostly smudged off. (subject)'s are exactly where they were, which (subject) points out several times.",
    "src": "L53"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes through every single island, with stories. One is where the fish are biggest. One is where nobody is allowed to be sad. One on (subject.his/her) knee is a volcano, and it's erupting, which is why it itches. (friend) is enchanted. (friend.He/she) asks if (friend.he/she) can visit. \"You need a canoe,\" (subject) says gravely. They build one out of a leaf.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L50"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) goes through every single island, with stories. One is where the fish are biggest. One is where nobody is allowed to be sad. One on (subject.his/her) knee is a volcano, and it's erupting, which is why it itches. (friend) is enchanted. (friend.He/she) asks if (friend.he/she) can visit. \"You need a canoe,\" (subject) says gravely. They build one out of a leaf.",
+   "src": "L50"
   }
  },
  "grammar_fixes": [

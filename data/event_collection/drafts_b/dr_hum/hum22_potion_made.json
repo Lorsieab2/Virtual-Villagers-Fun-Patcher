@@ -81,14 +81,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) decides to make it useful. (subject.He/she) tastes all the foods (subject.he/she) has never liked. The bitter greens taste of fish. Not better, exactly, but different. (subject.He/she) spends the afternoon tasting the whole kitchen and taking careful notes. By evening it has worn off, and the first bite of a mango tastes like a mango again. (subject) nearly cries with joy.",
-   "src": "L266"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) refuses absolutely. So does everyone else, except (fisher), an old fisher, who says that everything already tastes of fish, drinks a sip, and reports no change at all. The scientists are still arguing about whether this counts as a result.",
    "src": "L269"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) decides to make it useful. (subject.He/she) tastes all the foods (subject.he/she) has never liked. The bitter greens taste of fish. Not better, exactly, but different. (subject.He/she) spends the afternoon tasting the whole kitchen and taking careful notes. By evening it has worn off, and the first bite of a mango tastes like a mango again. (subject) nearly cries with joy.",
+   "src": "L266",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L266"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L266"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) decides to make it useful. (subject.He/she) tastes all the foods (subject.he/she) has never liked. The bitter greens taste of fish. Not better, exactly, but different. (subject.He/she) spends the afternoon tasting the whole kitchen and taking careful notes. By evening it has worn off, and the first bite of a mango tastes like a mango again. (subject) nearly cries with joy.",
+   "src": "L266"
   }
  }
 }

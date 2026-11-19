@@ -338,11 +338,14 @@
    ]
   },
   "sa1": {
-   "src": "L1715-1716",
-   "text": "The children are delighted. They proudly wear their ribbons and spend the rest of the day playing together.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "rare"
+     "next": "sa1__fx"
+    },
+    {
+     "next": "sa1__text"
     }
    ]
   },
@@ -494,11 +497,14 @@
    ]
   },
   "mu1": {
-   "src": "L1749-1750",
-   "text": "The children appreciate being recognized for different strengths. The ceremony ends peacefully.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "rare"
+     "next": "mu1__fx"
+    },
+    {
+     "next": "mu1__text"
     }
    ]
   },
@@ -740,6 +746,58 @@
      "size": "small",
      "scaled": true,
      "src": "L1821"
+    }
+   ]
+  },
+  "sa1__fx": {
+   "src": "L1715-1716",
+   "text": "The children are delighted. They proudly wear their ribbons and spend the rest of the day playing together.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L1715-1716"
+    }
+   ]
+  },
+  "sa1__text": {
+   "src": "L1715-1716",
+   "text": "The children are delighted. They proudly wear their ribbons and spend the rest of the day playing together.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "mu1__fx": {
+   "src": "L1749-1750",
+   "text": "The children appreciate being recognized for different strengths. The ceremony ends peacefully.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L1749-1750"
+    }
+   ]
+  },
+  "mu1__text": {
+   "src": "L1749-1750",
+   "text": "The children appreciate being recognized for different strengths. The ceremony ends peacefully.",
+   "children": [
+    {
+     "next": "rare"
     }
    ]
   }

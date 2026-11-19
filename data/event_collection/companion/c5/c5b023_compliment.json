@@ -89,14 +89,39 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "They smile for the rest of the day.",
-   "src": "L1341"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "They awkwardly compliment someone else in return.",
    "src": "L1342"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They smile for the rest of the day.",
+   "src": "L1341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1341"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They smile for the rest of the day.",
+   "src": "L1341"
   }
  }
 }

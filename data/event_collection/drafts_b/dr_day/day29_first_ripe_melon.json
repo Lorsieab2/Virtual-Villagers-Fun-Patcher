@@ -69,11 +69,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) cuts it right there on a flat stone and gives (friend) half. It's perfect: cold, sweet, juicy. They eat it standing on the path, juice running down their chins, saying nothing at all. Then they look at each other and both start laughing for no reason. It is a very good melon.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L350"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) cuts it right there on a flat stone and gives (friend) half. It's perfect: cold, sweet, juicy. They eat it standing on the path, juice running down their chins, saying nothing at all. Then they look at each other and both start laughing for no reason. It is a very good melon.",
    "src": "L350"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) takes it home and eats the whole thing, by (subject.him/her)self, slowly, sitting in the doorway. It's not selfish. (subject.He/she) grew it. (subject.He/she) waited weeks. Some things are for sharing, and some things are for sitting in a doorway and enjoying entirely alone. This one is the second kind.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L353"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) takes it home and eats the whole thing, by (subject.him/her)self, slowly, sitting in the doorway. It's not selfish. (subject.He/she) grew it. (subject.He/she) waited weeks. Some things are for sharing, and some things are for sitting in a doorway and enjoying entirely alone. This one is the second kind.",
    "src": "L353"

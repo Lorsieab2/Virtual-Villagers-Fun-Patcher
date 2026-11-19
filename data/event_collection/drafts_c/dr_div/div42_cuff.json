@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They spend an afternoon testing. The cuff can hold a torch, a scoop, a drum beater, and, after some work, a very large spoon. It cannot hold a coconut. (friend) tries several times. (subject) starts designing a new slot for the spoon. (friend) asks to help make it. By the end of the season, they've invented four new attachments, two of which are useful.",
-   "src": "L506"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) tells (friend.him/her). (subject.He/she) was about (friend)'s age, (subject.he/she) was tired of everyone telling (subject.him/her) how to hold a spear, and (subject.he/she) went off and figured out (subject.his/her) own way. It took a whole year and a lot of ruined leather. (friend) is impressed. \"Can I see the first one?\" (subject) laughs and digs it out of a basket. It's terrible. They both admire it.",
    "src": "L509"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They spend an afternoon testing. The cuff can hold a torch, a scoop, a drum beater, and, after some work, a very large spoon. It cannot hold a coconut. (friend) tries several times. (subject) starts designing a new slot for the spoon. (friend) asks to help make it. By the end of the season, they've invented four new attachments, two of which are useful.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L506"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They spend an afternoon testing. The cuff can hold a torch, a scoop, a drum beater, and, after some work, a very large spoon. It cannot hold a coconut. (friend) tries several times. (subject) starts designing a new slot for the spoon. (friend) asks to help make it. By the end of the season, they've invented four new attachments, two of which are useful.",
+   "src": "L506"
   }
  }
 }

@@ -74,6 +74,31 @@
    "src": "L374"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) doesn't know the eighth part well enough to teach it, and doesn't want to teach it wrong. (friend) is disappointed. At the festival, the seven dance around the empty place again. (friend) watches and realizes the space has become part of the dance. Everyone knows someone's missing. Maybe that's what it's about now.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L377"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says (subject.he/she) doesn't know the eighth part well enough to teach it, and doesn't want to teach it wrong. (friend) is disappointed. At the festival, the seven dance around the empty place again. (friend) watches and realizes the space has become part of the dance. Everyone knows someone's missing. Maybe that's what it's about now.",
    "src": "L377"

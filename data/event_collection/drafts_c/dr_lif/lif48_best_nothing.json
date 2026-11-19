@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Why that one?\" asks (friend). (subject) tries to explain. \"Nothing was wrong. Nobody needed anything. I wasn't waiting for anything. It was warm, and the breadfruit was good, and the rain was nice.\" (friend) thinks about this for a long time. The next rainy morning, (friend.he/she) knocks on (subject)'s door with hot breadfruit. They sit in the doorway and nothing happens. It's a very good day.",
-   "src": "L560"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) asks for (friend)'s best day. (friend) describes something big and exciting. (subject) listens happily. Then (friend) pauses. \"Actually,\" (friend.he/she) says, \"there was this one afternoon with nothing in it...\" and tells about that instead. They agree that the nothing days are sneaky. You only notice they were the best ones afterward.",
    "src": "L563"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Why that one?\" asks (friend). (subject) tries to explain. \"Nothing was wrong. Nobody needed anything. I wasn't waiting for anything. It was warm, and the breadfruit was good, and the rain was nice.\" (friend) thinks about this for a long time. The next rainy morning, (friend.he/she) knocks on (subject)'s door with hot breadfruit. They sit in the doorway and nothing happens. It's a very good day.",
+   "src": "L560",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L560"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L560"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Why that one?\" asks (friend). (subject) tries to explain. \"Nothing was wrong. Nobody needed anything. I wasn't waiting for anything. It was warm, and the breadfruit was good, and the rain was nice.\" (friend) thinks about this for a long time. The next rainy morning, (friend.he/she) knocks on (subject)'s door with hot breadfruit. They sit in the doorway and nothing happens. It's a very good day.",
+   "src": "L560"
   }
  }
 }

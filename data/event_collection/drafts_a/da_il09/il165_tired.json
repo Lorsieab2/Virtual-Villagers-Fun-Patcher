@@ -66,14 +66,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Of course you're not,\" says (friend). \"You can just lie there and not be tired.\" \"I'm going to stay awake all night,\" says (subject). \"All... night.\" \"That sounds very exciting.\" \"Mm.\" \"What will you do all night?\" There's no answer. (subject) is fast asleep with (subject.his/her) mouth open.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(friend) starts telling a story about a rock. The rock sits. Then it sits some more. Then a little bit of moss grows on it. (subject) objects that this is the worst story (subject.he/she) has ever heard. Then (subject.he/she) asks what happened to the moss. By the time the moss has grown a tiny bit more, (subject) is asleep.",
    "src": "L65"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Of course you're not,\" says (friend). \"You can just lie there and not be tired.\" \"I'm going to stay awake all night,\" says (subject). \"All... night.\" \"That sounds very exciting.\" \"Mm.\" \"What will you do all night?\" There's no answer. (subject) is fast asleep with (subject.his/her) mouth open.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L62"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Of course you're not,\" says (friend). \"You can just lie there and not be tired.\" \"I'm going to stay awake all night,\" says (subject). \"All... night.\" \"That sounds very exciting.\" \"Mm.\" \"What will you do all night?\" There's no answer. (subject) is fast asleep with (subject.his/her) mouth open.",
+   "src": "L62"
   }
  }
 }

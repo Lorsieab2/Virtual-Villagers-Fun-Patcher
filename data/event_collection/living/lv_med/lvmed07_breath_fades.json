@@ -180,6 +180,31 @@
    ]
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The device becomes a teaching model rather than a proven treatment.",
+   "src": "L20307",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20307"
+    }
+   ]
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The device becomes a teaching model rather than a proven treatment.",
    "src": "L20307"

@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "Villagers begin a useful seasonal log.",
-   "src": "L31716"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -115,9 +122,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Shade and rest periods protect workers.",
-   "src": "L31719"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -167,6 +181,43 @@
    "name": "Outcome D2",
    "text": "Others ask what evidence would change their minds.",
    "src": "L31726"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Villagers begin a useful seasonal log.",
+   "src": "L31716",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L31716"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Villagers begin a useful seasonal log.",
+   "src": "L31716"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Shade and rest periods protect workers.",
+   "src": "L31719",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 5,
+     "max": 15,
+     "src": "L31719"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Shade and rest periods protect workers.",
+   "src": "L31719"
   }
  }
 }

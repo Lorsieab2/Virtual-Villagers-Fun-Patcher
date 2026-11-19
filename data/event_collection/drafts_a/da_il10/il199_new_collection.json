@@ -65,11 +65,61 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) is shown every single feather, with where it was found and what kind of bird (subject) thinks it came from. Some of the guesses are probably wrong. (friend) doesn't mind. \"I never knew you liked feathers,\" (friend.he/she) says. \"Neither did I,\" says (subject), happily. \"Isn't it wonderful? I'm finding out new things about myself at my age.\"",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(friend) is shown every single feather, with where it was found and what kind of bird (subject) thinks it came from. Some of the guesses are probably wrong. (friend) doesn't mind. \"I never knew you liked feathers,\" (friend.he/she) says. \"Neither did I,\" says (subject), happily. \"Isn't it wonderful? I'm finding out new things about myself at my age.\"",
    "src": "L218"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) keeps the feathers in a basket by (subject.his/her) bed and doesn't tell anyone. Every evening (subject.he/she) takes them out and lays them in a row and looks at them. It's a small, silly, private joy. (subject.He/She) didn't expect to find a new one this late in life. (subject.He/She) is glad (subject.he/she) did.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L221"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) keeps the feathers in a basket by (subject.his/her) bed and doesn't tell anyone. Every evening (subject.he/she) takes them out and lays them in a row and looks at them. It's a small, silly, private joy. (subject.He/She) didn't expect to find a new one this late in life. (subject.He/She) is glad (subject.he/she) did.",
    "src": "L221"

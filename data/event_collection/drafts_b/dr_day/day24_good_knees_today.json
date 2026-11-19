@@ -67,6 +67,42 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) doesn't do anything special. (He/she) just goes about the day and enjoys the not-hurting. Getting up. Sitting down. Climbing the step into the hut. All of it easy. It's a lovely, ordinary day. Tomorrow the knees will probably be back to normal. Today they aren't, and (name1) notices every moment of it.",
+   "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) decides not to waste it. (He/she) walks all the way to the far end of the beach, past the rocks, to a little cove (he/she) hasn't visited in years. It's just as (he/she) remembered. (He/she) sits there for an hour. (His/her) knees are sore again by the time (he/she) gets home. (He/she) doesn't regret a step.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L290"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L290"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) decides not to waste it. (He/she) walks all the way to the far end of the beach, past the rocks, to a little cove (he/she) hasn't visited in years. It's just as (he/she) remembered. (He/she) sits there for an hour. (His/her) knees are sore again by the time (he/she) gets home. (He/she) doesn't regret a step.",
    "src": "L290",
@@ -77,11 +113,6 @@
      "src": "L290"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "(name1) doesn't do anything special. (He/she) just goes about the day and enjoys the not-hurting. Getting up. Sitting down. Climbing the step into the hut. All of it easy. It's a lovely, ordinary day. Tomorrow the knees will probably be back to normal. Today they aren't, and (name1) notices every moment of it.",
-   "src": "L293"
   }
  }
 }

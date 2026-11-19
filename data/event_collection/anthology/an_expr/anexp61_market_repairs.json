@@ -140,9 +140,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(child) learns to patch a tear.",
-   "src": "L32215"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -184,14 +191,61 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Villagers learn how to prevent wear.",
-   "src": "L32221"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The day ends with fewer discarded objects.",
    "src": "L32222"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(child) learns to patch a tear.",
+   "src": "L32215",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L32215"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(child) learns to patch a tear.",
+   "src": "L32215"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Villagers learn how to prevent wear.",
+   "src": "L32221",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L32221"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Villagers learn how to prevent wear.",
+   "src": "L32221"
   }
  }
 }

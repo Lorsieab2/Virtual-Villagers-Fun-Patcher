@@ -104,14 +104,39 @@
    "src": "L1915"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) hums a tune while working with plant fibers. (Name1) misses a beat and laughs before trying again.",
-   "src": "L1919"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) hums a tune while working with plant fibers. The familiar tune reminds someone of a dear friend.",
    "src": "L1923"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) hums a tune while working with plant fibers. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1919",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1919"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) hums a tune while working with plant fibers. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1919"
   }
  }
 }

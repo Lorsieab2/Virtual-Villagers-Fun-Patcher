@@ -128,9 +128,16 @@
    "src": "L79"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1), a child, carries a lantern carefully toward the evening gathering. The crooked edges make (Name1) smile more than the perfect ones.",
-   "src": "L83"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -138,6 +145,56 @@
    "src": "L87"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), a child, carries a lantern carefully toward the evening gathering. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L83",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L83"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1), a child, carries a lantern carefully toward the evening gathering. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L83"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, carries a lantern carefully toward the evening gathering. The warm glow makes the ordinary evening feel like a celebration.",
+   "src": "L91",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L91"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L91"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a child, carries a lantern carefully toward the evening gathering. The warm glow makes the ordinary evening feel like a celebration.",
    "src": "L91",

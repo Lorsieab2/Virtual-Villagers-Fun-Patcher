@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I had a speech,\" (name1) says. \"It was very good. There was a part about the eel.\" The traveler starts laughing, and then (name1) does too, and the speech comes back in pieces, out of order, with the eel in the middle. It is much better that way. The traveler hugs (him/her) for a long time before leaving.",
-   "src": "L50"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) gives up on words and hugs the traveler instead. That works too. The traveler walks off into the grey morning, turning round twice to wave. Later, sitting in the too-big hut, (name1) remembers the whole speech perfectly. (He/she) says it out loud to the empty room, just so it has been said.",
    "src": "L53"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I had a speech,\" (name1) says. \"It was very good. There was a part about the eel.\" The traveler starts laughing, and then (name1) does too, and the speech comes back in pieces, out of order, with the eel in the middle. It is much better that way. The traveler hugs (him/her) for a long time before leaving.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L50"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I had a speech,\" (name1) says. \"It was very good. There was a part about the eel.\" The traveler starts laughing, and then (name1) does too, and the speech comes back in pieces, out of order, with the eel in the middle. It is much better that way. The traveler hugs (him/her) for a long time before leaving.",
+   "src": "L50"
   }
  }
 }

@@ -88,14 +88,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "Both teams fall over backward at the same moment, in two long heaps with their legs in the air. Nobody is hurt; everybody is laughing too hard to get up. (judge), the judge, declares a draw. Each team keeps its half of the rope, and the next year both halves are knotted together for a rematch.",
-   "src": "L518"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The rope is knotted, and they go again. The knot slips, and both teams fall over again. The mud patch grows. By the third try, everyone is so muddy that it is impossible to tell which team is which. (judge), the judge, gives up, and both teams run into the sea together to wash.",
    "src": "L521"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "Both teams fall over backward at the same moment, in two long heaps with their legs in the air. Nobody is hurt; everybody is laughing too hard to get up. (judge), the judge, declares a draw. Each team keeps its half of the rope, and the next year both halves are knotted together for a rematch.",
+   "src": "L518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L518"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L518"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "Both teams fall over backward at the same moment, in two long heaps with their legs in the air. Nobody is hurt; everybody is laughing too hard to get up. (judge), the judge, declares a draw. Each team keeps its half of the rope, and the next year both halves are knotted together for a rematch.",
+   "src": "L518"
   }
  }
 }

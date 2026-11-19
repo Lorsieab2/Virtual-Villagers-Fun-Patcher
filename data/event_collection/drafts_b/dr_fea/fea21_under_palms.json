@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Coconuts are heavy,\" says (subject). \"They fall without warning. And they're up there, every one of them, waiting.\" (friend) laughs, then stops, and looks up at the palms, and thinks about it. \"Huh,\" (friend.he/she) says. From then on, (friend) walks round the palms too. (subject) feels very vindicated.",
-   "src": "L254"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) takes a deep breath and walks under the palms with (friend). Halfway along, a coconut drops with a thud, a good distance away. Both of them jump. \"SEE?\" says (subject). (friend) admits (friend.he/she) sees. They take the long way home.",
    "src": "L257"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Coconuts are heavy,\" says (subject). \"They fall without warning. And they're up there, every one of them, waiting.\" (friend) laughs, then stops, and looks up at the palms, and thinks about it. \"Huh,\" (friend.he/she) says. From then on, (friend) walks round the palms too. (subject) feels very vindicated.",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L254"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Coconuts are heavy,\" says (subject). \"They fall without warning. And they're up there, every one of them, waiting.\" (friend) laughs, then stops, and looks up at the palms, and thinks about it. \"Huh,\" (friend.he/she) says. From then on, (friend) walks round the palms too. (subject) feels very vindicated.",
+   "src": "L254"
   }
  }
 }

@@ -137,14 +137,14 @@
    "src": "L393"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "Everyone pulls in a different rhythm, and they collapse laughing in the sand.",
-   "src": "L394",
-   "text_only": [
+   "children": [
     {
-     "what": "\"collapse\"",
-     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
-     "src": "L394"
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
     }
    ]
   },
@@ -176,6 +176,38 @@
    "name": "Outcome D2",
    "text": "One youngster is insulted by the small net and insists on the big one next time.",
    "src": "L397"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Everyone pulls in a different rhythm, and they collapse laughing in the sand.",
+   "src": "L394",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L394"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L394"
+    }
+   ]
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Everyone pulls in a different rhythm, and they collapse laughing in the sand.",
+   "src": "L394",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L394"
+    }
+   ]
   }
  }
 }

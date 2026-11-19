@@ -114,9 +114,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The fungi provide a faint, useful glow.",
-   "src": "L23222"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -166,6 +173,24 @@
    "name": "Outcome D2",
    "text": "The delay costs an important opportunity.",
    "src": "L23229"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The fungi provide a faint, useful glow.",
+   "src": "L23222",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23222"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The fungi provide a faint, useful glow.",
+   "src": "L23222"
   }
  }
 }

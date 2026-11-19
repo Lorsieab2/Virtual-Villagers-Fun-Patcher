@@ -175,9 +175,16 @@
    "src": "L31847"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The ribbon breaks and he cheerfully tries again.",
-   "src": "L31848"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -222,6 +229,24 @@
    "name": "Outcome D2",
    "text": "(girl) chooses the running games instead.",
    "src": "L31854"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The ribbon breaks and he cheerfully tries again.",
+   "src": "L31848",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "boy",
+     "mood": "good",
+     "src": "L31848"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The ribbon breaks and he cheerfully tries again.",
+   "src": "L31848"
   }
  }
 }

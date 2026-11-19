@@ -73,14 +73,39 @@
    "src": "L6488"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "The family chooses burial; researchers preserve the scholar's notes instead.",
-   "src": "L6490"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "The village develops consent practices for future generations without rewriting the past.",
    "src": "L6492"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The family chooses burial; researchers preserve the scholar's notes instead.",
+   "src": "L6490",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6490"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The family chooses burial; researchers preserve the scholar's notes instead.",
+   "src": "L6490"
   }
  }
 }

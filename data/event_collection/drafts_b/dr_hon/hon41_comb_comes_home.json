@@ -74,6 +74,31 @@
    "src": "L494"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Is that... my comb?\" \"It was,\" admits (subject). There's a pause, and then (friend) laughs. \"I can't complain. Someone gave it to ME first. All I did was carve a new handle.\" It turns out that comb has been passed around half the village over the years. They agree it belongs to everybody, and let it carry on its way.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L497"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Is that... my comb?\" \"It was,\" admits (subject). There's a pause, and then (friend) laughs. \"I can't complain. Someone gave it to ME first. All I did was carve a new handle.\" It turns out that comb has been passed around half the village over the years. They agree it belongs to everybody, and let it carry on its way.",
    "src": "L497"

@@ -76,11 +76,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) stares at (subject.him/her). Then (friend.he/she) laughs until (friend.he/she) has to wipe (friend.his/her) eyes. \"I got blamed for that! For a whole season!\" \"I know,\" says (subject). \"That's why I never said anything.\" (friend) is still laughing. (friend.He/she) is also, a little bit, still annoyed. Both, it turns out, are possible at once.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L590"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) stares at (subject.him/her). Then (friend.he/she) laughs until (friend.he/she) has to wipe (friend.his/her) eyes. \"I got blamed for that! For a whole season!\" \"I know,\" says (subject). \"That's why I never said anything.\" (friend) is still laughing. (friend.He/she) is also, a little bit, still annoyed. Both, it turns out, are possible at once.",
    "src": "L590"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) is quiet for a moment. Then: \"Well. I was the one who let them out again the next morning, after you'd all rounded them up.\" They look at each other. Neither of them ever knew. They sit by the fire laughing about it until very late, and agree that it should stay between the two of them, which lasts until breakfast.",
+   "src": "L593",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L593"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L593"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) is quiet for a moment. Then: \"Well. I was the one who let them out again the next morning, after you'd all rounded them up.\" They look at each other. Neither of them ever knew. They sit by the fire laughing about it until very late, and agree that it should stay between the two of them, which lasts until breakfast.",
    "src": "L593"

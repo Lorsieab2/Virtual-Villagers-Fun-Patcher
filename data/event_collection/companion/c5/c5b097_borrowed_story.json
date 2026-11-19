@@ -90,14 +90,39 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "The elder laughs.",
-   "src": "L1988"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "The elder corrects one very important detail.",
    "src": "L1989"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "The elder laughs.",
+   "src": "L1988",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L1988"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "The elder laughs.",
+   "src": "L1988"
   }
  }
 }

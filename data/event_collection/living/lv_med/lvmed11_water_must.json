@@ -112,9 +112,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A patient recovers, and the apprentice remains unconvinced.",
-   "src": "L20355"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -158,6 +165,50 @@
    ]
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A patient recovers, and the apprentice remains unconvinced.",
+   "src": "L20355",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L20355"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A patient recovers, and the apprentice remains unconvinced.",
+   "src": "L20355"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Poor notes make the evidence inconclusive, inspiring better recordkeeping.",
+   "src": "L20359",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20359"
+    }
+   ]
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "Poor notes make the evidence inconclusive, inspiring better recordkeeping.",
    "src": "L20359"

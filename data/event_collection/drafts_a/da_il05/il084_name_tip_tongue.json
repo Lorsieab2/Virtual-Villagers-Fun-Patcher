@@ -70,6 +70,31 @@
    "src": "L50"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) gives up and goes back to work. Hours later, halfway through hauling water, (subject.he/she) stops dead and shouts \"MANGO!\" Several villagers jump. (subject) doesn't explain. (subject.He/She) just goes on hauling water, looking enormously relieved.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) gives up and goes back to work. Hours later, halfway through hauling water, (subject.he/she) stops dead and shouts \"MANGO!\" Several villagers jump. (subject) doesn't explain. (subject.He/She) just goes on hauling water, looking enormously relieved.",
    "src": "L53"

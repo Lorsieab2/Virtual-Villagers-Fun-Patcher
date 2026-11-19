@@ -94,14 +94,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) helps an elder replace a lantern's worn binding. The warm glow makes the ordinary evening feel like a celebration.",
-   "src": "L47",
-   "text_only": [
+   "children": [
     {
-     "what": "\"celebration\"",
-     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
-     "src": "L47"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -116,6 +116,63 @@
    "src": "L55"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) helps an elder replace a lantern's worn binding. The warm glow makes the ordinary evening feel like a celebration.",
+   "src": "L47",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L47"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L47"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) helps an elder replace a lantern's worn binding. The warm glow makes the ordinary evening feel like a celebration.",
+   "src": "L47",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L47"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) helps an elder replace a lantern's worn binding. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L59",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L59"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) helps an elder replace a lantern's worn binding. The crooked edges make (Name1) smile more than the perfect ones.",
    "src": "L59"

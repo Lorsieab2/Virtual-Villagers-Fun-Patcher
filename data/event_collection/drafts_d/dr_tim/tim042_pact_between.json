@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Two siblings make a pact to practice their knots together. (Name1) feels embarrassed and offers a sincere apology.",
-   "src": "L703"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -112,6 +119,24 @@
    "name": "Ending 4",
    "text": "Two siblings make a pact to practice their knots together. Someone suggests checking in again tomorrow rather than making grand declarations.",
    "src": "L715"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Two siblings make a pact to practice their knots together. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L703",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L703"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Two siblings make a pact to practice their knots together. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L703"
   }
  }
 }

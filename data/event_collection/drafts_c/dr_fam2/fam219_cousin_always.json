@@ -79,11 +79,68 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"(friend),\" says (subject), \"I love having you. But I can't feed you every night.\" (friend)'s face goes red. \"Oh. I didn't realize. I'm sorry.\" (friend.He/she) doesn't come the next night. The night after, (friend.he/she) arrives with a big basket of fish. \"My turn to bring dinner,\" (friend.he/she) says. They eat together most nights after that, taking turns.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L230"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"(friend),\" says (subject), \"I love having you. But I can't feed you every night.\" (friend)'s face goes red. \"Oh. I didn't realize. I'm sorry.\" (friend.He/she) doesn't come the next night. The night after, (friend.he/she) arrives with a big basket of fish. \"My turn to bring dinner,\" (friend.he/she) says. They eat together most nights after that, taking turns.",
    "src": "L230"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to just make more food. It's a squeeze, but it works. Then one evening (friend) arrives with a big basket of fruit. \"I noticed I'd been eating all your food,\" (friend.he/she) says sheepishly. \"I'm sorry.\" (subject) laughs. \"It's alright. I like the company.\" From then on, they cook together. It's much more fun than cooking alone.",
+   "src": "L233",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L233"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L233"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides to just make more food. It's a squeeze, but it works. Then one evening (friend) arrives with a big basket of fruit. \"I noticed I'd been eating all your food,\" (friend.he/she) says sheepishly. \"I'm sorry.\" (subject) laughs. \"It's alright. I like the company.\" From then on, they cook together. It's much more fun than cooking alone.",
    "src": "L233",

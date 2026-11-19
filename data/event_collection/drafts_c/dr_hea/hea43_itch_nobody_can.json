@@ -74,6 +74,31 @@
    "src": "L521"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't explain. (subject.He/she) just asks for something cooling. (friend) gives (subject.him/her) a cool salve and says, \"If it doesn't help, come back. Itches without rashes are real. They're just harder to solve.\" (subject) goes home feeling oddly grateful for that one sentence. The itch takes a week to go. The sentence stays much longer.",
+   "src": "L524",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L524"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) doesn't explain. (subject.He/she) just asks for something cooling. (friend) gives (subject.him/her) a cool salve and says, \"If it doesn't help, come back. Itches without rashes are real. They're just harder to solve.\" (subject) goes home feeling oddly grateful for that one sentence. The itch takes a week to go. The sentence stays much longer.",
    "src": "L524"

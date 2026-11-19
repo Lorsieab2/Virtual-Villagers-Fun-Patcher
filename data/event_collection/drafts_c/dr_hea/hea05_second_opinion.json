@@ -100,6 +100,35 @@
    "src": "L62"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) sighs and puts the ankle up. Seven days of lying in a hammock while other people mend the nets. On the fourth day (subject.he/she) is so bored (subject.he/she) teaches (subject.him/her)self to whittle. On the seventh day the ankle is much better, and (subject.he/she) has carved eleven small, lopsided fish. Nobody asked for them. Everyone gets one anyway.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L65"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) sighs and puts the ankle up. Seven days of lying in a hammock while other people mend the nets. On the fourth day (subject.he/she) is so bored (subject.he/she) teaches (subject.him/her)self to whittle. On the seventh day the ankle is much better, and (subject.he/she) has carved eleven small, lopsided fish. Nobody asked for them. Everyone gets one anyway.",
    "src": "L65"

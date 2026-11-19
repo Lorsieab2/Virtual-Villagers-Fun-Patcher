@@ -309,11 +309,14 @@
    ]
   },
   "a2": {
-   "text": "(Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
-   "src": "L9646-9648",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -327,11 +330,14 @@
    ]
   },
   "a4": {
-   "text": "A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
-   "src": "L9652-9653",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
     }
    ]
   },
@@ -525,11 +531,14 @@
    ]
   },
   "d2": {
-   "text": "The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",
-   "src": "L9683-9685",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
     }
    ]
   },
@@ -962,6 +971,84 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "a2__fx": {
+   "text": "(Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
+   "src": "L9646-9648",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "strongman",
+     "mood": "good",
+     "src": "L9646-9648"
+    }
+   ]
+  },
+  "a2__text": {
+   "text": "(Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
+   "src": "L9646-9648",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a4__fx": {
+   "text": "A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
+   "src": "L9652-9653",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "strongman",
+     "mood": "good",
+     "src": "L9652-9653"
+    }
+   ]
+  },
+  "a4__text": {
+   "text": "A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
+   "src": "L9652-9653",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d2__fx": {
+   "text": "The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",
+   "src": "L9683-9685",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "strongman",
+     "mood": "bad",
+     "src": "L9683-9685"
+    }
+   ]
+  },
+  "d2__text": {
+   "text": "The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",
+   "src": "L9683-9685",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  },
  "include_pools": [

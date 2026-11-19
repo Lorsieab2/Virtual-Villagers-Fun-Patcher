@@ -197,9 +197,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(teen) creates a striking practical outfit.",
-   "src": "L31450"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -227,6 +234,28 @@
    "name": "Outcome D2",
    "text": "(helper) asks that the family history be told accurately.",
    "src": "L31454"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(teen) creates a striking practical outfit.",
+   "src": "L31450",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L31450"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(teen) creates a striking practical outfit.",
+   "src": "L31450"
   }
  }
 }

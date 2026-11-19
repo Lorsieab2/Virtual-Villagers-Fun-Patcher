@@ -158,14 +158,39 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The technique proves useful without settling political differences.",
-   "src": "L23599"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The demonstration fails, but the adviser accepts the criticism.",
    "src": "L23600"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The technique proves useful without settling political differences.",
+   "src": "L23599",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23599"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The technique proves useful without settling political differences.",
+   "src": "L23599"
   }
  },
  "patches": [

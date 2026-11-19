@@ -132,9 +132,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(villager) laughs with (friend) and forgets the embarrassment.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -154,14 +161,63 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(villager) continues walking, cheeks warm with embarrassment.",
-   "src": "L65"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
    "text": "(friend) catches up and asks why (villager) hurried away.",
    "src": "L66"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(villager) laughs with (friend) and forgets the embarrassment.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(villager) laughs with (friend) and forgets the embarrassment.",
+   "src": "L62"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(villager) continues walking, cheeks warm with embarrassment.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "bad",
+     "src": "L65"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(villager) continues walking, cheeks warm with embarrassment.",
+   "src": "L65"
   }
  }
 }

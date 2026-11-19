@@ -82,11 +82,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about it, quietly. (friend) listens, and doesn't say \"Oh, everyone does that.\" (friend.He/she) says, \"That sounds frightening.\" (subject) is so relieved (subject.he/she) nearly cries. They talk about what might help: saying names out loud, asking without embarrassment. Nothing is fixed. It is less lonely.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) tells (friend) about it, quietly. (friend) listens, and doesn't say \"Oh, everyone does that.\" (friend.He/she) says, \"That sounds frightening.\" (subject) is so relieved (subject.he/she) nearly cries. They talk about what might help: saying names out loud, asking without embarrassment. Nothing is fixed. It is less lonely.",
    "src": "L62"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) starts a list on a strip of bark: names, and a little note beside each. \"Big laugh.\" \"Always has a basket.\" \"Afraid of crabs.\" (subject.He/she) reads it in the mornings. It doesn't take the fear away. But some days it helps, and the list itself turns out to be a rather lovely thing to have.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L65"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) starts a list on a strip of bark: names, and a little note beside each. \"Big laugh.\" \"Always has a basket.\" \"Afraid of crabs.\" (subject.He/she) reads it in the mornings. It doesn't take the fear away. But some days it helps, and the list itself turns out to be a rather lovely thing to have.",
    "src": "L65"

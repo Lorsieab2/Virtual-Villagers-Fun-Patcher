@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) lets out a small shriek. The frog leaps out of the bowl, bounces off (subject)'s shoulder, and lands on (friend), who also shrieks. The frog then hops calmly out of the door, while two grown adults stand clutching each other in the middle of the hut. It takes them a long time to stop laughing.",
-   "src": "L98"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) cups the frog in both hands. It sits there, cool and slightly damp, and doesn't struggle. (subject.He/She) carries it outside and puts it on a big wet leaf. It looks very much at home. (subject) goes back in and checks every single piece of fruit before (subject.he/she) eats any.",
    "src": "L101"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) lets out a small shriek. The frog leaps out of the bowl, bounces off (subject)'s shoulder, and lands on (friend), who also shrieks. The frog then hops calmly out of the door, while two grown adults stand clutching each other in the middle of the hut. It takes them a long time to stop laughing.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L98"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) lets out a small shriek. The frog leaps out of the bowl, bounces off (subject)'s shoulder, and lands on (friend), who also shrieks. The frog then hops calmly out of the door, while two grown adults stand clutching each other in the middle of the hut. It takes them a long time to stop laughing.",
+   "src": "L98"
   }
  }
 }

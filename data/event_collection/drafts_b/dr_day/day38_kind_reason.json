@@ -81,11 +81,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"It was me,\" says (subject). \"No reason.\" (friend) is touched and a little puzzled. \"Are you sure nothing's wrong?\" \"Nothing's wrong.\" (friend) eats the fruit. Later, (friend.he/she) leaves a piece of fruit on someone else's windowsill. By evening, fruit is turning up on windowsills all over the village.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L458"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"It was me,\" says (subject). \"No reason.\" (friend) is touched and a little puzzled. \"Are you sure nothing's wrong?\" \"Nothing's wrong.\" (friend) eats the fruit. Later, (friend.he/she) leaves a piece of fruit on someone else's windowsill. By evening, fruit is turning up on windowsills all over the village.",
    "src": "L458"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stays out of sight. (friend) eats the fruit, looking very puzzled. All day, small nice things happen around the village and nobody knows where they came from. A few people start to suspect each other. (subject) never says a word. It's (subject.his/her) favorite secret all week.",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L461"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) stays out of sight. (friend) eats the fruit, looking very puzzled. All day, small nice things happen around the village and nobody knows where they came from. A few people start to suspect each other. (subject) never says a word. It's (subject.his/her) favorite secret all week.",
    "src": "L461"

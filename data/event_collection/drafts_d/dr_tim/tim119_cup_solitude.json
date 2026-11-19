@@ -122,14 +122,28 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) sits alone with a cup of warm herbal drink. The silence feels comforting rather than lonely today.",
-   "src": "L1995"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) sits alone with a cup of warm herbal drink. (Name1) wishes the peaceful moment could last a little longer.",
-   "src": "L1999"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -137,6 +151,67 @@
    "src": "L2003"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) sits alone with a cup of warm herbal drink. The silence feels comforting rather than lonely today.",
+   "src": "L1995",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1995"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) sits alone with a cup of warm herbal drink. The silence feels comforting rather than lonely today.",
+   "src": "L1995"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) sits alone with a cup of warm herbal drink. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L1999",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1999"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) sits alone with a cup of warm herbal drink. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L1999"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) sits alone with a cup of warm herbal drink. (Name1) feels happy without knowing why.",
+   "src": "L2007",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2007"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) sits alone with a cup of warm herbal drink. (Name1) feels happy without knowing why.",
    "src": "L2007"

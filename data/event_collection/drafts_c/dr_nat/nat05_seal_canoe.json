@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) and (friend) sit down on the sand to wait. The seal sleeps. They wait. The seal rolls over, sighs, and sleeps some more. Other fishers arrive and sit down too. Somebody brings breakfast. By the time the seal finally humps itself back into the water, the whole crew has had the most relaxed morning of the season. They catch less fish than usual. Nobody complains.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) and (friend) carry their canoe the long way round, to the rocky beach on the far side. It's heavy, the rocks are sharp, and they are grumbling the whole way. When they finally paddle out and look back, the seal is still asleep, now with its flipper flopped across another fisher's paddle. They decide, together, not to tell that fisher until later.",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) sit down on the sand to wait. The seal sleeps. They wait. The seal rolls over, sighs, and sleeps some more. Other fishers arrive and sit down too. Somebody brings breakfast. By the time the seal finally humps itself back into the water, the whole crew has had the most relaxed morning of the season. They catch less fish than usual. Nobody complains.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) sit down on the sand to wait. The seal sleeps. They wait. The seal rolls over, sighs, and sleeps some more. Other fishers arrive and sit down too. Somebody brings breakfast. By the time the seal finally humps itself back into the water, the whole crew has had the most relaxed morning of the season. They catch less fish than usual. Nobody complains.",
+   "src": "L62"
   }
  }
 }

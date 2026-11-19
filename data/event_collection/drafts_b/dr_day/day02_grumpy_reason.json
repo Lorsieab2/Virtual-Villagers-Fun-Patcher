@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I'm grumpy today,\" says (subject). \"It's not you. It's nothing. I'm just grumpy.\" (friend) nods seriously. \"Understood.\" For the rest of the day (friend) greets (subject.him/her) with a solemn, silent nod, as if passing an elder at a very serious ceremony. By evening, (subject) is still grumpy and also laughing, which is very annoying.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Good morning,\" says (subject), with a smile that hurts. (subject.He/she) is pleasant all day. It's exhausting. By evening (subject.he/she) is grumpier than ever. (subject.He/she) goes to bed early and wakes up the next morning feeling fine, for no reason at all, which is somehow the most annoying part.",
    "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm grumpy today,\" says (subject). \"It's not you. It's nothing. I'm just grumpy.\" (friend) nods seriously. \"Understood.\" For the rest of the day (friend) greets (subject.him/her) with a solemn, silent nod, as if passing an elder at a very serious ceremony. By evening, (subject) is still grumpy and also laughing, which is very annoying.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L26"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm grumpy today,\" says (subject). \"It's not you. It's nothing. I'm just grumpy.\" (friend) nods seriously. \"Understood.\" For the rest of the day (friend) greets (subject.him/her) with a solemn, silent nod, as if passing an elder at a very serious ceremony. By evening, (subject) is still grumpy and also laughing, which is very annoying.",
+   "src": "L26"
   }
  }
 }

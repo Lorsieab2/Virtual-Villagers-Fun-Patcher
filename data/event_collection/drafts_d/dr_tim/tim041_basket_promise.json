@@ -99,9 +99,16 @@
    "src": "L687"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) remembers promising to help repair a basket. (Name1) feels embarrassed and offers a sincere apology.",
-   "src": "L691"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,24 @@
    "name": "Ending 4",
    "text": "(Name1) remembers promising to help repair a basket. A small delay tests everyone's patience, but the work continues.",
    "src": "L699"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) remembers promising to help repair a basket. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L691",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L691"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) remembers promising to help repair a basket. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L691"
   }
  }
 }

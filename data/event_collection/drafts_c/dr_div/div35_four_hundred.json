@@ -71,14 +71,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) sits very still. (friend) counts. It takes a long time. Around one hundred and fifty, (friend.he/she) loses count and has to start again. Around three hundred, (subject) sneezes and some of them seem to move. In the end they agree on \"about four hundred, maybe more.\" (subject) is extremely proud of this number and tells everyone for weeks.",
-   "src": "L422"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) says (friend) can have some. (friend) is thrilled. (subject) takes a stick of charcoal and gives (friend.him/her) ten, very carefully, across the nose. (friend) looks in the water bowl and is overjoyed. Then (friend.he/she) washes (friend.his/her) face by accident at dinner and loses all of them. (subject) gives (friend.him/her) ten more the next morning. Free of charge.",
    "src": "L425"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits very still. (friend) counts. It takes a long time. Around one hundred and fifty, (friend.he/she) loses count and has to start again. Around three hundred, (subject) sneezes and some of them seem to move. In the end they agree on \"about four hundred, maybe more.\" (subject) is extremely proud of this number and tells everyone for weeks.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L422"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sits very still. (friend) counts. It takes a long time. Around one hundred and fifty, (friend.he/she) loses count and has to start again. Around three hundred, (subject) sneezes and some of them seem to move. In the end they agree on \"about four hundred, maybe more.\" (subject) is extremely proud of this number and tells everyone for weeks.",
+   "src": "L422"
   }
  }
 }

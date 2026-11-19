@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The patient becomes more comfortable while the illness runs its course.",
-   "src": "L20749"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -127,9 +134,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The patient improves, though the healers cannot tell whether the herb helped.",
-   "src": "L20752"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -166,6 +180,44 @@
    "name": "Outcome C2",
    "text": "The family worries that observation alone is not enough.",
    "src": "L20756"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient becomes more comfortable while the illness runs its course.",
+   "src": "L20749",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L20749"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient becomes more comfortable while the illness runs its course.",
+   "src": "L20749"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient improves, though the healers cannot tell whether the herb helped.",
+   "src": "L20752",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L20752"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient improves, though the healers cannot tell whether the herb helped.",
+   "src": "L20752"
   }
  }
 }

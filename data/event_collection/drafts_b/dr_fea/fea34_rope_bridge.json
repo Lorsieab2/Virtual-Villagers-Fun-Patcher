@@ -74,6 +74,31 @@
    "src": "L410"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'll meet you there,\" says (subject), and goes down into the gully. It takes longer, and it's muddy, and there's a lovely little waterfall halfway down that nobody who crosses the bridge ever sees. (subject) arrives a while after (friend), muddy to the knees, and perfectly content.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'll meet you there,\" says (subject), and goes down into the gully. It takes longer, and it's muddy, and there's a lovely little waterfall halfway down that nobody who crosses the bridge ever sees. (subject) arrives a while after (friend), muddy to the knees, and perfectly content.",
    "src": "L413"

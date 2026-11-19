@@ -90,9 +90,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The patient feels comforted, though their illness follows its own course.",
-   "src": "L20430"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -151,6 +158,24 @@
    "name": "Outcome C2",
    "text": "The patient declines the ritual and is supported without argument.",
    "src": "L20437"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient feels comforted, though their illness follows its own course.",
+   "src": "L20430",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L20430"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient feels comforted, though their illness follows its own course.",
+   "src": "L20430"
   }
  }
 }

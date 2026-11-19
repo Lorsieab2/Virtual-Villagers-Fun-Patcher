@@ -74,6 +74,35 @@
    "src": "L458"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Do you have to believe in fish to catch them?\" asks (subject). (friend) laughs. \"That's different.\" \"Is it?\" says (subject). \"I love carving. I love that the masks matter to people. That's enough for me.\" (friend) isn't sure that's an answer. (subject) isn't sure either. The mask comes out beautifully anyway.",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L461"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Do you have to believe in fish to catch them?\" asks (subject). (friend) laughs. \"That's different.\" \"Is it?\" says (subject). \"I love carving. I love that the masks matter to people. That's enough for me.\" (friend) isn't sure that's an answer. (subject) isn't sure either. The mask comes out beautifully anyway.",
    "src": "L461"

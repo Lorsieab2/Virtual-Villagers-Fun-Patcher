@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The story comforts the child, though no one claims to know for certain.",
-   "src": "L21416"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -145,6 +152,24 @@
    "name": "Outcome C2",
    "text": "The child says they do not know, and the adult sits quietly beside them.",
    "src": "L21423"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The story comforts the child, though no one claims to know for certain.",
+   "src": "L21416",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21416"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The story comforts the child, though no one claims to know for certain.",
+   "src": "L21416"
   }
  }
 }

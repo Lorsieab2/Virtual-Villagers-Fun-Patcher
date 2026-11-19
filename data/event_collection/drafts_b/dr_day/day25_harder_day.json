@@ -74,6 +74,32 @@
    "src": "L302"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) asks if (subject) needs anything. (subject) says no, (subject.he/she) just needs to rest. (friend) believes (subject.him/her), and goes. (subject) rests all day. It's a bad day. That's all it is. Tomorrow might be better, or might not, and either way (subject) knows how to manage. (subject.He/she) has been doing it a long time.",
+   "src": "L305",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L305"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) asks if (subject) needs anything. (subject) says no, (subject.he/she) just needs to rest. (friend) believes (subject.him/her), and goes. (subject) rests all day. It's a bad day. That's all it is. Tomorrow might be better, or might not, and either way (subject) knows how to manage. (subject.He/she) has been doing it a long time.",
    "src": "L305"

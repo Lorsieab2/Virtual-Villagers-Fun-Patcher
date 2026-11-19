@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"No,\" says (subject), smiling. \"I'm just not interested. That's how I am.\" (friend) looks thoughtful. \"Oh. I hadn't thought of that.\" \"Most people haven't,\" says (subject). \"That's fine. I'm very happy.\" (friend) nods, and then, to (subject)'s relief, starts talking about fishing instead. That's exactly what (subject) wanted.",
+   "src": "L584",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L584"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"No,\" says (subject), smiling. \"I'm just not interested. That's how I am.\" (friend) looks thoughtful. \"Oh. I hadn't thought of that.\" \"Most people haven't,\" says (subject). \"That's fine. I'm very happy.\" (friend) nods, and then, to (subject)'s relief, starts talking about fishing instead. That's exactly what (subject) wanted.",
    "src": "L584"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Have you tried the mangoes from the north tree?\" says (subject) pleasantly. \"They're very good this year.\" (friend) blinks, realizes the question isn't going to be answered and laughs. \"Yes. Very good.\" They talk about mangoes. (subject) doesn't owe anyone an explanation of (subject.his/her) heart, and doesn't give one.",
+   "src": "L587",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L587"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Have you tried the mangoes from the north tree?\" says (subject) pleasantly. \"They're very good this year.\" (friend) blinks, realizes the question isn't going to be answered and laughs. \"Yes. Very good.\" They talk about mangoes. (subject) doesn't owe anyone an explanation of (subject.his/her) heart, and doesn't give one.",
    "src": "L587"

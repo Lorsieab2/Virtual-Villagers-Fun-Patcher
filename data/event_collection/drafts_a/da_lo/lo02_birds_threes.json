@@ -76,14 +76,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) sweeps, puts out fruit and changes into (subject.his/her) good clothes. (friend) wanders past and asks who's coming. \"I don't know yet,\" says (subject). Nobody comes all day. Then, just at sunset, (visitor), a visitor from another village, turns up, looking for somewhere to stay the night. (subject) feels very smug. (friend) points out that visitors come quite often. (subject) feels very smug anyway.",
-   "src": "L27"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) shakes (subject.his/her) head and gets on with (subject.his/her) day. Three birds are just three birds. Nobody comes. In the evening, though, (subject) catches (subject.him/her)self glancing down the path, just once or twice. The birds are back on the roof the next morning. (subject) decides not to count them.",
    "src": "L30"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) sweeps, puts out fruit and changes into (subject.his/her) good clothes. (friend) wanders past and asks who's coming. \"I don't know yet,\" says (subject). Nobody comes all day. Then, just at sunset, (visitor), a visitor from another village, turns up, looking for somewhere to stay the night. (subject) feels very smug. (friend) points out that visitors come quite often. (subject) feels very smug anyway.",
+   "src": "L27",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L27"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) sweeps, puts out fruit and changes into (subject.his/her) good clothes. (friend) wanders past and asks who's coming. \"I don't know yet,\" says (subject). Nobody comes all day. Then, just at sunset, (visitor), a visitor from another village, turns up, looking for somewhere to stay the night. (subject) feels very smug. (friend) points out that visitors come quite often. (subject) feels very smug anyway.",
+   "src": "L27"
   }
  }
 }

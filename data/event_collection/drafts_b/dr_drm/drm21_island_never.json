@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Yes,\" says (subject). \"Some days. Not most days.\" (subject.He/she) looks at the haze on the horizon. \"I think it would have been beautiful. I think I'd have liked it. And I think I had a good life here instead.\" (friend) waits for the sad part. There isn't one. (subject) seems perfectly at peace with both halves.",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L254"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Yes,\" says (subject). \"Some days. Not most days.\" (subject.He/she) looks at the haze on the horizon. \"I think it would have been beautiful. I think I'd have liked it. And I think I had a good life here instead.\" (friend) waits for the sad part. There isn't one. (subject) seems perfectly at peace with both halves.",
    "src": "L254"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I don't know,\" says (subject). \"Maybe it's better as an island I never reached. If I'd gone, it would just be a place. This way it's still the island.\" (friend) doesn't quite follow. (subject) laughs. \"You will, when you're older. Or you won't. Either's fine.\"",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L257"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I don't know,\" says (subject). \"Maybe it's better as an island I never reached. If I'd gone, it would just be a place. This way it's still the island.\" (friend) doesn't quite follow. (subject) laughs. \"You will, when you're older. Or you won't. Either's fine.\"",
    "src": "L257"

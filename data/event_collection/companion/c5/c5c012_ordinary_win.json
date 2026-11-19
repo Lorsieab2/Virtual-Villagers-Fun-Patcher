@@ -75,6 +75,33 @@
    "src": "L2185"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A nearby apprentice offers a quiet congratulations.",
+   "src": "L2186",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "novice",
+     "mood": "good",
+     "src": "L2186"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

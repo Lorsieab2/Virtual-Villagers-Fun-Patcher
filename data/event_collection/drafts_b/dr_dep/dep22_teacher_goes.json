@@ -84,6 +84,42 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) puts the questions away and simply thanks the healer. They talk about ordinary things: food, weather, the healer's grumpy old dog back home. In the morning the healer leaves a bundle of dried leaves outside (name1)'s door, with a note: \"For the questions you didn't ask. Work them out. You'll be fine at it.\"",
+   "src": "L269",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L269"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L269"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) puts the questions away and simply thanks the healer. They talk about ordinary things: food, weather, the healer's grumpy old dog back home. In the morning the healer leaves a bundle of dried leaves outside (name1)'s door, with a note: \"For the questions you didn't ask. Work them out. You'll be fine at it.\"",
    "src": "L269",

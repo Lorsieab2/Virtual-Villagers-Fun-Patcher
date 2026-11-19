@@ -111,6 +111,31 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides that fewer is safer, and uses two. The tea is thin and doesn't do much. (friend)'s fever comes down slowly by itself over two days. When (subject) tells (healer), the senior healer, (healer.he/she) nods. \"Three. But when in doubt, less and ask is better than more and guess. You did fine.\" (subject) doesn't feel fine. (subject.He/she) writes \"THREE\" on (subject.his/her) arm for a week.",
+   "src": "L284",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L284"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides that fewer is safer, and uses two. The tea is thin and doesn't do much. (friend)'s fever comes down slowly by itself over two days. When (subject) tells (healer), the senior healer, (healer.he/she) nods. \"Three. But when in doubt, less and ask is better than more and guess. You did fine.\" (subject) doesn't feel fine. (subject.He/she) writes \"THREE\" on (subject.his/her) arm for a week.",
    "src": "L284"

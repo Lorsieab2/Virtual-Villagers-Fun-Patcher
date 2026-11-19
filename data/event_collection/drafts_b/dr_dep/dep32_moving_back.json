@@ -64,9 +64,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Missed us already?\" someone says, and (name1) laughs, and the awkwardness goes. (He/she) stays four nights. It's cozy and loud and nobody lets (him/her) do the washing. When the roof is fixed, (he/she) goes home, and the old hut feels quiet without (him/her) again.",
-   "src": "L386"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
@@ -79,6 +86,24 @@
      "src": "L389"
     }
    ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Missed us already?\" someone says, and (name1) laughs, and the awkwardness goes. (He/she) stays four nights. It's cozy and loud and nobody lets (him/her) do the washing. When the roof is fixed, (he/she) goes home, and the old hut feels quiet without (him/her) again.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L386"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Missed us already?\" someone says, and (name1) laughs, and the awkwardness goes. (He/she) stays four nights. It's cozy and loud and nobody lets (him/her) do the washing. When the roof is fixed, (he/she) goes home, and the old hut feels quiet without (him/her) again.",
+   "src": "L386"
   }
  }
 }

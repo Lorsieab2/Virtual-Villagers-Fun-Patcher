@@ -101,19 +101,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "Caregivers take turns resting and soothing the baby.",
-   "src": "L4296",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L4296"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -158,6 +153,47 @@
      "min": 5,
      "max": 10,
      "src": "L4298"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "Caregivers take turns resting and soothing the baby.",
+   "src": "L4296",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4296"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": 5,
+     "max": 15,
+     "src": "L4296"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "Caregivers take turns resting and soothing the baby.",
+   "src": "L4296",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4296"
     }
    ]
   }

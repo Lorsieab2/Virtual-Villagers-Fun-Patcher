@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) takes the stick and examines it carefully, turns it over, tests its balance. \"This,\" (friend.he/she) says, \"is an exceptional stick.\" (subject) glows. (subject.He/she) takes it to bed. (subject.He/she) takes it to breakfast. Three days later (subject.he/she) finds a better stick, and the first one is forgotten forever.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"What can it do?\" asks (friend). (subject) shows (friend.him/her). It can point at things. It can draw in the sand. It can knock a coconut off a low branch, nearly. It can stir a puddle. By the end of the demonstration, (friend) also wants a stick. (subject) helps (friend.him/her) find one. It is a good stick. Not as good.",
    "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) takes the stick and examines it carefully, turns it over, tests its balance. \"This,\" (friend.he/she) says, \"is an exceptional stick.\" (subject) glows. (subject.He/she) takes it to bed. (subject.He/she) takes it to breakfast. Three days later (subject.he/she) finds a better stick, and the first one is forgotten forever.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) takes the stick and examines it carefully, turns it over, tests its balance. \"This,\" (friend.he/she) says, \"is an exceptional stick.\" (subject) glows. (subject.He/she) takes it to bed. (subject.He/she) takes it to breakfast. Three days later (subject.he/she) finds a better stick, and the first one is forgotten forever.",
+   "src": "L182"
   }
  }
 }

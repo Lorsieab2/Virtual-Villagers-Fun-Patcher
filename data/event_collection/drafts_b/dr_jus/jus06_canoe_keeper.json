@@ -69,14 +69,49 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The council asks (friend) to take over as canoe-keeper. (subject) is hurt; it has been (subject.his/her) job a long time, and (subject.he/she) says so. The council listens, and doesn't change its mind, but asks (subject) to teach (friend) everything (subject.he/she) knows. (subject) does. (subject.He/she) still walks down to the beach most evenings to look at the canoes, just to be sure.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The council asks (subject) and (friend) to share the job, one checking after the other. (subject) isn't sure whether to feel trusted or watched. Probably both. But the canoes stay put all season, and somewhere along the way the evening walk to the beach becomes the part of the day both of them like best.",
    "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The council asks (friend) to take over as canoe-keeper. (subject) is hurt; it has been (subject.his/her) job a long time, and (subject.he/she) says so. The council listens, and doesn't change its mind, but asks (subject) to teach (friend) everything (subject.he/she) knows. (subject) does. (subject.He/she) still walks down to the beach most evenings to look at the canoes, just to be sure.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L74"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L74"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The council asks (friend) to take over as canoe-keeper. (subject) is hurt; it has been (subject.his/her) job a long time, and (subject.he/she) says so. The council listens, and doesn't change its mind, but asks (subject) to teach (friend) everything (subject.he/she) knows. (subject) does. (subject.He/she) still walks down to the beach most evenings to look at the canoes, just to be sure.",
+   "src": "L74"
   }
  }
 }

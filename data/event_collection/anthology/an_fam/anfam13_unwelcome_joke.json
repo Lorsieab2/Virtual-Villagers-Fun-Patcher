@@ -222,11 +222,67 @@
    ]
   },
   "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The two discover a shared taste for silly stories.",
+   "src": "L28492",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L28492"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L28492"
+    }
+   ]
+  },
+  "d1__text": {
    "name": "Outcome D1",
    "text": "The two discover a shared taste for silly stories.",
    "src": "L28492"
   },
-  "d2": {
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(friend) laughs at the new joke but asks for fewer surprises.",
+   "src": "L28493",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L28493"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(friend) laughs at the new joke but asks for fewer surprises.",
    "src": "L28493"

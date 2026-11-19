@@ -506,20 +506,14 @@
    "text": "(child.He/She) gets points for {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} but not the full marks. Oh well, (child) decides to ask (teacher) later for some clarification and pointers."
   },
   "g2": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L826",
-   "text": "(child.He/She) gets full marks and an Astounding Student award. (Teacher) is impressed by (child)'s {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} and writes a note of praise on (child.his/her) work.",
-   "effects": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "do": "skill",
-     "role": "child",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L826"
+     "next": "g2__fx"
+    },
+    {
+     "next": "g2__text"
     }
    ]
   },
@@ -570,13 +564,14 @@
    ]
   },
   "praise": {
-   "popup": "append",
-   "join": "space",
-   "src": "L860",
-   "text": "praises (child) for {PRAISE}. (teacher.He/She) says, \"You raise an interesting point. Faith does not necessarily mean being forced into one single answer. It could mean the ability to question everything around us. One must use one's own brain and heart to come to an answer. Whether your answer is right or wrong is not always up to me. It is up to you to think about what you believe, and why.\"",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "praise__fx"
+    },
+    {
+     "next": "praise__text"
     }
    ]
   },
@@ -597,6 +592,78 @@
      "min": 10,
      "max": 20,
      "src": "L862"
+    }
+   ]
+  },
+  "g2__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L826",
+   "text": "(child.He/She) gets full marks and an Astounding Student award. (Teacher) is impressed by (child)'s {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} and writes a note of praise on (child.his/her) work.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L826"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L826"
+    }
+   ]
+  },
+  "g2__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L826",
+   "text": "(child.He/She) gets full marks and an Astounding Student award. (Teacher) is impressed by (child)'s {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} and writes a note of praise on (child.his/her) work.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L826"
+    }
+   ]
+  },
+  "praise__fx": {
+   "popup": "append",
+   "join": "space",
+   "src": "L860",
+   "text": "praises (child) for {PRAISE}. (teacher.He/She) says, \"You raise an interesting point. Faith does not necessarily mean being forced into one single answer. It could mean the ability to question everything around us. One must use one's own brain and heart to come to an answer. Whether your answer is right or wrong is not always up to me. It is up to you to think about what you believe, and why.\"",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L860"
+    }
+   ]
+  },
+  "praise__text": {
+   "popup": "append",
+   "join": "space",
+   "src": "L860",
+   "text": "praises (child) for {PRAISE}. (teacher.He/She) says, \"You raise an interesting point. Faith does not necessarily mean being forced into one single answer. It could mean the ability to question everything around us. One must use one's own brain and heart to come to an answer. Whether your answer is right or wrong is not always up to me. It is up to you to think about what you believe, and why.\"",
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   }

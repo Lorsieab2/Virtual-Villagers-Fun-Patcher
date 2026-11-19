@@ -82,6 +82,37 @@
    "src": "L314"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) leans over and says, \"What's so funny?\" (third) tells (subject.him/her) the story. It's very funny. (subject) laughs, and tells one of (subject.his/her) own, and soon all three of them are crying with laughter. The prickly feeling is gone, or nearly. (subject) decides that sometimes the best answer to feeling left out is just to come in.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L317"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L317"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) leans over and says, \"What's so funny?\" (third) tells (subject.him/her) the story. It's very funny. (subject) laughs, and tells one of (subject.his/her) own, and soon all three of them are crying with laughter. The prickly feeling is gone, or nearly. (subject) decides that sometimes the best answer to feeling left out is just to come in.",
    "src": "L317"

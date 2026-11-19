@@ -254,11 +254,14 @@
    ]
   },
   "p1": {
-   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
-   "src": "L3080-3081",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "ending"
+     "next": "p1__fx"
+    },
+    {
+     "next": "p1__text"
     }
    ]
   },
@@ -300,6 +303,38 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{END}"
+  },
+  "p1__fx": {
+   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+   "src": "L3080-3081",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3080-3081"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3080-3081"
+    }
+   ]
+  },
+  "p1__text": {
+   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+   "src": "L3080-3081",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
   }
  }
 }

@@ -75,6 +75,42 @@
    "src": "L86"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) teaches (friend) to weave a hat. It takes days. (friend)'s first attempt is lopsided and lets in sun through several holes. (subject) wears it for a whole afternoon anyway, out of solidarity, and gets a sunburned spot on the top of (subject.his/her) head. (subject.He/she) shows it to (friend) without a word. (friend)'s second hat is much better.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L89"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L89"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) teaches (friend) to weave a hat. It takes days. (friend)'s first attempt is lopsided and lets in sun through several holes. (subject) wears it for a whole afternoon anyway, out of solidarity, and gets a sunburned spot on the top of (subject.his/her) head. (subject.He/she) shows it to (friend) without a word. (friend)'s second hat is much better.",
    "src": "L89"

@@ -104,14 +104,39 @@
    "src": "L67"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two friends compare the patterns their lanterns cast on the ground. The crooked edges make (Name1) smile more than the perfect ones.",
-   "src": "L71"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two friends compare the patterns their lanterns cast on the ground. Someone suggests a different pattern, and the work becomes a lively conversation.",
    "src": "L75"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two friends compare the patterns their lanterns cast on the ground. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L71"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two friends compare the patterns their lanterns cast on the ground. The crooked edges make (Name1) smile more than the perfect ones.",
+   "src": "L71"
   }
  }
 }

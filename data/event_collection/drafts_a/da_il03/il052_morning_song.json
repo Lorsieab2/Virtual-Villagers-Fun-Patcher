@@ -108,11 +108,67 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) sings it again, a little louder this time. (child) hums along. By the third time, (child) knows all the words. (subject) isn't sure how (subject.he/she) feels about sharing it. Then (child) says, \"That's my favorite song now,\" and (subject) decides (subject.he/she) feels good about it.",
+   "src": "L140",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L140"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L140"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) sings it again, a little louder this time. (child) hums along. By the third time, (child) knows all the words. (subject) isn't sure how (subject.he/she) feels about sharing it. Then (child) says, \"That's my favorite song now,\" and (subject) decides (subject.he/she) feels good about it.",
    "src": "L140"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"That one's just for me,\" (subject) says gently. \"But I know lots of others.\" (subject.He/She) sings a silly song about a fish who wanted to be a bird. (child) giggles all the way home. The morning song stays quiet and private, the way it's always been.",
+   "src": "L143",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L143"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"That one's just for me,\" (subject) says gently. \"But I know lots of others.\" (subject.He/She) sings a silly song about a fish who wanted to be a bird. (child) giggles all the way home. The morning song stays quiet and private, the way it's always been.",
    "src": "L143"

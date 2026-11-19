@@ -74,6 +74,31 @@
    "src": "L434"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"It's yours,\" says (subject), and hands over the digging stick. \"Look after it.\" (friend) promises (friend.he/she) will. (subject) walks away without looking back, which takes some effort. A few days later (friend) brings (subject.him/her) the first ripe melon from the plot. (subject) eats it slowly, and says it's very nearly as good as the ones (subject.he/she) used to grow.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L437"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"It's yours,\" says (subject), and hands over the digging stick. \"Look after it.\" (friend) promises (friend.he/she) will. (subject) walks away without looking back, which takes some effort. A few days later (friend) brings (subject.him/her) the first ripe melon from the plot. (subject) eats it slowly, and says it's very nearly as good as the ones (subject.he/she) used to grow.",
    "src": "L437"

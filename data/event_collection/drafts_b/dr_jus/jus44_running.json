@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) calls (subject.him/her) over. \"Is hopping running?\" \"No,\" says (subject). \"It's hopping.\" (friend) considers this. \"It's fast, though. You can knock things over hopping.\" \"...I could walk.\" \"You could.\" (subject) walks past the racks, extremely slowly, in protest. It takes so long that (friend) starts laughing.",
-   "src": "L530"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) announces that the rule now covers hopping. The next day (subject) is skipping. The day after that, (subject.he/she) is walking backward very fast. The rule keeps getting longer. In the end the adults give up and change it to \"Go past the racks carefully,\" which is what they meant in the first place. (subject) counts this as a victory.",
    "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) calls (subject.him/her) over. \"Is hopping running?\" \"No,\" says (subject). \"It's hopping.\" (friend) considers this. \"It's fast, though. You can knock things over hopping.\" \"...I could walk.\" \"You could.\" (subject) walks past the racks, extremely slowly, in protest. It takes so long that (friend) starts laughing.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L530"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) calls (subject.him/her) over. \"Is hopping running?\" \"No,\" says (subject). \"It's hopping.\" (friend) considers this. \"It's fast, though. You can knock things over hopping.\" \"...I could walk.\" \"You could.\" (subject) walks past the racks, extremely slowly, in protest. It takes so long that (friend) starts laughing.",
+   "src": "L530"
   }
  }
 }

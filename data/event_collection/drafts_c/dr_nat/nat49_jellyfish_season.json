@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) takes (friend) along the beach with a long stick, keeping well back. They look at the stranded jellyfish shining in the sun like dropped glass, with tiny shrimp living inside some of them. (friend) forgets to be sad for a while. \"They're beautiful,\" (friend.he/she) says, \"and I hate them.\" That seems fair to (subject).",
-   "src": "L578"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) leads (friend) up the stream to the deep cold pool under the rocks. It's freezing. They shriek. Other children follow, then grown-ups. For a week the stream pool is the busiest place on the island. When the jellyfish finally drift away, half the children say they prefer the pool now. They don't, really, but they say it.",
    "src": "L581"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) along the beach with a long stick, keeping well back. They look at the stranded jellyfish shining in the sun like dropped glass, with tiny shrimp living inside some of them. (friend) forgets to be sad for a while. \"They're beautiful,\" (friend.he/she) says, \"and I hate them.\" That seems fair to (subject).",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L578"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) along the beach with a long stick, keeping well back. They look at the stranded jellyfish shining in the sun like dropped glass, with tiny shrimp living inside some of them. (friend) forgets to be sad for a while. \"They're beautiful,\" (friend.he/she) says, \"and I hate them.\" That seems fair to (subject).",
+   "src": "L578"
   }
  }
 }

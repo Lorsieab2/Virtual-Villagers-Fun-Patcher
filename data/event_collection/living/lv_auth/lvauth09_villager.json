@@ -97,14 +97,14 @@
    "src": "L23462"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The bank collapses and damages nearby gardens.",
-   "src": "L23463",
-   "text_only": [
+   "children": [
     {
-     "what": "collapses",
-     "reason": "the riverbank and the gardens: no structure of the games",
-     "src": "L23463"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -173,6 +173,39 @@
    "name": "Outcome D2",
    "text": "The drawing is unclear, and further checking is needed.",
    "src": "L23472"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The bank collapses and damages nearby gardens.",
+   "src": "L23463",
+   "text_only": [
+    {
+     "what": "collapses",
+     "reason": "the riverbank and the gardens: no structure of the games",
+     "src": "L23463"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L23463"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The bank collapses and damages nearby gardens.",
+   "src": "L23463",
+   "text_only": [
+    {
+     "what": "collapses",
+     "reason": "the riverbank and the gardens: no structure of the games",
+     "src": "L23463"
+    }
+   ]
   }
  },
  "words": {

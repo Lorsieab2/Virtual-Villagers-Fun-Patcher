@@ -122,9 +122,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(child), a bruised child, is comforted and examined.",
-   "src": "L30771"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -196,6 +203,25 @@
    "name": "Outcome D2",
    "text": "The group rejects punishing every child for one person's choice.",
    "src": "L30781"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(child), a bruised child, is comforted and examined.",
+   "src": "L30771",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": -15,
+     "max": -5,
+     "src": "L30771"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(child), a bruised child, is comforted and examined.",
+   "src": "L30771"
   }
  }
 }

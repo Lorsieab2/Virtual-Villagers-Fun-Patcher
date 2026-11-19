@@ -113,9 +113,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The children delight in hearing their voices return.",
-   "src": "L28806"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -135,9 +142,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The children learn how sound reflects.",
-   "src": "L28809"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -187,6 +201,46 @@
    "name": "Outcome D2",
    "text": "The group returns later with a quieter game.",
    "src": "L28816"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The children delight in hearing their voices return.",
+   "src": "L28806",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28806"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The children delight in hearing their voices return.",
+   "src": "L28806"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The children learn how sound reflects.",
+   "src": "L28809",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L28809"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The children learn how sound reflects.",
+   "src": "L28809"
   }
  }
 }

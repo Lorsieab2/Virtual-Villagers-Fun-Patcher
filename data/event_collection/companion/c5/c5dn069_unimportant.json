@@ -77,6 +77,57 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Give it to a child.",
+   "src": "L3305"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Spend an afternoon finding more clicking pebbles.",
+   "src": "L3306"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Record the observation for no reason at all.",
+   "src": "L3304",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3304"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3304"
+    }
+   ]
+  },
+  "e1__text": {
    "name": "Outcome 1",
    "popup": "append",
    "join": "paragraph",
@@ -94,20 +145,6 @@
      "src": "L3304"
     }
    ]
-  },
-  "e2": {
-   "name": "Outcome 2",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Give it to a child.",
-   "src": "L3305"
-  },
-  "e3": {
-   "name": "Outcome 3",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Spend an afternoon finding more clicking pebbles.",
-   "src": "L3306"
   }
  }
 }

@@ -104,14 +104,39 @@
    "src": "L271"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) tests a new combination of herbs in a stew. Someone asks for the recipe before the bowl is empty.",
-   "src": "L275"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) tests a new combination of herbs in a stew. The result is edible, though nobody agrees on what it resembles.",
    "src": "L279"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) tests a new combination of herbs in a stew. Someone asks for the recipe before the bowl is empty.",
+   "src": "L275",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L275"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) tests a new combination of herbs in a stew. Someone asks for the recipe before the bowl is empty.",
+   "src": "L275"
   }
  }
 }

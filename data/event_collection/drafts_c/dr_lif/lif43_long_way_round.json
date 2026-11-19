@@ -70,11 +70,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells the whole winding story, with all the wrong turns. (friend) listens, increasingly amazed. \"So none of it was planned?\" \"Not one bit.\" (friend) is quiet for a moment. \"That makes me feel better, actually.\" (subject) laughs. \"Good. You've got lots of wrong turns ahead of you. Some of them are the best part.\"",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L506"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) tells the whole winding story, with all the wrong turns. (friend) listens, increasingly amazed. \"So none of it was planned?\" \"Not one bit.\" (friend) is quiet for a moment. \"That makes me feel better, actually.\" (subject) laughs. \"Good. You've got lots of wrong turns ahead of you. Some of them are the best part.\"",
    "src": "L506"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Long story,\" says (subject). \"Lots of wrong turns. Ended up here.\" (friend) is disappointed. (friend.He/she) wanted the secret. \"There isn't one,\" says (subject). \"You just keep going, and sometimes you end up somewhere good.\" (friend) isn't satisfied. Years later, (friend.he/she) will tell someone exactly the same thing, and understand it.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L509"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Long story,\" says (subject). \"Lots of wrong turns. Ended up here.\" (friend) is disappointed. (friend.He/she) wanted the secret. \"There isn't one,\" says (subject). \"You just keep going, and sometimes you end up somewhere good.\" (friend) isn't satisfied. Years later, (friend.he/she) will tell someone exactly the same thing, and understand it.",
    "src": "L509"

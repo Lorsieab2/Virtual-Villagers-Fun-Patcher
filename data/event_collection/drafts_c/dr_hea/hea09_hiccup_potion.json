@@ -74,6 +74,31 @@
    "src": "L110"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) goes straight back. \"It works,\" (subject.he/she) says. Hic. \"But.\" Hic. (friend) writes it down carefully. \"Calm, but hiccups. That's new.\" (friend.He/she) stops the potion and tries changing the recipe. The second batch makes no hiccups, and also, as far as (subject) can tell, does nothing. They keep working on it. Medicine is mostly trying again.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L113"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) goes straight back. \"It works,\" (subject.he/she) says. Hic. \"But.\" Hic. (friend) writes it down carefully. \"Calm, but hiccups. That's new.\" (friend.He/she) stops the potion and tries changing the recipe. The second batch makes no hiccups, and also, as far as (subject) can tell, does nothing. They keep working on it. Medicine is mostly trying again.",
    "src": "L113"

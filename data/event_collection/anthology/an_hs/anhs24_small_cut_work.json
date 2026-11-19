@@ -171,9 +171,16 @@
    "src": "L29788"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The cut stings more than expected, and (worker) decides to rest.",
-   "src": "L29789"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -254,6 +261,25 @@
      "src": "L29798"
     }
    ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The cut stings more than expected, and (worker) decides to rest.",
+   "src": "L29789",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "worker",
+     "min": -15,
+     "max": -5,
+     "src": "L29789"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The cut stings more than expected, and (worker) decides to rest.",
+   "src": "L29789"
   }
  }
 }

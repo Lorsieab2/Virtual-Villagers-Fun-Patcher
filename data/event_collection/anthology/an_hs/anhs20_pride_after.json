@@ -153,9 +153,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They return later with a repaired object and a small smile.",
-   "src": "L29734"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -175,14 +182,57 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(craftsperson) laughs and invents a nickname for the mistake.",
-   "src": "L29737"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The joke lands badly, and the speaker apologizes promptly.",
    "src": "L29738"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They return later with a repaired object and a small smile.",
+   "src": "L29734",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "good",
+     "src": "L29734"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They return later with a repaired object and a small smile.",
+   "src": "L29734"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(craftsperson) laughs and invents a nickname for the mistake.",
+   "src": "L29737",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "good",
+     "src": "L29737"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(craftsperson) laughs and invents a nickname for the mistake.",
+   "src": "L29737"
   }
  }
 }

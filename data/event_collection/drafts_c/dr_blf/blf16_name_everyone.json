@@ -73,14 +73,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) walks over, smiling. \"It's (subject) now,\" (subject.he/she) says. The visitor blinks. \"Oh! Since when?\" \"A long time,\" says (subject). \"I like it better.\" The visitor nods slowly and uses the new name the rest of the visit, mostly. When (other.he/she) slips, a nearby villager says the right name, quietly, without fuss. (subject) is very grateful.",
-   "src": "L194"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "Before (subject) can say anything, (friend), standing nearby, says, \"You mean (subject)?\" The visitor looks confused. \"Is that what (subject.he/she) goes by now?\" \"It's (subject.his/her) name,\" says (friend) simply. The visitor uses it. (subject) didn't have to say a thing. Afterwards, (subject.he/she) thanks (friend), who just shrugs. \"It's your name.\"",
    "src": "L197"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) walks over, smiling. \"It's (subject) now,\" (subject.he/she) says. The visitor blinks. \"Oh! Since when?\" \"A long time,\" says (subject). \"I like it better.\" The visitor nods slowly and uses the new name the rest of the visit, mostly. When (other.he/she) slips, a nearby villager says the right name, quietly, without fuss. (subject) is very grateful.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) walks over, smiling. \"It's (subject) now,\" (subject.he/she) says. The visitor blinks. \"Oh! Since when?\" \"A long time,\" says (subject). \"I like it better.\" The visitor nods slowly and uses the new name the rest of the visit, mostly. When (other.he/she) slips, a nearby villager says the right name, quietly, without fuss. (subject) is very grateful.",
+   "src": "L194"
   }
  }
 }

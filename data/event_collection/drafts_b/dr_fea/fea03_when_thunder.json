@@ -75,6 +75,31 @@
    "src": "L38"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Will you count for me?\" asks (subject) from under the blanket. \"Between the flash and the boom. When the numbers get bigger, it's going away.\" (friend) takes the job extremely seriously. \"Four. Six. NINE.\" The storm moves off. (subject) comes out from the blanket. (subject.He/she) doesn't feel brave. (subject.He/she) feels grateful.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Will you count for me?\" asks (subject) from under the blanket. \"Between the flash and the boom. When the numbers get bigger, it's going away.\" (friend) takes the job extremely seriously. \"Four. Six. NINE.\" The storm moves off. (subject) comes out from the blanket. (subject.He/she) doesn't feel brave. (subject.He/she) feels grateful.",
    "src": "L41"

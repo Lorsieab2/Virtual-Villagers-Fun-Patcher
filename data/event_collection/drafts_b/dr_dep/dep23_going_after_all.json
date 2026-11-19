@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) walks back down the hill and puts everything back where it was. A few people look surprised. Most just say hello. (name1) feels foolish for about an hour, and then, unexpectedly, relieved. (He/she) wanted the dream of the lagoon more than the lagoon. That turns out to be allowed.",
-   "src": "L278"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) comes back but doesn't unpack. The bag sits by the door, ready. Some days (he/she) looks at it and thinks, tomorrow. Some days (he/she) forgets it's there. It's comforting to have it. (He/she) doesn't know yet whether (he/she) will ever pick it up, and for now that's fine.",
    "src": "L281"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) walks back down the hill and puts everything back where it was. A few people look surprised. Most just say hello. (name1) feels foolish for about an hour, and then, unexpectedly, relieved. (He/she) wanted the dream of the lagoon more than the lagoon. That turns out to be allowed.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) walks back down the hill and puts everything back where it was. A few people look surprised. Most just say hello. (name1) feels foolish for about an hour, and then, unexpectedly, relieved. (He/she) wanted the dream of the lagoon more than the lagoon. That turns out to be allowed.",
+   "src": "L278"
   }
  }
 }

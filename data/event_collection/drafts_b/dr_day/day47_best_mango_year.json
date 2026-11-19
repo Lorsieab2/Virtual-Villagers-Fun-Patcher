@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I just had the best mango of the year,\" says (subject). Word spreads. People come out to the orchard and start trying mangoes, looking for another one like it. Nobody finds one. A few people think (subject) is exaggerating. (subject) knows. (subject.He/she) will remember that mango for the rest of the year.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L566"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I just had the best mango of the year,\" says (subject). Word spreads. People come out to the orchard and start trying mangoes, looking for another one like it. Nobody finds one. A few people think (subject) is exaggerating. (subject) knows. (subject.He/she) will remember that mango for the rest of the year.",
    "src": "L566"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Nothing,\" says (subject), and smiles. (subject.He/she) doesn't tell anyone. All season, (subject.he/she) watches other villagers bite into mangoes, waiting to see if anyone gets that look on their face. Nobody does. It's (subject.his/her) mango. (subject.He/she) had it. That's the end of it, and that's enough.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L569"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Nothing,\" says (subject), and smiles. (subject.He/she) doesn't tell anyone. All season, (subject.he/she) watches other villagers bite into mangoes, waiting to see if anyone gets that look on their face. Nobody does. It's (subject.his/her) mango. (subject.He/she) had it. That's the end of it, and that's enough.",
    "src": "L569"

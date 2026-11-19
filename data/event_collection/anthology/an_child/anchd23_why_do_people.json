@@ -199,9 +199,16 @@
    "src": "L27911"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "(child) laughs at an awkward first meeting.",
-   "src": "L27912"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -224,6 +231,24 @@
    "name": "Outcome D2",
    "text": "(child) returns happily to games with friends.",
    "src": "L27915"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "(child) laughs at an awkward first meeting.",
+   "src": "L27912",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L27912"
+    }
+   ]
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "(child) laughs at an awkward first meeting.",
+   "src": "L27912"
   }
  }
 }

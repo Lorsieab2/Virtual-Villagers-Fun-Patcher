@@ -49,6 +49,44 @@
  "start": "scene",
  "nodes": {
   "scene": {
+   "type": "branch",
+   "name": "The Lesson Nobody Expected",
+   "children": [
+    {
+     "next": "scene__fx"
+    },
+    {
+     "next": "scene__text"
+    }
+   ]
+  },
+  "scene__fx": {
+   "name": "The Lesson Nobody Expected",
+   "src": "L7681-7684",
+   "text": "An apprentice fails the same task again and again. The Golden Child breaks it into tiny steps, watches patiently, and cheers when the apprentice succeeds. The apprentice insists the boy did not do the work for (apprentice.him/her): he made it possible to learn.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building",
+      "Farming",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7684"
+    },
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L7681-7684"
+    }
+   ]
+  },
+  "scene__text": {
    "name": "The Lesson Nobody Expected",
    "src": "L7681-7684",
    "text": "An apprentice fails the same task again and again. The Golden Child breaks it into tiny steps, watches patiently, and cheers when the apprentice succeeds. The apprentice insists the boy did not do the work for (apprentice.him/her): he made it possible to learn.",

@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) stands up at the fire and says, very calmly, \"I suggested that twenty years ago.\" There's a silence. A few elders look sheepish. One says, \"Did you?\" Another says, \"...Oh. You did.\" (friend) bursts out laughing. (subject) sits down, enormously satisfied. The landing is moved. A small carving appears on the new post: \"(subject) said so first.\"",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L338"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) stands up at the fire and says, very calmly, \"I suggested that twenty years ago.\" There's a silence. A few elders look sheepish. One says, \"Did you?\" Another says, \"...Oh. You did.\" (friend) bursts out laughing. (subject) sits down, enormously satisfied. The landing is moved. A small carving appears on the new post: \"(subject) said so first.\"",
    "src": "L338"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. (subject.He/she) just smiles, very slightly, all through the meeting. Afterward (friend) asks why (subject.he/she) looks so pleased. \"No reason,\" says (subject). (subject.He/she) walks home in the moonlight, grinning like a child. Being right twenty years too late, all by (subject.him/her)self, turns out to be one of the best feelings (subject.he/she) has ever had.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says nothing. (subject.He/she) just smiles, very slightly, all through the meeting. Afterward (friend) asks why (subject.he/she) looks so pleased. \"No reason,\" says (subject). (subject.He/she) walks home in the moonlight, grinning like a child. Being right twenty years too late, all by (subject.him/her)self, turns out to be one of the best feelings (subject.he/she) has ever had.",
    "src": "L341"

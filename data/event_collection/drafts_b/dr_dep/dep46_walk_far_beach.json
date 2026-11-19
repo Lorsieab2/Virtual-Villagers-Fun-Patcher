@@ -74,9 +74,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They set off at dawn and walk at (subject)'s pace, which means many rests and a great deal of looking at things. It takes them two days. When they finally reach the far beach, (subject) sits on the sand with (subject.his/her) feet in the water for a whole afternoon, saying almost nothing. On the way home, (subject.he/she) says it was exactly the same, and completely different.",
-   "src": "L554"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
@@ -96,6 +103,24 @@
      "src": "L557"
     }
    ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They set off at dawn and walk at (subject)'s pace, which means many rests and a great deal of looking at things. It takes them two days. When they finally reach the far beach, (subject) sits on the sand with (subject.his/her) feet in the water for a whole afternoon, saying almost nothing. On the way home, (subject.he/she) says it was exactly the same, and completely different.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L554"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They set off at dawn and walk at (subject)'s pace, which means many rests and a great deal of looking at things. It takes them two days. When they finally reach the far beach, (subject) sits on the sand with (subject.his/her) feet in the water for a whole afternoon, saying almost nothing. On the way home, (subject.he/she) says it was exactly the same, and completely different.",
+   "src": "L554"
   }
  }
 }

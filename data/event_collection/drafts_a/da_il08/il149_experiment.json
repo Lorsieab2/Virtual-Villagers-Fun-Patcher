@@ -109,6 +109,31 @@
    ]
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) opens every opening in the laboratory and fans the air very hard with a big leaf. The smell drifts off over the sea, where several seabirds change direction to avoid it. By evening it's mostly gone. Nobody ever finds out where it came from. (subject) writes it all down anyway, with a note: DO NOT HEAT THIS AGAIN INDOORS.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L113"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) opens every opening in the laboratory and fans the air very hard with a big leaf. The smell drifts off over the sea, where several seabirds change direction to avoid it. By evening it's mostly gone. Nobody ever finds out where it came from. (subject) writes it all down anyway, with a note: DO NOT HEAT THIS AGAIN INDOORS.",
    "src": "L113"

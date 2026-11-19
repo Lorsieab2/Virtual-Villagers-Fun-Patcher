@@ -191,9 +191,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(loner) smiles and returns to reading.",
-   "src": "L28208"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -243,6 +250,24 @@
    "name": "Outcome D2",
    "text": "(child) invites a friend to play later instead.",
    "src": "L28215"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(loner) smiles and returns to reading.",
+   "src": "L28208",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "loner",
+     "mood": "good",
+     "src": "L28208"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(loner) smiles and returns to reading.",
+   "src": "L28208"
   }
  }
 }

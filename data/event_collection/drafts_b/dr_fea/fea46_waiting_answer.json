@@ -88,11 +88,62 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Tell me something completely unimportant,\" says (subject). (friend) tells (subject.him/her) a long story about a lizard that has been stealing (friend.his/her) fruit. It goes on for ages. (subject) laughs, in spite of everything. The worry doesn't go anywhere. But for a while it sits a little further away.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L554"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Tell me something completely unimportant,\" says (subject). (friend) tells (subject.him/her) a long story about a lizard that has been stealing (friend.his/her) fruit. It goes on for ages. (subject) laughs, in spite of everything. The worry doesn't go anywhere. But for a while it sits a little further away.",
    "src": "L554"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says what (subject.he/she) is afraid of. (friend) listens and doesn't say it'll be fine, because neither of them knows. \"Whatever it is,\" (friend.he/she) says, \"you won't be on your own with it.\" A few days later, the pain fades. (healer) doesn't know why. (subject) doesn't either. (subject.He/she) remembers what (friend) said.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L557"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says what (subject.he/she) is afraid of. (friend) listens and doesn't say it'll be fine, because neither of them knows. \"Whatever it is,\" (friend.he/she) says, \"you won't be on your own with it.\" A few days later, the pain fades. (healer) doesn't know why. (subject) doesn't either. (subject.He/she) remembers what (friend) said.",
    "src": "L557"

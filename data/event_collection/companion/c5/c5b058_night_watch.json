@@ -63,11 +63,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They feel peaceful.",
-   "src": "L1645"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -75,6 +80,28 @@
    "join": "paragraph",
    "text": "They wonder who else is looking at it.",
    "src": "L1646"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They feel peaceful.",
+   "src": "L1645",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1645"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They feel peaceful.",
+   "src": "L1645"
   }
  }
 }

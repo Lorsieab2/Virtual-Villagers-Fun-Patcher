@@ -94,9 +94,16 @@
    "src": "L276,L277"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(name1) shares a little wild honey, spread on a broad leaf. It is the sweetest thing anyone has tasted all season.",
-   "src": "L276,L278"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -107,6 +114,24 @@
    "name": "Ending 4",
    "text": "(name1) shares a little wild honey, spread on a broad leaf. (name1) saves a little for an elder who loves sweets.",
    "src": "L276,L280"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. It is the sweetest thing anyone has tasted all season.",
+   "src": "L276,L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L276,L278"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. It is the sweetest thing anyone has tasted all season.",
+   "src": "L276,L278"
   }
  }
 }

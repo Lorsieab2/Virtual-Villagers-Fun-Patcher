@@ -109,14 +109,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The family finds comfort in the gesture.",
-   "src": "L29046"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(relative) finds the empty place too painful this year.",
-   "src": "L29047"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -131,9 +145,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The memory brings gentle laughter.",
-   "src": "L29049"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -183,6 +204,60 @@
    "name": "Outcome D2",
    "text": "The family decides to revisit the question next year.",
    "src": "L29056"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the gesture.",
+   "src": "L29046",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L29046"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the gesture.",
+   "src": "L29046"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(relative) finds the empty place too painful this year.",
+   "src": "L29047",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "bad",
+     "src": "L29047"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(relative) finds the empty place too painful this year.",
+   "src": "L29047"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The memory brings gentle laughter.",
+   "src": "L29049",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L29049"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The memory brings gentle laughter.",
+   "src": "L29049"
   }
  }
 }

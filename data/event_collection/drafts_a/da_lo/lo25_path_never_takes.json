@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) walks down the forbidden path, slowly, looking around at everything. It's a perfectly ordinary path. There's a nice view of the sea. (subject.He/She) gets to the end and nothing happens at all. On the way back, (subject.he/she) suddenly remembers: a crab pinched (subject.him/her) there, when (subject.he/she) was about four. (subject.He/She) laughs all the way home.",
-   "src": "L303"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"I don't know why,\" says (subject). \"I just don't.\" (friend) shrugs. That's fine. Everyone's allowed one path they don't take. (subject) goes the long way round, as always. It occurs to (subject.him/her) that it doesn't really matter why. It's just how (subject.he/she) goes.",
    "src": "L306"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) walks down the forbidden path, slowly, looking around at everything. It's a perfectly ordinary path. There's a nice view of the sea. (subject.He/She) gets to the end and nothing happens at all. On the way back, (subject.he/she) suddenly remembers: a crab pinched (subject.him/her) there, when (subject.he/she) was about four. (subject.He/She) laughs all the way home.",
+   "src": "L303",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L303"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) walks down the forbidden path, slowly, looking around at everything. It's a perfectly ordinary path. There's a nice view of the sea. (subject.He/She) gets to the end and nothing happens at all. On the way back, (subject.he/she) suddenly remembers: a crab pinched (subject.him/her) there, when (subject.he/she) was about four. (subject.He/She) laughs all the way home.",
+   "src": "L303"
   }
  }
 }

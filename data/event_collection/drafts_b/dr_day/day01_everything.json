@@ -69,11 +69,68 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Taste this,\" says (subject). (friend) tastes it. \"It's a root.\" \"I know,\" says (subject). \"Isn't it wonderful?\" (friend) tastes it again, more carefully. \"It's a perfectly normal root.\" (subject) is not discouraged in the least. (subject.He/she) eats the rest with enormous pleasure, while (friend) watches, baffled.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Taste this,\" says (subject). (friend) tastes it. \"It's a root.\" \"I know,\" says (subject). \"Isn't it wonderful?\" (friend) tastes it again, more carefully. \"It's a perfectly normal root.\" (subject) is not discouraged in the least. (subject.He/she) eats the rest with enormous pleasure, while (friend) watches, baffled.",
    "src": "L14"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing and eats the root slowly, savoring every bite. It's a plain root. It's also, today, a feast. (subject.He/she) doesn't know why today is like this. (subject.He/she) doesn't care. By dinner, the fish is so good (subject.he/she) has to close (subject.his/her) eyes. Tomorrow, probably, food will just be food again.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L17"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L17"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says nothing and eats the root slowly, savoring every bite. It's a plain root. It's also, today, a feast. (subject.He/she) doesn't know why today is like this. (subject.He/she) doesn't care. By dinner, the fish is so good (subject.he/she) has to close (subject.his/her) eyes. Tomorrow, probably, food will just be food again.",
    "src": "L17",

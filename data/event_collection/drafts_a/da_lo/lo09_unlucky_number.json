@@ -70,6 +70,38 @@
    "src": "L111"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) takes a deep breath and picks up all seven. (subject.He/She) walks very carefully. Nothing happens. Nothing at all. (subject.He/She) gets them to the storehouse safely, puts them down, and then trips over the doorstep and lands on (subject.his/her) bottom. (friend) laughs. (subject) does not. \"Seven,\" (subject.he/she) says darkly. (friend) says it was the doorstep.",
+   "src": "L114",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L114"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L114"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) takes a deep breath and picks up all seven. (subject.He/She) walks very carefully. Nothing happens. Nothing at all. (subject.He/She) gets them to the storehouse safely, puts them down, and then trips over the doorstep and lands on (subject.his/her) bottom. (friend) laughs. (subject) does not. \"Seven,\" (subject.he/she) says darkly. (friend) says it was the doorstep.",
    "src": "L114"

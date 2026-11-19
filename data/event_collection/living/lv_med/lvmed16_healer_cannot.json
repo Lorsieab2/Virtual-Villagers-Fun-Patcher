@@ -145,14 +145,45 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The friend and healer reconcile before the illness worsens.",
-   "src": "L20423"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The healer struggles with guilt but accepts the patient's wishes.",
    "src": "L20424"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The friend and healer reconcile before the illness worsens.",
+   "src": "L20423",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "healer",
+     "mood": "good",
+     "src": "L20423"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L20423"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The friend and healer reconcile before the illness worsens.",
+   "src": "L20423"
   }
  }
 }

@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. The notes are messy, but the discovery feels exciting.",
-   "src": "L399"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -140,6 +147,24 @@
    "name": "Ending 4",
    "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. (Name1) feels impatient but waits for the experiment to finish.",
    "src": "L411"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. The notes are messy, but the discovery feels exciting.",
+   "src": "L399",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L399"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. The notes are messy, but the discovery feels exciting.",
+   "src": "L399"
   }
  }
 }

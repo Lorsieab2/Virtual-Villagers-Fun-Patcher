@@ -139,9 +139,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The villager learns something useful but misses the chance to make friends.",
-   "src": "L21764"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -169,6 +176,24 @@
    "name": "Outcome C2",
    "text": "Some neighbors are nervous about welcoming a visitor.",
    "src": "L21768"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager learns something useful but misses the chance to make friends.",
+   "src": "L21764",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21764"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager learns something useful but misses the chance to make friends.",
+   "src": "L21764"
   }
  },
  "title_variants": [

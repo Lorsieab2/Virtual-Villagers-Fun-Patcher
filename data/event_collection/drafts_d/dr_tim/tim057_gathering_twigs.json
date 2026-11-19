@@ -109,6 +109,31 @@
    "src": "L963"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two siblings divide the work of collecting fallen twigs. They finish laughing about a mistake from earlier in the day.",
+   "src": "L967",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L967"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Two siblings divide the work of collecting fallen twigs. They finish laughing about a mistake from earlier in the day.",
    "src": "L967"

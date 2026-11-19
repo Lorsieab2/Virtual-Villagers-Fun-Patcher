@@ -69,11 +69,74 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes. The knee is fine all day, mostly. By evening it's a little sore. (subject.He/she) puts it up and says nothing to (friend). Over the next week it heals anyway, maybe slower than it might have, maybe not. There's no way to know. (subject) decides it was worth it for the fish. (friend), finding out, decides not to argue.",
+   "src": "L272",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L272"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L272"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) goes. The knee is fine all day, mostly. By evening it's a little sore. (subject.He/she) puts it up and says nothing to (friend). Over the next week it heals anyway, maybe slower than it might have, maybe not. There's no way to know. (subject) decides it was worth it for the fish. (friend), finding out, decides not to argue.",
    "src": "L272"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stays in, grumbling. The crew comes home with a huge catch and tells (subject.him/her) all about it. (subject) is miserable. The knee is completely better by day seven, and (subject.he/she) goes out on day eight. The fish are gone. (subject.He/she) catches nothing. \"I followed the advice,\" (subject.he/she) tells (friend), \"and I caught nothing.\" \"The advice was for your knee,\" says (friend), \"not for the fish.\"",
+   "src": "L275",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L275"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L275"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) stays in, grumbling. The crew comes home with a huge catch and tells (subject.him/her) all about it. (subject) is miserable. The knee is completely better by day seven, and (subject.he/she) goes out on day eight. The fish are gone. (subject.He/she) catches nothing. \"I followed the advice,\" (subject.he/she) tells (friend), \"and I caught nothing.\" \"The advice was for your knee,\" says (friend), \"not for the fish.\"",
    "src": "L275"

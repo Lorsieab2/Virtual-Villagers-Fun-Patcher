@@ -73,14 +73,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) eats a sour red berry. It is exactly as sour as the children say. (subject.His/Her) whole face folds up. (child), a watching child, laughs so hard (child.he/she) falls over. (subject) laughs too, eyes streaming. \"Well,\" (subject.he/she) says, when (subject.he/she) can speak, \"I'm glad I didn't do THAT one sooner.\" (subject.He/She) crosses it off. The rock can wait for tomorrow.",
-   "src": "L50"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) thinks about it all afternoon. Some of the things (subject.he/she) never did, (subject.he/she) would still like to do. Some, (subject.he/she) realizes, (subject.he/she) never actually wanted to: (subject.he/she) just thought (subject.he/she) should. (subject.He/She) doesn't feel like (subject.he/she) has missed out, exactly. (subject.He/She) feels like (subject.he/she) has lived a different list. That night, though, (subject.he/she) does take a blanket outside, just to see.",
    "src": "L53"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) eats a sour red berry. It is exactly as sour as the children say. (subject.His/Her) whole face folds up. (child), a watching child, laughs so hard (child.he/she) falls over. (subject) laughs too, eyes streaming. \"Well,\" (subject.he/she) says, when (subject.he/she) can speak, \"I'm glad I didn't do THAT one sooner.\" (subject.He/She) crosses it off. The rock can wait for tomorrow.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L50"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L50"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) eats a sour red berry. It is exactly as sour as the children say. (subject.His/Her) whole face folds up. (child), a watching child, laughs so hard (child.he/she) falls over. (subject) laughs too, eyes streaming. \"Well,\" (subject.he/she) says, when (subject.he/she) can speak, \"I'm glad I didn't do THAT one sooner.\" (subject.He/She) crosses it off. The rock can wait for tomorrow.",
+   "src": "L50"
   }
  }
 }

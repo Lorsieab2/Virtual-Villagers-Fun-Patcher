@@ -94,14 +94,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tries ignoring them for a day. It's agony. (teen), the other teen, as far as (subject) can tell, doesn't notice a thing. At the end of the day, (subject) gives up and says hello. They talk about fishing for an hour. It's nice. (subject) goes home and tells (friend) that (friend.his/her) advice was rubbish. (friend) shrugs. \"Worked for me once.\"",
-   "src": "L152"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) decides that if (friend) says ignore, the answer is probably to say hello. So (subject.he/she) does. (teen), the other teen, smiles and says hello back. That's all, but it's enough for one day. (subject) doesn't tell (friend) anything. (friend) finds out anyway, the way older siblings always do, and is insufferable about it for a week, as though it was (friend.his/her) plan all along.",
    "src": "L155"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tries ignoring them for a day. It's agony. (teen), the other teen, as far as (subject) can tell, doesn't notice a thing. At the end of the day, (subject) gives up and says hello. They talk about fishing for an hour. It's nice. (subject) goes home and tells (friend) that (friend.his/her) advice was rubbish. (friend) shrugs. \"Worked for me once.\"",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L152"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tries ignoring them for a day. It's agony. (teen), the other teen, as far as (subject) can tell, doesn't notice a thing. At the end of the day, (subject) gives up and says hello. They talk about fishing for an hour. It's nice. (subject) goes home and tells (friend) that (friend.his/her) advice was rubbish. (friend) shrugs. \"Worked for me once.\"",
+   "src": "L152"
   }
  }
 }

@@ -297,11 +297,14 @@
    ]
   },
   "u1": {
-   "src": "L2608",
-   "text": "The teams cheer for each other's successes.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "u1__fx"
+    },
+    {
+     "next": "u1__text"
     }
    ]
   },
@@ -435,6 +438,32 @@
      "min": 5,
      "max": 10,
      "src": "L2643"
+    }
+   ]
+  },
+  "u1__fx": {
+   "src": "L2608",
+   "text": "The teams cheer for each other's successes.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "player",
+     "mood": "good",
+     "src": "L2608"
+    }
+   ]
+  },
+  "u1__text": {
+   "src": "L2608",
+   "text": "The teams cheer for each other's successes.",
+   "children": [
+    {
+     "next": "end"
     }
    ]
   }

@@ -82,14 +82,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) says it out loud for the first time. (friend) doesn't laugh or ask \"but who with?\" (friend.He/she) just says, \"You'd be good at it.\" (subject) isn't sure about that. But it's nice to have said it, and to have it be a real thing now, and not just a thought (subject.he/she) carries around by (subject.him/her)self.",
-   "src": "L242"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) doesn't say anything. They watch the children in comfortable silence. (child), one of them, runs over to show (subject) a shell, and (subject.he/she) admires it properly. It's (subject.his/her) dream. It doesn't have to be anyone else's business yet, or ever. There's plenty of time, and also, (subject) thinks, there is no hurry at all.",
    "src": "L245"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) says it out loud for the first time. (friend) doesn't laugh or ask \"but who with?\" (friend.He/she) just says, \"You'd be good at it.\" (subject) isn't sure about that. But it's nice to have said it, and to have it be a real thing now, and not just a thought (subject.he/she) carries around by (subject.him/her)self.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L242"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) says it out loud for the first time. (friend) doesn't laugh or ask \"but who with?\" (friend.He/she) just says, \"You'd be good at it.\" (subject) isn't sure about that. But it's nice to have said it, and to have it be a real thing now, and not just a thought (subject.he/she) carries around by (subject.him/her)self.",
+   "src": "L242"
   }
  }
 }

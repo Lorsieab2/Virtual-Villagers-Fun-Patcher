@@ -58,11 +58,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Rest and spend time with someone trusted.",
-   "src": "L3583"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",
@@ -70,6 +75,29 @@
    "join": "paragraph",
    "text": "Complete one manageable task and leave the rest.",
    "src": "L3584"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Rest and spend time with someone trusted.",
+   "src": "L3583",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 5,
+     "max": 15,
+     "src": "L3583"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Rest and spend time with someone trusted.",
+   "src": "L3583"
   }
  }
 }

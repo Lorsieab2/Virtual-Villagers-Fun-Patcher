@@ -69,11 +69,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"The sea,\" says (friend). They go. Half the village is already there, sitting in the shallows with only their heads out of the water, like a row of coconuts. (subject) and (friend) join them. Nobody talks. Nobody moves. It is the most pleasant thing in the world.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L326"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L326"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"The sea,\" says (friend). They go. Half the village is already there, sitting in the shallows with only their heads out of the water, like a row of coconuts. (subject) and (friend) join them. Nobody talks. Nobody moves. It is the most pleasant thing in the world.",
    "src": "L326"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) suggests lying in the shade and not moving at all. They lie side by side under a big tree. They don't speak. Occasionally one of them sighs. In the late afternoon a breeze finally comes in off the sea, and they both make a noise of such pure relief that a nearby dog lifts its head.",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L329"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L329"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) suggests lying in the shade and not moving at all. They lie side by side under a big tree. They don't speak. Occasionally one of them sighs. In the late afternoon a breeze finally comes in off the sea, and they both make a noise of such pure relief that a nearby dog lifts its head.",
    "src": "L329"

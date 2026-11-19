@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) carries the extra fruit and the comb back to (friend), who is surprised. \"Oh! My comb! Thank you, I've been looking everywhere for it. But the fruit's yours. I had far too much; I was glad to be rid of it.\" (subject) walks home with all the fruit again, feeling slightly foolish and quite pleased.",
-   "src": "L350"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) returns the comb and keeps the fruit, which might have been meant as a gift. (friend) thanks (subject.him/her) for the comb and says nothing about the fruit. (subject) never finds out whether the extra was kindness or a mistake. Next time they trade, (subject.he/she) slips an extra fish into the basket, just in case.",
    "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) carries the extra fruit and the comb back to (friend), who is surprised. \"Oh! My comb! Thank you, I've been looking everywhere for it. But the fruit's yours. I had far too much; I was glad to be rid of it.\" (subject) walks home with all the fruit again, feeling slightly foolish and quite pleased.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) carries the extra fruit and the comb back to (friend), who is surprised. \"Oh! My comb! Thank you, I've been looking everywhere for it. But the fruit's yours. I had far too much; I was glad to be rid of it.\" (subject) walks home with all the fruit again, feeling slightly foolish and quite pleased.",
+   "src": "L350"
   }
  }
 }

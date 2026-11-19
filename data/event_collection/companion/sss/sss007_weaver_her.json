@@ -85,14 +85,45 @@
    "src": "L6136"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "They enjoy the festival privately and decide for themselves whom to tell.",
-   "src": "L6138"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "The elder asks awkward questions but listens and offers a sincere blessing.",
    "src": "L6140"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They enjoy the festival privately and decide for themselves whom to tell.",
+   "src": "L6138",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "weaver",
+     "mood": "good",
+     "src": "L6138"
+    },
+    {
+     "do": "mood",
+     "role": "sweetheart",
+     "mood": "good",
+     "src": "L6138"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They enjoy the festival privately and decide for themselves whom to tell.",
+   "src": "L6138"
   }
  }
 }

@@ -128,19 +128,69 @@
    "src": "L887"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1), a young villager, volunteers to carry light supplies home. (Name1) feels useful and hopes someone noticed.",
-   "src": "L891"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1), a young villager, volunteers to carry light supplies home. A little shared laughter makes the chore less tedious.",
-   "src": "L895"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1), a young villager, volunteers to carry light supplies home. The parent is pleasantly surprised by the offer.",
    "src": "L899"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. (Name1) feels useful and hopes someone noticed.",
+   "src": "L891",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L891"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. (Name1) feels useful and hopes someone noticed.",
+   "src": "L891"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. A little shared laughter makes the chore less tedious.",
+   "src": "L895",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L895"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. A little shared laughter makes the chore less tedious.",
+   "src": "L895"
   }
  }
 }

@@ -1055,8 +1055,16 @@
    ]
   },
   "b1": {
-   "text": "Both recover against expectation.",
-   "src": "L8978"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "text": "The (parent.mother/father) survives but loses the baby.",
@@ -1575,8 +1583,16 @@
    ]
   },
   "c27": {
-   "text": "(parent.He/She) refuses the procedure, and (parent.his/her) condition unexpectedly improves; the baby is eventually born healthy.",
-   "src": "L9020"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c27__fx"
+    },
+    {
+     "next": "c27__text"
+    }
+   ]
   },
   "c28": {
    "text": "(parent.He/She) agrees to end the pregnancy, but severe bleeding follows; despite the healers' efforts, (parent.he/she) dies.",
@@ -1906,6 +1922,40 @@
      "weight": 20
     }
    ]
+  },
+  "b1__fx": {
+   "text": "Both recover against expectation.",
+   "src": "L8978",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": 5,
+     "max": 15,
+     "src": "L8978"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "Both recover against expectation.",
+   "src": "L8978"
+  },
+  "c27__fx": {
+   "text": "(parent.He/She) refuses the procedure, and (parent.his/her) condition unexpectedly improves; the baby is eventually born healthy.",
+   "src": "L9020",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": 5,
+     "max": 15,
+     "src": "L9020"
+    }
+   ]
+  },
+  "c27__text": {
+   "text": "(parent.He/She) refuses the procedure, and (parent.his/her) condition unexpectedly improves; the baby is eventually born healthy.",
+   "src": "L9020"
   }
  }
 }

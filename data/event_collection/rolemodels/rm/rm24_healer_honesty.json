@@ -136,9 +136,16 @@
    "src": "L51"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "The healer discovers that the plant was previously confused with another species.",
-   "src": "L51"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -160,6 +167,24 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The symptoms persist, and the healer continues monitoring the villager carefully.",
+   "src": "L51"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The healer discovers that the plant was previously confused with another species.",
+   "src": "L51",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L51"
+    }
+   ]
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The healer discovers that the plant was previously confused with another species.",
    "src": "L51"
   }
  }

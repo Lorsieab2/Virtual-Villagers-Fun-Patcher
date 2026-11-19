@@ -69,14 +69,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) lies down. (friend.He/she) sways. (friend.He/she) closes (friend.his/her) eyes to concentrate on the comfort. (friend.He/she) wakes up two hours later with no idea where (friend.he/she) is. (subject) is sitting nearby, looking very satisfied. \"I'll take that,\" (subject.he/she) says, \"as a yes.\"",
-   "src": "L86"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"It's lovely,\" says (friend), \"except for a knot right here.\" (subject) groans. There's always a knot. (subject.He/she) unpicks the whole end and starts again. Version six will be perfect. (subject.He/she) said that about version five. (subject.He/she) is enjoying every minute of it.",
    "src": "L89"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) lies down. (friend.He/she) sways. (friend.He/she) closes (friend.his/her) eyes to concentrate on the comfort. (friend.He/she) wakes up two hours later with no idea where (friend.he/she) is. (subject) is sitting nearby, looking very satisfied. \"I'll take that,\" (subject.he/she) says, \"as a yes.\"",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L86"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L86"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) lies down. (friend.He/she) sways. (friend.He/she) closes (friend.his/her) eyes to concentrate on the comfort. (friend.He/she) wakes up two hours later with no idea where (friend.he/she) is. (subject) is sitting nearby, looking very satisfied. \"I'll take that,\" (subject.he/she) says, \"as a yes.\"",
+   "src": "L86"
   }
  }
 }

@@ -76,6 +76,31 @@
    "src": "L217"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) leaves a small drawing beside the mat showing the Midnight Scratcher where it is allowed to sleep. The noises continue that night, but (subject) finds them less frightening. The following morning the drawing has been moved slightly. Probably by the breeze.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L221"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) leaves a small drawing beside the mat showing the Midnight Scratcher where it is allowed to sleep. The noises continue that night, but (subject) finds them less frightening. The following morning the drawing has been moved slightly. Probably by the breeze.",
    "src": "L221"

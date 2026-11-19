@@ -78,6 +78,31 @@
    "src": "L6590"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "Prayer comforts one villager; another laughs at the idea of a living island. Neither is punished for believing differently.",
+   "src": "L6592",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L6592"
+    }
+   ]
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "Prayer comforts one villager; another laughs at the idea of a living island. Neither is punished for believing differently.",
    "src": "L6592"

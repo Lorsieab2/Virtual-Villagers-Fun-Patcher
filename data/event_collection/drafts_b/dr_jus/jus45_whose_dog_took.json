@@ -112,6 +112,31 @@
    "src": "L542"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is mortified. (subject.He/she) and (friend) carry the sandals round the village together, door to door, explaining. Most people laugh. One villager, (neighbor), is cross, because it was a brand-new pair, and (subject) makes (neighbor) a new strap. The dog follows them the whole way, carrying one last sandal that it absolutely refuses to give up.",
+   "src": "L545",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L545"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is mortified. (subject.He/she) and (friend) carry the sandals round the village together, door to door, explaining. Most people laugh. One villager, (neighbor), is cross, because it was a brand-new pair, and (subject) makes (neighbor) a new strap. The dog follows them the whole way, carrying one last sandal that it absolutely refuses to give up.",
    "src": "L545"

@@ -91,12 +91,28 @@
    ]
   },
   "a2": {
-   "src": "L7990",
-   "text": "The cooks produce an astonishingly strange dish that tastes unexpectedly wonderful."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "a3": {
-   "src": "L7991",
-   "text": "The two head cooks quarrel, then discover their children have already eaten everything."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a3__fx"
+    },
+    {
+     "next": "a3__text"
+    }
+   ]
   },
   "b1": {
    "src": "L7993",
@@ -146,6 +162,39 @@
      "next": "b3"
     }
    ]
+  },
+  "a2__fx": {
+   "src": "L7990",
+   "text": "The cooks produce an astonishingly strange dish that tastes unexpectedly wonderful.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7990"
+    }
+   ]
+  },
+  "a2__text": {
+   "src": "L7990",
+   "text": "The cooks produce an astonishingly strange dish that tastes unexpectedly wonderful."
+  },
+  "a3__fx": {
+   "src": "L7991",
+   "text": "The two head cooks quarrel, then discover their children have already eaten everything.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L7991"
+    }
+   ]
+  },
+  "a3__text": {
+   "src": "L7991",
+   "text": "The two head cooks quarrel, then discover their children have already eaten everything."
   }
  }
 }

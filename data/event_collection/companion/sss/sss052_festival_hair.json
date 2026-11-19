@@ -95,6 +95,37 @@
    "src": "L6604"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "A new look sticks, and the teen discovers an unexpected talent for hairdressing.",
+   "src": "L6606",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random",
+     "src": "L6606"
+    },
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L6606"
+    }
+   ]
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "A new look sticks, and the teen discovers an unexpected talent for hairdressing.",
    "src": "L6606",

@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) counts for hours. The marks get very complicated. Someone owes (him/her) a fish, but (he/she) owes them a pot, but they borrowed (his/her) knife, but (he/she) ate their mango. At last (name1) sits back and looks at the stick, covered in marks. (He/she) laughs. Everyone owes everyone. It's not a debt. It's a village.",
-   "src": "L494"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "After about ten marks (name1) gives up, throws the stick in the fire, and goes to help a neighbor carry water. (He/she) doesn't mark it down. It feels much better not to. (He/she) has a feeling the village has been running this way for a very long time without anyone keeping count, and doing just fine.",
    "src": "L497"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) counts for hours. The marks get very complicated. Someone owes (him/her) a fish, but (he/she) owes them a pot, but they borrowed (his/her) knife, but (he/she) ate their mango. At last (name1) sits back and looks at the stick, covered in marks. (He/she) laughs. Everyone owes everyone. It's not a debt. It's a village.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) counts for hours. The marks get very complicated. Someone owes (him/her) a fish, but (he/she) owes them a pot, but they borrowed (his/her) knife, but (he/she) ate their mango. At last (name1) sits back and looks at the stick, covered in marks. (He/she) laughs. Everyone owes everyone. It's not a debt. It's a village.",
+   "src": "L494"
   }
  }
 }

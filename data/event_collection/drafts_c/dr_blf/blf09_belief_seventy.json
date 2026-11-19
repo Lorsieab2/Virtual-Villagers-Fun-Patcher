@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"You?\" says (friend), astonished. \"You never believed in anything.\" \"I know,\" says (subject). \"I don't know if I believe now. I just like sitting here. It feels like... something.\" (friend) sits down beside (subject.him/her). \"Well,\" (friend.he/she) says. \"You're never too old to change your mind.\" (subject) laughs. \"I'm finding that out.\"",
-   "src": "L110"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) doesn't say anything. (friend.He/she) just sits down beside (subject) on the stone and watches the sun go down. After a while, (subject) says, \"Don't tell anyone.\" \"Tell them what?\" says (friend). (subject) smiles. They sit there until it's dark. Whatever (subject) believes now, or doesn't, (subject.he/she) gets to keep it to (subject.him/her)self.",
    "src": "L113"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"You?\" says (friend), astonished. \"You never believed in anything.\" \"I know,\" says (subject). \"I don't know if I believe now. I just like sitting here. It feels like... something.\" (friend) sits down beside (subject.him/her). \"Well,\" (friend.he/she) says. \"You're never too old to change your mind.\" (subject) laughs. \"I'm finding that out.\"",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"You?\" says (friend), astonished. \"You never believed in anything.\" \"I know,\" says (subject). \"I don't know if I believe now. I just like sitting here. It feels like... something.\" (friend) sits down beside (subject.him/her). \"Well,\" (friend.he/she) says. \"You're never too old to change your mind.\" (subject) laughs. \"I'm finding that out.\"",
+   "src": "L110"
   }
  }
 }

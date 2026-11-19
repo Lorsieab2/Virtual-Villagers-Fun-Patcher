@@ -75,6 +75,31 @@
    "src": "L290"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) sit on the high rocks and point things out from above. It's not as exciting as going out. But they see the octopus walk from one pool to another on the tips of its arms, which nobody standing nearby would have noticed. (friend) talks about it for weeks. When the tide comes in, they're already dry and comfortable and eating fruit.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L293"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) and (friend) sit on the high rocks and point things out from above. It's not as exciting as going out. But they see the octopus walk from one pool to another on the tips of its arms, which nobody standing nearby would have noticed. (friend) talks about it for weeks. When the tide comes in, they're already dry and comfortable and eating fruit.",
    "src": "L293"

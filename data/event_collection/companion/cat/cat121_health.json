@@ -84,9 +84,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "A small ceremony comforts the keeper and draws attention to the fish, without proving causation.",
-   "src": "L8552"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -126,6 +133,24 @@
    "name": "Answer D",
    "text": "The animal thrives or fades according to ordinary conditions; its mystery remains unresolved.",
    "src": "L8558"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "A small ceremony comforts the keeper and draws attention to the fish, without proving causation.",
+   "src": "L8552",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "keeper",
+     "mood": "good",
+     "src": "L8552"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "A small ceremony comforts the keeper and draws attention to the fish, without proving causation.",
+   "src": "L8552"
   }
  },
  "grammar_fixes": [

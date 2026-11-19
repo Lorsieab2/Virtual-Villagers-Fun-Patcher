@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The graves look cared for again, and the villager feels a sense of peace.",
-   "src": "L507"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -167,6 +174,24 @@
    "name": "Outcome D2",
    "text": "Nobody remembers some of them, and the villager decides that they are still worth tending.",
    "src": "L517"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The graves look cared for again, and the villager feels a sense of peace.",
+   "src": "L507",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L507"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The graves look cared for again, and the villager feels a sense of peace.",
+   "src": "L507"
   }
  }
 }

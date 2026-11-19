@@ -90,9 +90,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The patient improves after the fish is brought near, though the cause is uncertain.",
-   "src": "L20482"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -153,14 +160,58 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The fish is returned alive, and the healer records an inconclusive result.",
-   "src": "L20488"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The study is abandoned when the fish shows signs of distress.",
    "src": "L20489"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient improves after the fish is brought near, though the cause is uncertain.",
+   "src": "L20482",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L20482"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient improves after the fish is brought near, though the cause is uncertain.",
+   "src": "L20482"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The fish is returned alive, and the healer records an inconclusive result.",
+   "src": "L20488",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20488"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The fish is returned alive, and the healer records an inconclusive result.",
+   "src": "L20488"
   }
  }
 }

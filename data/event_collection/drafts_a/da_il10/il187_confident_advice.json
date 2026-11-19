@@ -77,14 +77,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) stares at the knot. \"That,\" (subject.he/she) says slowly, \"is not what is supposed to happen.\" (subject.He/She) thinks hard. \"Fresh water. It's FRESH water. I've been saying salt for years.\" (friend) bursts out laughing, and after a moment, so does (subject). They spend the morning untangling the line together. It takes a very long time.",
-   "src": "L80"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"You must have soaked it wrong,\" says (subject). (friend) is fairly sure there is only one way to soak something. Later that week, (friend) overhears (subject), very quietly, asking (elder), another elder, whether it was salt water or fresh. (friend) decides never, ever to mention it.",
    "src": "L83"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) stares at the knot. \"That,\" (subject.he/she) says slowly, \"is not what is supposed to happen.\" (subject.He/She) thinks hard. \"Fresh water. It's FRESH water. I've been saying salt for years.\" (friend) bursts out laughing, and after a moment, so does (subject). They spend the morning untangling the line together. It takes a very long time.",
+   "src": "L80",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L80"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L80"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) stares at the knot. \"That,\" (subject.he/she) says slowly, \"is not what is supposed to happen.\" (subject.He/She) thinks hard. \"Fresh water. It's FRESH water. I've been saying salt for years.\" (friend) bursts out laughing, and after a moment, so does (subject). They spend the morning untangling the line together. It takes a very long time.",
+   "src": "L80"
   }
  }
 }

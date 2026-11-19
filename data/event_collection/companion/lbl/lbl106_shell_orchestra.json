@@ -109,9 +109,16 @@
    "src": "L5200"
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "text": "The concert is delightfully chaotic.",
-   "src": "L5201"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",
@@ -124,6 +131,36 @@
      "src": "L5202"
     }
    ]
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The concert is delightfully chaotic.",
+   "src": "L5201",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child1",
+     "mood": "good",
+     "src": "L5201"
+    },
+    {
+     "do": "mood",
+     "role": "child2",
+     "mood": "good",
+     "src": "L5201"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L5201"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The concert is delightfully chaotic.",
+   "src": "L5201"
   }
  }
 }

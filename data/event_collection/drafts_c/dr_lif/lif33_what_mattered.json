@@ -75,6 +75,31 @@
    "src": "L386"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Naps,\" says (subject), immediately. (friend) waits for more. There isn't any. \"Naps?\" \"Naps,\" says (subject), very firmly. \"Everything else changes. Naps are always good.\" (friend) laughs and asks if (subject.he/she) is serious. (subject) thinks about it. \"Mostly. Ask me again tomorrow. I might say people.\" The next day (subject.he/she) says people. And naps.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L389"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Naps,\" says (subject), immediately. (friend) waits for more. There isn't any. \"Naps?\" \"Naps,\" says (subject), very firmly. \"Everything else changes. Naps are always good.\" (friend) laughs and asks if (subject.he/she) is serious. (subject) thinks about it. \"Mostly. Ask me again tomorrow. I might say people.\" The next day (subject.he/she) says people. And naps.",
    "src": "L389"

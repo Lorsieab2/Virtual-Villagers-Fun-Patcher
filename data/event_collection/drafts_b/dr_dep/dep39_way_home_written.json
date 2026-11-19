@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) adds a few of (friend.his/her) own: \"Tree that looks surprised.\" \"The place where you'll wish you'd brought more water.\" \"Halfway: have a snack.\" (subject) pretends to be annoyed. On the way home, (subject.he/she) follows every one, and finds the surprised tree, and laughs out loud alone on the path.",
-   "src": "L470"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) takes the charcoal back. This is important. (subject.He/she) follows the list carefully there and back, and it works perfectly, except that from the other direction the hill looks nothing like a sleeping pig. It looks like a sleeping goat. (subject) corrects the list for next time.",
    "src": "L473"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) adds a few of (friend.his/her) own: \"Tree that looks surprised.\" \"The place where you'll wish you'd brought more water.\" \"Halfway: have a snack.\" (subject) pretends to be annoyed. On the way home, (subject.he/she) follows every one, and finds the surprised tree, and laughs out loud alone on the path.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L470"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) adds a few of (friend.his/her) own: \"Tree that looks surprised.\" \"The place where you'll wish you'd brought more water.\" \"Halfway: have a snack.\" (subject) pretends to be annoyed. On the way home, (subject.he/she) follows every one, and finds the surprised tree, and laughs out loud alone on the path.",
+   "src": "L470"
   }
  }
 }

@@ -92,9 +92,16 @@
    "src": "L7"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The apprentice spends the afternoon replacing the damaged jar's bindings.",
-   "src": "L7"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -109,9 +116,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The repair holds, and the apprentice explains both the accident and the work afterward.",
-   "src": "L7"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -160,6 +174,50 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The note is overlooked, and the apprentice realizes a direct conversation is still needed.",
+   "src": "L7"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The apprentice spends the afternoon replacing the damaged jar's bindings.",
+   "src": "L7",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The apprentice spends the afternoon replacing the damaged jar's bindings.",
+   "src": "L7"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The repair holds, and the apprentice explains both the accident and the work afterward.",
+   "src": "L7",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The repair holds, and the apprentice explains both the accident and the work afterward.",
    "src": "L7"
   }
  }

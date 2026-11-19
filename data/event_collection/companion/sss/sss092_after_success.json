@@ -79,14 +79,40 @@
    "src": "L7018"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "Rest reveals interests they had neglected.",
-   "src": "L7020"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "They admit uncertainty and choose not to rush into another project.",
    "src": "L7022"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Rest reveals interests they had neglected.",
+   "src": "L7020",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "researcher",
+     "min": 5,
+     "max": 15,
+     "src": "L7020"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Rest reveals interests they had neglected.",
+   "src": "L7020"
   }
  }
 }

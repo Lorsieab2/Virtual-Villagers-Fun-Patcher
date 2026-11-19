@@ -139,9 +139,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(elder) finds happiness without forgetting the past.",
-   "src": "L27110"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -161,9 +168,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A quiet remembrance helps (elder) feel at peace with both loves.",
-   "src": "L27113"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -213,6 +227,42 @@
    "name": "Outcome D2",
    "text": "(elder) later chooses to share the news with friends.",
    "src": "L27120"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(elder) finds happiness without forgetting the past.",
+   "src": "L27110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L27110"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(elder) finds happiness without forgetting the past.",
+   "src": "L27110"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A quiet remembrance helps (elder) feel at peace with both loves.",
+   "src": "L27113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L27113"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A quiet remembrance helps (elder) feel at peace with both loves.",
+   "src": "L27113"
   }
  }
 }

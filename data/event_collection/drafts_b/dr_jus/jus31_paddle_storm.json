@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The elders hear it. A squall nobody saw coming, a borrowed paddle used properly: they call it an accident, not carelessness, and say (subject) doesn't owe a new one. (friend) isn't happy; it was (friend.his/her) best paddle. (subject), who doesn't have to, offers to help carve a new one anyway. (friend) accepts, a little stiffly.",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I'll make you a new one,\" says (subject). \"It wasn't your fault,\" says (friend), surprising (friend.him/her)self. \"I know. I'll make you one anyway.\" They carve it together over several evenings. It isn't as good as the old one. (friend) uses it anyway, and hangs the two pieces of the old one above (friend.his/her) door.",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders hear it. A squall nobody saw coming, a borrowed paddle used properly: they call it an accident, not carelessness, and say (subject) doesn't owe a new one. (friend) isn't happy; it was (friend.his/her) best paddle. (subject), who doesn't have to, offers to help carve a new one anyway. (friend) accepts, a little stiffly.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L374"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders hear it. A squall nobody saw coming, a borrowed paddle used properly: they call it an accident, not carelessness, and say (subject) doesn't owe a new one. (friend) isn't happy; it was (friend.his/her) best paddle. (subject), who doesn't have to, offers to help carve a new one anyway. (friend) accepts, a little stiffly.",
+   "src": "L374"
   }
  }
 }

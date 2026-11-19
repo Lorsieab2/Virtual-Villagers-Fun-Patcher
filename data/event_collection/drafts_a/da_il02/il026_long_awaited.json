@@ -71,6 +71,31 @@
    "src": "L265"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) sits quietly for a few minutes, watching the village go about its business. Then (he/she) stands and begins. The delay changes nothing important, but (name1) is glad to have taken it.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L269"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(name1) sits quietly for a few minutes, watching the village go about its business. Then (he/she) stands and begins. The delay changes nothing important, but (name1) is glad to have taken it.",
    "src": "L269"

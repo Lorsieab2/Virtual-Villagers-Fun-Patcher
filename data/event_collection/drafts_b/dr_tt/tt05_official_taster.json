@@ -83,14 +83,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) carries on tasting, thoughtful and serious, giving notes to the cooks: \"More salt.\" \"Perfect.\" \"Let me try that one again.\" By the time the feast begins, (subject.he/she) is far too full to eat a single thing. (subject.He/she) sits through the whole feast watching everyone else enjoy it, and insists it was worth it.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(cook), the head cook, gently takes the spoon away and gives (subject) a new job: carrying firewood. (subject) carries it with a face of deep tragedy. But when the feast begins, (cook) sets the very first bowl in front of (subject), \"for all your help with the tasting.\" (subject) decides this is a fair outcome.",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) carries on tasting, thoughtful and serious, giving notes to the cooks: \"More salt.\" \"Perfect.\" \"Let me try that one again.\" By the time the feast begins, (subject.he/she) is far too full to eat a single thing. (subject.He/she) sits through the whole feast watching everyone else enjoy it, and insists it was worth it.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) carries on tasting, thoughtful and serious, giving notes to the cooks: \"More salt.\" \"Perfect.\" \"Let me try that one again.\" By the time the feast begins, (subject.he/she) is far too full to eat a single thing. (subject.He/she) sits through the whole feast watching everyone else enjoy it, and insists it was worth it.",
+   "src": "L62"
   }
  }
 }

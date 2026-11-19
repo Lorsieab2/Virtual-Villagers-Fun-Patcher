@@ -77,6 +77,31 @@
    "src": "L41"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) picks up a stick and draws in the sand: I HEAR YOU. YOU CAN TALK NORMALLY. Then, underneath, a little drawing of (friend) with a very big mouth. (friend) laughs so hard (friend.he/she) has to sit down. \"Sorry,\" (friend.he/she) says, at a perfectly normal volume. (subject) signs: \"You're forgiven.\"",
+   "src": "L44",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L44"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) picks up a stick and draws in the sand: I HEAR YOU. YOU CAN TALK NORMALLY. Then, underneath, a little drawing of (friend) with a very big mouth. (friend) laughs so hard (friend.he/she) has to sit down. \"Sorry,\" (friend.he/she) says, at a perfectly normal volume. (subject) signs: \"You're forgiven.\"",
    "src": "L44"

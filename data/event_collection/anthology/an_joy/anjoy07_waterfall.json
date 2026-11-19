@@ -117,9 +117,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The group enjoys fruit and conversation.",
-   "src": "L28779"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -139,9 +146,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(artist), an apprentice, produces a lovely drawing.",
-   "src": "L28782"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -161,14 +175,75 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The group enjoys a peaceful hour together.",
-   "src": "L28785"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "One villager falls asleep and misses the return song.",
    "src": "L28786"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The group enjoys fruit and conversation.",
+   "src": "L28779",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L28779"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The group enjoys fruit and conversation.",
+   "src": "L28779"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(artist), an apprentice, produces a lovely drawing.",
+   "src": "L28782",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L28782"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(artist), an apprentice, produces a lovely drawing.",
+   "src": "L28782"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The group enjoys a peaceful hour together.",
+   "src": "L28785",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L28785"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The group enjoys a peaceful hour together.",
+   "src": "L28785"
   }
  }
 }

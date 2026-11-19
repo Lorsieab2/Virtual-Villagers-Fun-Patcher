@@ -76,11 +76,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) watches (friend) at meals for a week. (friend) eats everything. But every time there are roasted sweet roots, (friend.he/she) eats them last, slowly, as if saving the best. A few days later (subject) leaves a bowl of roasted sweet roots on (friend)'s doorstep. (friend) stands in the doorway staring at it for a long time.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L554"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) watches (friend) at meals for a week. (friend) eats everything. But every time there are roasted sweet roots, (friend.he/she) eats them last, slowly, as if saving the best. A few days later (subject) leaves a bowl of roasted sweet roots on (friend)'s doorstep. (friend) stands in the doorway staring at it for a long time.",
    "src": "L554"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Really,\" says (subject). \"What's your favorite?\" (friend) thinks. And thinks. \"I don't think I have one,\" (friend.he/she) says, a little puzzled. (subject) is fascinated. They spend the evening tasting things to find out. By the end, (friend) is fairly sure it's grilled fish with lime, and very sure it's (subject)'s company.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L557"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L557"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Really,\" says (subject). \"What's your favorite?\" (friend) thinks. And thinks. \"I don't think I have one,\" (friend.he/she) says, a little puzzled. (subject) is fascinated. They spend the evening tasting things to find out. By the end, (friend) is fairly sure it's grilled fish with lime, and very sure it's (subject)'s company.",
    "src": "L557"

@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"It leaks a bit at the back,\" says (subject). \"Take the bailer.\" (friend) takes the bailer, paddles out to the reef, and comes back slightly damp and perfectly cheerful. \"It does leak a bit,\" (friend.he/she) agrees. The next day they fix it together, since there are now two people who are tired of bailing.",
+   "src": "L314",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L314"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"It leaks a bit at the back,\" says (subject). \"Take the bailer.\" (friend) takes the bailer, paddles out to the reef, and comes back slightly damp and perfectly cheerful. \"It does leak a bit,\" (friend.he/she) agrees. The next day they fix it together, since there are now two people who are tired of bailing.",
    "src": "L314"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says yes and forgets all about it. An hour later (friend) paddles back, soaked to the waist and bailing with (friend.his/her) hands, very annoyed. \"It LEAKS.\" \"...Oh. Yes. I meant to say.\" (friend) is cross all afternoon. (subject) fixes the leak that evening, and the next morning brings (friend) the first fish (subject.he/she) catches from the dry canoe.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L317"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says yes and forgets all about it. An hour later (friend) paddles back, soaked to the waist and bailing with (friend.his/her) hands, very annoyed. \"It LEAKS.\" \"...Oh. Yes. I meant to say.\" (friend) is cross all afternoon. (subject) fixes the leak that evening, and the next morning brings (friend) the first fish (subject.he/she) catches from the dry canoe.",
    "src": "L317"

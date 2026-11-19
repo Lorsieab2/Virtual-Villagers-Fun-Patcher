@@ -81,14 +81,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Well,\" says (subject), \"it seems a shame to waste it.\" They sit down and eat, as friends, and talk about how to stop the children. The children watch from behind a rock, thrilled. (subject) and (friend) don't become sweethearts. They do become good friends. The children consider this a partial success.",
-   "src": "L446"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) and (friend) go and find the children behind the rock. \"We know it was you,\" says (friend). \"That was kind. But we choose our own sweethearts, if we want any. We don't want to be paired up.\" The children look disappointed. Then (fourth) says, \"Can we eat the picnic, then?\" They all eat it together. It's a very good picnic.",
    "src": "L449"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Well,\" says (subject), \"it seems a shame to waste it.\" They sit down and eat, as friends, and talk about how to stop the children. The children watch from behind a rock, thrilled. (subject) and (friend) don't become sweethearts. They do become good friends. The children consider this a partial success.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L446"
+    },
+    {
+     "do": "mood",
+     "role": "fourth",
+     "mood": "good",
+     "src": "L446"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Well,\" says (subject), \"it seems a shame to waste it.\" They sit down and eat, as friends, and talk about how to stop the children. The children watch from behind a rock, thrilled. (subject) and (friend) don't become sweethearts. They do become good friends. The children consider this a partial success.",
+   "src": "L446"
   }
  }
 }

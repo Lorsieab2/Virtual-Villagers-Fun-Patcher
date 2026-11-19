@@ -102,14 +102,40 @@
    "src": "L3907"
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "text": "The recipe fails, becoming a running family joke.",
-   "src": "L3908"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",
    "text": "A new variation becomes more popular than the original.",
    "src": "L3909"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The recipe fails, becoming a running family joke.",
+   "src": "L3908",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L3908"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The recipe fails, becoming a running family joke.",
+   "src": "L3908"
   }
  }
 }

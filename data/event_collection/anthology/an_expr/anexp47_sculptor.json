@@ -145,9 +145,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(sculptor) laughs and adjusts the nose.",
-   "src": "L31988"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -219,6 +226,24 @@
    "name": "Outcome D2",
    "text": "(sculptor) returns years later with new skills.",
    "src": "L31998"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(sculptor) laughs and adjusts the nose.",
+   "src": "L31988",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "sculptor",
+     "mood": "good",
+     "src": "L31988"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(sculptor) laughs and adjusts the nose.",
+   "src": "L31988"
   }
  }
 }

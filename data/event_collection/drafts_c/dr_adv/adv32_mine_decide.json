@@ -74,6 +74,31 @@
    "src": "L380"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Go,\" says (friend). (subject) goes. It's a wonderful trip, and (subject.he/she) is seasick for half of it. When (subject.he/she) gets home, (subject.he/she) says, \"You told me to go and I was sick in front of a turtle.\" \"You could have said no,\" says (friend). \"I KNOW,\" says (subject). \"That's what's so annoying.\" (subject.He/she) is already planning the next trip.",
+   "src": "L383",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L383"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Go,\" says (friend). (subject) goes. It's a wonderful trip, and (subject.he/she) is seasick for half of it. When (subject.he/she) gets home, (subject.he/she) says, \"You told me to go and I was sick in front of a turtle.\" \"You could have said no,\" says (friend). \"I KNOW,\" says (subject). \"That's what's so annoying.\" (subject.He/she) is already planning the next trip.",
    "src": "L383"

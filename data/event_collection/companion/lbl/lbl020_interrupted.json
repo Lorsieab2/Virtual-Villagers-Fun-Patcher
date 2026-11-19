@@ -101,9 +101,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "The couple laughs and remembers the moment forever.",
-   "src": "L4054"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -114,6 +121,30 @@
    "name": "Outcome 3",
    "text": "The villager decides to wait for a quieter day.",
    "src": "L4056"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The couple laughs and remembers the moment forever.",
+   "src": "L4054",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L4054"
+    },
+    {
+     "do": "mood",
+     "role": "beloved",
+     "mood": "good",
+     "src": "L4054"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The couple laughs and remembers the moment forever.",
+   "src": "L4054"
   }
  }
 }

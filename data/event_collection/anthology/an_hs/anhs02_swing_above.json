@@ -106,9 +106,16 @@
    "src": "L29458"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The children become proud safety inspectors and begin checking every knot.",
-   "src": "L29459"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -175,6 +182,24 @@
    "name": "Outcome D2",
    "text": "They argue over fairness until (elder) helps them test their ideas.",
    "src": "L29468"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The children become proud safety inspectors and begin checking every knot.",
+   "src": "L29459",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29459"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The children become proud safety inspectors and begin checking every knot.",
+   "src": "L29459"
   }
  }
 }

@@ -130,9 +130,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The patient lives several more peaceful weeks with family.",
-   "src": "L20225"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -169,6 +176,59 @@
    ]
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient lives several more peaceful weeks with family.",
+   "src": "L20225",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L20225"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient lives several more peaceful weeks with family.",
+   "src": "L20225"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The research yields a useful wound-care insight but no safe transplant.",
+   "src": "L20229",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20229"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20229"
+    }
+   ]
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The research yields a useful wound-care insight but no safe transplant.",
    "src": "L20229",

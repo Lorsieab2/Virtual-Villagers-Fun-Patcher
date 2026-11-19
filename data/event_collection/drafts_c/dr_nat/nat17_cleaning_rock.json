@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They float out together. It's true. Big fish hang in the water beside the rock, mouths wide, gills open, perfectly still, while tiny striped fish dart in and out, picking them clean. Nobody pushes in. Nobody eats anybody. (subject) watches for so long (subject.his/her) back gets sunburnt. That night (subject.he/she) asks if people could take turns like that. (friend) says people could probably learn a lot from fish.",
-   "src": "L206"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) asks how (subject) thinks it works. (subject) has many theories. The little fish are the big fish's servants. The big fish are the little fish's friends. They made a deal a long time ago. (friend) suggests maybe both get something they need. (subject) thinks about it. \"So it's like when you do my hair and I tell you stories.\" \"Exactly like that,\" says (friend).",
    "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They float out together. It's true. Big fish hang in the water beside the rock, mouths wide, gills open, perfectly still, while tiny striped fish dart in and out, picking them clean. Nobody pushes in. Nobody eats anybody. (subject) watches for so long (subject.his/her) back gets sunburnt. That night (subject.he/she) asks if people could take turns like that. (friend) says people could probably learn a lot from fish.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L206"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They float out together. It's true. Big fish hang in the water beside the rock, mouths wide, gills open, perfectly still, while tiny striped fish dart in and out, picking them clean. Nobody pushes in. Nobody eats anybody. (subject) watches for so long (subject.his/her) back gets sunburnt. That night (subject.he/she) asks if people could take turns like that. (friend) says people could probably learn a lot from fish.",
+   "src": "L206"
   }
  }
 }

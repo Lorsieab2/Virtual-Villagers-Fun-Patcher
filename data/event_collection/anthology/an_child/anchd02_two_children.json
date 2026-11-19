@@ -118,9 +118,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The children enjoy their meal and the teasing soon fades.",
-   "src": "L27590"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -140,9 +147,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Both enjoy the feast without attention.",
-   "src": "L27593"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -192,6 +206,54 @@
    "name": "Outcome D2",
    "text": "(adult) helps the group make room for everyone.",
    "src": "L27600"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The children enjoy their meal and the teasing soon fades.",
+   "src": "L27590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child1",
+     "mood": "good",
+     "src": "L27590"
+    },
+    {
+     "do": "mood",
+     "role": "child2",
+     "mood": "good",
+     "src": "L27590"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The children enjoy their meal and the teasing soon fades.",
+   "src": "L27590"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Both enjoy the feast without attention.",
+   "src": "L27593",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child1",
+     "mood": "good",
+     "src": "L27593"
+    },
+    {
+     "do": "mood",
+     "role": "child2",
+     "mood": "good",
+     "src": "L27593"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Both enjoy the feast without attention.",
+   "src": "L27593"
   }
  }
 }

@@ -91,11 +91,14 @@
    ]
   },
   "a2": {
-   "src": "L8282-8284",
-   "text": "A catastrophically pungent pot drives everyone away from the feast; it is discarded and the cooks must start again.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "u"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -414,6 +417,33 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "a2__fx": {
+   "src": "L8282-8284",
+   "text": "A catastrophically pungent pot drives everyone away from the feast; it is discarded and the cooks must start again.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L8282-8284"
+    }
+   ]
+  },
+  "a2__text": {
+   "src": "L8282-8284",
+   "text": "A catastrophically pungent pot drives everyone away from the feast; it is discarded and the cooks must start again.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
   }
  },
  "include_pools": [

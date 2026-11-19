@@ -72,14 +72,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I love you too,\" says (friend). \"I was waiting for you to say it first.\" (subject) breathes out so hard (subject.he/she) nearly falls over. They laugh. They watch the moon until it's high overhead. Neither of them remembers much else about the evening. They'll remember that part for a very long time.",
-   "src": "L548"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) is quiet for a moment. \"I'm not there yet,\" (friend.he/she) says carefully. \"I like you very much. I just need more time before I can say that.\" (subject) is a little disappointed, and a little embarrassed. \"That's alright,\" (subject.he/she) says, and means it. (friend) takes (subject.his/her) hand. \"Ask me again sometime.\" They watch the moon together. It's still a good evening.",
    "src": "L551"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I love you too,\" says (friend). \"I was waiting for you to say it first.\" (subject) breathes out so hard (subject.he/she) nearly falls over. They laugh. They watch the moon until it's high overhead. Neither of them remembers much else about the evening. They'll remember that part for a very long time.",
+   "src": "L548",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L548"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L548"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I love you too,\" says (friend). \"I was waiting for you to say it first.\" (subject) breathes out so hard (subject.he/she) nearly falls over. They laugh. They watch the moon until it's high overhead. Neither of them remembers much else about the evening. They'll remember that part for a very long time.",
+   "src": "L548"
   }
  }
 }

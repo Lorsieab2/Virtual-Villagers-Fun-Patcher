@@ -71,11 +71,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"You threw it wrong.\" \"I threw it perfectly. You pulled too early.\" \"I pulled at exactly the right moment.\" The net gets slowly untangled. The argument does not. By evening the net is perfect, and they walk home still bickering, holding hands, carrying their one small fish between them. It's a very small dinner. They have a lovely evening.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L134"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"You threw it wrong.\" \"I threw it perfectly. You pulled too early.\" \"I pulled at exactly the right moment.\" The net gets slowly untangled. The argument does not. By evening the net is perfect, and they walk home still bickering, holding hands, carrying their one small fish between them. It's a very small dinner. They have a lovely evening.",
    "src": "L134"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) suddenly laughs. \"We're both terrible at this.\" \"We really are,\" says (subject). They give up on the net, go for a swim instead and come home with no fish at all. A neighbor gives them some. That night they agree that tomorrow they'll try the other side of the reef, and that it will definitely be (friend)'s fault if it goes wrong.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L137"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) suddenly laughs. \"We're both terrible at this.\" \"We really are,\" says (subject). They give up on the net, go for a swim instead and come home with no fish at all. A neighbor gives them some. That night they agree that tomorrow they'll try the other side of the reef, and that it will definitely be (friend)'s fault if it goes wrong.",
    "src": "L137"

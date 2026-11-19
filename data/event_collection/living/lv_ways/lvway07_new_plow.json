@@ -98,9 +98,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The fields are prepared sooner, and the animal remains healthy.",
-   "src": "L22803"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -172,6 +179,24 @@
    "name": "Outcome D2",
    "text": "Arguments over the trial delay the planting.",
    "src": "L22813"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The fields are prepared sooner, and the animal remains healthy.",
+   "src": "L22803",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L22803"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The fields are prepared sooner, and the animal remains healthy.",
+   "src": "L22803"
   }
  }
 }

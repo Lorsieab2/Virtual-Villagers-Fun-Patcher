@@ -108,9 +108,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The teens organize a lively gathering and proudly clean up afterward.",
-   "src": "L30305"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -189,6 +196,24 @@
    "name": "Outcome D2",
    "text": "(teen), a disappointed organizer, admits the night felt less magical than expected, and friends reassure them that effort still mattered.",
    "src": "L30315"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The teens organize a lively gathering and proudly clean up afterward.",
+   "src": "L30305",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L30305"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The teens organize a lively gathering and proudly clean up afterward.",
+   "src": "L30305"
   }
  }
 }

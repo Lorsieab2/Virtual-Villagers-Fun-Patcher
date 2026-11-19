@@ -67,6 +67,49 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The water is cold. Then it's not. (name1) lies back and floats, and the sea holds (him/her) up exactly the way it used to. (He/She) doesn't go out to the reef. (He/She) doesn't need to. (He/She) just floats there, looking at the sky, while the children swim round (him/her) like little fish. When (he/she) comes out, (his/her) knees ache. (He/She) decides it was worth it.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L134"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L134"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "The water is cold. Then it's not. (name1) lies back and floats, and the sea holds (him/her) up exactly the way it used to. (He/She) doesn't go out to the reef. (He/She) doesn't need to. (He/She) just floats there, looking at the sky, while the children swim round (him/her) like little fish. When (he/she) comes out, (his/her) knees ache. (He/She) decides it was worth it.",
    "src": "L134",
@@ -78,7 +121,20 @@
     }
    ]
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) sits on a rock and lowers (his/her) feet into the water. It's cold, and lovely, and familiar. That's enough for today, (he/she) decides. The children splash (him/her), and (he/she) splashes them back, and nobody notices that (he/she) is smiling at something that has nothing to do with them.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(name1) sits on a rock and lowers (his/her) feet into the water. It's cold, and lovely, and familiar. That's enough for today, (he/she) decides. The children splash (him/her), and (he/she) splashes them back, and nobody notices that (he/she) is smiling at something that has nothing to do with them.",
    "src": "L137"

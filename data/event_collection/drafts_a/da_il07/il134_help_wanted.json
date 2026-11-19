@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"I really appreciate it,\" (subject) says, \"but I want to do this one by myself.\" (friend) blinks, then smiles. \"Of course. Shout if you need me.\" (friend.He/She) sits a little way off and doesn't help at all. When (subject) finishes, the roof is a little lumpy, and entirely (subject.his/her) own. (friend) is the first to admire it.",
-   "src": "L170"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) sighs and lets (friend) help. Together they finish in half the time, and the roof is very good. (subject) is grateful, and also a tiny bit annoyed, and decides both of those are allowed. Next time, (subject.he/she) thinks, (subject.he/she) might mention it before (friend) shows up with the ladder.",
    "src": "L173"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"I really appreciate it,\" (subject) says, \"but I want to do this one by myself.\" (friend) blinks, then smiles. \"Of course. Shout if you need me.\" (friend.He/She) sits a little way off and doesn't help at all. When (subject) finishes, the roof is a little lumpy, and entirely (subject.his/her) own. (friend) is the first to admire it.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L170"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"I really appreciate it,\" (subject) says, \"but I want to do this one by myself.\" (friend) blinks, then smiles. \"Of course. Shout if you need me.\" (friend.He/She) sits a little way off and doesn't help at all. When (subject) finishes, the roof is a little lumpy, and entirely (subject.his/her) own. (friend) is the first to admire it.",
+   "src": "L170"
   }
  }
 }

@@ -194,6 +194,31 @@
    "src": "L30022"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(elder) laughs and says their predictions are wrong as often as anyone's.",
+   "src": "L30023",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30023"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(elder) laughs and says their predictions are wrong as often as anyone's.",
    "src": "L30023"

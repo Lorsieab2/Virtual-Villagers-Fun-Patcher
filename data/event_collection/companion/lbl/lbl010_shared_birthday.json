@@ -104,9 +104,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "They invent a joint tradition.",
-   "src": "L3920"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -124,6 +131,30 @@
    "name": "Outcome 3",
    "text": "A surprise gift resolves an old misunderstanding.",
    "src": "L3922"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "They invent a joint tradition.",
+   "src": "L3920",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative1",
+     "mood": "good",
+     "src": "L3920"
+    },
+    {
+     "do": "mood",
+     "role": "relative2",
+     "mood": "good",
+     "src": "L3920"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "They invent a joint tradition.",
+   "src": "L3920"
   }
  }
 }

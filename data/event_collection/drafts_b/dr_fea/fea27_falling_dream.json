@@ -100,11 +100,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about the dream. (friend) says (friend.he/she) used to have one where (friend.his/her) teeth fell out. (villager), another villager, joins in with one about being chased by a pig. By the end of breakfast everyone is sharing their worst dreams, and laughing, and (subject) feels a bit less alone with it. The dream comes back that night. It's a bit less frightening.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L326"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L326"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L326"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) tells (friend) about the dream. (friend) says (friend.he/she) used to have one where (friend.his/her) teeth fell out. (villager), another villager, joins in with one about being chased by a pig. By the end of breakfast everyone is sharing their worst dreams, and laughing, and (subject) feels a bit less alone with it. The dream comes back that night. It's a bit less frightening.",
    "src": "L326"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) visits (healer), the healer, who gives (subject.him/her) a calming tea and says, honestly, that it might help and might not. \"Dreams do as they like,\" says (healer). (subject) drinks the tea. That night (subject.he/she) dreams about falling again, but this time (subject.he/she) lands softly in a giant pile of leaves. (subject.He/she) wakes up laughing.",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L329"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) visits (healer), the healer, who gives (subject.him/her) a calming tea and says, honestly, that it might help and might not. \"Dreams do as they like,\" says (healer). (subject) drinks the tea. That night (subject.he/she) dreams about falling again, but this time (subject.he/she) lands softly in a giant pile of leaves. (subject.He/she) wakes up laughing.",
    "src": "L329"

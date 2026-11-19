@@ -187,6 +187,31 @@
    ]
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The healer records the proposal as too uncertain for immediate use.",
+   "src": "L20255",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20255"
+    }
+   ]
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The healer records the proposal as too uncertain for immediate use.",
    "src": "L20255"

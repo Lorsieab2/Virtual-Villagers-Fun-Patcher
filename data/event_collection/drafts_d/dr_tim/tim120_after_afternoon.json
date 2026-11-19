@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) wakes from a brief afternoon nap. (Name1) wishes the peaceful moment could last a little longer.",
-   "src": "L2011"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -104,11 +111,94 @@
    "src": "L2015"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L2011",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L2011"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2011"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L2011"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) feels happy without knowing why.",
+   "src": "L2019",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L2019"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2019"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1) wakes from a brief afternoon nap. (Name1) feels happy without knowing why.",
    "src": "L2019"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) wakes from a brief afternoon nap. A forgotten worry returns and then drifts away again.",
+   "src": "L2023",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L2023"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) wakes from a brief afternoon nap. A forgotten worry returns and then drifts away again.",
    "src": "L2023"

@@ -111,9 +111,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(kin) remembers a funny habit, and the group smiles through tears.",
-   "src": "L116"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -138,6 +145,49 @@
    "src": "L119"
   },
   "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(kin) remembers a funny habit, and the group smiles through tears.",
+   "src": "L116",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "kin",
+     "mood": "good",
+     "src": "L116"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(kin) remembers a funny habit, and the group smiles through tears.",
+   "src": "L116"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(villager) leaves early, grateful to have been included.",
+   "src": "L120",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L120"
+    }
+   ]
+  },
+  "b2__text": {
    "name": "Outcome B2",
    "text": "(villager) leaves early, grateful to have been included.",
    "src": "L120"

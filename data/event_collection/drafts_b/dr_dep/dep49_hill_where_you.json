@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I felt exactly the same at your age,\" says (friend). \"I still do, some days.\" (subject) looks surprised. \"But you stayed.\" \"I did. Some days I'm glad. Some days I wonder.\" They sit for a long time, looking both ways. Neither of them decides anything. It's a good evening anyway.",
-   "src": "L590"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) doesn't say anything. (friend.He/she) just sits. The sun goes down on the sea side, and the fires come up on the village side, and (subject) watches both. Eventually (subject.he/she) says, \"Thanks for not telling me what to do.\" (friend) shrugs. \"I don't know either.\"",
    "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I felt exactly the same at your age,\" says (friend). \"I still do, some days.\" (subject) looks surprised. \"But you stayed.\" \"I did. Some days I'm glad. Some days I wonder.\" They sit for a long time, looking both ways. Neither of them decides anything. It's a good evening anyway.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I felt exactly the same at your age,\" says (friend). \"I still do, some days.\" (subject) looks surprised. \"But you stayed.\" \"I did. Some days I'm glad. Some days I wonder.\" They sit for a long time, looking both ways. Neither of them decides anything. It's a good evening anyway.",
+   "src": "L590"
   }
  }
 }

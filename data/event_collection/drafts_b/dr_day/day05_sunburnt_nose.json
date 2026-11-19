@@ -94,14 +94,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"For the nose,\" says (friend). It's crushed leaves and something cool. (subject) smears it on. Now (subject.his/her) nose is bright red underneath and bright green on top. Everybody stops pretending not to look. (subject) gives up and laughs. The nose feels much better by evening. It still glows a little.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Thank you,\" says (subject), \"but I'm fine.\" (subject.He/she) goes about (subject.his/her) day with great dignity and a glowing nose. (child), a child, asks if it hurts. (grownup), a grown-up, asks if (subject.he/she) fell asleep on the beach. By midday (subject) has quietly gone back and asked for the green stuff.",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"For the nose,\" says (friend). It's crushed leaves and something cool. (subject) smears it on. Now (subject.his/her) nose is bright red underneath and bright green on top. Everybody stops pretending not to look. (subject) gives up and laughs. The nose feels much better by evening. It still glows a little.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"For the nose,\" says (friend). It's crushed leaves and something cool. (subject) smears it on. Now (subject.his/her) nose is bright red underneath and bright green on top. Everybody stops pretending not to look. (subject) gives up and laughs. The nose feels much better by evening. It still glows a little.",
+   "src": "L62"
   }
  }
 }

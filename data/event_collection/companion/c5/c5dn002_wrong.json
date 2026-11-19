@@ -72,11 +72,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Choose their own discipline; strengthen confidence.",
-   "src": "L2677"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -91,6 +96,28 @@
    "join": "paragraph",
    "text": "Disappoint an elder, then begin an honest conversation.",
    "src": "L2679"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Choose their own discipline; strengthen confidence.",
+   "src": "L2677",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L2677"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Choose their own discipline; strengthen confidence.",
+   "src": "L2677"
   }
  }
 }

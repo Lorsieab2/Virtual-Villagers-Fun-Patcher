@@ -106,9 +106,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They discover they share a gentle crush and agree to spend more time together.",
-   "src": "L27020"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -150,9 +157,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The note is welcomed and kept as a happy memory.",
-   "src": "L27026"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -177,6 +191,85 @@
    "src": "L27029"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They discover they share a gentle crush and agree to spend more time together.",
+   "src": "L27020",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27020"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27020"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They discover they share a gentle crush and agree to spend more time together.",
+   "src": "L27020"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The note is welcomed and kept as a happy memory.",
+   "src": "L27026",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27026"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27026"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The note is welcomed and kept as a happy memory.",
+   "src": "L27026"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They remain close friends and feel relieved not to rush.",
+   "src": "L27030",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27030"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27030"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "They remain close friends and feel relieved not to rush.",
    "src": "L27030"

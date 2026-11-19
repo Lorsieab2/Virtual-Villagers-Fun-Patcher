@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I didn't want my own,\" says (subject). \"I've got all of you instead.\" (friend) thinks about this. \"Am I one of yours?\" \"If you want to be,\" says (subject). (friend) nods firmly. \"I want to be.\" (friend.He/she) gets a piece of dried fruit and runs off. (subject) watches (friend.him/her) go, smiling. (subject.He/she) has never felt anything missing.",
-   "src": "L560"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Ah,\" says (subject). \"That's a story.\" (subject.He/she) tells (friend) a long, silly tale about an old villager who had no children but had a whole village of nieces and nephews, a pet crab and a hammock that could fly. (friend) listens, enthralled. At the end (friend.he/she) says, \"Was that about you?\" (subject) winks. \"Maybe. Except the hammock.\"",
    "src": "L563"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I didn't want my own,\" says (subject). \"I've got all of you instead.\" (friend) thinks about this. \"Am I one of yours?\" \"If you want to be,\" says (subject). (friend) nods firmly. \"I want to be.\" (friend.He/she) gets a piece of dried fruit and runs off. (subject) watches (friend.him/her) go, smiling. (subject.He/she) has never felt anything missing.",
+   "src": "L560",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L560"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I didn't want my own,\" says (subject). \"I've got all of you instead.\" (friend) thinks about this. \"Am I one of yours?\" \"If you want to be,\" says (subject). (friend) nods firmly. \"I want to be.\" (friend.He/she) gets a piece of dried fruit and runs off. (subject) watches (friend.him/her) go, smiling. (subject.He/she) has never felt anything missing.",
+   "src": "L560"
   }
  }
 }

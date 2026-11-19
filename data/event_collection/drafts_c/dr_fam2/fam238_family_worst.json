@@ -73,11 +73,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Oh?\" says (subject). \"Then you'll hate this one. What do you call a fish with no eyes? A fsh!\" (friend) groans so loudly the dog howls. But (friend.he/she) is laughing too, a little, against (friend.his/her) will. By the end of the evening, (friend.he/she) is telling them too. It's catching. Nobody is safe.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L458"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Oh?\" says (subject). \"Then you'll hate this one. What do you call a fish with no eyes? A fsh!\" (friend) groans so loudly the dog howls. But (friend.he/she) is laughing too, a little, against (friend.his/her) will. By the end of the evening, (friend.he/she) is telling them too. It's catching. Nobody is safe.",
    "src": "L458"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Fine,\" says (subject). \"You tell one, then.\" (friend) thinks. And thinks. Then: \"Why did the crab never share? Because it was shellfish.\" Silence. Then (subject) roars with laughter. \"That's AWFUL. That's perfect. You're one of us now.\" (friend) is horrified and very proud.",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L461"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L461"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Fine,\" says (subject). \"You tell one, then.\" (friend) thinks. And thinks. Then: \"Why did the crab never share? Because it was shellfish.\" Silence. Then (subject) roars with laughter. \"That's AWFUL. That's perfect. You're one of us now.\" (friend) is horrified and very proud.",
    "src": "L461"

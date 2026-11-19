@@ -65,11 +65,73 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They sit down and start counting. Some knots (subject) remembers perfectly: the day of the big catch, the day the roof didn't leak. Some (subject.he/she) can't remember at all, and that's somehow nice too. They lose count somewhere past two hundred and start laughing. (subject) ties one more knot before (friend) leaves.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "They sit down and start counting. Some knots (subject) remembers perfectly: the day of the big catch, the day the roof didn't leak. Some (subject.he/she) can't remember at all, and that's somehow nice too. They lose count somewhere past two hundred and start laughing. (subject) ties one more knot before (friend) leaves.",
    "src": "L74"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) cuts a short piece of string from the end and hands it over. \"For your good days,\" (subject.he/she) says. (friend) looks at the empty string, puzzled. That evening the fishing goes well, dinner is excellent, and (friend) quietly ties a knot in it before bed.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L77"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) cuts a short piece of string from the end and hands it over. \"For your good days,\" (subject.he/she) says. (friend) looks at the empty string, puzzled. That evening the fishing goes well, dinner is excellent, and (friend) quietly ties a knot in it before bed.",
    "src": "L77"

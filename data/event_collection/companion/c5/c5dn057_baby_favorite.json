@@ -69,31 +69,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The family laughs at how quickly preferences change.",
-   "src": "L3192",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "caregiver1",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L3192"
+     "next": "e1__fx"
     },
     {
-     "do": "skill",
-     "role": "caregiver2",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L3192"
+     "next": "e1__text"
     }
    ]
   },
@@ -152,6 +135,76 @@
      "min": 5,
      "max": 10,
      "src": "L3194"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The family laughs at how quickly preferences change.",
+   "src": "L3192",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver1",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3192"
+    },
+    {
+     "do": "skill",
+     "role": "caregiver2",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3192"
+    },
+    {
+     "do": "mood",
+     "role": "caregiver1",
+     "mood": "good",
+     "src": "L3192"
+    },
+    {
+     "do": "mood",
+     "role": "caregiver2",
+     "mood": "good",
+     "src": "L3192"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The family laughs at how quickly preferences change.",
+   "src": "L3192",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver1",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3192"
+    },
+    {
+     "do": "skill",
+     "role": "caregiver2",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3192"
     }
    ]
   }

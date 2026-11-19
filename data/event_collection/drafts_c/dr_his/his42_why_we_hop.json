@@ -89,11 +89,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about leaping over troubles. (friend) is satisfied. Then (elder), an elder sitting nearby, snorts. \"That's not why,\" (elder) says. \"Long ago, at somebody's wedding, a crab ran across the path, and the bride jumped over it, and everyone thought it was so lucky they've done it ever since.\" (subject) stares. (friend) is delighted. Both reasons are told from then on.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L506"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) tells (friend) about leaping over troubles. (friend) is satisfied. Then (elder), an elder sitting nearby, snorts. \"That's not why,\" (elder) says. \"Long ago, at somebody's wedding, a crab ran across the path, and the bride jumped over it, and everyone thought it was so lucky they've done it ever since.\" (subject) stares. (friend) is delighted. Both reasons are told from then on.",
    "src": "L506"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) has a theory: somebody tripped. Or the ground was hot. Or they were really, really happy and couldn't help it. (subject) laughs and says those are all good reasons. At the next wedding, the couple do the hop, and (friend) watches very closely to see which reason it looks like. (friend.He/she) decides it's the happy one.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) has a theory: somebody tripped. Or the ground was hot. Or they were really, really happy and couldn't help it. (subject) laughs and says those are all good reasons. At the next wedding, the couple do the hop, and (friend) watches very closely to see which reason it looks like. (friend.He/she) decides it's the happy one.",
    "src": "L509"

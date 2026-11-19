@@ -100,11 +100,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, listens to both of them, examines the fish, examines both hooks, and says gravely, \"The fish bit both. The fish has decided you are partners.\" They cook it together and share it. It is the first of several fish they catch together that season, and they argue about every single one.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L14"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(elder), an elder, listens to both of them, examines the fish, examines both hooks, and says gravely, \"The fish bit both. The fish has decided you are partners.\" They cook it together and share it. It is the first of several fish they catch together that season, and they argue about every single one.",
    "src": "L14"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They agree to cut it in two: (subject) takes the head end, (friend) the tail end. Both are satisfied, until (fisher), an old fisher walking past, remarks that the cheeks are the best part of any fish. (friend) looks at (friend.his/her) half. (subject) looks at (subject.his/her) own, very pleased. The next tangled fish, they agree, gets cut lengthwise.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L17"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They agree to cut it in two: (subject) takes the head end, (friend) the tail end. Both are satisfied, until (fisher), an old fisher walking past, remarks that the cheeks are the best part of any fish. (friend) looks at (friend.his/her) half. (subject) looks at (subject.his/her) own, very pleased. The next tangled fish, they agree, gets cut lengthwise.",
    "src": "L17"

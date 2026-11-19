@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I think I like the nets better than the fish,\" says (subject), a little surprised to hear (subject.him/her)self say it. (friend) laughs. \"Everybody knows that. You've mended every net in the village twice.\" (subject) feels oddly relieved. (subject.He/she) hadn't realized it was a change until (subject.he/she) said it.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I think I like the nets better than the fish,\" says (subject), a little surprised to hear (subject.him/her)self say it. (friend) laughs. \"Everybody knows that. You've mended every net in the village twice.\" (subject) feels oddly relieved. (subject.He/she) hadn't realized it was a change until (subject.he/she) said it.",
    "src": "L374"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Someone has to do it,\" says (subject). (friend) raises an eyebrow but lets it go. (subject) spends the afternoon mending nets, happy as anything. (subject.He/she) still thinks of (subject.him/her)self as a fisher. (subject.He/she) may be wrong about that. It doesn't seem to matter very much.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L377"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Someone has to do it,\" says (subject). (friend) raises an eyebrow but lets it go. (subject) spends the afternoon mending nets, happy as anything. (subject.He/she) still thinks of (subject.him/her)self as a fisher. (subject.He/she) may be wrong about that. It doesn't seem to matter very much.",
    "src": "L377"

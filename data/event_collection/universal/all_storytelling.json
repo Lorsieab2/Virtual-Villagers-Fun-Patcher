@@ -574,13 +574,14 @@
    ]
   },
   "mean1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1907-1908",
-   "text": "The competitors offer different but thoughtful interpretations. The judges declare that both have learned something valuable.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "verdict"
+     "next": "mean1__fx"
+    },
+    {
+     "next": "mean1__text"
     }
    ]
   },
@@ -694,13 +695,14 @@
    ]
   },
   "both5": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1931-1934",
-   "text": "The competitors reveal that two different versions of the story have been taught for generations. The elders begin comparing records instead of declaring either contestant wrong.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "lesson"
+     "next": "both5__fx"
+    },
+    {
+     "next": "both5__text"
     }
    ]
   },
@@ -881,11 +883,14 @@
    ]
   },
   "af2": {
-   "src": "L2009-2011",
-   "text": "The competitor is so mortified that (one.he/she) runs away. Later, the teacher finds (one.him/her) and explains that one embarrassing mistake does not erase months of hard work.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "legend_or_end"
+     "next": "af2__fx"
+    },
+    {
+     "next": "af2__text"
     }
    ]
   },
@@ -1179,44 +1184,26 @@
    ]
   },
   "v2_5": {
-   "src": "L1979-1981",
-   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
-    }
-   ],
-   "effects": [
+     "next": "v2_5__fx"
+    },
     {
-     "do": "skill",
-     "role": "devotee2",
-     "skills": [
-      "Devotion"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L1981"
+     "next": "v2_5__text"
     }
    ]
   },
   "v2_r": {
-   "src": "L1979-1981",
-   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
-    }
-   ],
-   "effects": [
+     "next": "v2_r__fx"
+    },
     {
-     "do": "skill",
-     "role": "devotee2",
-     "skills": [
-      "Research"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L1981"
+     "next": "v2_r__text"
     }
    ]
   },
@@ -1279,6 +1266,214 @@
      "min": 5,
      "max": 10,
      "src": "L1983"
+    }
+   ]
+  },
+  "mean1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1907-1908",
+   "text": "The competitors offer different but thoughtful interpretations. The judges declare that both have learned something valuable.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1907-1908"
+    },
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1907-1908"
+    }
+   ]
+  },
+  "mean1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1907-1908",
+   "text": "The competitors offer different but thoughtful interpretations. The judges declare that both have learned something valuable.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "both5__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1931-1934",
+   "text": "The competitors reveal that two different versions of the story have been taught for generations. The elders begin comparing records instead of declaring either contestant wrong.",
+   "children": [
+    {
+     "next": "lesson"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1931-1934"
+    }
+   ]
+  },
+  "both5__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1931-1934",
+   "text": "The competitors reveal that two different versions of the story have been taught for generations. The elders begin comparing records instead of declaring either contestant wrong.",
+   "children": [
+    {
+     "next": "lesson"
+    }
+   ]
+  },
+  "af2__fx": {
+   "src": "L2009-2011",
+   "text": "The competitor is so mortified that (one.he/she) runs away. Later, the teacher finds (one.him/her) and explains that one embarrassing mistake does not erase months of hard work.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "one",
+     "mood": "bad",
+     "src": "L2009-2011"
+    }
+   ]
+  },
+  "af2__text": {
+   "src": "L2009-2011",
+   "text": "The competitor is so mortified that (one.he/she) runs away. Later, the teacher finds (one.him/her) and explains that one embarrassing mistake does not erase months of hard work.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "v2_5__fx": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    },
+    {
+     "do": "mood",
+     "role": "devotee2",
+     "mood": "good",
+     "src": "L1979-1981"
+    },
+    {
+     "do": "mood",
+     "role": "devotee1",
+     "mood": "bad",
+     "src": "L1979-1981"
+    }
+   ]
+  },
+  "v2_5__text": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    }
+   ]
+  },
+  "v2_r__fx": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    },
+    {
+     "do": "mood",
+     "role": "devotee2",
+     "mood": "good",
+     "src": "L1979-1981"
+    },
+    {
+     "do": "mood",
+     "role": "devotee1",
+     "mood": "bad",
+     "src": "L1979-1981"
+    }
+   ]
+  },
+  "v2_r__text": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
     }
    ]
   }

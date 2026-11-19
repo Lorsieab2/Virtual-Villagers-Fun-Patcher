@@ -72,14 +72,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) laughs out loud on the beach. That evening, (subject) finds a piece of bark in (subject.his/her) cup: YOU STILL BURN THE FISH. I STILL EAT IT. They don't say a word about the notes over dinner. They don't need to. The bark pieces go in a basket with all the others, years and years of them.",
-   "src": "L302"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) puts the bark in (friend.his/her) belt and carries it around all day, touching it now and then. (friend.He/she) doesn't write one back, not this time. That night (friend.he/she) just takes (subject)'s hand while they're falling asleep. (subject) knows exactly what it means. A lifetime is plenty of time to learn a language.",
    "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) laughs out loud on the beach. That evening, (subject) finds a piece of bark in (subject.his/her) cup: YOU STILL BURN THE FISH. I STILL EAT IT. They don't say a word about the notes over dinner. They don't need to. The bark pieces go in a basket with all the others, years and years of them.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L302"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) laughs out loud on the beach. That evening, (subject) finds a piece of bark in (subject.his/her) cup: YOU STILL BURN THE FISH. I STILL EAT IT. They don't say a word about the notes over dinner. They don't need to. The bark pieces go in a basket with all the others, years and years of them.",
+   "src": "L302"
   }
  }
 }

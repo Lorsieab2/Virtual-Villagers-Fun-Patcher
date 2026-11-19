@@ -97,9 +97,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The villager feels supported even without a cure.",
-   "src": "L22482"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -128,9 +135,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The ritual brings peace without changing the illness.",
-   "src": "L22485"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -170,6 +184,42 @@
    "name": "Outcome C2",
    "text": "The records reveal no reliable way to judge what happened.",
    "src": "L22489"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villager feels supported even without a cure.",
+   "src": "L22482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L22482"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villager feels supported even without a cure.",
+   "src": "L22482"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The ritual brings peace without changing the illness.",
+   "src": "L22485",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L22485"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The ritual brings peace without changing the illness.",
+   "src": "L22485"
   }
  }
 }

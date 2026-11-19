@@ -85,9 +85,16 @@
    "src": "L22638"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "One relative finds the empty place painful and steps outside.",
-   "src": "L22639"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -124,14 +131,57 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The meal becomes a tender gathering without one required ritual.",
-   "src": "L22644"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "A disagreement remains, but relatives promise to listen.",
    "src": "L22645"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "One relative finds the empty place painful and steps outside.",
+   "src": "L22639",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "bad",
+     "src": "L22639"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "One relative finds the empty place painful and steps outside.",
+   "src": "L22639"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The meal becomes a tender gathering without one required ritual.",
+   "src": "L22644",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L22644"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The meal becomes a tender gathering without one required ritual.",
+   "src": "L22644"
   }
  }
 }

@@ -94,9 +94,16 @@
    "src": "L262,L263"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(name1) turns a fish slowly over glowing coals. The skin crisps perfectly, and (name1) is very pleased.",
-   "src": "L262,L264"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -107,6 +114,24 @@
    "name": "Ending 4",
    "text": "(name1) turns a fish slowly over glowing coals. (name1) shares the first piece with whoever happens to be closest.",
    "src": "L262,L266"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(name1) turns a fish slowly over glowing coals. The skin crisps perfectly, and (name1) is very pleased.",
+   "src": "L262,L264",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L262,L264"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(name1) turns a fish slowly over glowing coals. The skin crisps perfectly, and (name1) is very pleased.",
+   "src": "L262,L264"
   }
  }
 }

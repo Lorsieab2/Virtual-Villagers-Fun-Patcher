@@ -100,19 +100,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "Neighbors arrange a much-needed afternoon of rest.",
-   "src": "L3829",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L3829"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -147,6 +142,47 @@
      "min": 5,
      "max": 10,
      "src": "L3831"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "Neighbors arrange a much-needed afternoon of rest.",
+   "src": "L3829",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3829"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": 5,
+     "max": 15,
+     "src": "L3829"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "Neighbors arrange a much-needed afternoon of rest.",
+   "src": "L3829",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3829"
     }
    ]
   }

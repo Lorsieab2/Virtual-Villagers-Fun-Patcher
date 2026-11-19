@@ -150,9 +150,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(villager) appreciates a brief rest.",
-   "src": "L30046"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -194,14 +201,64 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "They join a small evening meal and enjoy it.",
-   "src": "L30052"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "They decline the invitation and reconnect another day.",
    "src": "L30053"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(villager) appreciates a brief rest.",
+   "src": "L30046",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 5,
+     "max": 15,
+     "src": "L30046"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(villager) appreciates a brief rest.",
+   "src": "L30046"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "They join a small evening meal and enjoy it.",
+   "src": "L30052",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L30052"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L30052"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "They join a small evening meal and enjoy it.",
+   "src": "L30052"
   }
  }
 }

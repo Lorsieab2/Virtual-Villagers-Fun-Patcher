@@ -92,9 +92,16 @@
    "src": "L33"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "A closer examination supports one explanation, and the other scholar accepts the finding.",
-   "src": "L33"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -160,6 +167,24 @@
   "d2": {
    "name": "Outcome D2",
    "text": "One scholar remains frustrated but agrees that guessing would not settle the question.",
+   "src": "L33"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "A closer examination supports one explanation, and the other scholar accepts the finding.",
+   "src": "L33",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L33"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "A closer examination supports one explanation, and the other scholar accepts the finding.",
    "src": "L33"
   }
  }

@@ -72,11 +72,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "A mentor teaches them how to improve.",
-   "src": "L2713"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -91,6 +96,32 @@
    "join": "paragraph",
    "text": "They become determined to try again.",
    "src": "L2715"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mentor teaches them how to improve.",
+   "src": "L2713",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2713"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mentor teaches them how to improve.",
+   "src": "L2713"
   }
  }
 }

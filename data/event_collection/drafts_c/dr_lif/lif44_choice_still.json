@@ -74,6 +74,31 @@
    "src": "L518"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) talks to (friend) about it. (friend) doesn't tell (subject.him/her) it was the right choice, or the wrong one. (friend.He/she) just listens. \"You still think about it,\" (friend) says. \"Sometimes.\" \"That's alright. It mattered.\" (subject) feels better for having said it out loud, though nothing has changed. Some choices you just carry, gently, the rest of your life.",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L521"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) talks to (friend) about it. (friend) doesn't tell (subject.him/her) it was the right choice, or the wrong one. (friend.He/she) just listens. \"You still think about it,\" (friend) says. \"Sometimes.\" \"That's alright. It mattered.\" (subject) feels better for having said it out loud, though nothing has changed. Some choices you just carry, gently, the rest of your life.",
    "src": "L521"

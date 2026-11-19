@@ -88,11 +88,16 @@
    "src": "L3223"
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They quietly enjoy the rest.",
-   "src": "L3224"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",
@@ -100,6 +105,43 @@
    "join": "paragraph",
    "text": "Someone insists on working anyway.",
    "src": "L3225"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They quietly enjoy the rest.",
+   "src": "L3224",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager1",
+     "min": 5,
+     "max": 15,
+     "src": "L3224"
+    },
+    {
+     "do": "health_change",
+     "role": "villager2",
+     "min": 5,
+     "max": 15,
+     "src": "L3224"
+    },
+    {
+     "do": "health_change",
+     "role": "villager3",
+     "min": 5,
+     "max": 15,
+     "src": "L3224"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They quietly enjoy the rest.",
+   "src": "L3224"
   }
  }
 }

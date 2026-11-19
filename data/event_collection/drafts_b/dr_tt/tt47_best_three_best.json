@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They go on. (subject) loses the fourth. Then (friend)'s arm finally gets so tired that (subject) wins the fifth. (subject) leaps up. \"I WIN!\" \"You won one,\" says (friend). \"The most recent one,\" says (subject), \"which is the important one.\" The crowd, for some reason, cheers.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L566"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They go on. (subject) loses the fourth. Then (friend)'s arm finally gets so tired that (subject) wins the fifth. (subject) leaps up. \"I WIN!\" \"You won one,\" says (friend). \"The most recent one,\" says (subject), \"which is the important one.\" The crowd, for some reason, cheers.",
    "src": "L566"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Fine,\" says (subject). \"You're stronger.\" (friend) rubs (friend.his/her) arm and says, \"You're more stubborn.\" \"Is that a compliment?\" \"Not really.\" \"I'll take it.\" They shake hands, very gently, because both their arms are sore.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L569"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -15,
+     "max": -5,
+     "src": "L569"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Fine,\" says (subject). \"You're stronger.\" (friend) rubs (friend.his/her) arm and says, \"You're more stubborn.\" \"Is that a compliment?\" \"Not really.\" \"I'll take it.\" They shake hands, very gently, because both their arms are sore.",
    "src": "L569"

@@ -69,6 +69,38 @@
    "src": "L368"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) watches the leaf disappear over the waves. Then (he/she) laughs. \"Fine,\" (he/she) tells the sea. \"You decide.\" The sea doesn't. (name1) goes home and doesn't build anything for a while. Some decisions, it turns out, are happy to wait.",
+   "src": "L371",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L371"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L371"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) watches the leaf disappear over the waves. Then (he/she) laughs. \"Fine,\" (he/she) tells the sea. \"You decide.\" The sea doesn't. (name1) goes home and doesn't build anything for a while. Some decisions, it turns out, are happy to wait.",
    "src": "L371",

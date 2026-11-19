@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Strange?\" says (subject), delighted. \"Me? Good! I'd hate to be boring.\" (subject.He/she) shows (friend) the stick collection. It takes an hour. (friend) is surprised to find it quite interesting. \"Do you want to choose one?\" asks (subject). (friend) chooses a stick shaped almost exactly like a fish. (friend.He/she) keeps it for years.",
-   "src": "L572"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) thinks about it. \"I used to mind,\" (subject.he/she) says. \"When I was your age. Then I noticed that people who think I'm strange still eat dinner with me, and still ask me about lizards. So I stopped minding.\" (friend) nods slowly. \"I'm a bit strange too,\" (friend.he/she) confesses. \"I know,\" says (subject). \"I can tell. It's a good thing.\"",
    "src": "L575"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Strange?\" says (subject), delighted. \"Me? Good! I'd hate to be boring.\" (subject.He/she) shows (friend) the stick collection. It takes an hour. (friend) is surprised to find it quite interesting. \"Do you want to choose one?\" asks (subject). (friend) chooses a stick shaped almost exactly like a fish. (friend.He/she) keeps it for years.",
+   "src": "L572",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L572"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Strange?\" says (subject), delighted. \"Me? Good! I'd hate to be boring.\" (subject.He/she) shows (friend) the stick collection. It takes an hour. (friend) is surprised to find it quite interesting. \"Do you want to choose one?\" asks (subject). (friend) chooses a stick shaped almost exactly like a fish. (friend.He/she) keeps it for years.",
+   "src": "L572"
   }
  }
 }

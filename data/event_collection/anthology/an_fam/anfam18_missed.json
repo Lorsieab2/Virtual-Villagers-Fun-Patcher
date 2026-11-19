@@ -164,14 +164,14 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A quiet celebration feels more meaningful than a large feast.",
-   "src": "L28561",
-   "text_only": [
+   "children": [
     {
-     "what": "\"celebration\"",
-     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
-     "src": "L28561"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -193,9 +193,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The two spend a peaceful afternoon together.",
-   "src": "L28564"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -223,6 +230,62 @@
    "name": "Outcome D2",
    "text": "(villager) says that remembering next time matters more.",
    "src": "L28568"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A quiet celebration feels more meaningful than a large feast.",
+   "src": "L28561",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28561"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L28561"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A quiet celebration feels more meaningful than a large feast.",
+   "src": "L28561",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28561"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The two spend a peaceful afternoon together.",
+   "src": "L28564",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "forgetter",
+     "mood": "good",
+     "src": "L28564"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L28564"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The two spend a peaceful afternoon together.",
+   "src": "L28564"
   }
  }
 }

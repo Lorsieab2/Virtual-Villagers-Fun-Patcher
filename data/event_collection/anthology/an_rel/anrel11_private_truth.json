@@ -193,9 +193,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(villager) feels relieved to set their own pace.",
-   "src": "L27176"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -223,6 +230,24 @@
    "name": "Outcome D2",
    "text": "(friend) respects the boundaries and does not press for more.",
    "src": "L27180"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager) feels relieved to set their own pace.",
+   "src": "L27176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27176"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager) feels relieved to set their own pace.",
+   "src": "L27176"
   }
  }
 }

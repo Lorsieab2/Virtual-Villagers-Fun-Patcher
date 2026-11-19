@@ -95,6 +95,38 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) waits. Nobody asks. They just look at the racks, then up at the clouds, and then, one by one, at (subject). \"I thought it would stop,\" (subject) says at last. \"It didn't.\" They sort the fruit together. Nobody makes a fuss, which somehow makes (subject) feel worse, and more determined to get it right next time.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L269"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L269"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) waits. Nobody asks. They just look at the racks, then up at the clouds, and then, one by one, at (subject). \"I thought it would stop,\" (subject) says at last. \"It didn't.\" They sort the fruit together. Nobody makes a fuss, which somehow makes (subject) feel worse, and more determined to get it right next time.",
    "src": "L269",

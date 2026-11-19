@@ -75,6 +75,49 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) gives up shouting and looks at (subject), who has been watching the whole time and signs: \"Fish. Over there. Lots.\" Clear as anything, across twenty arm-lengths of wind. (friend) paddles over and the net comes up full. That evening (friend) asks (subject) to teach the fishing crew some signs. By the end of the season, the whole crew is signing across the water. It's much quieter out there.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L110"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L110"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) gives up shouting and looks at (subject), who has been watching the whole time and signs: \"Fish. Over there. Lots.\" Clear as anything, across twenty arm-lengths of wind. (friend) paddles over and the net comes up full. That evening (friend) asks (subject) to teach the fishing crew some signs. By the end of the season, the whole crew is signing across the water. It's much quieter out there.",
    "src": "L110",
@@ -87,7 +130,27 @@
     }
    ]
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) keeps bellowing. Nobody hears. (subject) watches with great interest, then paddles over and signs, very slowly, \"Are you all right?\" (friend) collapses laughing into the bottom of the canoe. Later, at the fire, (friend.he/she) asks (subject) for the sign for \"fish\" and the sign for \"over there.\" It seems like a good start.",
+   "src": "L113",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L113"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L113"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) keeps bellowing. Nobody hears. (subject) watches with great interest, then paddles over and signs, very slowly, \"Are you all right?\" (friend) collapses laughing into the bottom of the canoe. Later, at the fire, (friend.he/she) asks (subject) for the sign for \"fish\" and the sign for \"over there.\" It seems like a good start.",
    "src": "L113",

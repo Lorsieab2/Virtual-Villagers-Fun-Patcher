@@ -94,14 +94,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The apprentice finally completes the knot and proudly checks its strength.",
-   "src": "L21",
-   "text_only": [
+   "children": [
     {
-     "what": "\"skill\"",
-     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
-     "src": "L21"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -166,14 +166,14 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The two learners discover a way of explaining the knot that works better.",
-   "src": "L21",
-   "text_only": [
+   "children": [
     {
-     "what": "\"skill\"",
-     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
-     "src": "L21"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
@@ -216,6 +216,70 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The apprentice decides to practice tomorrow, and the elder respects the decision.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The apprentice finally completes the knot and proudly checks its strength.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The apprentice finally completes the knot and proudly checks its strength.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The two learners discover a way of explaining the knot that works better.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The two learners discover a way of explaining the knot that works better.",
    "src": "L21",
    "text_only": [
     {

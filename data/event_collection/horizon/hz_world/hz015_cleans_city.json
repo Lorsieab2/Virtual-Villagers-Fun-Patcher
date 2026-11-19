@@ -75,9 +75,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "Builders sketch separate routes for drinking water and waste; the discussion improves their own sanitation practices.",
-   "src": "L199"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -127,6 +134,24 @@
    "name": "Outcome C2",
    "text": "The village remembers its own lapses and quietly organizes a cleanup rather than mocking imaginary outsiders.",
    "src": "L206"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Builders sketch separate routes for drinking water and waste; the discussion improves their own sanitation practices.",
+   "src": "L199",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L199"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Builders sketch separate routes for drinking water and waste; the discussion improves their own sanitation practices.",
+   "src": "L199"
   }
  }
 }

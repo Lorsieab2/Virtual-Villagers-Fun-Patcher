@@ -69,11 +69,65 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm doing it wrong,\" says (subject). \"Show me again?\" (friend) shows (subject.him/her), slowly. Then again. Then (friend.he/she) says, \"I dropped it about a hundred times when I started. My teacher called me Butter Fingers for a year.\" (subject) laughs. It doesn't make (subject.his/her) hands faster. It makes (subject.him/her) feel less alone in them.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I'm doing it wrong,\" says (subject). \"Show me again?\" (friend) shows (subject.him/her), slowly. Then again. Then (friend.he/she) says, \"I dropped it about a hundred times when I started. My teacher called me Butter Fingers for a year.\" (subject) laughs. It doesn't make (subject.his/her) hands faster. It makes (subject.him/her) feel less alone in them.",
    "src": "L230"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) picks it up and keeps going. (subject.He/she) drops it again. And again. By the end of the day, (subject.he/she) has dropped it fewer times. Not none. Fewer. (subject.He/she) goes home tired and doubtful and comes back the next morning anyway. That's all there is to it, some days.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L233"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) picks it up and keeps going. (subject.He/she) drops it again. And again. By the end of the day, (subject.he/she) has dropped it fewer times. Not none. Fewer. (subject.He/she) goes home tired and doubtful and comes back the next morning anyway. That's all there is to it, some days.",
    "src": "L233"

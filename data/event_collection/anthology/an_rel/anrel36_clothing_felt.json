@@ -154,9 +154,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(villager) smiles at their new look.",
-   "src": "L27545"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -228,6 +235,30 @@
    "name": "Outcome D2",
    "text": "(villager) later experiments privately.",
    "src": "L27555"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(villager) smiles at their new look.",
+   "src": "L27545",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27545"
+    },
+    {
+     "do": "appearance",
+     "role": "villager",
+     "body": "random",
+     "src": "L27545"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(villager) smiles at their new look.",
+   "src": "L27545"
   }
  }
 }

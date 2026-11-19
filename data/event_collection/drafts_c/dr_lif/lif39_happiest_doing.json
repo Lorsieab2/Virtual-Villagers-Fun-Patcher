@@ -64,6 +64,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) wonders why. Why that, of all things? (He/she) tries to work it out: the quiet, the cool water, the fish who don't want anything from (him/her). (He/she) doesn't come up with an answer. (He/she) decides (he/she) doesn't need one. (He/she) goes to the rocks that evening and lets the fish nibble.",
+   "src": "L461"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) decides that if that's the happiest part, (he/she) should do more of it. (He/she) starts going to the rocks every evening instead of every few days. (He/she) gets a little less done. (He/she) is a lot happier. People ask where (he/she) disappears to. \"Fish,\" says (name1). Nobody understands. That's fine.",
+   "src": "L458",
+   "text_only": [
+    {
+     "what": "\"disappears\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L458"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L458"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) decides that if that's the happiest part, (he/she) should do more of it. (He/she) starts going to the rocks every evening instead of every few days. (He/she) gets a little less done. (He/she) is a lot happier. People ask where (he/she) disappears to. \"Fish,\" says (name1). Nobody understands. That's fine.",
    "src": "L458",
@@ -74,11 +111,6 @@
      "src": "L458"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "(name1) wonders why. Why that, of all things? (He/she) tries to work it out: the quiet, the cool water, the fish who don't want anything from (him/her). (He/she) doesn't come up with an answer. (He/she) decides (he/she) doesn't need one. (He/she) goes to the rocks that evening and lets the fish nibble.",
-   "src": "L461"
   }
  }
 }

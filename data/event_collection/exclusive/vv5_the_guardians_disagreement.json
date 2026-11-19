@@ -95,8 +95,16 @@
    ]
   },
   "b3": {
-   "src": "L8028",
-   "text": "The groups unexpectedly exchange ideas and produce a better plan than either had proposed alone."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
+    }
+   ]
   },
   "set_a": {
    "type": "branch",
@@ -125,6 +133,22 @@
      "next": "b3"
     }
    ]
+  },
+  "b3__fx": {
+   "src": "L8028",
+   "text": "The groups unexpectedly exchange ideas and produce a better plan than either had proposed alone.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8028"
+    }
+   ]
+  },
+  "b3__text": {
+   "src": "L8028",
+   "text": "The groups unexpectedly exchange ideas and produce a better plan than either had proposed alone."
   }
  }
 }

@@ -96,6 +96,35 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) meets (subject.him/her) at the spring before dawn. \"Everyone's beans are dying.\" \"I know. I just couldn't watch mine go.\" (friend) understands that. (friend.He/she) also doesn't move out of the way. (subject) pours the third jar back. They walk home together, and a few days later (friend) shows (subject.him/her) how to cover the soil with dry grass so it holds on to what water it gets.",
+   "src": "L485",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L485"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) meets (subject.him/her) at the spring before dawn. \"Everyone's beans are dying.\" \"I know. I just couldn't watch mine go.\" (friend) understands that. (friend.He/she) also doesn't move out of the way. (subject) pours the third jar back. They walk home together, and a few days later (friend) shows (subject.him/her) how to cover the soil with dry grass so it holds on to what water it gets.",
    "src": "L485"

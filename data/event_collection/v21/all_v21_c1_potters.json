@@ -218,26 +218,14 @@
    ]
   },
   "a1": {
-   "text": "The pot holds water without leaking and is easy to carry. The judges praise (Potter)'s skill.",
-   "src": "L9382-9383",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
-    }
-   ],
-   "effects": [
+     "next": "a1__fx"
+    },
     {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L9383"
-    }
-   ],
-   "text_only": [
-    {
-     "src": "L9383",
-     "what": "skill",
-     "reason": "narrative: the judges praise the potter's skill; the tech points are the reward"
+     "next": "a1__text"
     }
    ]
   },
@@ -266,18 +254,14 @@
    ]
   },
   "a3": {
-   "text": "The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
-   "src": "L9387-9388",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
-    }
-   ],
-   "text_only": [
+     "next": "a3__fx"
+    },
     {
-     "src": "L9387",
-     "what": "Collapse",
-     "reason": "narrative: an unfired pot slumps; no structure is involved"
+     "next": "a3__text"
     }
    ]
   },
@@ -303,18 +287,14 @@
    ]
   },
   "a5": {
-   "text": "Nobody can explain the double spout until a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator.",
-   "src": "L9392-9394",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
-    }
-   ],
-   "text_only": [
+     "next": "a5__fx"
+    },
     {
-     "src": "L9394",
-     "what": "celebrated",
-     "reason": "rule 7: a reputation, told only"
+     "next": "a5__text"
     }
    ]
   },
@@ -339,11 +319,14 @@
    ]
   },
   "b1": {
-   "text": "The carved figures are so expressive that an elder recognizes a long-dead relative. The crowd falls respectfully silent; (Potter) is awarded first place.",
-   "src": "L9397-9399",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -777,6 +760,166 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "a1__fx": {
+   "text": "The pot holds water without leaking and is easy to carry. The judges praise (Potter)'s skill.",
+   "src": "L9382-9383",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9383"
+    },
+    {
+     "do": "mood",
+     "role": "potter",
+     "mood": "good",
+     "src": "L9382-9383"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9383",
+     "what": "skill",
+     "reason": "narrative: the judges praise the potter's skill; the tech points are the reward"
+    }
+   ]
+  },
+  "a1__text": {
+   "text": "The pot holds water without leaking and is easy to carry. The judges praise (Potter)'s skill.",
+   "src": "L9382-9383",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9383"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9383",
+     "what": "skill",
+     "reason": "narrative: the judges praise the potter's skill; the tech points are the reward"
+    }
+   ]
+  },
+  "a3__fx": {
+   "text": "The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
+   "src": "L9387-9388",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9387",
+     "what": "Collapse",
+     "reason": "narrative: an unfired pot slumps; no structure is involved"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "potter",
+     "mood": "bad",
+     "src": "L9387-9388"
+    }
+   ]
+  },
+  "a3__text": {
+   "text": "The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
+   "src": "L9387-9388",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9387",
+     "what": "Collapse",
+     "reason": "narrative: an unfired pot slumps; no structure is involved"
+    }
+   ]
+  },
+  "a5__fx": {
+   "text": "Nobody can explain the double spout until a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator.",
+   "src": "L9392-9394",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9394",
+     "what": "celebrated",
+     "reason": "rule 7: a reputation, told only"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9392-9394"
+    }
+   ]
+  },
+  "a5__text": {
+   "text": "Nobody can explain the double spout until a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator.",
+   "src": "L9392-9394",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9394",
+     "what": "celebrated",
+     "reason": "rule 7: a reputation, told only"
+    }
+   ]
+  },
+  "b1__fx": {
+   "text": "The carved figures are so expressive that an elder recognizes a long-dead relative. The crowd falls respectfully silent; (Potter) is awarded first place.",
+   "src": "L9397-9399",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "potter",
+     "mood": "good",
+     "src": "L9397-9399"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "The carved figures are so expressive that an elder recognizes a long-dead relative. The crowd falls respectfully silent; (Potter) is awarded first place.",
+   "src": "L9397-9399",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  },
  "include_pools": [

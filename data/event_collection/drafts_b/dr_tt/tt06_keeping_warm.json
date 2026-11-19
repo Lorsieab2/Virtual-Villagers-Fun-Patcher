@@ -97,11 +97,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) leaps up. \"There you are! I've kept it lovely and warm for you.\" (elder) sits down with a long, happy sigh. (subject) spends the rest of the evening on the smoky side of the fire, coughing gently, and feels quite proud of (subject.him/her)self anyway.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L74"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) leaps up. \"There you are! I've kept it lovely and warm for you.\" (elder) sits down with a long, happy sigh. (subject) spends the rest of the evening on the smoky side of the fire, coughing gently, and feels quite proud of (subject.him/her)self anyway.",
    "src": "L74"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) shuffles along the trunk and makes room. (elder) squeezes in beside (subject.him/her). They share the best spot all evening, slightly squashed, swapping stories. The next evening (subject) arrives early as usual, and finds (elder) already there, keeping it warm for (subject.him/her).",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L77"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) shuffles along the trunk and makes room. (elder) squeezes in beside (subject.him/her). They share the best spot all evening, slightly squashed, swapping stories. The next evening (subject) arrives early as usual, and finds (elder) already there, keeping it warm for (subject.him/her).",
    "src": "L77"

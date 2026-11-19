@@ -83,9 +83,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The cook imagines pots as big as huts and laughs at the thought of stirring them.",
-   "src": "L321"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -127,11 +134,79 @@
    ]
   },
   "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cook imagines pots as big as huts and laughs at the thought of stirring them.",
+   "src": "L321",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L321"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cook imagines pots as big as huts and laughs at the thought of stirring them.",
+   "src": "L321"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The village enjoys its own feast, which feels exactly the right size.",
+   "src": "L327",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L327"
+    }
+   ]
+  },
+  "c1__text": {
    "name": "Outcome C1",
    "text": "The village enjoys its own feast, which feels exactly the right size.",
    "src": "L327"
   },
-  "c2": {
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The cook runs out of fish and decides even this feast is too big.",
+   "src": "L328",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L328"
+    }
+   ]
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The cook runs out of fish and decides even this feast is too big.",
    "src": "L328"

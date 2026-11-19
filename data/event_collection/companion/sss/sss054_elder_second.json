@@ -78,14 +78,53 @@
    "src": "L6622"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "The potter learns fishing knots while the elder learns clay work.",
-   "src": "L6624"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "The elder regrets postponing it and finally sets a firm date.",
    "src": "L6626"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The potter learns fishing knots while the elder learns clay work.",
+   "src": "L6624",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "potter",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6624"
+    },
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6624"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The potter learns fishing knots while the elder learns clay work.",
+   "src": "L6624"
   }
  }
 }

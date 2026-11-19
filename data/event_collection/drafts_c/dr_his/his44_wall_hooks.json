@@ -70,14 +70,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tells (friend.him/her) how it's done: you hang your hook and say one true thing about your first catch. (friend) hangs (friend.his/her) own and says, a bit embarrassed, that (friend.his/her) first fish was very small and fell back in the water. (subject) laughs and says (subject.his/her) own was a sandal. They're both on the wall now. (friend) feels taller all day.",
-   "src": "L530"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) hangs (friend.his/her) hook without a word, next to all the others, and steps back. (subject) watches (friend.him/her) look at the wall, at all those hooks, generations of them. (friend) notices one hook that's almost exactly like (friend.his/her) own, very old, made by someone nobody remembers. (friend.He/she) moves (friend.his/her) own a little closer to it. (subject) doesn't say anything. (subject.He/she) doesn't need to.",
    "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend.him/her) how it's done: you hang your hook and say one true thing about your first catch. (friend) hangs (friend.his/her) own and says, a bit embarrassed, that (friend.his/her) first fish was very small and fell back in the water. (subject) laughs and says (subject.his/her) own was a sandal. They're both on the wall now. (friend) feels taller all day.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L530"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend.him/her) how it's done: you hang your hook and say one true thing about your first catch. (friend) hangs (friend.his/her) own and says, a bit embarrassed, that (friend.his/her) first fish was very small and fell back in the water. (subject) laughs and says (subject.his/her) own was a sandal. They're both on the wall now. (friend) feels taller all day.",
+   "src": "L530"
   }
  },
  "grammar_fixes": [

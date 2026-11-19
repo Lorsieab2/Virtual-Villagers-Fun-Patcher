@@ -66,6 +66,32 @@
    "src": "L566"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) gives up and puts a cushion over (his/her) head. The chirping goes on. After a while, it starts to sound like a rhythm. Then a song. Then (name1) is asleep. In the morning, (he/she) finds the cricket in the bean basket, asleep too. (He/She) carries it out to the garden, a little reluctantly. That night, the hut feels very quiet.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L569"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(name1) gives up and puts a cushion over (his/her) head. The chirping goes on. After a while, it starts to sound like a rhythm. Then a song. Then (name1) is asleep. In the morning, (he/she) finds the cricket in the bean basket, asleep too. (He/She) carries it out to the garden, a little reluctantly. That night, the hut feels very quiet.",
    "src": "L569"

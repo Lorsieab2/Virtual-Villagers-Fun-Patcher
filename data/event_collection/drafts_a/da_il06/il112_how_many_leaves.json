@@ -70,6 +70,31 @@
    "src": "L140"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) counts the leaves on one small branch. Then counts the small branches on one big branch. Then counts the big branches. Then multiplies, carefully, with marks in the sand. The answer is enormous. (subject.He/She) proudly tells (friend). (friend) points out it's a different tree. (subject) decides that one has \"about the same.\"",
+   "src": "L143",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L143"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) counts the leaves on one small branch. Then counts the small branches on one big branch. Then counts the big branches. Then multiplies, carefully, with marks in the sand. The answer is enormous. (subject.He/She) proudly tells (friend). (friend) points out it's a different tree. (subject) decides that one has \"about the same.\"",
    "src": "L143"

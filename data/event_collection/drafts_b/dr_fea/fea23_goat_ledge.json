@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) climbs, very slowly, shaking, with (subject.his/her) heart in (subject.his/her) mouth. (subject.He/she) reaches the goat, wraps an arm round it, and the goat promptly hops down the rocks on its own, perfectly easily. (subject) is left clinging to the ledge. Somebody brings a ladder. (subject) has never been so frightened, or felt so silly, or been so proud of (subject.him/her)self.",
-   "src": "L278"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) runs for help. (friend), who likes climbing, scrambles up in no time and coaxes the goat down. \"Thanks for fetching me,\" (friend.he/she) says. (subject) feels a bit useless. But the goat is safe, and nobody fell, and fetching the right person is a perfectly good kind of help.",
    "src": "L281"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) climbs, very slowly, shaking, with (subject.his/her) heart in (subject.his/her) mouth. (subject.He/she) reaches the goat, wraps an arm round it, and the goat promptly hops down the rocks on its own, perfectly easily. (subject) is left clinging to the ledge. Somebody brings a ladder. (subject) has never been so frightened, or felt so silly, or been so proud of (subject.him/her)self.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) climbs, very slowly, shaking, with (subject.his/her) heart in (subject.his/her) mouth. (subject.He/she) reaches the goat, wraps an arm round it, and the goat promptly hops down the rocks on its own, perfectly easily. (subject) is left clinging to the ledge. Somebody brings a ladder. (subject) has never been so frightened, or felt so silly, or been so proud of (subject.him/her)self.",
+   "src": "L278"
   }
  }
 }

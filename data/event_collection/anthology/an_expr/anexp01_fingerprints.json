@@ -186,11 +186,71 @@
    ]
   },
   "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(elder) adds a crooked handprint to general delight.",
+   "src": "L31261",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L31261"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L31261"
+    }
+   ]
+  },
+  "d1__text": {
    "name": "Outcome D1",
    "text": "(elder) adds a crooked handprint to general delight.",
    "src": "L31261"
   },
-  "d2": {
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(elder) learns a new pattern from the youngest painter.",
+   "src": "L31262",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L31262"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(elder) learns a new pattern from the youngest painter.",
    "src": "L31262"

@@ -71,11 +71,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) abandons the fruit and talks about fish instead. What they eat, how they breathe, whether they have feelings \\(\"nobody's quite sure\"\\). The children are spellbound. Nobody learns anything about fruit. (subject) walks home thinking it was a complete disaster and the best afternoon (subject.he/she) has had in years.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) abandons the fruit and talks about fish instead. What they eat, how they breathe, whether they have feelings \\(\"nobody's quite sure\"\\). The children are spellbound. Nobody learns anything about fruit. (subject) walks home thinking it was a complete disaster and the best afternoon (subject.he/she) has had in years.",
    "src": "L74"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Good question,\" says (subject). \"Let's ask it after the fruit.\" The children groan. (subject) presses on. By the end, two of them can tell ripe from unripe, and (friend) has asked about fish four more times. (subject) promises a fish lesson tomorrow. (subject.He/she) spends the whole evening preparing for it.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L77"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Good question,\" says (subject). \"Let's ask it after the fruit.\" The children groan. (subject) presses on. By the end, two of them can tell ripe from unripe, and (friend) has asked about fish four more times. (subject) promises a fish lesson tomorrow. (subject.He/she) spends the whole evening preparing for it.",
    "src": "L77"

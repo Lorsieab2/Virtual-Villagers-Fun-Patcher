@@ -114,14 +114,39 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(elder) smiles at the memory and rests.",
-   "src": "L101"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
    "text": "(elder) feels wistful but enjoys hearing the melody again.",
    "src": "L102"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(elder) smiles at the memory and rests.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L101"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(elder) smiles at the memory and rests.",
+   "src": "L101"
   }
  }
 }

@@ -58,11 +58,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "A surprising design catches the breeze.",
-   "src": "L3502"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",
@@ -70,6 +75,28 @@
    "join": "paragraph",
    "text": "The strongest sail proves hardest to control.",
    "src": "L3503"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A surprising design catches the breeze.",
+   "src": "L3502",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3502"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A surprising design catches the breeze.",
+   "src": "L3502"
   }
  }
 }

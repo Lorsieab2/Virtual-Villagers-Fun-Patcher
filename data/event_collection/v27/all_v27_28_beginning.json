@@ -73,11 +73,16 @@
    "src": "L10708"
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They discover they enjoy being a beginner.",
-   "src": "L10709"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Outcome C",
@@ -85,6 +90,28 @@
    "join": "paragraph",
    "text": "A mocking bystander is challenged by younger villagers.",
    "src": "L10710"
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover they enjoy being a beginner.",
+   "src": "L10709",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L10709"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover they enjoy being a beginner.",
+   "src": "L10709"
   }
  }
 }

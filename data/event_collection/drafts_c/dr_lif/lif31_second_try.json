@@ -70,14 +70,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) sits down and tells (friend.him/her) about the splinter and the fainting. (friend) laughs in spite of (friend.him/her)self. \"And then?\" \"And then I found something I liked better. And I've been happy ever since. Mostly.\" (friend) isn't comforted right away. But (friend.he/she) asks (subject) to show (friend.him/her) how to mend a net. Just to see.",
-   "src": "L362"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) doesn't say anything clever. (subject.He/she) just sits down and looks at the sea with (friend) for a while. After a long time, (friend) says, \"Did you ever fail at something?\" \"Spectacularly,\" says (subject). \"It was the best thing that ever happened to me. I didn't know that for years, though.\" (friend) thinks about that. It doesn't fix today. But it's something to remember.",
    "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits down and tells (friend.him/her) about the splinter and the fainting. (friend) laughs in spite of (friend.him/her)self. \"And then?\" \"And then I found something I liked better. And I've been happy ever since. Mostly.\" (friend) isn't comforted right away. But (friend.he/she) asks (subject) to show (friend.him/her) how to mend a net. Just to see.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L362"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sits down and tells (friend.him/her) about the splinter and the fainting. (friend) laughs in spite of (friend.him/her)self. \"And then?\" \"And then I found something I liked better. And I've been happy ever since. Mostly.\" (friend) isn't comforted right away. But (friend.he/she) asks (subject) to show (friend.him/her) how to mend a net. Just to see.",
+   "src": "L362"
   }
  }
 }

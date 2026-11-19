@@ -115,9 +115,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The distance helps both find peace.",
-   "src": "L28974"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -167,6 +174,30 @@
    "name": "Outcome D2",
    "text": "One needs longer to adjust and is given space.",
    "src": "L28981"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The distance helps both find peace.",
+   "src": "L28974",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "spouse1",
+     "mood": "good",
+     "src": "L28974"
+    },
+    {
+     "do": "mood",
+     "role": "spouse2",
+     "mood": "good",
+     "src": "L28974"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The distance helps both find peace.",
+   "src": "L28974"
   }
  }
 }

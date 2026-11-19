@@ -69,11 +69,68 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) decides that if the hut is going to be big, it may as well be useful. (subject.He/she) starts drying flowers in one corner, and keeping seeds in another, and before long the hut smells wonderful and the neighbors are dropping by to ask for seeds. It's still too big. It's also, (subject) admits, rather nice.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L170"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) decides that if the hut is going to be big, it may as well be useful. (subject.He/she) starts drying flowers in one corner, and keeping seeds in another, and before long the hut smells wonderful and the neighbors are dropping by to ask for seeds. It's still too big. It's also, (subject) admits, rather nice.",
    "src": "L170"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) makes far too much stew in the big pot and invites (friend) over to help eat it. (friend) brings someone else. That person brings someone else. By the end of the evening the hut is noisy and warm and there is no stew left. Everyone goes home eventually, and the quiet afterwards feels quite different.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L173"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L173"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) makes far too much stew in the big pot and invites (friend) over to help eat it. (friend) brings someone else. That person brings someone else. By the end of the evening the hut is noisy and warm and there is no stew left. Everyone goes home eventually, and the quiet afterwards feels quite different.",
    "src": "L173"

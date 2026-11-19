@@ -130,6 +130,31 @@
    "src": "L434"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"It was just me,\" says (subject). (elder) looks down at the two sets of footprints, which are clearly two different sizes. \"Both of these?\" (subject) looks at (subject.his/her) feet. \"...I've got a big foot and a small foot.\" (friend) bursts out laughing and owns up. (elder), trying very hard not to laugh as well, hands each of them a broom.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L437"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"It was just me,\" says (subject). (elder) looks down at the two sets of footprints, which are clearly two different sizes. \"Both of these?\" (subject) looks at (subject.his/her) feet. \"...I've got a big foot and a small foot.\" (friend) bursts out laughing and owns up. (elder), trying very hard not to laugh as well, hands each of them a broom.",
    "src": "L437"

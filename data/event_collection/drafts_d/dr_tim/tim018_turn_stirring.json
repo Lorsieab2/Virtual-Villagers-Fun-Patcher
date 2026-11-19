@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), a parent, lets a child stir the evening meal. Someone asks for the recipe before the bowl is empty.",
-   "src": "L299"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -132,14 +139,57 @@
    "src": "L303"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1), a parent, lets a child stir the evening meal. (Name1) quietly notes one change to try next time.",
-   "src": "L307"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1), a parent, lets a child stir the evening meal. The first taste is puzzling, but the second is better.",
    "src": "L311"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a parent, lets a child stir the evening meal. Someone asks for the recipe before the bowl is empty.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L299"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a parent, lets a child stir the evening meal. Someone asks for the recipe before the bowl is empty.",
+   "src": "L299"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a parent, lets a child stir the evening meal. (Name1) quietly notes one change to try next time.",
+   "src": "L307",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L307"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), a parent, lets a child stir the evening meal. (Name1) quietly notes one change to try next time.",
+   "src": "L307"
   }
  }
 }

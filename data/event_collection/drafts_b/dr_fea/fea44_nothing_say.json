@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) blurts out, \"I saw a crab with one big claw today.\" There's a pause. Then someone says, \"Oh! I've seen those! Do you know why?\" and the conversation is suddenly about crabs, and (subject) is in the middle of it. It wasn't clever. It worked anyway.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) blurts out, \"I saw a crab with one big claw today.\" There's a pause. Then someone says, \"Oh! I've seen those! Do you know why?\" and the conversation is suddenly about crabs, and (subject) is in the middle of it. It wasn't clever. It worked anyway.",
    "src": "L530"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gives up trying and just listens. It's actually quite pleasant. After dinner, (friend) says, \"You were quiet tonight. I like sitting next to you. It's restful.\" (subject) didn't know that being quiet could be something someone liked. (subject.He/she) thinks about it for days.",
+   "src": "L533",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L533"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) gives up trying and just listens. It's actually quite pleasant. After dinner, (friend) says, \"You were quiet tonight. I like sitting next to you. It's restful.\" (subject) didn't know that being quiet could be something someone liked. (subject.He/she) thinks about it for days.",
    "src": "L533"

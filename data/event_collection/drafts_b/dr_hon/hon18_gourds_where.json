@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) meets (friend) at the edge of the garden. \"I planted your row. With gourds. By mistake.\" (friend) looks at the green shoots. \"...I do like gourds.\" They plant the beans in a new row beside them. By the end of the season (friend) has more gourds than (friend.he/she) knows what to do with, and gives them to everyone.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L218"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) meets (friend) at the edge of the garden. \"I planted your row. With gourds. By mistake.\" (friend) looks at the green shoots. \"...I do like gourds.\" They plant the beans in a new row beside them. By the end of the season (friend) has more gourds than (friend.he/she) knows what to do with, and gives them to everyone.",
    "src": "L218"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing and hopes the gourds won't be noticed. They are noticed. Gourds are very large. When (friend) asks, (subject) explains, and (friend) laughs. \"I did wonder why my beans had got so fat.\" The gourds are excellent. The beans go in late, and come up a little smaller than usual.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L221"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says nothing and hopes the gourds won't be noticed. They are noticed. Gourds are very large. When (friend) asks, (subject) explains, and (friend) laughs. \"I did wonder why my beans had got so fat.\" The gourds are excellent. The beans go in late, and come up a little smaller than usual.",
    "src": "L221"

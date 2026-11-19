@@ -112,6 +112,58 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "The result is beautiful but cannot be identified.",
+   "src": "L237"
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "The experiment produces an unexpectedly useful glassy material.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "alchemist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L233"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L233"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome 1",
    "text": "The experiment produces an unexpectedly useful glassy material.",
    "src": "L233",
@@ -128,15 +180,24 @@
     }
    ]
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome 2",
+   "text": "The crucible fails, leaving only an expensive lesson.",
+   "src": "L235",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L235"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome 2",
    "text": "The crucible fails, leaving only an expensive lesson.",
    "src": "L235"
-  },
-  "o3": {
-   "name": "Outcome 3",
-   "text": "The result is beautiful but cannot be identified.",
-   "src": "L237"
   }
  }
 }

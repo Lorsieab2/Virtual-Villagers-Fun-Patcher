@@ -351,11 +351,14 @@
    ]
   },
   "free": {
-   "src": "L1372-1373",
-   "text": "{@Chief} allows the builders to do whatever they think is best. Both look delighted. The villagers begin to worry.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "free_set"
+     "next": "free__fx"
+    },
+    {
+     "next": "free__text"
     }
    ]
   },
@@ -409,13 +412,14 @@
    ]
   },
   "r2": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1383-1384",
-   "text": "The repairs are completed without incident. The monument still looks rather strange, but it is safe and well maintained.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "quiet"
+     "next": "r2__fx"
+    },
+    {
+     "next": "r2__text"
     }
    ]
   },
@@ -431,13 +435,14 @@
    ]
   },
   "r4": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1389-1391",
-   "text": "The builders discover that the crooked shape was intentional. Apparently, the monument was designed to align with a rare astronomical event. They abandon their plan to straighten it.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "quiet"
+     "next": "r4__fx"
+    },
+    {
+     "next": "r4__text"
     }
    ]
   },
@@ -835,6 +840,112 @@
    "join": "paragraph",
    "src": "L1435-1437,L1442-1443",
    "text": "{@Chief} {CH_FORBID}.\nIf the nose remains off, future generations may simply assume that the statue was always supposed to look that way.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "free__fx": {
+   "src": "L1372-1373",
+   "text": "{@Chief} allows the builders to do whatever they think is best. Both look delighted. The villagers begin to worry.",
+   "children": [
+    {
+     "next": "free_set"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder1",
+     "mood": "good",
+     "src": "L1372-1373"
+    },
+    {
+     "do": "mood",
+     "role": "builder2",
+     "mood": "good",
+     "src": "L1372-1373"
+    }
+   ]
+  },
+  "free__text": {
+   "src": "L1372-1373",
+   "text": "{@Chief} allows the builders to do whatever they think is best. Both look delighted. The villagers begin to worry.",
+   "children": [
+    {
+     "next": "free_set"
+    }
+   ]
+  },
+  "r2__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1383-1384",
+   "text": "The repairs are completed without incident. The monument still looks rather strange, but it is safe and well maintained.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1383-1384"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1383-1384"
+    }
+   ]
+  },
+  "r2__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1383-1384",
+   "text": "The repairs are completed without incident. The monument still looks rather strange, but it is safe and well maintained.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "r4__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1389-1391",
+   "text": "The builders discover that the crooked shape was intentional. Apparently, the monument was designed to align with a rare astronomical event. They abandon their plan to straighten it.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1389-1391"
+    }
+   ]
+  },
+  "r4__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1389-1391",
+   "text": "The builders discover that the crooked shape was intentional. Apparently, the monument was designed to align with a rare astronomical event. They abandon their plan to straighten it.",
    "children": [
     {
      "next": "quiet"

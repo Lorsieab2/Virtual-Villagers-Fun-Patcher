@@ -100,11 +100,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Healers provide supportive care and the group recovers.",
-   "src": "L10916"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Outcome B",
@@ -136,6 +141,36 @@
      "src": "L10918"
     }
    ]
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Healers provide supportive care and the group recovers.",
+   "src": "L10916",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "explorer1",
+     "min": 5,
+     "max": 15,
+     "src": "L10916"
+    },
+    {
+     "do": "health_change",
+     "role": "explorer2",
+     "min": 5,
+     "max": 15,
+     "src": "L10916"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Healers provide supportive care and the group recovers.",
+   "src": "L10916"
   }
  }
 }

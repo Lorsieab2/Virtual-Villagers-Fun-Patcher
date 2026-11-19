@@ -68,9 +68,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The diver records the location and later sees young mollusks nearby.",
-   "src": "L6260"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -81,6 +88,24 @@
    "name": "Answer C",
    "text": "A tense meeting reveals how much the pearl would mean to a family; the outcome depends on consent and scarcity.",
    "src": "L6264"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The diver records the location and later sees young mollusks nearby.",
+   "src": "L6260",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6260"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The diver records the location and later sees young mollusks nearby.",
+   "src": "L6260"
   }
  }
 }

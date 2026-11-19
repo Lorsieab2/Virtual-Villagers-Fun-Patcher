@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) brings out each tool and explains its name, its history and its mood. Grumble is reliable but sulky. The Twins must never be separated. (friend) listens to all of it with a perfectly serious face, then carefully carries Old Wobbly away with both hands. It comes back that evening full of fruit and, (subject) is fairly sure, in a better mood than before.",
-   "src": "L14"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) hands over Old Wobbly without a word. (friend) returns it at dinner. \"Thanks for the basket,\" (friend.he/she) says. \"Old Wobbly,\" (subject) corrects, before (subject.he/she) can stop (subject.him/her)self. There is a short pause. \"Thanks for Old Wobbly,\" says (friend), and that is the end of it.",
    "src": "L17"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) brings out each tool and explains its name, its history and its mood. Grumble is reliable but sulky. The Twins must never be separated. (friend) listens to all of it with a perfectly serious face, then carefully carries Old Wobbly away with both hands. It comes back that evening full of fruit and, (subject) is fairly sure, in a better mood than before.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L14"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) brings out each tool and explains its name, its history and its mood. Grumble is reliable but sulky. The Twins must never be separated. (friend) listens to all of it with a perfectly serious face, then carefully carries Old Wobbly away with both hands. It comes back that evening full of fruit and, (subject) is fairly sure, in a better mood than before.",
+   "src": "L14"
   }
  }
 }

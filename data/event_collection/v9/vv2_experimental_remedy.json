@@ -260,11 +260,14 @@
    ]
   },
   "d2": {
-   "src": "L4760-4761",
-   "text": "The mixture foams spectacularly. The researcher cheers; the healer moves the audience farther away.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "comedy"
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
     }
    ]
   },
@@ -500,6 +503,32 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "d2__fx": {
+   "src": "L4760-4761",
+   "text": "The mixture foams spectacularly. The researcher cheers; the healer moves the audience farther away.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "researcher",
+     "mood": "good",
+     "src": "L4760-4761"
+    }
+   ]
+  },
+  "d2__text": {
+   "src": "L4760-4761",
+   "text": "The mixture foams spectacularly. The researcher cheers; the healer moves the audience farther away.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
   }
  }
 }

@@ -86,6 +86,31 @@
    "src": "L62"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Sorry,\" calls (subject). \"Sorry. Sorry. Sorry,\" say the cliffs, fainter and fainter. (friend) laughs so hard (friend.he/she) has to sit down. It becomes their private joke: from then on, whenever one of them makes any small mistake, the other one says \"sorry\" three times, quieter each time.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L65"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Sorry,\" calls (subject). \"Sorry. Sorry. Sorry,\" say the cliffs, fainter and fainter. (friend) laughs so hard (friend.he/she) has to sit down. It becomes their private joke: from then on, whenever one of them makes any small mistake, the other one says \"sorry\" three times, quieter each time.",
    "src": "L65"

@@ -65,11 +65,62 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) gives the hammock a gentle push. The pig wakes, squeals in outrage, tips out of the hammock, picks itself up, and trots off with its nose in the air. (subject) lies down. The hammock is warm, and smells faintly of pig. (subject.He/She) decides (subject.he/she) doesn't mind that much.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L218"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) gives the hammock a gentle push. The pig wakes, squeals in outrage, tips out of the hammock, picks itself up, and trots off with its nose in the air. (subject) lies down. The hammock is warm, and smells faintly of pig. (subject.He/She) decides (subject.he/she) doesn't mind that much.",
    "src": "L218"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits down on the ground under the hammock, which still has the pig in it, and leans against the tree. The pig snores. The hammock creaks. It's actually very peaceful. When (friend) walks past and asks what's going on, (subject) says, \"Shh. It's sleeping.\" (friend) walks on, shaking (friend.his/her) head.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L221"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) sits down on the ground under the hammock, which still has the pig in it, and leans against the tree. The pig snores. The hammock creaks. It's actually very peaceful. When (friend) walks past and asks what's going on, (subject) says, \"Shh. It's sleeping.\" (friend) walks on, shaking (friend.his/her) head.",
    "src": "L221"

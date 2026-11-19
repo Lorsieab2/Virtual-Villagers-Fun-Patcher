@@ -77,14 +77,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Fine,\" says (subject). \"But you carry your own stick.\" The dog proves an excellent companion. It finds water twice, barks at a crab for an hour, and sleeps on (subject)'s feet at night. They come home three days later, muddy and happy. The dog acts for weeks afterwards as though it organized the whole trip.",
-   "src": "L410"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) points back at the village. \"Home.\" The dog sits. (subject) walks on. The dog follows. (subject) points again. This goes on for some time. Eventually (child), a child, runs out, scoops up the dog and carries it back, still holding its stick. (subject) feels oddly guilty for the first hour of the walk.",
    "src": "L413"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (subject). \"But you carry your own stick.\" The dog proves an excellent companion. It finds water twice, barks at a crab for an hour, and sleeps on (subject)'s feet at night. They come home three days later, muddy and happy. The dog acts for weeks afterwards as though it organized the whole trip.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (subject). \"But you carry your own stick.\" The dog proves an excellent companion. It finds water twice, barks at a crab for an hour, and sleeps on (subject)'s feet at night. They come home three days later, muddy and happy. The dog acts for weeks afterwards as though it organized the whole trip.",
+   "src": "L410"
   }
  }
 }

@@ -69,6 +69,31 @@
    "src": "L86"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) sings loudly while sweeping. (He/she) rearranges the baskets without anyone asking why. (He/she) eats lunch sitting in the doorway with (his/her) feet up. It's a lovely day. When everyone comes home, they notice the baskets have moved. Nobody can work out what's different about (name1), but (he/she) seems very relaxed.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L89"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) sings loudly while sweeping. (He/she) rearranges the baskets without anyone asking why. (He/she) eats lunch sitting in the doorway with (his/her) feet up. It's a lovely day. When everyone comes home, they notice the baskets have moved. Nobody can work out what's different about (name1), but (he/she) seems very relaxed.",
    "src": "L89"

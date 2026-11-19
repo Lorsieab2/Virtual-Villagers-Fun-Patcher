@@ -217,6 +217,38 @@
    "src": "L31357"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(villager), an injured player, cheers from the shade.",
+   "src": "L31358",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31358"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L31358"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(villager), an injured player, cheers from the shade.",
    "src": "L31358",

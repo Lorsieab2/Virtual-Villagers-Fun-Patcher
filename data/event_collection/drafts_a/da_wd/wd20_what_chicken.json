@@ -61,14 +61,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) climbs up onto the roof in the half-dark. The chicken watches (him/her) come, then flaps calmly off the roof and lands on the next hut, where it begins crowing again. A muffled shout comes from inside that hut. (name1), sitting on (his/her) own roof in the dawn light, starts laughing and can't stop.",
-   "src": "L242"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) gets up. If the chicken wants (him/her) awake, (he/she) is awake. (He/She) watches the sunrise, which is beautiful. The chicken stops crowing the moment (name1) comes outside, looks down at (him/her) with satisfaction, and goes to sleep in the thatch. (name1) is now the only person awake in the whole village.",
    "src": "L245"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) climbs up onto the roof in the half-dark. The chicken watches (him/her) come, then flaps calmly off the roof and lands on the next hut, where it begins crowing again. A muffled shout comes from inside that hut. (name1), sitting on (his/her) own roof in the dawn light, starts laughing and can't stop.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L242"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) climbs up onto the roof in the half-dark. The chicken watches (him/her) come, then flaps calmly off the roof and lands on the next hut, where it begins crowing again. A muffled shout comes from inside that hut. (name1), sitting on (his/her) own roof in the dawn light, starts laughing and can't stop.",
+   "src": "L242"
   }
  }
 }

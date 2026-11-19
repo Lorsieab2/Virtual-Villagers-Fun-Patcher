@@ -218,6 +218,37 @@
    "src": "L30570"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(villager), a younger villager, tells an even funnier story about (elder), who laughs hardest of all.",
+   "src": "L30571",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30571"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L30571"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(villager), a younger villager, tells an even funnier story about (elder), who laughs hardest of all.",
    "src": "L30571"

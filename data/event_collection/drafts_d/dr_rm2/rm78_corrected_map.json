@@ -115,9 +115,16 @@
    "src": "L571"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The rest of the map is accurate, and the scholar feels relieved.",
-   "src": "L572"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -162,6 +169,24 @@
    "name": "Outcome D2",
    "text": "A child adds a doodle beside the note, which the scholar leaves in place.",
    "src": "L578"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The rest of the map is accurate, and the scholar feels relieved.",
+   "src": "L572",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L572"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The rest of the map is accurate, and the scholar feels relieved.",
+   "src": "L572"
   }
  }
 }

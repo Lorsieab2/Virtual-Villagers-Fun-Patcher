@@ -69,14 +69,49 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) plants them in a corner of the garden and waters them every day. For weeks, nothing. Then three of them come up. They grow into a tall, leafy plant with purple flowers and long pods. Nobody knows what it is or whether it's safe to eat. The healers are very interested. (subject) is just amazed that something somebody put away so long ago is growing in front of (subject.him/her).",
-   "src": "L386"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) suggests keeping them sealed, as they were found. If they don't grow, they're gone. (subject) agrees, reluctantly. The pot is put back, and (subject) makes a carving on the lid: seeds from long ago, kept safe. It's a mystery that will last longer than both of them. Maybe someday someone will be braver.",
    "src": "L389"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) plants them in a corner of the garden and waters them every day. For weeks, nothing. Then three of them come up. They grow into a tall, leafy plant with purple flowers and long pods. Nobody knows what it is or whether it's safe to eat. The healers are very interested. (subject) is just amazed that something somebody put away so long ago is growing in front of (subject.him/her).",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L386"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L386"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) plants them in a corner of the garden and waters them every day. For weeks, nothing. Then three of them come up. They grow into a tall, leafy plant with purple flowers and long pods. Nobody knows what it is or whether it's safe to eat. The healers are very interested. (subject) is just amazed that something somebody put away so long ago is growing in front of (subject.him/her).",
+   "src": "L386"
   }
  }
 }

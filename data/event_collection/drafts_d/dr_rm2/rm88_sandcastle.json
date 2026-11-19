@@ -89,9 +89,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The castle grows bigger than before, and both children laugh.",
-   "src": "L718"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -116,9 +123,16 @@
    "src": "L721"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The wall gets knocked over too, and the children laugh about it.",
-   "src": "L722"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -163,6 +177,42 @@
    "name": "Outcome D2",
    "text": "The moat floods the castle, and both children dissolve into giggles.",
    "src": "L728"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The castle grows bigger than before, and both children laugh.",
+   "src": "L718",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L718"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The castle grows bigger than before, and both children laugh.",
+   "src": "L718"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The wall gets knocked over too, and the children laugh about it.",
+   "src": "L722",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L722"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The wall gets knocked over too, and the children laugh about it.",
+   "src": "L722"
   }
  }
 }

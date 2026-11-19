@@ -97,14 +97,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"You!\" says (subject). \"We were just saying your name!\" (third) looks thoroughly pleased. \"Good things?\" \"Very good things.\" They all sit down together. Afterward, (subject) says, half joking, that they should be careful who they talk about. (friend) suggests they try talking about someone who owes them a fish.",
-   "src": "L75"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "After (third) has gone, (subject) says, loudly and clearly, the name of an old friend who lives in another village and hasn't visited in years. They wait. Nobody comes. They try again. Nobody comes. Three days later, the old friend arrives unexpectedly for a visit, and (subject) and (friend) look at each other and don't say a word.",
    "src": "L78"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"You!\" says (subject). \"We were just saying your name!\" (third) looks thoroughly pleased. \"Good things?\" \"Very good things.\" They all sit down together. Afterward, (subject) says, half joking, that they should be careful who they talk about. (friend) suggests they try talking about someone who owes them a fish.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L75"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"You!\" says (subject). \"We were just saying your name!\" (third) looks thoroughly pleased. \"Good things?\" \"Very good things.\" They all sit down together. Afterward, (subject) says, half joking, that they should be careful who they talk about. (friend) suggests they try talking about someone who owes them a fish.",
+   "src": "L75"
   }
  }
 }

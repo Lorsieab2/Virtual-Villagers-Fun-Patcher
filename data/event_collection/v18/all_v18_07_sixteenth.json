@@ -92,26 +92,14 @@
    ]
   },
   "a1": {
-   "text": "An unassuming singer performs every verse perfectly. The composer weeps with pride.",
-   "src": "L8715",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
-    }
-   ],
-   "effects": [
+     "next": "a1__fx"
+    },
     {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L8730"
-    }
-   ],
-   "text_only": [
-    {
-     "src": "L8730",
-     "what": "tech, food, or appropriate skill experience",
-     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+     "next": "a1__text"
     }
    ]
   },
@@ -158,11 +146,14 @@
    ]
   },
   "b2": {
-   "text": "A disastrous rendition becomes a wildly popular children's song, much to the composer's horror.",
-   "src": "L8719",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
     }
    ]
   },
@@ -456,6 +447,86 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "a1__fx": {
+   "text": "An unassuming singer performs every verse perfectly. The composer weeps with pride.",
+   "src": "L8715",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8730"
+    },
+    {
+     "do": "mood",
+     "role": "composer",
+     "mood": "good",
+     "src": "L8715"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8730",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "a1__text": {
+   "text": "An unassuming singer performs every verse perfectly. The composer weeps with pride.",
+   "src": "L8715",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8730"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8730",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "b2__fx": {
+   "text": "A disastrous rendition becomes a wildly popular children's song, much to the composer's horror.",
+   "src": "L8719",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "composer",
+     "mood": "bad",
+     "src": "L8719"
+    }
+   ]
+  },
+  "b2__text": {
+   "text": "A disastrous rendition becomes a wildly popular children's song, much to the composer's horror.",
+   "src": "L8719",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  },
  "requirement": {

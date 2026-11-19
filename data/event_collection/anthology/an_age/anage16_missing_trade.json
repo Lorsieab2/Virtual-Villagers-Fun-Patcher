@@ -166,14 +166,39 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "A simple double-check prevents future mistakes.",
-   "src": "L30378"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The new system proves cumbersome, and traders refine it after a trial.",
    "src": "L30379"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "A simple double-check prevents future mistakes.",
+   "src": "L30378",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L30378"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "A simple double-check prevents future mistakes.",
+   "src": "L30378"
   }
  }
 }

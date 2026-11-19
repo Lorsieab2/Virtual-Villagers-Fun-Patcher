@@ -74,14 +74,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "One of the little ones, (little), says, \"Can we play crabs?\" (subject) has no idea what crabs is. It turns out to involve walking sideways and pinching people. (subject) is very good at it. When the adults come back, they find (subject) on (subject.his/her) hands and knees in the sand, being chased by six screaming small crabs. Everyone is fine. Everyone is exhausted.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) sits down and tells them the turtle story (subject.he/she) used to love when (subject.he/she) was small. (subject.He/She) does all the voices. The little ones are spellbound. When the adults come back, nobody wants to leave until the turtle gets home. (subject) feels, for the first time, very grown up, and is not sure if (subject.he/she) likes it.",
    "src": "L77"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "One of the little ones, (little), says, \"Can we play crabs?\" (subject) has no idea what crabs is. It turns out to involve walking sideways and pinching people. (subject) is very good at it. When the adults come back, they find (subject) on (subject.his/her) hands and knees in the sand, being chased by six screaming small crabs. Everyone is fine. Everyone is exhausted.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "One of the little ones, (little), says, \"Can we play crabs?\" (subject) has no idea what crabs is. It turns out to involve walking sideways and pinching people. (subject) is very good at it. When the adults come back, they find (subject) on (subject.his/her) hands and knees in the sand, being chased by six screaming small crabs. Everyone is fine. Everyone is exhausted.",
+   "src": "L74"
   }
  }
 }

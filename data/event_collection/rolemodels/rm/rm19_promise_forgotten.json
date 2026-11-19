@@ -114,9 +114,16 @@
    "src": "L41"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The explanation feels uncomfortable, yet the teenager is relieved to have told the truth.",
-   "src": "L41"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -160,6 +167,24 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The elder needs time before discussing it, and the teenager respects that.",
+   "src": "L41"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The explanation feels uncomfortable, yet the teenager is relieved to have told the truth.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L41"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The explanation feels uncomfortable, yet the teenager is relieved to have told the truth.",
    "src": "L41"
   }
  }

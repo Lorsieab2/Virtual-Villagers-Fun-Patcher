@@ -75,6 +75,31 @@
    "src": "L409"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"It was a team effort,\" says (subject). \"Speaking of which, has anyone seen my hammer?\" The villagers eventually stop praising (subject.him/her), much to (subject.his/her) relief. The bridge remains in excellent condition.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"It was a team effort,\" says (subject). \"Speaking of which, has anyone seen my hammer?\" The villagers eventually stop praising (subject.him/her), much to (subject.his/her) relief. The bridge remains in excellent condition.",
    "src": "L413"

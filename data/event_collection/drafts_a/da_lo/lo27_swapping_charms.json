@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject), with the fish, has a wonderful day: (subject.his/her) work goes smoothly, and (subject.he/she) finds a ripe mango nobody else noticed. (friend), with the stone, has a terrible day: (friend.he/she) drops a basket and stubs a toe. That evening, (friend) hands the stone back very quickly. (subject) hands the fish back very slowly.",
-   "src": "L327"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "They both have ordinary days. Nothing special. In the evening, they swap back. \"I didn't feel any different,\" says (friend). \"Neither did I,\" says (subject). \"Maybe the luck is in the person holding it.\" (friend) thinks about that. \"Then why carry them at all?\" (subject) shrugs. \"They're nice to hold.\"",
    "src": "L330"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject), with the fish, has a wonderful day: (subject.his/her) work goes smoothly, and (subject.he/she) finds a ripe mango nobody else noticed. (friend), with the stone, has a terrible day: (friend.he/she) drops a basket and stubs a toe. That evening, (friend) hands the stone back very quickly. (subject) hands the fish back very slowly.",
+   "src": "L327",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L327"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L327"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject), with the fish, has a wonderful day: (subject.his/her) work goes smoothly, and (subject.he/she) finds a ripe mango nobody else noticed. (friend), with the stone, has a terrible day: (friend.he/she) drops a basket and stubs a toe. That evening, (friend) hands the stone back very quickly. (subject) hands the fish back very slowly.",
+   "src": "L327"
   }
  }
 }

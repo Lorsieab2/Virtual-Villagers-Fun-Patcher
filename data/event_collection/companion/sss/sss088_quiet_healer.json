@@ -85,9 +85,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They submit concise notes.",
-   "src": "L6978"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -110,6 +117,24 @@
    "name": "Answer C",
    "text": "They struggle and request a different way to contribute.",
    "src": "L6982"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They submit concise notes.",
+   "src": "L6978",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6978"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They submit concise notes.",
+   "src": "L6978"
   }
  }
 }

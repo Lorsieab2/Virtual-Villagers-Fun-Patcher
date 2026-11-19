@@ -70,11 +70,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) shows (subject) how to rub the fish away with a smooth stone until the wood is even again. It takes all afternoon. At the end, (friend) hands (subject.him/her) a small block of wood. \"Carve on this. As many fish as you like.\" (subject) carves twelve. Some of them are very good.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L434"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) shows (subject) how to rub the fish away with a smooth stone until the wood is even again. It takes all afternoon. At the end, (friend) hands (subject.him/her) a small block of wood. \"Carve on this. As many fish as you like.\" (subject) carves twelve. Some of them are very good.",
    "src": "L434"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) looks at the fish for a long while. Then (friend.he/she) explains that the post belongs to the whole village, not to one carver, but that the fish is good, and that (subject) can learn to carve properly if (subject.he/she) wants. (subject) starts lessons the next day. After a lot of discussion, the carvers decide the little fish can stay, since rubbing it out would leave a worse mark.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L437"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) looks at the fish for a long while. Then (friend.he/she) explains that the post belongs to the whole village, not to one carver, but that the fish is good, and that (subject) can learn to carve properly if (subject.he/she) wants. (subject) starts lessons the next day. After a lot of discussion, the carvers decide the little fish can stay, since rubbing it out would leave a worse mark.",
    "src": "L437"

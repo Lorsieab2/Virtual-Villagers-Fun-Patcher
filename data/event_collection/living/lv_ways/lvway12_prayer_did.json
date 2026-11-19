@@ -96,9 +96,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The family finds comfort in the possibility of an unseen journey.",
-   "src": "L22883"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -169,14 +176,57 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Companionship offers comfort without answers.",
-   "src": "L22892"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The family asks for solitude, and their wish is honored.",
    "src": "L22893"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the possibility of an unseen journey.",
+   "src": "L22883",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L22883"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the possibility of an unseen journey.",
+   "src": "L22883"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Companionship offers comfort without answers.",
+   "src": "L22892",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L22892"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Companionship offers comfort without answers.",
+   "src": "L22892"
   }
  }
 }

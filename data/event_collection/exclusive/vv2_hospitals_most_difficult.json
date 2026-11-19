@@ -69,15 +69,14 @@
    ]
   },
   "a1": {
-   "src": "L7860",
-   "text": "Patient listening restores trust.",
-   "effects": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "do": "health_change",
-     "role": "patient",
-     "min": 10,
-     "max": 20,
-     "src": "L7860"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -159,6 +158,38 @@
     },
     {
      "next": "b3"
+    }
+   ]
+  },
+  "a1__fx": {
+   "src": "L7860",
+   "text": "Patient listening restores trust.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 20,
+     "src": "L7860"
+    },
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L7860"
+    }
+   ]
+  },
+  "a1__text": {
+   "src": "L7860",
+   "text": "Patient listening restores trust.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 20,
+     "src": "L7860"
     }
    ]
   }

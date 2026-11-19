@@ -73,9 +73,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They treasure the lightweight design, though one ring breaks and must be repaired.",
-   "src": "L6300"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -86,6 +93,30 @@
    "name": "Answer C",
    "text": "The pair discover that matching intentions matter more to them than matching materials.",
    "src": "L6304"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They treasure the lightweight design, though one ring breaks and must be repaired.",
+   "src": "L6300",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L6300"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L6300"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They treasure the lightweight design, though one ring breaks and must be repaired.",
+   "src": "L6300"
   }
  }
 }

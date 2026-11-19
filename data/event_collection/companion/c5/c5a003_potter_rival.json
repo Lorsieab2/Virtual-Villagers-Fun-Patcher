@@ -115,9 +115,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "A clever water vessel wins the village's approval.",
-   "src": "L143"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome 2",
@@ -135,6 +142,24 @@
    "name": "Outcome 3",
    "text": "The judges cannot agree whether beauty or usefulness matters more.",
    "src": "L147"
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "A clever water vessel wins the village's approval.",
+   "src": "L143",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L143"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "A clever water vessel wins the village's approval.",
+   "src": "L143"
   }
  }
 }

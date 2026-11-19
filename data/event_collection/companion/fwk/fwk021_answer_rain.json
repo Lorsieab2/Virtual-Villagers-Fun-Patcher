@@ -129,18 +129,14 @@
    ]
   },
   "c": {
+   "type": "branch",
    "name": "Answer C",
-   "text": "They receive the weather as a comforting sign, not a command.",
-   "src": "L5641",
    "children": [
     {
-     "next": "r1"
+     "next": "c__fx"
     },
     {
-     "next": "r2"
-    },
-    {
-     "next": "r3"
+     "next": "c__text"
     }
    ]
   },
@@ -187,6 +183,46 @@
    "join": "paragraph",
    "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
    "src": "L5645"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "They receive the weather as a comforting sign, not a command.",
+   "src": "L5641",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L5641"
+    }
+   ]
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "They receive the weather as a comforting sign, not a command.",
+   "src": "L5641",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
   }
  }
 }

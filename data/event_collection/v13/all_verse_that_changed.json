@@ -459,8 +459,16 @@
    ]
   },
   "a2_more": {
-   "src": "L7399-7403",
-   "text": "(Reciter) is mortified. A discussion follows, distinguishing honest mistakes from deliberate mockery. The elder accepts an apology but asks that the original verse be taught accurately."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a2_more__fx"
+    },
+    {
+     "next": "a2_more__text"
+    }
+   ]
   },
   "a3": {
    "src": "L7405-7408",
@@ -539,13 +547,14 @@
    ]
   },
   "b3_more": {
-   "src": "L7425-7428",
-   "text": "A teacher later reminds the crowd that public laughter can wound even when nobody means harm. A few villagers visit (Reciter) and offer encouragement.",
-   "text_only": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "src": "L7426",
-     "what": "flees",
-     "reason": "the reciter leaves the stage, not the village"
+     "next": "b3_more__fx"
+    },
+    {
+     "next": "b3_more__text"
     }
    ]
   },
@@ -598,8 +607,16 @@
    ]
   },
   "c3_more": {
-   "src": "L7446-7449",
-   "text": "A scholar insists that reinterpretation keeps traditions alive. The leaders allow both to speak and commission a record of the debate."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c3_more__fx"
+    },
+    {
+     "next": "c3_more__text"
+    }
+   ]
   },
   "c4": {
    "src": "L7451-7453",
@@ -650,8 +667,16 @@
    ]
   },
   "d3_more": {
-   "src": "L7465-7469",
-   "text": "Nobody knows which version came first. (Reciter) becomes famous for rediscovering a forgotten line entirely by accident."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "d3_more__fx"
+    },
+    {
+     "next": "d3_more__text"
+    }
+   ]
   },
   "d4": {
    "src": "L7471-7475",
@@ -769,6 +794,84 @@
      "next": "d5"
     }
    ]
+  },
+  "a2_more__fx": {
+   "src": "L7399-7403",
+   "text": "(Reciter) is mortified. A discussion follows, distinguishing honest mistakes from deliberate mockery. The elder accepts an apology but asks that the original verse be taught accurately.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "reciter",
+     "mood": "bad",
+     "src": "L7399-7403"
+    }
+   ]
+  },
+  "a2_more__text": {
+   "src": "L7399-7403",
+   "text": "(Reciter) is mortified. A discussion follows, distinguishing honest mistakes from deliberate mockery. The elder accepts an apology but asks that the original verse be taught accurately."
+  },
+  "b3_more__fx": {
+   "src": "L7425-7428",
+   "text": "A teacher later reminds the crowd that public laughter can wound even when nobody means harm. A few villagers visit (Reciter) and offer encouragement.",
+   "text_only": [
+    {
+     "src": "L7426",
+     "what": "flees",
+     "reason": "the reciter leaves the stage, not the village"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "reciter",
+     "mood": "good",
+     "src": "L7425-7428"
+    }
+   ]
+  },
+  "b3_more__text": {
+   "src": "L7425-7428",
+   "text": "A teacher later reminds the crowd that public laughter can wound even when nobody means harm. A few villagers visit (Reciter) and offer encouragement.",
+   "text_only": [
+    {
+     "src": "L7426",
+     "what": "flees",
+     "reason": "the reciter leaves the stage, not the village"
+    }
+   ]
+  },
+  "c3_more__fx": {
+   "src": "L7446-7449",
+   "text": "A scholar insists that reinterpretation keeps traditions alive. The leaders allow both to speak and commission a record of the debate.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7446-7449"
+    }
+   ]
+  },
+  "c3_more__text": {
+   "src": "L7446-7449",
+   "text": "A scholar insists that reinterpretation keeps traditions alive. The leaders allow both to speak and commission a record of the debate."
+  },
+  "d3_more__fx": {
+   "src": "L7465-7469",
+   "text": "Nobody knows which version came first. (Reciter) becomes famous for rediscovering a forgotten line entirely by accident.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7465-7469"
+    }
+   ]
+  },
+  "d3_more__text": {
+   "src": "L7465-7469",
+   "text": "Nobody knows which version came first. (Reciter) becomes famous for rediscovering a forgotten line entirely by accident."
   }
  }
 }

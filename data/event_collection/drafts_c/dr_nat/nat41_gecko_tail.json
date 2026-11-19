@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) crouches down and explains that geckos can drop their tails on purpose when something grabs them, so they can get away. It's what tails are for, partly. It will grow another one, though it won't be quite the same. (subject) sniffs. \"Did it hurt?\" \"It got away,\" says (friend). \"That's what it wanted.\" (subject) decides never to grab a gecko again. A week later (subject.he/she) sees one with a short new tail and is very relieved.",
-   "src": "L488"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) wants to do something. (friend) suggests leaving a little bowl of water under the eaves for the gecko, wherever it went. (subject) does, very carefully, and checks it every morning. Whether the gecko drinks from it, nobody knows. A week later (subject) spots a gecko with a stumpy tail and is certain it's the same one, and that it has forgiven (subject.him/her).",
    "src": "L491"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) crouches down and explains that geckos can drop their tails on purpose when something grabs them, so they can get away. It's what tails are for, partly. It will grow another one, though it won't be quite the same. (subject) sniffs. \"Did it hurt?\" \"It got away,\" says (friend). \"That's what it wanted.\" (subject) decides never to grab a gecko again. A week later (subject.he/she) sees one with a short new tail and is very relieved.",
+   "src": "L488",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L488"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) crouches down and explains that geckos can drop their tails on purpose when something grabs them, so they can get away. It's what tails are for, partly. It will grow another one, though it won't be quite the same. (subject) sniffs. \"Did it hurt?\" \"It got away,\" says (friend). \"That's what it wanted.\" (subject) decides never to grab a gecko again. A week later (subject.he/she) sees one with a short new tail and is very relieved.",
+   "src": "L488"
   }
  }
 }

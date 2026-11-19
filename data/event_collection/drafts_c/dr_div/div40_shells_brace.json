@@ -70,11 +70,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) is worried it'll weaken the cord. (subject) promises to stitch only onto the outside. They work on it together all afternoon: rows of white shells, a little blue spiral, a tiny carved fish at the front. When (subject) puts it on, it clinks softly as (subject.he/she) walks. (subject.He/she) walks past every hut in the village twice.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L482"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) is worried it'll weaken the cord. (subject) promises to stitch only onto the outside. They work on it together all afternoon: rows of white shells, a little blue spiral, a tiny carved fish at the front. When (subject) puts it on, it clinks softly as (subject.he/she) walks. (subject.He/she) walks past every hut in the village twice.",
    "src": "L482"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) nods and leaves (subject.him/her) to it. (subject) works for three days. The result is extraordinary: covered in shells, seeds and feathers, a bit heavy, and rather loud. (subject) is enormously proud. When (friend) comes to check the fit, (friend.he/she) can't help laughing. \"You can hear you coming from the beach.\" \"That's the idea,\" says (subject).",
+   "src": "L485",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L485"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) nods and leaves (subject.him/her) to it. (subject) works for three days. The result is extraordinary: covered in shells, seeds and feathers, a bit heavy, and rather loud. (subject) is enormously proud. When (friend) comes to check the fit, (friend.he/she) can't help laughing. \"You can hear you coming from the beach.\" \"That's the idea,\" says (subject).",
    "src": "L485"

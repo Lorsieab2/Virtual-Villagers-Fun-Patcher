@@ -94,6 +94,31 @@
    "src": "L1796"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "They smile at the simple realization.",
+   "src": "L1797",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1797"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "They smile at the simple realization.",
    "src": "L1797"

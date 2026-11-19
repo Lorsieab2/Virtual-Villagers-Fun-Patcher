@@ -139,6 +139,31 @@
    "src": "L92"
   },
   "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(child) laughs, then asks for the serious explanation.",
+   "src": "L93",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L93"
+    }
+   ]
+  },
+  "b2__text": {
    "name": "Outcome B2",
    "text": "(child) laughs, then asks for the serious explanation.",
    "src": "L93"

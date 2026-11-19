@@ -77,15 +77,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The color takes beautifully, and the villager proudly keeps the new look.",
-   "src": "L21668",
-   "effects": [
+   "children": [
     {
-     "do": "appearance",
-     "role": "villager",
-     "head": "random",
-     "src": "L21668"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -155,6 +154,38 @@
      "min": -30,
      "max": -10,
      "src": "L21675"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The color takes beautifully, and the villager proudly keeps the new look.",
+   "src": "L21668",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L21668"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21668"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The color takes beautifully, and the villager proudly keeps the new look.",
+   "src": "L21668",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L21668"
     }
    ]
   }

@@ -66,11 +66,67 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) wanders over and joins in, and soon finds (subject.him/her)self arguing just as loudly as (subject.he/she) did at twenty, and just as certainly, and possibly just as wrongly. (friend) is delighted to have such a worthy opponent. Nobody wins. On the way home (subject) realizes (subject.he/she) hasn't enjoyed being wrong this much in years.",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L152"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L152"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) wanders over and joins in, and soon finds (subject.him/her)self arguing just as loudly as (subject.he/she) did at twenty, and just as certainly, and possibly just as wrongly. (friend) is delighted to have such a worthy opponent. Nobody wins. On the way home (subject) realizes (subject.he/she) hasn't enjoyed being wrong this much in years.",
    "src": "L152"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) stays where (subject.he/she) is. (subject.He/She) thinks about everything that person at twenty didn't know yet: the good things, the hard things, the people who hadn't arrived in (subject.his/her) life. (subject.He/She) wouldn't warn (subject.him/her) about any of it, (subject.he/she) decides. (subject.He/She) would just say: keep arguing about octopus. It was a good use of an afternoon. (subject.He/She) smiles and goes home.",
+   "src": "L155",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L155"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) stays where (subject.he/she) is. (subject.He/She) thinks about everything that person at twenty didn't know yet: the good things, the hard things, the people who hadn't arrived in (subject.his/her) life. (subject.He/She) wouldn't warn (subject.him/her) about any of it, (subject.he/she) decides. (subject.He/She) would just say: keep arguing about octopus. It was a good use of an afternoon. (subject.He/She) smiles and goes home.",
    "src": "L155"

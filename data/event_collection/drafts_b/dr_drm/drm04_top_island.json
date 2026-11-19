@@ -86,6 +86,31 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They climb until (subject) says, \"This will do.\" It's a little below the top, on a rock with a wonderful view of the sea. They eat lunch there. \"We could go on,\" says (friend). \"We could,\" says (subject). \"I'd rather sit here.\" (subject.He/she) is perfectly happy with that. The top of the hill will still be there.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They climb until (subject) says, \"This will do.\" It's a little below the top, on a rock with a wonderful view of the sea. They eat lunch there. \"We could go on,\" says (friend). \"We could,\" says (subject). \"I'd rather sit here.\" (subject.He/she) is perfectly happy with that. The top of the hill will still be there.",
    "src": "L53"

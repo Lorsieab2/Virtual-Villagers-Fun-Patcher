@@ -138,6 +138,31 @@
    "src": "L1147"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, sorts pebbles by color beside the shore. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1151",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1151"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a child, sorts pebbles by color beside the shore. The first attempt fails spectacularly, provoking laughter.",
    "src": "L1151"

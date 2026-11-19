@@ -70,6 +70,31 @@
    "src": "L110"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Watch this year,\" says (subject) gently. \"It's a bit of a quiet thing for me.\" (friend) nods and sits on the sand. (subject) swims to the rock and back alone, the way (subject.he/she) always has. When (subject.he/she) comes out, (friend) is holding a warm blanket and a hot drink. That part, (subject) decides, could become a tradition too.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"Watch this year,\" says (subject) gently. \"It's a bit of a quiet thing for me.\" (friend) nods and sits on the sand. (subject) swims to the rock and back alone, the way (subject.he/she) always has. When (subject.he/she) comes out, (friend) is holding a warm blanket and a hot drink. That part, (subject) decides, could become a tradition too.",
    "src": "L113"

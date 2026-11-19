@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "At the end of the week, they compare. (subject) had a good week: a nice catch, a fun evening, one sore back. (friend) also had a good week: a nice catch, a fun evening, one stubbed toe. They look at each other. \"Inconclusive,\" says (friend). \"Except for the toe,\" says (subject).",
-   "src": "L207"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "They swap. (subject) goes right foot first for a week, and spends every day braced for disaster. Nothing bad happens, except that (subject.he/she) is so jumpy (subject.he/she) drops three bowls. (friend) goes left foot first, and has the most relaxing week of (friend.his/her) life. Neither of them is sure what this proves.",
    "src": "L210"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "At the end of the week, they compare. (subject) had a good week: a nice catch, a fun evening, one sore back. (friend) also had a good week: a nice catch, a fun evening, one stubbed toe. They look at each other. \"Inconclusive,\" says (friend). \"Except for the toe,\" says (subject).",
+   "src": "L207",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L207"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "At the end of the week, they compare. (subject) had a good week: a nice catch, a fun evening, one sore back. (friend) also had a good week: a nice catch, a fun evening, one stubbed toe. They look at each other. \"Inconclusive,\" says (friend). \"Except for the toe,\" says (subject).",
+   "src": "L207"
   }
  }
 }

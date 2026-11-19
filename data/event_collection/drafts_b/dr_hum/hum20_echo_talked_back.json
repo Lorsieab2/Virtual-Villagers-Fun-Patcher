@@ -74,6 +74,31 @@
    "src": "L242"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) climbs all the way round the valley and finds (friend) crouched behind a rock, shaking with laughter. \"I'm the echo,\" says (friend). \"I know,\" says (subject). The next day they take the children to the valley and do it all again, and the children believe every word.",
+   "src": "L245",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L245"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) climbs all the way round the valley and finds (friend) crouched behind a rock, shaking with laughter. \"I'm the echo,\" says (friend). \"I know,\" says (subject). The next day they take the children to the valley and do it all again, and the children believe every word.",
    "src": "L245"

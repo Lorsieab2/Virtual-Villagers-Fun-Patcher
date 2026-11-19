@@ -91,6 +91,31 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The council asks (subject) to replace the seedlings. (subject) goes round the village asking for spare seedlings and cuttings, and gets them from five different gardens. The bed is replanted in a day. It's a bit of a mixture now. (friend) says it's actually rather interesting, and two of the new plants turn out to be useful.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L65"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The council asks (subject) to replace the seedlings. (subject) goes round the village asking for spare seedlings and cuttings, and gets them from five different gardens. The bed is replanted in a day. It's a bit of a mixture now. (friend) says it's actually rather interesting, and two of the new plants turn out to be useful.",
    "src": "L65"

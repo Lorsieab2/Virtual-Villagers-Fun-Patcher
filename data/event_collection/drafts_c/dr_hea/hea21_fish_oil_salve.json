@@ -74,6 +74,31 @@
    "src": "L257"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks very politely if there's a version that smells less like the bottom of a canoe. (friend) thinks. \"I could try it with coconut oil. It might not work as well. Or it might work better. I don't know.\" The coconut salve smells lovely. It helps a little less, or maybe the same. (subject) can't tell. The cats lose interest. (subject) is a bit sad about that.",
+   "src": "L260",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L260"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks very politely if there's a version that smells less like the bottom of a canoe. (friend) thinks. \"I could try it with coconut oil. It might not work as well. Or it might work better. I don't know.\" The coconut salve smells lovely. It helps a little less, or maybe the same. (subject) can't tell. The cats lose interest. (subject) is a bit sad about that.",
    "src": "L260"

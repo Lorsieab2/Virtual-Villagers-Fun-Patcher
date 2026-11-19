@@ -73,9 +73,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They decline warmly and remain content.",
-   "src": "L6928"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -86,6 +93,24 @@
    "name": "Answer C",
    "text": "They admit they sometimes are, and choose a small gathering.",
    "src": "L6932"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They decline warmly and remain content.",
+   "src": "L6928",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L6928"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They decline warmly and remain content.",
+   "src": "L6928"
   }
  }
 }

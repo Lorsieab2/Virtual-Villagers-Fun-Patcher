@@ -132,14 +132,39 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The child forms a bond with a familiar domestic animal.",
-   "src": "L21552"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The child still visits the river to watch the otters.",
    "src": "L21553"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child forms a bond with a familiar domestic animal.",
+   "src": "L21552",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21552"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child forms a bond with a familiar domestic animal.",
+   "src": "L21552"
   }
  }
 }

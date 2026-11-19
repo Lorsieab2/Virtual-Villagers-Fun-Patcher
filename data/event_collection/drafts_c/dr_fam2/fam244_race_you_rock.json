@@ -72,11 +72,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They race, splashing and spluttering and laughing like children. (friend) wins, easily. (subject) stands in the water, puffing. \"I used to win every time,\" (subject.he/she) says. \"I know,\" says (friend). \"You taught me.\" They float on their backs for a long time, looking at the sky, not saying much. The sky looks the same as it did when they were children.",
+   "src": "L524",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L524"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L524"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They race, splashing and spluttering and laughing like children. (friend) wins, easily. (subject) stands in the water, puffing. \"I used to win every time,\" (subject.he/she) says. \"I know,\" says (friend). \"You taught me.\" They float on their backs for a long time, looking at the sky, not saying much. The sky looks the same as it did when they were children.",
    "src": "L524"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'm too old to race,\" says (subject), sitting down on the bank. (friend) sits beside (subject.him/her). They talk about when they were little: the crab that bit (friend)'s toe, the time (subject) fell out of the mango tree, the storm they hid from under a canoe. They laugh so much the whole beach can hear. Then they walk home together, slower than they used to.",
+   "src": "L527",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L527"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L527"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'm too old to race,\" says (subject), sitting down on the bank. (friend) sits beside (subject.him/her). They talk about when they were little: the crab that bit (friend)'s toe, the time (subject) fell out of the mango tree, the storm they hid from under a canoe. They laugh so much the whole beach can hear. Then they walk home together, slower than they used to.",
    "src": "L527"

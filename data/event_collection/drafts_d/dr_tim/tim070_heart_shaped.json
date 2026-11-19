@@ -99,9 +99,16 @@
    "src": "L1171"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) searches for a stone shaped like a tiny heart. The first attempt fails spectacularly, provoking laughter.",
-   "src": "L1175"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,24 @@
    "name": "Ending 4",
    "text": "(Name1) searches for a stone shaped like a tiny heart. A friend suggests changing the rules halfway through.",
    "src": "L1183"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) searches for a stone shaped like a tiny heart. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1175",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1175"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) searches for a stone shaped like a tiny heart. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1175"
   }
  }
 }

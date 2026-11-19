@@ -70,6 +70,31 @@
    "src": "L128"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) wanders back along the shore and finds a tree with a low, curving branch that fits (subject.him/her) perfectly. It's not the rock. But the shade is lovely, and the sea sounds just as loud from here. (subject.He/She) might come back tomorrow.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L131"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) wanders back along the shore and finds a tree with a low, curving branch that fits (subject.him/her) perfectly. It's not the rock. But the shade is lovely, and the sea sounds just as loud from here. (subject.He/She) might come back tomorrow.",
    "src": "L131"

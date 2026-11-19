@@ -81,6 +81,51 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I fell asleep,\" (subject) tells (friend). \"The birds had a feast.\" (friend) looks at the racks, then at (subject), who looks very tired. \"You've been up before dawn three days running,\" (friend.he/she) says. \"I'll take the next watch. Go and sleep properly.\" (subject) means to argue, and is asleep before (subject.he/she) can.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L182"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L182"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I fell asleep,\" (subject) tells (friend). \"The birds had a feast.\" (friend) looks at the racks, then at (subject), who looks very tired. \"You've been up before dawn three days running,\" (friend.he/she) says. \"I'll take the next watch. Go and sleep properly.\" (subject) means to argue, and is asleep before (subject.he/she) can.",
    "src": "L182",
@@ -94,7 +139,27 @@
     }
    ]
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) counts what's left and reports it honestly, birds and all. (friend) groans, then laughs. \"They've been waiting all week for somebody to nod off.\" From then on the watchers sit in pairs and keep each other awake with terrible jokes. The birds seem disappointed.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L185"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L185"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) counts what's left and reports it honestly, birds and all. (friend) groans, then laughs. \"They've been waiting all week for somebody to nod off.\" From then on the watchers sit in pairs and keep each other awake with terrible jokes. The birds seem disappointed.",
    "src": "L185",

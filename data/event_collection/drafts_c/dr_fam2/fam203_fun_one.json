@@ -79,11 +79,80 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes them to the tide pools. They find a starfish, an angry crab and a sea cucumber that (third) refuses to touch. They come home sandy, sunburnt and thrilled. Then (subject) hands them back, goes home to (subject.his/her) quiet, tidy hut and has a long nap. It's the best of both worlds, and (subject.he/she) knows it.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L38"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L38"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L38"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) takes them to the tide pools. They find a starfish, an angry crab and a sea cucumber that (third) refuses to touch. They come home sandy, sunburnt and thrilled. Then (subject) hands them back, goes home to (subject.his/her) quiet, tidy hut and has a long nap. It's the best of both worlds, and (subject.he/she) knows it.",
    "src": "L38"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) teaches them the pelican impression. It takes all afternoon. By the end, three pelicans are flapping round the village squawking. Several adults are not delighted. The children are. When their parents come home, the children won't stop being pelicans. (subject) waves and leaves quickly. Being the fun one has its responsibilities, and fleeing is one of them.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L41"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L41"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) teaches them the pelican impression. It takes all afternoon. By the end, three pelicans are flapping round the village squawking. Several adults are not delighted. The children are. When their parents come home, the children won't stop being pelicans. (subject) waves and leaves quickly. Being the fun one has its responsibilities, and fleeing is one of them.",
    "src": "L41"

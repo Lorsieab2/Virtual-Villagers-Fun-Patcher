@@ -97,19 +97,73 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "The apprentice develops a distinctive style.",
-   "src": "L4469"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "text": "The master discovers they still enjoy teaching groups.",
-   "src": "L4470"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",
    "text": "A disagreement ends the apprenticeship early.",
    "src": "L4471"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The apprentice develops a distinctive style.",
+   "src": "L4469",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4469"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The apprentice develops a distinctive style.",
+   "src": "L4469"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The master discovers they still enjoy teaching groups.",
+   "src": "L4470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "master",
+     "mood": "good",
+     "src": "L4470"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The master discovers they still enjoy teaching groups.",
+   "src": "L4470"
   }
  }
 }

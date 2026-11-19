@@ -134,6 +134,31 @@
    "src": "L560"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "A young apprentice notices a seasonal change in the shadow's path.",
+   "src": "L562",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L562"
+    }
+   ]
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "A young apprentice notices a seasonal change in the shadow's path.",
    "src": "L562"

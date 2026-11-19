@@ -69,14 +69,45 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) admits that (subject.he/she) meant to, then kept putting it off, then felt awkward about how long it had been, which made it harder. The elders ask (subject) to repay it over the next three catches. (subject) agrees, relieved to have a plan. (friend) is relieved too. It was never really the fish (friend.he/she) minded.",
-   "src": "L230"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The elders agree that the debt is owed. But (subject)'s catches have been poor this year, and the elders won't take what (subject)'s household needs to eat. They set a smaller amount, paid slowly. (friend) thinks that's too generous. (subject) thinks it's fair. The elders say that probably means it's about right.",
    "src": "L233"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) admits that (subject.he/she) meant to, then kept putting it off, then felt awkward about how long it had been, which made it harder. The elders ask (subject) to repay it over the next three catches. (subject) agrees, relieved to have a plan. (friend) is relieved too. It was never really the fish (friend.he/she) minded.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L230"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) admits that (subject.he/she) meant to, then kept putting it off, then felt awkward about how long it had been, which made it harder. The elders ask (subject) to repay it over the next three catches. (subject) agrees, relieved to have a plan. (friend) is relieved too. It was never really the fish (friend.he/she) minded.",
+   "src": "L230"
   }
  }
 }

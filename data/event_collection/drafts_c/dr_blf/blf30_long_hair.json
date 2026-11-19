@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"No, thank you,\" says (subject). \"It'll get there.\" It takes a whole year. The middle part is very awkward. But by the next harvest it's down past his shoulders, thick and shining, and he ties it back with a strip of red cloth. (friend) admits it was worth the wait. (subject) is unbearably smug about it for weeks.",
-   "src": "L362"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Not cut,\" says (subject). \"But could you shape it? So it looks like I'm doing this on purpose?\" (friend) laughs and trims the ends so it sits neatly. It still looks like a work in progress. But a tidier one. (subject) keeps growing it. (friend) trims it every month, very carefully, never more than a finger's width.",
    "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"No, thank you,\" says (subject). \"It'll get there.\" It takes a whole year. The middle part is very awkward. But by the next harvest it's down past his shoulders, thick and shining, and he ties it back with a strip of red cloth. (friend) admits it was worth the wait. (subject) is unbearably smug about it for weeks.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L362"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"No, thank you,\" says (subject). \"It'll get there.\" It takes a whole year. The middle part is very awkward. But by the next harvest it's down past his shoulders, thick and shining, and he ties it back with a strip of red cloth. (friend) admits it was worth the wait. (subject) is unbearably smug about it for weeks.",
+   "src": "L362"
   }
  }
 }

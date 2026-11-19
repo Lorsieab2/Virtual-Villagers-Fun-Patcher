@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) marches into the sea and washes every last grain away. It feels wonderful. (subject.He/she) comes out, lies down on the warm beach to dry, and falls fast asleep. When (friend) finds (subject.him/her) an hour later, (subject.he/she) is covered in sand again, from head to foot, and smiling in (subject.his/her) sleep.",
-   "src": "L302"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) gives up and lets the sand be. It trickles out of (subject.his/her) clothes every time (subject.he/she) sits down, leaving little piles all over the village, and (friend) finds (subject.him/her) for lunch simply by following the trail. Days later, (subject) discovers one last grain in (subject.his/her) eyebrow. (subject.He/she) considers keeping it, as a souvenir.",
    "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) marches into the sea and washes every last grain away. It feels wonderful. (subject.He/she) comes out, lies down on the warm beach to dry, and falls fast asleep. When (friend) finds (subject.him/her) an hour later, (subject.he/she) is covered in sand again, from head to foot, and smiling in (subject.his/her) sleep.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L302"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) marches into the sea and washes every last grain away. It feels wonderful. (subject.He/she) comes out, lies down on the warm beach to dry, and falls fast asleep. When (friend) finds (subject.him/her) an hour later, (subject.he/she) is covered in sand again, from head to foot, and smiling in (subject.his/her) sleep.",
+   "src": "L302"
   }
  }
 }

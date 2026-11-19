@@ -61,14 +61,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) gently tips the pot back over, exactly as it was. The bird, which has been hopping about anxiously nearby, darts back underneath. (name1) uses a different pot for the next feast. A few weeks later, (he/she) hears tiny cheeping from under the pot, and grins every time (he/she) walks past.",
-   "src": "L416"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) tips the pot back and tells everyone in the village that the feast pot is out of use until further notice. \"Why?\" \"There's a bird in it.\" People seem to accept this as a perfectly good reason. When the chicks finally fly, (name1) gets the pot back, with a lovely nest in it, which (he/she) decides to leave there for next year.",
    "src": "L419"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) gently tips the pot back over, exactly as it was. The bird, which has been hopping about anxiously nearby, darts back underneath. (name1) uses a different pot for the next feast. A few weeks later, (he/she) hears tiny cheeping from under the pot, and grins every time (he/she) walks past.",
+   "src": "L416",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L416"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) gently tips the pot back over, exactly as it was. The bird, which has been hopping about anxiously nearby, darts back underneath. (name1) uses a different pot for the next feast. A few weeks later, (he/she) hears tiny cheeping from under the pot, and grins every time (he/she) walks past.",
+   "src": "L416"
   }
  }
 }

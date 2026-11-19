@@ -106,9 +106,16 @@
    "src": "L28791"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(child) invents a new constellation that everyone prefers.",
-   "src": "L28792"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -123,9 +130,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(scholar), a researcher, improves their observations.",
-   "src": "L28794"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -172,6 +186,77 @@
    "src": "L28800"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) invents a new constellation that everyone prefers.",
+   "src": "L28792",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28792"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) invents a new constellation that everyone prefers.",
+   "src": "L28792"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(scholar), a researcher, improves their observations.",
+   "src": "L28794",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scholar",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L28794"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(scholar), a researcher, improves their observations.",
+   "src": "L28794"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The groups disagree cheerfully about a constellation's name.",
+   "src": "L28801",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28801"
+    },
+    {
+     "do": "mood",
+     "role": "scholar",
+     "mood": "good",
+     "src": "L28801"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The groups disagree cheerfully about a constellation's name.",
    "src": "L28801"

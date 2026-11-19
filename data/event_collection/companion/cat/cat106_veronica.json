@@ -80,19 +80,14 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "A record of pollinators and scent emerges; no petals are harvested.",
-   "src": "L8372",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "naturalist",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L8372"
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
     }
    ]
   },
@@ -139,6 +134,46 @@
      "min": 5,
      "max": 10,
      "src": "L8378"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "A record of pollinators and scent emerges; no petals are harvested.",
+   "src": "L8372",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8372"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8372"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "A record of pollinators and scent emerges; no petals are harvested.",
+   "src": "L8372",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8372"
     }
    ]
   }

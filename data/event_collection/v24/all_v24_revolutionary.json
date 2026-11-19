@@ -733,131 +733,62 @@
    ]
   },
   "a1_food": {
-   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
-   "src": "L10294-10296",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L10295"
-    },
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Farming"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L10296"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a1_food__fx"
+    },
+    {
+     "next": "a1_food__text"
     }
    ]
   },
   "a1_sci": {
-   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
-   "src": "L10294-10296",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L10295"
-    },
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research",
-      "Healing"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L10296"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a1_sci__fx"
+    },
+    {
+     "next": "a1_sci__text"
     }
    ]
   },
   "a1_eng": {
-   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
-   "src": "L10294-10296",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L10295"
-    },
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research",
-      "Building"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L10296"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a1_eng__fx"
+    },
+    {
+     "next": "a1_eng__text"
     }
    ]
   },
   "a1_trade": {
-   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
-   "src": "L10294-10296",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L10295"
-    },
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L10296"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a1_trade__fx"
+    },
+    {
+     "next": "a1_trade__text"
     }
    ]
   },
   "a1_art": {
-   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
-   "src": "L10294-10296",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L10295"
-    }
-   ],
-   "text_only": [
-    {
-     "src": "L10296",
-     "what": "relevant skill",
-     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a1_art__fx"
+    },
+    {
+     "next": "a1_art__text"
     }
    ]
   },
@@ -918,11 +849,14 @@
    ]
   },
   "a2": {
-   "text": "The demonstration fails hilariously. (Inventor) is mocked, then receives an apology if later vindicated.",
-   "src": "L10297-10298",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -936,104 +870,62 @@
    ]
   },
   "a4_food": {
-   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
-   "src": "L10301-10302",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Farming"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L10302"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a4_food__fx"
+    },
+    {
+     "next": "a4_food__text"
     }
    ]
   },
   "a4_sci": {
-   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
-   "src": "L10301-10302",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research",
-      "Healing"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L10302"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a4_sci__fx"
+    },
+    {
+     "next": "a4_sci__text"
     }
    ]
   },
   "a4_eng": {
-   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
-   "src": "L10301-10302",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research",
-      "Building"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L10302"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a4_eng__fx"
+    },
+    {
+     "next": "a4_eng__text"
     }
    ]
   },
   "a4_trade": {
-   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
-   "src": "L10301-10302",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L10302"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a4_trade__fx"
+    },
+    {
+     "next": "a4_trade__text"
     }
    ]
   },
   "a4_art": {
-   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
-   "src": "L10301-10302",
-   "text_only": [
-    {
-     "src": "L10302",
-     "what": "relevant skill",
-     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "a4_art__fx"
+    },
+    {
+     "next": "a4_art__text"
     }
    ]
   },
@@ -1142,11 +1034,14 @@
    ]
   },
   "b1": {
-   "text": "The idea withstands scrutiny; (Inventor) is invited to become one of the island's leading scholars.",
-   "src": "L10309-10310",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -1173,23 +1068,14 @@
    ]
   },
   "b5": {
-   "text": "A careful experiment disproves the claim. (Inventor) is disappointed but gains knowledge from the attempt.",
-   "src": "L10317-10318",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
-    }
-   ],
-   "effects": [
+     "next": "b5__fx"
+    },
     {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L10317-10318"
+     "next": "b5__text"
     }
    ]
   },
@@ -1229,20 +1115,26 @@
    ]
   },
   "c1": {
-   "text": "A flaw is corrected; the invention becomes reliable or the discovery becomes reproducible.",
-   "src": "L10323-10324",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
   "c2": {
-   "text": "A brittle model cracks into countless pieces. The inventor survives, embarrassed and covered in fragments.",
-   "src": "L10325-10326",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
     }
    ]
   },
@@ -1298,8 +1190,16 @@
    ]
   },
   "c7": {
-   "text": "The second version is less spectacular but more useful. (Inventor) learns the value of patient work.",
-   "src": "L10336-10337"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c7__fx"
+    },
+    {
+     "next": "c7__text"
+    }
+   ]
   },
   "set_c": {
    "type": "branch",
@@ -1337,11 +1237,14 @@
    ]
   },
   "d1": {
-   "text": "The invention quietly improves the lives of a few villagers before the rest learn of it.",
-   "src": "L10340-10341",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
     }
    ]
   },
@@ -1504,8 +1407,16 @@
    ]
   },
   "d5": {
-   "text": "The secret leaks and (Inventor) becomes famous despite desperately wishing to be left alone.",
-   "src": "L10348-10349"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "d5__fx"
+    },
+    {
+     "next": "d5__text"
+    }
+   ]
   },
   "d6": {
    "text": "Villagers mistake secrecy for evidence of sorcery or dealings with outsiders. An elder investigates.",
@@ -1540,11 +1451,14 @@
    ]
   },
   "e1": {
-   "text": "The elders approve practical use, training, or preservation of the discovery in the village records.",
-   "src": "L10354-10355",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "react"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -1598,6 +1512,772 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{REACT}"
+  },
+  "a1_food__fx": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_food__text": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_sci__fx": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_sci__text": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_eng__fx": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_eng__text": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_trade__fx": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_trade__text": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_art__fx": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L10296",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_art__text": {
+   "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L10296",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a2__fx": {
+   "text": "The demonstration fails hilariously. (Inventor) is mocked, then receives an apology if later vindicated.",
+   "src": "L10297-10298",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "bad",
+     "src": "L10297-10298"
+    }
+   ]
+  },
+  "a2__text": {
+   "text": "The demonstration fails hilariously. (Inventor) is mocked, then receives an apology if later vindicated.",
+   "src": "L10297-10298",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_food__fx": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_food__text": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_sci__fx": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_sci__text": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_eng__fx": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_eng__text": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_trade__fx": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_trade__text": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_art__fx": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "text_only": [
+    {
+     "src": "L10302",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
+    }
+   ]
+  },
+  "a4_art__text": {
+   "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "text_only": [
+    {
+     "src": "L10302",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "b1__fx": {
+   "text": "The idea withstands scrutiny; (Inventor) is invited to become one of the island's leading scholars.",
+   "src": "L10309-10310",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10309-10310"
+    },
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "good",
+     "src": "L10309-10310"
+    }
+   ]
+  },
+  "b1__text": {
+   "text": "The idea withstands scrutiny; (Inventor) is invited to become one of the island's leading scholars.",
+   "src": "L10309-10310",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "b5__fx": {
+   "text": "A careful experiment disproves the claim. (Inventor) is disappointed but gains knowledge from the attempt.",
+   "src": "L10317-10318",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10317-10318"
+    },
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "bad",
+     "src": "L10317-10318"
+    }
+   ]
+  },
+  "b5__text": {
+   "text": "A careful experiment disproves the claim. (Inventor) is disappointed but gains knowledge from the attempt.",
+   "src": "L10317-10318",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10317-10318"
+    }
+   ]
+  },
+  "c1__fx": {
+   "text": "A flaw is corrected; the invention becomes reliable or the discovery becomes reproducible.",
+   "src": "L10323-10324",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10323-10324"
+    }
+   ]
+  },
+  "c1__text": {
+   "text": "A flaw is corrected; the invention becomes reliable or the discovery becomes reproducible.",
+   "src": "L10323-10324",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "c2__fx": {
+   "text": "A brittle model cracks into countless pieces. The inventor survives, embarrassed and covered in fragments.",
+   "src": "L10325-10326",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "bad",
+     "src": "L10325-10326"
+    }
+   ]
+  },
+  "c2__text": {
+   "text": "A brittle model cracks into countless pieces. The inventor survives, embarrassed and covered in fragments.",
+   "src": "L10325-10326",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "c7__fx": {
+   "text": "The second version is less spectacular but more useful. (Inventor) learns the value of patient work.",
+   "src": "L10336-10337",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10336-10337"
+    }
+   ]
+  },
+  "c7__text": {
+   "text": "The second version is less spectacular but more useful. (Inventor) learns the value of patient work.",
+   "src": "L10336-10337"
+  },
+  "d1__fx": {
+   "text": "The invention quietly improves the lives of a few villagers before the rest learn of it.",
+   "src": "L10340-10341",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10340-10341"
+    }
+   ]
+  },
+  "d1__text": {
+   "text": "The invention quietly improves the lives of a few villagers before the rest learn of it.",
+   "src": "L10340-10341",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "d5__fx": {
+   "text": "The secret leaks and (Inventor) becomes famous despite desperately wishing to be left alone.",
+   "src": "L10348-10349",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "bad",
+     "src": "L10348-10349"
+    }
+   ]
+  },
+  "d5__text": {
+   "text": "The secret leaks and (Inventor) becomes famous despite desperately wishing to be left alone.",
+   "src": "L10348-10349"
+  },
+  "e1__fx": {
+   "text": "The elders approve practical use, training, or preservation of the discovery in the village records.",
+   "src": "L10354-10355",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10354-10355"
+    }
+   ]
+  },
+  "e1__text": {
+   "text": "The elders approve practical use, training, or preservation of the discovery in the village records.",
+   "src": "L10354-10355",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
   }
  },
  "pools": {

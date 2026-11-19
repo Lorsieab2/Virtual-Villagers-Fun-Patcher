@@ -82,11 +82,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Have I done something?\" asks (friend). (subject) looks at (friend.his/her) left ear, puzzled. \"No. Why?\" (friend) explains. (subject) thinks about it. \"I don't look at anyone's eyes. And I tell everyone the weather. It's how I say I'm glad to see them.\" (friend) laughs with relief. The next morning (friend.he/she) gets: \"Good morning. Clear. Hot later.\" (friend.He/she) decides it's the nicest greeting on Isola.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L218"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Have I done something?\" asks (friend). (subject) looks at (friend.his/her) left ear, puzzled. \"No. Why?\" (friend) explains. (subject) thinks about it. \"I don't look at anyone's eyes. And I tell everyone the weather. It's how I say I'm glad to see them.\" (friend) laughs with relief. The next morning (friend.he/she) gets: \"Good morning. Clear. Hot later.\" (friend.He/she) decides it's the nicest greeting on Isola.",
    "src": "L218"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) asks (old_friend), an old friend of (subject)'s, who laughs. \"That's just how (subject.he/she) is. If (subject.he/she) tells you the weather, (subject.he/she) likes you. If (subject.he/she) tells you the weather AND the tide, (subject.he/she) REALLY likes you.\" For weeks, (friend) waits. Then one morning: \"Clouds from the north. Low tide at noon.\" (friend) is ridiculously pleased all day.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L221"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) asks (old_friend), an old friend of (subject)'s, who laughs. \"That's just how (subject.he/she) is. If (subject.he/she) tells you the weather, (subject.he/she) likes you. If (subject.he/she) tells you the weather AND the tide, (subject.he/she) REALLY likes you.\" For weeks, (friend) waits. Then one morning: \"Clouds from the north. Low tide at noon.\" (friend) is ridiculously pleased all day.",
    "src": "L221"

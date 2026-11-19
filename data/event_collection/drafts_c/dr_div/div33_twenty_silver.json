@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) sits. (friend) realizes the mistake halfway through a story and laughs until (friend.he/she) coughs. But (friend.he/she) doesn't tell (subject) to move, and (subject) doesn't. It turns out the old folks' end of the fire has the best stories, the best snacks and the warmest spot. (subject) sits there every evening after that. The elders call (subject.him/her) the youngest elder.",
-   "src": "L398"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I'm twenty,\" says (subject), grinning. (friend) squints harder. \"Twenty? With that hair?\" \"It came early,\" says (subject). (friend) shakes (friend.his/her) head. \"Mine took sixty years. You got the good bit fast.\" (friend.He/she) means it as a compliment. (subject) takes it as one. (subject.He/she) sits down anyway, for the stories.",
    "src": "L401"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits. (friend) realizes the mistake halfway through a story and laughs until (friend.he/she) coughs. But (friend.he/she) doesn't tell (subject) to move, and (subject) doesn't. It turns out the old folks' end of the fire has the best stories, the best snacks and the warmest spot. (subject) sits there every evening after that. The elders call (subject.him/her) the youngest elder.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sits. (friend) realizes the mistake halfway through a story and laughs until (friend.he/she) coughs. But (friend.he/she) doesn't tell (subject) to move, and (subject) doesn't. It turns out the old folks' end of the fire has the best stories, the best snacks and the warmest spot. (subject) sits there every evening after that. The elders call (subject.him/her) the youngest elder.",
+   "src": "L398"
   }
  }
 }

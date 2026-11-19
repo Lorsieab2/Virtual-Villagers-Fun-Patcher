@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) thinks for a long time, then writes: \"To whoever needs it. I hope your day is going well. If it isn't, I hope tomorrow is better. From somebody on the other side of the island.\" The messenger promises to give it to someone who looks like they need it. (name1) never finds out who. (He/she) likes not knowing.",
-   "src": "L110"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Not this time,\" says (name1). The messenger nods and moves on. That evening (name1) sits by the fire and thinks about who (he/she) might write to, one day, and what (he/she) would say. (He/she) doesn't come up with an answer. It is a pleasant thing to wonder about, all the same.",
    "src": "L113"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) thinks for a long time, then writes: \"To whoever needs it. I hope your day is going well. If it isn't, I hope tomorrow is better. From somebody on the other side of the island.\" The messenger promises to give it to someone who looks like they need it. (name1) never finds out who. (He/she) likes not knowing.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) thinks for a long time, then writes: \"To whoever needs it. I hope your day is going well. If it isn't, I hope tomorrow is better. From somebody on the other side of the island.\" The messenger promises to give it to someone who looks like they need it. (name1) never finds out who. (He/she) likes not knowing.",
+   "src": "L110"
   }
  }
 }

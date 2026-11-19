@@ -150,9 +150,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The gentler method relieves pain and surprises the master.",
-   "src": "L23417"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -218,6 +225,25 @@
    "name": "Outcome D2",
    "text": "They disagree in front of the patient and must rebuild trust.",
    "src": "L23424"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gentler method relieves pain and surprises the master.",
+   "src": "L23417",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 5,
+     "max": 15,
+     "src": "L23417"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gentler method relieves pain and surprises the master.",
+   "src": "L23417"
   }
  }
 }

@@ -75,6 +75,32 @@
    "src": "L146"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) catches up and offers to carry the mat, since it seems heavy. (subject) gratefully hands it over. They walk a little way. \"Where are we going?\" asks (friend). (subject) thinks hard. (subject.He/she) hadn't got that far. \"Home,\" (subject.he/she) decides, \"but the long way.\" They take the long way. It is very long. (subject) is asleep before bedtime.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L149"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) catches up and offers to carry the mat, since it seems heavy. (subject) gratefully hands it over. They walk a little way. \"Where are we going?\" asks (friend). (subject) thinks hard. (subject.He/she) hadn't got that far. \"Home,\" (subject.he/she) decides, \"but the long way.\" They take the long way. It is very long. (subject) is asleep before bedtime.",
    "src": "L149"

@@ -104,14 +104,39 @@
    "src": "L119"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) fashions a tiny sail from a fallen petal. The smallest boat travels farthest, provoking delighted disbelief.",
-   "src": "L123"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) fashions a tiny sail from a fallen petal. Nobody wants the game to end, even when supper is called.",
    "src": "L127"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) fashions a tiny sail from a fallen petal. The smallest boat travels farthest, provoking delighted disbelief.",
+   "src": "L123",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L123"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) fashions a tiny sail from a fallen petal. The smallest boat travels farthest, provoking delighted disbelief.",
+   "src": "L123"
   }
  }
 }

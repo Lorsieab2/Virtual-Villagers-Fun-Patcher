@@ -133,16 +133,32 @@
    "src": "L10090"
   },
   "c2": {
-   "text": "(Alarmist) grows increasingly embarrassed while explaining.",
-   "src": "L10091"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "c3": {
    "text": "The explanation sounds more implausible than the warning.",
    "src": "L10092"
   },
   "c4": {
-   "text": "Something genuinely extraordinary is found.",
-   "src": "L10093"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c4__fx"
+    },
+    {
+     "next": "c4__text"
+    }
+   ]
   },
   "set_c": {
    "type": "branch",
@@ -165,6 +181,38 @@
      "rarity": "very_rare"
     }
    ]
+  },
+  "c2__fx": {
+   "text": "(Alarmist) grows increasingly embarrassed while explaining.",
+   "src": "L10091",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "alarmist",
+     "mood": "bad",
+     "src": "L10091"
+    }
+   ]
+  },
+  "c2__text": {
+   "text": "(Alarmist) grows increasingly embarrassed while explaining.",
+   "src": "L10091"
+  },
+  "c4__fx": {
+   "text": "Something genuinely extraordinary is found.",
+   "src": "L10093",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10093"
+    }
+   ]
+  },
+  "c4__text": {
+   "text": "Something genuinely extraordinary is found.",
+   "src": "L10093"
   }
  },
  "requirement": {

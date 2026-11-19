@@ -147,14 +147,40 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "A second healer suggests a gentler support that improves comfort.",
-   "src": "L20690"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The healers disagree, and the family requests time to decide.",
    "src": "L20691"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "A second healer suggests a gentler support that improves comfort.",
+   "src": "L20690",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": 5,
+     "max": 15,
+     "src": "L20690"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "A second healer suggests a gentler support that improves comfort.",
+   "src": "L20690"
   }
  }
 }

@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) reaches down to touch (subject.his/her) toes. (subject.He/she) gets about to (subject.his/her) knees. Beside (subject.him/her), (friend), who is very old indeed, folds in half like a palm frond. (subject) stares. \"Forty years of practice,\" says (friend), from somewhere near (friend.his/her) own ankles. (subject) comes back every morning that week. (subject.His/her) back loosens. (subject.His/her) toes remain a long way off.",
-   "src": "L170"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) sits on the sand and watches the first morning. It looks easy. The second morning (subject.he/she) tries. It is not easy. The elders are kind about it, mostly by pretending not to notice the noises (subject) makes. By the end of the week (subject.his/her) back feels better. (subject.He/she) can't say whether it's the stretching or the week without thatch. (subject.He/she) keeps going anyway, for the company.",
    "src": "L173"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) reaches down to touch (subject.his/her) toes. (subject.He/she) gets about to (subject.his/her) knees. Beside (subject.him/her), (friend), who is very old indeed, folds in half like a palm frond. (subject) stares. \"Forty years of practice,\" says (friend), from somewhere near (friend.his/her) own ankles. (subject) comes back every morning that week. (subject.His/her) back loosens. (subject.His/her) toes remain a long way off.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 5,
+     "max": 15,
+     "src": "L170"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) reaches down to touch (subject.his/her) toes. (subject.He/she) gets about to (subject.his/her) knees. Beside (subject.him/her), (friend), who is very old indeed, folds in half like a palm frond. (subject) stares. \"Forty years of practice,\" says (friend), from somewhere near (friend.his/her) own ankles. (subject) comes back every morning that week. (subject.His/her) back loosens. (subject.His/her) toes remain a long way off.",
+   "src": "L170"
   }
  }
 }

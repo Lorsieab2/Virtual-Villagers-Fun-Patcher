@@ -137,6 +137,31 @@
    "src": "L2087"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two villagers offer to carry supplies for (name1), an older neighbor. (Name1) feels relieved not to do everything alone.",
+   "src": "L2091",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2091"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Two villagers offer to carry supplies for (name1), an older neighbor. (Name1) feels relieved not to do everything alone.",
    "src": "L2091"

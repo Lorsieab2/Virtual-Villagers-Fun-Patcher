@@ -55,15 +55,14 @@
  "start": "setup",
  "nodes": {
   "setup": {
+   "type": "branch",
    "name": "The setup",
-   "text": "A catch includes reef fish, deepwater fish, squid, octopus and an unfamiliar crustacean.",
-   "src": "L3413",
    "children": [
     {
-     "next": "e1"
+     "next": "setup__fx"
     },
     {
-     "next": "e2"
+     "next": "setup__text"
     }
    ]
   },
@@ -87,11 +86,72 @@
    ]
   },
   "e2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The catch inspires a new stew.",
+   "src": "L3415",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3415"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Outcome B",
    "popup": "append",
    "join": "paragraph",
    "text": "The catch inspires a new stew.",
    "src": "L3415"
+  },
+  "setup__fx": {
+   "name": "The setup",
+   "text": "A catch includes reef fish, deepwater fish, squid, octopus and an unfamiliar crustacean.",
+   "src": "L3413",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3413"
+    }
+   ]
+  },
+  "setup__text": {
+   "name": "The setup",
+   "text": "A catch includes reef fish, deepwater fish, squid, octopus and an unfamiliar crustacean.",
+   "src": "L3413",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
   }
  }
 }

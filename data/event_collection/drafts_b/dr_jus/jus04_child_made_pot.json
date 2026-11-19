@@ -70,14 +70,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) takes a breath. \"You can help me make another.\" (subject) spends two afternoons at the clay, learning to roll and smooth and shape. The new pot is lopsided where (subject) worked on it. (friend) fires it anyway and uses it every day. (subject) never plays ball near the shelf again, and every so often asks whether (subject.he/she) can come and make another.",
-   "src": "L50"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) sits down beside (subject). \"Were you being careful?\" \"...No.\" \"What would careful have looked like?\" (subject) thinks. \"Playing somewhere else.\" \"Then that's what we'll do.\" (subject) helps sweep up the pieces. The next day (friend) finds a ball-playing patch marked out with stones, well away from the shelf, made by (subject) and three friends.",
    "src": "L53"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) takes a breath. \"You can help me make another.\" (subject) spends two afternoons at the clay, learning to roll and smooth and shape. The new pot is lopsided where (subject) worked on it. (friend) fires it anyway and uses it every day. (subject) never plays ball near the shelf again, and every so often asks whether (subject.he/she) can come and make another.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L50"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) takes a breath. \"You can help me make another.\" (subject) spends two afternoons at the clay, learning to roll and smooth and shape. The new pot is lopsided where (subject) worked on it. (friend) fires it anyway and uses it every day. (subject) never plays ball near the shelf again, and every so often asks whether (subject.he/she) can come and make another.",
+   "src": "L50"
   }
  }
 }

@@ -159,9 +159,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They find that their wishes align.",
-   "src": "L27098"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -211,6 +218,30 @@
    "name": "Outcome D2",
    "text": "They decide that friendship suits them better.",
    "src": "L27105"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They find that their wishes align.",
+   "src": "L27098",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27098"
+    },
+    {
+     "do": "mood",
+     "role": "other",
+     "mood": "good",
+     "src": "L27098"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They find that their wishes align.",
+   "src": "L27098"
   }
  }
 }

@@ -76,6 +76,31 @@
    "src": "L386"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Let's not decide tonight,\" says (friend). (subject) agrees, relieved. They talk about fish instead, and the weather, and a funny thing that happened at lunch. The other conversation is still there, waiting. Some nights it's alright to leave it waiting.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L389"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Let's not decide tonight,\" says (friend). (subject) agrees, relieved. They talk about fish instead, and the weather, and a funny thing that happened at lunch. The other conversation is still there, waiting. Some nights it's alright to leave it waiting.",
    "src": "L389"

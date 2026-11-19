@@ -99,14 +99,43 @@
    "src": "L59,L61"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two villagers take turns beating soaked bark into soft cloth. The finished cloth is so thin that light shines through it.",
-   "src": "L59,L62"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two villagers take turns beating soaked bark into soft cloth. They stop for a drink and realize they have been beating in time all morning.",
    "src": "L59,L63"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two villagers take turns beating soaked bark into soft cloth. The finished cloth is so thin that light shines through it.",
+   "src": "L59,L62",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L59,L62"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two villagers take turns beating soaked bark into soft cloth. The finished cloth is so thin that light shines through it.",
+   "src": "L59,L62"
   }
  }
 }

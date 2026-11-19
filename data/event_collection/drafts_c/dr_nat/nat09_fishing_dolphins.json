@@ -88,6 +88,31 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"They did all the work,\" says (friend). \"Let them eat.\" (subject) puts down the net. The two of them sit on the sand and watch the dolphins circle and dive and turn, again and again, until the shoal is gone and the bay is calm. They go home with no fish at all. (subject) can't stop talking about it at dinner. Nobody minds the plain supper.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"They did all the work,\" says (friend). \"Let them eat.\" (subject) puts down the net. The two of them sit on the sand and watch the dolphins circle and dive and turn, again and again, until the shoal is gone and the bay is calm. They go home with no fish at all. (subject) can't stop talking about it at dinner. Nobody minds the plain supper.",
    "src": "L113"

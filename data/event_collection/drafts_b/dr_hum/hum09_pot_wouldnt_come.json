@@ -74,6 +74,31 @@
    "src": "L110"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides that a pot is not going to stop (subject.him/her). (subject.He/she) fetches water, sweeps the hut, and greets everyone (subject.he/she) meets with a nod, which makes a soft \"clonk.\" At dinner, while (subject.he/she) is laughing at something, the pot slides off all by itself and lands upright in front of (subject.him/her). Someone fills it with stew. It seems only right.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides that a pot is not going to stop (subject.him/her). (subject.He/she) fetches water, sweeps the hut, and greets everyone (subject.he/she) meets with a nod, which makes a soft \"clonk.\" At dinner, while (subject.he/she) is laughing at something, the pot slides off all by itself and lands upright in front of (subject.him/her). Someone fills it with stew. It seems only right.",
    "src": "L113"

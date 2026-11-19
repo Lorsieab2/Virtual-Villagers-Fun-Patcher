@@ -108,9 +108,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "Guests sing together without instruments.",
-   "src": "L4106"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -121,6 +128,30 @@
    "name": "Outcome 3",
    "text": "The couple chooses a quiet private ceremony instead.",
    "src": "L4108"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "Guests sing together without instruments.",
+   "src": "L4106",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L4106"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L4106"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "Guests sing together without instruments.",
+   "src": "L4106"
   }
  }
 }

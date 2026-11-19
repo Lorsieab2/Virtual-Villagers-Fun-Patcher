@@ -94,6 +94,37 @@
    "src": "L1218"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "They argue cheerfully about how far away stars are.",
+   "src": "L1219",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L1219"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L1219"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "They argue cheerfully about how far away stars are.",
    "src": "L1219"

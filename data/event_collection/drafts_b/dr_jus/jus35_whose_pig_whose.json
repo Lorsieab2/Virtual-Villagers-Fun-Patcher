@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The elders rule that a pig is its keeper's responsibility. (subject) is to make up for the melons with fish over the next few catches, and to keep the pig tied at night. (subject) grumbles, then agrees. The pig is unrepentant. (friend), eating fish, says the melons were better, but fish will do.",
-   "src": "L422"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) offers the pig's services instead: after the harvest, the pig will be put in (friend)'s garden to dig over the beds and eat the weeds. The pig is delighted. The beds are beautifully dug. (friend) admits it's a better deal than (friend.he/she) expected, right up until the pig finds the one melon (friend) missed.",
    "src": "L425"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders rule that a pig is its keeper's responsibility. (subject) is to make up for the melons with fish over the next few catches, and to keep the pig tied at night. (subject) grumbles, then agrees. The pig is unrepentant. (friend), eating fish, says the melons were better, but fish will do.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L422"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders rule that a pig is its keeper's responsibility. (subject) is to make up for the melons with fish over the next few catches, and to keep the pig tied at night. (subject) grumbles, then agrees. The pig is unrepentant. (friend), eating fish, says the melons were better, but fish will do.",
+   "src": "L422"
   }
  }
 }

@@ -69,19 +69,14 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "Small controlled tests suggest a useful glaze, though the workshop adopts precautions.",
-   "src": "L6270",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "jeweler",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L6270"
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
     }
    ]
   },
@@ -99,6 +94,46 @@
      "do": "sick",
      "role": "worker",
      "src": "L6274"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Small controlled tests suggest a useful glaze, though the workshop adopts precautions.",
+   "src": "L6270",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "jeweler",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6270"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6270"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Small controlled tests suggest a useful glaze, though the workshop adopts precautions.",
+   "src": "L6270",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "jeweler",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6270"
     }
    ]
   }

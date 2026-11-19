@@ -64,14 +64,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) walks through the village calling. No answer. (He/she) walks down to the beach, faster and faster. And there they all are, every single villager, standing in the shallows, watching a family of dolphins playing just off the reef. \"There you are!\" someone says. \"Come and look!\" (name1) laughs, mostly with relief, and goes to look.",
-   "src": "L566"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) sits down outside (his/her) hut and waits. It's very quiet. (He/she) hears a bird, the sea, the wind in the palms. Gradually the prickle fades and the quiet just feels like quiet. An hour later everyone comes back, chattering about dolphins. (name1) missed the dolphins. (He/she) found that (he/she) didn't mind the quiet.",
    "src": "L569"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) walks through the village calling. No answer. (He/she) walks down to the beach, faster and faster. And there they all are, every single villager, standing in the shallows, watching a family of dolphins playing just off the reef. \"There you are!\" someone says. \"Come and look!\" (name1) laughs, mostly with relief, and goes to look.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L566"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) walks through the village calling. No answer. (He/she) walks down to the beach, faster and faster. And there they all are, every single villager, standing in the shallows, watching a family of dolphins playing just off the reef. \"There you are!\" someone says. \"Come and look!\" (name1) laughs, mostly with relief, and goes to look.",
+   "src": "L566"
   }
  }
 }

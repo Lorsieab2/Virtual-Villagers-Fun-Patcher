@@ -65,14 +65,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) asks, very quietly, what the signal means. (subject) has no idea what (subject.he/she) is talking about. They work it out together, and (subject) laughs so hard (subject.he/she) has to sit down. Then, without thinking, (subject.he/she) scratches (subject.his/her) nose to decide whether to get up. (friend) points at it in triumph.",
-   "src": "L134"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) goes about (subject.his/her) day, scratching (subject.his/her) nose before every choice. Each time, someone nearby looks around meaningfully. By evening a small group has decided the signal means \"something interesting is about to happen.\" Oddly enough, several interesting things do. Nobody tells (subject).",
    "src": "L137"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) asks, very quietly, what the signal means. (subject) has no idea what (subject.he/she) is talking about. They work it out together, and (subject) laughs so hard (subject.he/she) has to sit down. Then, without thinking, (subject.he/she) scratches (subject.his/her) nose to decide whether to get up. (friend) points at it in triumph.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L134"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) asks, very quietly, what the signal means. (subject) has no idea what (subject.he/she) is talking about. They work it out together, and (subject) laughs so hard (subject.he/she) has to sit down. Then, without thinking, (subject.he/she) scratches (subject.his/her) nose to decide whether to get up. (friend) points at it in triumph.",
+   "src": "L134"
   }
  }
 }

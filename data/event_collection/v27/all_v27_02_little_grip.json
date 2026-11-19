@@ -75,21 +75,14 @@
    "src": "L10500"
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The baby laughs; the visitor becomes a favorite playmate.",
-   "src": "L10501",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "visitor",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L10501"
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
     }
    ]
   },
@@ -109,6 +102,50 @@
      "min": 5,
      "max": 10,
      "src": "L10502"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The baby laughs; the visitor becomes a favorite playmate.",
+   "src": "L10501",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "visitor",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10501"
+    },
+    {
+     "do": "mood",
+     "role": "visitor",
+     "mood": "good",
+     "src": "L10501"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The baby laughs; the visitor becomes a favorite playmate.",
+   "src": "L10501",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "visitor",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10501"
     }
    ]
   }

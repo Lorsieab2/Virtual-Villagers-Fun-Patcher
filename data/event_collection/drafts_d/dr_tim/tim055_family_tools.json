@@ -123,9 +123,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), a child, asks to help clean and arrange the family's tools. A little shared laughter makes the chore less tedious.",
-   "src": "L919"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -141,6 +148,24 @@
    "name": "Ending 4",
    "text": "(Name1), a child, asks to help clean and arrange the family's tools. The child asks several questions nobody expected.",
    "src": "L931"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, asks to help clean and arrange the family's tools. A little shared laughter makes the chore less tedious.",
+   "src": "L919",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L919"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, asks to help clean and arrange the family's tools. A little shared laughter makes the chore less tedious.",
+   "src": "L919"
   }
  }
 }

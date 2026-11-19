@@ -78,6 +78,31 @@
    ]
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Does it really call the wind?\" asks (subject). (friend) thinks. \"I don't know,\" (friend.he/she) says honestly. \"My grandmother believed it. I've seen the wind come after whistling. I've seen it not come, too.\" (subject) thinks about this. \"So you don't know either.\" \"No. But I don't whistle after dark. It's polite, just in case.\" (subject) finds that oddly reassuring.",
+   "src": "L234",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L234"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"Does it really call the wind?\" asks (subject). (friend) thinks. \"I don't know,\" (friend.he/she) says honestly. \"My grandmother believed it. I've seen the wind come after whistling. I've seen it not come, too.\" (subject) thinks about this. \"So you don't know either.\" \"No. But I don't whistle after dark. It's polite, just in case.\" (subject) finds that oddly reassuring.",
    "src": "L234"

@@ -94,9 +94,16 @@
    "src": "L346,L347"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(name1) lies awake listening to frogs singing near the stream. One frog is noticeably louder than all the others, and (name1) laughs.",
-   "src": "L346,L348"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -107,6 +114,24 @@
    "name": "Ending 4",
    "text": "(name1) lies awake listening to frogs singing near the stream. (name1) falls asleep before the frogs do.",
    "src": "L346,L350"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(name1) lies awake listening to frogs singing near the stream. One frog is noticeably louder than all the others, and (name1) laughs.",
+   "src": "L346,L348",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L346,L348"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(name1) lies awake listening to frogs singing near the stream. One frog is noticeably louder than all the others, and (name1) laughs.",
+   "src": "L346,L348"
   }
  }
 }

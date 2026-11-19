@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I heard you snoring,\" says (friend), \"right through the big one.\" (subject) considers this. \"I was resting my eyes,\" (subject.he/she) explains. \"Loudly.\" The listeners laugh, and (subject) laughs too. In the end it's agreed that (subject) watched over the village, mostly in (subject.his/her) sleep.",
-   "src": "L470"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) says nothing. (subject) gets a lot of thanks and a little extra breakfast. The next night is perfectly calm, and through the wall (friend) hears (subject) wide awake, pottering about, checking the door, the roof and the water jar all night long, as though making up for it. (friend) decides the debt has been paid.",
    "src": "L473"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I heard you snoring,\" says (friend), \"right through the big one.\" (subject) considers this. \"I was resting my eyes,\" (subject.he/she) explains. \"Loudly.\" The listeners laugh, and (subject) laughs too. In the end it's agreed that (subject) watched over the village, mostly in (subject.his/her) sleep.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L470"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I heard you snoring,\" says (friend), \"right through the big one.\" (subject) considers this. \"I was resting my eyes,\" (subject.he/she) explains. \"Loudly.\" The listeners laugh, and (subject) laughs too. In the end it's agreed that (subject) watched over the village, mostly in (subject.his/her) sleep.",
+   "src": "L470"
   }
  }
 }

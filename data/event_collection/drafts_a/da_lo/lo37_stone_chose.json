@@ -70,6 +70,37 @@
    "src": "L450"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Let me try again,\" says (subject). (subject.He/She) holds it. Cold. (friend) holds it. Warm. (subject) holds it with both hands and thinks warm thoughts. Cold. They both start laughing. \"Fine,\" says (subject). \"It doesn't like me. That's alright. I don't think I'd like being carried around by me either.\"",
+   "src": "L453",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L453"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L453"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"Let me try again,\" says (subject). (subject.He/She) holds it. Cold. (friend) holds it. Warm. (subject) holds it with both hands and thinks warm thoughts. Cold. They both start laughing. \"Fine,\" says (subject). \"It doesn't like me. That's alright. I don't think I'd like being carried around by me either.\"",
    "src": "L453"

@@ -61,14 +61,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) stands with (his/her) back to the post and carefully carves a new notch at the top of (his/her) head. It's barely above the last one. (He/She) looks at the whole row: a little person growing up the post, year after year, until (he/she) stopped. (name1) touches the bottom notch and smiles.",
-   "src": "L164"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) runs (his/her) thumb down the notches, one by one. Some years were big jumps. Some were barely anything. (He/She) tries to remember who (he/she) was at each one. Some years come back clearly. Some don't. (He/She) leaves the post as it is.",
    "src": "L167"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) stands with (his/her) back to the post and carefully carves a new notch at the top of (his/her) head. It's barely above the last one. (He/She) looks at the whole row: a little person growing up the post, year after year, until (he/she) stopped. (name1) touches the bottom notch and smiles.",
+   "src": "L164",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L164"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) stands with (his/her) back to the post and carefully carves a new notch at the top of (his/her) head. It's barely above the last one. (He/She) looks at the whole row: a little person growing up the post, year after year, until (he/she) stopped. (name1) touches the bottom notch and smiles.",
+   "src": "L164"
   }
  }
 }

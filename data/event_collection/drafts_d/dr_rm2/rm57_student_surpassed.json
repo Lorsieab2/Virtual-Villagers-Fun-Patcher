@@ -88,9 +88,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The apprentice glows, and the carver feels proud of their teaching.",
-   "src": "L252"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -110,14 +117,28 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The carver learns something new, and their own work improves.",
-   "src": "L255"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The apprentice is shy about teaching, and they learn from each other slowly.",
-   "src": "L256"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -162,6 +183,68 @@
    "name": "Outcome D2",
    "text": "Their styles clash, and they agree to work separately but share ideas.",
    "src": "L262"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The apprentice glows, and the carver feels proud of their teaching.",
+   "src": "L252",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L252"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The apprentice glows, and the carver feels proud of their teaching.",
+   "src": "L252"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The carver learns something new, and their own work improves.",
+   "src": "L255",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L255"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The carver learns something new, and their own work improves.",
+   "src": "L255"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The apprentice is shy about teaching, and they learn from each other slowly.",
+   "src": "L256",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L256"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The apprentice is shy about teaching, and they learn from each other slowly.",
+   "src": "L256"
   }
  }
 }

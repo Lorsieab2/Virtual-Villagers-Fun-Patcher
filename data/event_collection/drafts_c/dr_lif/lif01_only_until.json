@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) laughs out loud, alone at the racks. (friend), passing with a basket, asks what's funny. \"I've been filling in for twenty years,\" says (subject). (friend) looks at the racks, the neat rows, the perfect fish. \"Do you want someone to take over?\" (subject) thinks about it honestly. \"No,\" (subject.he/she) says, surprised. \"I'd miss it.\" (subject.He/she) turns the next fish.",
-   "src": "L14"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) wonders what (subject.he/she) would have done if someone had turned up. Built canoes, maybe. Gone fishing. Nothing at all. It doesn't feel like a loss, exactly. It feels like a door (subject.he/she) walked past without noticing. (subject.He/she) finishes the fish, then goes and watches the canoe builders for an hour, just out of curiosity. Then (subject.he/she) goes back to the racks.",
    "src": "L17"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) laughs out loud, alone at the racks. (friend), passing with a basket, asks what's funny. \"I've been filling in for twenty years,\" says (subject). (friend) looks at the racks, the neat rows, the perfect fish. \"Do you want someone to take over?\" (subject) thinks about it honestly. \"No,\" (subject.he/she) says, surprised. \"I'd miss it.\" (subject.He/she) turns the next fish.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) laughs out loud, alone at the racks. (friend), passing with a basket, asks what's funny. \"I've been filling in for twenty years,\" says (subject). (friend) looks at the racks, the neat rows, the perfect fish. \"Do you want someone to take over?\" (subject) thinks about it honestly. \"No,\" (subject.he/she) says, surprised. \"I'd miss it.\" (subject.He/she) turns the next fish.",
+   "src": "L14"
   }
  }
 }

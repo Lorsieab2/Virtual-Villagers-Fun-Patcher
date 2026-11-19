@@ -99,19 +99,69 @@
    "src": "L1979"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) watches clouds drift above the village. The silence feels comforting rather than lonely today.",
-   "src": "L1983"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) watches clouds drift above the village. (Name1) wishes the peaceful moment could last a little longer.",
-   "src": "L1987"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) watches clouds drift above the village. There is something to dread tomorrow, but not right now.",
    "src": "L1991"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) watches clouds drift above the village. The silence feels comforting rather than lonely today.",
+   "src": "L1983",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1983"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) watches clouds drift above the village. The silence feels comforting rather than lonely today.",
+   "src": "L1983"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) watches clouds drift above the village. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L1987",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1987"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) watches clouds drift above the village. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L1987"
   }
  }
 }

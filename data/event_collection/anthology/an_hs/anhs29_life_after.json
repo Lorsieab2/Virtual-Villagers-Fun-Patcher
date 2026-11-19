@@ -133,9 +133,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(healer) and the community focus on wound care, comfort, and gradual recovery.",
-   "src": "L29863"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -207,6 +214,25 @@
    "name": "Outcome D2",
    "text": "A proposed aid proves awkward, so (villager) helps redesign it.",
    "src": "L29873"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(healer) and the community focus on wound care, comfort, and gradual recovery.",
+   "src": "L29863",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 5,
+     "max": 15,
+     "src": "L29863"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(healer) and the community focus on wound care, comfort, and gradual recovery.",
+   "src": "L29863"
   }
  }
 }

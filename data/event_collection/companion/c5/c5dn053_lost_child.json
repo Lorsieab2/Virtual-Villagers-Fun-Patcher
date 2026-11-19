@@ -67,11 +67,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Searchers locate the child and offer comfort.",
-   "src": "L3156"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -86,6 +91,28 @@
    "join": "paragraph",
    "text": "A village-wide search ends in a tearful reunion.",
    "src": "L3158"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Searchers locate the child and offer comfort.",
+   "src": "L3156",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L3156"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Searchers locate the child and offer comfort.",
+   "src": "L3156"
   }
  }
 }

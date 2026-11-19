@@ -66,14 +66,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) pays with three pebbles, which the children examine very carefully before accepting. (friend.He/She) is handed a mud cake on a leaf. All the children watch to see what (friend.he/she) will do. (friend) pretends to take a bite and says, \"This is the best cake I have ever eaten.\" The children are so pleased that (friend) is given the special pie for free.",
-   "src": "L38"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"Do you have any fish?\" asks (friend). The children look at each other in alarm. A whispered meeting is held. Then (subject) turns round with great dignity and says, \"We have a mud fish. It will take a moment.\" It takes quite a long moment. It is worth the wait.",
    "src": "L41"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) pays with three pebbles, which the children examine very carefully before accepting. (friend.He/She) is handed a mud cake on a leaf. All the children watch to see what (friend.he/she) will do. (friend) pretends to take a bite and says, \"This is the best cake I have ever eaten.\" The children are so pleased that (friend) is given the special pie for free.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) pays with three pebbles, which the children examine very carefully before accepting. (friend.He/She) is handed a mud cake on a leaf. All the children watch to see what (friend.he/she) will do. (friend) pretends to take a bite and says, \"This is the best cake I have ever eaten.\" The children are so pleased that (friend) is given the special pie for free.",
+   "src": "L38"
   }
  }
 }

@@ -232,11 +232,14 @@
    ]
   },
   "o1": {
-   "src": "L3128",
-   "text": "The elder remembers every step, and the meal is delicious.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
     }
    ]
   },
@@ -266,11 +269,14 @@
    ]
   },
   "o4": {
-   "src": "L3133",
-   "text": "The cooks preserve the recipe in the village's records.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "o4__fx"
+    },
+    {
+     "next": "o4__text"
     }
    ]
   },
@@ -296,20 +302,26 @@
    ]
   },
   "c1": {
-   "src": "L3136",
-   "text": "(Cook1) wins for flavor; (cook2) accepts the result graciously.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
   "c2": {
-   "src": "L3137",
-   "text": "(Cook2) wins for texture; (cook1) requests a rematch next year.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
     }
    ]
   },
@@ -359,11 +371,14 @@
    ]
   },
   "s1": {
-   "src": "L3145",
-   "text": "The cooks work together and discover a delightful combination.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "s1__fx"
+    },
+    {
+     "next": "s1__text"
     }
    ]
   },
@@ -377,11 +392,14 @@
    ]
   },
   "s3": {
-   "src": "L3147",
-   "text": "One cook learns a technique from the other and thanks (othercook.him/her).",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "s3__fx"
+    },
+    {
+     "next": "s3__text"
     }
    ]
   },
@@ -485,6 +503,172 @@
      "min": 10,
      "max": 20,
      "src": "L3171"
+    }
+   ]
+  },
+  "o1__fx": {
+   "src": "L3128",
+   "text": "The elder remembers every step, and the meal is delicious.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L3128"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L3128"
+    }
+   ]
+  },
+  "o1__text": {
+   "src": "L3128",
+   "text": "The elder remembers every step, and the meal is delicious.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "o4__fx": {
+   "src": "L3133",
+   "text": "The cooks preserve the recipe in the village's records.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3133"
+    }
+   ]
+  },
+  "o4__text": {
+   "src": "L3133",
+   "text": "The cooks preserve the recipe in the village's records.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c1__fx": {
+   "src": "L3136",
+   "text": "(Cook1) wins for flavor; (cook2) accepts the result graciously.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L3136"
+    }
+   ]
+  },
+  "c1__text": {
+   "src": "L3136",
+   "text": "(Cook1) wins for flavor; (cook2) accepts the result graciously.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c2__fx": {
+   "src": "L3137",
+   "text": "(Cook2) wins for texture; (cook1) requests a rematch next year.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L3137"
+    }
+   ]
+  },
+  "c2__text": {
+   "src": "L3137",
+   "text": "(Cook2) wins for texture; (cook1) requests a rematch next year.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s1__fx": {
+   "src": "L3145",
+   "text": "The cooks work together and discover a delightful combination.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3145"
+    }
+   ]
+  },
+  "s1__text": {
+   "src": "L3145",
+   "text": "The cooks work together and discover a delightful combination.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s3__fx": {
+   "src": "L3147",
+   "text": "One cook learns a technique from the other and thanks (othercook.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "onecook",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3147"
+    }
+   ]
+  },
+  "s3__text": {
+   "src": "L3147",
+   "text": "One cook learns a technique from the other and thanks (othercook.him/her).",
+   "children": [
+    {
+     "next": "end"
     }
    ]
   }

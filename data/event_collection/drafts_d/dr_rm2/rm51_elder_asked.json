@@ -93,9 +93,16 @@
    "src": "L162"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The grandchild's threading is crooked at first, and they both laugh before it improves.",
-   "src": "L163"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -159,6 +166,49 @@
    "src": "L171"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The grandchild's threading is crooked at first, and they both laugh before it improves.",
+   "src": "L163",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L163"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The grandchild's threading is crooked at first, and they both laugh before it improves.",
+   "src": "L163"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The elder misses the old fine work but finishes the garment proudly.",
+   "src": "L172",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L172"
+    }
+   ]
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The elder misses the old fine work but finishes the garment proudly.",
    "src": "L172"

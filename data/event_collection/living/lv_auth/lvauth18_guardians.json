@@ -106,9 +106,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Their local knowledge improves the channels.",
-   "src": "L23609"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -158,6 +165,24 @@
    "name": "Outcome D2",
    "text": "The channels fail to meet at the border.",
    "src": "L23616"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Their local knowledge improves the channels.",
+   "src": "L23609",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23609"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Their local knowledge improves the channels.",
+   "src": "L23609"
   }
  },
  "patches": [

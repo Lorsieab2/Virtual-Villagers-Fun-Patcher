@@ -65,11 +65,61 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"How was the stew?\" (subject) asks (friend), trying to sound casual. (friend) looks up. \"Oh! It was wonderful. I had two bowls. I didn't think to say.\" Then, louder: \"Did everybody like the stew?\" A chorus of \"yes!\" comes back from round the fire. (subject) sits up a little straighter.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L176"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "\"How was the stew?\" (subject) asks (friend), trying to sound casual. (friend) looks up. \"Oh! It was wonderful. I had two bowls. I didn't think to say.\" Then, louder: \"Did everybody like the stew?\" A chorus of \"yes!\" comes back from round the fire. (subject) sits up a little straighter.",
    "src": "L176"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) cleans the pot without a word. The stew was good. (subject.He/She) knows it was good. Next morning, though, (subject.he/she) finds that someone has quietly scraped the last bits out of the pot and left a little flower on the lid. (subject.He/She) never finds out who.",
+   "src": "L179",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L179"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) cleans the pot without a word. The stew was good. (subject.He/She) knows it was good. Next morning, though, (subject.he/she) finds that someone has quietly scraped the last bits out of the pot and left a little flower on the lid. (subject.He/She) never finds out who.",
    "src": "L179"

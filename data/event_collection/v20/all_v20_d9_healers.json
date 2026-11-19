@@ -67,8 +67,16 @@
    "src": "L9058-9059"
   },
   "a3": {
-   "text": "The hospital adopts safer records and training.",
-   "src": "L9058-9059"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a3__fx"
+    },
+    {
+     "next": "a3__text"
+    }
+   ]
   },
   "set_a": {
    "type": "branch",
@@ -109,6 +117,22 @@
      "next": "b3"
     }
    ]
+  },
+  "a3__fx": {
+   "text": "The hospital adopts safer records and training.",
+   "src": "L9058-9059",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9058-9059"
+    }
+   ]
+  },
+  "a3__text": {
+   "text": "The hospital adopts safer records and training.",
+   "src": "L9058-9059"
   }
  },
  "grammar_fixes": [

@@ -99,9 +99,16 @@
    "src": "L1927"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "Several neighbors gather to sing after the evening meal. (Name1) misses a beat and laughs before trying again.",
-   "src": "L1931"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,24 @@
    "name": "Ending 4",
    "text": "Several neighbors gather to sing after the evening meal. The rhythm slowly draws more listeners.",
    "src": "L1939"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "Several neighbors gather to sing after the evening meal. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1931",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1931"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "Several neighbors gather to sing after the evening meal. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1931"
   }
  }
 }

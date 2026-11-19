@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I don't go past the reef,\" says (subject) quietly. \"I never have. The dark water frightens me.\" (friend) looks surprised, then just nods. \"Then fish the lagoon. You're better at it than any of us anyway.\" (subject) does. Nobody makes anything of it. (subject.He/she) brings home more fish than the canoes.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L14"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I don't go past the reef,\" says (subject) quietly. \"I never have. The dark water frightens me.\" (friend) looks surprised, then just nods. \"Then fish the lagoon. You're better at it than any of us anyway.\" (subject) does. Nobody makes anything of it. (subject.He/she) brings home more fish than the canoes.",
    "src": "L14"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"My shoulder's sore,\" says (subject). (friend) accepts it and paddles off. (subject) fishes the lagoon all day, and does well, and feels a small twist of something about the excuse. Maybe someday (subject.he/she) will say it plainly. Maybe not. Some things are allowed to stay private.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L17"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"My shoulder's sore,\" says (subject). (friend) accepts it and paddles off. (subject) fishes the lagoon all day, and does well, and feels a small twist of something about the excuse. Maybe someday (subject.he/she) will say it plainly. Maybe not. Some things are allowed to stay private.",
    "src": "L17"

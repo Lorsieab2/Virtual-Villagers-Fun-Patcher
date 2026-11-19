@@ -99,9 +99,16 @@
    "src": "L1947"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) lies in the shade thinking about tomorrow. (Name1) feels happy without knowing why.",
-   "src": "L1951"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -109,6 +116,49 @@
    "src": "L1955"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) lies in the shade thinking about tomorrow. (Name1) feels happy without knowing why.",
+   "src": "L1951",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1951"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) lies in the shade thinking about tomorrow. (Name1) feels happy without knowing why.",
+   "src": "L1951"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) lies in the shade thinking about tomorrow. The silence feels comforting rather than lonely today.",
+   "src": "L1959",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1959"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) lies in the shade thinking about tomorrow. The silence feels comforting rather than lonely today.",
    "src": "L1959"

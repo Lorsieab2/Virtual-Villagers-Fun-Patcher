@@ -74,6 +74,31 @@
    "src": "L170"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) plants half the corner with one, and half with the other. (friend) points out that this is cheating. (subject) agrees, cheerfully. Both halves grow fine. It answers nothing. It does mean (subject) can stop thinking about it, which was the whole point.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L173"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) plants half the corner with one, and half with the other. (friend) points out that this is cheating. (subject) agrees, cheerfully. Both halves grow fine. It answers nothing. It does mean (subject) can stop thinking about it, which was the whole point.",
    "src": "L173"

@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Some of us are shorter than you,\" (subject) says. \"Including most of the children who do half the fish work.\" (friend) hadn't thought of that. They build the next row lower, and another lower still. Within a week, everyone is using the low racks: children, elders with sore shoulders, a villager with a bad back. (friend) admits it should have been like that from the start.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) doesn't feel like arguing today. (subject.He/she) brings over a sturdy stepping block (subject.he/she) made years ago and gets on with the work. (subject.He/she) works fast and neatly. (friend) watches for a while and then quietly starts building a lower rack beside the others, without saying anything. (subject) notices. (subject.He/she) doesn't say anything either. (subject.He/she) does use it.",
    "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Some of us are shorter than you,\" (subject) says. \"Including most of the children who do half the fish work.\" (friend) hadn't thought of that. They build the next row lower, and another lower still. Within a week, everyone is using the low racks: children, elders with sore shoulders, a villager with a bad back. (friend) admits it should have been like that from the start.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L74"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Some of us are shorter than you,\" (subject) says. \"Including most of the children who do half the fish work.\" (friend) hadn't thought of that. They build the next row lower, and another lower still. Within a week, everyone is using the low racks: children, elders with sore shoulders, a villager with a bad back. (friend) admits it should have been like that from the start.",
+   "src": "L74"
   }
  }
 }

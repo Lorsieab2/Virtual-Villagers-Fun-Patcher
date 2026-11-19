@@ -270,11 +270,14 @@
    ]
   },
   "b3": {
-   "text": "A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",
-   "src": "L9450-9451",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
     }
    ]
   },
@@ -400,6 +403,32 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "b3__fx": {
+   "text": "A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",
+   "src": "L9450-9451",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "sculptor",
+     "mood": "good",
+     "src": "L9450-9451"
+    }
+   ]
+  },
+  "b3__text": {
+   "text": "A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",
+   "src": "L9450-9451",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  },
  "grammar_fixes": [

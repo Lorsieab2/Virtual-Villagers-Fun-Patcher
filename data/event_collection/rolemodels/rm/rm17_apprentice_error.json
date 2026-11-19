@@ -162,13 +162,38 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The healer adopts a simple method that makes similar containers easier to distinguish.",
-   "src": "L37"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The proposal needs refinement, but the healer welcomes the apprentice's attention to safety.",
+   "src": "L37"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The healer adopts a simple method that makes similar containers easier to distinguish.",
+   "src": "L37",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L37"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The healer adopts a simple method that makes similar containers easier to distinguish.",
    "src": "L37"
   }
  }

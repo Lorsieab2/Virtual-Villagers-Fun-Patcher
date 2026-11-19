@@ -74,6 +74,31 @@
    "src": "L122"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'd rather not say,\" says (subject) pleasantly. \"It's private.\" There's a little pause. Then (friend) says, \"That's fair. Who wants more fish?\" And that's the end of it. (subject) is grateful to (friend) for the rest of the evening. It's easy to forget how much one sentence can help.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'd rather not say,\" says (subject) pleasantly. \"It's private.\" There's a little pause. Then (friend) says, \"That's fair. Who wants more fish?\" And that's the end of it. (subject) is grateful to (friend) for the rest of the evening. It's easy to forget how much one sentence can help.",
    "src": "L125"

@@ -104,14 +104,39 @@
    "src": "L943"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "An older sibling helps a younger child tie a sandal. (Name1) feels unexpectedly grown-up afterward.",
-   "src": "L947"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "An older sibling helps a younger child tie a sandal. The gesture goes unnoticed by everyone except the sibling.",
    "src": "L951"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "An older sibling helps a younger child tie a sandal. (Name1) feels unexpectedly grown-up afterward.",
+   "src": "L947",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L947"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "An older sibling helps a younger child tie a sandal. (Name1) feels unexpectedly grown-up afterward.",
+   "src": "L947"
   }
  }
 }

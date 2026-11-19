@@ -88,6 +88,31 @@
    "src": "L278"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Change into your old clothes first,\" says (friend). (subject) runs off and comes back in clothes that are mostly holes, and jumps in the puddle with the joy of someone who waited. It takes about one jump to cover (subject.him/her) completely. The clean clothes stay clean. (friend) feels very wise. Then (child), another child, jumps next to (friend.him/her).",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Change into your old clothes first,\" says (friend). (subject) runs off and comes back in clothes that are mostly holes, and jumps in the puddle with the joy of someone who waited. It takes about one jump to cover (subject.him/her) completely. The clean clothes stay clean. (friend) feels very wise. Then (child), another child, jumps next to (friend.him/her).",
    "src": "L281"

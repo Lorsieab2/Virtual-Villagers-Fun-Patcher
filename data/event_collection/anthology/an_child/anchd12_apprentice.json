@@ -167,9 +167,16 @@
    "src": "L27740"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(craftsperson) discovers that one saved question reveals a useful idea.",
-   "src": "L27741"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -228,14 +235,57 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(apprentice), a nearby apprentice, enjoys explaining the craft.",
-   "src": "L27749"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(child) hears a different explanation and compares them.",
    "src": "L27750"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(craftsperson) discovers that one saved question reveals a useful idea.",
+   "src": "L27741",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L27741"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(craftsperson) discovers that one saved question reveals a useful idea.",
+   "src": "L27741"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(apprentice), a nearby apprentice, enjoys explaining the craft.",
+   "src": "L27749",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L27749"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(apprentice), a nearby apprentice, enjoys explaining the craft.",
+   "src": "L27749"
   }
  }
 }

@@ -119,14 +119,39 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The village uses it as a float for a fishing net.",
-   "src": "L243"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "An elder says it does not belong on the beach and sets it aside with the other strange things the tide brings, labeled \"origin unknown.\"",
    "src": "L244"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The village uses it as a float for a fishing net.",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L243"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The village uses it as a float for a fishing net.",
+   "src": "L243"
   }
  }
 }

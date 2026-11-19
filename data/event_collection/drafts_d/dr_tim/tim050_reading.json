@@ -132,14 +132,39 @@
    "src": "L839"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1), a seasoned navigator, explains how to read familiar shoreline markers. (Name1) is proud when the hands finally remember the steps.",
-   "src": "L843"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1), a seasoned navigator, explains how to read familiar shoreline markers. The elder admits the technique took years to master.",
    "src": "L847"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a seasoned navigator, explains how to read familiar shoreline markers. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L843",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L843"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), a seasoned navigator, explains how to read familiar shoreline markers. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L843"
   }
  }
 }

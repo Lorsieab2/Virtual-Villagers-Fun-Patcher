@@ -75,9 +75,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The villager appreciates attention and agrees to rest.",
-   "src": "L6968"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -88,6 +95,25 @@
    "name": "Answer C",
    "text": "The healer asks about sleep, changes in behavior, and wellbeing without assigning a label.",
    "src": "L6972"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The villager appreciates attention and agrees to rest.",
+   "src": "L6968",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 5,
+     "max": 15,
+     "src": "L6968"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The villager appreciates attention and agrees to rest.",
+   "src": "L6968"
   }
  }
 }

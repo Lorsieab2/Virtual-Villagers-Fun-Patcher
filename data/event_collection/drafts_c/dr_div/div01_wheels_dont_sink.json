@@ -69,11 +69,75 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) suggests a few changes. (subject) explains, patiently and then less patiently, why each of them won't work. In the end they build it (subject)'s way: wide rims of bent wood wrapped in woven palm. The first try on the sand, the chair rolls straight down to the water's edge. (subject) whoops so loudly the fishers turn around. (friend) admits (friend.he/she) should probably have listened sooner.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L14"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) suggests a few changes. (subject) explains, patiently and then less patiently, why each of them won't work. In the end they build it (subject)'s way: wide rims of bent wood wrapped in woven palm. The first try on the sand, the chair rolls straight down to the water's edge. (subject) whoops so loudly the fishers turn around. (friend) admits (friend.he/she) should probably have listened sooner.",
    "src": "L14"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They try (friend)'s idea: planks laid across the sand like a path. It works, sort of. It takes ages to lay the planks and the tide keeps moving them. By the third day (friend) gives up and helps build (subject)'s wide wheels after all. They work beautifully. \"You could have just said,\" says (friend). \"I did,\" says (subject). \"Several times.\"",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L17"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They try (friend)'s idea: planks laid across the sand like a path. It works, sort of. It takes ages to lay the planks and the tide keeps moving them. By the third day (friend) gives up and helps build (subject)'s wide wheels after all. They work beautifully. \"You could have just said,\" says (friend). \"I did,\" says (subject). \"Several times.\"",
    "src": "L17"

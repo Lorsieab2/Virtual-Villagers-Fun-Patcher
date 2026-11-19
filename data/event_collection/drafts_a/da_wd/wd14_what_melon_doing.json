@@ -66,6 +66,31 @@
    "src": "L170"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) digs it up, very carefully, and moves it to the edge of the garden. The melon vine sulks for a few days, then recovers, and grows a whole row of melons. (name1) privately thinks the one in the path would have been better. There's no way to prove it.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L173"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(name1) digs it up, very carefully, and moves it to the edge of the garden. The melon vine sulks for a few days, then recovers, and grows a whole row of melons. (name1) privately thinks the one in the path would have been better. There's no way to prove it.",
    "src": "L173"

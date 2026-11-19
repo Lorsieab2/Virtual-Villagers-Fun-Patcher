@@ -81,11 +81,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"What happened to you?\" asks (friend). \"Nothing!\" says (subject). \"Isn't it marvelous?\" (subject.He/she) strides off again. By the end of the day, (subject.he/she) has done three days' work, helped four people, and sung several songs very loudly. (subject.He/she) sleeps like a stone. The next day (subject.he/she) feels perfectly normal.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"What happened to you?\" asks (friend). \"Nothing!\" says (subject). \"Isn't it marvelous?\" (subject.He/she) strides off again. By the end of the day, (subject.he/she) has done three days' work, helped four people, and sung several songs very loudly. (subject.He/she) sleeps like a stone. The next day (subject.he/she) feels perfectly normal.",
    "src": "L410"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) steps aside and lets (subject.him/her) pass. (subject) sweeps the path, mends a roof, carries water for (elder), an elder, and reorganizes the storehouse, which nobody asked for and nobody can now find anything in. At dinner, (subject.he/she) is still beaming. Nobody has the heart to mention the storehouse.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) steps aside and lets (subject.him/her) pass. (subject) sweeps the path, mends a roof, carries water for (elder), an elder, and reorganizes the storehouse, which nobody asked for and nobody can now find anything in. At dinner, (subject.he/she) is still beaming. Nobody has the heart to mention the storehouse.",
    "src": "L413"

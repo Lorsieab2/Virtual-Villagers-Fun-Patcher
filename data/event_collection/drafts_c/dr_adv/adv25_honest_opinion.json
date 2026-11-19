@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Honestly?\" says (friend). \"I'm not sure what it is. But I like the wings. Or fins.\" (subject) laughs. \"It's a bird.\" \"Then the wings are great and the face could be more birdy.\" (subject) thinks about it. Then (subject.he/she) puts it up on the doorpost exactly as it is. \"I like it fishy,\" (subject.he/she) decides. It's (subject.his/her) door.",
+   "src": "L296",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L296"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Honestly?\" says (friend). \"I'm not sure what it is. But I like the wings. Or fins.\" (subject) laughs. \"It's a bird.\" \"Then the wings are great and the face could be more birdy.\" (subject) thinks about it. Then (subject.he/she) puts it up on the doorpost exactly as it is. \"I like it fishy,\" (subject.he/she) decides. It's (subject.his/her) door.",
    "src": "L296"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I love it,\" says (friend). (subject) narrows (subject.his/her) eyes. \"You said honest.\" \"I am being honest,\" says (friend). \"I love that you made it. I have no idea what it is.\" (subject) laughs so hard (subject.he/she) nearly drops it. It goes on the doorpost. Visitors guess something different every time. (subject) never tells.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L299"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I love it,\" says (friend). (subject) narrows (subject.his/her) eyes. \"You said honest.\" \"I am being honest,\" says (friend). \"I love that you made it. I have no idea what it is.\" (subject) laughs so hard (subject.he/she) nearly drops it. It goes on the doorpost. Visitors guess something different every time. (subject) never tells.",
    "src": "L299"

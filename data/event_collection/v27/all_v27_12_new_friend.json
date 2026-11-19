@@ -67,11 +67,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They find an unexpected best friend.",
-   "src": "L10580"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Outcome B",
@@ -86,6 +91,28 @@
    "join": "paragraph",
    "text": "An exclusionary rule sparks a disagreement the children must work through.",
    "src": "L10582"
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They find an unexpected best friend.",
+   "src": "L10580",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L10580"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They find an unexpected best friend.",
+   "src": "L10580"
   }
  }
 }

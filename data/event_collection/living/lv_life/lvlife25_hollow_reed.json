@@ -80,9 +80,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "A new melody delights the village.",
-   "src": "L20957"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -102,9 +109,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The concert proceeds smoothly, but the inventor feels disappointed.",
-   "src": "L20960"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -132,6 +146,42 @@
    "name": "Outcome C2",
    "text": "The players struggle to keep time and must practice together.",
    "src": "L20964"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "A new melody delights the village.",
+   "src": "L20957",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "good",
+     "src": "L20957"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "A new melody delights the village.",
+   "src": "L20957"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The concert proceeds smoothly, but the inventor feels disappointed.",
+   "src": "L20960",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "bad",
+     "src": "L20960"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The concert proceeds smoothly, but the inventor feels disappointed.",
+   "src": "L20960"
   }
  }
 }

@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) gets a basket, and then several more, and soon half the village is out on the sand. The good rope is kept. The odd lids become scoops. The rest goes in a pit far up the beach, away from the water. By evening the sand is clean. Three days later, after a smaller storm, there is more. (subject) sighs. Nobody knows where it all comes from. It just keeps coming.",
-   "src": "L38"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) is allowed to keep three things. (friend.He/she) chooses the tiny sandal, a red lid, and a piece of something hard and green that the sea has worn smooth. (friend.He/she) lines them up outside (friend.his/her) hut like a museum. Grown-ups come to look. Everybody has a theory about where they came from. Nobody's theory matches anybody else's.",
    "src": "L41"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) gets a basket, and then several more, and soon half the village is out on the sand. The good rope is kept. The odd lids become scoops. The rest goes in a pit far up the beach, away from the water. By evening the sand is clean. Three days later, after a smaller storm, there is more. (subject) sighs. Nobody knows where it all comes from. It just keeps coming.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L38"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) gets a basket, and then several more, and soon half the village is out on the sand. The good rope is kept. The odd lids become scoops. The rest goes in a pit far up the beach, away from the water. By evening the sand is clean. Three days later, after a smaller storm, there is more. (subject) sighs. Nobody knows where it all comes from. It just keeps coming.",
+   "src": "L38"
   }
  }
 }

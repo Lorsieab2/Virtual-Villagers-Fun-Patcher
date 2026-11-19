@@ -162,13 +162,38 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The family enjoys a modest supper and a peaceful evening.",
-   "src": "L75"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "One parent still feels overwhelmed, and the other offers to handle the remaining cleanup.",
+   "src": "L75"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The family enjoys a modest supper and a peaceful evening.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L75"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The family enjoys a modest supper and a peaceful evening.",
    "src": "L75"
   }
  }

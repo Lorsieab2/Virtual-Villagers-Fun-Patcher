@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) and (friend) start going out after every rain with torches and baskets. They collect hundreds. The healers say not to eat them, because nobody knows what they carry, so they're crushed and buried far away. It's slow, smelly work. The gardens recover a little. The snails keep coming. (subject) starts dreaming about snails, which is not pleasant.",
-   "src": "L416"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) watches the gardens for days and notices that a certain fat brown bird snaps up the small snails. They leave bowls of water out for the birds and stop chasing them from the gardens. The birds come. They eat some snails and also some beans. It's not a solution, exactly. It's a different set of problems. Both of them agree it's slightly better than before.",
    "src": "L419"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) start going out after every rain with torches and baskets. They collect hundreds. The healers say not to eat them, because nobody knows what they carry, so they're crushed and buried far away. It's slow, smelly work. The gardens recover a little. The snails keep coming. (subject) starts dreaming about snails, which is not pleasant.",
+   "src": "L416",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L416"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) start going out after every rain with torches and baskets. They collect hundreds. The healers say not to eat them, because nobody knows what they carry, so they're crushed and buried far away. It's slow, smelly work. The gardens recover a little. The snails keep coming. (subject) starts dreaming about snails, which is not pleasant.",
+   "src": "L416"
   }
  }
 }

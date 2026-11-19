@@ -84,9 +84,16 @@
    "src": "L8780"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "Fishers lose a day of catch but avoid a close encounter.",
-   "src": "L8782"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
@@ -97,6 +104,25 @@
    "name": "Answer D",
    "text": "The gathering becomes a lesson in uncertainty rather than proof of a legend.",
    "src": "L8786"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Fishers lose a day of catch but avoid a close encounter.",
+   "src": "L8782",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L8782"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Fishers lose a day of catch but avoid a close encounter.",
+   "src": "L8782"
   }
  }
 }

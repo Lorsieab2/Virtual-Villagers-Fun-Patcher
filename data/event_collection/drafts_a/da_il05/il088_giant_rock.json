@@ -73,14 +73,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) steps onto the rock. It takes one step. (subject.He/She) stands on top, looking at the view, which is exactly the same as the view from the ground, only slightly higher. (subject.He/She) laughs out loud. Then (subject.he/she) sits on it for a while, feeling about six years old in the nicest possible way.",
-   "src": "L98"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) decides the rock deserves some respect. It was a mountain once, after all. (subject.He/She) gives it a little nod and walks on. When (child), a small child, asks later whether (subject.he/she) has ever climbed the big rock behind the gardens, (subject) says, \"Not yet.\"",
    "src": "L101"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) steps onto the rock. It takes one step. (subject.He/She) stands on top, looking at the view, which is exactly the same as the view from the ground, only slightly higher. (subject.He/She) laughs out loud. Then (subject.he/she) sits on it for a while, feeling about six years old in the nicest possible way.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) steps onto the rock. It takes one step. (subject.He/She) stands on top, looking at the view, which is exactly the same as the view from the ground, only slightly higher. (subject.He/She) laughs out loud. Then (subject.he/she) sits on it for a while, feeling about six years old in the nicest possible way.",
+   "src": "L98"
   }
  }
 }

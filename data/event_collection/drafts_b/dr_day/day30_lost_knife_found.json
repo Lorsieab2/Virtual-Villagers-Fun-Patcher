@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) puts the shell in (subject.his/her) pocket and keeps looking. (subject.He/she) finds the knife at sunset, in the water jar, where (subject.he/she) put it that morning. (subject.He/she) has the knife and the shell. That's a good day, in the end, even if (subject.he/she) spent most of it annoyed.",
-   "src": "L362"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) decides a beautiful shell is a fair trade for a lost knife. (subject.He/she) borrows a knife from (friend), and puts the shell on the shelf. Two days later the knife turns up under the sleeping mat. Now (subject.he/she) has both, and (subject.he/she) feels as if (subject.he/she) has somehow cheated the island.",
    "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) puts the shell in (subject.his/her) pocket and keeps looking. (subject.He/she) finds the knife at sunset, in the water jar, where (subject.he/she) put it that morning. (subject.He/she) has the knife and the shell. That's a good day, in the end, even if (subject.he/she) spent most of it annoyed.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L362"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) puts the shell in (subject.his/her) pocket and keeps looking. (subject.He/she) finds the knife at sunset, in the water jar, where (subject.he/she) put it that morning. (subject.He/she) has the knife and the shell. That's a good day, in the end, even if (subject.he/she) spent most of it annoyed.",
+   "src": "L362"
   }
  }
 }

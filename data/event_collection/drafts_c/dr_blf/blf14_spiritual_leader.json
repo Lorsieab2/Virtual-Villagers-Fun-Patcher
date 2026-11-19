@@ -74,6 +74,31 @@
    "src": "L170"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I don't believe at all,\" says (friend). \"But I come to the songs anyway, because I like them. Maybe you can lead them for the same reason, on the days you're not sure.\" (subject) looks at (friend.him/her) in surprise, then laughs softly. \"Maybe I can.\" It doesn't fix the doubt. It makes it lighter to carry.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L173"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I don't believe at all,\" says (friend). \"But I come to the songs anyway, because I like them. Maybe you can lead them for the same reason, on the days you're not sure.\" (subject) looks at (friend.him/her) in surprise, then laughs softly. \"Maybe I can.\" It doesn't fix the doubt. It makes it lighter to carry.",
    "src": "L173"

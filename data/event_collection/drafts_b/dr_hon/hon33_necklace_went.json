@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) goes to (friend) empty-handed. \"I lost it. In the sea, dancing. I've been looking since dawn.\" (friend) is quiet for a long time. \"It was my favorite.\" \"I know.\" (friend) doesn't say it's fine. But a few days later (friend.he/she) comes by with a basket of shells. \"If you're going to make me a new one,\" (friend.he/she) says, \"these are the colors.\"",
-   "src": "L398"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) spends three days gathering shells and makes a new necklace, as close to the old one as (subject.he/she) can manage. Then (subject.he/she) takes it to (friend) and explains everything. (friend) holds it up. \"It's not the same.\" \"No.\" \"...It's nice, though.\" (friend) wears it. Every so often, (friend.he/she) still mentions the old one.",
    "src": "L401"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (friend) empty-handed. \"I lost it. In the sea, dancing. I've been looking since dawn.\" (friend) is quiet for a long time. \"It was my favorite.\" \"I know.\" (friend) doesn't say it's fine. But a few days later (friend.he/she) comes by with a basket of shells. \"If you're going to make me a new one,\" (friend.he/she) says, \"these are the colors.\"",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L398"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (friend) empty-handed. \"I lost it. In the sea, dancing. I've been looking since dawn.\" (friend) is quiet for a long time. \"It was my favorite.\" \"I know.\" (friend) doesn't say it's fine. But a few days later (friend.he/she) comes by with a basket of shells. \"If you're going to make me a new one,\" (friend.he/she) says, \"these are the colors.\"",
+   "src": "L398"
   }
  }
 }

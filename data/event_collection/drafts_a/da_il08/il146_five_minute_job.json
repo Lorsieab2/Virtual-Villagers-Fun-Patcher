@@ -65,14 +65,45 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Five minutes,\" (subject) tells (friend), still slightly stunned. \"I've been dreading that for WEEKS.\" (friend) nods slowly, then says, \"My roof has had a hole in it since the last full moon.\" They look at each other. They go and fix the hole. It takes ten minutes. They spend the rest of the evening fixing every little thing either of them has been putting off, and feel tremendously pleased with themselves.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) sets the jar down and looks at it. Five minutes. (subject.He/She) feels triumphant and a little silly at the same time. (subject.He/She) glances round the hut at all the other little jobs waiting quietly in corners. Then (subject.he/she) decides one five-minute job is plenty for one day, and goes to sit by the fire.",
    "src": "L77"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Five minutes,\" (subject) tells (friend), still slightly stunned. \"I've been dreading that for WEEKS.\" (friend) nods slowly, then says, \"My roof has had a hole in it since the last full moon.\" They look at each other. They go and fix the hole. It takes ten minutes. They spend the rest of the evening fixing every little thing either of them has been putting off, and feel tremendously pleased with themselves.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Five minutes,\" (subject) tells (friend), still slightly stunned. \"I've been dreading that for WEEKS.\" (friend) nods slowly, then says, \"My roof has had a hole in it since the last full moon.\" They look at each other. They go and fix the hole. It takes ten minutes. They spend the rest of the evening fixing every little thing either of them has been putting off, and feel tremendously pleased with themselves.",
+   "src": "L74"
   }
  }
 }

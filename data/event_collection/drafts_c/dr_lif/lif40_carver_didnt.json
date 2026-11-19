@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tells (friend) it's beautiful, and means it, even with the sting. (friend) beams. \"Did you carve too?\" asks (friend). \"I did,\" says (subject). \"Not like that.\" (subject.He/she) shows (friend) an old piece of (subject.his/her) own. (friend) studies it seriously and says it has something (friend.his/her) own doesn't. (subject) isn't sure that's true, but it's kind. The sting is still there. That's alright.",
-   "src": "L470"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) walks away, out to the beach, and lets (subject.him/her)self feel it: the old wanting, the disappointment, the little bit of jealousy. (subject.He/she) doesn't pretend it's not there. After a while, it settles. (subject.He/she) still carves, sometimes, for fun. (subject.He/she) goes home and carves something small and silly. It's not the best. (subject.He/she) likes it.",
    "src": "L473"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) it's beautiful, and means it, even with the sting. (friend) beams. \"Did you carve too?\" asks (friend). \"I did,\" says (subject). \"Not like that.\" (subject.He/she) shows (friend) an old piece of (subject.his/her) own. (friend) studies it seriously and says it has something (friend.his/her) own doesn't. (subject) isn't sure that's true, but it's kind. The sting is still there. That's alright.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L470"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) it's beautiful, and means it, even with the sting. (friend) beams. \"Did you carve too?\" asks (friend). \"I did,\" says (subject). \"Not like that.\" (subject.He/she) shows (friend) an old piece of (subject.his/her) own. (friend) studies it seriously and says it has something (friend.his/her) own doesn't. (subject) isn't sure that's true, but it's kind. The sting is still there. That's alright.",
+   "src": "L470"
   }
  },
  "grammar_fixes": [

@@ -69,14 +69,49 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Give me the baby,\" says (friend). \"Go and get the water.\" (subject) hesitates, then hands over the baby. By the time (subject.he/she) comes back, (friend) has found the sandal \\(in the cooking pot\\) and the baby is asleep. \"You didn't have to do that,\" says (subject). \"I know,\" says (friend). \"That's why I did.\" (subject) is grateful. (subject.He/she) was managing. Managing with help is better.",
-   "src": "L218"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) waves (friend) on. \"I've got it!\" And (subject.he/she) does, more or less: water fetched, sandal found \\(in the cooking pot\\), baby on (subject.his/her) back, everyone fed. (subject.He/she) gets to the gardens late but gets there. That evening, everyone safe and asleep, (subject) sits on the step for a moment of quiet. (subject.He/she) is tired. (subject.He/she) is doing a good job. Both.",
    "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Give me the baby,\" says (friend). \"Go and get the water.\" (subject) hesitates, then hands over the baby. By the time (subject.he/she) comes back, (friend) has found the sandal \\(in the cooking pot\\) and the baby is asleep. \"You didn't have to do that,\" says (subject). \"I know,\" says (friend). \"That's why I did.\" (subject) is grateful. (subject.He/she) was managing. Managing with help is better.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L218"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Give me the baby,\" says (friend). \"Go and get the water.\" (subject) hesitates, then hands over the baby. By the time (subject.he/she) comes back, (friend) has found the sandal \\(in the cooking pot\\) and the baby is asleep. \"You didn't have to do that,\" says (subject). \"I know,\" says (friend). \"That's why I did.\" (subject) is grateful. (subject.He/she) was managing. Managing with help is better.",
+   "src": "L218"
   }
  }
 }

@@ -70,19 +70,69 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "He proposes marking safe high ground; the village adopts the idea.",
-   "src": "L6196"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "His diagram communicates more clearly than a speech would.",
-   "src": "L6198"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "He prefers helping with preparations rather than public debate, and does so brilliantly.",
    "src": "L6200"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "He proposes marking safe high ground; the village adopts the idea.",
+   "src": "L6196",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6196"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "He proposes marking safe high ground; the village adopts the idea.",
+   "src": "L6196"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "His diagram communicates more clearly than a speech would.",
+   "src": "L6198",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6198"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "His diagram communicates more clearly than a speech would.",
+   "src": "L6198"
   }
  }
 }

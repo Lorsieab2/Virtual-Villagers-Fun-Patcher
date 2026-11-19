@@ -74,6 +74,31 @@
    "src": "L146"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They take a few nests, fewer than usual, and leave the rest. The eggs are shared out at a small feast. (friend) enjoys them. (subject) does too, mostly. But (subject.he/she) keeps going back to the beach to count the nests that are left. The turtles will have to answer this one. It will take a long time to know if the village chose well.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L149"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They take a few nests, fewer than usual, and leave the rest. The eggs are shared out at a small feast. (friend) enjoys them. (subject) does too, mostly. But (subject.he/she) keeps going back to the beach to count the nests that are left. The turtles will have to answer this one. It will take a long time to know if the village chose well.",
    "src": "L149"

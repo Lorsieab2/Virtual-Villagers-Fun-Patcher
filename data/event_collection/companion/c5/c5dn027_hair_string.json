@@ -91,6 +91,33 @@
    "src": "L2915"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A child invents a better tuning method.",
+   "src": "L2916",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2916"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "popup": "append",
    "join": "paragraph",

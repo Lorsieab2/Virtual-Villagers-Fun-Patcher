@@ -69,11 +69,75 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) shows exactly where it rubs and how, and explains (subject.he/she) has worn wooden legs for longer than (friend) has been carving them. (friend) swallows (friend.his/her) pride, and they work on it together, shaving and padding, fitting and refitting. By the end of the day it fits. That night there's music at the fire, and (subject) dances on it until very late.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L146"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) shows exactly where it rubs and how, and explains (subject.he/she) has worn wooden legs for longer than (friend) has been carving them. (friend) swallows (friend.his/her) pride, and they work on it together, shaving and padding, fitting and refitting. By the end of the day it fits. That night there's music at the fire, and (subject) dances on it until very late.",
    "src": "L146"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) agrees, reluctantly, to give it another week. It doesn't get better. (subject.He/she) ends up going back to (subject.his/her) old leg, which isn't as nice but doesn't hurt. When (friend) finds out, (friend.he/she) comes round, embarrassed. \"Show me where.\" (subject) shows (friend.him/her). The second version fits much better. (subject) doesn't say \"I told you so,\" exactly. (subject.He/she) just hums it.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L149"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) agrees, reluctantly, to give it another week. It doesn't get better. (subject.He/she) ends up going back to (subject.his/her) old leg, which isn't as nice but doesn't hurt. When (friend) finds out, (friend.he/she) comes round, embarrassed. \"Show me where.\" (subject) shows (friend.him/her). The second version fits much better. (subject) doesn't say \"I told you so,\" exactly. (subject.He/she) just hums it.",
    "src": "L149"

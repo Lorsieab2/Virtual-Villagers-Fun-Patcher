@@ -134,6 +134,31 @@
    "src": "L430"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "An apprentice finds that the containers are contaminating the samples.",
+   "src": "L432",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L432"
+    }
+   ]
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "An apprentice finds that the containers are contaminating the samples.",
    "src": "L432"

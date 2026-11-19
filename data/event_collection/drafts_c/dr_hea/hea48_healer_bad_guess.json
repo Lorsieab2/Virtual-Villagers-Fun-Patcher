@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I missed this,\" says (subject). \"I should have looked closer. I'm sorry you've had three bad days because of it.\" (subject.He/she) takes the thorn out. (friend) winces, then breathes out. \"Three days of resting for nothing,\" (friend.he/she) says. \"Not for nothing,\" says (subject). \"But not for the reason I said.\" The foot is better in two days. (subject) looks very closely at feet for a long time after.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L581"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I missed this,\" says (subject). \"I should have looked closer. I'm sorry you've had three bad days because of it.\" (subject.He/she) takes the thorn out. (friend) winces, then breathes out. \"Three days of resting for nothing,\" (friend.he/she) says. \"Not for nothing,\" says (subject). \"But not for the reason I said.\" The foot is better in two days. (subject) looks very closely at feet for a long time after.",
    "src": "L581"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) takes the thorn out first, carefully, while (friend) grips the bed. Then (subject.he/she) explains: (subject.he/she) guessed wrong, and the resting didn't hurt, but it didn't help either. (friend) is quiet. \"I'm glad you found it,\" (friend.he/she) says eventually. \"Next time, look harder.\" \"I will,\" says (subject). There's no argument in it. It's fair.",
+   "src": "L584",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L584"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) takes the thorn out first, carefully, while (friend) grips the bed. Then (subject.he/she) explains: (subject.he/she) guessed wrong, and the resting didn't hurt, but it didn't help either. (friend) is quiet. \"I'm glad you found it,\" (friend.he/she) says eventually. \"Next time, look harder.\" \"I will,\" says (subject). There's no argument in it. It's fair.",
    "src": "L584"

@@ -98,14 +98,39 @@
    "src": "L8842"
   },
   "c": {
+   "type": "branch",
    "name": "Answer C",
-   "text": "Anatomical detail improves, but collecting rules become essential.",
-   "src": "L8844"
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
   },
   "d": {
    "name": "Answer D",
    "text": "Gardens, aquaria and sketches complement each other, though care is costly.",
    "src": "L8846"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "Anatomical detail improves, but collecting rules become essential.",
+   "src": "L8844",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8844"
+    }
+   ]
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "Anatomical detail improves, but collecting rules become essential.",
+   "src": "L8844"
   }
  }
 }

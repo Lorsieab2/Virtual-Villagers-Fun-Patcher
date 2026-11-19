@@ -76,11 +76,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Help,\" says (subject). (friend) looks at the fire, rearranges three sticks, blows once, and the fire roars into life. (subject) stares. \"How did you do that?\" (friend) shrugs. \"Your fire was nearly there. I just finished it.\" (subject) is not sure (subject.he/she) believes this. (subject.He/she) is very grateful.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Help,\" says (subject). (friend) looks at the fire, rearranges three sticks, blows once, and the fire roars into life. (subject) stares. \"How did you do that?\" (friend) shrugs. \"Your fire was nearly there. I just finished it.\" (subject) is not sure (subject.he/she) believes this. (subject.He/she) is very grateful.",
    "src": "L398"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) keeps trying. (friend) sits down to watch, which doesn't help. (subject) changes the kindling, blows, fans, mutters, and, just as the sun goes down, a flame catches and holds. (subject) jumps up and cheers, alone, for a fire. Nobody else knows how hard won it was. (subject) does.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) keeps trying. (friend) sits down to watch, which doesn't help. (subject) changes the kindling, blows, fans, mutters, and, just as the sun goes down, a flame catches and holds. (subject) jumps up and cheers, alone, for a fire. Nobody else knows how hard won it was. (subject) does.",
    "src": "L401"

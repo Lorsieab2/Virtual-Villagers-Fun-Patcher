@@ -70,14 +70,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"That scratch?\" says (friend). \"I thought you said it was fine.\" \"It is fine,\" replies (subject). They stare at each other. Then (subject) laughs. \"I think I've been annoyed about a basket for three weeks.\" (friend) agrees that this is a rather long time.",
-   "src": "L377"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) carries the basket to the fields. By the end of the day it has acquired two more scratches. (subject.He/She) looks at all three and decides the basket has become rather distinguished.",
    "src": "L381"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"That scratch?\" says (friend). \"I thought you said it was fine.\" \"It is fine,\" replies (subject). They stare at each other. Then (subject) laughs. \"I think I've been annoyed about a basket for three weeks.\" (friend) agrees that this is a rather long time.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L377"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"That scratch?\" says (friend). \"I thought you said it was fine.\" \"It is fine,\" replies (subject). They stare at each other. Then (subject) laughs. \"I think I've been annoyed about a basket for three weeks.\" (friend) agrees that this is a rather long time.",
+   "src": "L377"
   }
  }
 }

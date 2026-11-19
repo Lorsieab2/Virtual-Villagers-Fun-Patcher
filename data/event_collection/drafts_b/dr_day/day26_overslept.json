@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) works twice as fast all morning to catch up. (He/she) does catch up, mostly. (He/she) also drops things, forgets things and puts things in the wrong place. By evening, (he/she) is exhausted and everything is done, roughly. It has felt like a day spent chasing (him/her)self.",
-   "src": "L314"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) decides that (he/she) is late, and that's that. (He/she) eats breakfast first, slowly. Then (he/she) works at an ordinary pace and gets an ordinary amount done. Nobody says anything. The world doesn't end. The whole day is just shifted a little later than usual, like a hut that's been moved a few steps along the path.",
    "src": "L317"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) works twice as fast all morning to catch up. (He/she) does catch up, mostly. (He/she) also drops things, forgets things and puts things in the wrong place. By evening, (he/she) is exhausted and everything is done, roughly. It has felt like a day spent chasing (him/her)self.",
+   "src": "L314",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -5,
+     "src": "L314"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) works twice as fast all morning to catch up. (He/she) does catch up, mostly. (He/she) also drops things, forgets things and puts things in the wrong place. By evening, (he/she) is exhausted and everything is done, roughly. It has felt like a day spent chasing (him/her)self.",
+   "src": "L314"
   }
  }
 }

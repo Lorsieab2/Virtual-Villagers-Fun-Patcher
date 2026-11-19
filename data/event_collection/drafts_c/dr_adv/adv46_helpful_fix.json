@@ -69,14 +69,49 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Thank you,\" says (subject), looking at the strange knots. \"I wasn't expecting that.\" (friend) beams. The net works fine. Better than fine, actually. (subject) studies the new knots and, a few weeks later, starts using them (subject.him/her)self. (subject.He/she) never tells (friend) that, mostly because (friend.he/she) would never hear the end of it.",
-   "src": "L542"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"That's kind of you,\" says (subject). \"But next time, could you ask first? I like doing my own mending.\" (friend)'s face falls a bit. \"Oh. I just thought you'd be pleased.\" \"I am, a bit,\" says (subject). \"And I'd still like you to ask.\" (friend) nods slowly. Next time, (friend.he/she) asks. (subject) says yes about half the time.",
    "src": "L545"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject), looking at the strange knots. \"I wasn't expecting that.\" (friend) beams. The net works fine. Better than fine, actually. (subject) studies the new knots and, a few weeks later, starts using them (subject.him/her)self. (subject.He/she) never tells (friend) that, mostly because (friend.he/she) would never hear the end of it.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L542"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L542"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject), looking at the strange knots. \"I wasn't expecting that.\" (friend) beams. The net works fine. Better than fine, actually. (subject) studies the new knots and, a few weeks later, starts using them (subject.him/her)self. (subject.He/she) never tells (friend) that, mostly because (friend.he/she) would never hear the end of it.",
+   "src": "L542"
   }
  }
 }

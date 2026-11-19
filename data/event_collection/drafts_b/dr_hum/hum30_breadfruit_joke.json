@@ -103,11 +103,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They try. They really try. \"Well, there was a breadfruit,\" begins (subject), \"and it...\" \"...and it...\" says (friend), and they're gone again. (child) waits patiently, then gives up and wanders off. That evening (child) is heard saying \"breadfruit\" to a group of friends and laughing helplessly, with no idea why.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L362"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They try. They really try. \"Well, there was a breadfruit,\" begins (subject), \"and it...\" \"...and it...\" says (friend), and they're gone again. (child) waits patiently, then gives up and wanders off. That evening (child) is heard saying \"breadfruit\" to a group of friends and laughing helplessly, with no idea why.",
    "src": "L362"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) makes one up on the spot. \"Why did the breadfruit roll down the hill? Because it was on a roll.\" It's dreadful. (child) doesn't laugh even slightly. (subject) and (friend) laugh so hard they have to lie down on the ground. Now there are two breadfruit jokes, and they only know one of them.",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L365"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L365"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) makes one up on the spot. \"Why did the breadfruit roll down the hill? Because it was on a roll.\" It's dreadful. (child) doesn't laugh even slightly. (subject) and (friend) laugh so hard they have to lie down on the ground. Now there are two breadfruit jokes, and they only know one of them.",
    "src": "L365"

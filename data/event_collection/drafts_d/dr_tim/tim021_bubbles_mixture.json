@@ -132,11 +132,61 @@
    "src": "L355"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a researcher, observes bubbles rising through a harmless herbal mixture. A nearby villager offers a surprisingly useful observation.",
+   "src": "L359",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L359"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1), a researcher, observes bubbles rising through a harmless herbal mixture. A nearby villager offers a surprisingly useful observation.",
    "src": "L359"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a researcher, observes bubbles rising through a harmless herbal mixture. The notes are messy, but the discovery feels exciting.",
+   "src": "L363",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L363"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a researcher, observes bubbles rising through a harmless herbal mixture. The notes are messy, but the discovery feels exciting.",
    "src": "L363"

@@ -65,11 +65,67 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) shows (friend) how to shape (friend.his/her) lips and where to put (friend.his/her) tongue. (friend) is hopeless. It's wonderful. They spend the afternoon at it, and by sunset (friend) manages one thin, wobbly little note. (friend.He/She) is delighted. (subject) is delighted too, for (friend.him/her), and only very slightly smug.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L230"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) shows (friend) how to shape (friend.his/her) lips and where to put (friend.his/her) tongue. (friend) is hopeless. It's wonderful. They spend the afternoon at it, and by sunset (friend) manages one thin, wobbly little note. (friend.He/She) is delighted. (subject) is delighted too, for (friend.him/her), and only very slightly smug.",
    "src": "L230"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) whistles a little tune, just once, very casually. Then (subject.he/she) says nothing at all. (friend) looks at (subject.him/her). \"That's very good,\" (friend.he/she) says. \"Thank you,\" says (subject). (subject.He/She) walks home feeling enormously cheerful and doesn't entirely know why. Actually, (subject.he/she) knows exactly why.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L233"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) whistles a little tune, just once, very casually. Then (subject.he/she) says nothing at all. (friend) looks at (subject.him/her). \"That's very good,\" (friend.he/she) says. \"Thank you,\" says (subject). (subject.He/She) walks home feeling enormously cheerful and doesn't entirely know why. Actually, (subject.he/she) knows exactly why.",
    "src": "L233"

@@ -69,11 +69,61 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) looks at the cloth, then at (friend)'s face, and starts laughing too. \"Is it bad?\" \"It's very green,\" says (friend). They hang it anyway. People come and look. A surprising number of them like it. After that, (friend) helps (subject) mark the dye pots with knots: one for red, two for green. The next cloth comes out right. Some people miss the green one.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) looks at the cloth, then at (friend)'s face, and starts laughing too. \"Is it bad?\" \"It's very green,\" says (friend). They hang it anyway. People come and look. A surprising number of them like it. After that, (friend) helps (subject) mark the dye pots with knots: one for red, two for green. The next cloth comes out right. Some people miss the green one.",
    "src": "L410"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is embarrassed. (friend) stops laughing and helps (subject.him/her) re-dye half the stripes. While they work, (subject) explains what colors look like to (subject.him/her). (friend) is fascinated. \"So the sunset is...\" \"Mostly yellow. Very nice yellow.\" The finished cloth is red and green. (friend) thinks about the yellow sunset for days.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L413"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is embarrassed. (friend) stops laughing and helps (subject.him/her) re-dye half the stripes. While they work, (subject) explains what colors look like to (subject.him/her). (friend) is fascinated. \"So the sunset is...\" \"Mostly yellow. Very nice yellow.\" The finished cloth is red and green. (friend) thinks about the yellow sunset for days.",
    "src": "L413"

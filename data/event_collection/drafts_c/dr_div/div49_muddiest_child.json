@@ -70,14 +70,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) looks at the mud, looks at (subject), and gives the cart one big push. The splash reaches the drying racks. Children scream with joy. (friend) is just as muddy as (subject) within minutes. They wash in the stream together afterward, and the cart needs a wash too. (subject) declares it the best day of (subject.his/her) life.",
-   "src": "L590"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"(subject)! Look at you!\" (friend) calls (subject.him/her) in. (subject) rolls over, splattered from head to wheels and grinning. (friend) sighs and starts scrubbing. Halfway through, (friend.he/she) sees the other children waiting hopefully at the top of the slope. (friend.He/she) sighs again. \"One more,\" (friend.he/she) says. \"ONE.\" It is not one.",
    "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) looks at the mud, looks at (subject), and gives the cart one big push. The splash reaches the drying racks. Children scream with joy. (friend) is just as muddy as (subject) within minutes. They wash in the stream together afterward, and the cart needs a wash too. (subject) declares it the best day of (subject.his/her) life.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) looks at the mud, looks at (subject), and gives the cart one big push. The splash reaches the drying racks. Children scream with joy. (friend) is just as muddy as (subject) within minutes. They wash in the stream together afterward, and the cart needs a wash too. (subject) declares it the best day of (subject.his/her) life.",
+   "src": "L590"
   }
  }
 }

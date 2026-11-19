@@ -86,6 +86,31 @@
    "src": "L410"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is already crouched over the ashes with dry grass and a fire stick when the others arrive. Nobody needs to ask whose night it was. They watch (subject.him/her) work, and (friend) kneels down to help. When it finally catches, a small cheer goes up. (subject) puts on a great deal of wood. Possibly too much.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is already crouched over the ashes with dry grass and a fire stick when the others arrive. Nobody needs to ask whose night it was. They watch (subject.him/her) work, and (friend) kneels down to help. When it finally catches, a small cheer goes up. (subject) puts on a great deal of wood. Possibly too much.",
    "src": "L413"

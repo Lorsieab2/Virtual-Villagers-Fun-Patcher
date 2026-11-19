@@ -82,6 +82,37 @@
    "src": "L243"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) leaves it where it is, face up. Later that day, (subject.he/she) sees (child), a child, pick it up and gasp with delight. (subject) feels warm all over. Whether (subject.he/she) gets even better luck, (subject.he/she) can't tell. (subject.He/She) has a very pleasant evening, though. That might count.",
+   "src": "L246",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L246"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L246"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) leaves it where it is, face up. Later that day, (subject.he/she) sees (child), a child, pick it up and gasp with delight. (subject) feels warm all over. Whether (subject.he/she) gets even better luck, (subject.he/she) can't tell. (subject.He/She) has a very pleasant evening, though. That might count.",
    "src": "L246"

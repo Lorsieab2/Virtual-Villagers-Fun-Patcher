@@ -134,9 +134,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The couple enjoys a peaceful commitment.",
-   "src": "L28944"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -186,6 +193,30 @@
    "name": "Outcome D2",
    "text": "They decide some memories should remain private.",
    "src": "L28951"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The couple enjoys a peaceful commitment.",
+   "src": "L28944",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L28944"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L28944"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The couple enjoys a peaceful commitment.",
+   "src": "L28944"
   }
  }
 }

@@ -66,14 +66,39 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Guess,\" says (subject). (friend) looks at (subject.him/her) very carefully. \"A hundred?\" \"Lower.\" \"Ninety-nine?\" \"Much lower.\" This goes on for some time, with (friend) getting closer by ones. When (friend.he/she) reaches a number (subject) likes the sound of, (subject) says, \"That's it! Exactly that.\" (friend) is extremely proud of (friend.him/her)self.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) thinks about it, then picks one: a nice round number that seems about right. \"That one,\" (subject.he/she) says. \"Is that true?\" asks (friend). \"It is now.\" (friend) seems to find this a perfectly reasonable way to have an age. Later (friend.he/she) tells the other children (friend.he/she) is going to pick (friend.his/her) own, too. (friend.He/She) picks eleven, though (friend.he/she) is six.",
    "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Guess,\" says (subject). (friend) looks at (subject.him/her) very carefully. \"A hundred?\" \"Lower.\" \"Ninety-nine?\" \"Much lower.\" This goes on for some time, with (friend) getting closer by ones. When (friend.he/she) reaches a number (subject) likes the sound of, (subject) says, \"That's it! Exactly that.\" (friend) is extremely proud of (friend.him/her)self.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Guess,\" says (subject). (friend) looks at (subject.him/her) very carefully. \"A hundred?\" \"Lower.\" \"Ninety-nine?\" \"Much lower.\" This goes on for some time, with (friend) getting closer by ones. When (friend.he/she) reaches a number (subject) likes the sound of, (subject) says, \"That's it! Exactly that.\" (friend) is extremely proud of (friend.him/her)self.",
+   "src": "L26"
   }
  }
 }

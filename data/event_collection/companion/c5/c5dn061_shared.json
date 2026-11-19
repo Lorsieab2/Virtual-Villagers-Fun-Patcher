@@ -78,11 +78,16 @@
    "src": "L3232"
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Laugh at their predicament.",
-   "src": "L3233"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",
@@ -90,6 +95,34 @@
    "join": "paragraph",
    "text": "Return home still rivals, but slightly kinder.",
    "src": "L3234"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Laugh at their predicament.",
+   "src": "L3233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "rival1",
+     "mood": "good",
+     "src": "L3233"
+    },
+    {
+     "do": "mood",
+     "role": "rival2",
+     "mood": "good",
+     "src": "L3233"
+    }
+   ]
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Laugh at their predicament.",
+   "src": "L3233"
   }
  }
 }

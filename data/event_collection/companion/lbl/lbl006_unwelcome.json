@@ -108,6 +108,54 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The guardian apologizes for the comparison.",
+   "src": "L3869"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The siblings begin competing in unhealthy ways.",
+   "src": "L3870"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The teen discovers a skill the sibling never mastered.",
+   "src": "L3868",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Building",
+      "Farming",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3868"
+    },
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L3868"
+    }
+   ]
+  },
+  "e1__text": {
    "name": "Outcome 1",
    "text": "The teen discovers a skill the sibling never mastered.",
    "src": "L3868",
@@ -126,16 +174,6 @@
      "src": "L3868"
     }
    ]
-  },
-  "e2": {
-   "name": "Outcome 2",
-   "text": "The guardian apologizes for the comparison.",
-   "src": "L3869"
-  },
-  "e3": {
-   "name": "Outcome 3",
-   "text": "The siblings begin competing in unhealthy ways.",
-   "src": "L3870"
   }
  }
 }

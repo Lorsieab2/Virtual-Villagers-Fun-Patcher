@@ -112,9 +112,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The fruit stays fresher on short journeys.",
-   "src": "L21077"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -143,14 +150,57 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The village learns which design suits each crop.",
-   "src": "L21080"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The trial reveals that no single basket works for everything.",
    "src": "L21081"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The fruit stays fresher on short journeys.",
+   "src": "L21077",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21077"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The fruit stays fresher on short journeys.",
+   "src": "L21077"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The village learns which design suits each crop.",
+   "src": "L21080",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21080"
+    }
+   ]
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The village learns which design suits each crop.",
+   "src": "L21080"
   }
  }
 }

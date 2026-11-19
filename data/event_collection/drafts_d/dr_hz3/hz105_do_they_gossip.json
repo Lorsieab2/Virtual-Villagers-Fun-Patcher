@@ -83,9 +83,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The villagers imagine distant neighbors whispering about who burned the stew, and laugh.",
-   "src": "L309"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -135,6 +142,24 @@
    "name": "Outcome C2",
    "text": "A villager admits they have spread a story they should not have, and decides to be more careful.",
    "src": "L316"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villagers imagine distant neighbors whispering about who burned the stew, and laugh.",
+   "src": "L309",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L309"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villagers imagine distant neighbors whispering about who burned the stew, and laugh.",
+   "src": "L309"
   }
  }
 }

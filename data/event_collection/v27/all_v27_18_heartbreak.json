@@ -74,11 +74,16 @@
    "src": "L10628"
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They turn to music and find unexpected confidence.",
-   "src": "L10629"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Outcome C",
@@ -86,6 +91,28 @@
    "join": "paragraph",
    "text": "They lash out, then must make amends without expecting romance.",
    "src": "L10630"
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They turn to music and find unexpected confidence.",
+   "src": "L10629",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L10629"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They turn to music and find unexpected confidence.",
+   "src": "L10629"
   }
  }
 }

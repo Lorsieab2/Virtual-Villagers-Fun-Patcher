@@ -201,9 +201,16 @@
    "src": "L448"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "Clouds cover the stars; they learn how to work with imperfect observations.",
-   "src": "L449"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -226,6 +233,24 @@
    "name": "Outcome D2",
    "text": "The children offer several different complaints, forcing him to reconsider his teaching.",
    "src": "L452"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Clouds cover the stars; they learn how to work with imperfect observations.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L449"
+    }
+   ]
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Clouds cover the stars; they learn how to work with imperfect observations.",
+   "src": "L449"
   }
  }
 }

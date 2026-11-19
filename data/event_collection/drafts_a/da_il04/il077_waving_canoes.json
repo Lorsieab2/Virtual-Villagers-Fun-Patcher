@@ -82,6 +82,42 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I've always done it,\" (subject) admits. \"I don't know why.\" (friend) shrugs and waves at the speck too, just to see what it's like. The speck turns out to be a log. They both agree it seemed to appreciate it.",
+   "src": "L209"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"In case they're having a hard day,\" (subject) says. \"Somebody should wave.\" (friend) looks at the speck. Then (friend.he/she) waves too. That evening the village fishers come home, and (fisher), one of them, says, quite seriously, \"Was that you two waving? We saw you from all the way out there. Made the whole afternoon.\"",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L206"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "\"In case they're having a hard day,\" (subject) says. \"Somebody should wave.\" (friend) looks at the speck. Then (friend.he/she) waves too. That evening the village fishers come home, and (fisher), one of them, says, quite seriously, \"Was that you two waving? We saw you from all the way out there. Made the whole afternoon.\"",
    "src": "L206",
@@ -93,11 +129,6 @@
      "src": "L206"
     }
    ]
-  },
-  "b": {
-   "name": "Answer B",
-   "text": "\"I've always done it,\" (subject) admits. \"I don't know why.\" (friend) shrugs and waves at the speck too, just to see what it's like. The speck turns out to be a log. They both agree it seemed to appreciate it.",
-   "src": "L209"
   }
  }
 }

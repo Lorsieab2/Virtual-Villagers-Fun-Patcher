@@ -94,9 +94,16 @@
    ]
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "The animal remains and shell harvest is reduced; some fishers grumble.",
-   "src": "L8758"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
@@ -107,6 +114,25 @@
    "name": "Answer D",
    "text": "The community tries seasonal rules, then must check whether they help.",
    "src": "L8762"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The animal remains and shell harvest is reduced; some fishers grumble.",
+   "src": "L8758",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L8758"
+    }
+   ]
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The animal remains and shell harvest is reduced; some fishers grumble.",
+   "src": "L8758"
   }
  }
 }

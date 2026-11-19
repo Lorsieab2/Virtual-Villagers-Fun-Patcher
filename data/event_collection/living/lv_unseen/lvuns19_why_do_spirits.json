@@ -80,9 +80,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The idea comforts the villager for a time.",
-   "src": "L22417"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -132,6 +139,24 @@
    "name": "Outcome C2",
    "text": "Their conversation becomes a respectful village debate.",
    "src": "L22424"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The idea comforts the villager for a time.",
+   "src": "L22417",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L22417"
+    }
+   ]
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The idea comforts the villager for a time.",
+   "src": "L22417"
   }
  }
 }

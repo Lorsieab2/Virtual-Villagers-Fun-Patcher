@@ -126,9 +126,16 @@
    "src": "L29713"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "Both sides insist their version came first and laugh at the impossibility of proving it.",
-   "src": "L29714"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -202,6 +209,24 @@
    "name": "Outcome D2",
    "text": "(visitor) reminds everyone that one person cannot speak for an entire people.",
    "src": "L29723"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "Both sides insist their version came first and laugh at the impossibility of proving it.",
+   "src": "L29714",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29714"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "Both sides insist their version came first and laugh at the impossibility of proving it.",
+   "src": "L29714"
   }
  }
 }

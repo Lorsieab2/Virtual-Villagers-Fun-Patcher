@@ -108,9 +108,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "They return at dawn, exhausted and grounded.",
-   "src": "L4136"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -144,6 +151,39 @@
      "src": "L4138"
     }
    ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "They return at dawn, exhausted and grounded.",
+   "src": "L4136",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen1",
+     "min": -15,
+     "max": -5,
+     "src": "L4136"
+    },
+    {
+     "do": "health_change",
+     "role": "teen2",
+     "min": -15,
+     "max": -5,
+     "src": "L4136"
+    },
+    {
+     "do": "health_change",
+     "role": "teen3",
+     "min": -15,
+     "max": -5,
+     "src": "L4136"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "They return at dawn, exhausted and grounded.",
+   "src": "L4136"
   }
  }
 }

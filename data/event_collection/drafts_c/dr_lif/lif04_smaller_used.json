@@ -89,6 +89,31 @@
    "src": "L50"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) sits on the edge and lets (subject.his/her) feet dangle in the water. The pool hasn't changed. (subject.He/she) has. It isn't sad, exactly. It's strange and a little funny, to have been so small once that this was an ocean. (subject.He/she) looks at (subject.his/her) big feet in the little pool and smiles. Then (subject.he/she) goes home, a bit taller than (subject.he/she) came.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) sits on the edge and lets (subject.his/her) feet dangle in the water. The pool hasn't changed. (subject.He/she) has. It isn't sad, exactly. It's strange and a little funny, to have been so small once that this was an ocean. (subject.He/she) looks at (subject.his/her) big feet in the little pool and smiles. Then (subject.he/she) goes home, a bit taller than (subject.he/she) came.",
    "src": "L53"

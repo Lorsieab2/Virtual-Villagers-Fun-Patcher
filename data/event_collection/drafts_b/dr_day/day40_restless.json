@@ -69,11 +69,68 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Want to help me move a log?\" asks (friend). (subject) says yes so fast it's almost rude. They move the log. Then another. Then (subject) moves three more on (subject.his/her) own. By evening (subject.he/she) is tired in the best way, and the restlessness has gone, along with a great many logs.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L482"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Want to help me move a log?\" asks (friend). (subject) says yes so fast it's almost rude. They move the log. Then another. Then (subject) moves three more on (subject.his/her) own. By evening (subject.he/she) is tired in the best way, and the restlessness has gone, along with a great many logs.",
    "src": "L482"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) runs. Along the beach, over the rocks, round the gardens and back. Then again. By the third time round, people are cheering (subject.him/her) on without knowing why. (subject.He/she) collapses on the sand at sunset, out of breath, perfectly calm at last.",
+   "src": "L485",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L485"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L485"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) runs. Along the beach, over the rocks, round the gardens and back. Then again. By the third time round, people are cheering (subject.him/her) on without knowing why. (subject.He/she) collapses on the sand at sunset, out of breath, perfectly calm at last.",
    "src": "L485",

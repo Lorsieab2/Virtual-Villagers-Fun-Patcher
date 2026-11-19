@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) finds (friend.him/her). \"I told someone, and it's spread. I'm sorry. It was yours to tell.\" (friend) is quiet for a moment. \"I was looking forward to telling it.\" That evening (friend) tells it anyway, and everyone pretends to be surprised, very badly. It isn't what (friend.he/she) planned. It's still a good evening.",
-   "src": "L134"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "At the fire, (friend) stands up to share (friend.his/her) news, and three people call out their congratulations before (friend.he/she) can open (friend.his/her) mouth. (friend) looks across at (subject), who looks at the ground. Later (friend) says only, \"You could have told me.\" (subject) knows (subject.he/she) could have. Things are a little cooler between them for a while.",
    "src": "L137"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend.him/her). \"I told someone, and it's spread. I'm sorry. It was yours to tell.\" (friend) is quiet for a moment. \"I was looking forward to telling it.\" That evening (friend) tells it anyway, and everyone pretends to be surprised, very badly. It isn't what (friend.he/she) planned. It's still a good evening.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend.him/her). \"I told someone, and it's spread. I'm sorry. It was yours to tell.\" (friend) is quiet for a moment. \"I was looking forward to telling it.\" That evening (friend) tells it anyway, and everyone pretends to be surprised, very badly. It isn't what (friend.he/she) planned. It's still a good evening.",
+   "src": "L134"
   }
  }
 }

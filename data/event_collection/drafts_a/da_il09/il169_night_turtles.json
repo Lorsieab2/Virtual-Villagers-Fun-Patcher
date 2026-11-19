@@ -71,6 +71,37 @@
    "src": "L110"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"I'll come too,\" says (friend). (subject) looks dismayed. \"Everyone else is going on their own.\" (friend) thinks about it. \"I'll sit at the other end of the beach. You won't even see me.\" And (friend.he/she) does. (subject) doesn't see (friend.him/her) all night, except once, when the first turtle appears and (subject) turns round to share it, and finds (friend) already watching, beaming.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L113"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"I'll come too,\" says (friend). (subject) looks dismayed. \"Everyone else is going on their own.\" (friend) thinks about it. \"I'll sit at the other end of the beach. You won't even see me.\" And (friend.he/she) does. (subject) doesn't see (friend.him/her) all night, except once, when the first turtle appears and (subject) turns round to share it, and finds (friend) already watching, beaming.",
    "src": "L113"

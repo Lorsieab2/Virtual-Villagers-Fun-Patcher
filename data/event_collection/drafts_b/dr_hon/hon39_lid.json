@@ -95,6 +95,44 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I put it back,\" says (subject), because (subject.he/she) is fairly sure (subject.he/she) did. Everyone else says the same. So nobody can have left it off. And yet. (friend) sets a heavy stone on the lid and announces that from now on, the stone is in charge. Everyone seems quite relieved to have the stone in charge.",
+   "src": "L473",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L473"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L473"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L473"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I put it back,\" says (subject), because (subject.he/she) is fairly sure (subject.he/she) did. Everyone else says the same. So nobody can have left it off. And yet. (friend) sets a heavy stone on the lid and announces that from now on, the stone is in charge. Everyone seems quite relieved to have the stone in charge.",
    "src": "L473",

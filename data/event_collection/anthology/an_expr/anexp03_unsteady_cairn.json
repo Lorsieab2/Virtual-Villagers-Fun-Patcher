@@ -119,9 +119,16 @@
    "src": "L31284"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The praise embarrasses (builder), a builder who wanted anonymity.",
-   "src": "L31285"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -188,6 +195,24 @@
    "name": "Outcome D2",
    "text": "The note sparks debate over who may alter shared land.",
    "src": "L31294"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The praise embarrasses (builder), a builder who wanted anonymity.",
+   "src": "L31285",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder",
+     "mood": "bad",
+     "src": "L31285"
+    }
+   ]
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The praise embarrasses (builder), a builder who wanted anonymity.",
+   "src": "L31285"
   }
  }
 }

@@ -104,14 +104,39 @@
    "src": "L503"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1) briefly catches a butterfly in a soft net for observation. (Name1) is amazed by a pattern almost invisible from afar.",
-   "src": "L507"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1) briefly catches a butterfly in a soft net for observation. A sudden flutter makes the youngest observer laugh.",
    "src": "L511"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) briefly catches a butterfly in a soft net for observation. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L507",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L507"
+    }
+   ]
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) briefly catches a butterfly in a soft net for observation. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L507"
   }
  }
 }

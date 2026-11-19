@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) goes straight to (friend), turns round and shows (friend.him/her) the evidence. (friend) stares, then laughs until tears run down (friend.his/her) face. The pale patch never quite fades, and (friend) decides it is the best thing about the mat. From then on it is known as \"the seat of honor.\"",
-   "src": "L206"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) spends the rest of the day walking about with (subject.his/her) back to the walls. It doesn't help. The blue fades from (subject.his/her) clothes after many washes. The pale patch on the mat never does. (friend) knows exactly who did it and never says a word; (friend.he/she) just smiles whenever (subject) sits down anywhere at all.",
    "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes straight to (friend), turns round and shows (friend.him/her) the evidence. (friend) stares, then laughs until tears run down (friend.his/her) face. The pale patch never quite fades, and (friend) decides it is the best thing about the mat. From then on it is known as \"the seat of honor.\"",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) goes straight to (friend), turns round and shows (friend.him/her) the evidence. (friend) stares, then laughs until tears run down (friend.his/her) face. The pale patch never quite fades, and (friend) decides it is the best thing about the mat. From then on it is known as \"the seat of honor.\"",
+   "src": "L206"
   }
  }
 }

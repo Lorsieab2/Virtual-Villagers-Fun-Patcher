@@ -69,11 +69,67 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I miss the dogs,\" says (subject). (friend) stares at (subject.him/her). \"You hate the dogs.\" \"I know.\" (friend) thinks about this and admits (friend.he/she) misses the smell of the cooking fires. They spend an hour listing the small, silly things they miss. It doesn't make them less homesick. It does make them laugh.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L98"
+    }
+   ]
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I miss the dogs,\" says (subject). (friend) stares at (subject.him/her). \"You hate the dogs.\" \"I know.\" (friend) thinks about this and admits (friend.he/she) misses the smell of the cooking fires. They spend an hour listing the small, silly things they miss. It doesn't make them less homesick. It does make them laugh.",
    "src": "L98"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) keeps it to (subject.him/her)self and lies back to look at the stars. Somewhere far off, very faintly, a dog barks at nothing. It probably isn't one of theirs. (subject) decides it is anyway, and falls asleep smiling.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L101"
+    }
+   ]
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) keeps it to (subject.him/her)self and lies back to look at the stars. Somewhere far off, very faintly, a dog barks at nothing. It probably isn't one of theirs. (subject) decides it is anyway, and falls asleep smiling.",
    "src": "L101"

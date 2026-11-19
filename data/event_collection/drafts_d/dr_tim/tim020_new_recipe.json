@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Several villagers sample a new fruit-and-grain recipe. (Name1) quietly notes one change to try next time.",
-   "src": "L331"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -109,6 +116,49 @@
    "src": "L339"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Several villagers sample a new fruit-and-grain recipe. (Name1) quietly notes one change to try next time.",
+   "src": "L331",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L331"
+    }
+   ]
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Several villagers sample a new fruit-and-grain recipe. (Name1) quietly notes one change to try next time.",
+   "src": "L331"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Several villagers sample a new fruit-and-grain recipe. Someone asks for the recipe before the bowl is empty.",
+   "src": "L343",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L343"
+    }
+   ]
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Several villagers sample a new fruit-and-grain recipe. Someone asks for the recipe before the bowl is empty.",
    "src": "L343"

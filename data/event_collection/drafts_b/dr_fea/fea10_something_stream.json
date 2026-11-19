@@ -69,14 +69,39 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Are there eels in here?\" asks (subject). (friend) thinks. \"Probably. Small ones. They don't bite people.\" (subject) doesn't find this as reassuring as (friend) meant it. (subject.He/she) bathes in the shallow part from then on, where the water is clear, and is much happier. The eels, presumably, are too.",
-   "src": "L122"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) decides that the stream is the eels' business and finds a rock pool by the beach instead. It's warmer, shallower and perfectly clear. (subject.He/she) can see every pebble on the bottom. A small crab watches (subject.him/her) from a crack. (subject) decides (subject.he/she) can live with a crab.",
    "src": "L125"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Are there eels in here?\" asks (subject). (friend) thinks. \"Probably. Small ones. They don't bite people.\" (subject) doesn't find this as reassuring as (friend) meant it. (subject.He/she) bathes in the shallow part from then on, where the water is clear, and is much happier. The eels, presumably, are too.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L122"
+    }
+   ]
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Are there eels in here?\" asks (subject). (friend) thinks. \"Probably. Small ones. They don't bite people.\" (subject) doesn't find this as reassuring as (friend) meant it. (subject.He/she) bathes in the shallow part from then on, where the water is clear, and is much happier. The eels, presumably, are too.",
+   "src": "L122"
   }
  }
 }

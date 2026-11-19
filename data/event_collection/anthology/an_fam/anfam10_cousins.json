@@ -132,9 +132,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A fair rematch ends in laughter.",
-   "src": "L28441"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -191,6 +198,30 @@
    "name": "Outcome D2",
    "text": "They miss competing together and invent a cooperative challenge.",
    "src": "L28448"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A fair rematch ends in laughter.",
+   "src": "L28441",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cousin1",
+     "mood": "good",
+     "src": "L28441"
+    },
+    {
+     "do": "mood",
+     "role": "cousin2",
+     "mood": "good",
+     "src": "L28441"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A fair rematch ends in laughter.",
+   "src": "L28441"
   }
  }
 }

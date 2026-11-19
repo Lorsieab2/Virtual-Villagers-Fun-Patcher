@@ -159,14 +159,14 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(villager) finds joy in learning a new skill.",
-   "src": "L27443",
-   "text_only": [
+   "children": [
     {
-     "what": "\"skill\"",
-     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
-     "src": "L27443"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -210,14 +210,71 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(villager) feels relieved.",
-   "src": "L27449"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(villager) appreciates that friends no longer assume everyone wants a partner.",
    "src": "L27450"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(villager) finds joy in learning a new skill.",
+   "src": "L27443",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27443"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27443"
+    }
+   ]
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(villager) finds joy in learning a new skill.",
+   "src": "L27443",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27443"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(villager) feels relieved.",
+   "src": "L27449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27449"
+    }
+   ]
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(villager) feels relieved.",
+   "src": "L27449"
   }
  }
 }

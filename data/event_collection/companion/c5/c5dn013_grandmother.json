@@ -74,13 +74,67 @@
    "src": "L2780"
   },
   "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The flavor is different but deeply comforting.",
+   "src": "L2781",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L2781"
+    }
+   ]
+  },
+  "e2__text": {
    "name": "Outcome 2",
    "popup": "append",
    "join": "paragraph",
    "text": "The flavor is different but deeply comforting.",
    "src": "L2781"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The cook creates a new recipe in their honor.",
+   "src": "L2782",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2782"
+    }
+   ]
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "popup": "append",
    "join": "paragraph",

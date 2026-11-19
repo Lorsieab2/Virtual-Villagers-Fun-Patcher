@@ -66,11 +66,61 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) runs for a bowl, scoops the fish up with puddle water, and carries it all the way to the sea, walking very fast and very carefully. (subject.He/She) lowers the bowl into the shallows and tips. The fish darts away, a flash of color, and is gone. (subject) stands knee-deep in the water, glowing almost as brightly.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L542"
+    }
+   ]
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) runs for a bowl, scoops the fish up with puddle water, and carries it all the way to the sea, walking very fast and very carefully. (subject.He/She) lowers the bowl into the shallows and tips. The fish darts away, a flash of color, and is gone. (subject) stands knee-deep in the water, glowing almost as brightly.",
    "src": "L542"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) runs to get (friend), because nobody will believe (subject.him/her) otherwise. (friend) comes, sees the fish, and gasps. They carry it back to the sea together, (friend) holding the bowl and (subject) shouting \"careful!\" every three steps. When it's gone, they shake hands, very solemnly, as fellow rescuers.",
+   "src": "L545",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L545"
+    }
+   ]
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) runs to get (friend), because nobody will believe (subject.him/her) otherwise. (friend) comes, sees the fish, and gasps. They carry it back to the sea together, (friend) holding the bowl and (subject) shouting \"careful!\" every three steps. When it's gone, they shake hands, very solemnly, as fellow rescuers.",
    "src": "L545"

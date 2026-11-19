@@ -129,9 +129,16 @@
    ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The search party returns exhausted without a sighting.",
-   "src": "L22330"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -154,6 +161,25 @@
    "name": "Outcome C2",
    "text": "A scientist protests that the specimen can no longer be studied.",
    "src": "L22333"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The search party returns exhausted without a sighting.",
+   "src": "L22330",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "naturalist",
+     "min": -15,
+     "max": -5,
+     "src": "L22330"
+    }
+   ]
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The search party returns exhausted without a sighting.",
+   "src": "L22330"
   }
  }
 }

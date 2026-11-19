@@ -82,11 +82,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They return cold and ashamed after the current turns unexpectedly.",
-   "src": "L10588"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Outcome B",
@@ -108,6 +113,34 @@
      "src": "L10590"
     }
    ]
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return cold and ashamed after the current turns unexpectedly.",
+   "src": "L10588",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "bad",
+     "src": "L10588"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "bad",
+     "src": "L10588"
+    }
+   ]
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return cold and ashamed after the current turns unexpectedly.",
+   "src": "L10588"
   }
  }
 }
