@@ -94,5 +94,32 @@ class SaveFallbacks(unittest.TestCase):
             self.assertNotIn("rows only that log keeps are not shown", source)
 
 
+class RemainingList(unittest.TestCase):
+    """The coordinator, 2026-11-18: A New Home's remaining lines, traced."""
+
+    def test_the_tips_and_who_asks_for_them(self) -> None:
+        tips = {t[0]: t for t in hidden_vv1.POPUP_TIPS}
+        for tip, site in ((301, 0x4237AE), (313, 0x42F28B), (314, 0x42F28B), (315, 0x42F28B), (324, 0x43ABAB)):
+            self.assertEqual(tips[tip][2], (site,), tip)
+        self.assertEqual(hidden_vv1.NEVER_ASKED, frozenset({275, 289, 308, 309, 310}))
+        for tip in hidden_vv1.NEVER_ASKED:
+            self.assertIn("never shows it", hidden_vv1._popup_note(tips[tip]))
+        self.assertTrue(all(hidden_vv1._popup_label(t) == hidden.C for t in hidden_vv1.POPUP_TIPS))
+
+    def test_f3_the_mask_sparkles_and_the_graveyard(self) -> None:
+        f3 = next(e for e in hidden_vv1.entries() if e.name.startswith("F3"))
+        self.assertIn("pointer picture", f3.subs[0][0])
+        self.assertIn("two little sparkles", _subs("The mask (village screen)")[1][0])
+        grid = next(e for e in hidden_vv1.entries() if e.name.startswith("The grid at the map spot"))
+        self.assertIn("the graveyard", grid.text)
+        self.assertEqual(hidden.label(grid), "VERIFIED-C")
+
+    def test_movement_step_one(self) -> None:
+        import vv_game_mechanics_vv1 as vv1
+        line = next((t, ok) for t, ok in vv1.HIDDEN_LINES if t.startswith("Another movement step"))
+        self.assertIn("\"Not feeling well\", \"Strolling\" and the Golden Child's own wandering", line[0])
+        self.assertEqual(line[1], gm.CODE)
+
+
 if __name__ == "__main__":
     unittest.main()

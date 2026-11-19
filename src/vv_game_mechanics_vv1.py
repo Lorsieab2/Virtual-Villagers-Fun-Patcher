@@ -150,16 +150,18 @@ HIDDEN_LINES = (
     # dislike test 0x4372E0 is called for word 38 (running) only at 0x43CD25 (every call scanned); the walk 0x43CCF0
     # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
     # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
-    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
+    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read.  Step 1 is queued (the step builder
+    # 0x4399F0's step-type argument 1) at three places only: "Not feeling well" (0x441D22, string 0xA8), the Golden
+    # Child's own wandering (0x447A92) and "Strolling" (0x448058, string 0x9B).
     # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.  "In one place only": the
     # walk step 0x43CCF0.
     ("In the game's code the dislike of running is read in one place only, the speed of a walk: a villager under 14 who dislikes running is not given the running speed, and from 14 on only a like "
      "is read, so on that walk an adult who dislikes running moves exactly as one who neither likes nor dislikes "
      "it.", gm.CODE),
     # The other step: 0x43CBD0 (step 1 of the dispatcher 0x43DEF0).
-    ("Another movement step gives every villager under 14 the running speed without reading the dislike; which "
-     "actions use that step was not traced, so whether a child who dislikes running ever runs through it is not "
-     "settled.", False),
+    ("Another movement step gives every villager under 14 the running speed without reading the dislike, and three "
+     "actions use it: \"Not feeling well\", \"Strolling\" and the Golden Child's own wandering. So a child who "
+     "dislikes running still runs while strolling or not feeling well.", gm.CODE),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
