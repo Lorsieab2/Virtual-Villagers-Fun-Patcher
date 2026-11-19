@@ -2998,13 +2998,16 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
 
 def _village_lines(e: dict, gm: "Game") -> list[str]:
     """The lines a village effect can write as it is made (story_graph_village.inc), at their widest."""
+    def good(word: str) -> str:
+        return "tech points" if word == "tech" else word
+
     do = e["do"]
     big = 99999
     if do == "supply":
-        return [_auto_fill("supply+" if e["max"] > 0 else "supply-", None, word=e["item"], number=big)]
+        return [_auto_fill("supply+" if e["max"] > 0 else "supply-", None, word=good(e["item"]), number=big)]
     if do == "trade":
-        return [_auto_fill("trade_give", None, word=e["give"], number=e["give_amount"]),
-                _auto_fill("trade_get", None, word=e["get"], number=e["get_amount"])]
+        return [_auto_fill("trade_give", None, word=good(e["give"]), number=e["give_amount"]),
+                _auto_fill("trade_get", None, word=good(e["get"]), number=e["get_amount"])]
     if do == "group":
         kind = e["kind"]
         if kind == "sick":

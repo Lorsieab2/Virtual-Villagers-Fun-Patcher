@@ -124,7 +124,7 @@ class PatcherSide(unittest.TestCase):
         # The owner (2026-11-18): a line whenever an effect happens, with the amount.  These are written by the
         # engine as each is made (village.inc cg_after_line), so a simulated walk has none; the fit takes the widest.
         for e, want in (({"do": "trade", "give": "food", "give_amount": 1, "get": "tech", "get_amount": 2},
-                         ["The village gives 1 food.", "The village gets 2 tech."]),
+                         ["The village gives 1 food.", "The village gets 2 tech points."]),
                         ({"do": "group", "kind": "dance", "who": "all"}, ["The village dances."]),
                         ({"do": "village", "what": "weather", "weather": "fog"}, ["Fog rolls in."]),
                         ({"do": "village", "what": "event_timer", "min": 5, "max": 5},

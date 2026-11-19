@@ -33,6 +33,9 @@ static void cg_after_line(const char *key, const char *word, int number) {
     if (!cg_after_on || t == NULL) {
         return;
     }
+    if (word != NULL && lstrcmpA(word, "tech") == 0) {
+        word = "tech points";      /* the owner: a good's words as the game says them */
+    }
     for (; *t != '\0' && n < (int)sizeof line - 1; ++t) {
         const char *put = NULL;
         if (t[0] == '<' && (t[1] == 'N' || t[1] == 'W') && t[2] == '>') {
