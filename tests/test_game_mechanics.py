@@ -933,7 +933,7 @@ class TreeOfLifeAudit(unittest.TestCase):
     def test_failure_gains(self) -> None:
         # 0x461930 is "the skill is exactly 0.0"; a failure adds 4.0 (0x4AA908) only past its test: je skips the
         # add when the skill is not 0 in Farming, Healing, Building and Research, jne skips it AT 0 in Parenting.
-        self.assertEqual(self.code(0x461930, 4), ["fldz", "mov eax, dword ptr [esp + 4]",
+        self.assertEqual(self.code(0x461930, 4), ["fldz ", "mov eax, dword ptr [esp + 4]",
                                                   "fcomp dword ptr [ecx + eax*4]", "fnstsw ax"])
         for at, skill, jump in ((0x462B91, 0, "je 0x462bad"), (0x462FD9, 2, "je 0x462ff5"),
                                 (0x463165, 4, "je 0x463181"), (0x463356, 3, "je 0x463372"),
