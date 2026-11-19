@@ -13647,6 +13647,58 @@
    "harm": [],
    "section": "dr_tim2"
   },
+  "trd01_salt_trader": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd02_star_path_keeper": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd03_bush_mender": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd04_net_weaver": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd05_shell_collector": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd06_honey_buyer": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd07_fruit_grafter": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd08_curio_seeker": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd09_sailmaker": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd10_washerwoman": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd11_pattern": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd12_noni_planter": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd13_relic_keeper": {
+   "harm": [],
+   "section": "dr_trd"
+  },
   "tt01_scratch_became": {
    "harm": [],
    "section": "dr_tt"
@@ -13846,6 +13898,55 @@
   "tt50_clever_way_avoid": {
    "harm": [],
    "section": "dr_tt"
+  },
+  "vfx01_welcoming_song": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx02_voyage_chant": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx03_song_rain": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx04_long_afternoon": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx05_stories_dusk": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx06_spare_sail": {
+   "harm": [],
+   "section": "dr_vfx",
+   "supply": true
+  },
+  "vfx07_builders_push": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx08_visiting_teacher": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx09_quiet_season": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx10_morning_mist": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx11_fever": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx12_dance_harvest": {
+   "harm": [],
+   "section": "dr_vfx"
   },
   "vv1_child_of_legend": {
    "harm": [],

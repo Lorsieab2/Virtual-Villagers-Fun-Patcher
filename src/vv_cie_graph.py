@@ -729,9 +729,9 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
             return {op: dict(arg)}
         if op == "has_supply":
             if not isinstance(arg, dict) or set(arg) != {"item", "min"} or arg["item"] not in GOODS \
-                    or not _int_in(arg["min"], 1, GOOD_MAX):
+                    or not _int_in(arg["min"], 0, GOOD_MAX):
                 problems.append(f"{where}: has_supply is {{\"item\": a good ({', '.join(GOODS)}), \"min\": "
-                                f"1..{GOOD_MAX}}}")
+                                f"0..{GOOD_MAX} (0: the game keeps it now)}}")
                 return None
             return {op: {"item": arg["item"], "min": arg["min"]}}
         if op == "drew":

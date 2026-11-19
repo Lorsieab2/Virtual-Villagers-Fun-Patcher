@@ -49,6 +49,8 @@ FIG_TOKEN = re.compile(r"\[([a-z0-9]):(he/she|He/she|him/her|his/her|His/her)\]|
 HISHERS = ("(his/hers)", "(his/her) own")
 HISHERS_AT = {("draft_div", "DIV-39"): ("(his/hers)", "(his/her) fault")}   # (source id, code) -> where "own" fails
 ROLE_FOR = {"1": "subject", "2": "friend", "3": "third", "4": "fourth", "s": "other"}
+GAME_NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
+              5: "New Believers"}
 RELATIONS = ("spouse_of", "parent_of", "child_of", "sibling_of", "grandparent_of", "grandchild_of",
              "aunt_or_uncle_of", "cousin_of")
 
@@ -83,6 +85,7 @@ EFFECTS = {
 }
 # DIV-27's "small skill gain for (name1)": the annotation's SKILL line names the skill (the draft names none)
 EFFECT_RE = re.compile(r"\s*\[effect: ([^\]]+)\]")
+OWN_GENERATOR = {"draft_trd": "scripts/drafts_c/gen_traders.py"}   # built by its own generator
 
 
 # Tree of Life Supplies (draft_sup): "the village gains 2 cutting tools", "loses 1 bar of soap", "gains 1 cloth bolt"
@@ -100,12 +103,64 @@ def _supply(m: re.Match) -> dict:
             else {"do": "supply", "item": item, "min": -hi, "max": -lo})
 
 
+# Island Traders (draft_trd, cie-v6-binary.md 33): "trade 150 food for 400 tech points".
+TRADE_RE = re.compile(r"trade (\d+) ([a-z ]+?) for (\d+) ([a-z ]+)")
+GOOD_WORDS = {"food": "food", "tech points": "tech", "berries": "berries", "coconuts": "coconuts", "fish": "fish",
+              "collectible": "collectible", "collectibles": "collectible", "honey": "honey", "fruit": "fruit",
+              "blackberries": "blackberries", "noni": "noni", "cloth bolts": "cloth", "cutting tools": "cutting_tools",
+              "bars of soap": "soap"}
+
+
+# Village Moments (draft_vfx, cie-v6-binary.md 34-35): group behaviours, songs, the weather, the village.
+GROUP_VERBS = {"sings": "song", "chants": "chant", "dances": "dance", "relaxes": "relax", "swims": "swim",
+               "prays": "pray", "celebrates": "celebrate", "gives a speech": "speech"}
+VILLAGE_FX_RE = re.compile(
+    r"the whole village (?P<all>sings|chants|dances|relaxes|swims|prays|celebrates)"
+    r"|\(name(?P<who>[12])\) (?P<one>sings|chants|dances|gives a speech)"
+    r"|the (?P<kids>children play|elders tell stories)"
+    r"|(?P<weather>rain|a storm|fog|sunshine|clear skies) starts?"
+    r"|the next island event comes (?P<hours>\d+) hours (?P<dir>sooner|later)"
+    r"|a random tech level (?P<lvl>rises|falls) by 1"
+    r"|a hut being built gains (?P<pts>\d+) points"
+    r"|(?P<pct>\d+) in 100 villagers fall sick"
+    r"|(?P<cure>every villager is cured)")
+WEATHER_WORDS = {"rain": "rain", "a storm": "storm", "fog": "fog", "sunshine": "sun", "clear skies": "clear"}
+
+
+def _village_fx(m: re.Match) -> dict:
+    if m.group("all"):
+        return {"do": "group", "kind": GROUP_VERBS[m.group("all")], "who": "all"}
+    if m.group("one"):
+        return {"do": "group", "kind": GROUP_VERBS[m.group("one")], "who": ROLE_FOR[m.group("who")]}
+    if m.group("kids"):
+        return {"do": "group", "kind": "play" if m.group("kids").startswith("children") else "stories", "who": "all"}
+    if m.group("weather"):
+        return {"do": "village", "what": "weather", "weather": WEATHER_WORDS[m.group("weather")]}
+    if m.group("hours"):
+        h = int(m.group("hours")) * (-1 if m.group("dir") == "sooner" else 1)
+        return {"do": "village", "what": "event_timer", "min": h, "max": h}
+    if m.group("lvl"):
+        return {"do": "village", "what": "tech_level", "step": 1 if m.group("lvl") == "rises" else -1}
+    if m.group("pts"):
+        return {"do": "village", "what": "construction", "min": int(m.group("pts")), "max": int(m.group("pts"))}
+    if m.group("pct"):
+        return {"do": "group", "kind": "sick", "who": "all", "percent": int(m.group("pct"))}
+    return {"do": "group", "kind": "cure", "who": "all"}
+
+
 def effect_for(code: str, what: str, ann: dict) -> list[dict]:
     if "; " in what:                   # several effects in one bracket (draft_sup)
         return [e for part in what.split("; ") for e in effect_for(code, part, ann)]
     m = SUPPLY_RE.fullmatch(what)
     if m:
         return [_supply(m)]
+    m = VILLAGE_FX_RE.fullmatch(what)
+    if m:
+        return [_village_fx(m)]
+    m = TRADE_RE.fullmatch(what)
+    if m:
+        return [{"do": "trade", "give": GOOD_WORDS[m.group(2)], "give_amount": int(m.group(1)),
+                 "get": GOOD_WORDS[m.group(4)], "get_amount": int(m.group(3))}]
     if what in EFFECTS:
         return [dict(e) for e in EFFECTS[what]]
     if what == "small skill gain for (name1)":
@@ -173,6 +228,10 @@ def build(ev: P.Event, ann: dict) -> tuple[dict, list[str], list[dict]]:
     elif row["games"] == [4]:
         ledger.append({"src": L(row["lines"][0]), "kind": "note",
                        "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"})
+    elif len(row["games"]) == 1:
+        g1 = row["games"][0]
+        ledger.append({"src": L(row["lines"][0]), "kind": "note",
+                       "why": f"the heading's \"(VV{g1} only)\": the event is {GAME_NAMES[g1]} only"})
     grammar, gfix_rows, nodes_fx, texts = [], [], {}, {}
     for k, n in ev.parts.items():
         s = P.raw(sid, n)
@@ -283,6 +342,10 @@ def build(ev: P.Event, ann: dict) -> tuple[dict, list[str], list[dict]]:
            "collection": col,
            "requirement": {"min_eligible": sum(1 for r in roles.values() if r["kind"] == "villager")},
            "roles": roles, "start": "setup", "nodes": nodes}
+    if ann.get("NEED"):
+        # cie-v6-binary.md 33: offered only when the village has it (VFX-06's cloth bolt)
+        item, n = ann["NEED"].split("=")
+        doc["requirement"]["if"] = {"has_supply": {"item": item, "min": int(n)}}
     if ann.get("WORD") == "chief":
         if row["games"] == [3]:
             problems.append(f"{ev.code}: a VV3-only event needs no chief word")
@@ -343,7 +406,7 @@ def main() -> int:
     docs, problems, gfix = [], [], []
     only = [a.lower() for a in sys.argv[1:]]
     for sid, (_t, _n, sec, pre) in lib.DRAFTS_C.items():
-        if only and pre.lower() not in only:
+        if (only and pre.lower() not in only) or sid in OWN_GENERATOR:
             continue
         anns = P.read_annotations(sid)
         for ev in P.events(sid):

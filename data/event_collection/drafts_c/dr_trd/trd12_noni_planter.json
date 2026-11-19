@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Noni Planter",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "trd12_noni_planter",
+  "source": "draft_trd",
+  "lines": [
+   195,
+   209
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L195",
+  "ledger": [
+   {
+    "src": "L196",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the heading's \"(VV5 only)\": the event is New Believers only"
+   },
+   {
+    "src": "L201",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 300 noni]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L204",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 450 noni]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L205",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 150 noni]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A planter offers young noni plants for food for the journey home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "food",
+      "min": 150
+     }
+    },
+    {
+     "has_supply": {
+      "item": "noni",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "food",
+         "min": 150
+        }
+       },
+       {
+        "has_supply": {
+         "item": "noni",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A soft-spoken planter named Malu arrives with a canoe full of young noni plants, their roots wrapped in wet moss. He says the village's bushes would bear far more if he set his young plants among them, and he asks for food for the journey home. (name1) has to decide.",
+   "src": "L198",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L198"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L200"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L203"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L207"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) helps Malu plant every one. Within a season, the noni bushes around the village are heavy with fruit.",
+   "src": "L201",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "noni",
+     "get_amount": 300,
+     "src": "L201"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) explains the village cannot spare food just now. Malu leaves one small plant by the path anyway, \"to remember him by.\"",
+   "src": "L208",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L208"
+    }
+   ]
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) offers to carry water to the new plants for Malu. He is so grateful that he plants his last bundle too, the ones he was saving for his own garden.",
+   "src": "L204",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "noni",
+     "get_amount": 450,
+     "src": "L204"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles, and Malu, who is tired, plants only half and leaves the rest in the canoe.",
+   "src": "L205",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "noni",
+     "get_amount": 150,
+     "src": "L205"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Malu sees the village has little food to spare and leaves one small plant by the path as a gift.",
+   "src": "L209",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L209"
+    }
+   ]
+  }
+ }
+}

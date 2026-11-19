@@ -114,6 +114,21 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "birth_then_die": "birth_then_die", "deliver_early": "deliver_early", "old_look": "appearance",
                "sex_change": "appearance", "presentation": "appearance"}
 
+
+def effect_kinds(e: dict) -> set[str]:
+    """The keyword kinds one effect answers (EFFECT_KIND; cie-v6-binary.md 33-34: a trade or supply of food or tech
+    answers "food" / "tech", a group celebration or song "celebrate", group sickness or cure "health")."""
+    do = e.get("do")
+    out = {EFFECT_KIND.get(do, do)}
+    if do == "trade":
+        out |= {g for g in (e.get("give"), e.get("get")) if g in ("food", "tech")}
+    elif do == "supply" and e.get("item") in ("food", "tech"):
+        out.add(e["item"])
+    elif do == "group":
+        out |= {"celebrate"} if e.get("kind") in ("celebrate", "song") else \
+            {"health"} if e.get("kind") in ("sick", "cure") else set()
+    return out
+
 PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
                  "son/daughter"}
 NAME_WORDS = {"name", "name1", "name2"}
@@ -923,7 +938,7 @@ def check_effects(doc: dict, rep: Report) -> None:
     for nid, n in doc.get("nodes", {}).items():
         games = sorted(reach.get(nid, set(all_games)))
         effs = n.get("effects", []) or []
-        kinds = {EFFECT_KIND.get(e.get("do"), e.get("do")) for e in effs}
+        kinds = set().union(*(effect_kinds(e) for e in effs)) if effs else set()
         covered = set()
         for t in n.get("text_only", []) or []:
             if not t.get("reason") or not t.get("src"):

@@ -26,6 +26,7 @@ import vv_cie_graph as cg  # noqa: E402
 from test_story_custom_island_event import HAVE_EMULATOR, _food_tech, emulated, have_stock  # noqa: E402
 
 if HAVE_EMULATOR:
+    from unicorn import UC_HOOK_CODE
     from test_story_cie_graph_runtime import DONE, IDLE
     from test_story_cie_graph_runtime_v6 import V6
 
@@ -38,6 +39,7 @@ WEATHER_STARTER = {"vv3": (0x41FB40, 0x4B86C4), "vv4": (0x46BC30, 0x6C461C), "vv
 LEVEL_RAISE = {"vv3": 0x426FD0, "vv4": 0x41E1D0, "vv5": 0x423610}
 LEVEL_AT = {"vv3": 0x582618, "vv4": 0x4D6F5C, "vv5": 0x51D5CC}       # area 0 (Science)
 LEVEL_WORLD = {"vv1": 0xA2C4, "vv2": 0x2EA7C}                          # Science, a world offset
+CLOCK = {"vv3": 0x403330, "vv5": 0x4036E0}                           # the island timers' clocks (sc_clock)
 COLLECTIBLE_AT = {"vv3": 0x58F438 + 4 * 0x34, "vv4": 0x4CC918, "vv5": 0x4DBFC8 + 0x630 + 4 * 0x50}
 
 
@@ -133,6 +135,7 @@ class GameSide(unittest.TestCase):
         if game == "vv3":
             world = r.p.alloc(0x13000)
             r.p.stub(0x428B60, lambda q: (world, 0))
+            r.p.mu.hook_add(UC_HOOK_CODE, r.p._on_code, begin=0x428B60, end=0x428B60)
             r.world3 = world
         if game == "vv4" and r.p.u32(0x4CB51C) == 0:
             r.p.put32(0x4CB51C, r.p.alloc(0x18000))
@@ -314,7 +317,7 @@ class GameSide(unittest.TestCase):
                             q.write(at, struct.pack("<i", min(3, struct.unpack("<i", q.read(at, 4))[0] + 1)))
                             return 0, 8 if game == "vv5" else 4
                         r.p.stub(LEVEL_RAISE[game], raise_)
-                        r.p.mu.hook_add(1 << 2, r.p._on_code, begin=LEVEL_RAISE[game], end=LEVEL_RAISE[game])
+                        r.p.mu.hook_add(UC_HOOK_CODE, r.p._on_code, begin=LEVEL_RAISE[game], end=LEVEL_RAISE[game])
                     r.watch = lambda: levels.append(struct.unpack("<i", r.p.read(at, 4))[0])  # noqa: E731
 
                 self.run_graph(game, g, setup)
@@ -386,6 +389,62 @@ class GameSide(unittest.TestCase):
 
             self.run_graph("vv4", g, setup4)
             self.assertEqual(seen4, [1999])
+
+
+EVENT_DIRS = [ROOT / "data" / "event_collection" / "drafts_c" / d for d in ("dr_trd", "dr_vfx")]
+
+
+@emulated
+class NewEventsRunInEveryGame(unittest.TestCase):
+    """Every trader and Village Moments event, every choice, in each of its games, through the engine; a trader's
+    Trade gives exactly what it says when the goods are food or tech (cie-v6-binary.md 33)."""
+
+    def test_every_event_every_choice(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import collection_check as cc
+        import json
+        paths = sorted(p for d in EVENT_DIRS for p in d.glob("*.json"))
+        self.assertEqual(len(paths), 25)
+        side = GameSide()
+        ran = 0
+        for path in paths:
+            graph = cc.graph_for_engine(json.loads(path.read_text(encoding="utf-8")))
+            setup_id = "setup"
+            choices = len(graph["nodes"][setup_id].get("choices", [])) or 1
+            for gn in graph["games"]:
+                game = f"vv{gn}"
+                if not have_stock(game):
+                    continue
+                g = graph
+                for choice in range(choices):
+                    with self.subTest(event=path.stem, game=game, choice=choice):
+                        def setup(r, gn=gn, game=game):
+                            side.set_food_tech(r, 5000, 5000)
+                            r.p.export("VvfpStoryProbeGraphGoods", 1)
+                            r.p.export("VvfpStoryProbeGraphScroll", 1)   # the collection's rows need Scrolling Popups
+                            # the game's own weather starter and level raise, recorded (their own tests above)
+                            if game in WEATHER_STARTER:
+                                r.record(WEATHER_STARTER[game][0], 8)
+                            if game in LEVEL_RAISE:
+                                r.record(LEVEL_RAISE[game], 8 if game == "vv5" else 4)
+                            if game in CLOCK:
+                                r.record(CLOCK[game], 0)           # the game's clock (now = 0)
+                            if game == "vv3":
+                                r.p.put32(0x594844, 3)                # three fruit trees planted
+                            if gn == 4:
+                                for at in (0x4D8618, 0x4D8D98, 0x4D8ACC):
+                                    r.p.put32(at, 5)
+                        r, shown = side.run_graph(game, g, setup, answers=[choice])
+                        r.p.export("VvfpStoryProbeGraphGoods", -1)
+                        self.assertTrue(shown)
+                        o1 = graph["nodes"]["o1"].get("effects", []) if choice == 0 else []
+                        for e in o1:
+                            if e["do"] == "trade" and e["give"] in ("food", "tech"):
+                                food, tech = side.food_tech(r)
+                                left = food if e["give"] == "food" else tech
+                                self.assertEqual(left, 5000 - e["give_amount"])
+                        ran += 1
+        self.assertGreater(ran, 100)
 
 
 if __name__ == "__main__":

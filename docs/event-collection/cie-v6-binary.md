@@ -271,7 +271,7 @@ Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NO
 | Op | cond | a | Holds when |
 |---|---|---|---|
 | 17 | has_dead_relative | role index | the role's villager is bound, not gone, and has lost a recorded parent or a co-parent (section 21a) |
-| 18 | has_supply | the good's word (string); the next H = at least (1..9999) | the village has at least that much of the good to give now (section 33): a run-time fact, allowed in a child's, a variant's, an item's and the requirement's `if`, never a choice's |
+| 18 | has_supply | the good's word (string); the next H = at least (0..9999) | the village has at least that much of the good to give now; 0: the game keeps the good now (section 33): a run-time fact, allowed in a child's, a variant's, an item's and the requirement's `if`, never a choice's |
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -989,8 +989,9 @@ docs/event-collection/traders-and-effects-research.md lists every address and it
   nothing happens when the village has less than n of g, when the game keeps either good not, or when it has no room
   for any more of h. No roll.
 - **`has_supply`** (op 18): `{"has_supply": {"item": g, "min": n}}`: the village has at least n of g to give now
-  (collectibles: duplicates). A trader event offers a trade only behind it, so nothing is offered that the village
-  cannot give. In Python it is a fact (`has_supply:<item>:<n>`) taken either way.
+  (collectibles: duplicates); `"min": 0` holds when the game keeps the good now (VV3's fruit with a tree planted, The
+  Tree of Life's supplies once invented). A trader event offers a trade only behind both (what it gives, n; what it
+  gets, 0), so nothing is offered that the village cannot give or the game cannot keep. In Python it is a fact (`has_supply:<item>:<n>`) taken either way.
 - **The log**: one line a change, `  Honey: 2990 -> 3000` (food and tech are in the entry's own comparison).
 - **No automatic line** (section 25).
 - Tests: `tests/test_traders_and_village_effects.py`.

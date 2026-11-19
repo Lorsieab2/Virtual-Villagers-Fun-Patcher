@@ -1012,9 +1012,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             break;
         case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE: ok = g->version >= 6 && (int)a < g->n_role; break;
         case CGC_HAS_SUPPLY:
-            /* 33: a good's word, at least 1..9999 of it */
-            ok = g->version >= 6 && cg_str_ok(g, a, 0) && cg_good_word(cg_s(g, a)) && cg_u16(c + 4) >= 1u
-                 && cg_u16(c + 4) <= 9999u;
+            /* 33: a good's word, at least 0..9999 of it (0: the game keeps it now) */
+            ok = g->version >= 6 && cg_str_ok(g, a, 0) && cg_good_word(cg_s(g, a)) && cg_u16(c + 4) <= 9999u;
             break;
         case CGC_DREW:
             ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE

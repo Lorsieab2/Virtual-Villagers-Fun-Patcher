@@ -1028,10 +1028,9 @@ def _drafts_c_rows() -> None:
                 m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
                 num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
                 games = ALL
-                if src_title.endswith(DRAFTS_C_VV5_TAG):
-                    games, src_title = [5], src_title[:-len(DRAFTS_C_VV5_TAG)]
-                elif src_title.endswith(DRAFTS_C_VV4_TAG):
-                    games, src_title = [4], src_title[:-len(DRAFTS_C_VV4_TAG)]
+                one = re.search(r" \(VV([1-5]) only\)$", src_title)   # DRAFTS_C_VV5_TAG, _VV4_TAG; Traders: any
+                if one:
+                    games, src_title = [int(one.group(1))], src_title[:one.start()]
                 eid = f"{pre.lower()}{num}"
                 nc = sum(1 for n in range(h + 2, e + 1) if re.match(r"^[^.!?]{1,80}:$", lib.line(n).strip()))
                 R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",

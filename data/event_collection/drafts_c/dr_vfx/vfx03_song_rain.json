@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song for Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx03_song_rain",
+  "source": "draft_vfx",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   },
+   {
+    "src": "L38",
+    "kind": "instruction",
+    "text": "[effect: rain starts; the whole village sings]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The ground is dry: sing the old song for rain, or wait it out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The ground has been dry for weeks. The leaves curl at the edges and the stream is down to a trickle. (name1), one of the oldest in the village, says the rain has always come back when the village asks it properly, with the old rain song and nothing rushed.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Sing for Rain",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Wait It Out",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village gathers in the clearing, and (name1) leads the song, slow and patient. Nobody can say whether the song did it, but by evening the clouds are rolling in, and the first drops land on upturned faces.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "village",
+     "what": "weather",
+     "weather": "rain",
+     "src": "L38"
+    },
+    {
+     "do": "group",
+     "kind": "song",
+     "who": "all",
+     "src": "L38"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides to be patient and carry water from the far spring. It is hard work. (name1) hums the rain song anyway while (he/she) carries (his/her) share.",
+   "src": "L41"
+  }
+ }
+}

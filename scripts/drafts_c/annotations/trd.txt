@@ -1,0 +1,64 @@
+TRD-01
+DESC: A salt trader offers jars of salt for a share of the food: trade, haggle, or send the trader on.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-02
+DESC: An old navigator offers to teach the star paths for food: trade, haggle, or decline.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-03
+DESC: A traveler offers to graft the berry bushes in return for the village's learning.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-04
+DESC: A net weaver offers young fish to refill the cove, for food: trade, haggle, or decline.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-05
+DESC: A shell collector has the piece the village is missing, and asks for food.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-06
+DESC: A healer offers her remedies for a pot of the village's honey.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-07
+DESC: An old grafter offers to make the fruit trees heavy, in return for something new to learn.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-08
+DESC: A scholar offers lore of the old city for a collectible the village found twice.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-09
+DESC: A sailmaker with a torn sail offers cutting tools for a bolt of cloth.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-10
+DESC: A berry picker offers a basket of blackberries for a few bars of soap.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-11
+DESC: A collector offers food for a piece the village found twice.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-12
+DESC: A planter offers young noni plants for food for the journey home.
+ROLES: name1=18+
+REVIEW: ok
+
+TRD-13
+DESC: A keeper of old things offers food for a spare relic or science piece.
+ROLES: name1=18+
+REVIEW: ok

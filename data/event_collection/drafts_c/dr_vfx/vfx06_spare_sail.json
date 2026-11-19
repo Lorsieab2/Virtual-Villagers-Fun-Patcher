@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spare Sail",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vfx06_spare_sail",
+  "source": "draft_vfx",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L68",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L74",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 cloth bolt; a hut being built gains 150 points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A hole in the roof: patch it with a bolt of cloth, or with leaves.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2,
+  "if": {
+   "has_supply": {
+    "item": "cloth",
+    "min": 1
+   }
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The roof of the hut the builders are working on has a hole in it, and the rainy season is coming. (subject) suggests stretching a bolt of cloth over the frame, the way the sailmakers do, so the builders can keep working dry. (friend) says cloth is too precious to put on a roof.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Use the Cloth",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Use Leaves",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They stretch the cloth tight over the frame and lash it down at the corners. The builders work through two storms underneath it without losing a day.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": -1,
+     "max": -1,
+     "src": "L74"
+    },
+    {
+     "do": "village",
+     "what": "construction",
+     "min": 150,
+     "max": 150,
+     "src": "L74"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They thatch the hole with leaves instead. It leaks a little, and the builders grumble, but the cloth stays in the store for something else.",
+   "src": "L77"
+  }
+ }
+}
