@@ -124,6 +124,19 @@ class CompilerTakesPartnerMayCarry(unittest.TestCase):
             self.assertNotEqual(data, cg.compile_graph(cg.load(tiny({k: v for k, v in e.items()
                                                                      if k != "partner_may_carry"}))))
 
+    def test_the_python_mirror_of_the_cast_time_decision(self) -> None:
+        """story_graph.inc cg_partner_carry_decide: each flagged pair once, before any page; the swap renames."""
+        doc = json.loads((COLLECTION / "balance" / "bal" / "b260_warm_stone.json").read_text(encoding="utf-8"))
+        g, problems = cg.validate(cc.graph_for_engine(doc), scrolling=True)
+        self.assertEqual(problems, [])
+        self.assertEqual(cg.partner_carry_pairs(g), [("subject", "friend")], "three effects, one pair, rolled once")
+        self.assertEqual(cg.partner_carry_swap({"subject": "Ann", "friend": "Bob", "midwife": "Cy"},
+                                               cg.partner_carry_pairs(g)),
+                         {"subject": "Bob", "friend": "Ann", "midwife": "Cy"})
+        engine = (ROOT / "native" / "vvfp_story_upgrades" / "story_graph.inc").read_text(encoding="utf-8")
+        self.assertIn("cg_partner_carry_decide(a, game);", engine, "decided at the cast")
+        self.assertIn("unsigned int carry_swapped;", engine, "kept in the run's file")
+
     def test_with_the_other_flags(self) -> None:
         e = {"do": "pregnant", "role": "subject", "partner": "friend", "partner_may_carry": True, "babies": 3}
         back = cg.decompile_graph(cg.compile_graph(cg.load(tiny(e))))["nodes"]["a"]["effects"][0]
@@ -194,6 +207,19 @@ class EveryCouplePregnancyIsFlagged(unittest.TestCase):
                     flagged += self.check([j], f"{p.name} {piece.id}")[0]
         self.assertGreater(flagged, 0)
 
+    def test_b260_and_b336_one_of_the_couple_carries(self) -> None:
+        """The owner (2026-11-18): the two hand-mapped couples are flagged, and nothing of theirs says the carrier
+        is born female (the shown pages name no carrier; the ledger says one of the couple carries)."""
+        for name, n in (("b260_warm_stone", 3), ("b336_lazy_river", 1)):
+            doc = json.loads((COLLECTION / "balance" / "bal" / f"{name}.json").read_text(encoding="utf-8"))
+            couples = [e for e in births(doc) if couple(e)]
+            self.assertEqual(len(couples), n, name)
+            self.assertTrue(all(e.get("partner_may_carry") is True for e in couples), name)
+            self.assertNotIn("born female", json.dumps(doc), name)
+            self.assertIn("one of the couple carries the baby", json.dumps(doc["collection"]), name)
+        go = (ROOT / "scripts" / "go_events" / "gen_go.py").read_text(encoding="utf-8")
+        self.assertNotIn("cast born female", go)
+
     def test_the_owner_layout_rule(self) -> None:
         """vv_owner_layout (the GO files and the Player Events importer's owner layout): one EFFECT phrase each."""
         def fx(phrase: str) -> dict:
@@ -251,6 +277,22 @@ class PlayerEventsImporter(unittest.TestCase):
         shipped = (pe.PLAYER_FOLDER / pe.PROMPT_NAME).read_text(encoding="utf-8")
         self.assertEqual(shipped.replace("\r\n", "\n"), text)
         self.assertTrue(re.search(r"couple's pregnancy", shipped))
+
+
+class TheSettingReachesEveryEngine(unittest.TestCase):
+    """Codex on #814: the collection and Player Events pregnancies honor the player's percent too, so the installed
+    patches' list carries it wherever Story / Cheat Upgrades (its reader) is installed, More Island Events or not."""
+
+    def test_written_with_story_alone(self) -> None:
+        import vv_fun_patcher as vfp
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_patcher_files_folder import build_of
+        for n in (1, 3, 5):
+            build = build_of(f"vv{n}")
+            story = [vfp.get_fun_patch(f"vv{n}_story_cheat_upgrades")]
+            self.assertIn("# partner_carry_percent=0\n", vfp.installed_patches_text(build, story, (), 0))
+            self.assertIn("# partner_carry_percent=100\n", vfp.installed_patches_text(build, story, (), 100))
+            self.assertNotIn("partner_carry_percent", vfp.installed_patches_text(build, [], (), 0))
 
 
 if __name__ == "__main__":

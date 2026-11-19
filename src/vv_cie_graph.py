@@ -4695,6 +4695,40 @@ def decompile_graph(data: bytes) -> dict:
 # ---- Version 6: the engine's walk, roll for roll (cie-v6-binary.md section 6) --------------------------------------
 
 
+def partner_carry_pairs(g: dict, aliases: dict[str, str] | None = None) -> list[tuple[str, str]]:
+    """The (carrier role, partner role) pairs the companion decides when the run starts (story_graph.inc
+    cg_partner_carry_decide; the owner, 2026-11-18), in its order: each pregnant / nursing effect with
+    partner_may_carry and a partner role, in the order the effects are compiled, an alias role as its member drawn
+    (`aliases`, as simulate draws them), a role already in a pair skipped.
+    For each, the cast made and the aliases drawn, before any page: when the carrier passes the carrier's checks and the partner
+    is 18 or more and not expecting, one roll of the player's partner_carry_percent (none at 0 or 100) decides; on a
+    yes the two roles' villagers change places for the whole run (partner_carry_swap), so every page names who
+    carries and the effect makes that villager carry."""
+    lg = lower(g)
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for n in lg["nodes"].values():
+        for e in n.get("effects", []) or []:
+            if e.get("do") not in ("pregnant", "nursing") or not e.get("partner_may_carry"):
+                continue
+            c, p = e.get("role", "subject"), e.get("partner")
+            c, p = (aliases or {}).get(c, c), (aliases or {}).get(p, p)
+            if p is None or p in NEW_ROLES or c in NEW_ROLES or c == p or c in seen or p in seen:
+                continue
+            seen |= {c, p}
+            out.append((c, p))
+    return out
+
+
+def partner_carry_swap(bindings: dict[str, Any], swaps: Iterable[tuple[str, str]]) -> dict[str, Any]:
+    """The bindings once the partners who carry have changed places with their carriers (simulate takes the
+    bindings as the cast leaves them, this decision made)."""
+    out = dict(bindings)
+    for c, p in swaps:
+        out[c], out[p] = out.get(p), out.get(c)
+    return out
+
+
 def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Binding], answers: Iterable[int] = (),
              patches: Iterable[str] = (), facts: frozenset[str] | None = None, unicode: bool = False,
              tribe: str | None = None) -> dict:
