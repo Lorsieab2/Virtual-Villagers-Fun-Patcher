@@ -419,6 +419,11 @@ CHILD_OF_NEWEST_FLAG = 1      # code 27: flags bit 0, a child of the two newest 
 # (bit 2), triplets (both); left out, one baby
 BABIES_FLAGS = {"roll": 2, 2: 4, 3: 6}
 BABIES_NAMES = {v: k for k, v in BABIES_FLAGS.items()}
+# codes 28 / 29: flags bit 3 (value 8), "the partner may carry" (the owner, 2026-11-16; engine story_graph.inc
+# CG_FX_PARTNER_MAY_CARRY): with a partner role, at the player's partner_carry_percent the partner carries instead (any
+# birth sex) when they pass the carrier's checks.  Every couple pregnancy of the new events sets it
+# ("partner_may_carry": true); a reason-based one (any_birth_sex) and one with no partner never do.
+PARTNER_MAY_CARRY_FLAG = 8
 SKILL_BEST_FLAG = 32          # codes 9 / 15: flags bit 32, the villager's best skill (string "best")
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
@@ -447,12 +452,13 @@ PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
 PREF_REMOVE_FLAG = 16         # ... "remove": true takes the like / dislike away (random: one the villager holds)
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
+NODE_NEW_PAGE = 2             # cie-v6-binary.md 19a: a popup node that starts the event's one popup afresh
 # Village Solidarity (the owner, 2026-11-17; src/vv_village_scores.py): a page's "solidarity" tag in the node flags'
-# bits 1-2 (byte 3), in every version: 1 raise, 2 lower, 3 neutral.  Untagged nodes keep 0, so an untagged graph
-# compiles to the same bytes as before.
+# bits 2-3 (byte 3), in every version: 1 raise, 2 lower, 3 neutral.  Untagged nodes keep 0, so an untagged graph
+# compiles to the same bytes as before.  (Bit 1 is NODE_NEW_PAGE.)
 SOLIDARITY_CODES = {"raise": 1, "lower": 2, "neutral": 3}
-NODE_SOLIDARITY_SHIFT = 1
-NODE_SOLIDARITY_MASK = 6
+NODE_SOLIDARITY_SHIFT = 2
+NODE_SOLIDARITY_MASK = 12
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
@@ -955,7 +961,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         out["role"] = e.get("role", default_role)
         if do in ("pregnant", "nursing"):
             # Section 31, codes 28 / 29: the carrier (born female, 18+, unless any_birth_sex) and its partner.
-            known |= {"partner", "any_birth_sex", "babies"}
+            known |= {"partner", "any_birth_sex", "babies", "partner_may_carry"}
             if "babies" in e:
                 if e["babies"] not in BABIES_FLAGS or isinstance(e["babies"], bool):
                     problems.append(f"{where}: {do} babies is \"roll\", 2 or 3 (left out: one)")
@@ -969,6 +975,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: any_birth_sex is true or false")
             if e.get("any_birth_sex") is True:
                 out["any_birth_sex"] = True
+            if e.get("partner_may_carry", False) not in (True, False):
+                problems.append(f"{where}: partner_may_carry is true or false")
+            elif e.get("partner_may_carry") is True:
+                if "partner" not in e:
+                    problems.append(f"{where}: partner_may_carry needs a partner (the partner is who may carry)")
+                out["partner_may_carry"] = True
         elif do == "change_age":
             # Section 31, code 34: to an age class, or by a number (or a range) of years.
             known |= {"to", "years"}
@@ -1451,7 +1463,8 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name", "solidarity"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
+                 "outcome", "name", "solidarity"} | ({"src", "text_only_reason", "title", "auto_text", "new_page"} if v6
+                                                    else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1596,6 +1609,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                     problems.append(f"{where}: auto_text is only on a popup node")
                 elif auto:
                     nodes[nid]["auto_text"] = True
+            fresh = n.get("new_page")
+            if fresh is not None:
+                # 19a: with Scrolling Popups, a popup that starts the event's one popup afresh (a scroll page of its
+                # own, as after a question), so no popup's text passes what the game's popup holds.
+                if not isinstance(fresh, bool):
+                    problems.append(f"{where}: new_page is true or false")
+                elif fresh and (t != "popup" or n.get("popup", "new") != "new"):
+                    problems.append(f"{where}: new_page is only on a popup node that opens a new popup")
+                elif fresh:
+                    nodes[nid]["new_page"] = True
     g["nodes"] = nodes
     if v6:
         _normalize_v6_extras(data, g, problems, shared_pools)
@@ -2842,6 +2865,7 @@ class Popup:
     titles: list[str] = field(default_factory=list)   # the titles in force on it ("" = the event's), in order
     chosen: str = ""                    # a question's: the choice this history takes, as its row shows it at its
                                         # widest (one_popup puts it first in the answer's text)
+    new_page: bool = False              # 19a: its first node starts the event's one popup afresh
 
 
 @dataclass
@@ -3054,7 +3078,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         node = nodes[nid]
         path = path + (nid,)
         popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen) for p in popups]
+                        p.chosen, p.new_page) for p in popups]
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -3168,7 +3192,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 # 14: a page shown in the question's own popup keeps that popup's title.
                 in_question = after and (not v6 or popups[-1].answers <= MAX_ANSWERS_V4)
                 titles = [title] + ([ntitle] if ntitle else []) if in_question else [ntitle or title]
-                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles))
+                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles,
+                                    new_page=bool(node.get("new_page"))))
         title = ntitle or title
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
@@ -3555,7 +3580,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
     after it (story_graph.inc cg_op_lead; "Honesty\n\n..."): in `worst`, which the bytes are checked on."""
     out: list[Popup] = []
     for pop in popups:
-        if out and out[-1].layout != "question":
+        if out and out[-1].layout != "question" and not pop.new_page:
             last = out[-1]
             last.text = last.text + ONE_POPUP_JOIN + pop.text if last.text else pop.text
             last.worst = last.worst + ONE_POPUP_JOIN + pop.worst if last.worst else pop.worst
@@ -3572,7 +3597,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
         if out and out[-1].chosen:
             worst = out[-1].chosen + ONE_POPUP_JOIN + worst if worst else out[-1].chosen
         out.append(Popup(pop.layout, pop.text, worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
-                         list(pop.titles), pop.chosen))
+                         list(pop.titles), pop.chosen, pop.new_page))
     return out
 
 
@@ -4036,7 +4061,8 @@ def _compile_v6(g: dict) -> bytes:
                 b = NEW_VILLAGER_SEX[e.get("sex", "random")]
                 flags = CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
             elif do in ("pregnant", "nursing"):
-                flags = (ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | BABIES_FLAGS.get(e.get("babies"), 0)
+                flags = (ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | BABIES_FLAGS.get(e.get("babies"), 0) \
+                    | (PARTNER_MAY_CARRY_FLAG if e.get("partner_may_carry") else 0)
                 a = rx(e["partner"]) if e.get("partner") else 0xFF
             elif do == "body_swap":
                 a = rx(e["with"])
@@ -4056,7 +4082,8 @@ def _compile_v6(g: dict) -> bytes:
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
                             1 if n["join"] == "paragraph" else 0,
-                            (NODE_AUTO_TEXT if n.get("auto_text") else 0) | _solidarity_flags(n),
+                            (NODE_AUTO_TEXT if n.get("auto_text") else 0) | (NODE_NEW_PAGE if n.get("new_page") else 0)
+                            | _solidarity_flags(n),
                             s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
@@ -4316,6 +4343,8 @@ def _decompile_v6(data: bytes) -> dict:
                         e["any_birth_sex"] = True
                     if flags & 6:
                         e["babies"] = BABIES_NAMES[flags & 6]
+                    if flags & PARTNER_MAY_CARRY_FLAG:
+                        e["partner_may_carry"] = True
                 elif do == "body_swap":
                     e["with"] = rn(a)
                 elif do == "change_name" and st != NONE and s(st):
@@ -4342,6 +4371,8 @@ def _decompile_v6(data: bytes) -> dict:
             nodes[nid]["title"] = s(ntitle)
         if nflags & NODE_AUTO_TEXT:
             nodes[nid]["auto_text"] = True
+        if nflags & NODE_NEW_PAGE:
+            nodes[nid]["new_page"] = True
         _solidarity_from_flags(nodes[nid], nflags)
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:

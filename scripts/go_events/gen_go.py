@@ -104,6 +104,8 @@ def _pr(role, partner=None, babies=None, **kw):
         e["partner"] = partner
     if babies:
         e["babies"] = babies
+    if partner and not kw.get("any_birth_sex"):
+        e["partner_may_carry"] = True      # a couple's pregnancy (vv_owner_layout's rule; engine flags bit 3)
     return {**e, **kw}
 
 

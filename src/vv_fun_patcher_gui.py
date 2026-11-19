@@ -75,6 +75,8 @@ from vv_fun_patcher import (
     LOUDER_FLUTES_MULTIPLIER_RANGE,
     ISLAND_FREQUENCY_MULTIPLIER_DEFAULT,
     ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+    PARTNER_CARRY_DEFAULT,
+    PARTNER_CARRY_RANGE,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_louder_flutes_multiplier,
@@ -515,6 +517,14 @@ def saved_meal_multiplier(settings: dict) -> int:
     value = settings.get("meal_multiplier", MEAL_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
     if isinstance(value, bool) or not isinstance(value, int) or value not in MEAL_MULTIPLIER_RANGE:
         return MEAL_MULTIPLIER_DEFAULT
+    return value
+
+
+def saved_partner_carry(settings: dict) -> int:
+    """"A man may carry the baby by chance": the percent a settings file holds, 0 to 100, else the default 10."""
+    value = settings.get("partner_carry_percent", PARTNER_CARRY_DEFAULT) if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, int) or value not in PARTNER_CARRY_RANGE:
+        return PARTNER_CARRY_DEFAULT
     return value
 
 
@@ -1528,6 +1538,9 @@ class App(tk.Tk):
             # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 to 100, 2 unless
             # moved; written beside its companion.
             self.island_frequency_var = tk.IntVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+            # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
+            # slider and its box in every game's Island Events section share it.
+            self.partner_carry_var = tk.IntVar(value=PARTNER_CARRY_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -2034,6 +2047,8 @@ class App(tk.Tk):
                 lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
             )
             listing.pack(fill="x")
+            if any(r[0].id.endswith("_more_island_events") for r in island_rows):
+                self._build_partner_carry(box)
         if not filters:
             self._build_player_events(box, island_rows, filters, requirement_font)
             return
@@ -2085,6 +2100,24 @@ class App(tk.Tk):
                           wraplength=640).pack(anchor="w")
 
         ttk.Button(head, text="Show Player Events...", command=show).pack(side="left", padx=(8, 0))
+
+    def _build_partner_carry(self, box) -> None:
+        """"A man may carry the baby by chance" (the owner, 2026-11-16: "Or the player sets it!"): with More Island
+        Events, how often the partner carries instead in a couple's pregnancy of a new event that allows it -- a
+        slider and a box to type in, 0 to 100 percent, 10 unless moved (Owner's Defaults 10 too).  0: never by
+        chance (an event's own reason, or a choice, still can)."""
+        group = ttk.Frame(box)
+        group.pack(fill="x", pady=(6, 0))
+        ttk.Label(group, text="A man may carry the baby by chance (%):").pack(side="left", padx=(0, 4))
+        tk.Scale(group, variable=self.partner_carry_var, orient="horizontal", from_=PARTNER_CARRY_RANGE[0],
+                 to=PARTNER_CARRY_RANGE[-1], resolution=1, length=160, showvalue=False,
+                 command=lambda _value: self._save_settings()).pack(side="left")
+        entry = ttk.Spinbox(group, from_=PARTNER_CARRY_RANGE[0], to=PARTNER_CARRY_RANGE[-1], increment=1, width=5,
+                            textvariable=self.partner_carry_var, command=self._save_settings)
+        entry.pack(side="left", padx=(6, 0))
+        entry.bind("<FocusOut>", lambda _e: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
+        entry.bind("<Return>", lambda _e: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
+        self._help_button(group, "partner_carry_percent").pack(side="left", padx=(4, 0))
 
     def _build_patch_row(self, frame, row, styles) -> None:
         """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
@@ -2857,6 +2890,8 @@ class App(tk.Tk):
         # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+        if hasattr(self, "partner_carry_var"):
+            self.partner_carry_var.set(PARTNER_CARRY_DEFAULT)     # 10% in Owner's Defaults too
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -3025,6 +3060,8 @@ class App(tk.Tk):
             self.louder_flutes_var.set(saved_louder_flutes_multiplier(data))
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(saved_island_frequency_multiplier(data))
+        if hasattr(self, "partner_carry_var"):
+            self.partner_carry_var.set(saved_partner_carry(data))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -3077,6 +3114,8 @@ class App(tk.Tk):
             "island_frequency_multiplier": (App._island_frequency_multiplier(self)
                                             if hasattr(self, "island_frequency_var")
                                             else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT),
+            "partner_carry_percent": (App._partner_carry(self) if hasattr(self, "partner_carry_var")
+                                      else PARTNER_CARRY_DEFAULT),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -3105,6 +3144,14 @@ class App(tk.Tk):
         except (tk.TclError, ValueError, AttributeError):
             value = MEAL_MULTIPLIER_DEFAULT
         return value if value in MEAL_MULTIPLIER_RANGE else MEAL_MULTIPLIER_DEFAULT
+
+    def _partner_carry(self) -> int:
+        """"A man may carry the baby by chance": the slider's percent, kept within 0 to 100."""
+        try:
+            value = int(self.partner_carry_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = PARTNER_CARRY_DEFAULT
+        return value if value in PARTNER_CARRY_RANGE else PARTNER_CARRY_DEFAULT
 
     def _sickness_multiplier(self) -> int:
         """The 2-100x Sickness slider's whole number, kept within 2 to 100."""
@@ -3447,6 +3494,7 @@ class App(tk.Tk):
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
             sickness = self._sickness_multiplier()
+            carry = self._partner_carry()
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
@@ -3482,6 +3530,7 @@ class App(tk.Tk):
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
+                    partner_carry_percent=carry,
                 ),
             )
             self.last_output_dir = output.parent
@@ -3523,6 +3572,7 @@ class App(tk.Tk):
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
             sickness = self._sickness_multiplier()
+            carry = self._partner_carry()
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
@@ -3570,6 +3620,7 @@ class App(tk.Tk):
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
+                    partner_carry_percent=carry,
                 ),
             )
             self.last_output_dir = results[0][0].parent

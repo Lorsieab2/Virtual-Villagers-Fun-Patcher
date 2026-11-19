@@ -610,6 +610,8 @@ def effect_json(e: Effect, names: list[str]) -> dict:
                 out["any_birth_sex"] = True
             if e.flags & 6:
                 out["babies"] = BABIES[e.flags & 6]
+            if e.flags & 8:          # the partner may carry (vv_cie_graph.PARTNER_MAY_CARRY_FLAG)
+                out["partner_may_carry"] = True
         elif do == "body_swap":
             out["with"] = rn(e.a)
         elif do == "change_name" and e.string:
