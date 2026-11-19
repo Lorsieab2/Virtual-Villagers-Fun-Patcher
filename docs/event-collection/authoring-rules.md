@@ -614,3 +614,9 @@ an island event does have make sense for the text, it's okay." And: "in general 
 - Amounts follow the stock island events' scale, sized by how big the text sounds. Use the small size only where the
   text says little.
 - Use judgement and don't escalate borderline cases.
+
+## 20. Never shorten for length (the owner, 2026-11-19)
+
+Never drop or shorten text or effects for length. Island popups have scrollbars in all 5 games. A real engine limit is raised or worked around; the content stays.
+
+- Known real limit (2026-11-19): The Secret City, The Tree of Life and New Believers format a popup's text into the dialog's own 2,000-byte buffer (`push 0x7d0` at 0x418612 / 0x416FD0 / 0x417770, `button-probe.md`). The fit check counts 1,990 of it (`vv_cie_graph.POPUP_TEXT_MAX`, `story_graph.inc CG_TEXT_MAX`). A New Home and The Lost Children hold 9,999 (8,000 counted). Scrolling Popups scrolls that same buffer, so a longer popup needs an engine change. It is never a reason to cut content.

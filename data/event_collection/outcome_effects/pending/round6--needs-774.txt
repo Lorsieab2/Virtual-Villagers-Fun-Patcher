@@ -1025,3 +1025,4 @@ rewrites/rw_s/s034_something_has.json | c2o2 | LIKE + learning (subject) (50%) |
 rewrites/rw_s/s051_parrot_opinions.json | c1o2 | LIKE + cooking (subject) (50%) | "(Name) takes up cooking." | {"do":"preference","role":"subject","list":"likes","preference":"cooking"}
 rewrites/rw_s/s064_stranger_recipe.json | c1o1 | LIKE + cooking (subject) (50%) | "From then on, (name) can't stop cooking" | {"do":"preference","role":"subject","list":"likes","preference":"cooking"}
 rewrites/rw_s/s073_sculptor.json | c1o2 | DISLIKE + wood (subject) (50%) | "can't stand the feel of wood after that" | {"do":"preference","role":"subject","list":"dislikes","preference":"wood"}
+mie/mie/mie_diving.json | ashore | INJURY (subject) (50%) | "(subject) spends several days recovering" | {"do":"health_change","role":"subject","min":-30,"max":-15}

@@ -28,3 +28,9 @@ v20/all_v20_between_life.json | a1_h | ILLNESS CURED (patient) (50%) | "eventual
 v20/all_v20_between_life.json | a1_n | ILLNESS CURED (patient) (50%) | "eventually recovers fully" | {"do":"cure","role":"patient"}
 v27/all_v27_54_fever.json | a | ILLNESS CURED (explorer1) (50%) | "Healers provide supportive care and the group recovers." | {"do":"cure","role":"explorer1"}
 v27/all_v27_54_fever.json | a | ILLNESS CURED (explorer2) (50%) | "Healers provide supportive care and the group recovers." | {"do":"cure","role":"explorer2"}
+anthology/an_rel/anrel17_elder_changed.json | d2 | CHANGE NAME (elder) to (chosen) (50%) | "(elder) asks that only the new name be used from now on." | {"do":"change_name","role":"elder","name_of":"chosen"}
+anthology/an_rel/anrel28_apprentice.json | a1 | CHANGE NAME (apprentice) to (chosen) (50%) | "(mentor) uses the new name, (chosen)" | {"do":"change_name","role":"apprentice","name_of":"chosen"}
+anthology/an_rel/anrel28_apprentice.json | a2 | CHANGE NAME (apprentice) to (chosen) (50%) | "(apprentice) decides to keep the profession but change the name." | {"do":"change_name","role":"apprentice","name_of":"chosen"}
+anthology/an_rel/anrel31_newcomer.json | a2 | CHANGE NAME (newcomer) to (chosen) (50%) | "A few villagers ask how to pronounce it and practice." | {"do":"change_name","role":"newcomer","name_of":"chosen"}
+anthology/an_rel/anrel34_grandparent.json | b1 | CHANGE NAME (elder) to (chosen) (50%) | "(elder) requests a new name, (chosen), be used." | {"do":"change_name","role":"elder","name_of":"chosen"}
+drafts_c/dr_blf/blf40_just.json | o1 | CHANGE NAME (subject) (50%) | "(friend) uses the new name straight away" | {"do":"change_name","role":"subject"}
