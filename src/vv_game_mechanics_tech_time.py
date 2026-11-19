@@ -588,8 +588,8 @@ def lines(ctx, everyone) -> list[gm.Fact]:
            4: "the Purify Tree's glow pays 3 times the points for 4 real-life minutes (the same at every speed); ",
            }.get(game, "")
         + f"the skill gained on each success makes later sessions pay more (the times hold it at {RESEARCH_SHOWN}, so "
-        "they run long for a researcher who improves); and tech points from island events, puzzles and collectibles "
-        "found again come on top.", gm.CODE)
+        "they run long for a researcher who improves); and tech points from puzzles, collectibles found again and "
+        "the island's own events come on top.", gm.CODE)
     if game >= 3:
         add(LOW_FOOD, gm.CODE)
     add(difficulty_line(game), gm.CODE)
