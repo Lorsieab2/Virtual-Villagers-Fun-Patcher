@@ -278,14 +278,6 @@
     {
      "next": "o4__text"
     }
-   ],
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L3133"
-    }
    ]
   },
   "cookoff": {

@@ -298,14 +298,6 @@
     {
      "next": "c2__text"
     }
-   ],
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L9303"
-    }
    ]
   },
   "c3": {

@@ -75,14 +75,6 @@
   },
   "b": {
    "name": "Answer B",
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L6456"
-    }
-   ],
    "type": "branch",
    "children": [
     {

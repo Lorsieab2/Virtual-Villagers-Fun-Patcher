@@ -130,14 +130,6 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L23033"
-    }
-   ],
    "type": "branch",
    "children": [
     {

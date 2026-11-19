@@ -172,14 +172,6 @@
     {
      "next": "c1__text"
     }
-   ],
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L8395-8396"
-    }
    ]
   },
   "c2": {
@@ -651,6 +643,12 @@
      "do": "celebrate",
      "who": "all",
      "src": "L8395-8396"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8395-8396"
     }
    ],
    "auto_text": true
@@ -662,7 +660,16 @@
     {
      "next": "pp"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8395-8396"
+    }
+   ],
+   "auto_text": true
   },
   "d1__fx": {
    "src": "L8399-8400",

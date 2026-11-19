@@ -74,14 +74,6 @@
   },
   "a": {
    "name": "Answer A",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L6354"
-    }
-   ],
    "type": "branch",
    "children": [
     {

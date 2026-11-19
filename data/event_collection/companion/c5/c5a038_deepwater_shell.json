@@ -111,14 +111,6 @@
   },
   "o1": {
    "name": "Outcome 1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L903"
-    }
-   ],
    "type": "branch",
    "children": [
     {

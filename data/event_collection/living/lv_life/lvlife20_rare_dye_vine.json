@@ -88,15 +88,6 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "effects": [
-    {
-     "do": "supply",
-     "item": "cloth",
-     "min": 1,
-     "max": 1,
-     "src": "L20892"
-    }
-   ],
    "type": "branch",
    "children": [
     {
@@ -170,6 +161,13 @@
      "min": 30,
      "max": 60,
      "src": "L20892"
+    },
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": 1,
+     "max": 1,
+     "src": "L20892"
     }
    ],
    "auto_text": true
@@ -177,7 +175,17 @@
   "a1__text": {
    "name": "Outcome A1",
    "text": "The weavers produce a brilliant cloth, but the vine recovers slowly.",
-   "src": "L20892"
+   "src": "L20892",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": 1,
+     "max": 1,
+     "src": "L20892"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

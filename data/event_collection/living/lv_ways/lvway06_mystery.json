@@ -125,14 +125,6 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L22790"
-    }
-   ],
    "type": "branch",
    "children": [
     {

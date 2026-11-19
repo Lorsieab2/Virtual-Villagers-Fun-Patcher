@@ -66,14 +66,6 @@
   },
   "e1": {
    "name": "Outcome A",
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L3428"
-    }
-   ],
    "type": "branch",
    "children": [
     {
@@ -102,6 +94,12 @@
      "do": "celebrate",
      "who": "all",
      "src": "L3428"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3428"
     }
    ],
    "auto_text": true
@@ -111,7 +109,16 @@
    "popup": "append",
    "join": "paragraph",
    "text": "Neighbors share roasted meat, roots and fruit.",
-   "src": "L3428"
+   "src": "L3428",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3428"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

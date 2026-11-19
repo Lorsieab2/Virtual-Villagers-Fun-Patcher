@@ -115,14 +115,6 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L23110"
-    }
-   ],
    "type": "branch",
    "children": [
     {

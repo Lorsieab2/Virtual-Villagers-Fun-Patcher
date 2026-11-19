@@ -138,14 +138,6 @@
     {
      "next": "b2__text"
     }
-   ],
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L8227"
-    }
    ]
   },
   "set_b": {
@@ -470,6 +462,12 @@
      "do": "celebrate",
      "who": "all",
      "src": "L8227"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8227"
     }
    ],
    "auto_text": true
@@ -481,7 +479,16 @@
     {
      "next": "u"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8227"
+    }
+   ],
+   "auto_text": true
   }
  },
  "include_pools": [

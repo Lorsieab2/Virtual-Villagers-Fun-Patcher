@@ -158,14 +158,6 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L21331"
-    }
-   ],
    "type": "branch",
    "children": [
     {

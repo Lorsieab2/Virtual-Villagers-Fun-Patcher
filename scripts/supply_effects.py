@@ -36,26 +36,35 @@ def wanted(doc: dict) -> dict:
     return SUPPLY.get(col.get("id"), {})
 
 
+def pages(doc: dict, nid: str) -> list[dict]:
+    """The page(s) node `nid` is: itself, or -- where the outcome effects pass (scripts/outcome_effects.py) made it
+    a silent 50% branch -- both its copies X__fx and X__text (X's own effects stay on both; the branch holds none)."""
+    nodes = doc.get("nodes", {})
+    node = nodes.get(nid)
+    if isinstance(node, dict) and node.get("type") == "branch" and f"{nid}__fx" in nodes and f"{nid}__text" in nodes:
+        return [nodes[f"{nid}__fx"], nodes[f"{nid}__text"]]
+    return [node] if isinstance(node, dict) else []
+
+
 def apply(doc: dict) -> None:
     """Add each listed effect to its node (once), its src the node's."""
     for nid, effects in wanted(doc).items():
-        node = doc.get("nodes", {}).get(nid)
-        if not isinstance(node, dict):
-            continue
-        have = node.setdefault("effects", [])
-        for e in effects:
-            e = dict(e, src=node.get("src"))
-            if e not in have:
-                have.append(e)
+        for node in pages(doc, nid):
+            have = node.setdefault("effects", [])
+            for e in effects:
+                e = dict(e, src=node.get("src"))
+                if e not in have:
+                    have.append(e)
 
 
 def missing(doc: dict) -> list[str]:
     """The listed effects the file lacks."""
     out = []
     for nid, effects in wanted(doc).items():
-        node = doc.get("nodes", {}).get(nid)
-        have = [{k: v for k, v in e.items() if k != "src"} for e in (node or {}).get("effects", []) or []]
-        for e in effects:
-            if node is None or e not in have:
-                out.append(f"node {nid}: {e}")
+        nodes = pages(doc, nid) or [None]
+        for node in nodes:
+            have = [{k: v for k, v in e.items() if k != "src"} for e in (node or {}).get("effects", []) or []]
+            for e in effects:
+                if node is None or e not in have:
+                    out.append(f"node {nid}: {e}")
     return out

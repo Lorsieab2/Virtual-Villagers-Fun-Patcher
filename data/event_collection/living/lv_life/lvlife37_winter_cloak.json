@@ -103,14 +103,6 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L21116"
-    }
-   ],
    "type": "branch",
    "children": [
     {
@@ -140,14 +132,6 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L21119"
-    }
-   ],
    "type": "branch",
    "children": [
     {
@@ -177,6 +161,12 @@
      "min": 20,
      "max": 40,
      "src": "L21116"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21116"
     }
    ],
    "auto_text": true
@@ -184,7 +174,16 @@
   "b1__text": {
    "name": "Outcome B1",
    "text": "The cloth performs well, and the weavers learn a new technique.",
-   "src": "L21116"
+   "src": "L21116",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21116"
+    }
+   ],
+   "auto_text": true
   },
   "c1__fx": {
    "name": "Outcome C1",

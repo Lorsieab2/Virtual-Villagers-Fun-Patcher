@@ -99,14 +99,6 @@
   },
   "a2": {
    "name": "Outcome A2",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L20919"
-    }
-   ],
    "type": "branch",
    "children": [
     {

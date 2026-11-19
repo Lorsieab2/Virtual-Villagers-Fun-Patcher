@@ -67,14 +67,6 @@
   },
   "e1": {
    "name": "Outcome 1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L2901"
-    }
-   ],
    "type": "branch",
    "children": [
     {

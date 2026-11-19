@@ -267,6 +267,8 @@ def problems_for(doc: dict, rows) -> list[str]:
         if n is None:
             out.append(f"node {node} is missing")
             continue
+        if len(pages(nodes, node)) == 2:
+            continue              # a 50% split: apply() puts the row on both copies or leaves the pass's own amount
         if not n.get("src"):
             out.append(f"node {node} has no src")
         down = _reach(edges, node)
@@ -442,32 +444,49 @@ def apply_likes_fix(doc: dict) -> None:
             n["text_only"].append(text_only)
 
 
+def pages(nodes: dict, node: str) -> list[dict]:
+    """The page(s) a row on `node` lands on: the node itself, or -- where the outcome effects pass
+    (scripts/outcome_effects.py) made it a silent 50% branch -- both its copies, X__fx and X__text (X's own effects
+    stay on both).  The branch itself is never a page and never holds an effect."""
+    n = nodes.get(node)
+    if n is not None and n.get("type") == "branch" and f"{node}__fx" in nodes and f"{node}__text" in nodes:
+        return [nodes[f"{node}__fx"], nodes[f"{node}__text"]]
+    return [] if n is None else [n]
+
+
+def _bare(e: dict) -> dict:
+    return {k: v for k, v in e.items() if k != "src"}
+
+
 def apply(doc: dict) -> dict:
-    """Add this event's rows to doc (in place; idempotent) and return it.  Raises on a row that cannot be applied."""
+    """Add this event's rows to doc (in place; idempotent) and return it.  Raises on a row that cannot be applied.
+    A row on a 50% split goes on both copies, unless a copy already gives it (EFFECT_ADDITIONS: the same effect;
+    ADDITIONS: the same kind) -- the outcome pass's own amount then stands, as an outcome whose path already gives
+    one of that kind gets nothing."""
     col = doc.get("collection") or {}
     nodes = doc.get("nodes", {})
     apply_likes_fix(doc)
     for eid, node, add, _ in EFFECT_ADDITIONS:
         if eid != col.get("id"):
             continue
-        n = nodes.get(node)
-        if n is None:
+        ns = pages(nodes, node)
+        if not ns:
             raise SystemExit(f"food_tech_additions: {eid}: node {node} is missing")
-        effs = n.setdefault("effects", [])
-        if any({k: v for k, v in e.items() if k != "src"} == add for e in effs):
+        if any(_bare(e) == add for n in ns for e in n.get("effects", []) or []):
             continue              # already applied
-        effs.append(dict(add, src=n["src"]))
+        for n in ns:
+            n.setdefault("effects", []).append(dict(add, src=n["src"]))
     rows = _by_event().get(col.get("id"))
     if not rows:
         return doc
     for node, kind, size, _ in rows:
-        n = nodes.get(node)
-        if n is None:
+        ns = pages(nodes, node)
+        if not ns:
             raise SystemExit(f"food_tech_additions: {col.get('id')}: node {node} is missing")
-        effs = n.setdefault("effects", [])
-        if any(e.get("do") == kind[0] for e in effs):
-            continue              # already applied (or already given by its generator)
-        effs.append(effect(n, kind, size))
+        if any(e.get("do") == kind[0] for n in ns for e in n.get("effects", []) or []):
+            continue              # already applied (or already given by its generator or the outcome pass)
+        for n in ns:
+            n.setdefault("effects", []).append(effect(n, kind, size))
     return doc
 
 
@@ -567,12 +586,12 @@ def main(argv=None) -> int:
             bad += 1
             continue
         doc = docs.setdefault(eid, json.loads(files[eid].read_text(encoding="utf-8")))
-        n = doc["nodes"].get(node)
-        if n is None or not n.get("src"):
+        ns = pages(doc["nodes"], node)
+        if not ns or not all(n.get("src") for n in ns):
             print(f"{eid}: node {node} is missing or has no src")
             bad += 1
             continue
-        for e in n.get("effects", []) or []:
+        for e in [e for n in ns for e in n.get("effects", []) or []]:
             if _same(e, add) and {k: v for k, v in e.items() if k != "src"} != add:
                 print(f"{eid}: node {node} already has a {add['do']} effect on that role")
                 bad += 1

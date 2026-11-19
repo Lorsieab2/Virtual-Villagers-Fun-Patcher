@@ -438,14 +438,6 @@
    ]
   },
   "e2": {
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L2984-2985"
-    }
-   ],
    "type": "branch",
    "name": "The 50 percent chance",
    "children": [

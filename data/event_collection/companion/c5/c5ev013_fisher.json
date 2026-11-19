@@ -88,14 +88,6 @@
   },
   "e2": {
    "name": "Outcome B",
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L3415"
-    }
-   ],
    "type": "branch",
    "children": [
     {

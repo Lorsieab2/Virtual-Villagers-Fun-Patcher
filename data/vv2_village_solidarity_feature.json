@@ -36,19 +36,19 @@
       "va": "0x441D2B",
       "stock_bytes": "8B8E24010000",
       "routine": "the Tech screen draw 0x441830, where its text widgets are drawn",
-      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     },
     {
       "va": "0x443559",
       "stock_bytes": "8B4E1868C9000000",
       "routine": "the Tech screen's constructor, after its title is attached",
-      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     },
     {
       "va": "0x48F9E4",
       "stock_bytes": "C0374400",
       "routine": "the Tech screen's vtable slot 3 (its handler 0x4437C0)",
-      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     }
   ]
 }

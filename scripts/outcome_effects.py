@@ -228,6 +228,9 @@ def missing(doc: dict, path: Path) -> list[str]:
         elif head.get("type") != "branch" or [c.get("next") for c in head.get("children", [])] != \
                 [fx_id(nid), text_id(nid)] or any("weight" in c for c in head["children"]):
             out.append(f"node {nid}: the 50% split is not an even branch to {fx_id(nid)} and {text_id(nid)}")
+        elif head.get("effects"):
+            out.append(f"node {nid}: the 50% branch itself holds effects (they belong on {fx_id(nid)} and "
+                       f"{text_id(nid)})")
         elif e not in (node.get("effects") or []):
             out.append(f"node {nid}: lacks the listed outcome effect {json.dumps(e)} "
                        "(python scripts/outcome_effects.py)")

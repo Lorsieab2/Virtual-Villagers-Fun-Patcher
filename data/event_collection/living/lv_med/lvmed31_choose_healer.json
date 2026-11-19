@@ -91,14 +91,6 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L20612"
-    }
-   ],
    "type": "branch",
    "children": [
     {

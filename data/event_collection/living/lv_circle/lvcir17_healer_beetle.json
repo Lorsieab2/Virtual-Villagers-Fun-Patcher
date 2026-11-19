@@ -91,14 +91,6 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "effects": [
-    {
-     "do": "food",
-     "size": "small",
-     "scaled": true,
-     "src": "L21455"
-    }
-   ],
    "type": "branch",
    "children": [
     {
