@@ -59,6 +59,13 @@ def rel(path: Path) -> str:
     return Path(path).resolve().relative_to(COLLECTION_DIR).as_posix()
 
 
+def _rel_or_none(path: Path) -> str | None:
+    try:
+        return rel(path)
+    except ValueError:
+        return None
+
+
 def wanted(doc: dict, path: Path) -> list[tuple[str, dict]]:
     """The (node, effect) pairs listed for this file, each with the node's own src (the text that implies it)."""
     try:
@@ -92,9 +99,30 @@ def text_id(nid: str) -> str:
     return nid + TEXT
 
 
+# Files whose graph is too big to split (more than the checker's 200,000 histories once doubled): the owner
+# (2026-11-19) "if neither works, give them without the 50% chance" -- the effects go on the page itself.
+NO_SPLIT = {"original/vv2_cooking_contest.json"}
+
+
+def _pref_games(doc: dict, effects: list[dict]) -> list[int] | None:
+    """The event's games whose preference lists hold every like / dislike word of `effects` (the owner, 2026-11-19:
+    "give them in the games that have them"), or None when every game does."""
+    words = [e["preference"] for e in effects if e.get("do") == "preference" and e.get("preference") not in
+             (None, "random")]
+    if not words:
+        return None
+    sys.path.insert(0, str(ROOT / "src"))
+    import vv_cie_graph as cg  # noqa: E402
+    games = doc.get("games", [])
+    have = [g for g in games if all(w in cg.GAMES[g].preferences for w in words)]
+    return None if have == games else have
+
+
 def split(doc: dict, nid: str) -> dict | None:
     """X's effects copy, making the split first when X is still a plain page."""
     nodes = doc.get("nodes", {})
+    if nid in nodes and doc.get("_no_split"):
+        return nodes[nid]
     if fx_id(nid) in nodes:
         return nodes[fx_id(nid)]
     node = nodes.get(nid)
@@ -152,6 +180,12 @@ def finish(doc: dict) -> dict:
 def apply(doc: dict, path: Path) -> dict:
     """Add each listed effect, at 50%, that its node does not hold yet (idempotent), then finish the file.  A
     missing node is left to the check."""
+    try:
+        whole = rel(path) in NO_SPLIT
+    except ValueError:
+        whole = False
+    if whole:
+        doc["_no_split"] = True
     for nid, e in wanted(doc, path):
         node = split(doc, nid)
         if node is None:
@@ -159,6 +193,17 @@ def apply(doc: dict, path: Path) -> dict:
         effects = node.setdefault("effects", [])
         if e not in effects:
             effects.append(e)
+    doc.pop("_no_split", None)
+    for nid in table().get(_rel_or_none(path) or "", {}):
+        head, fx = doc.get("nodes", {}).get(nid), doc.get("nodes", {}).get(fx_id(nid))
+        if head is None or fx is None or head.get("type") != "branch":
+            continue
+        games = _pref_games(doc, table()[_rel_or_none(path)][nid])   # the added effects' words only
+        first = head["children"][0]
+        if games is None:
+            first.pop("if", None)
+        else:
+            first["if"] = {"game": games}    # a like the game lacks: that game keeps the text alone
     try:
         rel(path)
     except ValueError:
@@ -169,8 +214,14 @@ def apply(doc: dict, path: Path) -> dict:
 def missing(doc: dict, path: Path) -> list[str]:
     out = []
     nodes = doc.get("nodes", {})
+    whole = _rel_or_none(path) in NO_SPLIT
     for nid, e in wanted(doc, path):
         node, plain, head = nodes.get(fx_id(nid)), nodes.get(text_id(nid)), nodes.get(nid)
+        if whole:
+            if head is None or e not in (head.get("effects") or []):
+                out.append(f"node {nid}: lacks the listed outcome effect {json.dumps(e)} "
+                           "(python scripts/outcome_effects.py)")
+            continue
         if node is None or plain is None or head is None:
             out.append(f"node {nid}: listed in outcome_effects but not split into {fx_id(nid)} / {text_id(nid)} "
                        "(python scripts/outcome_effects.py)")

@@ -270,8 +270,8 @@
     {
      "do": "health_change",
      "role": "worker",
-     "min": -15,
-     "max": -5,
+     "min": -30,
+     "max": -15,
      "src": "L29789"
     }
    ],

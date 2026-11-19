@@ -160,7 +160,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L20918"
     }
@@ -179,7 +179,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L20919"
     }

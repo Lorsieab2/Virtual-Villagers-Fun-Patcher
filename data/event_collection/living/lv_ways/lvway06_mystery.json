@@ -227,7 +227,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "loss": true,
      "scaled": true,
      "src": "L22788"
@@ -247,7 +247,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L22790"
     }

@@ -235,8 +235,8 @@
     {
      "do": "health_change",
      "role": "elder",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L30851"
     }
    ],

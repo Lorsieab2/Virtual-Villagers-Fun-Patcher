@@ -99,7 +99,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L14"
     }
@@ -118,7 +118,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L17"
     }

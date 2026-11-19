@@ -127,7 +127,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L7488"
     }
@@ -183,7 +183,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L7490"
     }

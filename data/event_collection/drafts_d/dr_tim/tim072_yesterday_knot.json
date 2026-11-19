@@ -152,8 +152,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1207"
     },
     {
@@ -181,13 +181,13 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1211"
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L1211"
     }
@@ -210,8 +210,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1215"
     },
     {
@@ -239,8 +239,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1219"
     },
     {

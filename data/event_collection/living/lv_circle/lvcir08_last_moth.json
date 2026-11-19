@@ -158,7 +158,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "loss": true,
      "scaled": true,
      "src": "L21344"

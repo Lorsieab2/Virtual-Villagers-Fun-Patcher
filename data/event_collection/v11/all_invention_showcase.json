@@ -900,7 +900,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L6485-6490"
     }
@@ -994,7 +994,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L6601-6606"
     }
@@ -1028,7 +1028,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L6625-6629"
     }
@@ -1101,7 +1101,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L6652-6658"
     },

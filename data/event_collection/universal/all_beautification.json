@@ -901,8 +901,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1383-1384"
     },
     {
@@ -911,8 +911,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1383-1384"
     }
    ],
@@ -942,7 +942,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L1389-1391"
     }

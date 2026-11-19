@@ -227,7 +227,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L32173"
     }

@@ -95,8 +95,8 @@
     {
      "do": "health_change",
      "role": "subject",
-     "min": -15,
-     "max": -5,
+     "min": -50,
+     "max": -25,
      "src": "L146"
     }
    ],

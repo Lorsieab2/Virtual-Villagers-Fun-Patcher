@@ -736,7 +736,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L9219-9220"
     },
@@ -792,7 +792,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L9223-9224"
     }
@@ -901,7 +901,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L9235-9236"
     }
@@ -952,7 +952,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L9344"
     }

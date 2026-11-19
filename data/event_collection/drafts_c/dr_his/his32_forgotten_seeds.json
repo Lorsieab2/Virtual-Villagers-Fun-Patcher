@@ -92,7 +92,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L386"
     },
@@ -102,8 +102,8 @@
      "skills": [
       "Farming"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L386"
     }
    ],

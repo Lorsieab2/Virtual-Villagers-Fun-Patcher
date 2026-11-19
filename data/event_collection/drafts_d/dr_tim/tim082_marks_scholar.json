@@ -180,8 +180,8 @@
      "skills": [
       "Research"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1375"
     }
    ],
@@ -203,8 +203,8 @@
      "skills": [
       "Research"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1379"
     }
    ],
@@ -226,8 +226,8 @@
      "skills": [
       "Research"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1383"
     }
    ],
@@ -249,8 +249,8 @@
      "skills": [
       "Research"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1387"
     }
    ],

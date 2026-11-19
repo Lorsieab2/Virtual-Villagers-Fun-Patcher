@@ -600,3 +600,17 @@ remaining features:
 | `v14/vv1_v14_01_impossible.json` | A one-page Golden Child scene in a series |
 | `v17/vv1_v17_research.json` | A no-choice contest with the festival's shared setting paragraph |
 | `v9/vv4_rotten_structure.json` | Structure damage, banks as pools appended to a lead page |
+
+## 19. Story-only text and text-suggested effects (the owner, 2026-11-19)
+
+The owner: "It's okay to have story-only flavor text. Not every event needs to have an effect. As long as any effects
+an island event does have make sense for the text, it's okay." And: "in general no need to be exact".
+
+- An outcome may stay words only. When it has an effect, the effect must fit what the text says or suggests.
+- Effects added only because the text suggests them, and not because the text instructs them, are kept apart from
+  the files. They are listed in `data/event_collection/outcome_effects/` and added by `scripts/outcome_effects.py`.
+  Each one happens half the time: a silent 50/50 split of the outcome page
+  (`docs/event-collection/outcome-effects-v1.35.97/README.md`).
+- Amounts follow the stock island events' scale, sized by how big the text sounds. Use the small size only where the
+  text says little.
+- Use judgement and don't escalate borderline cases.

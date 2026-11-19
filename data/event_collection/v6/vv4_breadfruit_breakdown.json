@@ -551,7 +551,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L3133"
     }
@@ -632,7 +632,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L3145"
     }
@@ -663,8 +663,8 @@
      "skills": [
       "Farming"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L3147"
     }
    ],

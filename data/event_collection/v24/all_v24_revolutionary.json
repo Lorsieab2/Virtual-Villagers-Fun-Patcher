@@ -1540,7 +1540,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
     }
@@ -1601,7 +1601,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
     }
@@ -1663,7 +1663,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
     }
@@ -1724,7 +1724,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
     }
@@ -1774,7 +1774,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
     }
@@ -1860,7 +1860,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
     }
@@ -1911,7 +1911,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
     }
@@ -1963,7 +1963,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
     }
@@ -2014,7 +2014,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
     }
@@ -2066,7 +2066,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
     }
@@ -2100,7 +2100,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10309-10310"
     },
@@ -2183,7 +2183,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10323-10324"
     }
@@ -2232,7 +2232,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10336-10337"
     }
@@ -2298,7 +2298,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L10354-10355"
     }

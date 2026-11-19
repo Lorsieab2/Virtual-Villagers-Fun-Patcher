@@ -155,15 +155,15 @@
     {
      "do": "health_change",
      "role": "explorer1",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L10916"
     },
     {
      "do": "health_change",
      "role": "explorer2",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L10916"
     }
    ],

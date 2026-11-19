@@ -93,7 +93,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L350"
     },
@@ -103,8 +103,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 30,
+     "max": 60,
      "src": "L350"
     }
    ],

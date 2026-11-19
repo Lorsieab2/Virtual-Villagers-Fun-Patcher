@@ -954,8 +954,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L9107-9108"
     }
    ],
@@ -972,8 +972,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L9134-9135"
     }
    ],
@@ -990,8 +990,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L9149-9150"
     }
    ],
@@ -1014,8 +1014,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L9157"
     }
    ],
@@ -1051,8 +1051,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L9098-9099"
     }
    ],
@@ -1089,8 +1089,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L9098-9099"
     }
    ],

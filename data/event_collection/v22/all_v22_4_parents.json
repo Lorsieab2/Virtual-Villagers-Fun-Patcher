@@ -1459,7 +1459,7 @@
     },
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "loss": true,
      "scaled": true,
      "src": "L9803-9806"
@@ -1583,7 +1583,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "loss": true,
      "scaled": true,
      "src": "L9856-9859"

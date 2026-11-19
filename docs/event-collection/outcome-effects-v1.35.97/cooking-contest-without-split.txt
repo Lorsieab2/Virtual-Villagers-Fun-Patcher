@@ -1,4 +1,4 @@
-Not applied: the graph is too big once split (more than 200,000 histories). For the owner's choice.
+Applied WITHOUT the 50% chance (the owner, 2026-11-19): the graph is too big once split (more than 200,000 histories). Sizes as listed in base.txt now.
 original/vv2_cooking_contest.json | five1 | HAPPIER (cook1) (50%) | "they burst out laughing" | {"do":"mood","role":"cook1","mood":"good"}
 original/vv2_cooking_contest.json | five1 | HAPPIER (cook2) (50%) | "they burst out laughing" | {"do":"mood","role":"cook2","mood":"good"}
 original/vv2_cooking_contest.json | five2 | HAPPIER (cook1) (50%) | "a mischievous smile breaks out on their faces" | {"do":"mood","role":"cook1","mood":"good"}

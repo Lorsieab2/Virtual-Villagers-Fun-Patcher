@@ -100,15 +100,15 @@
     {
      "do": "health_change",
      "role": "subject",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L164"
     },
     {
      "do": "health_change",
      "role": "friend",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L164"
     }
    ],
@@ -127,8 +127,8 @@
     {
      "do": "health_change",
      "role": "subject",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L167"
     },
     {

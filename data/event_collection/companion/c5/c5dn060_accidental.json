@@ -116,22 +116,22 @@
     {
      "do": "health_change",
      "role": "villager1",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L3224"
     },
     {
      "do": "health_change",
      "role": "villager2",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L3224"
     },
     {
      "do": "health_change",
      "role": "villager3",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L3224"
     }
    ],

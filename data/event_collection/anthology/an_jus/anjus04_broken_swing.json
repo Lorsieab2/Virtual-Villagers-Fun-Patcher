@@ -212,8 +212,8 @@
     {
      "do": "health_change",
      "role": "child",
-     "min": -15,
-     "max": -5,
+     "min": -20,
+     "max": -10,
      "src": "L30771"
     }
    ],

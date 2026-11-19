@@ -170,7 +170,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "large",
      "scaled": true,
      "src": "L20678"
     }

@@ -89,15 +89,15 @@
     {
      "do": "health_change",
      "role": "subject",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L26"
     },
     {
      "do": "health_change",
      "role": "friend",
-     "min": 5,
-     "max": 15,
+     "min": 30,
+     "max": 50,
      "src": "L26"
     }
    ],

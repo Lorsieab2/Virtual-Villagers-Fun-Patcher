@@ -184,8 +184,8 @@
     {
      "do": "health_change",
      "role": "villager",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L23"
     }
    ],
@@ -204,8 +204,8 @@
     {
      "do": "health_change",
      "role": "villager",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L23"
     }
    ],

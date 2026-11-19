@@ -1,0 +1,14 @@
+Sizes of this pass's effects on the stock island events' scale (the owner, 2026-11-19), every list, applied and pending
+
+food gain: small 7, normal 80, large 22
+food loss: small 6, normal 47, large 6
+tech gain: small 16, normal 427, large 119
+tech loss: normal 1
+skill gain: 10-20 x 20, 20-40 x 227, 30-60 x 15
+health gain: +10-20 x 7, +15-30 x 155, +30-50 x 18
+health loss: -10-20 x 5, -15-30 x 96, -25-50 x 6
+
+Food / tech sizes are each game's own stock range (normal), half (small) or double (large):
+A New Home food 200-1,500, tech 500-4,999; The Lost Children food 100-1,500, tech 500-3,000;
+The Secret City food 200-600, tech 1,000-2,000; The Tree of Life food 300, tech 500-5,000;
+New Believers food 50-300, tech 500-3,000 (then scaled as the stock events are).

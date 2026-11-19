@@ -378,7 +378,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "large",
      "scaled": true,
      "src": "L8239-8242"
     }

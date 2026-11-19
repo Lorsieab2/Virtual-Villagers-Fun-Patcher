@@ -215,8 +215,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L23190"
     }
    ],

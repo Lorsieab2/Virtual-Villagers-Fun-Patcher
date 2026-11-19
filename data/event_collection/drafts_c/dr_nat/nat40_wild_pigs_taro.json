@@ -107,7 +107,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "loss": true,
      "scaled": true,
      "src": "L476"
@@ -118,8 +118,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L476"
     }
    ],

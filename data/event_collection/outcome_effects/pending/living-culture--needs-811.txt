@@ -5,7 +5,7 @@
 drafts_c/dr_lca/lca05_name_worth.json | o1 | HAPPIER (subject) (50%) | "(subject.He/she) does not mind at all." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca05_name_worth.json | o2 | HAPPIER (subject) (50%) | "(subject) looks very relieved." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca07_song_newborn.json | o1 | HAPPIER (subject) (50%) | "smiling and half-asleep, and mouths thank you" | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lca/lca07_song_newborn.json | o2 | HEALTH UP (subject) (50%) | "when (subject) has slept" | {"do":"health_change","role":"subject","min":5,"max":15}
+drafts_c/dr_lca/lca07_song_newborn.json | o2 | HEALTH UP (subject) (50%) | "when (subject) has slept" | {"do":"health_change","role":"subject","min":15,"max":30}
 drafts_c/dr_lca/lca08_apprentice_song.json | o1 | HAPPIER (friend) (50%) | "(friend) hugs (subject.him/her) so hard (subject)'s hat falls off" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lca/lca09_song_everyone.json | o1 | HAPPIER (subject) (50%) | "They walk back to the village together. It is a start." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca09_song_everyone.json | o1 | HAPPIER (friend) (50%) | "They walk back to the village together. It is a start." | {"do":"mood","role":"friend","mood":"good"}
@@ -14,7 +14,7 @@ drafts_c/dr_lca/lca14_stormwatchers.json | o1 | HUT DAMAGE small (50%) | "One ro
 drafts_c/dr_lca/lca14_stormwatchers.json | o1 | HAPPIER (friend) (50%) | "tells everyone (friend.he/she) helped hold the village down" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lca/lca15_one_left_behind.json | o2 | HAPPIER (friend) (50%) | "very glad to see (subject.him/her)" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lca/lca18_right_remain.json | o1 | HAPPIER (subject) (50%) | "(subject.He/she) just smiles." | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lca/lca19_healers.json | o2 | INJURY (friend) (50%) | "(friend)'s hands are raw by the end of the week" | {"do":"health_change","role":"friend","min":-15,"max":-5}
+drafts_c/dr_lca/lca19_healers.json | o2 | INJURY (friend) (50%) | "(friend)'s hands are raw by the end of the week" | {"do":"health_change","role":"friend","min":-30,"max":-15}
 drafts_c/dr_lca/lca25_place_everyone.json | o2 | HAPPIER (subject) (50%) | "The dances move twice more before everyone is happy." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca26_leader_must.json | o2 | UNHAPPY (subject) (50%) | "(subject) is not, and says so to anyone who will listen" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lca/lca27_unheard_family.json | o1 | HAPPIER (friend) (50%) | "(friend) goes, and is very glad (friend.he/she) did" | {"do":"mood","role":"friend","mood":"good"}
@@ -22,18 +22,18 @@ drafts_c/dr_lca/lca30_village_own.json | o2 | UNHAPPY (subject) (50%) | "(subjec
 drafts_c/dr_lca/lca30_village_own.json | o2 | HAPPIER (friend) (50%) | "Everyone else is." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lca/lca31_leader_words.json | o1 | HAPPIER (subject) (50%) | "the village actually cheers" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca31_leader_words.json | o2 | HAPPIER (friend) (50%) | "(friend) laughs so hard (friend.he/she) has to be helped up" | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lca/lca32_good_luck_path.json | o1 | INJURY (subject) (50%) | "scratched and sunburned" | {"do":"health_change","role":"subject","min":-15,"max":-5}
+drafts_c/dr_lca/lca32_good_luck_path.json | o1 | INJURY (subject) (50%) | "scratched and sunburned" | {"do":"health_change","role":"subject","min":-30,"max":-15}
 drafts_c/dr_lca/lca33_homecoming_song.json | o1 | HAPPIER (subject) (50%) | "(subject.He/she) starts to cry, and then to laugh" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca36_song_before_hard.json | o1 | HAPPIER (subject) (50%) | "(subject.he/she) is not afraid of deciding anymore" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca37_comforting_song.json | o2 | HAPPIER (friend) (50%) | "(friend) is a little less alone" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lca/lca39_voice_cracked.json | o1 | HAPPIER (subject) (50%) | "The village cheers louder than for anyone else that night" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lca/lca40_chant_too_long.json | o1 | UNHAPPY (subject) (50%) | "(subject) is deeply unhappy about this" | {"do":"mood","role":"subject","mood":"bad"}
-drafts_c/dr_lca/lca45_fishers_call.json | o2 | SKILL + Farming a little (friend) (50%) | "All season (friend.he/she) listens to the calls and learns them on (friend.his/her) own." | {"do":"skill","role":"friend","skills":["Farming"],"min":5,"max":10}
+drafts_c/dr_lca/lca45_fishers_call.json | o2 | SKILL + Farming a lot (friend) (50%) | "All season (friend.he/she) listens to the calls and learns them on (friend.his/her) own." | {"do":"skill","role":"friend","skills":["Farming"],"min":20,"max":40}
 drafts_c/dr_lca/lca47_speech_well.json | o2 | UNHAPPY (subject) (50%) | "(subject) wishes (subject.he/she) had asked first" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lca/lca50_right_disagree.json | o1 | UNHAPPY (subject) (50%) | "(subject) is still not happy" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcb/lcb02_promise_reef.json | o2 | HAPPIER (friend) (50%) | "(friend) is relieved." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcb/lcb02_promise_reef.json | o2 | UNHAPPY (subject) (50%) | "(subject) is not satisfied" | {"do":"mood","role":"subject","mood":"bad"}
-drafts_c/dr_lcb/lcb06_quiet_harvest.json | o1 | FOOD LOSS small (50%) | "They leave the last row." | {"do":"food","size":"small","loss":true,"scaled":true}
+drafts_c/dr_lcb/lcb06_quiet_harvest.json | o1 | FOOD LOSS normal (50%) | "They leave the last row." | {"do":"food","size":"normal","loss":true,"scaled":true}
 drafts_c/dr_lcb/lcb12_names_we.json | o2 | HAPPIER (friend) (50%) | "(friend) sits down looking a little lighter." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcb/lcb18_memory_garden.json | o2 | UNHAPPY (subject) (50%) | "(subject) is disappointed" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcb/lcb21_new_verse.json | o1 | HAPPIER (subject) (50%) | "(subject) is annoyed, then laughs." | {"do":"mood","role":"subject","mood":"good"}
@@ -65,7 +65,7 @@ drafts_c/dr_lcc/lcc14_warrior_would.json | o2 | HAPPIER (subject) (50%) | "(subj
 drafts_c/dr_lcc/lcc20_raider_gift.json | o1 | FOOD LOSS small (50%) | "sends back a basket of dried fish and a song" | {"do":"food","size":"small","loss":true,"scaled":true}
 drafts_c/dr_lcc/lcc22_spearhead_makers.json | o1 | UNHAPPY (subject) (50%) | "Some villagers will not speak to (subject)." | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcc/lcc22_spearhead_makers.json | o2 | HAPPIER (subject) (50%) | "(subject) admits, privately, that (subject.he/she) was relieved" | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lcc/lcc25_peace_council.json | o1 | INJURY (subject) (50%) | "sunburned and hoarse from talking" | {"do":"health_change","role":"subject","min":-15,"max":-5}
+drafts_c/dr_lcc/lcc25_peace_council.json | o1 | INJURY (subject) (50%) | "sunburned and hoarse from talking" | {"do":"health_change","role":"subject","min":-30,"max":-15}
 drafts_c/dr_lcc/lcc31_stolen_canoes.json | o2 | HAPPIER (subject) (50%) | "They are home by dawn, exhausted and grinning." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcc/lcc32_fire_arrows.json | o1 | HUT DAMAGE normal (50%) | "Two huts burn to the ground." | {"do":"damage","structures":"any","size":"normal"}
 drafts_c/dr_lcc/lcc36_two_warriors.json | o1 | UNHAPPY (subject) (50%) | "(subject) and (friend) do not look at each other for a month" | {"do":"mood","role":"subject","mood":"bad"}
@@ -124,7 +124,7 @@ drafts_c/dr_lcd/lcd33_clumsy_dance.json | o1 | HAPPIER (friend) (50%) | "They ha
 drafts_c/dr_lcd/lcd33_clumsy_dance.json | o2 | HAPPIER (subject) (50%) | "they dance badly all night" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcd/lcd33_clumsy_dance.json | o2 | HAPPIER (friend) (50%) | "(friend) laughs and says (friend.he/she) does not care" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcd/lcd36_gift_song_dawn.json | o1 | HAPPIER (friend) (50%) | "says it is the best thing (friend.he/she) has ever heard" | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lcd/lcd37_teen_gift.json | o1 | SKILL + Building a little (subject) (50%) | "(subject) weaves a bracelet. It unravels twice. The third one holds." | {"do":"skill","role":"subject","skills":["Building"],"min":5,"max":10}
+drafts_c/dr_lcd/lcd37_teen_gift.json | o1 | SKILL + Building a lot (subject) (50%) | "(subject) weaves a bracelet. It unravels twice. The third one holds." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
 drafts_c/dr_lcd/lcd40_marriage_advice.json | o2 | HAPPIER (subject) (50%) | "(subject) goes home feeling much better." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcd/lcd43_meddling_cousins.json | o2 | HAPPIER (subject) (50%) | "Everyone laughs about it at the next feast" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcd/lcd43_meddling_cousins.json | o2 | HAPPIER (friend) (50%) | "Everyone laughs about it at the next feast" | {"do":"mood","role":"friend","mood":"good"}
@@ -132,7 +132,7 @@ drafts_c/dr_lcd/lcd44_breakup_song.json | o2 | UNHAPPY (subject) (50%) | "(subje
 drafts_c/dr_lcd/lcd45_proposal.json | o2 | HAPPIER (subject) (50%) | "(friend) says yes." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcd/lcd45_proposal.json | o2 | HAPPIER (friend) (50%) | "(friend) laughs so hard (friend.he/she) has to sit down" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcd/lcd46_wedding_gift.json | o1 | HAPPIER (friend) (50%) | "(friend) cries." | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lcd/lcd46_wedding_gift.json | o2 | FOOD GAIN small (50%) | "The garden feeds them for years." | {"do":"food","size":"small","scaled":true}
+drafts_c/dr_lcd/lcd46_wedding_gift.json | o2 | FOOD GAIN normal (50%) | "The garden feeds them for years." | {"do":"food","size":"normal","scaled":true}
 drafts_c/dr_lcd/lcd47_long_engagement.json | o2 | HAPPIER (subject) (50%) | "realize they are happy as they are" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcd/lcd47_long_engagement.json | o2 | HAPPIER (friend) (50%) | "realize they are happy as they are" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcd/lcd48_love_after_fifty.json | o1 | HAPPIER (subject) (50%) | "both families are laughing" | {"do":"mood","role":"subject","mood":"good"}
@@ -155,12 +155,12 @@ drafts_c/dr_lce/lce12_family_beyond.json | o1 | HAPPIER (subject) (50%) | "(subj
 drafts_c/dr_lce/lce13_home_one_own.json | o1 | CELEBRATE (everyone) (50%) | "(subject) and (friend) throw a small feast." | {"do":"celebrate","who":"all"}
 drafts_c/dr_lce/lce13_home_one_own.json | o2 | HAPPIER (subject) (50%) | "They are very happy there." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lce/lce13_home_one_own.json | o2 | HAPPIER (friend) (50%) | "They are very happy there." | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lce/lce14_grandparent.json | o1 | SKILL + Building a little (friend) (50%) | "(friend) learns, unwillingly, and carves a very rough star" | {"do":"skill","role":"friend","skills":["Building"],"min":5,"max":10}
+drafts_c/dr_lce/lce14_grandparent.json | o1 | SKILL + Building a lot (friend) (50%) | "(friend) learns, unwillingly, and carves a very rough star" | {"do":"skill","role":"friend","skills":["Building"],"min":20,"max":40}
 drafts_c/dr_lce/lce16_council.json | o2 | UNHAPPY (subject) (50%) | "(subject) and (friend) both worry about it." | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lce/lce16_council.json | o2 | UNHAPPY (friend) (50%) | "(subject) and (friend) both worry about it." | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lce/lce17_unfair_bargain.json | o1 | UNHAPPY (subject) (50%) | "(subject) grumbles about the tools for a month" | {"do":"mood","role":"subject","mood":"bad"}
-drafts_c/dr_lce/lce20_agreement_many.json | o2 | FOOD LOSS small (50%) | "The village's catches drop." | {"do":"food","size":"small","loss":true,"scaled":true}
-drafts_c/dr_lce/lce21_stolen_recipe.json | o1 | SKILL + Farming a little (subject) (50%) | "makes (subject.him/her) cook the stew for the whole family" | {"do":"skill","role":"subject","skills":["Farming"],"min":5,"max":10}
+drafts_c/dr_lce/lce20_agreement_many.json | o2 | FOOD LOSS normal (50%) | "The village's catches drop." | {"do":"food","size":"normal","loss":true,"scaled":true}
+drafts_c/dr_lce/lce21_stolen_recipe.json | o1 | SKILL + Farming a great deal (subject) (50%) | "makes (subject.him/her) cook the stew for the whole family" | {"do":"skill","role":"subject","skills":["Farming"],"min":30,"max":60}
 drafts_c/dr_lce/lce21_stolen_recipe.json | o2 | HAPPIER (friend) (50%) | "(friend) feels much better." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lce/lce24_overbearing.json | o1 | UNHAPPY (friend) (50%) | "(friend) is wounded and goes home early" | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lce/lce24_overbearing.json | o2 | ILLNESS (friend) (50%) | "(friend.he/she) is sick" | {"do":"sick","role":"friend"}
@@ -177,7 +177,7 @@ drafts_c/dr_lce/lce32_leader_successor.json | o2 | HAPPIER (friend) (50%) | "wit
 drafts_c/dr_lce/lce33_dowry_question.json | o1 | UNHAPPY (subject) (50%) | "(subject) never wants to see a fish again." | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lce/lce33_dowry_question.json | o2 | CELEBRATE (everyone) (50%) | "By the end of the feast, they are dancing." | {"do":"celebrate","who":"all"}
 drafts_c/dr_lce/lce35_abandoned.json | o1 | UNHAPPY (subject) (50%) | "(subject) goes pale, says (subject.he/she) is sorry, and walks away" | {"do":"mood","role":"subject","mood":"bad"}
-drafts_c/dr_lce/lce38_neighbor_noise.json | o1 | HEALTH UP (subject) (50%) | "(subject) sleeps." | {"do":"health_change","role":"subject","min":5,"max":15}
+drafts_c/dr_lce/lce38_neighbor_noise.json | o1 | HEALTH UP (subject) (50%) | "(subject) sleeps." | {"do":"health_change","role":"subject","min":15,"max":30}
 drafts_c/dr_lce/lce38_neighbor_noise.json | o2 | UNHAPPY (friend) (50%) | "is embarrassed and hurt that (subject) did not just ask" | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lce/lce39_grudge_feast.json | o1 | HAPPIER (subject) (50%) | "They talk until the fire goes out." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lce/lce39_grudge_feast.json | o1 | HAPPIER (friend) (50%) | "\"I miss you too.\"" | {"do":"mood","role":"friend","mood":"good"}
@@ -202,7 +202,7 @@ drafts_c/dr_lcf/lcf26_magic_debate.json | o2 | HAPPIER (third) (50%) | "They arg
 drafts_c/dr_lcf/lcf29_child_asks.json | o1 | HAPPIER (friend) (50%) | "Both adults are delighted, and a little alarmed." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcf/lcf29_child_asks.json | o1 | HAPPIER (third) (50%) | "Both adults are delighted, and a little alarmed." | {"do":"mood","role":"third","mood":"good"}
 drafts_c/dr_lcf/lcf30_borrowed_idea.json | o1 | HAPPIER (friend) (50%) | "(friend) is delighted" | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lcf/lcf31_school_none.json | o1 | SKILL + Farming a little (subject) (50%) | "spends both meetings fishing off the rocks" | {"do":"skill","role":"subject","skills":["Farming"],"min":5,"max":10}
+drafts_c/dr_lcf/lcf31_school_none.json | o1 | SKILL + Farming a lot (subject) (50%) | "spends both meetings fishing off the rocks" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
 drafts_c/dr_lcf/lcf31_school_none.json | o2 | HAPPIER (friend) (50%) | "(friend) laughs so hard (friend.he/she) falls off a log" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcf/lcf37_sacred_spring.json | o2 | HAPPIER (subject) (50%) | "(subject) grumbles, then joins the carriers and starts to enjoy it" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcf/lcf43_debate_four.json | o2 | HAPPIER (subject) (50%) | "They decide to keep arguing about it, which they all enjoy." | {"do":"mood","role":"subject","mood":"good"}
@@ -211,18 +211,18 @@ drafts_c/dr_lcf/lcf43_debate_four.json | o2 | HAPPIER (third) (50%) | "They deci
 drafts_c/dr_lcf/lcf43_debate_four.json | o2 | HAPPIER (fourth) (50%) | "They decide to keep arguing about it, which they all enjoy." | {"do":"mood","role":"fourth","mood":"good"}
 drafts_c/dr_lcf/lcf44_lavastone_war.json | o2 | HAPPIER (friend) (50%) | "enjoys the garden story" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcf/lcf45_second_sight.json | o1 | HAPPIER (subject) (50%) | "(subject) stops being frightened, mostly." | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lcf/lcf45_second_sight.json | o2 | HEALTH UP (subject) (50%) | "Rest, calming teas, long swims." | {"do":"health_change","role":"subject","min":5,"max":15}
-drafts_c/dr_lcf/lcf47_science_hut.json | o2 | TECH GAIN small (50%) | "It becomes the most complete record on the island." | {"do":"tech","size":"small","scaled":true}
+drafts_c/dr_lcf/lcf45_second_sight.json | o2 | HEALTH UP (subject) (50%) | "Rest, calming teas, long swims." | {"do":"health_change","role":"subject","min":15,"max":30}
+drafts_c/dr_lcf/lcf47_science_hut.json | o2 | TECH GAIN large (50%) | "It becomes the most complete record on the island." | {"do":"tech","size":"large","scaled":true}
 drafts_c/dr_lcf/lcf47_science_hut.json | o2 | UNHAPPY (subject) (50%) | "(subject) is disappointed." | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcf/lcf47_science_hut.json | o2 | HAPPIER (friend) (50%) | "(friend) is relieved." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcf/lcf48_lucky_charm_shop.json | o1 | UNHAPPY (subject) (50%) | "(subject) is embarrassed" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcf/lcf48_lucky_charm_shop.json | o2 | UNHAPPY (subject) (50%) | "(subject) has a very difficult week." | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcf/lcf50_stone_returned.json | o2 | UNHAPPY (subject) (50%) | "(subject) is sad, and says so." | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcg/lcg02_shared_stores.json | o1 | UNHAPPY (friend) (50%) | "(friend) is quietly furious" | {"do":"mood","role":"friend","mood":"bad"}
-drafts_c/dr_lcg/lcg05_terraces_three.json | o1 | FOOD GAIN small (50%) | "it is the best the hillside has given in living memory" | {"do":"food","size":"small","scaled":true}
+drafts_c/dr_lcg/lcg05_terraces_three.json | o1 | FOOD GAIN large (50%) | "it is the best the hillside has given in living memory" | {"do":"food","size":"large","scaled":true}
 drafts_c/dr_lcg/lcg11_gift_cannot.json | o1 | UNHAPPY (friend) (50%) | "(subject) finds (friend.him/her) sitting by the empty hook on the wall" | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lcg/lcg17_footprint.json | o1 | HAPPIER (friend) (50%) | "The children are prouder of the quiet walking than of the tracking." | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lcg/lcg22_right_refuse.json | o2 | FOOD LOSS small (50%) | "The researchers eat a great deal" | {"do":"food","size":"small","loss":true,"scaled":true}
+drafts_c/dr_lcg/lcg22_right_refuse.json | o2 | FOOD LOSS large (50%) | "The researchers eat a great deal" | {"do":"food","size":"large","loss":true,"scaled":true}
 drafts_c/dr_lcg/lcg23_knowledge_taken.json | o1 | HAPPIER (subject) (50%) | "The village laughs." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcg/lcg25_caregivers.json | o2 | UNHAPPY (subject) (50%) | "they are tired, and a little bitter that nobody else helped" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcg/lcg25_caregivers.json | o2 | UNHAPPY (friend) (50%) | "they are tired, and a little bitter that nobody else helped" | {"do":"mood","role":"friend","mood":"bad"}
@@ -230,7 +230,7 @@ drafts_c/dr_lcg/lcg28_gathering.json | o2 | HAPPIER (subject) (50%) | "sits down
 drafts_c/dr_lcg/lcg30_apprentice.json | o2 | UNHAPPY (friend) (50%) | "gets quieter and quieter" | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lcg/lcg34_counting_knots.json | o1 | HAPPIER (subject) (50%) | "(subject) and (friend) find this hilarious." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcg/lcg34_counting_knots.json | o1 | HAPPIER (friend) (50%) | "(subject) and (friend) find this hilarious." | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lcg/lcg37_stolen_fishing.json | o1 | FOOD LOSS small (50%) | "(friend)'s family eats less for a month" | {"do":"food","size":"small","loss":true,"scaled":true}
+drafts_c/dr_lcg/lcg37_stolen_fishing.json | o1 | FOOD LOSS normal (50%) | "(friend)'s family eats less for a month" | {"do":"food","size":"normal","loss":true,"scaled":true}
 drafts_c/dr_lcg/lcg42_house_many_hands.json | o1 | HAPPIER (friend) (50%) | "(friend) cries through it" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcg/lcg46_dance_clumsy.json | o2 | HAPPIER (subject) (50%) | "laughs about it with (name1) until they both cry" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcg/lcg49_ancestors_were.json | o1 | HAPPIER (friend) (50%) | "(friend) laughs despite (friend.him/her)self at the crab story" | {"do":"mood","role":"friend","mood":"good"}
@@ -239,11 +239,11 @@ drafts_c/dr_lch/lch04_song_belongs.json | o2 | UNHAPPY (subject) (50%) | "(subje
 drafts_c/dr_lch/lch06_medicine_garden.json | o2 | HAPPIER (friend) (50%) | "(friend) is proud of (subject.him/her)." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lch/lch07_research_village.json | o2 | UNHAPPY (subject) (50%) | "is sulky for a while" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lch/lch22_interpreter.json | o2 | UNHAPPY (friend) (50%) | "is uncomfortable that (subject) chose for (friend.him/her)" | {"do":"mood","role":"friend","mood":"bad"}
-drafts_c/dr_lch/lch23_seeds_came_home.json | o1 | FOOD LOSS small (50%) | "Then the pigs get in." | {"do":"food","size":"small","loss":true,"scaled":true}
-drafts_c/dr_lch/lch33_village_tool.json | o1 | TECH GAIN small (50%) | "Everyone has better tools than before." | {"do":"tech","size":"small","scaled":true}
-drafts_c/dr_lch/lch34_song_working.json | o1 | INJURY (subject) (50%) | "Everyone's hands are raw" | {"do":"health_change","role":"subject","min":-15,"max":-5}
+drafts_c/dr_lch/lch23_seeds_came_home.json | o1 | FOOD LOSS normal (50%) | "Then the pigs get in." | {"do":"food","size":"normal","loss":true,"scaled":true}
+drafts_c/dr_lch/lch33_village_tool.json | o1 | TECH GAIN normal (50%) | "Everyone has better tools than before." | {"do":"tech","size":"normal","scaled":true}
+drafts_c/dr_lch/lch34_song_working.json | o1 | INJURY (subject) (50%) | "Everyone's hands are raw" | {"do":"health_change","role":"subject","min":-30,"max":-15}
 drafts_c/dr_lch/lch37_family_needed.json | o1 | HAPPIER (friend) (50%) | "(friend) says it was lovely" | {"do":"mood","role":"friend","mood":"good"}
-drafts_c/dr_lch/lch45_night_reflection.json | o1 | HEALTH UP (friend) (50%) | "(friend) sleeps soundly" | {"do":"health_change","role":"friend","min":5,"max":15}
+drafts_c/dr_lch/lch45_night_reflection.json | o1 | HEALTH UP (friend) (50%) | "(friend) sleeps soundly" | {"do":"health_change","role":"friend","min":15,"max":30}
 drafts_c/dr_lch/lch46_sacred_grove.json | o1 | HAPPIER (subject) (50%) | "Afterwards they argue cheerfully about whose reason was better." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lch/lch46_sacred_grove.json | o1 | HAPPIER (friend) (50%) | "Afterwards they argue cheerfully about whose reason was better." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lci/lci16_tradition.json | o1 | HAPPIER (subject) (50%) | "Everyone laughs." | {"do":"mood","role":"subject","mood":"good"}
@@ -251,7 +251,7 @@ drafts_c/dr_lci/lci22_marriage_nobody.json | o1 | UNHAPPY (third) (50%) | "It is
 drafts_c/dr_lci/lci22_marriage_nobody.json | o1 | HAPPIER (subject) (50%) | "Then (subject) and (friend) laugh about it together" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lci/lci22_marriage_nobody.json | o1 | HAPPIER (friend) (50%) | "Then (subject) and (friend) laugh about it together" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lci/lci23_elder_became.json | o1 | HAPPIER (subject) (50%) | "carves a lopsided fish (subject.he/she) is enormously proud of" | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lci/lci24_family_chose.json | o1 | HEALTH UP (subject) (50%) | "(subject) sleeps through the night." | {"do":"health_change","role":"subject","min":5,"max":15}
+drafts_c/dr_lci/lci24_family_chose.json | o1 | HEALTH UP (subject) (50%) | "(subject) sleeps through the night." | {"do":"health_change","role":"subject","min":15,"max":30}
 drafts_c/dr_lci/lci32_turtle_net.json | o1 | HAPPIER (subject) (50%) | "The children cheer until it is out of sight." | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lci/lci40_child_found.json | o2 | UNHAPPY (friend) (50%) | "goes very red" | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lci/lci42_workers_refused.json | o1 | HAPPIER (subject) (50%) | "(subject) is grateful, and says so." | {"do":"mood","role":"subject","mood":"good"}
@@ -259,9 +259,9 @@ drafts_c/dr_lci/lci45_festival_bad.json | o2 | HAPPIER (subject) (50%) | "By the
 drafts_c/dr_lci/lci45_festival_bad.json | o2 | HAPPIER (friend) (50%) | "By the end, they are both laughing." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lci/lci47_friendship.json | o1 | HAPPIER (subject) (50%) | "(subject) shrieks with joy" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lci/lci49_villager_refused.json | o2 | UNHAPPY (subject) (50%) | "(subject) wishes (subject.he/she) had asked for something that brought them together instead" | {"do":"mood","role":"subject","mood":"bad"}
-drafts_c/dr_lcj/lcj02_children.json | o2 | TECH GAIN small (50%) | "The researchers learn it and write it down." | {"do":"tech","size":"small","scaled":true}
+drafts_c/dr_lcj/lcj02_children.json | o2 | TECH GAIN normal (50%) | "The researchers learn it and write it down." | {"do":"tech","size":"normal","scaled":true}
 drafts_c/dr_lcj/lcj06_journey_alone.json | o1 | HAPPIER (subject) (50%) | "(subject) arrived, sunburned and proud" | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lcj/lcj06_journey_alone.json | o1 | HEALTH UP (friend) (50%) | "(friend) sleeps for twelve hours." | {"do":"health_change","role":"friend","min":5,"max":15}
+drafts_c/dr_lcj/lcj06_journey_alone.json | o1 | HEALTH UP (friend) (50%) | "(friend) sleeps for twelve hours." | {"do":"health_change","role":"friend","min":15,"max":30}
 drafts_c/dr_lcj/lcj06_journey_alone.json | o2 | UNHAPPY (subject) (50%) | "(subject) notices on the first morning, and is furious" | {"do":"mood","role":"subject","mood":"bad"}
 drafts_c/dr_lcj/lcj07_coming_age.json | o1 | UNHAPPY (friend) (50%) | "(friend) is disappointed." | {"do":"mood","role":"friend","mood":"bad"}
 drafts_c/dr_lcj/lcj08_game_ancestors.json | o1 | HAPPIER (third) (50%) | "(third.He/she) loses badly, and laughs." | {"do":"mood","role":"third","mood":"good"}
@@ -271,12 +271,12 @@ drafts_c/dr_lcj/lcj14_wisdom_being.json | o1 | HAPPIER (subject) (50%) | "(subje
 drafts_c/dr_lcj/lcj17_last_breadfruit.json | o1 | HAPPIER (friend) (50%) | "(friend) says it is the best thing (friend.he/she) has ever tasted" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcj/lcj23_patient_said.json | o1 | HAPPIER (subject) (50%) | "(subject) is relieved" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcj/lcj26_experiment.json | o1 | HAPPIER (subject) (50%) | "(subject) laughs, coughing green smoke" | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_lcj/lcj28_right_learn.json | o1 | TECH GAIN small (50%) | "Something is discovered." | {"do":"tech","size":"small","scaled":true}
+drafts_c/dr_lcj/lcj28_right_learn.json | o1 | TECH GAIN normal (50%) | "Something is discovered." | {"do":"tech","size":"normal","scaled":true}
 drafts_c/dr_lcj/lcj31_mask_means.json | o2 | HAPPIER (subject) (50%) | "they both laugh" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcj/lcj31_mask_means.json | o2 | HAPPIER (friend) (50%) | "they both laugh" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcj/lcj33_clothes_we.json | o1 | HAPPIER (subject) (50%) | "(subject) looks happy" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcj/lcj35_fair_exchange.json | o2 | UNHAPPY (subject) (50%) | "(subject) is disappointed." | {"do":"mood","role":"subject","mood":"bad"}
-drafts_c/dr_lcj/lcj37_apprentice.json | o2 | SKILL + Building a little (subject) (50%) | "starts carving a small canoe in the evenings, alone" | {"do":"skill","role":"subject","skills":["Building"],"min":5,"max":10}
+drafts_c/dr_lcj/lcj37_apprentice.json | o2 | SKILL + Building some (subject) (50%) | "starts carving a small canoe in the evenings, alone" | {"do":"skill","role":"subject","skills":["Building"],"min":10,"max":20}
 drafts_c/dr_lcj/lcj42_village_favorite.json | o1 | HAPPIER (subject) (50%) | "the whole village agrees, is the funniest thing that has ever happened" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_lcj/lcj42_village_favorite.json | o1 | HAPPIER (friend) (50%) | "the whole village agrees, is the funniest thing that has ever happened" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcj/lcj42_village_favorite.json | o2 | HAPPIER (subject) (50%) | "then really laughs, and cannot stop" | {"do":"mood","role":"subject","mood":"good"}
@@ -286,3 +286,4 @@ drafts_c/dr_lcj/lcj44_song_voyagers.json | o2 | HAPPIER (friend) (50%) | "(frien
 drafts_c/dr_lcj/lcj48_knowledge_reef.json | o1 | HAPPIER (friend) (50%) | "(friend.he/she) is very proud" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lcj/lcj50_gathering.json | o1 | HAPPIER (friend) (50%) | "(friend) understands everything and loves it." | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_lce/lce33_dowry_question.json | o1 | DISLIKE + fish (subject) (50%) | "(subject) never wants to see a fish again." | {"do":"preference","role":"subject","list":"dislikes","preference":"fish"}
+drafts_c/dr_lcc/lcc26_truce_feast.json | o2 | FOOD LOSS large (50%) | "The feast is simple: fish, breadfruit, a few songs." | {"do":"food","size":"large","loss":true,"scaled":true}

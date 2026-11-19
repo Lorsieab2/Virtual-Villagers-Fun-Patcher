@@ -157,7 +157,7 @@
     },
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L233"
     }
@@ -189,7 +189,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "loss": true,
      "scaled": true,
      "src": "L235"

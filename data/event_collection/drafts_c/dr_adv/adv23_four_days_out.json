@@ -100,13 +100,13 @@
     {
      "do": "health_change",
      "role": "subject",
-     "min": -15,
-     "max": -5,
+     "min": -20,
+     "max": -10,
      "src": "L272"
     },
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L272"
     }
@@ -125,7 +125,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "large",
      "scaled": true,
      "src": "L275"
     },

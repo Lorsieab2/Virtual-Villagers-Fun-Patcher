@@ -259,8 +259,8 @@
      "skills": [
       "Parenting"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L463"
     }
    ],
@@ -282,8 +282,8 @@
      "skills": [
       "Parenting"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L464"
     }
    ],
@@ -305,8 +305,8 @@
      "skills": [
       "Building"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L469"
     }
    ],

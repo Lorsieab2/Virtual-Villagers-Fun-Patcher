@@ -478,7 +478,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "large",
      "scaled": true,
      "src": "L2955-2956"
     }
@@ -535,7 +535,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L2984-2985"
     }

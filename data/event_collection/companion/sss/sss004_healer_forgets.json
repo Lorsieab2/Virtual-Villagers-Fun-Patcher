@@ -121,7 +121,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L6106"
     }
@@ -144,8 +144,8 @@
      "skills": [
       "Healing"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L6108"
     }
    ],
@@ -164,8 +164,8 @@
     {
      "do": "health_change",
      "role": "healer",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L6110"
     }
    ],

@@ -4611,6 +4611,18 @@
      ],
      "set": 100,
      "src": "L555"
+    },
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L555"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L555"
     }
    ],
    "children": [
@@ -4652,6 +4664,18 @@
       "Farming"
      ],
      "set": 100,
+     "src": "L558"
+    },
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L558"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
      "src": "L558"
     }
    ],
@@ -4779,6 +4803,12 @@
      ],
      "set": 100,
      "src": "L568"
+    },
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L568"
     }
    ],
    "children": [
@@ -4810,6 +4840,12 @@
       "Farming"
      ],
      "set": 100,
+     "src": "L568"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
      "src": "L568"
     }
    ],
@@ -4903,7 +4939,16 @@
      "next": "f14_opts"
     }
    ],
-   "text": "(Cook1) is mortified. (cook1.He/She) doesn't know what went wrong and is horrified that (cook1.his/her) cooking made people sick. (cook1.He/She) {apologizes over and over|buries (cook1.his/her) face in (cook1.his/her) hands|insists (cook1.he/she) would never hurt anyone|asks the healers how to prevent this from happening again}."
+   "text": "(Cook1) is mortified. (cook1.He/She) doesn't know what went wrong and is horrified that (cook1.his/her) cooking made people sick. (cook1.He/She) {apologizes over and over|buries (cook1.his/her) face in (cook1.his/her) hands|insists (cook1.he/she) would never hurt anyone|asks the healers how to prevent this from happening again}.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L592"
+    }
+   ],
+   "auto_text": true
   },
   "f14_opts": {
    "type": "branch",
@@ -5300,7 +5345,16 @@
    "src": "L616",
    "popup": "append",
    "join": "paragraph",
-   "text": "(Cook1) {R}. Unfortunately, the judges have the final say, and (cook1) has to deal with the consequences of their decision, even if the judges are misguided. (Cook1) {Q2}. Who knows if (cook1) will try again after this humiliating loss?"
+   "text": "(Cook1) {R}. Unfortunately, the judges have the final say, and (cook1) has to deal with the consequences of their decision, even if the judges are misguided. (Cook1) {Q2}. Who knows if (cook1) will try again after this humiliating loss?",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L616"
+    }
+   ],
+   "auto_text": true
   },
   "sab1": {
    "src": "L598",
@@ -5420,7 +5474,16 @@
      "what": "tampering with the food",
      "reason": "the rival's dish, told; no stored food changes"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "bad",
+     "src": "L437"
+    }
+   ],
+   "auto_text": true
   },
   "end_f": {
    "popup": "append",
@@ -5431,7 +5494,16 @@
     {
      "next": "eleven"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L440"
+    }
+   ],
+   "auto_text": true
   },
   "eleven": {
    "src": "L601",
@@ -5538,7 +5610,22 @@
     {
      "next": "a1_26opt"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L619"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L619"
+    }
+   ],
+   "auto_text": true
   },
   "eight2": {
    "popup": "append",
@@ -5549,7 +5636,22 @@
     {
      "next": "a1_26opt"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L621"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L621"
+    }
+   ],
+   "auto_text": true
   },
   "eight3": {
    "popup": "append",
@@ -5727,7 +5829,16 @@
     {
      "next": "f14"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L580"
+    }
+   ],
+   "auto_text": true
   },
   "inv2": {
    "popup": "append",
@@ -5756,7 +5867,17 @@
     {
      "next": "f14"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L582"
+    }
+   ],
+   "auto_text": true
   },
   "inv4": {
    "popup": "append",
@@ -5774,7 +5895,16 @@
      "what": "food",
      "reason": "the cause of the illness, told; no stored food changes"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L583"
+    }
+   ],
+   "auto_text": true
   },
   "inv5": {
    "popup": "append",
@@ -5969,7 +6099,16 @@
     {
      "next": "a2_16"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L636"
+    }
+   ],
+   "auto_text": true
   },
   "a1_h": {
    "popup": "append",
@@ -5980,7 +6119,16 @@
     {
      "next": "a1_17"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L639"
+    }
+   ],
+   "auto_text": true
   },
   "a1_i": {
    "popup": "append",
@@ -6269,7 +6417,16 @@
     {
      "next": "win2"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "bad",
+     "src": "L662"
+    }
+   ],
+   "auto_text": true
   },
   "a1_17_2": {
    "type": "branch",
@@ -6895,7 +7052,22 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L695",
-   "text": "After weeks of bitter competition, they discover that they actually enjoy pushing each other to improve. Neither will admit it, of course. Perhaps they're rivals... and something like friends."
+   "text": "After weeks of bitter competition, they discover that they actually enjoy pushing each other to improve. Neither will admit it, of course. Perhaps they're rivals... and something like friends.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L695"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L695"
+    }
+   ],
+   "auto_text": true
   },
   "a1_27_5": {
    "popup": "append",
@@ -7746,7 +7918,16 @@
      "next": "a2_coda"
     }
    ],
-   "text": "(Cook1) can no longer bear the guilt. Just as the judges prepare to announce their decision, (cook1.he/she) steps forward.\n\"I did it,\" (cook1.he/she) admits. \"I tampered with (cook2)'s dish.\"\nThe crowd {gasps|falls silent|erupts into shouting|looks thoroughly unimpressed}. (Cook1) {hangs (cook1.his/her) head|starts crying|looks (cook2) in the eye|struggles to get the words out}.\n\"I'm sorry. I wanted to win so badly that I forgot why I started cooking in the first place.\"\n(Cook2) {RESP}. The judges {JRESP}."
+   "text": "(Cook1) can no longer bear the guilt. Just as the judges prepare to announce their decision, (cook1.he/she) steps forward.\n\"I did it,\" (cook1.he/she) admits. \"I tampered with (cook2)'s dish.\"\nThe crowd {gasps|falls silent|erupts into shouting|looks thoroughly unimpressed}. (Cook1) {hangs (cook1.his/her) head|starts crying|looks (cook2) in the eye|struggles to get the words out}.\n\"I'm sorry. I wanted to win so badly that I forgot why I started cooking in the first place.\"\n(Cook2) {RESP}. The judges {JRESP}.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L991-1003"
+    }
+   ],
+   "auto_text": true
   },
   "a2_27": {
    "src": "L1027-1035",
@@ -7821,6 +8002,18 @@
      "min": 10,
      "max": 20,
      "src": "L1072"
+    },
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L1070-1072"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "bad",
+     "src": "L1070-1072"
     }
    ],
    "auto_text": true
@@ -7851,6 +8044,12 @@
      "min": 10,
      "max": 20,
      "src": "L1075"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L1073-1075"
     }
    ],
    "auto_text": true
@@ -7885,6 +8084,18 @@
      "min": 10,
      "max": 20,
      "src": "L1079"
+    },
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L1076-1079"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L1076-1079"
     }
    ],
    "auto_text": true
@@ -7905,6 +8116,12 @@
      "size": "normal",
      "scaled": true,
      "src": "L1082"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L1080-1082"
     }
    ],
    "auto_text": true
@@ -7918,7 +8135,17 @@
     {
      "next": "a2_coda"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L1083-1085"
+    }
+   ],
+   "auto_text": true
   },
   "a2_28_6": {
    "popup": "append",
@@ -7929,7 +8156,17 @@
     {
      "next": "a2_coda"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L1086-1088"
+    }
+   ],
+   "auto_text": true
   },
   "a2_28_7": {
    "popup": "append",
@@ -8010,7 +8247,16 @@
     {
      "next": "a2_coda"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L1121-1122"
+    }
+   ],
+   "auto_text": true
   },
   "a2_31_3": {
    "src": "L1123-1124",
@@ -8037,7 +8283,16 @@
     {
      "next": "a2_coda"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "bad",
+     "src": "L1127-1128"
+    }
+   ],
+   "auto_text": true
   },
   "a2_31_6": {
    "src": "L1129-1130",
@@ -8046,7 +8301,22 @@
     {
      "next": "a2_coda"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L1129-1130"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L1129-1130"
+    }
+   ],
+   "auto_text": true
   },
   "a2_31": {
    "type": "branch",
@@ -8157,7 +8427,20 @@
     {
      "next": "v13a_bell"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L6896-6900"
+    }
+   ],
+   "auto_text": true
   },
   "v13a_a2": {
    "src": "L6904-6907",
@@ -8166,7 +8449,16 @@
     {
      "next": "win2"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L6904-6907"
+    }
+   ],
+   "auto_text": true
   },
   "v13a_a3": {
    "src": "L6911-6918",
@@ -8322,6 +8614,12 @@
      "min": 10,
      "max": 20,
      "src": "L6969"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6967-6968"
     }
    ],
    "text_only": [
@@ -8345,7 +8643,16 @@
     {
      "next": "win1"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L6972-6975"
+    }
+   ],
+   "auto_text": true
   },
   "v13a_c2": {
    "src": "L6978-6980",

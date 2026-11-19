@@ -186,8 +186,8 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L20355"
     }
    ],
@@ -205,7 +205,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L20359"
     }

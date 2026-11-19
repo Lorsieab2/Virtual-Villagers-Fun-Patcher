@@ -136,15 +136,15 @@
     {
      "do": "health_change",
      "role": "father1",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L6150"
     },
     {
      "do": "health_change",
      "role": "father2",
-     "min": 5,
-     "max": 15,
+     "min": 15,
+     "max": 30,
      "src": "L6150"
     }
    ],

@@ -208,7 +208,7 @@
    "effects": [
     {
      "do": "food",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L23369"
     }
@@ -227,7 +227,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L23372"
     }
@@ -250,8 +250,8 @@
      "skills": [
       "Farming"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 30,
+     "max": 60,
      "src": "L23375"
     }
    ],

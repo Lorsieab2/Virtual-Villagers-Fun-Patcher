@@ -1292,8 +1292,8 @@
      "skills": [
       "Research"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1907-1908"
     },
     {
@@ -1302,8 +1302,8 @@
      "skills": [
       "Research"
      ],
-     "min": 5,
-     "max": 10,
+     "min": 20,
+     "max": 40,
      "src": "L1907-1908"
     }
    ],
@@ -1333,7 +1333,7 @@
    "effects": [
     {
      "do": "tech",
-     "size": "small",
+     "size": "normal",
      "scaled": true,
      "src": "L1931-1934"
     }
