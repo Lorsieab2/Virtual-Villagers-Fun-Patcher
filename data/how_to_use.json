@@ -1327,6 +1327,15 @@
         "So at 2 villagers also eat twice as often. Work, food regrowth and island events keep the normal speed. The Golden Child stays 5.",
         "Not yet tested in play."
       ]
+    },
+    {
+      "ids": ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it.",
+        "Lets a Tablet piece (The Secret City) or Mausoleum Mural piece (The Tree of Life) you already have appear again.",
+        "Normally the game never puts out a piece you have found. It is not forced: it only gets its normal chance back.",
+        "Picked up again, it counts as a duplicate and pays tech points like any other duplicate. Not yet tested in play."
+      ]
     }
   ],
   "modes": {
@@ -1366,7 +1375,7 @@
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation",
-        "More Frequent Island Events, The Golden Child May Be Born Female (50:50) and the 0.1-10x sliders are not ticked either.",
+        "More Frequent Island Events, The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again and the 0.1-10x sliders are not ticked either.",
         "The island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either; it does not change the population mode."
       ]
     },
@@ -1379,7 +1388,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full, More Frequent Island Events,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited, The Golden Child May Be Born Female (50:50),",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "both Island Events Scale patches, the 0.1-10x sliders and the island event controls.",
+        "both Island Events Scale patches, One-Time Collectibles Appear Again, the 0.1-10x sliders and the island event controls.",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },

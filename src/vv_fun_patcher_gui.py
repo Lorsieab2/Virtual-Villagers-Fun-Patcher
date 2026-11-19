@@ -278,6 +278,8 @@ OWNERS_DEFAULT_SLIDER = 2
 
 # The rows of the 0.1x-10x sliders (all five games): the owner, 2026-11-17.
 NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in range(1, 6)]
+# One-Time Collectibles Appear Again (The Secret City, The Tree of Life).
+ONE_TIME_COLLECTIBLES_IDS = ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"]
 
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
@@ -384,6 +386,8 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The 0.1x-10x sliders' rows (the owner, 2026-11-17; new v1.35.97 patches are on in Owner's Defaults, off
     # everywhere else) -- off here and in Select All.
     + NEW_SLIDER_ROW_IDS
+    # One-Time Collectibles Appear Again (The Secret City, The Tree of Life; the owner, 2026-11-17): likewise.
+    + ONE_TIME_COLLECTIBLES_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -463,6 +467,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv1_golden_child_born_female"]
     # The 0.1x-10x sliders' rows: likewise (the owner, 2026-11-17).
     + NEW_SLIDER_ROW_IDS
+    # One-Time Collectibles Appear Again: likewise (the owner, 2026-11-17).
+    + ONE_TIME_COLLECTIBLES_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
