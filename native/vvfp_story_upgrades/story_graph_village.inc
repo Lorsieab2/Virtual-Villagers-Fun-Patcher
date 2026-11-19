@@ -143,6 +143,25 @@ static void cg_pieces(int game, int *owned, int *spare) {
     }
 }
 
+/* How many collectibles a gain may still add, by cg_piece_step's own rules (cg_piece_gain_ok): never a set's last
+   piece, never a VV3 Tablet piece; in VV3-VV5 an owned piece may count once more (a duplicate). */
+static int cg_piece_room(int game) {
+    int set, k, owned, room = 0;
+    for (set = 0; set < CG_COLLECTIBLE_PIECES; set += 12) {
+        if (game == 3 && set == 24) {
+            continue;                  /* the Tablet */
+        }
+        for (owned = 0, k = set; k < set + 12; ++k) {
+            owned += cg_piece_count(game, k) > 0;
+        }
+        if (game != 2 && owned > 0) {
+            return CG_GOOD_MAX;        /* a duplicate is always allowed */
+        }
+        room += owned < 11 ? 11 - owned : 0;
+    }
+    return room;
+}
+
 /* VV3's planted trees (0x594844), 0..3. */
 static int cg_trees(void) {
     int n = *(int *)(uintptr_t)0x594844u;
@@ -183,7 +202,7 @@ static int cg_good_have(const ce_adapter *a, int game, const cg_good_def *d, int
         return now;
     case CGG_COLLECTIBLE:
         cg_pieces(game, &owned, &spare);
-        *room = game == 2 ? CG_COLLECTIBLE_PIECES - owned : CG_GOOD_MAX;
+        *room = cg_piece_room(game);   /* only the gains cg_piece_step may make (Codex P2) */
         return spare;
     case CGG_YELLOW_FRUIT:
         now = cg_yellow_fruit(0);

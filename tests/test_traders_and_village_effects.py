@@ -275,6 +275,21 @@ class GameSide(unittest.TestCase):
             self.run_graph("vv2", g, setup2)
             self.assertEqual(found, [1, 2], "The Lost Children's found flags: never taken, one more found")
 
+    def test_a_trade_for_a_collectible_that_cannot_come_charges_nothing(self):
+        """The Lost Children with 11 of 12 in every set: no piece may come (none may finish a set), so a trade for one
+        takes nothing either (Codex P2)."""
+        if not have_stock("vv2"):
+            self.skipTest("no stock The Lost Children")
+        g = pages([[{"do": "trade", "give": "food", "give_amount": 100, "get": "collectible", "get_amount": 1}]], [2])
+
+        def setup(r):
+            self.set_food_tech(r, 500, 0)
+            w = r.story.village.world
+            r.p.write(w + 0x2E720, (b"\1" * 11 + b"\0") * 4)
+
+        r, _ = self.run_graph("vv2", g, setup)
+        self.assertEqual(self.food_tech(r)[0], 500)
+        self.assertEqual(sum(r.p.read(r.story.village.world + 0x2E720, 48)), 44)
     def test_group_sickness_spares_the_protected_and_cure_clears(self):
         if not have_stock("vv4"):
             self.skipTest("no stock The Tree of Life")
