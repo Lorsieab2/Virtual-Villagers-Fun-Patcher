@@ -222,7 +222,8 @@ class TimeWarpDates(Pages):
                 facts = self.page(game, fixture(f"vv{game}-huttest-1"), features=[])
                 self.assertNotIn("patcher's Time Warp", gm.render(facts))
                 unknown = gm.render(self.page(game, fixture(f"vv{game}-huttest-1")))
-                self.assertIn("If this game has the patcher's Time Warp (whether it does could not be told)", unknown)
+                self.assertIn("If this game has the patcher's Time Warp (whether it does could not be told; "
+                              + gm.BROWSE_HINT + ")", unknown)
 
     def test_the_origins_time_warp_only_with_its_patch(self) -> None:
         """The shared Time away line (A New Home to The Tree of Life): the warp's rule only with the patch in the
@@ -274,10 +275,12 @@ class Wording(Pages):
     def test_the_lost_childrens_birds(self) -> None:
         data = fixture("vv2-huttest-1")
         s = vv2.S
-        for scarer, allowance, dam, expect in ((1, 0, 1, "The birds: kept away by The Scarecrow."),
-                                               (0, 250, 1, "The birds: 250 more food of crop harvest before they find"),
-                                               (0, 0, 1, "The birds: they have found the field"),
-                                               (0, 0, 0, "The birds: they come only once the dam is built")):
+        for scarer, allowance, dam, expect in ((1, 0, 1, "The birds: kept away by The Scarecrow for good."),
+                                               (0, 250, 1, "The birds: not here yet: 250 of the 1,000 harvest "
+                                                           "allowance is left, about 25, 36 or 63 more crop harvests"),
+                                               (0, 0, 1, "The birds: they have found the field and eat every crop"),
+                                               (0, 0, 0, "The birds: the allowance is used up; they come at the "
+                                                         "first regrowth after the dam is built")):
             with self.subTest(scarer=scarer, allowance=allowance, dam=dam):
                 data[vv2.SCARER + s] = scarer
                 data[vv2.DAM + s] = dam
@@ -286,11 +289,17 @@ class Wording(Pages):
                 parent = next(i for i, f in enumerate(facts) if f.group == "Food sources" and f.text.startswith("The birds: "))
                 self.assertTrue(facts[parent].text.startswith(expect), facts[parent].text)
                 self.assertTrue(facts[parent].confirmed)          # the reached world tick 0x43B9B0.. (2026-10-25)
-                subs = [f.text for f in facts[parent + 1:parent + 5]]
-                self.assertTrue(all(f.sub for f in facts[parent + 1:parent + 5]))
-                self.assertTrue(subs[0].startswith("A new village allows 1,000 food of crop harvest"))
-                self.assertIn("Only The Scarecrow stops it", subs[2])
-                self.assertIn("Birds found your field", subs[3])
+                crops = struct.unpack_from("<i", data, vv2.CROPS + s)[0]
+                self.assertIn(f"Crops on the field now: {crops:,}.", facts[parent].text)
+                subs = [f.text for f in facts[parent + 1:parent + 4]]
+                self.assertTrue(all(f.sub for f in facts[parent + 1:parent + 4]))
+                self.assertTrue(subs[0].startswith("When the birds come they eat every crop on the field, and the "
+                                                   "field is set to 0 instead of refilling to 800 at every regrowth"))
+                self.assertIn("The field stays empty until The Scarecrow is solved.", subs[0])
+                self.assertIn("so it runs out after 100, 143 or 250 harvests", subs[1])
+                self.assertIn("Birds found your field", subs[2])
+                self.assertIn("at every regrowth the birds eat the crops (not only the first time)", subs[2])
+                self.assertTrue(all(f.confirmed for f in facts[parent + 1:parent + 4]))
 
     def test_the_scarecrow_flag_is_a_byte(self) -> None:
         data = fixture("vv2-huttest-1")

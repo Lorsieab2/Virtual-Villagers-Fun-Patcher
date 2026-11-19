@@ -220,8 +220,10 @@ def _techs() -> list[Entry]:
         _level("Nature", 3, (
             "Nothing: the game says it increases longevity, but the aging code reads the Nature level and throws it "
             "away."), VERIFIED_C,
+            # data/builds.json: 0x4602ED jumps to a cave that keeps the stock threshold (lea ebx, [ecx + 0x44C]), reads
+            # Nature (0x426FC0(5)) and at 3 or more adds 0x64 + 0x28 = 140 age units before the stock cmp edi, ebx.
             ((patch("vv3_nature_level_three_alters_mortality") + ": every old-age death roll starts 7 years later "
-              "(62, 70 or 78 years at Medicine 1, 2 or 3).", UNCONFIRMED),)),
+              "(62, 70 or 78 years at Medicine 1, 2 or 3).", VERIFIED_C),)),
         # Magic (6): 0x4593DC (+1 research), 0x420BDD (the Berry Plant art), 0x45FE9D (+10 population).
         _level("Magic", 1, "The Faction of Magic (Choosing a faction). Each successful research session pays 1 more "
                            "tech point."),
@@ -256,10 +258,23 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step, when a villager trying on the robe becomes the Tribal Chief. The chief never takes a job; "
             "dropped on work the chief directs it, with the Leadership supervision bonus (Technologies, "
             "Leadership), and has the once-a-day powers."), VERIFIED_C,
-            (("Only one villager, chosen when the village is made and not shown to the player, fits the robe.", UNCONFIRMED),
-             (patch("vv3_everyone_tries_on_robe") + ": dropping a villager on the robe sends every active, living "
-              "villager who is not nursing to try it on too, so the one it fits is found at once; the game alone "
-              "still decides who becomes chief.", UNCONFIRMED))),
+            # The chooser 0x45FB20 (at a new village 0x428379 and every 2-second step 0x46868B): while no living
+            # villager has the fit flag +0xE88 or is chief (+0xE80), it draws rand(count) over the living, present
+            # villagers not expecting or nursing (+0xE8C 0), one ticket each, three for an age under 20 units
+            # (0x45FB63), and sets +0xE88 (0x45FB99); the robe's drop handler 0x4219A8 gives the fitting action 0x78
+            # only to that villager, the others 0x79 ("The robe does not fit").  Becoming chief clears it (0x45FBD7).
+            (("Only one villager fits the robe, and the game never shows who: it draws one at random when the village is "
+              "made -- every living villager who is not expecting or nursing is equally likely (one under 1 year old "
+              "would count three times) -- and draws again every 2 real-life seconds (real time) while nobody fitting is free (the "
+              "chosen one died, or is expecting or nursing) and there is no chief. Everyone else is told \"The robe "
+              "does not fit\".", VERIFIED_C),
+             # data/builds.json vv3_everyone_tries_on_robe: the 235-byte wrapper at .shr +0x100 runs the dropped villager
+             # through the unchanged robe handler and interrupts every other eligible villager into the robe action
+             # through the game's own action dispatcher (tests/test_vv3_everyone_tries_on_robe.py renders it).
+             (patch("vv3_everyone_tries_on_robe") + ": dropping a villager on the robe interrupts every other active, "
+              "living villager who is not nursing and sends them to try it on too, each through the game's own "
+              "robe action, so the one it fits is found at once; the game alone still decides who becomes chief.",
+              VERIFIED_C))),
         Entry(PUZZLE, "The Bee Hive", (
             "solved in 1 step. Solved, farmers can gather honey while the hive holds more than 10: a pick brings 7, "
             "3 or 2 food on Fast, Normal or Slow (4 while catching up), and the hive refills 2 honey per real-life "
@@ -267,14 +282,28 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "The Alchemy Lab", (
             "solved after 5 steps (the lab's scattered pieces). Solved, villagers can gather the herbs and brew "
             "potions (Technologies, items and buildings); before it no herb can be gathered."), VERIFIED_C),
+        # The roster object's listener 0x435FF0 (vtable 0x49D2C8): a villager reaching ground region 0x31, the last walk
+        # of "Clearing leaves" (0x44C0D8, region 0x30 then 0x31), adds 1 (0x43601E) and 1 more when the chief's
+        # supervision roll for job 0x1D passes (0x45FC60, 0x43603A).
         Entry(PUZZLE, "The Roster of the Dead", (
-            "solved after 700 steps; what counts a step was not traced here."), UNCONFIRMED),
+            "solved after 700 steps: each \"Clearing leaves\" trip adds 1 when the villager reaches the roster, 2 "
+            "when the Tribal Chief directing that work passes the supervision roll (25 x Leadership % of the time). "
+            "Clicking it shows \"Percentage of leaves removed:\"."), VERIFIED_C),
+        # The dance object (vtable 0x49D3B0): 0x436BC0 counts villagers in action 0x84 ("Doing a weather dance",
+        # 0x452060) with Farming 50+ and, at 3 or more, sets a timer 15 s ahead on the game's clock (0x426790); its
+        # update 0x436CC0 recounts when it runs out: 3+ with Farming 50+ starts rain (0x41F990(2)) and advances puzzle 4
+        # (0x436D96); otherwise 3+ with Building 50+ brings fog (0x41F990(4)).
         Entry(PUZZLE, "Weather Dancing", (
-            "solved in 1 step; the step is the Tribal Chief's \"Doing a weather dance\"."), UNCONFIRMED),
+            "solved in 1 step: when 3 or more villagers with Farming 50 or more are \"Doing a weather dance\" at "
+            "once, and 3 or more still are 15 seconds later on the game's clock (7.5, 15 or 25 real-life seconds on "
+            "Fast, Normal or Slow), rain starts at once and the puzzle is solved; every later such dance brings rain "
+            "again. If by then fewer than 3 dancers have Farming 50 but 3 or more have Building 50, fog comes "
+            "instead."), VERIFIED_C),
         Entry(PUZZLE, "The Lift", (
             "solved in 1 step: a villager \"Repairing the lift\", which needs Restoration level 2 (below it the "
             "villager is Confused)."), VERIFIED_C,
-            (("The game's tip: the lift lets the villagers reach the tree high above on the cliff.", UNCONFIRMED),)),
+            # The tip is the game's own string eTipPuzzleRainLiftRestored (702).
+            (("The game's tip: the lift lets the villagers reach the tree high above on the cliff.", VERIFIED_C),)),
         Entry(PUZZLE, "The Ruins", (
             "solved after 1,800 steps. Once it is at least 2% done the Tablet collection starts to appear among "
             "the collectibles (Collectibles)."), VERIFIED_C),
@@ -303,9 +332,27 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step: with the campfire's 61 hours of burning (on Normal speed) and 12 trips of water done, "
             "a villager dropped on the key's spot finds it (the whole rule and this village's count: Hidden villager "
             "stats)."), VERIFIED_E),
-        Entry(PUZZLE, "The Cliff Key", "solved in 1 step (\"Trying to reach the key\").", UNCONFIRMED),
-        Entry(PUZZLE, "The Clam Key", "solved in 1 step.", UNCONFIRMED),
-        Entry(PUZZLE, "The Chief and the Princess", "solved in 1 step.", UNCONFIRMED),
+        # The keys' release listener (0x43338F..0x433432): a villager letting go of key item 0x2C / 0x2D / 0x2E in
+        # ground region 0x24 advances puzzle 12 / 13 / 14 (item - 0x20) with its tip (0x2C9 / 0x2C8 / 0x2CA), then
+        # puzzle 19, the keys' count (threshold 3, 0x49D230[19]).
+        Entry(PUZZLE, "The Cliff Key", (
+            "solved in 1 step: a villager who got the key (\"Trying to reach the key\") puts it down at the place all "
+            "three keys are taken to (where the game says \"Someone left some burned-out torches here\"); each key "
+            "put down there also counts 1 of the 3 keys."), VERIFIED_C),
+        Entry(PUZZLE, "The Clam Key", (
+            "solved in 1 step: a villager puts the key from the giant clam down at that same place (as The Cliff "
+            "Key)."), VERIFIED_C),
+        # The sun disk object 0x594BC8 (vtable 0x49D37C): its drop 0x4225D0 needs puzzle 19 (the three keys) solved
+        # and works the switch 0x436B30 (+4: 1 at the start, then 0 -> 2 -> 1 -> 0 ...); its update 0x4369D0 raises
+        # the disk (+0x14 to 1.0) once the 180-second game-clock timer +0xC runs out (0x436A58..0x436A74) and solves
+        # the puzzle at the top when the switch is 0 (0x4367A0); otherwise it sinks and the timer starts again
+        # (0x436A45).  The drop solves it at once when the switch reaches 0 with the disk already up.
+        Entry(PUZZLE, "The Chief and the Princess", (
+            "solved in 1 step, once all three keys are in place: the machine's disk rises by itself every 3 minutes "
+            "of the game's clock (1 minute 30 seconds, 3 minutes or 5 minutes of real-life play on Fast, Normal or "
+            "Slow) and sinks again. A villager dropped on the machine moves its setting on (three positions; the "
+            "first drop sets it right); when the disk reaches the top while it is set right -- or it is set right "
+            "while the disk is up -- the puzzle is solved."), VERIFIED_C),
     ]
 
 
@@ -339,9 +386,11 @@ def _buildings() -> list[Entry]:
             "only once all four huts are finished: a builder examining a hut goes on to \"Fixing hut\" "
             + _ch(70) + " of the time. Fixing trains Building and changes nothing on the hut: huts never wear "
             "out."), VERIFIED_C,
+            # native/vvfp_fix_huts/vvfp_fix_huts.c: VVFP_CHANCE_PERCENT 75, NOT_PREFERRED_PERCENT 14 (VV3's job
+            # chooser 0x45AF00's empty-list test 0x45B39E; the scheduler 0x45BFE0 retried up to ten times).
             ((patch("vv3_builders_fix_huts") + ": builders build first and fix huts when no building project can be "
-              "worked on; it steps in on about three builder choices in four (14% for a villager whose job "
-              "checkmark is not Building).", UNCONFIRMED),)),
+              "worked on; it steps in on 75 of every 100 of the game's own builder choices, and for a villager "
+              "whose job checkmark is not Building on 14 of every 100 of those.", VERIFIED_C),)),
         # The fire 0x5946D8: 72,000 game seconds (0x433A33), refuelled 0x433AF5.
         Entry(BUILDING, "The campfire", (
             "lit, it burns 20 hours of the game's clock -- 10, 20 or 33 hours 20 minutes of real-life play on Fast, "
@@ -354,9 +403,13 @@ def _buildings() -> list[Entry]:
         Entry(BUILDING, "The medical area", (
             "a healer dropped there keeps going back only with Healing 6 or more and Medicine level 2 or more; with "
             "nobody sick, healers study medicine there from Medicine level 2."), VERIFIED_C,
-            ((patch("vv3_chief_hospital_supervision") + ": the Tribal Chief dropped there directs the work: a healer "
-              "studying medicine gains twice the skill, and a cure whose skill test fails goes ahead when the "
-              "chief's supervision roll passes (25 x Leadership % of the time).", UNCONFIRMED),)),
+            # native/vvfp_chief_hospital/vvfp_chief_hospital.c: the cure 0x45739A, site 9's index 0x458D94, the stand
+            # 0x44B637, the study gain 0x45A753 (doubled, at least 1, only while the chief directs there).
+            ((patch("vv3_chief_hospital_supervision") + ": the Tribal Chief dropped there directs the work "
+              "(\"Directing work\", standing where he is \"Concerned about the sick\"): a healer studying medicine "
+              "gains twice the skill (at least 1) while he does, and a cure whose skill test fails goes ahead when "
+              "the chief's supervision roll passes (25 x Leadership % of the time); the chance of a study session "
+              "succeeding is not changed.", VERIFIED_C),)),
     ]
 
 
@@ -452,13 +505,20 @@ def _items() -> list[Entry]:
             "villager the player drops on a tree that is ready to pick goes to pick it at any count. The pick "
             "itself needs 5 or more: under 5 the villager reacts instead, picks nothing and forgets the tree."),
             VERIFIED_C,
+            # data/builds.json vv3_fruit_harvested_at_food_bin (0x34A9B..0x34CCE); native/shared/vv3_fruit_timers.h
+            # (credit/due per tree: floor((now - credit) x factor / 3600), the stock formula, paid at `due`).
             ((patch("vv3_fruit_harvested_at_food_bin") + ": the fruit leaves the tree, and the food is added, only "
-              "when the villager puts it in the food bin.", UNCONFIRMED),
-             (patch("vv3_fruit_trees_refill_together") + ": every tree refills when the first one is due; over time "
-              "each gives the same fruit as in the stock game.", UNCONFIRMED),
-             (patch("vv3_fruit_trees_take_turns") + ": the trees refill one after another, evenly spread over the "
-              "refill time (one every hour of real-life play on Normal speed with three trees at the stock 3-hour refill; "
-              "on the game's clock: 30 minutes on Fast, 1 hour 40 minutes on Slow).", UNCONFIRMED))),
+              "when the villager puts it in the food bin; a load let go anywhere else takes nothing and adds "
+              "nothing; several pickers each take their own load (the tree never below 0); the rain lift's fruit "
+              "adds its 4 food at the bin too.", VERIFIED_C),
+             (patch("vv3_fruit_trees_refill_together") + ": every tree refills at the same moment as the earliest "
+              "one due; each is paid the stock amount for exactly the time since its last refill, so over time "
+              "each gives the same fruit as in the stock game. The schedule is kept in a file beside the save.",
+              VERIFIED_C),
+             (patch("vv3_fruit_trees_take_turns") + ": the trees refill one after another, the refill time divided "
+              "evenly among them (one every hour of real-life play on Normal speed with three trees at the stock "
+              "3-hour refill; 30 minutes on Fast, 1 hour 40 minutes on Slow), each paid the stock amount for the "
+              "time since its last refill.", VERIFIED_C))),
         Entry(ITEM, "Honey", (
             "after The Bee Hive: a pick brings 7, 3 or 2 food on Fast, Normal or Slow (4 while catching up), half "
             "as much again when the supervising chief's roll passes; the hive gives honey only while it holds 10 "
@@ -472,8 +532,11 @@ def _items() -> list[Entry]:
             "the food bin; how often they appear is under Mushrooms."), VERIFIED_E,
             ((patch("vv3_super_secret_golden_mushroom") + ": 1 in 1,000,000 of the random mushrooms is a Golden "
               "Mushroom worth 100 food (Mushrooms).", VERIFIED_E),
+             # The hit-test 0x42DDB0's reserver test at 0x42DDCF is NOPed (tests/test_everyone_collects.py runs it);
+             # the pickup (vf0) returns 1 even after the first pickup removed the item, and the award (vf1) reads
+             # only the carried id, so each child is paid.
              (patch("vv3_everyone_collects_like_vv1") + ": several children dropped on one mushroom or collectible "
-              "each collect it, so it is multiplied.", UNCONFIRMED),
+              "each collect it and each is paid for it, so it is multiplied.", VERIFIED_C),
              # The release listener 0x42DEB0: the area 14 test (0x42DF1A) is NOPed (vv3_collectibles_stay_collected).
              (patch("vv3_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
               "child puts it down, once, not only at the food bin.", VERIFIED_C),
@@ -521,9 +584,13 @@ def _items() -> list[Entry]:
         Entry(ITEM, "Educate the Children (the chief's power)", (
             "once every 23 real-life hours (real time, at any speed): each child who finishes the lesson gains 7 to 9 points in one random "
             "skill, up to 100."), VERIFIED_C,
-            (("It needs Leadership level 2 (the game's Leadership text says so).", UNCONFIRMED),
-             (patch("vv3_chief_lessons_cap_50") + ": only a skill below 50 can be chosen and the gain stops at 50; "
-              "with every skill at 50 the lesson gives nothing.", UNCONFIRMED))),
+            # 0x466836..0x466845: the chief dropped on the children, Leadership (0x426FC0(4)) below 2 skips the power.
+            (("It needs Leadership level 2: below it the chief dropped on a child does not call the lesson. The "
+              "skill each child gains is under Chances (Educate the Children's lesson).", VERIFIED_C),
+             # data/vv3_chief_lessons_cap_feature.json: 0x458F11 diverted to "VVFP Lesson Cap.dll".
+             (patch("vv3_chief_lessons_cap_50") + ": only a skill below 50 can be chosen and the 7 to 9 points stop "
+              "at exactly 50; with every skill at 50 the lesson gives nothing; a skill above 50 is never lowered.",
+              VERIFIED_C))),
         Entry(ITEM, "Point Out a Rare Collectible (the chief's power)", (
             "from Leadership level 3, with the chief placed at the top of the path, once every 23 real-life hours "
             "(real time, at any speed): "
@@ -536,8 +603,13 @@ def _items() -> list[Entry]:
             "a villager dropped on the fourth hut once it is finished, with at least 5,000 tech points in store, "
             "opens the clothes; with fewer the game says \"Not enough tech points to make new clothes!\"."),
             VERIFIED_C,
-            (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
-              "the deduction itself was not traced.", UNCONFIRMED),)),
+            # The question 0x468568 (string 0x46B); "yes" starts action 0x62, whose step (0x458DCF) checks the 5,000
+            # again and takes them (0x458DFF: add -5000 to 0x582644) before the clothes screen opens (+0x12FAC).
+            (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" "
+              "On yes, the villager starts getting new clothes and the 5,000 tech points are taken as the clothes screen "
+              "opens; "
+              "with fewer than 5,000 by then nothing is taken and the game says \"Not enough tech points to make new "
+              "clothes!\".", VERIFIED_C),)),
         Entry(ITEM, "Wood for the campfire", (
             "a villager dropped on the burning campfire with wood starts its 20 hours of the game's clock over: 10, 20 or 33 hours 20 minutes of "
             "real-life play on Fast, Normal or Slow (The campfire)."),
@@ -576,71 +648,116 @@ def _patcher() -> list[Entry]:
         ("Time Warp", f"{o}: {_tp(50_000)} on the Tech screen's Origins upgrades. The village's clock moves on by 12 "
                       "real-life hours on Fast or Normal and 10 on Slow, so the villagers live 12, 6 or 3 years on "
                       "Fast, Normal or Slow at once (Time away); refused while paused.", gm.CLAMP),
-        ("Island Event", f"{o}: {_tp(30_000)}: the game's island event chooser picks and runs an event a few "
-                         "real-life seconds after the Tech screen closes; one at a time. Its awards are never "
-                         "doubled, and it does not move when the game's next island event comes.", UNCONFIRMED),
+        # The rows below are read from the patcher's own code (2026-11-18): scripts/build_vv3_origins_feature.py
+        # (tech_costs 50,000 / 30,000 / 75,000 / 500,000 / 500,000 / 30,000 for rows 0-5; detail_costs 50,000 /
+        # 100,000 / 40,000 / 50,000 / 5,000; do_island_event -> the queue helper: [world+0x12EF4] = clock + 5
+        # (QUEUE_DELAY_SECONDS) and a pending flag that refuses a second purchase, the natural timer kept by
+        # native/shared/island_timer_keep.h + island_timer_vv3.inc; do_barrel -> the barrel queue, PrepareBarrelBabies
+        # for room for three; do_tech_doubler / do_food_doubler set bits 1 / 2 of 0x5824D0; the guards over ids
+        # 52..99 for the collections; cure_all; detail_youth age - 700, at least 100, refunded at 100 or less;
+        # detail_mastery through 0x455740, refunded when all five are 100; running_preflight; age 360; Change
+        # Appearance charged only when the head or body changes), native/vv3_full_mastery_candidate (EqualDivisionOfLabor,
+        # ClearAllSkillPreferences, CheckHighestSkill, ShowVV3AppearanceForAll 450,000), the village-wide config
+        # (scripts/build_village_wide_origins_features.py "vv3": always_clear_running_dislike), and
+        # native/vvfp_story_upgrades (story_time_skip.inc TIME_SKIP_MAX_YEARS 72, story_c3.inc c3_recharge_refusal).
+        # The doublers (tech_increment / food_increment): a positive delta is doubled unless its return address
+        # is 0x42DF79 (duplicate collectibles, tech only) or inside the villager step routine 0x458DB0..0x45943F --
+        # research's base 0x4593AF, the supervision quarter 0x4593D5, Magic 0x4593F2, the potion 0x459410, the fire
+        # 0x45943A, the fish 0x458EEA, the crab 0x458FE6 and Grant Food 0x45906D all return there -- and the island
+        # events' seven tail jumps (0x415EF1, 0x416983, 0x416BAB, 0x417A3A; 0x415D44, 0x41673E, 0x418452) go round
+        # it; their direct calls (0x4158E3, 0x415928, 0x415A6A, 0x415AAB, ...) do not.  Reworked by PR #805.
+        ("Island Event", f"{o}: {_tp(30_000)}: the game's island event chooser picks and runs an event 5 real-life "
+                         "seconds (real time, the same at every speed) after it is bought, once the Tech screen is closed; a second one cannot be bought "
+                         "while it waits. The game's own next island event keeps its time (the bought one does not "
+                         "push it later).", VERIFIED_C),
         ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event, \"Another One of Those "
-                             "Barrels\": 3 children of 10 years, each a boy or a girl half the time, with one skill "
-                             "at 5 to 9; refused, with nothing taken, without room for all three.", UNCONFIRMED),
-        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive tech-point gain "
-                               "the villagers earn is doubled; island events and duplicate collectibles are not.",
-         UNCONFIRMED),
-        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive food gain is "
-                               "doubled; island events and duplicate collectibles are not.", UNCONFIRMED),
-        ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked found (each complete "
-                                     "collection raises the population limit by 5, all four by 25); nothing is "
-                                     "taken when every piece is already found.", UNCONFIRMED),
-        ("Reset All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked not found; nothing is "
-                                  "taken when none is found.", UNCONFIRMED),
+                             "Barrels\", a few real-life seconds after it is bought: 3 children of 10 years, each a "
+                             "boy or a girl half the time, with one skill at 5 to 9; refused, with nothing taken, "
+                             "without room for all three under the village's population limit.", VERIFIED_C),
+        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this village and removable (Remove gives no refund): it "
+                               "doubles a positive tech-point gain except one paid by a villager's work step or a "
+                               "piece found again. Research is a work step, so in this version the points research "
+                               "earns -- with the chief's quarter, Magic's +1, the potion's +1 and the fire's +1 -- "
+                               "are not doubled. Of the island events' tech awards, three are passed through and the "
+                               "rest are doubled.", VERIFIED_C),
+        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this village and removable: it doubles a positive "
+                               "food gain except one paid by a villager's work step: fruit, honey and mushrooms are "
+                               "doubled; fish, the fisher's crab and the chief's Grant Food are not; of the island "
+                               "events' food awards, four are passed through and the rest are doubled.", VERIFIED_C),
+        ("Full Heal", f"{o}: {_tp(30_000)} on the Tech screen's Origins upgrades: every living villager below 80 "
+                      "health is brought to 100 (from 80 to 99 they keep their health), and every sick villager is "
+                      "cured, each counting in People Cured; with nobody below 80 and nobody sick, the 30,000 are "
+                      "given back.", VERIFIED_C),
+        ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: all 48 collection pieces are marked found (each "
+                                     "complete collection raises the population limit by 5, all four by 25); "
+                                     "nothing is taken when every piece is already found.", VERIFIED_C),
+        ("Reset All Collections", f"{vw}: {_tp(1_000_000)}: all 48 collection pieces are marked not found; nothing "
+                                  "is taken when none is found.", VERIFIED_C),
         ("Equal Division of Labor (Includes Parenting / No Parenting)",
-         f"{vw}: {_tp(1_000_000)} each: the villagers' job checkmarks are spread evenly over the jobs, men and women "
-         "balanced in each, each villager given the job they are best at among those left; the No Parenting one "
-         "leaves Parenting out. The Tribal Chief is skipped.", UNCONFIRMED),
+         f"{vw}: {_tp(1_000_000)} each: the job checkmarks of every villager but the Tribal Chief (children too) are "
+         "spread evenly over the jobs, men and women counted separately; who takes which job follows their skill "
+         "(the most-progressed job first, random for ties); the No Parenting one leaves Parenting out. Refused, "
+         "with nothing taken, when there is nobody but the chief.", VERIFIED_C),
         ("Clear All Skill Preferences", f"{o}: {_tp(500_000)}: every villager's job checkmark is cleared, so each "
                                         "chooses their own work as in the stock game; skills are not changed; the "
-                                        "Tribal Chief is skipped.", UNCONFIRMED),
+                                        "Tribal Chief is skipped; nothing is taken when every checkmark is already "
+                                        "clear.", VERIFIED_C),
         ("Check Highest Skill (Includes Parenting / No Parenting)",
          f"{o}: {_tp(1_000_000)} each: each villager's job checkmark is set to the skill they have most progress in "
          "(ties: Farming, Building, Research, Healing, Parenting, in that order); the No Parenting one ignores "
-         "Parenting; a villager with no progress yet keeps theirs; the Tribal Chief is skipped.", UNCONFIRMED),
-        ("All Villagers Like Running", f"{vw}: {_tp(1_000_000)}: every villager likes running (an adult who likes "
-                                       "running walks at speed 300 instead of 100).", UNCONFIRMED),
-        ("Grant Full Mastery to All Villagers", f"{vw}: {_tp(1_000_000)}: every villager's five skills become 100.",
-         UNCONFIRMED),
-        ("Make Villagers Young Adults", f"{vw}: {_tp(1_000_000)}: every villager is made 18.", UNCONFIRMED),
+         "Parenting; a villager with no progress yet keeps theirs; the Tribal Chief is skipped; nothing is taken "
+         "when every checkmark is already right.", VERIFIED_C),
+        ("All Villagers Like Running", f"{vw}: {_tp(1_000_000)}: every living villager with a free Like slot comes "
+                                       "to like running (an adult who likes running walks at speed 300 instead of "
+                                       "100), and running is taken out of everyone's Dislikes; a villager whose 3 "
+                                       "Like slots are full gets no like.", VERIFIED_C),
+        ("Grant Full Mastery to All Villagers", f"{vw}: {_tp(1_000_000)}: every living villager's five skills become "
+                                                "100, through the game's own skill writer, so its mastery awards "
+                                                "follow.", VERIFIED_C),
+        ("Make Villagers Young Adults", f"{vw}: {_tp(1_000_000)}: every living villager is made 18.", VERIFIED_C),
+        ("Change Appearance for All", f"{o}: {_tp(450_000)}: one window sets the head, body and mask of every living "
+                                      "villager, men and women apart, or by a village-wide choice (random heads, "
+                                      "heads by hair colour, random bodies, masks VV5-style, random, equal or one "
+                                      "colour, the original look); a head change warns that it passes to "
+                                      "descendants. Nothing is taken when nothing is chosen or nobody changes.",
+         VERIFIED_C),
         ("Grant Youth", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 35 years "
-                        "younger, never below 5 years.", UNCONFIRMED),
+                        "younger, never below 5 years; at 5 years already, the 50,000 are given back.", VERIFIED_C),
         ("Grant Full Mastery", f"{o}: {_tp(100_000)} on the Villager Details screen: that villager's five skills "
-                               "become 100.", UNCONFIRMED),
+                               "become 100; with all five at 100 already, the 100,000 are given back.", VERIFIED_C),
         ("Grant Running", f"{o}: {_tp(40_000)} on the Villager Details screen: running goes into a free Like slot "
-                          "and out of the Dislikes; refused, with nothing taken, without a free Like slot.",
-         UNCONFIRMED),
-        ("Set Age to 18", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 18.",
-         UNCONFIRMED),
+                          "and out of the Dislikes. With all 3 Like slots full: a running dislike is taken away for "
+                          "free, otherwise it is refused with nothing taken; a villager who already likes running "
+                          "is refused too.", VERIFIED_C),
+        ("Set Age to 18", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 18; at 18 "
+                          "already, the 50,000 are given back.", VERIFIED_C),
         ("Change Appearance", f"{o}: {_tp(5_000)} on the Villager Details screen: that villager's head and body "
-                              "are chosen from the game's art.", UNCONFIRMED),
+                              "are chosen from the game's art; the 5,000 are taken only when the head or body "
+                              "actually changes.", VERIFIED_C),
         ("Pick Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{gm.feature_name(STORY_COST)}\" ticked, "
                               "as it is by default with it): the player picks which stock island event comes, and "
                               "how it turns out, from the game's list; it runs through the game's island "
-                              "event code.", UNCONFIRMED),
+                              "event code.", VERIFIED_C),
         ("Custom Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{gm.feature_name(STORY_COST)}\" "
                                 "ticked): an island event the player writes -- food, tech points, new villagers and "
-                                "what this game's own code can change.", UNCONFIRMED),
+                                "what this game's own code can change.", VERIFIED_C),
         ("Choose Time Skip Amount", f"{st}: 0 tech points ({_tp(50_000)} with \"{gm.feature_name(STORY_COST)}\" "
                                     "ticked): 1 to 72 villager years, as a run of Time Warps (12, 6 or 3 years each "
                                     "on Fast, Normal or Slow), each caught up by the game before the next.",
-         UNCONFIRMED),
+         VERIFIED_C),
         ("Recharge Chief Powers", f"{st}: 0 tech points ({_tp(30_000)} with \"{gm.feature_name(STORY_COST)}\" "
-                                  "ticked): the Tribal Chief's once-a-day powers are ready at once; refused with "
-                                  "nothing spent when there is no chief or every power is ready already.",
-         UNCONFIRMED),
+                                  "ticked): the Tribal Chief's three once-a-day powers are ready at once; refused "
+                                  "with nothing spent when there is no living chief, when Leadership is still at "
+                                  "level 0, or when every power is ready already.", VERIFIED_C),
     ]
-    out = [Entry(PATCHER, "Free Origins upgrades", free, UNCONFIRMED)]
+    out = [Entry(PATCHER, "Free Origins upgrades", free, VERIFIED_C)]
     out += [Entry(PATCHER, name, text, ok) for name, text, ok in rows]
     out.append(Entry(PATCHER, "Learning Skills Never Fails", (
         patch("vv3_learning_never_fails") + ": every Farming, Building, Research, Healing and Parenting skill test "
         "succeeds; the skill gains and everything else stay as in the stock game (stock: the test passes at the skill + 34% "
-        "for a villager neutral about learning)."), UNCONFIRMED))
+        # data/builds.json: the five skill tests' "cmp eax, ebp; jle success" (0x45A34E, 0x45A4FD, 0x45A67F, 0x45A799,
+        # 0x45A8A3, each right after its rand(100)) become an unconditional jmp to the same success target.
+        "for a villager neutral about learning)."), VERIFIED_C))
     return out
 
 

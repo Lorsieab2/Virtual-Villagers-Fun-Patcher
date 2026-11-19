@@ -783,14 +783,16 @@ class RenderedPageTests(unittest.TestCase):
             with self.subTest(game=game, page="save, no game found"):
                 texts = self.page(game, None)
                 self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
-                                    and t.endswith("Whether the game has it could not be told.") for t in texts))
+                                    and t.endswith(f"Whether the game has it could not be told: {gm.BROWSE_HINT}.")
+                                    for t in texts))
                 self.assertFalse(any(" tech points normally, " in t for t in texts))
                 self.assertTrue(any("2-10x Tech Cost" in t and "could not be told" in t
                                     and "would each be larger" in t for t in texts))
             with self.subTest(game=game, page="general"):
                 texts = [f.text for f in gm.general(game, now=self.NOW)]
                 self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
-                                    and t.endswith("Whether the game has it could not be told.") for t in texts))
+                                    and t.endswith(f"Whether the game has it could not be told: {gm.BROWSE_HINT}.")
+                                    for t in texts))
                 self.assertFalse(any(" tech points normally, " in t for t in texts))
 
     def test_the_difficulty_line_names_the_multiplier(self):

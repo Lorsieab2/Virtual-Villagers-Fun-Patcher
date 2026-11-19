@@ -151,8 +151,9 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
     if log is None:
         out.append(gm.Fact(COUNTS, (
             "Village Statistics: the patcher's Village Statistics log for this save was not found (the patcher's "
-            "Village Statistics patch writes it after each save), so the rows below are read from the save, and the "
-            "rows only that log keeps are not shown." + believers), gm.SAVE))
+            "Village Statistics patch writes it after each save), so the rows below are read from the save. The rows "
+            "the save itself never keeps cannot be known without that log: with the patch in the game, they show "
+            "here after the game's next save." + believers), gm.SAVE))
     else:
         behind = ""
         try:
@@ -195,8 +196,11 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
         elif logged is not None:
             text = f"{lead}{_value(row, *logged)} ({meaning}; patcher only)."
         else:
-            text = (f"{lead}not shown (only the patcher's log keeps it"
-                    + (")." if log is None else ", and its log for this save has no such row)."))
+            # The save holds no field for this row (SAVE_ROWS), so only the patcher's log can give it.
+            text = (f"{lead}not known: the game's save does not keep this count, only the patcher's Village "
+                    "Statistics log does"
+                    + (" (with that patch in the game, it shows here after the game's next save)." if log is None
+                       else ", and its log for this save has no such row."))
         out.append(gm.Fact(COUNTS, text, gm.SAVE, sub=True))
     return out
 
@@ -567,7 +571,10 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
         if vv2_words:
             out.append(gm.Fact(group, vv2_words, gm.SAVE))
         elif counts is None and village.game not in life.COLLECTIBLE_PAY:
-            out.append(gm.Fact(group, "Collectibles found: not read from this save by this page.", gm.SAVE))
+            # Only The Lost Children reaches here, and only when its save ends before the found bytes
+            # (vv2.collections_line returns None for a short file).
+            out.append(gm.Fact(group, "Collectibles found: not in this save (the file ends before them); the game's "
+                                      "Collections screen shows them.", gm.SAVE))
         else:
             # The one full copy (Vital statistics points here): owned, found, found again and its pay, the sets.
             lines, _complete = life.collectible_lines(village, life.COLLECTIBLE_PAY[village.game], full=True)

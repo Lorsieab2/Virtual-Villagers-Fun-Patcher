@@ -58,6 +58,13 @@ DETAILS_UNITS = {1: 40, 3: 41, 4: 41, 5: 41}  # the Details screen's "Nursing fo
 # 0x468440, VV5 0x47336A -> 0x472CA0), so a lag is worked off the moment the village is next played.
 CATCH_UP_STEP = 0                            # real seconds a counted age unit takes to work off
 DIFFICULTY = {0: "Easy", 1: "Medium", 2: "Hard"}
+
+
+def difficulty_words(level: int | None) -> str:
+    """The save's difficulty in words; a value the game's menus never write says so (a damaged save)."""
+    if level is None:
+        return "not in this save (the file ends before it)"
+    return DIFFICULTY.get(level, f"{level}, a value the game's menus never set (a damaged save)")
 GOLDEN_IDS = {n: f"vv{n}_super_secret_golden_mushroom" for n in range(1, 6)}
 
 # The difficulty: the dword each game's own menus set to 0, 1 or 2 (Easy, Medium, Hard; the exes' strings) and
@@ -496,7 +503,9 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
                                    moment, "starts" if moment else None))
         else:
             add("Old-age rolls start at " + ", ".join(f"{y} villager years at Medicine {m}" for m, y in ctx.old_age_from.items())
-                + "; this save's Medicine level is not read here.", gm.RUNNING)
+                + ("; the game's Tech screen shows which Medicine level the village has" if ctx.medicine is None
+                   else f"; this save's Medicine level reads {ctx.medicine}, which the game never writes (a damaged "
+                        "save), so all three are given") + ".", gm.RUNNING)
     if ctx.elderly_from and ctx.medicine in ctx.elderly_from:
         start = ctx.elderly_from[ctx.medicine]
         elders = [p for p in people_ if p.age >= start * YEAR]
@@ -632,7 +641,7 @@ def village_lines(ctx: Context) -> tuple[list[gm.Fact], tuple[float | None, str]
         event = (ctx.event_next, gm.when(ctx.event_next) + (" (when the village is next played)"
                                                              if ctx.event_next <= ctx.village.now else ""))
     else:
-        event = (None, "not read")
+        event = (None, "not in this save (its timer is missing); the game sets a new one when the village is played")
     if blocked:
         # The owner: a Custom or Picked island event is never listed here, only that one delays the natural one.
         add("A purchased island event is pending and delays the natural one, which is timed afresh after it.",
@@ -708,7 +717,7 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     sub = lambda text, ok=False, due=None, kind=None: add(text, ok, True, due, kind)  # noqa: E731
     on = gm.speed_name(ctx.speed)
     level = ctx.difficulty
-    level_words = DIFFICULTY.get(level, "not read") if level is not None else "not read"
+    level_words = difficulty_words(level)
 
     # At a glance, first (the owner, 2026-11-12: "the most essential data players should know. simple sweet and to the
     # point"): one short line each -- next refills, villagers at 100% health, mushrooms, food eaten, next technology.
@@ -859,7 +868,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     per_hour = eaters * per_unit * units_hour
     level = ctx.difficulty
     add(f"Food estimates (estimates, not the game's own figures), on {on} speed at difficulty "
-        f"{DIFFICULTY.get(level, 'not read') if level is not None else 'not read'}:")
+        f"{difficulty_words(level)}:")
     add(f"Population for food: {eaters} villagers who eat; nursing babies need no food, as the game feeds only "
         f"villagers ({len(mothers)} nursing mother{'s' if len(mothers) != 1 else ''}, each counted once)"
         + ("; the Golden Child never eats" if any(p.golden for p in members) else "")
@@ -1121,8 +1130,7 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
         by_level.append(text + (" (short of food even so)" if catch[1] > 1e-9 else ""))
     add(f"Difficulty: it changes what each villager eats, and so the farmers needed with all food sources together "
         f"({ctx.food:,} food in storage): " + "; ".join(by_level) + ". This save is on "
-        + (DIFFICULTY.get(ctx.difficulty, "a difficulty not read") if ctx.difficulty is not None else
-           "a difficulty not read")
+        + difficulty_words(ctx.difficulty)
         + ". The trips, their Farming check, the regrowth and the food a trip brings are the same at every difficulty.")
     add("How it is worked out: farmers needed = the food eaten ÷ the food one farmer brings, rounded up. While "
         f"catching up each counted age unit runs at once: every villager who eats has its meal ({per_unit:g} food on "
@@ -1425,7 +1433,8 @@ def limit_words(village: gm.Village, sets: list[tuple[str | None, int, int]] | N
     with_big = " with 256 Villagers" if big else ""
     if mode is None:
         why = ("which of the patcher's population modes this game's exe has could not be read" if village.exe
-               is not None else "this game's exe was not found, so its population mode is not known")
+               is not None else f"this game's exe was not found, so its population mode is not known; "
+               f"{gm.BROWSE_HINT}")
         return (f"Population limit: not known ({why}). In the normal game it would be {normal_words}.{tail}"
                 .rstrip("."), False)
     if mode == "stock":
@@ -1513,8 +1522,10 @@ def collectible_lines(village: gm.Village, duplicate_words: str,
             complete = sum(1 for k in range(4) if all(c > 0 for c in counts[12 * k:12 * k + 12]))
         return [(COLLECTIBLES_POINTER, gm.SAVE)], complete
     if counts is None:
-        return [("Collectibles owned: not shown, because where this game's save keeps its collection counts has not "
-             "been traced.", gm.SAVE)], None
+        # COLLECTIBLES_AT is traced for every game that keeps these counts; None means the file ends before them or
+        # holds counts the game never writes (a damaged save).
+        return [("Collectibles owned: not in this save (the file ends before the collection counts, or they are "
+                 "damaged); the game's Collections screen shows them.", gm.SAVE)], None
     owned = sum(1 for c in counts if c > 0)
     found = sum(counts)
     lines = [(f"Collectibles: {owned} of 48 pieces owned; {found:,} found in all, {found - owned:,} of them "

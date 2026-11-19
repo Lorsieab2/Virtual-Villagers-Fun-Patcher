@@ -356,7 +356,7 @@ def warp_dates_note(village: "Village", group: str, what: str) -> "Fact | None":
     if village.general or not states or all(state is False for state in states):
         return None
     which = ("This game has the patcher's Time Warp" if any(state is True for state in states)
-             else "If this game has the patcher's Time Warp (whether it does could not be told)")
+             else f"If this game has the patcher's Time Warp (whether it does could not be told; {BROWSE_HINT})")
     # Each warp moves the clock on by moving the clock's start (its epoch) back (WARP_IDS above).
     return Fact(group, (
         f"{which}: {what} counted from the start of the save's clock, and each Time Warp (and each step of Choose "
@@ -772,12 +772,18 @@ def golden_lines(feature: str, per_hour: float, speed_value: int, rate_words: st
                      "of having seen at least one."), False, sub=True)]
 
 
+# What the player can do when the game's patch list could not be told (the owner, 2026-11-18: nothing withheld; a note
+# is kept only for what truly cannot be known, with what the player can do about it).
+BROWSE_HINT = "pick the game with Browse... on the Game Mechanics window to find out"
+UNTOLD = f"whether the game has it could not be told; {BROWSE_HINT}"
+
+
 def patch_words(village: "Village", feature: str, effect: str) -> str:
     """One sentence on a patch that changes a rule: whether it is in the game and what it does."""
     name = f"\"{feature_name(feature)}\""
     has = village.has(feature)
     if has is None:
-        return f"With the patcher's {name}: {effect} (whether the game has it could not be told)."
+        return f"With the patcher's {name}: {effect} ({UNTOLD})."
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
@@ -787,7 +793,7 @@ def flat_pick_mastery(village: "Village", feature: str, has: bool | None, levels
     Mastery level 1 -> 2 -> 3 (`levels`); the stock pick comes first in the line.  "" when it is not in the game."""
     if has is False:
         return ""
-    where = "" if has else " (whether the game has it could not be told)"
+    where = "" if has else f" ({UNTOLD})"
     return (f" With \"{feature_name(feature)}\"{where}: a pick {levels(7)} on Fast, {levels(3)} on Normal, "
             f"{levels(2)} on Slow and {levels(4)} while catching up.")
 
@@ -1209,6 +1215,97 @@ def render_live(facts: list[Fact], now: float | None = None) -> tuple[str, list[
 def render(facts: list[Fact], now: float | None = None) -> str:
     """The section as text: each group's heading, then its lines (a countdown as it reads at `now`)."""
     return render_live(facts, now)[0]
+
+
+# MINIMUM DETAIL (the owner, 2026-11-17: "a toggle to game mechanics for 'Minimum Detail': only gives vital stats and
+# numbers, hides all the explanations and stuff").  The page's lines are written answer-first, so a line keeps only
+# its first sentence -- the answer -- and a line is left out when that answer holds no number (an explanation), when
+# it is one of the page's explanations (_EXPLAINS: how a figure is worked out, the stock rule a patch replaces, code
+# that never runs, and what one of the patcher's patches does), or when it is in a group that only explains the page
+# or lists the game's keys and tips (MINIMUM_HIDDEN_GROUPS; Sources keeps one short line, sources_brief).  The Vital
+# statistics keep every line (their first sentence).  A left-out line whose sub-lines are kept shows its heading
+# instead -- the words before its first colon -- so the numbers under it still say what they count.
+# The label is "Minimal Detail" (the owner, 2026-11-18).
+MINIMUM_DETAIL = "Minimal Detail"
+MINIMUM_HIDDEN_GROUPS = frozenset({"Time and units", "Sources", "Hidden keys, clicks and cheats"})
+# "Not counted" is no longer an explanation (the owner, 2026-11-18, "nothing withheld"): what a figure leaves out is
+# now given with its value, and such a line keeps its place in Minimal Detail.
+_EXPLAINS = re.compile(r"^(?:How |Normally|DEAD)|\b[Ww]ith the patcher\b|\b[Tt]he patcher's\b"
+                       r"|\bthe patcher \(")
+# Minimal Detail keeps one short Sources line (the owner, 2026-11-18): the exe read and how its patch list was read,
+# or a warning when the patch list could not be told (sources_lines / patch_source's own words).
+_PATCHES_LEAD = "The patches in the game: "
+_UNTOLD_LEAD = "Could not tell which patches this game has"
+
+
+def sources_brief(facts: list[Fact]) -> Fact | None:
+    """Minimal Detail's one Sources line: "Sources: <exe>; its patch list read from <the patcher's log | its own
+    bytes>.", or a warning when the patches could not be told; None for a page with no Sources (the general page)."""
+    for fact in facts:
+        if fact.group != SOURCES:
+            continue
+        if fact.text.startswith(_PATCHES_LEAD):
+            words = fact.text[len(_PATCHES_LEAD):]
+            for marker, how in ((", as listed by ", "the patcher's log of the run that made it"),
+                                (", read from its own bytes", "its own bytes (no patcher log matches it)")):
+                if marker in words:
+                    exe = Path(words.split(marker, 1)[0]).name
+                    return dataclasses.replace(fact, text=f"Sources: {exe}; its patch list read from {how}.",
+                                               sub=False)
+        if fact.text.startswith(_UNTOLD_LEAD):
+            return dataclasses.replace(fact, text=f"Warning: {first_sentence(fact.text)} The numbers below are for "
+                                                  f"the normal game; {BROWSE_HINT}.", sub=False)
+    return None
+_SENTENCE_END = re.compile(r"[.!?][\"”)]?(?=\s+[A-Z\"(])")
+
+
+def first_sentence(text: str) -> str:
+    """The answer a Game Mechanics line starts with: its text up to the end of the first sentence (never inside the
+    game's own words in quotation marks)."""
+    for end in _SENTENCE_END.finditer(text):
+        if text.count('"', 0, end.end()) % 2 == 0:
+            return text[:end.end()]
+    return text
+
+
+def minimum(facts: list[Fact]) -> list[Fact]:
+    """The page in Minimum Detail (see MINIMUM DETAIL above): the vital statistics and the numbers, each line cut to
+    its answer; the explanations left out."""
+    def short(fact: Fact) -> str | None:
+        if fact.group in MINIMUM_HIDDEN_GROUPS:
+            return None
+        answer = first_sentence(fact.text)
+        if _EXPLAINS.search(answer):
+            return None
+        if fact.group == GROUPS[0] or fact.due is not None or re.search(r"\d", answer):
+            return answer
+        return None
+
+    out: list[Fact] = []
+    heading: Fact | None = None        # a left-out parent line, shown as a heading if a sub-line under it is kept
+    orphan = False                     # the parent was left out with no heading: its kept sub-lines become bullets
+    brief = sources_brief(facts)       # the one Sources line kept, in the Sources group's place
+    for fact in facts:
+        if brief is not None and fact.group == SOURCES:
+            out.append(brief)
+            brief = None
+        text = short(fact)
+        if not fact.sub:
+            heading, orphan = None, False
+            if text is None:
+                orphan = True
+                answer = first_sentence(fact.text)
+                lead = answer.split(":", 1)[0]
+                if lead != answer and fact.group not in MINIMUM_HIDDEN_GROUPS and not _EXPLAINS.search(lead):
+                    heading = dataclasses.replace(fact, text=lead + ":", due=None, due_kind=None)
+                continue
+        if text is None:
+            continue
+        if heading is not None:
+            out.append(heading)
+            heading, orphan = None, False
+        out.append(dataclasses.replace(fact, text=text, sub=fact.sub and not orphan))
+    return out
 
 
 def tidy(text: str) -> str:

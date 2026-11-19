@@ -81,10 +81,11 @@ def _keys() -> list[Entry]:
                  "screen that picture belongs to was not settled, so the code and this observation are both kept.",
                  O),)),
         Entry(KEY, "F3 (the help pictures, the Start / \"?\" screen, Puzzles and Milestones)", (
-            # The drawing object's byte +0x1F, flipped by 0x408290.
+            # The drawing object's byte +0x1F, flipped by 0x408290; set to 1 at start (0x403928, 0x4083AD).  The frame
+            # 0x4090E3..0x409103 draws the game's pointer picture (+0x24) at the mouse (0x408590) only while it is 1.
             "flips one setting of the game's drawing each press"), C, subs=(
-                ("What the setting changes on screen is not confirmed (on 2026-10-11 it was read as switching "
-                 "between the game's mouse pointer and the Windows one).", U),)),
+                ("The setting is the game's own mouse pointer: it starts on, and each F3 press stops or starts the "
+                 "game drawing its pointer picture at the mouse.", C),)),
         Entry(KEY, "Esc (Map, Puzzles and Milestones, Tech, Villager Detail)", (
             # The slots 0x429B70, 0x42E420, 0x435A60, 0x449630.
             "the same as the screen's own way back"), C),
@@ -138,11 +139,17 @@ def _clicks() -> list[Entry]:
             "tips at the bottom of the screen.\" while it is still waiting to be shown (tip 304); after that each "
             "click also plays a sound (67)"), C, subs=(
                 # 0x421B40 sets +0x284 to 0x402F70 + 5; 0x402F70 counts real-life seconds since the program started.
-                ("The message line's timer is set 5 real-life seconds ahead (real time, the same at every speed, "
-                 "paused too); that the line is cleared then is not traced.", U),
-                # rand(100) <= 10 in 0x424EF0: two effects of type 4 at 168, 514 and 193, 505.
-                ("Moving the mouse over the mask: each movement has an 11% chance of starting two of the game's "
-                 "short screen effects beside it; what they look like is not confirmed.", C),
+                # The update 0x423D02..0x423D42: speed >= 999 (paused) calls 0x421B40(42) every update (string 42,
+                # "GAME PAUSED"); otherwise once the real clock passes +0x284 it sets the line to "" (0x45743C) and
+                # the timer to 0.
+                ("The message line clears itself 5 real-life seconds after it was set (real time, the same at every "
+                 "speed). While the game is paused the line shows \"GAME PAUSED\" instead, put back on every update.",
+                 C),
+                # rand(100) <= 10 in 0x424EF0: two effects of type 4 at 168, 514 and 193, 505; the effect maker
+                # 0x41A960's switch (table 0x41AAB4) gives type 4 the picture +0x344C, loaded from "sparklestrip2.png"
+                # (0x41AE1A).
+                ("Moving the mouse over the mask: each movement has an 11% chance of starting two little sparkles "
+                 "beside it (the game's sparkle strip picture).", C),
                 ("The patcher's \"Numeric Keys: Zip Around the Island\" adds a 31st tip to this mask (see Patcher).",
                  C))),
         Entry(CLICK, "The school drum (village)", (
@@ -169,11 +176,14 @@ def _clicks() -> list[Entry]:
                  "100 / 1,000; areas 39, 40 and 41: the same words, progress x 100 / 250, / 400 and / 600.", C),
                 ("Area 15, where a dropped child shows \"Children can't swim!\": a sound (59) and a splash where it "
                  "was clicked, no line.", C),
-                ("Which place on the map each area is was not drawn out; the messages name the work.", U))),
+                # The click handler picks the line by area number; the areas carry no other label in its code.
+                ("The game shows no name for these places: each line above, naming the work done there, is how the "
+                 "game itself tells them apart.", C))),
         Entry(CLICK, "The grid at the map spot 1,233 to 1,533 across and 200 to 350 down (village)", (
-            # 0x420060.
-            "a click on a filled square of the 10-wide grid there plays a sound (72) and opens a box with a \"Done\" "
-            "button; what the grid is was not identified"), U),
+            # 0x420060: the square's index (row x 10 + column) picks a 0x2C-byte slot of world +0xA340, the 50 grave
+            # slots (vv_assets_vv1 S_GRAVES); a slot whose first dword is above 0 is a grave.
+            "the graveyard: its 50 grave places lie in rows of 10, and a click on a place that holds a grave plays a "
+            "sound (72) and opens that gravestone in a box with a \"Done\" button"), C),
     ]
 
 
@@ -186,21 +196,33 @@ def _tips() -> list[Entry]:
             # the help question switches them off at 0x41ECB6; the tutorial's next step 0x41C9A0.
             "pop-ups -- which the game queues by number and shows one at a time; up to 10 wait, and a tip asked for "
             "with the queue full is kept for a later time"), C, subs=(
-                ("A new village switches the tutorial tips on; answering the help question \"Would you like HELP "
-                 "the first time?\" one way switches them off (which button does it is not observed).", U),
+                # 0x41EC8B: the click is the button whose id is +0x2B4, the one labelled string 77 "No" (0x41EF9B;
+                # "Yes" is string 76 on +0x2B0); 0x41ECAF..0x41ECC3 clears the arming byte of tips 0x105..0x137.
+                ("A new village switches the tutorial tips on; answering \"No\" to the help question \"Would you "
+                 "like HELP the first time?\" switches every tutorial tip off (tips 261 to 311).", C),
                 ("Each tutorial step's instruction is queued when the step before it is shown, while that step has "
                  "not been shown yet: the tutorial runs in order, each tip once a village.", C))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (the mask)", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C, lambda tip: "")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (tutorial and milestones)", (
-            "every one, as the game words it, with the places that ask for it by number (a tip with none is asked for "
-            "by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
+            "every one, as the game words it, with the places that ask for it by number, or as the tutorial's next "
+            "step; a tip no code asks for is never shown by the normal game"), C,
               subs=hidden.tip_lines(POPUP_TIPS, _popup_label, _popup_note)),
     ]
 
 
+# The tips no code asks for (2026-11-18), every path checked: the queue 0x41C960 is the only writer of the queue's
+# slots (+0xACBC / +0xACC0; the readers only consume them); its callers push a fixed number (some share one call
+# after a jump: 301 at 0x4237AE, the population milestones 312-315 at 0x42F28B -- 15, 25, 50 and 90 villagers,
+# 0x42F1E7..0x42F284 --, The Treasure 324 at 0x43ABAB) or are the tutorial's next step (0x41CCFE, CHAINED); the
+# screens' show-a-tip methods (0x429B30, 0x4345A0, 0x4220D7, the dialog maker 0x435EB0 through 0x41C9A0) show only
+# what the queue hands them; no string load (0x433970 / 0x433980) asks for these numbers, literally or as a base
+# plus an offset; and A New Home has no tip browser (the mask draws only the random tips 519-548).
+NEVER_ASKED = frozenset({275, 289, 308, 309, 310})
+
+
 def _popup_label(tip) -> bool | str:
-    return C if tip[2] or tip[0] in CHAINED else U
+    return C if tip[2] or tip[0] in CHAINED or tip[0] in NEVER_ASKED else U
 
 
 def _popup_note(tip) -> str:
@@ -208,6 +230,8 @@ def _popup_note(tip) -> str:
         return hidden.sites_note(tip[2])
     if tip[0] in CHAINED:
         return "queued as the tutorial's next step"          # by 0x41C9A0
+    if tip[0] in NEVER_ASKED:
+        return "no code of the normal game asks for it, so the normal game never shows it"
     return ""
 
 
@@ -332,7 +356,7 @@ POPUP_TIPS = (
     (298, '', (0x42ea05,), "I'm sorry. One of your little villagers is dead. Villagers die of old age, but they can also die from disease and starvation. Buying medicine technology helps your villagers live longer and have fewer diseases."),  # noqa: E501
     (299, '', (0x42a395,), "Welcome to the Overview Map. Enjoy a bird's-eye view of your village, then click anywhere on the map to zoom in to that spot."),  # noqa: E501
     (300, '', (0x4237ae,), 'Virtual Villagers is a true, real-time game. Your tribe continues to do what they have learned even when the computer is off or you stop playing, but remember to check back often to care for your little villagers!'),  # noqa: E501
-    (301, '', (), 'You have mastered the basics! How you manage your tribe now is up to you! Decide wisely who will do what. Your villagers will slowly learn to do what you show them to do. Once survival is no longer a problem, you can help them to uncover the hidden secrets of Isola!'),  # noqa: E501
+    (301, '', (0x4237ae,), 'You have mastered the basics! How you manage your tribe now is up to you! Decide wisely who will do what. Your villagers will slowly learn to do what you show them to do. Once survival is no longer a problem, you can help them to uncover the hidden secrets of Isola!'),  # noqa: E501
     (302, '', (0x440068,), 'Hmmm... this villager is confused. Sometimes villagers need more skill or more advanced technology before they understand what to do.'),  # noqa: E501
     (303, '', (0x44981d,), "Great! You set a villager's skill preference. From now on, they prefer this type of work and gain skill the more they practice."),  # noqa: E501
     (304, '', (0x42569f,), 'Click the mask to see helpful tips at the bottom of the screen.'),
@@ -342,9 +366,9 @@ POPUP_TIPS = (
     (310, '', (), "Congratulations! One of your villager's reached the `Master` level in a skill category."),
     (311, '', (0x43ade2, 0x43af03, 0x43af7a, 0x43afc4, 0x43b02d), 'Good job! Your villagers aren`t worried about food anymore. Now you can focus on research and increasing the population of the village.'),  # noqa: E501
     (312, '', (0x42f28b,), 'Congratulations! Your village reached its first population milestone of 15 people!'),
-    (313, '', (), 'Congratulations! Your village reached its second population milestone of 25 people!'),
-    (314, '', (), 'Congratulations! Your village reached its third population milestone of 50 people!'),
-    (315, '', (), 'Congratulations! Your village reached its maximum sustainable population!'),
+    (313, '', (0x42f28b,), 'Congratulations! Your village reached its second population milestone of 25 people!'),
+    (314, '', (0x42f28b,), 'Congratulations! Your village reached its third population milestone of 50 people!'),
+    (315, '', (0x42f28b,), 'Congratulations! Your village reached its maximum sustainable population!'),
     (316, '', (0x42f2b8,), 'Oh no! The berry bush is nearly depleted. It`s time your villagers think about new food sources.'),  # noqa: E501
     (317, '', (0x42f1c6,), 'Alas, the fates were not kind to your village. All of your little villagers died. The island of Isola remains a myth and its mysteries unsolved.'),  # noqa: E501
     (318, '', (0x43ac4f,), "The Cave The magical Golden Child moved the giant boulder and opened the cave! Maybe more clues about Isola's mysteries are waiting to be found inside..."),  # noqa: E501
@@ -353,7 +377,7 @@ POPUP_TIPS = (
     (321, '', (0x43b1bd,), 'The Lagoon Your builders removed the creek blockage! The water now flows freely providing a pristine, pure stream. The waters of this lagoon may be the key to more than one mystery for your villagers.'),  # noqa: E501
     (322, '', (0x43abab,), 'The Beach Your builders cleared away the debris and smashed boat pieces from the beach. The ocean is much more accessible now.'),  # noqa: E501
     (323, '', (0x43b282,), 'The Garden The pure creek waters restored the magical garden! Your villagers are astounded by its beauty. The stunning beauty of these flowers is uplifting to all of your villagers!'),  # noqa: E501
-    (324, '', (), 'The Treasure Using advanced building techniques and scientific methods of detection, one of your villagers uncovered a buried treasure!'),  # noqa: E501
+    (324, '', (0x43abab,), 'The Treasure Using advanced building techniques and scientific methods of detection, one of your villagers uncovered a buried treasure!'),  # noqa: E501
     (325, '', (0x43a680,), 'The Idol Through divine inspiration, your builders carved a large idol out of the sparkling, strange rock. It`s as if the idol was always there, just waiting to be revealed.'),  # noqa: E501
     (326, '', (0x43a426,), "Herb Mastery After thoroughly investigating Isola's indigenous herbs, your villagers have mastered their healing powers. Your healers are more effective than ever!"),  # noqa: E501
     (327, '', (0x43b44a,), 'The Temple Inspired by their spirituality, your builders successfully restored the ancient ruins that have mystified them since their arrival. They`re certain this is how the stone temple once looked in the distant past...'),  # noqa: E501
