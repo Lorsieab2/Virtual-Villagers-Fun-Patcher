@@ -96,10 +96,11 @@ def _keys() -> list[Entry]:
                 ("Seen by the owner (2026-10-11): F8 fires every island event in turn, the first shown being \"The "
                  "Creeping Mold\".", O),
                 ("How the patcher's logs record villagers made by F7 is not settled.", U))),
-        # 0x440550 asks the stew pot 0x42DD20 and drops the answer.
+        # 0x440550 (0x4406E8..0x440714) asks the stew pot 0x42DD20 and drops the answer; 0x42DD20 only reads (the
+        # pot's stew slot +0xB10 and the states 9 / 0xA through 0x46D880), so the key changes nothing.
         Entry(KEY, "B (village screen)", (
-            "when the fire burns and Boiling Water (puzzle 2) is solved, the game asks the stew pot a yes / no "
-            "question and does nothing with the answer; no effect was found"), U),
+            "when the fire burns and Boiling Water (puzzle 2) is solved, the game asks the stew pot whether it holds "
+            "no stew and no fresh or salt water, and does nothing with the answer: the key has no effect"), C),
         Entry(KEY, "W, ' ; [ and ] (village screen)", (
             "tested and do nothing; W is taken as handled, the others are passed on"), C),     # 0x440550
         # Game state 0 from 0x43F020, 0x4469A0, 0x445D10; Collections, the Mausoleum and Tech: 0x43C7D0.
@@ -108,7 +109,11 @@ def _keys() -> list[Entry]:
             "and Tech F1 is the same as Esc"), C),
         Entry(KEY, "F3 (Puzzles and Milestones)", (
             "flips one of the game's drawing settings each press"), C, subs=(       # 0x445D10 -> 0x4083D0
-                ("What the setting changes on screen is not confirmed.", U),)),
+                # 0x4083D0 sets the screen's +0x1F (Puzzles: from its own +0x15D, flipped at 0x445D2C); the frame step
+                # 0x409370 shows a pointer (the game's own image +0x24 at 0x409416, or the Windows one) only while
+                # +0x1F is set; the splash 0x446B5A / 0x446C1F clears and sets it the same way.
+                ("The setting is whether the mouse pointer is drawn: a press hides it or brings it back (the splash "
+                 "pictures hide it the same way while they show).", C),)),
         # 0x43C7D0, 0x445D10, 0x444B40, 0x447F70, 0x43AAF0.
         Entry(KEY, "Esc (Collections, the Mausoleum, Tech, Puzzles, the Map, Villager Detail, Trophies, Adoption)", (
             "the same as the screen's own way back"), C),
@@ -164,16 +169,41 @@ def _clicks() -> list[Entry]:
             # The mouse-down 0x442650: rand(50) + 1025 (RANDOM_COUNT, RANDOM_BASE; tests/hidden_checks.py PICKERS).
             "any tip can come again, nothing is remembered"), C, subs=(
                 ("What is drawn on that spot was not checked.", U),)),
-        # 0x442650 -> 0x440A70, map areas 77 to 80; the condition before it: the area at the click (0x46C3D0) and
-        # 0x41DBC0.
+        # 0x442650 -> 0x440A70, map areas 77 to 80.  0x442650 reaches it only when no villager is under the pointer
+        # (0x4413E0, 0x466820) and the click is inside the view; 0x440A70 first runs the spot's click (0x46E510),
+        # then, when the area map 0x46C3D0 says water (4 or 5) and the game is not paused (0x41DBC0), plays sound 87
+        # (splash1.ogg) and a ripple (0x41CEC0) and returns before the counts.
         Entry(CLICK, "The collection displays (village)", (
             "a click on the ground at one of four places shows how much of a collection is found: \"<n> of 12 "
             "mausoleum mural pieces collected\", \"<n> of 12 fish scales collected\", \"<n> of 12 flutes collected\" "
             "and \"<n> of 12 pieces of lab equipment collected\""), C, subs=(
-                ("What else must hold before the count shows was not traced.", U),)),
-        # The ground click also runs 0x46E510 with the spot.
+                ("It shows only for a click with no villager under the pointer; a click on the water while the game "
+                 "runs makes a splash and a ripple instead.", C),)),
+        # The ground click also runs 0x46E510: the click (event 2) of the handler the spot has in the drop table
+        # 0x705158 (filled by 0x46E5E0).  The lines below are those handlers' event-2 status lines (0x44C290 /
+        # 0x44C300 / 0x44C3A0): the Fire Pit 0x46E9C0, the pot 0x42E540, the herb table 0x46EDB0, the food bin
+        # 0x46EC70, 0x46F1E0, the buildings 0x46F230..0x46F600, 0x46E6F0, 0x4376E0, the bush 0x46F810, the Cooking
+        # Pit 0x435B50..0x436120 and its rubble 0x4359F0, the stream 0x439790, the soap 0x43A4E0, the stalks
+        # 0x439230, the cloth 0x436C80, the cutting tools 0x46E7E0; spot 0x16's 0x46F7E0 opens CMausoleumScene
+        # (game state 0x14).  Every other spot's handler does nothing on a click.  The pot's lines are 0x22E,
+        # 0x230..0x233, 0x235..0x237, 0x244, 0x24D (0x42E580..0x42E712); the herb table's 0x1B8 / 0x1B9
+        # (0x46EDEE..0x46EE4F).
         Entry(CLICK, "Other places (village)", (
-            "a click on the ground also runs another check of the spot; what lines it can show was not traced"), U),
+            "a click on the ground also asks the spot under it, and some answer in the message bar: the lit Fire "
+            "Pit \"Time remaining for fire:\" and its hours and minutes; the stew pot \"The pot is empty.\", \"The "
+            "pot is full of fresh water.\" (or boiling fresh water, salt water, boiling salt water), \"An unfinished "
+            "stew is cooking.\", \"The pot contains a cold unfinished stew.\", \"This stew will evaporate in\" and "
+            "its minutes and seconds, \"Soap is ready to stack.\" or \"Pulp for cloth is ready.\"; the herb table "
+            "\"Still need <n> additional herbs!\" or \"The herbs are ready to make a stew.\"; the food bin \"Food "
+            "available to villagers:\"; \"Tech Points Available:\"; a building \"Percentage construction "
+            "completed:\" (the Clothing Hut also \"Cloth bolts available:\"); the blackberry bush \"Berries "
+            "remaining:\"; the Cooking Pit \"There might be something buried here.\", \"There's a round rock in "
+            "here.\", \"There's a hot rock in here.\" or \"This pit is ready to cook fruit.\", and its rubble "
+            "\"Remaining debris percentage:\"; the stream \"Stream obstruction percentage:\"; the soap \"Bars of "
+            "soap left:\"; the butterflies' stalks \"The stalks are dead and dry.\", \"The stalks are still "
+            "recovering.\" or \"The stalks are healthy.\"; the cloth \"Cloth making percent completed:\"; the "
+            "cutting tools \"Cutting tools left:\". One spot opens the Mausoleum screen. Each with its number "
+            "where it has one."), C),
     ]
 
 
