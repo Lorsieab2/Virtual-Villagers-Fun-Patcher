@@ -381,8 +381,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and Island Events Scale With Stored Food and Tech Points, the alternative of Island Events Scale With
         # Population (the owner, 2026-11-12).
         held_back |= {f"vv{n}_island_events_scale_with_stored_amounts" for n in (1, 4, 5)}
-        # ...and the Isola Grand Event Collection (the owner, 2026-11-14: on in Owner's Defaults, off everywhere else).
-        held_back |= {f"vv{n}_isola_grand_event_collection" for n in range(1, 6)}
+        # (The Isola Grand Event Collection is ticked: the owner, 2026-11-16, Select All ticks the whole "More Island
+        # Events and Creator" row.)
         # ...and Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
         # ...and More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).

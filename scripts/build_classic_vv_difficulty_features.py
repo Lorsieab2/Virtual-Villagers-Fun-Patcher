@@ -31,6 +31,10 @@ PIECES = {
             ("vv4_island_events_scale_with_population", "Island Events Scale With Population (like The Lost Children)"),
             # The owner (2026-11-12): a member of each game's Classic VV Difficulty.
             ("vv4_more_island_events", "More Island Events"),
+            # The owner (2026-11-16): Classic ticks the whole "More Island Events and Creator" row -- the collection too,
+            # with the Scrolling Popups it needs.
+            ("vv4_isola_grand_event_collection", "Isola Grand Event Collection"),
+            ("vv4_scrolling_popups", "Scrolling Popups"),
             ("vv4_difficulty_settings", "Difficulty Settings")],
     "vv5": [("vv5_food_pays_like_earlier_games", "Food Gains are Flat, like VV1-3 (Harder Games)"),
             ("vv5_hungrier_villagers", "Hungrier Villagers (2-100x Meals)"),
@@ -40,6 +44,10 @@ PIECES = {
             ("vv5_sickness_like_vv3", "Sickness works like VV1-3"),
             ("vv5_island_events_scale_with_population", "Island Events Scale With Population (like The Lost Children)"),
             ("vv5_more_island_events", "More Island Events"),
+            # The owner (2026-11-16): Classic ticks the whole "More Island Events and Creator" row -- the collection too,
+            # with the Scrolling Popups it needs.
+            ("vv5_isola_grand_event_collection", "Isola Grand Event Collection"),
+            ("vv5_scrolling_popups", "Scrolling Popups"),
             ("vv5_difficulty_settings", "Difficulty Settings")],
 }
 
