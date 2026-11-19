@@ -136,9 +136,16 @@ HIDDEN_LINES = (
      "talking, sand or resting, disliked: never chosen. Dancing or jumping, disliked: no dance or jump. Children, "
      "disliked: a storyteller tells a story only 2% of the time. Playing, liked: a child picks one of 4 lively "
      "plays.", gm.RUNNING),
-    ("The other 37 likes and dislikes: none of the game's checks of a like or dislike that were traced reads "
-     "them, so no effect of theirs is known; not every one of the about 90 places that check likes was traced. "
-     "The preferred job and Parenting's own odds are under Chances (Choosing a job).", False),
+    # Every call of the like test 0x445510 (9) and the dislike test 0x4454E0 (101), each with its word pushed, read
+    # from the whole code (2026-11-18): they test only the 25 words named in the lines above.  The other direct
+    # reads of the likes (+0x5F0) and dislikes (+0x6E8) -- 0x4214BF/0x4214D3 (the first two of each, with the
+    # skills and name, for text), 0x4215B0..0x42171E (copies), 0x420605..0x420D53 and 0x425492 (writes) -- test
+    # no word.
+    ("The other 37 likes and dislikes (ants, butterflies, flowers, bees, the dark, caves, berries, snakes, wind, "
+     "rocks, exploring, blue, green, red, yellow, drums, bushes, bananas, sunlight, crab meat, whale meat, fruit, "
+     "papaya, flies, monkeys, parrots, lifting, surprises, jokes, sleeping, dragonflies, owls, dreaming, holidays, "
+     "quiet, clouds, dirt): the game's code never tests them, so they change nothing in play. The preferred job "
+     "and Parenting's own odds are under Chances (Choosing a job).", gm.CODE),
     ("A baby is born with points in one parent's best skill (the mother's or the father's, 50% each; on a tie "
      "the first of Parenting, Building, Healing, Farming, Research): 5 to 7, each 1 in 3; when both parents' best "
      "is the same skill, 4 to 5, 5 to 8 or 7 to 11 at Culture level 1, 2 or 3 (each equally likely). A best "
@@ -512,7 +519,8 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     # A save's page gives the pieces found once, by collection, under Village counts (src/vv_game_mechanics_counts.py).
     if village.general:
         collectible_words = ("Collectibles: " + (f"{sum(found)} of the 48 pieces found" if found is not None
-                                                 else "not read from this save")
+                                                 else "not in this save (the file ends before them; the game's "
+                                                      "Collections screen shows them)")
                              + "; what a piece found again pays is under Collectibles.")
     else:
         collectible_words = ("Collectibles: the pieces found, by collection, are under Village counts; what a piece "
