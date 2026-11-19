@@ -81,11 +81,13 @@ def _keys() -> list[Entry]:
         Entry(KEY, "C, D, M, P, T and Esc (village screen)", (
             "the same as clicking the screen's own buttons: C Collections, D Detail, M Map, P Puzzles, T Tech and Esc "
             "Menu. Capital and small letters work alike"), C),
-        # The value is the village screen's +0x40, set in 0x4662F0.
+        # The value is the village screen's +0x40, set in 0x4662F0; every access to +0x40 in the village screen's
+        # code (0x46645C..0x4664F1 in the key handler, 0x4677CD at its start) is the key handler's own or the
+        # reset -- no other code reads it (2026-11-18).
         Entry(KEY, "F then W (village screen)", (
-            "no effect was found. F flips a value of the village screen between 0 and 1, W with it at 1 sets it to "
-            "2, and any other unlisted character sets it back to 0; no code of the village screen was found reading "
-            "the value"), U, subs=(
+            "no effect. F flips a value of the village screen between 0 and 1, W with it at 1 sets it to 2, and any "
+            "other unlisted character sets it back to 0; nothing else in the village screen's code reads the value "
+            "(a leftover)"), C, subs=(
                 ("Seen by the owner (2026-10-11): F then W, then the F keys, did nothing visible.", O),)),
         # 0x4662F0
         Entry(KEY, "' ; [ and ] (village screen)", (
@@ -180,16 +182,28 @@ def _clicks() -> list[Entry]:
             f"Each press of the left button on it plays a sound (95) and shows one of all {RANDOM_COUNT} random tips "
             f"(below) in the message bar: each tip 1 in {RANDOM_COUNT} a click, "
             "any tip can come again, nothing is remembered"), C, subs=(
-                ("What is drawn on that spot was not checked.", U),)),
+                # The rectangle +0x7C..+0x88 is written at 0x4677E9 / 0x46AF00 and only compared (0x469381,
+                # 0x46A5C9): no drawing code reads it.
+                ("The game draws nothing of its own on the spot: no drawing code reads its rectangle, only the "
+                 "click test does, so what is seen there is the screen's interface picture.", C),)),
         # 0x46A3D0 -> 0x46A350 -> 0x469A60 (which place gives which line, and area 34's pop-up, are in 0x469A60).
         Entry(CLICK, "Places that show their state (village)", (
             "a click on the ground (not on a villager, nor on something to pick up) writes one of these lines in the "
             "message bar, chosen by the place clicked and its state; the %d marks are the game's figures"), C,
+              # The switch 0x469A95 over the clicked area (table 0x46A114 / 0x46A0CC), decoded 2026-11-18.
               subs=tuple((f"\"{line}\"", C) for line in _PLACE_LINES) + (
-                  ("Which place gives which line, and the conditions, are in the game's code and not written out "
-                   "here.", U),
-                  ("One place (area 34), when its condition holds, plays a sound (133) and opens a pop-up instead; "
-                   "what the pop-up is was not identified.", U))),
+                  ("Which place gives which line: the fire pit, the time left on the fire; the bath, needs repair / "
+                   "its repair % / repaired; the lift, broken or \"a primitive lift\"; the potion pot, the time "
+                   "before the potion evaporates or \"no potion ready\"; the alchemy lab, in ruins / herbs still "
+                   "needed / ready; the food bin, the food; the bee hive, the honey left or not enough; the statue, "
+                   "too splendid to leave broken / time until repaired / \"a beautiful princess\"; the research spot, "
+                   "the tech points; the three huts and the fourth, the construction %; the fruit trees, the fruit or "
+                   "not enough, or the time until mature; the cave, its entrance or the rubble removed %; the plaque "
+                   "behind the leaves, the leaves removed %; the chalkboard, could be used / contains plans.", C),
+                  # Area 34: with puzzle 3 solved (0x436050 -> 0x4358D0(3)) the click plays sound 133 (0x469AE5) and
+                  # opens the screen 0x41A110 (vtable 0x47F2C0), the Roster's list.
+                  ("The plaque (once The Roster of the Dead is solved): a click plays a sound (133) and opens the "
+                   "Roster of the Dead, the list of the village's dead, instead of a line.", C))),
     ]
 
 
@@ -200,19 +214,50 @@ def _tips() -> list[Entry]:
             f"the loading screen shows one of the first {LOADING_COUNT} random tips, picked once when it is built "
             f"(each 1 in {LOADING_COUNT}); the tip spot shows any of all "
             f"{RANDOM_COUNT} (above); the tutorial (eTTip) and milestone (eTip) pop-ups are asked for by number"), C,
+              # The queue 0x436E60(id, ., force) refuses a tip whose shown byte (+(id - 633) x 32, set by 0x436F40) is
+              # already set unless forced; the tutorial (byte +0xBD0 on) keeps its current step at +0xBD4, and after
+              # each pop-up 0x436F10 puts up the first even tip 634-666 not yet shown, forced; 0x436EE0 (the tutorial
+              # button, 0x466648) puts the current one up again.
               subs=(
-                ("Whether each pop-up shows once a village, and how the tutorial question arms them, is not traced.",
-                 U),)),
+                ("Each pop-up shows once a village: the game marks it when it is put up and does not put it up "
+                 "again. With the tutorial on, after each pop-up the next tutorial instruction not yet shown (the "
+                 "even tips 634 to 666) comes up, and the tutorial button shows the current one again.", C),)),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (eRandomTip1 to 50; the loading screen draws from the first "
                    f"{LOADING_COUNT}, the tip spot from all)", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C,
                                     lambda tip: "" if tip[0] < RANDOM_BASE + LOADING_COUNT else "the tip spot only")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (eTTip tutorial, eTip milestones)", (
-            "every one, as the game words it, with its name and the places that ask for it by number (a tip with none "
-            "is asked for by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
-              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
-                                    lambda tip: tip[1] + ("; " + hidden.sites_note(tip[2]) if tip[2] else ""))),
+            "every one, as the game words it, with its name and the places that ask for it by number, or how else it "
+            "comes; a tip nothing asks for is never shown by the normal game"), C,
+              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] or _how(tip) else U,
+                                    lambda tip: "; ".join(w for w in (tip[1], hidden.sites_note(tip[2]) if tip[2]
+                                                                      else _how(tip)) if w))),
     ]
+
+
+# The tips with no fixed-number asker, every path checked (2026-11-18): the queue 0x436E60's callers (also those
+# sharing a call after a jump), its three computed callers (the collections 0x42E015: 720-723 by the set completed;
+# the tutorial's next step 0x436F3A and its button 0x436F02), the string table's own entries (0x4AEB10..), base-plus-
+# offset loads, and the tip spot and loading screen (random tips only).
+SHARED_CALL = {695: "when the village reaches 25 people", 696: "when it reaches 50",
+               697: "when it reaches 90 and has no room for more",               # 0x428D22..0x428D7A
+               712: "when the Cliff Key is put down", 714: "when the Clam Key is put down",   # 0x433406..0x433426
+               717: "each time a hut is finished (put up even if shown before)"}  # 0x432832..0x432853, forced
+COLLECTION_DONE = {720: "Turtle Shell", 721: "Coral", 722: "Tablet", 723: "Feather"}
+TUTORIAL_STEP = frozenset(range(634, 667, 2))
+NEVER_ASKED = frozenset({669, 670, 672, 675, 679, 687, 688, 690, 698, 704, 719})
+
+
+def _how(tip) -> str:
+    if tip[0] in SHARED_CALL:
+        return f"asked for by number at one place, {SHARED_CALL[tip[0]]}"
+    if tip[0] in COLLECTION_DONE:
+        return f"shown when the {COLLECTION_DONE[tip[0]]} collection is completed"
+    if tip[0] in TUTORIAL_STEP:
+        return "the tutorial's next instruction (and again from the tutorial button)"
+    if tip[0] in NEVER_ASKED:
+        return "nothing in the normal game asks for it, so the normal game never shows it"
+    return ""
 
 
 def _patcher() -> list[Entry]:

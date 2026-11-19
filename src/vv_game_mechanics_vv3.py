@@ -668,7 +668,12 @@ CHANCE_LINES = (
     # nothing in it, or in the sharks' listeners 0x436390 / 0x436580, reads a clock.
     ("The sharks have no timer: they stay off the beach, at fixed spots, until The Sharks is solved; the game draws "
      "10 of them, one fewer for each 10% of the puzzle's progress (at least 1).", True),
-    ("Not traced in this pass: how long a fixed-spot coral placed by puzzle code stays out.", False),
+    # The pop-up hook 0x437310's case for tip 658 (byte table 0x437594, jump table 0x437544) calls 0x42D530: item
+    # 0x40 (the first common Coral piece) at (1487, 620), gone 90 seconds of the wall clock later (0x42D55A), as
+    # every placed piece (0x42DB10, 0x42DC70).
+    ("The tutorial's step \"Children can also contribute to village life...\" (tip 658) puts a common Coral piece "
+     "at a fixed spot for the children to collect; like every collectible it is gone after 90 real-life seconds "
+     "unpicked.", True),
     # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
     # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
     # 2026-10-27: "for cases where the code contradicts live observation write both cases down".

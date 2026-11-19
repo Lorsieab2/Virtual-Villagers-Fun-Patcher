@@ -24,7 +24,7 @@ class Hidden3(HiddenChecks, unittest.TestCase):
         ('key', 'Space (village screen)', C, ()),
         ('key', '1 to 9 (village screen)', C, ()),
         ('key', 'C, D, M, P, T and Esc (village screen)', C, ()),
-        ('key', 'F then W (village screen)', U, (O,)),
+        ('key', 'F then W (village screen)', C, (O,)),
         ('key', "' ; [ and ] (village screen)", C, ()),
         ('key', 'F1 (the help pictures, the splash, the three screens of the shared slot)', C, ()),
         ('key', "Esc (the shared slot's three screens, Map, Villager Detail)", C, (C,)),
@@ -36,9 +36,9 @@ class Hidden3(HiddenChecks, unittest.TestCase):
         ('key', 'Event type 7 (village screen)', D, ()),
         ('key', 'Store screens: no redraw or reroll key', C, ()),
         ('code', 'Typed codes and name cheats', C, (U,)),
-        ('click', 'The tip spot (village screen)', C, (U,)),
-        ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, U, U)),
-        ('tip', 'Where the tips appear', C, (U,)),
+        ('click', 'The tip spot (village screen)', C, (C,)),
+        ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C)),
+        ('tip', 'Where the tips appear', C, (C,)),
         ('patcher', 'The second faction (Tech screen)', C, ()),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (C,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
@@ -46,7 +46,7 @@ class Hidden3(HiddenChecks, unittest.TestCase):
     )
     TIP_COUNTS = {
         'The 50 random tips (eRandomTip1 to 50; the loading screen draws from the first 30, the tip spot from all)': {C: 50},
-        'The 88 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 52, U: 36},
+        'The 88 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 88},
     }
     DEAD = (
         "The developer's three editors (behaviour scripts, the content map, waypoints)",

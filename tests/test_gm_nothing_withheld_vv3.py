@@ -166,6 +166,25 @@ class KeptListDone(unittest.TestCase):
         self.assertIn("fish, the fisher's crab and the chief's Grant Food are not", _entry("Food Point Doubler").text)
         self.assertIn("a running dislike is taken away for free", _entry("Grant Running").text)
 
+    def test_every_tip_pop_up_says_how_it_comes(self) -> None:
+        for tip in hidden_vv3.POPUP_TIPS:
+            self.assertTrue(tip[2] or hidden_vv3._how(tip), tip[0])
+        self.assertIn("Coral collection is completed", hidden_vv3._how(next(t for t in hidden_vv3.POPUP_TIPS
+                                                                            if t[0] == 721)))
+        self.assertIn("each time a hut is finished", hidden_vv3._how(next(t for t in hidden_vv3.POPUP_TIPS
+                                                                          if t[0] == 717)))
+
+    def test_places_and_the_plaque(self) -> None:
+        subs = [t for t, _v in next(e for e in hidden_vv3.entries()
+                                    if e.name == "Places that show their state (village)").subs]
+        self.assertTrue(any(t.startswith("Which place gives which line: the fire pit") for t in subs))
+        self.assertTrue(any("opens the Roster of the Dead" in t for t in subs))
+
+    def test_the_tutorial_coral(self) -> None:
+        import vv_game_mechanics_vv3 as vv3
+        line = next(t for t, _ok in vv3.CHANCE_LINES if "(tip 658)" in t)
+        self.assertIn("gone after 90 real-life seconds", line)
+
     def test_the_sharks_have_no_timer(self) -> None:
         import vv_game_mechanics_vv3 as vv3
         texts = [t for t, _ok in vv3.CHANCE_LINES]
