@@ -174,7 +174,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 30 */
        CGE_DELIVER_EARLY = 24,
        /* cie-v6-binary.md 32: The Tree of Life's cutting tools, soap and cloth bolts */
-       CGE_SUPPLY = 25 };
+       CGE_SUPPLY = 25,
+       /* cie-v6-binary.md 33-35: a trade, a group behaviour, the village */
+       CGE_TRADE = 26, CGE_GROUP = 27, CGE_VILLAGE = 28 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -189,7 +191,13 @@ enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, 
        CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12,
        /* cie-v6-binary.md 8: a bound villager's facts, and a pool instance's draw */
        CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16,
-       CGC_HAS_DEAD_RELATIVE = 17 };  /* cie-v6-binary.md 21a */
+       CGC_HAS_DEAD_RELATIVE = 17,    /* cie-v6-binary.md 21a */
+CGC_HAS_SUPPLY = 18 };         /* cie-v6-binary.md 33: a = the good's word, the next H = at least */
+/* story_graph_village.inc (cie-v6-binary.md 33-35), used by the loader and the walk before it is included. */
+static int cg_good_word(const char *word);
+static int cg_has_good(int game, const char *word, int n);
+static int cg_group_ok(const char *kind, int whole_village);
+static int cg_village_ok(const char *s, int a, int b);
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
        CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
 #define CG_POOL_TRIBE (-2)            /* G5: {@tribe}, built in (no pool): the tribe's name at run time */
@@ -1003,6 +1011,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                  && cg_str_ok(g, cg_u16(c + 6), 0);
             break;
         case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE: ok = g->version >= 6 && (int)a < g->n_role; break;
+        case CGC_HAS_SUPPLY:
+            /* 33: a good's word, at least 1..9999 of it */
+            ok = g->version >= 6 && cg_str_ok(g, a, 0) && cg_good_word(cg_s(g, a)) && cg_u16(c + 4) >= 1u
+                 && cg_u16(c + 4) <= 9999u;
+            break;
         case CGC_DREW:
             ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE
                  && cg_u16(c + 6) < cg_u16(cg_pool_at(g, (int)a) + 4);
@@ -1030,10 +1043,12 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY;
+                       || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY
+                       || (e[0] == CGE_GROUP && e[1] != CG_ROLE_ALIAS_ALL);
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
-                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_SUPPLY));
+                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_SUPPLY
+                                         || e[0] == CGE_TRADE || e[0] == CGE_GROUP || e[0] == CGE_VILLAGE));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1097,9 +1112,34 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                      && cg_str_ok(g, str, 0);
                 break;
             case CGE_SUPPLY:
-                /* 32: the village's; a..b a gain (1..99) or a loss (-99..-1); the supply's word. */
-                ok = e[1] == CG_ROLE_ALIAS_ALL && a <= b && ((a >= 1 && b <= 99) || (a >= -99 && b <= -1))
-                     && str != CG_NONE && cg_str_ok(g, str, 0) && c4_supply_item(cg_s(g, str)) >= 0;
+                /* 32, 33: the village's; a..b a gain (1..9999) or a loss (-9999..-1); a good's word (The Tree of
+                   Life's three supplies keep 1..99, the patcher's check). */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a <= b && ((a >= 1 && b <= 9999) || (a >= -9999 && b <= -1))
+                     && str != CG_NONE && cg_str_ok(g, str, 0) && cg_good_word(cg_s(g, str));
+                break;
+            case CGE_TRADE:
+                /* 33: give a (1..9999) of one good, get b (1..9999) of another: "give,get". */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a >= 1 && a <= 9999 && b >= 1 && b <= 9999 && str != CG_NONE
+                     && cg_str_ok(g, str, 0);
+                if (ok) {
+                    char give[48];
+                    int at;
+                    lstrcpynA(give, cg_s(g, str), sizeof give);
+                    for (at = 0; give[at] != '\0' && give[at] != ','; ++at) {
+                    }
+                    ok = give[at] == ',' && (give[at] = '\0', cg_good_word(give)) && cg_good_word(give + at + 1)
+                         && lstrcmpA(give, give + at + 1) != 0;
+                }
+                break;
+            case CGE_GROUP:
+                /* 34: the kind's word; a = the share made sick (1..100, "sick" only), else 0. */
+                ok = str != CG_NONE && cg_str_ok(g, str, 0) && cg_group_ok(cg_s(g, str), e[1] == CG_ROLE_ALIAS_ALL)
+                     && b == 0 && (lstrcmpA(cg_s(g, str), "sick") == 0 ? a >= 1 && a <= 100 : a == 0);
+                break;
+            case CGE_VILLAGE:
+                /* 35: event_timer, tech_level[:area], construction, weather:<word>. */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && str != CG_NONE && cg_str_ok(g, str, 0)
+                     && cg_village_ok(cg_s(g, str), a, b);
                 break;
             default: break;
             }
@@ -2766,6 +2806,7 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_MIN_CHILDREN: return cg_population(game, 1) >= (int)a;
     case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE:
         return cg_role_fact(c, game);
+    case CGC_HAS_SUPPLY: return cg_has_good(game, cg_s(&cg_g, a), (int)cg_u16(c + 4));
     case CGC_DREW: {
         const cg_pick *pick = cg_find_pick((int)a, (int)cg_u16(c + 4));
         return pick != NULL && pick->item == cg_u16(c + 6);
@@ -2967,8 +3008,8 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = lo + ce_random_below(a, hi - lo + 1);   /* version 6: a loss too (lo..hi below 0) */
         break;
     }
-    case CGE_HEALTH_CHANGE: case CGE_DAMAGE: case CGE_SUPPLY:
-        va = lo + ce_random_below(a, hi - lo + 1);
+    case CGE_HEALTH_CHANGE: case CGE_DAMAGE: case CGE_SUPPLY: case CGE_VILLAGE:
+        va = lo + ce_random_below(a, hi - lo + 1);   /* 35: a fixed step or weather (lo == hi) takes no roll */
         break;
     case CGE_DELIVER_EARLY:
         /* 30: the newborn's extra loss, rolled only when the effect has one */
@@ -4670,6 +4711,8 @@ static void cg_supply(int game, const unsigned char *e, int delta) {
     }
 }
 
+#include "story_graph_village.inc"   /* cie-v6-binary.md 33-35: goods, trades, group behaviours, the village */
+
 /* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
 static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
                       int *award, ce_result *r) {
@@ -4695,7 +4738,27 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         cg_damage(a, game, e, va);
         return;
     case CGE_SUPPLY:
-        cg_supply(game, e, va);
+        if (c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))) >= 0) {
+            cg_supply(game, e, va);        /* 32: The Tree of Life's three supplies, as PR #806 made them */
+        } else {
+            cg_supply_any(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);   /* 33 */
+        }
+        return;
+    case CGE_TRADE:
+        cg_trade(a, game, cg_s(&cg_g, cg_u16(e + 12)), (int)cg_u32(e + 4), (int)cg_u32(e + 8));
+        return;
+    case CGE_VILLAGE:
+        cg_village_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);
+        return;
+    case CGE_GROUP:
+        if (e[1] == CG_ROLE_ALIAS_ALL) {
+            cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), -1, (int)cg_u32(e + 4), r);
+        } else {
+            role = cg_resolve_role(e[1]);
+            if (role >= 0 && cg_villager(a, role) != NULL) {
+                cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), cg.record[role], 0, r);
+            }
+        }
         return;
     case CGE_CELEBRATE:
         if (e[1] == CG_ROLE_ALIAS_ALL) {
@@ -7603,6 +7666,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphPuzzles(int solved) {
 /* "VVFP VV4 Supply Cap.dll" as the "supply" effect sees it (cie-v6-binary.md 32): -1 the real check, 0 none, 1 in. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
     test_graph_supply_cap = mode;
+}
+
+/* "has_supply" (cie-v6-binary.md 33): -1 the village's own goods, 0 / 1 forced. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphGoods(int mode) {
+    test_graph_goods = mode;
+}
+
+/* The weather (35): `call` 0 records the type without calling the game's starter; returns the last type started
+   (-1 none) and clears it. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphWeather(int call) {
+    int last = test_graph_weather;
+    test_graph_weather_call = call;
+    test_graph_weather = -1;
+    return last;
 }
 
 /* The run: out[0] phase, [1] display_next, [2] display_count, [3] display armed, [4] choice, [5] bound roles,
