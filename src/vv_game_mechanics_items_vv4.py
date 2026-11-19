@@ -385,7 +385,9 @@ def _buildings() -> list[Entry]:
             f"{steps(50)}. Finished, a villager dropped on it with at least 3 of the five skills at 50 or more becomes "
             "the teacher, and each child's lessons are worth the teacher's five skills added up "
             "÷ 240 per real-life hour at any speed, in skills below 50 (the rule is under Tech points and "
-            "effects)."), VERIFIED_E,
+            "effects). A nursing mother dropped on it is refused (\"Nursing mothers don't work while they are "
+            "caring for an infant.\"), and a teacher who becomes a mother keeps teaching (also under Tech points "
+            "and effects)."), VERIFIED_E,
             (("It appears as a site at Learning level 3.", VERIFIED_C),)),        # 0x430DB0
         Entry(BUILDING, "The Hospital", (
             f"{steps(50)}. Finished, a healer with nobody sick studies medicine there (Healing practice), and a "

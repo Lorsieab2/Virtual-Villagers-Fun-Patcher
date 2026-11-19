@@ -1249,7 +1249,7 @@
         "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
         "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
-        "Rain can no longer crash the game: a raindrop of no length is drawn as a dot.",
+        "Rain can no longer crash the game: a raindrop of no length is drawn as a dot. An unfinished Nursery School says \"foundation\" until building starts.",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
         "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child). Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building.",

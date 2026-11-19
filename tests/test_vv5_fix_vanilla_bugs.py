@@ -70,6 +70,7 @@ from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
 from test_vv5_hovel_cover import hovel_fixes  # noqa: E402
 from test_vv5_hungry_totem_solve_time import FIX as HUNGRY_TOTEM_TIME  # noqa: E402
 from test_vv5_statue_polish_energy import FIXES as STATUE_FIXES  # noqa: E402
+from test_vv5_nursery_foundation_caption import foundation_caption_fixes  # noqa: E402
 SOUND_ENTRY = 0x4CE508          # {0x98, name, file, 0}
 TEXT_ENTRY = 0x4D7530           # {0x302, name, built-in text, 0}
 TEXT_TABLE = (0x4D31F0, 1409)   # 16-byte entries, as the loader 0x450A60 walks them (0x581)
@@ -111,6 +112,9 @@ class RowTests(unittest.TestCase):
         statue = list(STATUE_FIXES)                     # tests/test_vv5_statue_polish_energy.py
         self.assertEqual(pinned[-len(statue):], statue)
         pinned = pinned[:-len(statue)]
+        caption = list(foundation_caption_fixes())     # tests/test_vv5_nursery_foundation_caption.py
+        self.assertEqual(pinned[-len(caption):], caption)
+        pinned = pinned[:-len(caption)]
         tie = list(nursery_tie_fixes("vv5"))           # tests/test_nursery_tie_random.py
         self.assertEqual(pinned[-len(tie):], tie)
         pinned = pinned[:-len(tie)]
