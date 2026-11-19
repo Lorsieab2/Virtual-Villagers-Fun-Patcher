@@ -71259,6 +71259,230 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window; %1 = a number (number); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_PRESENTATION.s0",
+   "english": "gender presentation",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_PRESENTATION_OWN.s0",
+   "english": "Own look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_PRESENTATION_OTHER.s0",
+   "english": "Other sex's look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_HEAD_LOOK.s0",
+   "english": "head look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s0",
+   "english": "  Old head: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s1",
+   "english": "\n  Old body: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s2",
+   "english": "\n  New head: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s3",
+   "english": "\n  New body: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s4",
+   "english": "\n  Old ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s5",
+   "english": "\n  New ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_log_name_change.s0",
+   "english": "  Old name: %s\n  Age: %d\n  Changed by: %s (island event)\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number); %3 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_log_name_change.s1",
+   "english": "an island event",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_carrier_line.s0",
+   "english": "%s %s the babies (the partner carries instead of %s).",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_carrier_line.s1",
+   "english": ", who is male,",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_carrier_line.s2",
+   "english": "%s %s the babies.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect.s13",
+   "english": " now has the story trait mute.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

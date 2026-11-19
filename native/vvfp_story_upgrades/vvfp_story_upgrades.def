@@ -32,3 +32,4 @@ EXPORTS
     VvfpOnePopupPick=_VvfpOnePopupPick@8
     VvfpPopupWholeText=_VvfpPopupWholeText@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
+    VvfpStoryTraitsOf=_VvfpStoryTraitsOf@8

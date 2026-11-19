@@ -3753,6 +3753,10 @@ static struct {
     int head, body;
 } g_father_set;
 
+/* A branching Custom Island Event's couple pregnancy in which the PARTNER carries (WriteParentageRecordCarried):
+   set around that one record, so it says so. */
+static int g_partner_carries;
+
 /* The father's age, sex, likes and dislikes when the game's own default
    father stands in for one (is_game_default_father): there is no villager to
    read them from. */
@@ -3813,6 +3817,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     char mother_dislikes[PREFERENCE_TEXT_MAX];
     char father_likes[PREFERENCE_TEXT_MAX];
     char father_dislikes[PREFERENCE_TEXT_MAX];
+    char carried_note[3 * MAX_NAME_BYTES + 160];
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
@@ -4077,6 +4082,32 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_head[sizeof(father_head) - 1] = '\0';
         father_body[sizeof(father_body) - 1] = '\0';
     }
+    /* WHO CARRIES (the owner, 2026-11-17: the logs keep track of males
+       carrying babies).  The carrier is always the "Mother" of the record --
+       the villager the game made pregnant, whatever their sex (the owner,
+       2026-11-16) -- and the partner the "Father".  A carrier who is not a
+       woman now, and a couple's pregnancy in which the partner carries
+       (WriteParentageRecordCarried), each get a note naming both, so the
+       record reads plainly whoever carries. */
+    {
+        int carrier_male = strcmp(sex_text(g, mother), "Male") == 0;
+        carried_note[0] = '\0';
+        if (g_partner_carries) {
+            _snprintf(carried_note, sizeof carried_note,
+                      "  Note: The partner carries (%s carries the babies instead of %s; %s is named as the "
+                      "Mother)\n", mother_name, father_name, mother_name);
+        } else if (carrier_male) {
+            _snprintf(carried_note, sizeof carried_note,
+                      "  Note: Carried by %s, who is male (named as the Mother; %s is named as the Father)\n",
+                      mother_name, father_name);
+        }
+        if (g_partner_carries && carrier_male) {
+            size_t used = strlen(carried_note);
+            _snprintf(carried_note + used, sizeof carried_note - used, "  Note: %s, who carries, is male\n",
+                      mother_name);
+        }
+        carried_note[sizeof carried_note - 1] = '\0';
+    }
     /* Everything after the "Conception <n>" line. The number is assigned when
        the record is actually written, which for a record held until the
        village's first save is later than now -- see emit_record. */
@@ -4098,6 +4129,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Dislikes: %s\n"
         "  Babies nursing: %d\n"
         "%s"
+        "%s"
         "\n",
         mother_name,
         *(const int *)(mother + g->age),
@@ -4116,7 +4148,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_dislikes,
         babies,
         g_father_set.name != NULL && father_from_caller == NULL
-            ? "  Note: Father set by a Custom Island Event\n" : ""
+            ? "  Note: Father set by a Custom Island Event\n" : "",
+        carried_note
     );
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
@@ -4156,6 +4189,25 @@ __declspec(dllexport) int __stdcall WriteParentageConceptionFatherSet(
     g_father_set.body = father_body;
     result = WriteParentageRecordWithFather(game_id, records_pointer, mother_pointer, NULL);
     g_father_set.name = NULL;
+    return result;
+}
+
+/* A branching Custom Island Event's Conception (VVFP Story Upgrades' story_log_conception), `partner_carries` 1
+   when the couple's PARTNER carries (the effect allows it and the player's setting drew it: the two changed
+   places, so `mother_pointer` is the partner who carries and `father_pointer` the villager the event named).
+   Exactly WriteParentageRecordWithFather's record, with the note "  Note: The partner carries (...)".  All five
+   games; 1 when written or held for the next save. */
+__declspec(dllexport) int __stdcall WriteParentageRecordCarried(
+    int game_id,
+    const void *records_pointer,
+    const void *mother_pointer,
+    const void *father_pointer,
+    int partner_carries
+) {
+    int result;
+    g_partner_carries = partner_carries != 0;
+    result = WriteParentageRecordWithFather(game_id, records_pointer, mother_pointer, father_pointer);
+    g_partner_carries = 0;
     return result;
 }
 
@@ -4633,6 +4685,12 @@ static void note_appearance_logged(const struct game_layout *g, const unsigned c
         || sscanf_s(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d", &oh, &ob, &nh, &nb) != 4) {
         return;
     }
+    if (oh == nh && ob == nb) {
+        /* A record that changes no look (a sex change, a gender presentation, a head look: native/shared/
+           look_change_log.h) is no transition: noted, it would be a self-loop AppearanceAlreadyLogged could
+           follow instead of the real A -> C (Codex, #784). */
+        return;
+    }
     look_notes[look_note_next].game = game_of_layout(g);
     copy_villager_name(g, record, look_notes[look_note_next].name, sizeof look_notes[0].name);
     look_notes[look_note_next].sex = *(const int *)(record + g->sex);
@@ -4662,6 +4720,9 @@ __declspec(dllexport) int __stdcall AppearanceAlreadyLogged(int game_id, const v
                 && look_notes[i].ob == body && strcmp(look_notes[i].name, name) == 0) {
                 if (look_notes[i].nh == new_head && look_notes[i].nb == new_body) {
                     return 1;             /* a note straight to the look wanted */
+                }
+                if (look_notes[i].nh == head && look_notes[i].nb == body) {
+                    continue;             /* a self-loop leads nowhere (Codex, #784) */
                 }
                 if (next < 0) {
                     next = i;
