@@ -911,6 +911,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out", verified=gm.RUNNING))
     ctx = life.Context(
         village, speed_value, wall(LAST_SAVED), _i32(buf, FOOD), low_food=500, extra_from=8000, sources=srcs,
+        created=clock.created,
         tech=_i32(buf, POINTS), tech_words=f"Research brings them (the skill ÷ {divisor} at Science level "
                                            f"{level[SCIENCE]}); a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0, golden=village.has(GOLDEN) is True,

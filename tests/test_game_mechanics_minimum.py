@@ -92,12 +92,19 @@ class MinimumDetail(unittest.TestCase):
             if name.startswith("general"):
                 continue
             with self.subTest(name):
+                span = r"[\d,]+\.\d hours = [\d,]+\.\d days( = [\d,]+\.\d years)?"
                 for page in (facts, gm.minimum(facts)):
-                    hits = [f.text for f in page if f.group == VITAL and f.text.startswith(
-                        "Hours since the save was last played: ")]
-                    self.assertEqual(len(hits), 1, name)
-                    self.assertRegex(hits[0], r"^Hours since the save was last played: [\d,]+\.\d \(real time; "
-                                              r"last saved [^)]+\)\.( .+ would count if it were played now\.)?$")
+                    for label, tail in (("Time since save was last played", r"last saved [^)]+\)\.( .+ would count "
+                                                                              r"if it were played now\.)?"),
+                                        ("Time since save was created", r"created [^)]+\)\.")):
+                        hits = [f.text for f in page if f.group == VITAL and f.text.startswith(label + ": ")]
+                        self.assertEqual(len(hits), 1, (name, label))
+                        self.assertRegex(hits[0], rf"^{label}: {span} \(real time; {tail}$")
+
+    def test_hours_days_years(self) -> None:
+        self.assertEqual(gm.hours_days_years(547.6 * 3600), "547.6 hours = 22.8 days")
+        self.assertEqual(gm.hours_days_years(400 * 86400), "9,600.0 hours = 400.0 days = 1.1 years")
+        self.assertEqual(gm.hours_days_years(-5), "0.0 hours = 0.0 days")
 
     def test_first_sentence(self) -> None:
         self.assertEqual(gm.first_sentence("Tech points: 1,234. Research brings them."), "Tech points: 1,234.")

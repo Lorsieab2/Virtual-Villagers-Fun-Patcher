@@ -336,10 +336,14 @@ class Vitals(unittest.TestCase):
     def test_speed_difficulty_and_time_away_are_named(self) -> None:
         for game in range(1, 6):
             with self.subTest(game=game):
-                first = next(f for f in page(self, game, fixture(game)) if f.text.startswith("Speed "))
+                facts = page(self, game, fixture(game))
+                first = next(f for f in facts if f.text.startswith("Speed "))
                 self.assertRegex(first.text, r"^Speed (Fast|Normal|Slow)")
                 self.assertIn("difficulty", first.text)
-                self.assertIn("would count if it were played now", first.text)
+                # The time away is its own line (the owner, 2026-11-19: hours since the save was played).
+                away = next(f for f in facts if f.text.startswith("Time since save was last played: "))
+                self.assertIn("would count if it were played now", away.text)
+                self.assertTrue(any(f.text.startswith("Time since save was created: ") for f in facts))
 
     def test_closed_game_estimates(self) -> None:
         for game in range(1, 6):

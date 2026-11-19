@@ -710,7 +710,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     ctx_ref = []
     ctx = life.Context(
-        village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
+        village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000, created=clock.created,
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),

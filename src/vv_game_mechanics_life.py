@@ -274,6 +274,7 @@ class Context:
     # One store shared by a source and the catch-up bonus (The Tree of Life's limited yellow fruit tree): (ctx,
     # members, counted seconds, food credited on the sources, bonus food) -> the two again, from that one store.
     closed_budget: object = None
+    created: float | None = None             # the village's start (real), when the save has it
 
     @property
     def game(self) -> int:
@@ -727,7 +728,12 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
         "is at this speed and difficulty.", gm.SAVE)
     # The owner, 2026-11-19: "the number of hours since the save was played should be shown in vital statistics" --
     # its own line, answer first, so Minimal Detail keeps it too.
-    add(f"Hours since the save was last played: {away / 3600:,.1f} (real time; last saved {gm.when(ctx.last)}). "
+    # The owner, 2026-11-19: "vital statistics should show how many hours since the save was created. both save
+    # created and save played should show hours, then days, years etc."
+    if ctx.created is not None and ctx.created <= ctx.village.now:
+        add(f"Time since save was created: {gm.hours_days_years(ctx.village.now - ctx.created)} (real time; created "
+            f"{gm.when(ctx.created)}).", gm.SAVE)
+    add(f"Time since save was last played: {gm.hours_days_years(away)} (real time; last saved {gm.when(ctx.last)}). "
         f"{gm.duration(counted)} of that would count if it were played now.", gm.SAVE)
 
     # 2. Food and its sources.

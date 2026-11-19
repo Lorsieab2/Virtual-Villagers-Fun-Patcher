@@ -485,6 +485,18 @@ def counted_away(game: int, seconds: float, speed: int) -> float | None:
     return limits["band"] if seconds <= limits["band_end"] else limits["over"]
 
 
+def hours_days_years(seconds: float) -> str:
+    """A real-time span as hours, then days, then years (the owner, 2026-11-19: "hours, then days, years etc."):
+    "547.6 hours = 22.8 days", and "= 1.2 years" once it is a year or more."""
+    seconds = max(0.0, seconds)
+    hours = seconds / 3600
+    days = hours / 24
+    text = f"{hours:,.1f} hours = {days:,.1f} days"
+    if days >= 365.25:
+        text += f" = {days / 365.25:,.1f} years"
+    return text
+
+
 def time_away(village: "Village", last: float, speed_value: int, paused_words: str,
               unit_seconds: float | None = None) -> list[Fact]:
     """The time-away lines every game shares: when the save was last played, its speed or pause, how much
