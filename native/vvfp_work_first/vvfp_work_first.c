@@ -203,18 +203,39 @@ static int project_done(const struct later_game *g, int project) {
 }
 
 /* The Tree of Life's Building case (0x463C1C) offers puzzle work it can start
-   on its own: the stream (option 5, obstruction 0x430FD0 on 0x4D8CF0 between
-   1 and 97), the piers (option 6: stage 0x4396D0 on 0x4D86A8 below 2 and
-   0x421570 below 100) and the rubble (option 7: stage 0x4396D0 on 0x4D8720
-   at 0 and [0x4D8A8C] below 100).  The stream counts only until The Stream
-   (project 1) is solved: after that, keeping it clear is building practice
-   (the owner's item 73). */
-static int vv4_puzzle_on_offer(void) {
-    int obstruction = (int)tc0(0x430FD0u, 0x4D8CF0u);
-    if (obstruction > 0 && obstruction < 0x62 && !project_done(&VV4, 1)) return 1;
-    if ((int)tc0(0x4396D0u, 0x4D86A8u) < 2 && (int)tc0(0x421570u, 0x4D86A8u) < 100) return 1;
-    if ((int)tc0(0x4396D0u, 0x4D8720u) == 0 && *(const int *)(uintptr_t)0x4D8A8Cu < 100) return 1;
+   on its own: the stream (option 5, added at 0x463DD1 while the obstruction
+   0x430FD0 on 0x4D8CF0 is between 1 and 97), the piers (option 6, 0x463E1C:
+   stage 0x4396D0 on 0x4D86A8 below 2 and 0x421570 below 100) and the rubble
+   (option 7, 0x463E3E: stage 0x4396D0 on 0x4D8720 at 0 and [0x4D8A8C] below
+   100).  The owner (2026-11-19): once a puzzle is SOLVED its work is never
+   blocked, and only the auto-START of an unsolved puzzle stays drop-only --
+   for that puzzle's option alone, never all Building.  So while this
+   companion is the reason a Building dispatch runs (a builder put first, or
+   an untrained villager's Building request run with the mark lifted), each
+   puzzle option is left out of the list only while its puzzle is unsolved
+   and nobody has started it:
+     5 the stream: until The Stream (project 1) is solved (then keeping it
+       clear is building practice, the owner's item 73);
+     6 the piers: until someone has worked on them (0x421570 above 0);
+     7 the rubble: until someone has worked on it ([0x4D8A8C] above 0).
+   Every other option, and every stock dispatch, is the game's own. */
+static int vv4_patch_building;          /* this companion's Building dispatch is running */
+#ifdef VVFP_TEST
+__declspec(dllexport) int *VvfpWorkFirstBuildingFlag = &vv4_patch_building;   /* TEST build only */
+#endif
+
+static int vv4_puzzle_blocked(int option) {
+    if (!vv4_patch_building) return 0;
+    if (option == 5) return !project_done(&VV4, 1);
+    if (option == 6) return (int)tc0(0x421570u, 0x4D86A8u) <= 0;
+    if (option == 7) return *(const int *)(uintptr_t)0x4D8A8Cu <= 0;
     return 0;
+}
+
+/* For Builders Fix Huts When Idle, which puts back the options a dislike roll
+   took (option 6 among them): 1 when that option must stay out. */
+__declspec(dllexport) int __cdecl VvfpWorkFirstPuzzleBlocked(int game_id, int option) {
+    return game_id == 4 && vv4_puzzle_blocked(option);
 }
 
 /* ---- About three times in four ------------------------------------------------ */
@@ -589,16 +610,19 @@ static int __cdecl vv2_handle(unsigned int ret, unsigned char *village, unsigned
    The record itself is not changed: the mark is set to 0 for the one call
    and put back afterwards (a refusal inside the call writes 0), so a save
    played without the patch is the stock game.
-   Not lifted: a Heathen (New Believers), and in The Tree of Life a Building
-   request while the Building case would start puzzle work on its own
-   (builders never start a project nobody was dropped on). */
+   Not lifted for a Heathen (New Believers).  A Building dispatch this
+   companion causes -- `put_first`, or one run with the mark lifted -- leaves
+   out The Tree of Life's unsolved, unstarted puzzle options (see
+   vv4_puzzle_blocked); the rest of Building is never blocked. */
 static int untrained_dispatch(void (*original)(void), unsigned char *object, unsigned char *record, int job,
-                              int building_ok) {
+                              int put_first) {
     int *mark = (int *)(record + 0x1C54u);
-    int lifted = *mark == 1 && job >= 0 && (job != LATER_JOBS.building || building_ok);
+    int lifted = *mark == 1 && job >= 0;
     int started;
     if (lifted) *mark = 0;
+    vv4_patch_building = job == LATER_JOBS.building && (put_first || lifted);
     started = dispatch_later(original, object, job);
+    vv4_patch_building = 0;
     if (lifted && *mark == 0) *mark = 1;
     return started;
 }
@@ -608,30 +632,25 @@ static int untrained_dispatch(void (*original)(void), unsigned char *object, uns
 #define VV4_LOW_FOOD_CATCH_UP 0x46580Fu
 #define VV5_LOW_FOOD_CATCH_UP 0x46E9B1u
 
-static int vv4_building_ok(int job) {
-    return job != LATER_JOBS.building || !vv4_puzzle_on_offer();
-}
-
 static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) {
     unsigned char *record;
     int own, selected, skill_ok;
     if (ret == VV4_LOW_FOOD_CATCH_UP) {
         record = *(unsigned char *const *)(object + 0x1B88u);
         if (*(const int *)(record + 0x1C54u) != 1) return -1;
-        return untrained_dispatch(vv4_original, object, record, job, 1);
+        return untrained_dispatch(vv4_original, object, record, job, 0);
     }
     if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
     record = *(unsigned char *const *)(object + 0x1B88u);
     selected = *(const int *)(record + 0x1C70u);
     skill_ok = later_skill(record, selected, 4) > SKILL_ABOVE;
-    own = own_first(&LATER_JOBS, selected, job, skill_ok,
-                    selected == LATER_JOBS.building && !vv4_puzzle_on_offer(), 0, 1);
+    own = own_first(&LATER_JOBS, selected, job, skill_ok, 1, 0, 1);
     if (own >= 0 && untrained_dispatch(vv4_original, object, record, own, 1)) {
         COUNT(started);
         return 1;
     }
     if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
-    return untrained_dispatch(vv4_original, object, record, job, vv4_building_ok(job));
+    return untrained_dispatch(vv4_original, object, record, job, 0);
 }
 
 
@@ -641,7 +660,7 @@ static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) 
     if (ret == VV5_LOW_FOOD_CATCH_UP) {
         record = *(unsigned char *const *)(object + 0x1B88u);
         if (record[VV5_HEATHEN] != 0 || *(const int *)(record + 0x1C54u) != 1) return -1;
-        return untrained_dispatch(vv5_original, object, record, job, 1);
+        return untrained_dispatch(vv5_original, object, record, job, 0);
     }
     if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
     catch_up = ret == VV5_CATCH_UP_CALL;
@@ -655,7 +674,7 @@ static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) 
         return 1;
     }
     if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
-    return untrained_dispatch(vv5_original, object, record, job, 1);
+    return untrained_dispatch(vv5_original, object, record, job, 0);
 }
 
 /* For The Secret City's executable-side stub at the dispatcher's entry (the
@@ -863,6 +882,64 @@ static __declspec(naked) void vv2_sewing_stub(void) {
     }
 }
 
+/* ---- The Tree of Life: unsolved puzzle options (see vv4_puzzle_blocked) ---- */
+/* At each "add option N" (mov dword [esp + edi*4 + 0x5C], N; add edi, 1) the
+   option is added unless it is blocked.  esp is the dispatcher's own here
+   (jumped to, not called), so the list address is the stock one. */
+static int __cdecl vv4_option_blocked(int option) {
+    return vv4_puzzle_blocked(option);
+}
+static const unsigned int vv4_after_stream = 0x463DD8u, vv4_after_piers = 0x463E27u,
+                          vv4_after_rubble = 0x463E49u;
+static __declspec(naked) void vv4_stream_option_stub(void) {
+    __asm {
+        pushad
+        push 5
+        call vv4_option_blocked
+        add esp, 4
+        test eax, eax
+        popad
+        jnz skip
+        mov dword ptr [esp + edi*4 + 0x5C], ebp       /* ebp = 5 */
+        add edi, 1
+    skip:
+        jmp dword ptr [vv4_after_stream]
+    }
+}
+static __declspec(naked) void vv4_piers_option_stub(void) {
+    __asm {
+        pushad
+        push 6
+        call vv4_option_blocked
+        add esp, 4
+        test eax, eax
+        popad
+        jnz skip
+        mov dword ptr [esp + edi*4 + 0x5C], 6
+        add edi, 1
+    skip:
+        jmp dword ptr [vv4_after_piers]
+    }
+}
+static __declspec(naked) void vv4_rubble_option_stub(void) {
+    __asm {
+        pushad
+        push 7
+        call vv4_option_blocked
+        add esp, 4
+        test eax, eax
+        popad
+        jnz skip
+        mov dword ptr [esp + edi*4 + 0x5C], 7
+        add edi, 1
+    skip:
+        jmp dword ptr [vv4_after_rubble]
+    }
+}
+static const unsigned char VV4_STREAM_ADD_STOCK[7] = { 0x89, 0x6C, 0xBC, 0x5C, 0x83, 0xC7, 0x01 };
+static const unsigned char VV4_PIERS_ADD_STOCK[11] = { 0xC7, 0x44, 0xBC, 0x5C, 0x06, 0, 0, 0, 0x83, 0xC7, 0x01 };
+static const unsigned char VV4_RUBBLE_ADD_STOCK[11] = { 0xC7, 0x44, 0xBC, 0x5C, 0x07, 0, 0, 0, 0x83, 0xC7, 0x01 };
+
 /* ---- The untrained mark stays in the save (The Tree of Life, New Believers) */
 /* A task an untrained villager does with the mark lifted can end at one of
    the game's own "drop the assignment" writes, mov dword [rec+0x1C54], 0:
@@ -927,7 +1004,7 @@ static const unsigned char VV1_PICKER_GATE_ABOVE_5[3] = { 0x83, 0xFE, 0x05 };
 static const unsigned char VV4_OFFER_STOCK[8] = { 0x38, 0x98, 0xA4, 0x71, 0x01, 0x00, 0x75, 0x0B };
 static const unsigned char VV5_OFFER_STOCK[8] = { 0x38, 0x98, 0x10, 0x7E, 0x01, 0x00, 0x75, 0x06 };
 
-#define MAX_SITES 7
+#define MAX_SITES 10
 static const struct site SITES[6][MAX_SITES] = {
     { { 0 } },
     { { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub },
@@ -942,7 +1019,10 @@ static const struct site SITES[6][MAX_SITES] = {
       { 0x430361u, KEEP_ECX, 10, vv4_keep_430361 },
       { 0x45C80Du, KEEP_ESI, 10, vv4_keep_45C80D },
       { 0x4644B8u, KEEP_ECX, 10, vv4_keep_4644B8 },
-      { 0x464531u, KEEP_EDX, 10, vv4_keep_464531 } },
+      { 0x464531u, KEEP_EDX, 10, vv4_keep_464531 },
+      { 0x463DD1u, VV4_STREAM_ADD_STOCK, 7, vv4_stream_option_stub },
+      { 0x463E1Cu, VV4_PIERS_ADD_STOCK, 11, vv4_piers_option_stub },
+      { 0x463E3Eu, VV4_RUBBLE_ADD_STOCK, 11, vv4_rubble_option_stub } },
     { { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
       { 0x46C5CAu, VV5_OFFER_STOCK, sizeof VV5_OFFER_STOCK, vv5_offer_stub },
       { 0x434D61u, KEEP_EDI, 10, vv5_keep_434D61 },

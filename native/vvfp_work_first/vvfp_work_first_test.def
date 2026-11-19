@@ -6,3 +6,4 @@ EXPORTS
     VvfpWorkFirstProbeSiteAt=_VvfpWorkFirstProbeSiteAt@24
     VvfpWorkFirstStats DATA
     VvfpWorkFirstRollTest DATA
+    VvfpWorkFirstBuildingFlag DATA

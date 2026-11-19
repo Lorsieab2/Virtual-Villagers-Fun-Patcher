@@ -473,7 +473,8 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building does that "
                "job first, once that skill is above 5 (a researcher never instead of farming; Parenting "
-               "never; a builder not while puzzle work could start); the \"untrained\" mark is turned off, so a "
+               "never; an unsolved puzzle nobody has started -- the stream, the piers, the rubble -- is left to "
+               "your drop, every other building job goes on); the \"untrained\" mark is turned off, so a "
                "villager never dropped on a job works too; farmers also make "
                "the fruit trip (Attempting to retrieve fruit) once the Cooking Pit is restored; at 250 food or "
                "less a villager with Farming 20 or more still farms first."),

@@ -242,6 +242,60 @@ KEEP_MARK = {
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class TreeOfLifePuzzleOptions(unittest.TestCase):
+    """The owner (2026-11-19): once a puzzle is solved its work is never
+    blocked; only an unsolved puzzle's auto-start stays drop-only, and only
+    for that puzzle's option, never all Building.  Each "add option" site of
+    the Building case runs from its stub: in a Building dispatch this
+    companion causes, the option is left out only while its puzzle is
+    unsolved and unstarted; in every other dispatch it is added as stock."""
+
+    SITES = {5: (0x463DD1, 0x463DD8), 6: (0x463E1C, 0x463E27), 7: (0x463E3E, 0x463E49)}
+
+    def run_site(self, option, flag, **kw):
+        from unicorn.x86_const import UC_X86_REG_EBP
+        m = world("vv4", **kw.pop("world", {}))
+        for addr, leaf in kw.pop("leaves", {}).items():
+            m.leaves[addr] = leaf
+        for addr, value in kw.pop("words", {}).items():
+            m.w32(addr, value)
+        flag_at = m.u32(m.exports["work_first"]["VvfpWorkFirstBuildingFlag"])
+        m.w32(flag_at, flag)
+        va, after = self.SITES[option]
+        self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xE9")
+        esp = 0x0F000000 - 0x1000
+        m.mu.mem_write(esp + 0x5C + 4 * 2, b"\xEE" * 4)
+        reached = run_until(m, va, [after], {UC_X86_REG_EDI: 2, UC_X86_REG_EBP: 5})
+        self.assertEqual(reached, after)
+        added = m.mu.reg_read(UC_X86_REG_EDI) == 3
+        if added:
+            self.assertEqual(m.u32(esp + 0x5C + 4 * 2), option)
+        m.w32(flag_at, 0)
+        return added
+
+    def test_stock_dispatches_add_every_option(self):
+        for option in self.SITES:
+            with self.subTest(option=option):
+                self.assertTrue(self.run_site(option, 0))
+
+    def test_the_stream_until_the_stream_is_solved(self):
+        self.assertFalse(self.run_site(5, 1))
+        self.assertTrue(self.run_site(5, 1, world=dict(stream_solved=True)))
+
+    def test_the_piers_and_the_rubble_until_someone_started_them(self):
+        self.assertFalse(self.run_site(6, 1))
+        self.assertTrue(self.run_site(6, 1, leaves={0x421570: Leaf(0, lambda m, a, c, r: 12, name="piers")}))
+        self.assertFalse(self.run_site(7, 1))
+        self.assertTrue(self.run_site(7, 1, words={0x4D8A8C: 30}))
+
+    def test_the_export_is_quiet_outside_a_patch_dispatch(self):
+        m = world("vv4")
+        # VvfpWorkFirstPuzzleBlocked(4, 6) with no dispatch running: 0 (the Fix Huts companion's question).
+        self.assertIn("VvfpWorkFirstPuzzleBlocked", m.exports["work_first"])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class TheMarkStaysInTheSave(unittest.TestCase):
     """The owner: with the patch off, stock -- so a task an untrained villager
     does with the mark lifted never trains them in the save.  Each of the

@@ -407,10 +407,11 @@ def run_later(game, seed, built=(19,), open_=(), dislikes=False, work_first=Fals
         # Option 7: 0x4396D0(0x4D8720) == 0 would offer it; 1 keeps it off.
         leaves[0x4396D0] = Leaf(0, lambda mu, a, c: 5 if c == 0x4D86A8 else 1)
     if work_first:
-        # Called from the adult scheduler's farming attempt (job 1) for a
-        # villager whose selected job is Building.
+        # Called from the adult scheduler's farming attempt (job 0, Farming) for a
+        # villager whose selected job is Building.  (Job 1 is Parenting, which is
+        # never displaced.)
         call_site_return = 0x4659D2
-        return Dispatcher(game, leaves, g["entry"], (call_site_return, 1), VILLAGE, setup, work_first=True,
+        return Dispatcher(game, leaves, g["entry"], (call_site_return, 0), VILLAGE, setup, work_first=True,
                           roll=roll)
     return Dispatcher(game, leaves, g["entry"], (RETURN, 4), VILLAGE, setup, roll=roll)
 

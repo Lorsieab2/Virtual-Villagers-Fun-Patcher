@@ -1094,6 +1094,22 @@ static int call_count(unsigned int fn, unsigned int obj) {
    own tests, in the dispatcher's order, written to `out` (at most 8).
    Returns how many. */
 #define ROLLED_OPTION_6 0
+/* Villagers Work Their Own Job First leaves The Tree of Life's unsolved,
+   unstarted puzzle options out of the Building dispatches it causes (the
+   owner: such a puzzle is started only by a drop); option 6, the piers, is
+   then never put back here either.  Without that companion: never blocked. */
+static int vv4_work_first_blocks(int option) {
+    static int (__cdecl *blocked)(int, int);
+    static int looked_up;
+    if (!looked_up) {
+        HMODULE work_first = GetModuleHandleA("VVFP Work First.dll");
+        looked_up = 1;
+        blocked = work_first != NULL
+            ? (int (__cdecl *)(int, int))GetProcAddress(work_first, "VvfpWorkFirstPuzzleBlocked") : NULL;
+    }
+    return blocked != NULL && blocked(4, option);
+}
+
 static int vv4_rolled_construction(int *out) {
     /* options 1-4, 6, 8, 10, 11 in list order; 0 = option 6's own test */
     static const int options[8] = { 1, 2, 3, 4, 6, 8, 10, 11 };
@@ -1103,7 +1119,8 @@ static int vv4_rolled_construction(int *out) {
         int open;
         if (projects[i] == ROLLED_OPTION_6) {
             /* 0x4396D0(0x4D86A8) < 2 and 0x421570(0x4D86A8) < 100 */
-            open = call_count(0x4396D0u, 0x4D86A8u) < 2 && call_count(0x421570u, 0x4D86A8u) < 100;
+            open = call_count(0x4396D0u, 0x4D86A8u) < 2 && call_count(0x421570u, 0x4D86A8u) < 100
+                && !vv4_work_first_blocks(6);
         } else {
             /* state >= 1 (0x438980) and not complete (0x438960) */
             open = call_state(0x438980u, 0x4D8BF8u, projects[i]) >= 1
