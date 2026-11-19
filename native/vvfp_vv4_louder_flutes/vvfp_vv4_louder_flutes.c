@@ -7,7 +7,7 @@
    plays them at 3.0 x the Sound slider (the float at 0x4AB3A8, used only there), which FMOD caps at full volume
    (255) from a third of the slider up, so a bigger volume number cannot make them louder.  This companion makes
    the three recordings themselves N times louder as the game loads them, N the patcher window's slider (5 unless
-   moved; the owner, 2026-11-15; 2026-11-17: 0.1 to 100 in tenths, below 1 quieter than normal), read from "VVFP VV4
+   moved; the owner, 2026-11-15; 2026-11-17: 0.1 to 10 in tenths, below 1 quieter than normal), read from "VVFP VV4
    Louder Flutes.txt" beside this DLL (native/shared/multiplier_choice.h's number, in tenths).
 
    A plain N x gain would clip from about 2.8 x up, so the gain goes through a limiter, worked out over the whole
@@ -31,7 +31,7 @@
    installed.  A sample that is not 16-bit signed PCM, or that FMOD does not hand back whole, or whose gain list
    cannot be allocated, is left as it is.  The scaling runs under structured exception handling: a fault leaves
    the sample unchanged or partly scaled, never out of range.  The setting file is only read (its first 15
-   bytes); a number above 100 is 100, below 0.1 is 0.1, and no number is 5.  Nothing is written to a save, a villager
+   bytes); a number above 10 is 10, below 0.1 is 0.1, and no number is 5.  Nothing is written to a save, a villager
    record or a file; no text is shown.  No debug output. */
 #include <windows.h>
 #include "../shared/install_sites.h"
@@ -43,7 +43,7 @@
 #define LF_CHOICE_FILE L"VVFP VV4 Louder Flutes.txt"
 #define LF_DEFAULT 50u                   /* the slider's default, 5, in tenths */
 #define LF_MINIMUM 1u                    /* 0.1 */
-#define LF_MAXIMUM 1000u                 /* 100 */
+#define LF_MAXIMUM 100u                  /* 10 (the owner, 2026-11-17: every slider capped at 10) */
 
 /* The limiter (24-bit fixed point). */
 #define LF_ONE 16777216u                 /* a gain of 1 */
@@ -101,7 +101,7 @@ static int is_flute(const char *path) {
     return 0;
 }
 
-/* The slider's number from "VVFP VV4 Louder Flutes.txt" beside this DLL, in tenths: 0.1 to 100, else 5 (no
+/* The slider's number from "VVFP VV4 Louder Flutes.txt" beside this DLL, in tenths: 0.1 to 10, else 5 (no
    number). */
 static unsigned int read_tenths(void) {
     WCHAR path[MAX_PATH * 2];

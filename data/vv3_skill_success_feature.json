@@ -1,0 +1,66 @@
+{
+  "id": "vv3_skill_success",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Skill Practice Success Chance",
+  "description": "Each time a villager practises a skill at work (Farming, Building, Research, Healing, Parenting) the skill check passes more or less often: 0.1 to 10 times as often (always, once that reaches it), as you choose with the Skill Practice Success Chance slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). The villager's skill still counts, and what a pass gives is the game's own. \"Learning Skills Never Fails\" still makes every check pass. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Skill Success.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Skill Success.txt\"; nothing is written to a save.",
+  "output_tag": "Skill Success",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "Skill Practice Success Chance: the companion's sites 0x45A342, 0x45A4F1, 0x45A673, 0x45A78D, 0x45A897 (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Skill Success.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/skill_success/VVFP Skill Success.dll",
+      "destination": "VVFP Skill Success.dll",
+      "sha256": "0DB85C1BEDC0020CF0C72DE8A5B4E40F84C349681D147C06E2EE4FE97A025CFC"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x45A342",
+      "stock_bytes": "E8898FFAFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Farming skill check's rand(100): called once by the companion, which scales the roll so the check passes N times as often",
+      "installed_by": "VVFP Skill Success.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x45A4F1",
+      "stock_bytes": "E8DA8DFAFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Parenting skill check's rand(100): called once by the companion, which scales the roll so the check passes N times as often",
+      "installed_by": "VVFP Skill Success.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x45A673",
+      "stock_bytes": "E8588CFAFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Healing skill check's rand(100): called once by the companion, which scales the roll so the check passes N times as often",
+      "installed_by": "VVFP Skill Success.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x45A78D",
+      "stock_bytes": "E83E8BFAFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Building skill check's rand(100): called once by the companion, which scales the roll so the check passes N times as often",
+      "installed_by": "VVFP Skill Success.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x45A897",
+      "stock_bytes": "E8348AFAFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Research skill check's rand(100): called once by the companion, which scales the roll so the check passes N times as often",
+      "installed_by": "VVFP Skill Success.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

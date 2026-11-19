@@ -1,0 +1,5 @@
+LIBRARY "VVFP Tech Gain"
+EXPORTS
+    VvfpStartup
+    VvfpTechGainInstalled
+    VvfpTechGainTenths

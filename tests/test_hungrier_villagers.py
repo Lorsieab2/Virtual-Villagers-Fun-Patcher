@@ -1,4 +1,4 @@
-"""Hungrier Villagers (0.1-100x Meals) (all five games) and Classic VV Difficulty (The Tree of Life, New Believers).
+"""Hungrier Villagers (0.1-10x Meals) (all five games) and Classic VV Difficulty (The Tree of Life, New Believers).
 The traces are in scripts/build_hungrier_villagers_features.py and scripts/build_classic_vv_difficulty_features.py.
 
   * Each game's two meal sites decode, patched at every N, to the same instruction taking 2 x N food.
@@ -8,7 +8,7 @@ The traces are in scripts/build_hungrier_villagers_features.py and scripts/build
     0 or less.
   * A published build writes x N at every site and its records say so; the slider, Owner's Defaults and Classic VV
     Difficulty's red title and dependencies.
-  * The owner (2026-11-17): every slider goes less as well as more, 0.1 to 100 in tenths.  A multiplier whose 2 x N
+  * The owner (2026-11-17): every slider goes less as well as more, 0.1 to 10 in tenths.  A multiplier whose 2 x N
     is whole food (0.5, 1.5 ...) is written in the bytes; any other (0.1, 0.3, 1.7 ...) leaves them at the normal -2
     and "VVFP Meal Scale.dll", emulated on the published executable, takes 2 x N food on average at both sites, with
     every register as the game left it and the game's own clamp after.
@@ -155,9 +155,8 @@ class Publish(unittest.TestCase):
         builds = {b.id: b for b in patcher.load_builds()}
         for game in NAMES:
             ids = [f"vv{game}_hungrier_villagers"]
-            # x 65 to x 100 are written as x 64: -128 is the most the meal's signed byte holds, never wrapped
-            # round to a food gain.
-            for n, written in ((2, 2), (5, 5), (10, 10), (64, 64), (65, 64), (100, 64)):
+            # The slider's top is 10 (the owner, 2026-11-17): -20, far inside the meal's signed byte.
+            for n, written in ((2, 2), (5, 5), (10, 10)):
                 data, applied = patcher.render_patched_bytes(stock_path(game), builds[f"vv{game}"], "stock", ids)
                 patcher.apply_meal_multiplier(data, f"vv{game}", n, applied)
                 with self.subTest(game=game, n=n):
@@ -170,20 +169,20 @@ class Publish(unittest.TestCase):
         builds = {b.id: b for b in patcher.load_builds()}
         for game in NAMES:
             ids = [f"vv{game}_hungrier_villagers"]
-            for n, food in ((0.5, 1), (1, 2), (1.5, 3), (0.1, 2), (0.3, 2), (1.7, 2), (64.5, 128), (70.3, 128)):
+            for n, food in ((0.5, 1), (1, 2), (1.5, 3), (0.1, 2), (0.3, 2), (1.7, 2), (9.5, 19), (9.9, 2)):
                 data, applied = patcher.render_patched_bytes(stock_path(game), builds[f"vv{game}"], "stock", ids)
                 patcher.apply_meal_multiplier(data, f"vv{game}", n, applied)
                 with self.subTest(game=game, n=n):
                     for p in manifest(game)["patches"]:
                         self.assertEqual(data[int(p["offset"], 16)], (-food) & 0xFF)
-                    self.assertEqual(patcher.meal_in_bytes(n), n in (0.5, 1, 1.5, 64.5, 70.3))
+                    self.assertEqual(patcher.meal_in_bytes(n), n in (0.5, 1, 1.5, 9.5))
                     self.assertEqual(patcher.meal_multiplier_applied(applied), min(n, 64))
 
     def test_out_of_range_is_refused(self) -> None:
-        for bad in (0, 101, True, 0.05, "3"):
+        for bad in (0, 10.1, 100, 101, True, 0.05, "3"):
             with self.assertRaises(patcher.PatcherError):
                 patcher.validate_meal_multiplier(bad)
-        for good in (2, 10, 100, 1, 0.1, 0.5, 2.0):
+        for good in (2, 10, 1, 0.1, 0.5, 2.0):
             self.assertEqual(patcher.validate_meal_multiplier(good), good)
         self.assertEqual(patcher.MEAL_MULTIPLIER_SAFE_MAXIMUM, 64)
 
@@ -209,14 +208,14 @@ class Registration(unittest.TestCase):
             self.assertTrue(owners_default_fun_patch_selection(patch_id))
             self.assertTrue(select_all_fun_patch_selection(patch_id))
 
-    def test_the_slider_is_a_tenth_to_100_default_2(self) -> None:
+    def test_the_slider_is_a_tenth_to_10_default_2(self) -> None:
         r = patcher.MEAL_MULTIPLIER_RANGE
-        self.assertEqual((r[0], r[-1], len(r)), (0.1, 100, 1000))
+        self.assertEqual((r[0], r[-1], len(r)), (0.1, 10, 100))
         self.assertEqual(patcher.MEAL_MULTIPLIER_DEFAULT, 2)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 7}), 7)
-        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 100}), 100)
+        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 100}), 10)      # an old 100 loads as 10
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 0.3}), 0.3)
-        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 101}), 100)
+        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 101}), 10)
         for bad in ({}, {"meal_multiplier": True}, None):
             self.assertEqual(saved_meal_multiplier(bad), 2)
 

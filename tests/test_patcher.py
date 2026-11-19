@@ -1192,10 +1192,10 @@ class ManifestTests(unittest.TestCase):
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
         # vtable slots at run time; 38 with Children's Graves Say Apprentice
-        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 0.1-100x Tech Cost
+        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 0.1-10x Tech Cost
         # (vv2_tech_cost_multiplier), its 35 price immediates only; 40 with Checked Skill Preferences are listed
         # as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in place; 41 with Hungrier
-        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 0.1-100x Sickness
+        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 0.1-10x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
         # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
         # byte -- its companion moves the pickup jobs' award steps at run time; 44 with Scrolling Popups
@@ -1212,8 +1212,10 @@ class ManifestTests(unittest.TestCase):
         # Events, the 28 content filters (vv2_island_event_filter_f01 .. f28) and No Safeguards for Island Events
         # (vv2_island_events_any_time) -- no executable byte: names in the installed patches' list the Story / Cheat
         # Upgrades companion reads; 81 with More Frequent Island Events (vv2_more_frequent_island_events), no
-        # executable byte -- its companion writes the trigger's three wait draws at run time.
-        self.assertEqual(len(feature_ids), 81)
+        # executable byte -- its companion writes the trigger's three wait draws at run time; 82-86 the five
+        # 0.1x-10x sliders (vv2_collectible_frequency, _food_gain, _tech_gain, _skill_success, _age_speed),
+        # no executable byte -- each companion writes its sites at run time.
+        self.assertEqual(len(feature_ids), 86)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4176,7 +4178,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_copy_paste",
             # Skip All on the Intro Story: companion only, no executable bytes.
             "vv2_skip_all_intro",
-            # 0.1-100x Tech Cost: the Tech screen's price immediates, x 3.
+            # 0.1-10x Tech Cost: the Tech screen's price immediates, x 3.
             "vv2_tech_cost_multiplier",
             "vv2_hungrier_villagers",
             "vv2_sickness_multiplier",
@@ -4202,6 +4204,12 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_island_events_any_time",
             # More Frequent Island Events: companion only, no executable bytes.
             "vv2_more_frequent_island_events",
+            # The 0.1x-10x sliders: companions only, no executable bytes.
+            "vv2_collectible_frequency",
+            "vv2_food_gain",
+            "vv2_tech_gain",
+            "vv2_skill_success",
+            "vv2_age_speed",
             }
             | {f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)},
         )

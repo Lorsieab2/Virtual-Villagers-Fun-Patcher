@@ -128,7 +128,9 @@ class Emulated(unittest.TestCase):
     def test_it_loads_exactly_the_named_companions(self) -> None:
         for setting, word, loads in ((b"1\n", 1, ["VVFP Meal Scale.dll"]), (b"0", 0, []), (None, 0, []),
                                      (b"abc", 0, []), (b"", 0, []), (b" 1", 1, ["VVFP Meal Scale.dll"]),
-                                     (b"99999999999", 0, []), (b"2", 2, [])):
+                                     (b"99999999999", 0, []), (b"2", 2, ["VVFP Collectible Frequency.dll"]),
+                                     (b"60", 60, ["VVFP Food Gain.dll", "VVFP Tech Gain.dll", "VVFP Skill Success.dll",
+                                                  "VVFP Age Speed.dll"]), (b"64", 64, [])):
             with self.subTest(setting=setting):
                 m = self.machine(setting)
                 m.export("VvfpStartup", 3, 0)

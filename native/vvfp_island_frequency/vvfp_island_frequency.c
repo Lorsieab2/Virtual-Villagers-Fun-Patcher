@@ -1,7 +1,7 @@
 /* VVFP Island Frequency -- "More Frequent Island Events" (all five games).
 
    WHAT (the owner, 2026-11-15).  The game's own island events come N times as often, N the patcher window's slider
-   (2 unless moved; the owner, 2026-11-17: 0.1 to 100 in tenths, below 1 they come less often), read from "VVFP
+   (2 unless moved; the owner, 2026-11-17: 0.1 to 10 in tenths, below 1 they come less often), read from "VVFP
    Island Frequency.txt" in the patcher's folder (native/shared/multiplier_choice.h): each wait the game draws after
    an event -- 12 to 23 whole real-life hours in A New Home, 10 to 19 in The Lost Children, 8 to 15 in The Secret
    City, The Tree of Life and New Believers -- is divided by N (x 10 / tenths, rounded down to the second) as the game
@@ -30,7 +30,7 @@
    is already the shortened one.  The two never share a byte.
 
    SAFETY.  Nothing is written to a save, a villager record or a file; no text is shown.  The setting file is only
-   read (its first 15 bytes): above 100 is 100, below 0.1 is 0.1, no number or no file is 2.  No debug output. */
+   read (its first 15 bytes): above 10 is 10, below 0.1 is 0.1, no number or no file is 2.  No debug output. */
 #include <windows.h>
 #include "../shared/install_sites.h"
 #include "../shared/patcher_files.h"
@@ -39,7 +39,7 @@
 #define IF_CHOICE_FILE "VVFP Island Frequency.txt"
 #define IF_DEFAULT 20u                   /* the slider's default, 2, in tenths */
 #define IF_MINIMUM 1u                    /* 0.1 */
-#define IF_MAXIMUM 1000u                 /* 100 */
+#define IF_MAXIMUM 100u                  /* 10 (the owner, 2026-11-17: every slider capped at 10) */
 #define IF_SITE_BYTES 9                  /* add eax, K (83 C0 K); imul eax, eax, 0xE10 (69 C0 10 0E 00 00) */
 #define IF_MAX_SITES 3
 

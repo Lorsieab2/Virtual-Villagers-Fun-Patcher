@@ -4,11 +4,11 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv2",
-  "name": "Hungrier Villagers (0.1-100x Meals)",
-  "description": "**Needs no other patch.** Off by default. Every villager's meal takes 0.1 to 100 times the normal food (at most 64 times: the game's meal cannot take more, so 65 to 100 are the same as 64): you choose how many times with the Hungrier Villagers slider in the patcher window (in steps of 0.1, 2 unless you move it; type it in the box beside the slider too). 1 is the normal game; above 1 the game is harder, below 1 easier. Normally a villager's meal takes 2 food, and 2 more three times in four above 4,000 food on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more, at x 0.5 1 and 1 more. A meal is whole food, so a number like 0.3 or 1.7 takes 2 x that ON AVERAGE: at x 0.3 a meal takes 1 food six times in ten and nothing otherwise (the companion \"VVFP Meal Scale.dll\" does that, reading the number from \"VVFP Meal Scale.txt\" beside it). Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.",
+  "name": "Hungrier Villagers (0.1-10x Meals)",
+  "description": "**Needs no other patch.** Off by default. Every villager's meal takes 0.1 to 10 times the normal food (a saved number above 10 is 10, the slider's top): you choose how many times with the Hungrier Villagers slider in the patcher window (in steps of 0.1, 2 unless you move it; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). 1 is the normal game; above 1 the game is harder, below 1 easier. Normally a villager's meal takes 2 food, and 2 more three times in four above 4,000 food on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more, at x 0.5 1 and 1 more. A meal is whole food, so a number like 0.3 or 1.7 takes 2 x that ON AVERAGE: at x 0.3 a meal takes 1 food six times in ten and nothing otherwise (the companion \"VVFP Meal Scale.dll\" does that, reading the number from \"VVFP Meal Scale.txt\" beside it). Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.",
   "output_tag": "Hungrier Villagers",
   "behavior_changes": [
-    "The meal routine's two food amounts (0x43BAF9, 0x43BB30), each -2, become -2 x N when that is whole food (the slider, 0.1 to 100 in tenths; 2 by default; above 64 it is 64, as -128 is the most the byte holds); the stock clamp keeps food at 0 or more.",
+    "The meal routine's two food amounts (0x43BAF9, 0x43BB30), each -2, become -2 x N when that is whole food (the slider, 0.1 to 10 in tenths; 2 by default; at x 10 a meal is -20); the stock clamp keeps food at 0 or more.",
     "Any other N leaves both at -2, and the companion makes each of the two instructions (all of them or none, after their stock bytes are checked) a call of its stub, which takes 2 x N food on average: the whole part every time and one more with the chance of the rest, drawn from the companion's own numbers (the game's rand is never drawn). The stock clamp keeps food at 0 or more, as before."
   ],
   "explicit_non_changes": [
@@ -20,14 +20,14 @@
   "meal_multiplier": {
     "default": 2,
     "minimum": 0.1,
-    "maximum": 100,
+    "maximum": 10,
     "stock_meal": 2
   },
   "companion_files": [
     {
       "source": "assets/meal_scale/VVFP Meal Scale.dll",
       "destination": "VVFP Meal Scale.dll",
-      "sha256": "AEF44D3B97D7E1E4226FD10BA5E8F3E641F99E6400CC1774815543C887E3BFF4"
+      "sha256": "58E4D7DECF82B3FFFB2EBA2C778B2D7992148190D9956D48C7463F8AC4E70267"
     }
   ],
   "patches": [
