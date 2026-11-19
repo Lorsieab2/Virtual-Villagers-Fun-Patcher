@@ -1405,7 +1405,7 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 
 **Complete Fish Scales = Golden Fish in Nets**
 
-Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
+Golden Fish neither appear nor can be caught until all 12 Fish Scales are collected. In the stock game the fishing nets already show a Golden Fish in their catch pile from the 2nd scale and can catch one from the 1st; this patch raises both to all 12. With all 12 scales everything is exactly stock: the Golden Fish shows in both nets and the original 25% Golden Fish chance and every other fishing outcome are kept.
 
 - Patch ID: `vv4_complete_scales_golden_fish`
 

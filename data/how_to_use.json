@@ -199,8 +199,8 @@
     {
       "ids": ["vv4_complete_scales_golden_fish"],
       "guide": [
-        "Golden Fish can only turn up in the fishing nets after all 12 Fish Scales are collected.",
-        "Then the chance is the game's own 25%.",
+        "No Golden Fish shows in the fishing nets, and none is caught, until all 12 Fish Scales are collected.",
+        "Then the nets show the Golden Fish again and the chance is the game's own 25%.",
         "Watch out: a part-finished Fish Scales collection no longer gives Golden Fish."
       ]
     },
