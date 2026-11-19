@@ -71583,20 +71583,6 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_refusal.s13",
    "english": "\"%s\" has text longer than this game's popups hold without the Scrolling Popups patch. Nothing has been queued.",
    "games": [
@@ -72059,6 +72045,93 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
+   "english": "Harvesting berries with a cutting tool",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "a",
+   "context": "VVFP Text Fixes.dll",
+   "notes": "drawn by the game's text routine; the villager's caption while harvesting blackberries with a cutting tool (at most 39 letters)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_c4.C4_SUPPLY_NAMES.s0",
+   "english": "Cloth bolts",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TITLE.s0",
+   "english": "Village Solidarity",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0",
+   "english": "Village Solidarity shows how close and united your village feels, from 0 to 100. Good Island event outcomes raise it, bad ones lower it. High Solidarity (greater than 50) can increase the likelihood of more good events happening, while Low Solidarity (less than 50) does the opposite.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0",
+   "english": "Making a sack out of cloth",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0",
+   "english": "Gathering food in cloth sack",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.gui/difficulty_sliders.title",
    "english": "Difficulty Sliders",
    "games": [
@@ -72171,17 +72244,6 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
-   "english": "Harvesting berries with a cutting tool",
-   "games": [
-    "vv4"
-   ],
-   "mechanism": "a",
-   "context": "VVFP Text Fixes.dll",
-   "notes": "drawn by the game's text routine; the villager's caption while harvesting blackberries with a cutting tool (at most 39 letters)",
-   "route": "key"
-  },
-  {
    "stem": "vvfp.gui/game_mechanics.minimum_detail",
    "english": "Minimal Detail",
    "games": [
@@ -72196,18 +72258,22 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_c4.C4_SUPPLY_NAMES.s0",
-   "english": "Cloth bolts",
+   "stem": "vvfp.story/story_graph.cg_load.s42",
+   "english": "a new name is not for a villager role the event needs",
    "games": [
-    "vv4"
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TITLE.s0",
-   "english": "Village Solidarity",
+   "stem": "vvfp.story/story_graph.cg_effect_on.s5",
+   "english": "'s sex is now male.",
    "games": [
     "vv1",
     "vv2",
@@ -72216,13 +72282,12 @@
     "vv5"
    ],
    "mechanism": "b",
-   "context": "VVFP Village Solidarity.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0",
-   "english": "Village Solidarity shows how close and united your village feels, from 0 to 100. Good Island event outcomes raise it, bad ones lower it. High Solidarity (greater than 50) can increase the likelihood of more good events happening, while Low Solidarity (less than 50) does the opposite.",
+   "stem": "vvfp.story/story_graph.cg_effect_on.s6",
+   "english": "'s sex is now female.",
    "games": [
     "vv1",
     "vv2",
@@ -72231,31 +72296,302 @@
     "vv5"
    ],
    "mechanism": "b",
-   "context": "VVFP Village Solidarity.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0",
-   "english": "Making a sack out of cloth",
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s71",
+   "english": "<R> gains <N> skill in what <P> does best.",
    "games": [
-    "vv4"
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
    ],
    "mechanism": "b",
-   "context": "VVFP VV4 Cloth Sacks.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0",
-   "english": "Gathering food in cloth sack",
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s72",
+   "english": "<R> is expecting a baby.",
    "games": [
-    "vv4"
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
    ],
    "mechanism": "b",
-   "context": "VVFP VV4 Cloth Sacks.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s73",
+   "english": "<R> is caring for a baby.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s74",
+   "english": "A double of <R> appears.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s75",
+   "english": "<R> and <Q> swap bodies.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s76",
+   "english": "<R> forgets <P> name.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s77",
+   "english": "<R> is now called <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s78",
+   "english": "<R> is now <N> years old.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s79",
+   "english": "Village Solidarity rises by <N>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s80",
+   "english": "Village Solidarity falls by <N>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s9",
+   "english": "a grandparent and grandchild",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s10",
+   "english": "an aunt or uncle and a niece or nephew",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s11",
+   "english": "No villagers in the village can take part together now: it needs two who are %s. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.CG_GOODS.s0",
+   "english": "Fruit on the trees",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.CG_GOODS.s1",
+   "english": "Yellow fruit",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_work_skill.s0",
+   "english": "work:",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_event_timer.s0",
+   "english": "  The next island event: %s\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.CG_AREAS4.s0",
+   "english": "Food Mastery",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_tech_level.s0",
+   "english": "  Tech level (%s): %d -> %d\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number); %3 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_weather.s0",
+   "english": "  Weather: %s\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_village_ok.s0",
+   "english": "weather:",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }
