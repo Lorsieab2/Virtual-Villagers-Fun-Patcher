@@ -25,6 +25,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     "VVFP Tech Gain.dll",
     "VVFP Skill Success.dll",
     "VVFP Age Speed.dll",
+    /* Fix Vanilla Bugs (A New Home, The Lost Children): herb study Healing practice (second word full: moved here at the v1.35.97 merge) */
+    "VVFP Herb Study.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

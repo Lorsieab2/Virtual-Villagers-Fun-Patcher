@@ -120,6 +120,7 @@ FILES = [
     "assets/text_fixes/VVFP Text Fixes.dll",
     # Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water.
     "assets/vv4_frogs/VVFP VV4 Frogs.dll",
+    "assets/herb_study/VVFP Herb Study.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.

@@ -1147,8 +1147,8 @@ class ManifestTests(unittest.TestCase):
         # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same;
         # 14 with Teaching Children Stops at 50 (vv2_teaching_children_cap_50),
         # the same again; 15 with Healers Study Plants Regardless of Food
-        # (vv2_healers_study_regardless_of_food), the same; 16 with Builders and
-        # Healers Work First (vv2_builders_and_healers_work_first), the same;
+        # (vv2_healers_study_regardless_of_food), the same; 16 with Villagers Work Their Own
+        # Job First (vv2_builders_and_healers_work_first), the same;
         # 17 with VV1 Mushroom/Collectible Duplication Cheat
         # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks;
         # 18 with Super-Secret Golden Mushroom (vv2_super_secret_golden_mushroom),

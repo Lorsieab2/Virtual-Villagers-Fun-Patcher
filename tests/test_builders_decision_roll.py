@@ -16,7 +16,7 @@ the executable's own `call` of its idle scheduler (A New Home 0x4487C8, The
 Lost Children 0x464E9C) or at the head of its own retry loop (The Secret City
 0x45C380, The Tree of Life 0x465B13, New Believers 0x46F3D3), in the
 executable the patcher renders for the selected rows (Origins base + Builders
-Fix Huts When Idle + Builders and Healers Work First + Healers Study Plants
+Fix Huts When Idle + Villagers Work Their Own Job First + Healers Study Plants
 Regardless of Food; Builder Action Fixes where named), with the test builds of
 the three companions mapped, their detours written where their install
 routines write them, and their kernel32 imports answered by name.  The
@@ -486,6 +486,8 @@ def new_home(*, rows, runtime=True, force=FORCE_PASS, food=100, pref=4, level=3,
     m.mu.mem_write(STRINGS, b"Nothing\0")
     m.w32(record + 0x348, 0x200)                 # an adult (the child routine starts below 0x118)
     m.w32(record + 0x3D0, pref)                  # the selected job: 4 Building, 5 Healing
+    for off in (0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC):   # every skill above 5 (Work First's rule)
+        m.w32(record + off, 30)
     m.w32(record + 0x3B8, activity)              # the last activity (9: plant study)
     m.w32(STATE + 0xA2EC, food)
     m.w32(STATE + 0xA2CC, level)
@@ -571,6 +573,8 @@ def lost_children(*, rows, runtime=True, force=FORCE_PASS, food=100, pref=5, lev
     m.mu.mem_write(STRINGS, b"Nothing\0")
     m.w32(record + 0x530, 0x200)                 # an adult
     m.w32(record + 0x7F8, pref)                  # the selected job: 5 Building, 3 Healing
+    for off in (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4):   # every skill above 5 (Work First's rule)
+        m.w32(record + off, 30)
     m.w32(record + 0x7E0, task)                  # the task / state (9: plant study)
     m.w32(STATE + 0x2EAA4, food)
     m.w32(STATE + 0x2EA84, level)
@@ -649,6 +653,8 @@ def later(game: str, *, rows, runtime=True, force=FORCE_PASS, food=100, pref=4, 
     m = Machine(game, rendered(game, tuple(rows)), modules=modules if runtime else (), loaded=loaded)
     m.w32(OBJ + 0x1B88, RECORD)
     m.w32(RECORD + g["pref"], pref)
+    for job in range(5):                         # every skill above 5 (Work First's rule)
+        m.mu.mem_write(RECORD + 0x1C5C + 4 * job, struct.pack("<f", 30.0))
     m.w32(RECORD + 0x1B8C, 0x200)                # an adult
     m.w32(g["food"], food)
     m.mu.mem_write(STRINGS, b"Nothing\0")
@@ -743,6 +749,8 @@ def secret_city(*, rows, runtime=True, force=FORCE_PASS, food=100, pref=4, pick=
     villager record RECORD (the scheduler's `this` and argument alike)."""
     m = Machine("vv3", rendered("vv3", tuple(rows)), modules=modules, loaded=loaded)
     m.w32(RECORD + 0xEC0, pref)
+    for job in range(1, 5):                      # every skill above 5 (Work First's rule)
+        m.w32(RECORD + 0xEAC + 4 * job, 30)
     m.w32(RECORD + 0xDC4, 0x200)                 # an adult
     m.w32(RECORD + 0xEAC, farming_skill)
     m.w32(V3["food"], food)
@@ -1053,7 +1061,9 @@ class FromTheRealCallerTests(unittest.TestCase):
                 self.assertLess(abs(patched - 0.75 * n), 4 * sd, f"{patched}/{n} patched")
 
 
-NOT_A_BUILDER = {"vv1": 1, "vv2": 1, "vv3": 3, "vv4": 3, "vv5": 3}      # checked on another job
+# Checked on another job: Parenting, the one job Villagers Work Their Own Job First never puts first (it would
+# otherwise try that job before the Building the game gave them).
+NOT_A_BUILDER = {"vv1": 2, "vv2": 2, "vv3": 1, "vv4": 1, "vv5": 1}
 BUILDING_PICK = {"vv1": dict(preferred_pick=4), "vv2": dict(preferred_pick=5), "vv3": {}, "vv4": {}, "vv5": {}}
 
 

@@ -51,7 +51,7 @@ PINNED = {
     "The Lagoon": "CC",
     "The Magic Fish of Fertility": "CC",
     "The Cemetery": "CC",
-    "Herb Mastery": "CCCC",
+    "Herb Mastery": "CCCCCC",
     "The Garden": "CCC",
     "The Magic Plant of Life": "UCC",
     "The Temple": "CC",

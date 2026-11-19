@@ -179,7 +179,7 @@ FIX_HUTS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_builders_fix_huts_feature.json"
     for game_number in range(1, 6)
 ) + tuple(
-    # Builders and Healers Work First: the addendum to Builders Fix Huts When
+    # Villagers Work Their Own Job First: the addendum to Builders Fix Huts When
     # Idle, whose companion loads "VVFP Work First.dll".
     ROOT / "data" / f"vv{game_number}_work_first_feature.json"
     for game_number in range(1, 6)
@@ -13483,6 +13483,8 @@ STARTUP_LOADER_COMPANIONS_3 = (
     "VVFP Tech Gain.dll",
     "VVFP Skill Success.dll",
     "VVFP Age Speed.dll",
+    # Fix Vanilla Bugs (A New Home, The Lost Children): herb study Healing practice (second word full: moved here at the v1.35.97 merge)
+    "VVFP Herb Study.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"
 MORE_COMPANIONS_CHOICE_FILE = "VVFP More Companions.txt"

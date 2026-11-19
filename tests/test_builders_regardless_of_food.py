@@ -371,7 +371,7 @@ class LowFoodPathTests(unittest.TestCase):
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_healers_pick_waits_unless_work_first_is_shipped(self):
-        # Builders and Healers Work First (the addendum) extends the bypass to
+        # Villagers Work Their Own Job First (the addendum) extends the bypass to
         # a healer's pick (job 2); without its DLL the healer keeps the stock
         # low-food path.
         for game, g in LATER.items():
