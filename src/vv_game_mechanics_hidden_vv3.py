@@ -98,9 +98,11 @@ def _keys() -> list[Entry]:
         # 0x464D60, 0x46B950, 0x46CAF0
         Entry(KEY, "Esc (the shared slot's three screens, Map, Villager Detail)", (
             "the same as the screen's own way back"), C, subs=(
-                # The shared slot is 0x464D60.
-                ("Which three screens share that input slot is not read here; in The Tree of Life and New Believers "
-                 "that slot serves Collections, the Mausoleum and Tech.", U),)),
+                # The shared slot 0x464D60 sits in three screen vtables (0x49E798, 0x49E7DC, 0x49E83C): the one whose
+                # code (0x462A70..) draws the collections' labels (strings 0x454..0x459), the one (0x463770..) with
+                # "Puzzles" and "This milestone has not been completed!", and the Tech screen's (purchase 0x465640).
+                ("The three screens that share that input slot are Collections, Puzzles and Milestones, and Tech.",
+                 C),)),
         # Game state 20: 0x46C910.
         Entry(KEY, "Any typed character (the splash pictures)", (
             "shows the next splash picture, and after the last one moves on. Esc and the other keys that are not "

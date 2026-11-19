@@ -488,7 +488,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     else "Nature is level 0")
     if patch is None:
         patch_words = (f"Whether the game has the patcher's \"{NATURE_PATCH_NAME}\" could not be told (its game "
-                       "folder was not found); the stock rule is shown.")
+                       f"folder was not found; {gm.BROWSE_HINT}); the stock rule is shown.")
     else:
         patch_words = (f"The patcher's \"{NATURE_PATCH_NAME}\" is {'in' if patch else 'not in'} the game"
                        + (" but needs Nature level 1." if patch and nature < 1 else "."))

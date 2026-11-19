@@ -27,7 +27,7 @@ class Hidden3(HiddenChecks, unittest.TestCase):
         ('key', 'F then W (village screen)', U, (O,)),
         ('key', "' ; [ and ] (village screen)", C, ()),
         ('key', 'F1 (the help pictures, the splash, the three screens of the shared slot)', C, ()),
-        ('key', "Esc (the shared slot's three screens, Map, Villager Detail)", C, (U,)),
+        ('key', "Esc (the shared slot's three screens, Map, Villager Detail)", C, (C,)),
         ('key', 'Any typed character (the splash pictures)', C, ()),
         ('key', 'Enter and Esc (pop-up boxes)', C, ()),
         ('key', 'Typing in a name box', C, (D,)),

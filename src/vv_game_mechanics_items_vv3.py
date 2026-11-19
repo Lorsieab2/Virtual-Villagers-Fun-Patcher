@@ -220,8 +220,10 @@ def _techs() -> list[Entry]:
         _level("Nature", 3, (
             "Nothing: the game says it increases longevity, but the aging code reads the Nature level and throws it "
             "away."), VERIFIED_C,
+            # data/builds.json: 0x4602ED jumps to a cave that keeps the stock threshold (lea ebx, [ecx + 0x44C]), reads
+            # Nature (0x426FC0(5)) and at 3 or more adds 0x64 + 0x28 = 140 age units before the stock cmp edi, ebx.
             ((patch("vv3_nature_level_three_alters_mortality") + ": every old-age death roll starts 7 years later "
-              "(62, 70 or 78 years at Medicine 1, 2 or 3).", UNCONFIRMED),)),
+              "(62, 70 or 78 years at Medicine 1, 2 or 3).", VERIFIED_C),)),
         # Magic (6): 0x4593DC (+1 research), 0x420BDD (the Berry Plant art), 0x45FE9D (+10 population).
         _level("Magic", 1, "The Faction of Magic (Choosing a faction). Each successful research session pays 1 more "
                            "tech point."),
@@ -256,7 +258,16 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step, when a villager trying on the robe becomes the Tribal Chief. The chief never takes a job; "
             "dropped on work the chief directs it, with the Leadership supervision bonus (Technologies, "
             "Leadership), and has the once-a-day powers."), VERIFIED_C,
-            (("Only one villager, chosen when the village is made and not shown to the player, fits the robe.", UNCONFIRMED),
+            # The chooser 0x45FB20 (at a new village 0x428379 and every 2-second step 0x46868B): while no living
+            # villager has the fit flag +0xE88 or is chief (+0xE80), it draws rand(count) over the living, present
+            # villagers not expecting or nursing (+0xE8C 0), one ticket each, three for an age under 20 units
+            # (0x45FB63), and sets +0xE88 (0x45FB99); the robe's drop handler 0x4219A8 gives the fitting action 0x78
+            # only to that villager, the others 0x79 ("The robe does not fit").  Becoming chief clears it (0x45FBD7).
+            (("Only one villager fits the robe, and the game never shows who: it draws one at random when the village is "
+              "made -- every living villager who is not expecting or nursing is equally likely (one under 1 year old "
+              "would count three times) -- and draws again every 2 real-life seconds while nobody fitting is free (the "
+              "chosen one died, or is expecting or nursing) and there is no chief. Everyone else is told \"The robe "
+              "does not fit\".", VERIFIED_C),
              (patch("vv3_everyone_tries_on_robe") + ": dropping a villager on the robe sends every active, living "
               "villager who is not nursing to try it on too, so the one it fits is found at once; the game alone "
               "still decides who becomes chief.", UNCONFIRMED))),
@@ -267,14 +278,28 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "The Alchemy Lab", (
             "solved after 5 steps (the lab's scattered pieces). Solved, villagers can gather the herbs and brew "
             "potions (Technologies, items and buildings); before it no herb can be gathered."), VERIFIED_C),
+        # The roster object's listener 0x435FF0 (vtable 0x49D2C8): a villager reaching ground region 0x31, the last walk
+        # of "Clearing leaves" (0x44C0D8, region 0x30 then 0x31), adds 1 (0x43601E) and 1 more when the chief's
+        # supervision roll for job 0x1D passes (0x45FC60, 0x43603A).
         Entry(PUZZLE, "The Roster of the Dead", (
-            "solved after 700 steps; what counts a step was not traced here."), UNCONFIRMED),
+            "solved after 700 steps: each \"Clearing leaves\" trip adds 1 when the villager reaches the roster, 2 "
+            "when the Tribal Chief directing that work passes the supervision roll (25 x Leadership % of the time). "
+            "Clicking it shows \"Percentage of leaves removed:\"."), VERIFIED_C),
+        # The dance object (vtable 0x49D3B0): 0x436BC0 counts villagers in action 0x84 ("Doing a weather dance",
+        # 0x452060) with Farming 50+ and, at 3 or more, sets a timer 15 s ahead on the game's clock (0x426790); its
+        # update 0x436CC0 recounts when it runs out: 3+ with Farming 50+ starts rain (0x41F990(2)) and advances puzzle 4
+        # (0x436D96); otherwise 3+ with Building 50+ brings fog (0x41F990(4)).
         Entry(PUZZLE, "Weather Dancing", (
-            "solved in 1 step; the step is the Tribal Chief's \"Doing a weather dance\"."), UNCONFIRMED),
+            "solved in 1 step: when 3 or more villagers with Farming 50 or more are \"Doing a weather dance\" at "
+            "once, and 3 or more still are 15 seconds later on the game's clock (7.5, 15 or 25 real-life seconds on "
+            "Fast, Normal or Slow), rain starts at once and the puzzle is solved; every later such dance brings rain "
+            "again. If by then fewer than 3 dancers have Farming 50 but 3 or more have Building 50, fog comes "
+            "instead."), VERIFIED_C),
         Entry(PUZZLE, "The Lift", (
             "solved in 1 step: a villager \"Repairing the lift\", which needs Restoration level 2 (below it the "
             "villager is Confused)."), VERIFIED_C,
-            (("The game's tip: the lift lets the villagers reach the tree high above on the cliff.", UNCONFIRMED),)),
+            # The tip is the game's own string eTipPuzzleRainLiftRestored (702).
+            (("The game's tip: the lift lets the villagers reach the tree high above on the cliff.", VERIFIED_C),)),
         Entry(PUZZLE, "The Ruins", (
             "solved after 1,800 steps. Once it is at least 2% done the Tablet collection starts to appear among "
             "the collectibles (Collectibles)."), VERIFIED_C),
@@ -303,8 +328,16 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step: with the campfire's 61 hours of burning (on Normal speed) and 12 trips of water done, "
             "a villager dropped on the key's spot finds it (the whole rule and this village's count: Hidden villager "
             "stats)."), VERIFIED_E),
-        Entry(PUZZLE, "The Cliff Key", "solved in 1 step (\"Trying to reach the key\").", UNCONFIRMED),
-        Entry(PUZZLE, "The Clam Key", "solved in 1 step.", UNCONFIRMED),
+        # The keys' release listener (0x43338F..0x433432): a villager letting go of key item 0x2C / 0x2D / 0x2E in
+        # ground region 0x24 advances puzzle 12 / 13 / 14 (item - 0x20) with its tip (0x2C9 / 0x2C8 / 0x2CA), then
+        # puzzle 19, the keys' count (threshold 3, 0x49D230[19]).
+        Entry(PUZZLE, "The Cliff Key", (
+            "solved in 1 step: a villager who got the key (\"Trying to reach the key\") puts it down at the place all "
+            "three keys are taken to (where the game says \"Someone left some burned-out torches here\"); each key "
+            "put down there also counts 1 of the 3 keys."), VERIFIED_C),
+        Entry(PUZZLE, "The Clam Key", (
+            "solved in 1 step: a villager puts the key from the giant clam down at that same place (as The Cliff "
+            "Key)."), VERIFIED_C),
         Entry(PUZZLE, "The Chief and the Princess", "solved in 1 step.", UNCONFIRMED),
     ]
 
@@ -521,7 +554,9 @@ def _items() -> list[Entry]:
         Entry(ITEM, "Educate the Children (the chief's power)", (
             "once every 23 real-life hours (real time, at any speed): each child who finishes the lesson gains 7 to 9 points in one random "
             "skill, up to 100."), VERIFIED_C,
-            (("It needs Leadership level 2 (the game's Leadership text says so).", UNCONFIRMED),
+            # 0x466836..0x466845: the chief dropped on the children, Leadership (0x426FC0(4)) below 2 skips the power.
+            (("It needs Leadership level 2: below it the chief dropped on a child does not call the lesson. The "
+              "skill each child gains is under Chances (Educate the Children's lesson).", VERIFIED_C),
              (patch("vv3_chief_lessons_cap_50") + ": only a skill below 50 can be chosen and the gain stops at 50; "
               "with every skill at 50 the lesson gives nothing.", UNCONFIRMED))),
         Entry(ITEM, "Point Out a Rare Collectible (the chief's power)", (
@@ -536,8 +571,13 @@ def _items() -> list[Entry]:
             "a villager dropped on the fourth hut once it is finished, with at least 5,000 tech points in store, "
             "opens the clothes; with fewer the game says \"Not enough tech points to make new clothes!\"."),
             VERIFIED_C,
-            (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
-              "the deduction itself was not traced.", UNCONFIRMED),)),
+            # The question 0x468568 (string 0x46B); "yes" starts action 0x62, whose step (0x458DCF) checks the 5,000
+            # again and takes them (0x458DFF: add -5000 to 0x582644) before the clothes screen opens (+0x12FAC).
+            (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" "
+              "On yes, the villager starts getting new clothes and the 5,000 tech points are taken as the clothes screen "
+              "opens; "
+              "with fewer than 5,000 by then nothing is taken and the game says \"Not enough tech points to make new "
+              "clothes!\".", VERIFIED_C),)),
         Entry(ITEM, "Wood for the campfire", (
             "a villager dropped on the burning campfire with wood starts its 20 hours of the game's clock over: 10, 20 or 33 hours 20 minutes of "
             "real-life play on Fast, Normal or Slow (The campfire)."),
@@ -640,7 +680,9 @@ def _patcher() -> list[Entry]:
     out.append(Entry(PATCHER, "Learning Skills Never Fails", (
         patch("vv3_learning_never_fails") + ": every Farming, Building, Research, Healing and Parenting skill test "
         "succeeds; the skill gains and everything else stay as in the stock game (stock: the test passes at the skill + 34% "
-        "for a villager neutral about learning)."), UNCONFIRMED))
+        # data/builds.json: the five skill tests' "cmp eax, ebp; jle success" (0x45A34E, 0x45A4FD, 0x45A67F, 0x45A799,
+        # 0x45A8A3, each right after its rand(100)) become an unconditional jmp to the same success target.
+        "for a villager neutral about learning)."), VERIFIED_C))
     return out
 
 
