@@ -37,6 +37,8 @@ REMAINING = {
     *(f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)),
     # companion only: detours at run time, owns no executable bytes
     "vv2_totems_out_of_entries",
+    # companion only: detours the island event trigger's three wait draws at run time, owns no bytes
+    "vv2_more_frequent_island_events",
     # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes
     "vv2_unicode_text",
     # companion only: writes the string table and its sites at run time, only while a language is chosen;
