@@ -372,9 +372,14 @@ def _puzzle_entries() -> list[Entry]:
             f"and {p(30)} once solved. The second stage needs Construction and Spirituality both at 2 or more, the "
             "third both at 3. From the first stage villagers choose Honoring as a job."),
          VERIFIED_E,
-              # Work event 40 at 0x46DA1B.
-              (("Polishing the finished statue: a work step of the game's adds 1 Divine Energy; which action starts "
-                "it was not traced.", UNCONFIRMED),
+              # Work event 40 at 0x46DA16 (+1 through the clamped adder 0x424F80): the work-event step 0x474EF0 is
+              # queued at 58 places, none with 40; polishing (action 0x9D, 0x455020) queues Building practice
+              # 0x474780(4) but no work event. Fix Vanilla Bugs queues event 40 after that practice (0x455109).
+              (("The game's tip says polishing the finished statue gives energy and building skill, and the game has "
+                "a step that adds 1 Divine Energy for it, but in the normal game no action ever asks for that step, so "
+                "\"Polishing the statue\" trains Building and gives no Divine Energy. Fixed by "
+                f"{_feature('vv5_fix_vanilla_bugs')}: each polish also adds 1 Divine Energy, never above the "
+                "Divine Energy cap.", VERIFIED_C),
                (f"{_feature('vv5_statue_polishing_or_honoring')}: a villager dropped on the finished statue polishes it "
                 "or Honors, 50% each, whatever their skills; one who carries the job on alone keeps the 50/50 only when "
                 "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),

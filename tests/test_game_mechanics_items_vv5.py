@@ -118,7 +118,7 @@ PINNED = (
 PINNED_SUBS = {
     "Science level 2": (C, E), "Medicine level 2": (U,), "Learning level 1": (C,), "Learning level 3": (C,),
     "Divine Energy": (U,), "The Hungry Totem": (U, C), "The Knowing Totem": (U,), "The Hydroponic Farm": (U,),
-    "The Tribute Statue": (U, C), "The Heathen Chief": (U,), "The Nursery School": (C,), "The fire pit": (U,),
+    "The Tribute Statue": (C, C), "The Heathen Chief": (U,), "The Nursery School": (C,), "The fire pit": (U,),
     "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, U, C, C), "Barrel of Babies": (U,),
     "Story / Cheat Upgrades": (C,),
 }
