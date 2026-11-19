@@ -106,7 +106,7 @@ MOTHER_ACTIVITIES = {
 }
 
 
-def mother_lines(add, game: int) -> None:
+def mother_lines(add, village: gm.Village, game: int) -> None:
     """Nursing mothers and the Nursery School: the game's behaviour, read from the stock exes (addresses in the
     module docstring).  Nothing here is changed by the patcher."""
     vv5 = game == 5
@@ -146,10 +146,15 @@ def mother_lines(add, game: int) -> None:
         add("A pregnant child: Grant Youth keeps a pregnancy, and the lesson's child test has no pregnancy test, so "
             "a pregnant villager made 5 years old again gets the Nursery School's lessons like any child while she "
             "carries (not seen in play).", gm.CODE, True)
-        # 0x43AAB5: always 0x206; the 0x43AEA0 count is fetched and not used.
+        # 0x43AAB5: always 0x206; the 0x43AEA0 count is fetched and not used.  Fix Vanilla Bugs rewrites
+        # 0x43AA99-0x43AAC0 (tests/test_vv5_nursery_foundation_caption.py).
         add("Walking past the unfinished school a villager always says \"{name} sees a nursery school under "
             "construction.\"; the game's other line, \"{name} sees a nursery school foundation.\", is never used "
             "(the game works out whether only the foundation is there, then ignores it).", gm.CODE, True)
+        add(gm.patch_words(village, "vv5_fix_vanilla_bugs",
+                           "it says \"{name} sees a nursery school foundation.\" while nothing is built yet and "
+                           "\"... under construction.\" once building has started, as in The Tree of Life"),
+            gm.CODE, True)
 
 
 def lines(village: gm.Village, game: int) -> list[gm.Fact]:
@@ -190,7 +195,7 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
             "the player can never make a Heathen the teacher. The game's pick of the teacher has no Heathen test, so "
             "a teacher who becomes a Heathen would go on teaching if the job stays the Nursery School; whether it "
             "stays was not traced.", False, True)
-    mother_lines(add, game)
+    mother_lines(add, village, game)
     add(f"Solving The Nursery School gives no skill: {crowd} stop to celebrate (\"Celebrating\") and the tip "
         "\"The Nursery School ... This will help them raise smarter children.\" shows. The lessons below start with "
         "the first teacher and go on with no end, as long as someone has the Nursery School as their job.")
