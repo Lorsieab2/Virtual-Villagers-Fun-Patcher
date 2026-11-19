@@ -29,8 +29,10 @@ owner's decisions:
    understood plant once Herb Mastery is solved (A New Home -- never the
    Magic Plant of Life -- and The Lost Children).  "Doing exercise" stays the
    game's own leisure: a builder with nothing to build is never sent to it.
-6. The "untrained" mark (The Tree of Life, New Believers) is lifted for one
-   dispatch of the villager's selected job, and put back.
+6. The "untrained" mark (The Tree of Life, New Believers) is turned off: it
+   is lifted for every dispatch of the worker, and put back in the record
+   (not for a Heathen, nor a Tree of Life Building pick while puzzle work is
+   on offer).
 7. Only above skill 5 (the owner, 2026-11-18): nobody is put first while
    their skill in that job is 5 or less.
 8. The Lost Children's healers continue plant study (state 9, the scheduler's
@@ -760,8 +762,10 @@ class Fallbacks(unittest.TestCase):
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class Untrained(unittest.TestCase):
     """Decision 6: the untrained mark (record+0x1C54 = 1; The Tree of Life
-    and New Believers) is lifted for one dispatch of the selected job (never
-    Parenting, skill above 5) and put back."""
+    and New Believers) is turned off with the patch (the owner, 2026-11-19:
+    "the untrained tag in vv4-vv5 sucks ... that patch should disable those
+    too"): every dispatch of the worker runs as for a trained villager, and
+    the mark is put back in the record afterwards."""
 
     def test_the_selected_job_is_dispatched_trained_and_the_mark_put_back(self):
         for game in ("vv4", "vv5"):
@@ -774,19 +778,49 @@ class Untrained(unittest.TestCase):
                         self.assertEqual(m.marks[0], 0, "lifted for the dispatch")
                         self.assertEqual(m.u32(RECORD + 0x1C54), 1, "put back")
 
-    def test_not_at_skill_5_or_less(self):
+    def test_the_stock_pick_is_dispatched_trained_too(self):
+        # A skilled adult with no ticked job, a failed roll, skill 5 or less in the ticked job, or Parenting
+        # ticked: the stock pick runs (never the own job first) -- without the mark.
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            for case, kw in (("no job", dict(selected=-1)),
+                             ("roll failed", dict(selected=g["healing"], force=FORCE_FAIL)),
+                             ("skill 5", dict(selected=g["healing"], skill=5)),
+                             ("parenting", dict(selected=g["parenting"]))):
+                # (The worker's Parenting pick never reaches the dispatcher: its own conception step.)
+                for pick in (g["farming"], g["research"], g["healing"], g["building"]):
+                    with self.subTest(game=game, case=case, pick=pick):
+                        m = decide(world(game, pick=pick, task=1, **kw))
+                        self.assertEqual(jobs(m), [pick])
+                        self.assertEqual(m.marks, [0])
+                        self.assertEqual(m.u32(RECORD + 0x1C54), 1, "put back")
+
+    def test_the_low_food_farming_dispatch_is_trained_too(self):
         for game in ("vv4", "vv5"):
             g = G[game]
             with self.subTest(game=game):
-                m = decide(world(game, selected=g["healing"], pick=g["healing"], task=1, skill=5))
+                m = decide(world(game, selected=-1, pick=g["healing"], task=1, food=250, farming=20))
+                self.assertEqual(jobs(m), [FARMING])
+                self.assertEqual(m.marks, [0])
+                self.assertEqual(m.u32(RECORD + 0x1C54), 1)
+
+    def test_without_the_patch_the_mark_holds(self):
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            with self.subTest(game=game):
+                m = decide(world(game, rows=(), runtime=False, selected=-1, pick=g["healing"], task=1))
                 self.assertEqual(m.marks, [1])
 
-    def test_any_other_request_still_sees_the_mark(self):
-        g = G["vv5"]
-        m = decide(world("vv5", selected=g["healing"], pick=g["building"], task=1, force=FORCE_FAIL))
-        self.assertEqual(m.marks, [1])
-        m = decide(world("vv5", selected=g["parenting"], pick=g["building"], task=1))
-        self.assertEqual(m.marks, [1])
+    def test_tree_of_life_puzzle_work_keeps_the_mark(self):
+        # Builders never start a project nobody was dropped on: an untrained villager's Building pick keeps
+        # the mark while the Building case could start puzzle work by itself.
+        g = G["vv4"]
+        for kw, lifted in ((dict(), True), (dict(stream=50), False), (dict(piers_stage=1), False),
+                           (dict(rubble_stage=0), False), (dict(stream=50, stream_solved=True), True)):
+            with self.subTest(**kw):
+                m = decide(world("vv4", selected=-1, pick=g["building"], task=1, **kw))
+                self.assertEqual(jobs(m), [g["building"]])
+                self.assertEqual(m.marks, [0 if lifted else 1])
 
     def test_heathens_get_nothing_new(self):
         # A Heathen (u8 record+0x1CEC) never gets job work in the game: no own job first, no lifted mark.

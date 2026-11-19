@@ -348,14 +348,28 @@ WORK_FIRST_EXTRA = {
     "vv1": "",
     "vv2": "",
     "vv3": "",
-    "vv4": (" A new villager is no longer held back by the game's \"untrained\" mark for their selected job "
-            "(only that job: mating and every other job still wait for training, as in the game). In catch-up a "
+    "vv4": (" " + "{untrained}" + " In catch-up a "
             "farmer may also make the fruit trip, \"Attempting to retrieve fruit\", once the Cooking Pit is "
             "restored, as they do while you play."),
-    "vv5": (" A new villager is no longer held back by the game's \"untrained\" mark for their selected job "
-            "(only that job: mating and every other job still wait for training, as in the game). Heathens get "
+    "vv5": (" " + "{untrained}" + " Heathens get "
             "nothing new. In catch-up a farmer may also harvest noni before the Hungry Totem is dismantled, as a "
             "farmer you dropped there already does."),
+}
+# The owner (2026-11-19): "the untrained tag in vv4-vv5 sucks. i don't like it, that patch should disable those
+# too", and skilled adults work on their own like VV1-VV3.
+WORK_FIRST_UNTRAINED = (
+    "**This patch also turns off the game's \"untrained\" mark.** In the stock game a villager who has never "
+    "been dropped on a job does no work on their own at all, however skilled (a child who grew up with skills, "
+    "for example, just stands around at 14). With this patch every adult 14 or older works on their own as in "
+    "Virtual Villagers 1-3: the game picks their best skill (or their checked job most of the time) and goes "
+    "to it only above skill 5, and then only (skill + 40) times in 100, so a skilled villager works often and "
+    "a beginner still idles. Mating is never put first and stays under the game and the Birth Control patches. "
+    "The mark is kept in the save, so without this patch the game behaves as it always has."
+)
+WORK_FIRST_UNTRAINED_BUILDERS = {
+    "vv4": (" An untrained villager is never sent to puzzle work the Building work could start on its own "
+            "(above)."),
+    "vv5": "",
 }
 WORK_FIRST_CATCH_UP_FARMING = (
     " Catch-up's low-food rule still wins: at 250 food or less a villager with Farming 20 or more farms, "
@@ -395,11 +409,11 @@ PICKER_RUNTIME = {
             {"va": "0x45FF11", "stock_bytes": "E81A72FFFF",
              "routine": "the Building case's hut-24 start (call 0x457130): called only when hut 24 has progress 1 or more or this villager was dropped on it (task 0xB); otherwise the dispatcher's 'nothing' exit 0x46004C"}],
     "vv4": [{"va": "0x4639B0", "stock_bytes": "8B44240481EC98000000",
-             "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x4659D2, 0x465A17, 0x465A2A) and the catch-up worker's pick dispatch (0x46582C)"},
+             "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x4659D2, 0x465A17, 0x465A2A) and the catch-up worker's pick dispatch (0x46582C); for the worker's low-food Farming dispatch (0x46580F) it only ignores the untrained mark"},
             {"va": "0x463A30", "stock_bytes": "3898A4710100750B",
              "routine": "the Farming case's catch-up test before the fruit trip (cmp byte [game+0x171A4], bl; jne): in catch-up a villager whose selected job is Farming is offered the fruit trip on the decision's roll"}],
     "vv5": [{"va": "0x46C540", "stock_bytes": "81EC94000000",
-             "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x46F291, 0x46F2D6, 0x46F2EA) and the catch-up worker's pick dispatch (0x46E9CE)"},
+             "routine": "the work dispatcher's entry, acting only for the adult scheduler's calls (returns 0x46F291, 0x46F2D6, 0x46F2EA) and the catch-up worker's pick dispatch (0x46E9CE); for the worker's low-food Farming dispatch (0x46E9B1) it only ignores the untrained mark"},
             {"va": "0x46C5CA", "stock_bytes": "3898107E01007506",
              "routine": "the Farming case's catch-up test before noni (cmp byte [game+0x17E10], bl; jne): in catch-up a villager whose selected job is Farming is offered noni on the decision's roll, before the Hungry Totem as a dropped farmer already is"}],
 }
@@ -412,6 +426,7 @@ def work_first_description(game: str) -> str:
             .replace("{builders}", WORK_FIRST_BUILDERS[game])
             .replace("{healers}", WORK_FIRST_HEALERS[game])
             .replace("{extra}", WORK_FIRST_EXTRA[game])
+            .replace("{untrained}", WORK_FIRST_UNTRAINED + WORK_FIRST_UNTRAINED_BUILDERS.get(game, ""))
             .replace("{catch_up}", catch_up))
 
 
@@ -437,15 +452,17 @@ def work_first_row(game: str, sha: str) -> dict:
         behavior.append(f"Plants: once Herb Mastery is solved, a healer whose Healing work started nothing studies a random understood plant through the game's own starter ({plants}); a re-study's step is the stock Healing practice roll.")
     behavior.append("Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them " + ("(A New Home's picker gate 0x439C80, cmp esi, 1, becomes cmp esi, 5)." if game == "vv1" else "(its own gate, cmp esi, 5)."))
     if game == "vv4":
-        behavior.append("Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x4639D2). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting; skill above 5) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).")
+        behavior.append("Untrained mark off (the owner, 2026-11-19): every new villager starts with [record+0x1C54] = 1 (0x45F534), and the dispatcher refuses every job while it is 1 (0x4639D2) -- its only gate; the scheduler's and worker's assigned-site tests (0x46597F, 0x4657C9) and the end-of-action reset (0x45E6DB) treat 1 as nothing assigned. Every request of the scheduler (returns 0x4659D2, 0x465A17, 0x465A2A) and of the catch-up worker (0x46582C, and the low-food Farming dispatch 0x46580F) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0); the job is the stock picker's (0x461CC0: above skill 5, then (skill + 40)%), Parenting only when it picks it. Not lifted for a Building request while the Building case offers puzzle work it can start by itself (as above).")
     if game == "vv5":
         behavior.append("Devotion (job 5) is put first like Healing: in catch-up always; while you play only when Easier Devotee Training's bytes are not at 0x46F1DD (stock 83B9FC1C00000D7554), so the two never double up. The dispatcher's Devotion case (0x46CDB6) queues Honoring when project 14 is complete or 0x4271C0 answers 1 or 2, and otherwise starts nothing.")
-        behavior.append("Untrained: every new villager starts with [record+0x1C54] = 1, which the dispatcher refuses (0x46C565). For the scheduler's and the catch-up worker's calls, a request for the villager's selected job (never Parenting; skill above 5) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0).")
+        behavior.append("Untrained mark off (the owner, 2026-11-19): every new villager starts with [record+0x1C54] = 1 (0x4687D3), and the dispatcher refuses every job while it is 1 (0x46C565) -- its only gate; the scheduler's and worker's assigned-site tests (0x46F240, 0x46E96B) and the end-of-action resets (0x452D15, 0x455235, 0x465D2B) treat 1 as nothing assigned. Every request of the scheduler (returns 0x46F291, 0x46F2D6, 0x46F2EA) and of the catch-up worker (0x46E9CE, and the low-food Farming dispatch 0x46E9B1) is dispatched with the mark set to 0 for that call and put back to 1 afterwards if it is still 0 (a refusal inside the call writes 0); the job is the stock picker's (0x46A3C0: above skill 5, then (skill + 40)%), Parenting only when it picks it.")
         behavior.append("Heathens (u8 record+0x1CEC non-zero) get nothing new: the dispatcher hook, the untrained mark and the noni offer all leave them to the stock game.")
     if game in ("vv3", "vv4", "vv5"):
         behavior.append("At 250 food or less a healer's pick is also dispatched at once instead of waiting behind a farming attempt, as Builders Fix Huts When Idle already does for builders.")
     non_changes_catch_up = (
         f"In catch-up, the worker's low-food Farming dispatch ({cu['farm']}: 250 food or less and Farming 20 or more) is not one of the calls the hook acts on, so Farming wins exactly as in the stock game."
+        if game == "vv3" else
+        f"In catch-up, the worker's low-food Farming dispatch ({cu['farm']}: 250 food or less and Farming 20 or more) never puts anyone's own job first, so Farming wins exactly as in the stock game; the hook only ignores the untrained mark for it."
         if "farm" in cu else
         "In catch-up, only the worker's own pick dispatch reaches the hook; nothing else in the worker changes.")
     row = {
@@ -464,7 +481,7 @@ def work_first_row(game: str, sha: str) -> dict:
             "Parenting (job %d) is never put first, and the catch-up worker's Parenting pick (its 5%% conception attempt) is not touched: births stay under the Birth Control patches." % jobs["parenting"],
             "What the work does -- which crop, project, hut, patient or study -- is the game's own dispatcher's choice, with its technology levels and buildings; the Farming cases start no tool or sack job (those stay drop-only) and no puzzle work.",
             non_changes_catch_up,
-            "Nothing is written to the save or any file." + (" The only record write is New Believers' untrained mark, lifted for one dispatch and put back." if game == "vv5" else ""),
+            "Nothing is written to the save or any file." + (" The only record write is the untrained mark, lifted for one dispatch and put back, so the save keeps it." if game in ("vv4", "vv5") else ""),
         ],
         "companion_files": [
             {"source": "assets/work_first/VVFP Work First.dll",

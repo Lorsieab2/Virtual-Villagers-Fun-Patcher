@@ -203,6 +203,56 @@ class LiveScheduler(unittest.TestCase):
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class UntrainedMarkOff(unittest.TestCase):
+    """The owner (2026-11-19): "the untrained tag in vv4-vv5 sucks ... that
+    patch should disable those too" -- skilled adults work on their own like
+    VV1-VV3.  Every scheduler request reaches the dispatcher's body with the
+    mark lifted, and the mark is put back in the record.  (The body is
+    scripted from just after the displaced entry bytes, so the stock refusal
+    test inside it, 0x4639D2 / 0x46C565 `cmp [rec+0x1C54], 1; je refuse`, is
+    pinned by the mark it would read.)"""
+
+    def test_every_scheduler_request_is_trained(self):
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            for selected in (-1, g["parenting"], g["healing"]):
+                for job in (g["farming"], g["parenting"], g["healing"], g["research"], g["building"]):
+                    for ret in LIVE[game]:
+                        with self.subTest(game=game, selected=selected, job=job, ret=hex(ret)):
+                            m = live(world(game, selected=selected, task=1, force=FORCE_FAIL), game, ret, job)
+                            self.assertEqual(jobs(m), [job])
+                            self.assertEqual(m.marks, [0])
+                            self.assertEqual(m.u32(RECORD + 0x1C54), 1, "put back")
+
+    def test_stock_refuses_the_untrained(self):
+        for game in ("vv4", "vv5"):
+            g = G[game]
+            with self.subTest(game=game):
+                m = live(world(game, rows=(), runtime=False, selected=-1, task=1), game, LIVE[game][0],
+                         g["healing"])
+                self.assertEqual(m.marks, [1], "the stock dispatcher's test refuses it")
+
+    def test_the_refusal_test_the_lift_relies_on(self):
+        for game, va, code in (("vv4", 0x4639D2, "39A9541C00000F84"), ("vv5", 0x46C565, "39A8541C00000F84")):
+            with self.subTest(game=game):
+                self.assertEqual(_stock_bytes_at(game, va, 8).hex().upper(), code)
+
+    def test_another_caller_still_sees_the_mark(self):
+        for game in ("vv4", "vv5"):
+            with self.subTest(game=game):
+                m = live(world(game, selected=-1, task=1), game, OTHER_CALLER[game], G[game]["healing"])
+                self.assertEqual(m.marks, [1])
+
+    def test_heathens_keep_the_mark(self):
+        g = G["vv5"]
+        m = world("vv5", selected=-1, task=1)
+        m.w8(RECORD + 0x1CEC, 1)
+        live(m, "vv5", LIVE["vv5"][0], g["healing"])
+        self.assertEqual(m.marks, [1])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class NewBelieversDevotion(unittest.TestCase):
     """Item 98: devotees practise Devotion while you play too -- but never on
     top of Easier Devotee Training, which already sends them Honoring."""
