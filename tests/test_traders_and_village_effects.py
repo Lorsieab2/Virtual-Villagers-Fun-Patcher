@@ -146,7 +146,7 @@ class GameSide(unittest.TestCase):
         r.p.export("VvfpStoryProbeGraphSupplyCap", 0)
         if setup:
             setup(r)
-        r.rolls([0] * 60)
+        r.rolls([0] * 400)
         r.log(1)
         self.assertIsNone(r.queue6(compiled(graph)))
         shown = r.walk_through(list(answers))
@@ -290,6 +290,25 @@ class GameSide(unittest.TestCase):
         r, _ = self.run_graph("vv2", g, setup)
         self.assertEqual(self.food_tech(r)[0], 500)
         self.assertEqual(sum(r.p.read(r.story.village.world + 0x2E720, 48)), 44)
+    def test_a_big_collectible_gain_from_an_empty_collection(self):
+        """VV3-VV5 with no piece yet: a gain of 50 (above the old 33 / 44 room) gives all 50 (the first new piece, then duplicates), never
+        finishing a set (Codex P2)."""
+        for game in ("vv3", "vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                base = COLLECTIBLE_AT[game]
+                g = pages([[{"do": "supply", "item": "collectible", "min": 50, "max": 50}]], [int(game[2])])
+
+                def setup(r, base=base):
+                    for k in range(48):
+                        r.p.put32(base + 4 * k, 0)
+
+                r, _ = self.run_graph(game, g, setup)
+                counts = [struct.unpack("<i", r.p.read(base + 4 * k, 4))[0] for k in range(48)]
+                self.assertEqual(sum(counts), 50)
+                for s in range(0, 48, 12):
+                    self.assertLess(sum(1 for c in counts[s:s + 12] if c > 0), 12, "no set is ever finished")
     def test_group_sickness_spares_the_protected_and_cure_clears(self):
         if not have_stock("vv4"):
             self.skipTest("no stock The Tree of Life")

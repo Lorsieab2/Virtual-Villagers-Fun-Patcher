@@ -159,7 +159,8 @@ static int cg_piece_room(int game) {
         }
         room += owned < 11 ? 11 - owned : 0;
     }
-    return room;
+    /* VV3-VV5: once one new piece is given, it may take duplicates without end (Codex P2) */
+    return game != 2 && room > 0 ? CG_GOOD_MAX : room;
 }
 
 /* VV3's planted trees (0x594844), 0..3. */
