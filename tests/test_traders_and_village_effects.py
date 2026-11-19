@@ -69,7 +69,9 @@ class PatcherSide(unittest.TestCase):
         for word in cg.GOODS:
             self.assertIn(f'"{word}"', village, word)
         for kind in cg.GROUP_KINDS:
-            self.assertIn(f'{{ "{kind}"', village, kind)
+            self.assertIn(f'"{kind}:"' if kind in ("work", "effect") else f'{{ "{kind}"', village, kind)
+        for word in cg.TEMP_EFFECTS:
+            self.assertIn(f'{{ "{word}", {cg.TEMP_EFFECTS[word]},', village, word)
 
     def test_round_trip(self):
         fx = [{"do": "trade", "give": "food", "give_amount": 50, "get": "tech", "get_amount": 20},
@@ -400,6 +402,129 @@ class GameSide(unittest.TestCase):
             self.assertEqual(seen4, [1999])
 
 
+# Section 36: the work rush's starters (VV1/VV2: the action routine, its argument count; VV3-VV5: the action ids)
+WORK_RUSH = {"vv1": ((0x441E10, 4), (0x439D80, 8)), "vv2": ((0x456F70, 4), (0x44A1E0, 8)),
+             "vv3": (0xB, 0x3A), "vv4": (0x63, 0x4F), "vv5": (0x6C, 0x55)}
+TEMP_SETTERS = {"vv3": ((0x4583A0, 20),), "vv4": ((0x437EC0, 8), (0x438CA0, 8), (0x460A90, 20))}
+SPAWNER = {"vv3": (0x42D940, 0x58F428, 12), "vv4": (0x413EE0, 0x4CC838, 12), "vv5": (0x4141E0, 0x4DBFC8, 28)}
+
+
+@emulated
+class WorkRushSpawnTempEffects(unittest.TestCase):
+    """The owner's 2026-11-18 additions (cie-v6-binary.md 36), in each stock executable."""
+
+    side = None
+
+    def setUp(self):
+        self.side = GameSide()
+
+    def test_patcher_side(self):
+        fx = [{"do": "group", "kind": "work", "skill": "Farming", "who": "all"},
+              {"do": "group", "kind": "effect", "effect": "hiccups", "who": "subject"},
+              {"do": "village", "what": "spawn"},
+              {"do": "supply", "item": "yellow_fruit", "min": -50, "max": -50}]
+        g = pages([fx], [3, 4])
+        g["nodes"]["p0"]["children"] = []
+        self.assertEqual(cg.decompile_graph(compiled(g))["nodes"]["p0"]["effects"], fx)
+        for games, bad, why in (([4], {"do": "group", "kind": "work", "skill": "Farming", "who": "subject"}, "whole"),
+                                ([4], {"do": "group", "kind": "work", "skill": "Juggling"}, "skill"),
+                                ([3], {"do": "group", "kind": "effect", "effect": "glow"}, "game 4"),
+                                ([4], {"do": "group", "kind": "effect", "effect": "flying"}, "effect is one of"),
+                                ([3], {"do": "supply", "item": "yellow_fruit", "min": 1, "max": 1}, "no game")):
+            with self.subTest(bad=bad), self.assertRaises(Exception) as ctx:
+                cg.load(pages([[bad]], games), scrolling=True)
+            self.assertIn(why, str(ctx.exception))
+
+    def test_work_rush_only_the_skills_workers_work(self):
+        people = [(0, "m", 30, "Adam", 50, False), (1, "f", 31, "Bea", 0, False), (2, "m", 8, "Kai", 0, False)]
+        for game, (work, rest) in WORK_RUSH.items():
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                g = pages([[{"do": "group", "kind": "work", "skill": "Farming"}]], [int(game[2])])
+
+                def setup(r, game=game, work=work, rest=rest):
+                    if game in DO_ACTION:
+                        r.record(DO_ACTION[game], 8)
+                    else:
+                        r.record(*work)
+                        r.record(*rest)
+
+                r, _ = self.side.run_graph(game, g, setup, people=people)
+                if game in DO_ACTION:
+                    started = sorted(c[1] for c in r.recorded.get(DO_ACTION[game], []))
+                    self.assertEqual(started, sorted([work, rest]), "the farmer works, the other adult rests, the "
+                                                                    "child is left as is")
+                else:
+                    self.assertEqual([c[1] for c in r.recorded.get(work[0], [])], [0], "Adam (Farming) works")
+                    self.assertEqual([c[1] for c in r.recorded.get(rest[0], [])], [1], "Bea rests; Kai is a child")
+
+    def test_spawn_fills_the_free_slots_by_the_games_own_spawner(self):
+        for game, (va, this, pop) in SPAWNER.items():
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                g = pages([[{"do": "village", "what": "spawn"}]], [int(game[2])])
+                r, _ = self.side.run_graph(game, g, lambda r, va=va, pop=pop: r.record(va, pop))
+                calls = r.recorded.get(va, [])
+                want = [this, 0xFFFFFFFF, 0, 0] + ([1, 1, 1, 1] if game == "vv5" else [])
+                self.assertEqual(calls, [want, want], "two tries: the game fills what it has free")
+        if have_stock("vv2"):
+            g = pages([[{"do": "village", "what": "spawn"}]], [2])
+
+            def setup2(r):
+                pool = r.p.u32(0x499F24)
+                spawner = r.p.alloc(0x40)
+                r.p.put32(pool + 0xE574F4, spawner)
+                r.record(0x4152D0, 0)                     # nothing lies on the map (returns 0)
+                r.record(0x415490, 4)
+
+            r, _ = self.side.run_graph("vv2", g, setup2)
+            self.assertEqual(len(r.recorded.get(0x415490, [])), 1)
+            self.assertEqual(r.recorded[0x415490][0][1], 0)
+
+    def test_temporary_effects_by_each_games_setter(self):
+        cases = {"vv3": ([("hiccups", None)], {0x4583A0: (20, [0x582610, 18, 0, 0, 0])}),
+                 "vv4": ([("clean", None), ("glow", None), ("gunk", None), ("stew_wait", None)],
+                         {0x437EC0: (8, None), 0x438CA0: (8, None), 0x460A90: (20, [0x4D6F50, 8, 0, 0, 0])})}
+        for game, (effects, setters) in cases.items():
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                g = pages([[{"do": "group", "kind": "effect", "effect": name, "who": "subject"}]
+                           for name, _ in effects], [int(game[2])])
+
+                def setup(r, setters=setters):
+                    for va, (pop, _args) in setters.items():
+                        r.record(va, pop)
+
+                r, _ = self.side.run_graph(game, g, setup)
+                for va, (_pop, args) in setters.items():
+                    calls = r.recorded.get(va, [])
+                    self.assertTrue(calls, hex(va))
+                    if args is not None:
+                        self.assertEqual(calls[0][1:], args)
+                if game == "vv4":
+                    self.assertEqual([c[1:] for c in r.recorded[0x437EC0]][0][1], 1, "clean first: the bath's mode 1")
+                    self.assertEqual(r.recorded[0x437EC0][0][0], 0x4D8B18)
+                    self.assertEqual(r.recorded[0x438CA0][0][0], 0x4D8CCC)
+
+    def test_yellow_fruit_through_the_fruit_supply_companion(self):
+        if not have_stock("vv4"):
+            self.skipTest("no stock The Tree of Life")
+        g = pages([[{"do": "supply", "item": "yellow_fruit", "min": 950, "max": 950}],
+                   [{"do": "trade", "give": "yellow_fruit", "give_amount": 300, "get": "food", "get_amount": 50}],
+                   [{"do": "supply", "item": "yellow_fruit", "min": -9999, "max": -9999}]], [4])
+        r, _ = self.side.run_graph("vv4", g, lambda r: (r.p.export("VvfpStoryProbeGraphYellowFruit", 100),
+                                                        self.side.set_food_tech(r, 0, 0)))
+        self.assertEqual(r.p.export("VvfpStoryProbeGraphYellowFruit", -2), 0, "1000, then 700, then never below 0")
+        self.assertEqual(self.side.food_tech(r)[0], 50)
+        r, _ = self.side.run_graph("vv4", g, lambda r: (r.p.export("VvfpStoryProbeGraphYellowFruit", -1),
+                                                        self.side.set_food_tech(r, 0, 0)))
+        self.assertEqual(self.side.food_tech(r)[0], 0, "no Yellow Fruit Trees limited: no count, no trade")
+        r.p.export("VvfpStoryProbeGraphYellowFruit", -2)
+
+
 EVENT_DIRS = [ROOT / "data" / "event_collection" / "drafts_c" / d for d in ("dr_trd", "dr_vfx")]
 
 
@@ -413,7 +538,7 @@ class NewEventsRunInEveryGame(unittest.TestCase):
         import collection_check as cc
         import json
         paths = sorted(p for d in EVENT_DIRS for p in d.glob("*.json"))
-        self.assertEqual(len(paths), 25)
+        self.assertEqual(len(paths), 29)
         side = GameSide()
         ran = 0
         for path in paths:
@@ -438,6 +563,10 @@ class NewEventsRunInEveryGame(unittest.TestCase):
                                 r.record(LEVEL_RAISE[game], 8 if game == "vv5" else 4)
                             if game in CLOCK:
                                 r.record(CLOCK[game], 0)           # the game's clock (now = 0)
+                            if game in SPAWNER:                   # the game's own spawner and effect setters
+                                r.record(SPAWNER[game][0], SPAWNER[game][2])
+                            for va, pop in TEMP_SETTERS.get(game, ()):
+                                r.record(va, pop)
                             if game == "vv3":
                                 r.p.put32(0x594844, 3)                # three fruit trees planted
                             if gn == 4:

@@ -18,9 +18,41 @@ static int test_graph_weather = -1;       /* the last weather type started */
 static int test_graph_weather_call = 1;   /* 0: record the type without calling the game */
 #endif
 
+static int cg_prefix(const char *s, const char *prefix) {
+    while (*prefix != '\0' && *s == *prefix) {
+        ++s;
+        ++prefix;
+    }
+    return *prefix == '\0';
+}
 /* ---- 33. Goods ------------------------------------------------------------------------------------------------ */
 
-enum { CGG_FOOD = 1, CGG_TECH, CGG_VALUE, CGG_FRUIT, CGG_COLLECTIBLE, CGG_SUPPLY4 };
+enum { CGG_FOOD = 1, CGG_TECH, CGG_VALUE, CGG_FRUIT, CGG_COLLECTIBLE, CGG_SUPPLY4, CGG_YELLOW_FRUIT };
+
+#ifdef VVFP_TEST
+static int test_graph_yellow = -2;        /* yellow fruit: -2 the real companion, -1 none, else its count */
+#endif
+
+/* The Tree of Life's yellow fruit tree (with "Yellow Fruit Trees are No Longer Unlimited"): "VVFP VV4 Fruit
+   Supply.dll"'s own count through its export VvfpYellowFruitAdd (0..1,000; `delta` 0 only reads it), -1 when the
+   companion is not loaded or has no village (the stock tree never runs out: no count). */
+static int cg_yellow_fruit(int delta) {
+    typedef int (__stdcall *add_fn)(int);
+    HMODULE module;
+    add_fn add;
+#ifdef VVFP_TEST
+    if (test_graph_yellow >= -1) {
+        if (test_graph_yellow >= 0) {
+            long long v = (long long)test_graph_yellow + delta;
+            test_graph_yellow = v < 0 ? 0 : v > 1000 ? 1000 : (int)v;
+        }
+        return test_graph_yellow;
+    }
+#endif
+    module = GetModuleHandleA("VVFP VV4 Fruit Supply.dll");
+    add = module != NULL ? (add_fn)GetProcAddress(module, "VvfpYellowFruitAdd") : NULL;
+    return add != NULL ? add(delta) : -1;
+}
 
 typedef struct {
     const char *word;
@@ -41,6 +73,7 @@ static const cg_good_def CG_GOODS[] = {
     { "collectible", 3, CGG_COLLECTIBLE, 0, "Collectibles" },
     { "food", 4, CGG_FOOD, 0, "Food" }, { "tech", 4, CGG_TECH, 0, "Tech points" },
     { "blackberries", 4, CGG_VALUE, 0, "Blackberries" },
+    { "yellow_fruit", 4, CGG_YELLOW_FRUIT, 0, "Yellow fruit" },
     { "cutting_tools", 4, CGG_SUPPLY4, 0, "Cutting tools" }, { "soap", 4, CGG_SUPPLY4, 1, "Bars of soap" },
     { "cloth", 4, CGG_SUPPLY4, 2, "Cloth bolts" },
     { "collectible", 4, CGG_COLLECTIBLE, 0, "Collectibles" },
@@ -152,6 +185,10 @@ static int cg_good_have(const ce_adapter *a, int game, const cg_good_def *d, int
         cg_pieces(game, &owned, &spare);
         *room = game == 2 ? CG_COLLECTIBLE_PIECES - owned : CG_GOOD_MAX;
         return spare;
+    case CGG_YELLOW_FRUIT:
+        now = cg_yellow_fruit(0);
+        *room = now >= 0 && now < 1000 ? 1000 - now : 0;
+        return now;
     case CGG_SUPPLY4: {
         int big = c4_supply_cap_installed(), cap;
 #ifdef VVFP_TEST
@@ -250,6 +287,9 @@ static int cg_good_change(const ce_adapter *a, int game, const cg_good_def *d, i
         case CGG_SUPPLY4:
             *(int *)(uintptr_t)C4_SUPPLY_AT[d->which] = have + delta;
             done = delta;
+            break;
+        case CGG_YELLOW_FRUIT:
+            done = cg_yellow_fruit(delta) >= 0 ? delta : 0;
             break;
         default:
             for (step = 0; step < (delta > 0 ? delta : -delta); ++step) {
@@ -373,10 +413,163 @@ static const cg_group_def *cg_group_def_of(const char *kind) {
     return NULL;
 }
 
-/* Whether `kind` is a group's word: sickness and cure are the whole village's only. */
+static int cg_in_ages(const ce_adapter *a, const unsigned char *r, int ages);
+
+/* ---- 36. Work rush and temporary effects (the owner, 2026-11-18) ------------------------------------------------- */
+
+/* The work rush: each game's own job action for a skill (the adapter's labels, story_c1.inc .. story_c5.inc; ""
+   none: that game's workers are left as they are), and the busy state with no skill for everyone else. */
+static const char *const CG_WORK_SKILLS[6] = { "Farming", "Building", "Research", "Healing", "Parenting", "Devotion" };
+static const char *const CG_WORK[6][6] = {
+    /* Farming */ { "", "Foraging (Farming practice, food)", "Harvesting coconuts (Farming practice, food)",
+                    "Fishing (Farming practice, food)", "Harvesting blackberries (Farming practice, food) [The Lie]",
+                    "Harvesting noni (Farming practice, food)" },
+    /* Building */ { "", "Fixing hut (Building practice)", "Exercising (Building practice)",
+                     "Doing exercise (Building practice)", "Doing exercise (Building practice)", "" },
+    /* Research */ { "", "Researching (Research practice, tech points)", "Researching (Research practice, tech points)",
+                     "Researching (Research practice, tech points)", "Researching (Research practice, tech points)",
+                     "Researching (Research practice, tech points)" },
+    /* Healing */ { "", "Healing someone (Healing practice, cures nobody)",
+                    "Healing someone (Healing practice, cures nobody)", "Studying medicine (Healing practice)", "",
+                    "Health chanting (Healing practice)" },
+    /* Parenting */ { "", "", "Telling a story (Parenting practice)", "Telling a story (Parenting practice)", "", "" },
+    /* Devotion */ { "", "", "", "", "", "Praising" },
+};
+/* VV3's own "Working 'til he/she drops!" (action 0x3A); the other games' closest stock busy state, a rest. */
+static const char *const CG_WORK_REST[6] = { "", "Sitting", "Sitting", "Working 'til he drops! / Working 'til she drops!",
+                                             "Needs to sit down", "Needs to sit down" };
+
+static int cg_work_skill(const char *kind) {
+    int k;
+    if (!cg_prefix(kind, "work:")) {
+        return -1;
+    }
+    for (k = 0; k < 6; ++k) {
+        if (lstrcmpA(kind + 5, CG_WORK_SKILLS[k]) == 0) {
+            return k;
+        }
+    }
+    return -1;
+}
+
+/* The temporary effects, each through its game's own setter (docs/event-collection/traders-and-effects-research.md
+   36): The Secret City's potions (0x4583A0 on the villager: the potion pot's own source 0x582610, the potion's id;
+   its own switch sets the length) and The Tree of Life's clean / glow (0x437EC0 on 0x4D8B18: the soapy pond's and
+   the meditation's sparkles, 240 s), gunk (0x438CA0 on 0x4D8CCC, 180 s) and the stew wait (0x460A90 on the villager:
+   the cooking pit's own source 0x4D6F50, stew 8: a little health and 600 s before the next stew).  Every one is an
+   entry of the game's own effect list, so Fix Vanilla Bugs' effect timers (PRs #773/#782) pause and keep it. */
+typedef struct {
+    const char *word;
+    unsigned char game;
+    unsigned char how;             /* 1 the VV3 potion setter, 2 VV4 purity (a = 1 clean, 0 glow), 3 gunk, 4 stew */
+    int id;
+} cg_temp_def;
+
+static const cg_temp_def CG_TEMPS[] = {
+    { "smarter", 3, 1, 3 }, { "inspired", 3, 1, 4 }, { "healing", 3, 1, 9 }, { "bouncy", 3, 1, 11 },
+    { "hiccups", 3, 1, 18 }, { "swift", 3, 1, 24 }, { "stinky_breath", 3, 1, 36 }, { "soapy_taste", 3, 1, 37 },
+    { "nonsense_talk", 3, 1, 38 },
+    { "clean", 4, 2, 1 }, { "glow", 4, 2, 0 }, { "gunk", 4, 3, 0 }, { "stew_wait", 4, 4, 8 },
+};
+#define CG_TEMP_COUNT ((int)(sizeof CG_TEMPS / sizeof CG_TEMPS[0]))
+
+static int cg_temp_word(const char *kind) {
+    int i;
+    for (i = 0; cg_prefix(kind, "effect:") && i < CG_TEMP_COUNT; ++i) {
+        if (lstrcmpA(kind + 7, CG_TEMPS[i].word) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+#ifdef VVFP_TEST
+static int test_graph_temps;              /* the temporary effects made (each setter call), for the tests */
+#endif
+
+/* Temporary effect `t` on record `r` (the game's own setter; refused there when the villager has it already). */
+static void cg_temp_one(int game, const cg_temp_def *t, unsigned char *r) {
+    if (t->game != game) {
+        return;
+    }
+    __try {
+#ifdef VVFP_TEST
+        ++test_graph_temps;
+#endif
+        switch (t->how) {
+        case 1: TC5(0x4583A0u, r, 0x582610, t->id, 0, 0, 0); break;
+        case 2: TC2(0x437EC0u, 0x4D8B18u, (int)(uintptr_t)r, t->id); break;
+        case 3: TC2(0x438CA0u, 0x4D8CCCu, (int)(uintptr_t)r, 0); break;
+        default: TC5(0x460A90u, r, 0x4D6F50, t->id, 0, 0, 0); break;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* Whether `kind` is a group's word: sickness, cure and a work rush are the whole village's only. */
 static int cg_group_ok(const char *kind, int whole_village) {
     const cg_group_def *d = cg_group_def_of(kind);
+    if (cg_work_skill(kind) >= 0) {
+        return whole_village;
+    }
+    if (cg_temp_word(kind) >= 0) {
+        return 1;
+    }
     return d != NULL && (whole_village || d->words[1] != NULL);
+}
+
+/* Whether record `r`'s best skill is `skill` (ties count), with some of it: "listed as that skill's worker". */
+static int cg_skill_worker(const ce_adapter *a, const unsigned char *r, int skill) {
+    int mine = cg_skill_value(a, r, CG_WORK_SKILLS[skill]), k;
+    if (mine <= 0) {
+        return 0;
+    }
+    for (k = 0; k < 6; ++k) {
+        if (k != skill && cg_skill_value(a, r, CG_WORK_SKILLS[k]) > mine) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* "group" kind "work:<Skill>": every listed adult who is that skill's worker does the game's own job action for it;
+   every other listed adult takes the busy state with no skill (VV3: "Working 'til he/she drops!").  Children are
+   left as they are; no worker is made of anyone.  Nothing in a game with no action for the skill. */
+static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r) {
+    int work = cg_behaviour_by_words(a, CG_WORK[skill][game]), rest = cg_behaviour_by_words(a, CG_WORK_REST[game]);
+    int i;
+    ce_result one;
+    if (work < 0) {
+        return;
+    }
+    if (!(a->caps & CAP_BEHAVIOUR)) {
+        ce_refuse(r, CE_WHY_OTHER);
+        return;
+    }
+    memset(&cg_one, 0, sizeof cg_one);
+    cg_one.game = game;
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS && cg_one.change_count < CE_MAX_CHANGES; ++i) {
+        unsigned char *record = a->record(i);
+        int use;
+        ce_change *c;
+        if (record == NULL || !a->listed(record) || cg_heathen(game, record) || (game == 3 && record[0xE94] != 0)
+            || !cg_in_ages(a, record, CGA_ADULTS)) {
+            continue;
+        }
+        use = cg_skill_worker(a, record, skill) ? work : rest;
+        if (use < 0) {
+            continue;
+        }
+        c = &cg_one.changes[cg_one.change_count++];
+        ce_change_init(c);
+        c->index = i;
+        c->fingerprint = ce_identity(a, record);
+        c->behaviour = use;
+    }
+    if (cg_one.change_count > 0) {
+        ce_apply(a, &cg_one, &one);
+        cg_merge_result(r, &one);
+    }
 }
 
 /* The sickness field each game's own sickness writes (sc_sick's). */
@@ -418,7 +611,24 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
     int cure = d != NULL && lstrcmpA(d->kind, "cure") == 0, want = 0, n = 0;
     int pool[CE_MAX_RECORDS];
     ce_result one;
-    if (d == NULL || game < 1 || game > 5) {
+    if (game < 1 || game > 5) {
+        return;
+    }
+    if (cg_work_skill(kind) >= 0) {
+        cg_work_rush(a, game, cg_work_skill(kind), r);
+        return;
+    }
+    if (cg_temp_word(kind) >= 0) {
+        for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+            unsigned char *record = a->record(i);
+            if (record != NULL && a->listed(record) && !cg_heathen(game, record)
+                && !(game == 3 && record[0xE94] != 0) && (only < 0 || i == only)) {
+                cg_temp_one(game, &CG_TEMPS[cg_temp_word(kind)], record);
+            }
+        }
+        return;
+    }
+    if (d == NULL) {
         return;
     }
     if (!sick && !cure) {
@@ -674,6 +884,45 @@ static void cg_construction(const ce_adapter *a, int game, int points) {
     }
 }
 
+/* A mushroom / collectible burst: the game's own random spawner fills its free map slots (each item lasts its stock
+   time): The Lost Children 0x415490 on its one spawner object (only when nothing lies on the map, 0x4152D0), The
+   Secret City 0x42D940 (-1, 0, 0) and The Tree of Life 0x413EE0 (-1, 0, 0) twice (their two slots; a full slot is
+   refused by the game), New Believers 0x4141E0 (-1, 0, 0, 1, 1, 1, 1) twice (its random items take a slot only
+   while fewer than two lie on the map).  A New Home's mushroom is made inline in its update: nothing there. */
+static void cg_spawn(int game) {
+    int k, made = 0;
+    char line[64];
+    __try {
+        if (game == 2) {
+            unsigned char *pool = *(unsigned char **)(uintptr_t)0x499F24u;
+            unsigned char *spawner = pool != NULL ? *(unsigned char **)(pool + 0xE574F4u) : NULL;
+            if (spawner != NULL && (TC0(0x4152D0u, spawner) & 0xFF) == 0) {
+                TC1(0x415490u, spawner, 0);
+                made = 1;
+            }
+        } else if (game >= 3) {
+            for (k = 0; k < 2; ++k) {
+                if (game == 3) {
+                    TC3(0x42D940u, 0x58F428u, -1, 0, 0);
+                } else if (game == 4) {
+                    TC3(0x413EE0u, 0x4CC838u, -1, 0, 0);
+                } else {
+                    TC7(0x4141E0u, 0x4DBFC8u, -1, 0, 0, 1, 1, 1, 1);
+                }
+            }
+            made = 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return;
+    }
+    if (made) {
+        wsprintfA(line, "  Something new lies on the island\n");
+        if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
+            lstrcatA(cg_extra_lines, line);
+        }
+    }
+}
+
 /* The weather words and each game's type for them (-1: the game has none).  A New Home and The Lost Children have
    no weather at all. */
 static const char *const CG_WEATHER_WORDS[5] = { "clear", "sun", "rain", "storm", "fog" };
@@ -727,13 +976,6 @@ logged:
     }
 }
 
-static int cg_prefix(const char *s, const char *prefix) {
-    while (*prefix != '\0' && *s == *prefix) {
-        ++s;
-        ++prefix;
-    }
-    return *prefix == '\0';
-}
 
 /* Whether `s` is a "village" effect's word ("event_timer", "tech_level" or "tech_level:<area>", "construction",
    "weather:<word>"), and the a..b it allows. */
@@ -743,6 +985,9 @@ static int cg_village_ok(const char *s, int a, int b) {
     }
     if (lstrcmpA(s, "construction") == 0) {
         return a >= 1 && a <= b && b <= 2000;
+    }
+    if (lstrcmpA(s, "spawn") == 0) {
+        return a == 0 && b == 0;
     }
     if (lstrcmpA(s, "tech_level") == 0 || (cg_prefix(s, "tech_level:") && s[11] != '\0')) {
         return (a == 1 || a == -1) && b == a;
@@ -759,6 +1004,8 @@ static void cg_village_fx(const ce_adapter *a, int game, const char *s, int va) 
         cg_event_timer(game, va);
     } else if (lstrcmpA(s, "construction") == 0) {
         cg_construction(a, game, va);
+    } else if (lstrcmpA(s, "spawn") == 0) {
+        cg_spawn(game);
     } else if (s[0] == 't') {
         cg_tech_level(a, game, s[10] == ':' ? s + 11 : "", va);
     } else {

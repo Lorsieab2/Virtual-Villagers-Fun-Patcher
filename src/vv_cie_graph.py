@@ -405,18 +405,24 @@ SUPPLY_MAX = 99               # an effect's change is 1..99 either way (the coun
 # game does not keep is story only there.
 GOODS = {"food": (1, 2, 3, 4, 5), "tech": (1, 2, 3, 4, 5), "berries": (1,), "coconuts": (2,), "fish": (2,),
          "collectible": (2, 3, 4, 5), "honey": (3,), "fruit": (3,), "blackberries": (4,), "cutting_tools": (4,),
-         "soap": (4,), "cloth": (4,), "noni": (5,)}
+         "soap": (4,), "cloth": (4,), "noni": (5,),
+         "yellow_fruit": (4,)}    # 36: "VVFP VV4 Fruit Supply.dll"'s tree, only with Yellow Fruit Trees limited
 GOOD_MAX = 9999               # one supply / trade change of a good other than The Tree of Life's three supplies
 GROUP_KINDS = ("relax", "swim", "dance", "pray", "celebrate", "pond", "play", "stories", "song", "chant", "speech",
-               "sick", "cure")
-GROUP_WHOLE_ONLY = ("sick", "cure")            # the whole village's only
+               "sick", "cure", "work", "effect")
+GROUP_WHOLE_ONLY = ("sick", "cure", "work")    # the whole village's only
+# Section 36: a work rush's skill; the temporary effects (story_graph_village.inc CG_TEMPS) -> the game of each.
+WORK_SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting", "Devotion")
+TEMP_EFFECTS = {"smarter": 3, "inspired": 3, "healing": 3, "bouncy": 3, "hiccups": 3, "swift": 3,
+                "stinky_breath": 3, "soapy_taste": 3, "nonsense_talk": 3,
+                "clean": 4, "glow": 4, "gunk": 4, "stew_wait": 4}
 TECH_AREAS = {1: ("Spirituality", "Science", "Construction", "Medicine", "Fertility", "Farming"),
               2: ("Culture", "Science", "Engineering", "Medicine", "Exploration", "Farming"),
               3: ("Science", "Medicine", "Alchemy", "Restoration", "Leadership", "Nature", "Magic"),
               4: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Dendrology"),
               5: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Spirituality")}
 WEATHER = {"clear": (3, 4, 5), "sun": (4, 5), "rain": (3, 4, 5), "storm": (3, 4, 5), "fog": (3, 4, 5)}
-VILLAGE_WHAT = ("event_timer", "tech_level", "construction", "weather")
+VILLAGE_WHAT = ("event_timer", "tech_level", "construction", "weather", "spawn")
 EVENT_TIMER_HOURS = 72
 CONSTRUCTION_MAX = 2000
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
@@ -950,6 +956,21 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             out["percent"] = e.get("percent")
         elif "percent" in e:
             problems.append(f"{where}: only group sick takes a percent")
+        if kind == "work":
+            # 36: the skill's workers work, everyone else is busy with no skill
+            known.add("skill")
+            if e.get("skill") not in WORK_SKILLS:
+                problems.append(f"{where}: group work takes a skill, one of {', '.join(WORK_SKILLS)}")
+            out["skill"] = e.get("skill")
+        if kind == "effect":
+            # 36: a temporary effect through the game's own setter
+            known.add("effect")
+            eff = e.get("effect")
+            if eff not in TEMP_EFFECTS:
+                problems.append(f"{where}: group effect is one of {', '.join(TEMP_EFFECTS)}")
+            elif games is not None and TEMP_EFFECTS[eff] not in games:
+                problems.append(f"{where}: {eff} is a game {TEMP_EFFECTS[eff]} effect: the event must list it")
+            out["effect"] = eff
         out.update(kind=kind, who=who)
     elif do == "village":
         # Section 35: the next island event, a tech level, a construction, the weather.
@@ -2326,13 +2347,35 @@ def village_args(e: dict) -> tuple[int, int, str]:
         return e["min"], e["max"], what
     if what == "tech_level":
         return e["step"], e["step"], f"tech_level:{e['area']}" if e.get("area") else "tech_level"
+    if what == "spawn":
+        return 0, 0, "spawn"
     return 0, 0, f"weather:{e['weather']}"
+
+
+def group_word(e: dict) -> str:
+    """Section 34/36: a "group" effect's string ("work:Farming", "effect:hiccups", or the kind)."""
+    if e["kind"] == "work":
+        return f"work:{e['skill']}"
+    if e["kind"] == "effect":
+        return f"effect:{e['effect']}"
+    return e["kind"]
+
+
+def group_from(words: str) -> dict:
+    """group_word reversed."""
+    if words.startswith("work:"):
+        return {"kind": "work", "skill": words[5:]}
+    if words.startswith("effect:"):
+        return {"kind": "effect", "effect": words[7:]}
+    return {"kind": words}
 
 
 def village_from(words: str, a: int, b: int) -> dict:
     """The JSON of a "village" effect from its string and a, b (village_args reversed)."""
     if words in ("event_timer", "construction"):
         return {"what": words, "min": a, "max": b}
+    if words == "spawn":
+        return {"what": "spawn"}
     if words.startswith("tech_level"):
         out: dict[str, Any] = {"what": "tech_level", "step": a}
         if ":" in words:
@@ -3849,7 +3892,7 @@ def _compile_v6(g: dict) -> bytes:
             elif do == "trade":
                 a, b, st = e["give_amount"], e["get_amount"], s(f"{e['give']},{e['get']}")
             elif do == "group":
-                a, st = e.get("percent") or 0, s(e["kind"])
+                a, st = e.get("percent") or 0, s(group_word(e))
             elif do == "village":
                 a, b, st = village_args(e)
                 st = s(st)
@@ -4077,7 +4120,7 @@ def _decompile_v6(data: bytes) -> dict:
                 give, get = s(st).split(",", 1)
                 e.update(give=give, give_amount=a, get=get, get_amount=b)
             elif do == "group":
-                e.update(kind=s(st), who="all" if role == 0xFF else role_ids[role])
+                e.update(group_from(s(st)), who="all" if role == 0xFF else role_ids[role])
                 if s(st) == "sick":
                     e["percent"] = a
             elif do == "village":

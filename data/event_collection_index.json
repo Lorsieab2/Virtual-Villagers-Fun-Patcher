@@ -13948,6 +13948,22 @@
    "harm": [],
    "section": "dr_vfx"
   },
+  "vfx13_harvest_rush": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx14_gifts_tide": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx15_fizzing_potion": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx16_clean_tree": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
   "vv1_child_of_legend": {
    "harm": [],
    "section": "original"

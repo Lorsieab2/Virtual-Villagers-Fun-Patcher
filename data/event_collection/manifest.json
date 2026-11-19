@@ -644,16 +644,16 @@
  },
  "draft_vfx": {
   "source": "docs/more-island-events/New Events - Village Moments (draft for owner).txt",
-  "source_sha256": "737aaece06a87075acec9654622970d60f7bd91008b88b324a25c96a5ef6f4db",
+  "source_sha256": "4a1daed52b2ed69e93f789d3716016ae7bd076b43d2fe1a6f9105c42e2c9bd9c",
   "counts": {
-   "rows": 14,
-   "events": 12,
+   "rows": 18,
+   "events": 16,
    "addons": 0,
    "banks": 0,
    "notes": 2,
-   "events_and_addons": 12,
+   "events_and_addons": 16,
    "series": {
-    "dr_vfx": 12
+    "dr_vfx": 16
    }
   },
   "uncovered_lines": [],
@@ -95793,8 +95793,8 @@
    "title": "Village Moments: notes for the owner",
    "games": [],
    "lines": [
-    152,
-    157
+    200,
+    206
    ],
    "kind": "notes",
    "section": "dr_vfx",
@@ -95812,7 +95812,7 @@
    "series": null,
    "source": "draft_vfx",
    "source_check": {
-    "heading": "L152: NOTES FOR THE OWNER",
+    "heading": "L200: NOTES FOR THE OWNER",
     "title_found": null,
     "boundary": []
    }
@@ -96240,6 +96240,142 @@
    "source": "draft_vfx",
    "source_check": {
     "heading": "L140: VFX-12. The Dance for the Harvest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx13_harvest_rush",
+   "title": "The Harvest Rush",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    152,
+    161
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L152: VFX-13. The Harvest Rush",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx14_gifts_tide",
+   "title": "Gifts on the Tide",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    164,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L164: VFX-14. Gifts on the Tide",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx15_fizzing_potion",
+   "title": "The Fizzing Potion",
+   "games": [
+    3
+   ],
+   "lines": [
+    176,
+    185
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L176: VFX-15. The Fizzing Potion (VV3 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx16_clean_tree",
+   "title": "Clean as the Tree",
+   "games": [
+    4
+   ],
+   "lines": [
+    188,
+    197
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L188: VFX-16. Clean as the Tree (VV4 only)",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

@@ -133,7 +133,7 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     # The owner's spec of 2026-11-16/17: traders (the "trade" effect and "has_supply", cie-v6-binary.md 33), built by
     # scripts/drafts_c/gen_traders.py, and the village effects' showcase (cie-v6-binary.md 34-35).
     "draft_trd": ("Island Traders", 234, "dr_trd", "TRD"),
-    "draft_vfx": ("Village Moments", 157, "dr_vfx", "VFX"),
+    "draft_vfx": ("Village Moments", 206, "dr_vfx", "VFX"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",

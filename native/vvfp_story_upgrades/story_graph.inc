@@ -7667,6 +7667,14 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
     test_graph_supply_cap = mode;
 }
 
+/* The yellow fruit tree (cie-v6-binary.md 33) as "VVFP VV4 Fruit Supply.dll" would keep it: -2 the real companion,
+   -1 not loaded, 0..1000 its count (the events then change it here).  Returns the count before. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphYellowFruit(int mode) {
+    int now = test_graph_yellow;
+    test_graph_yellow = mode;
+    return now;
+}
+
 /* "has_supply" (cie-v6-binary.md 33): -1 the village's own goods, 0 / 1 forced. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphGoods(int mode) {
     test_graph_goods = mode;

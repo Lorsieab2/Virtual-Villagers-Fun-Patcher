@@ -59,3 +59,23 @@ DESC: The harvest is in: dance in thanks, or give a quiet thanks.
 ROLES: name1=18+
 REVIEW: ok
 
+
+VFX-13
+DESC: A storm is coming: the farmers rush the harvest in, or work at their own pace.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-14
+DESC: The sea leaves treasures on the shore: send everyone looking, or leave them for later.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-15
+DESC: A fizzing potion by the alchemy table: take a sip, or pour it away.
+ROLES: name1=18+
+REVIEW: ok
+
+VFX-16
+DESC: Covered in sap: wash in the soapy pond, or sit quietly under the great tree.
+ROLES: name1=18+
+REVIEW: ok

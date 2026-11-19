@@ -1023,5 +1023,39 @@ the whole village's only. No roll; no automatic line.
   **A New Home and The Lost Children have no weather**: nothing there.
 - Each change has its log line (`  Tech level (Science): 2 -> 3`, `  Construction: 1200 -> 1350 of 2000`,
   `  Weather: rain`, `  The next island event: 3 hours sooner`). No automatic line.
-- **Not built (owner list):** a fish run outside VV2 (no store: VV2's is `supply fish`), a mushroom/collectible spawn
-  burst, the work rush and the temporary VV3/VV4 effects; see the research file for why and what each would need.
+- **Not possible:** a fish run outside VV2 (no store: VV2's is `supply fish`). The spawn burst, the work rush and the
+  temporary effects are section 36.
+
+## 36. Work rush, a spawn burst, temporary effects, yellow fruit (the owner, 2026-11-18)
+
+- **Work rush** (`group`, string `work:<Skill>`, the whole village only): `{"do": "group", "kind": "work", "skill":
+  "Farming" | "Building" | "Research" | "Healing" | "Parenting" | "Devotion"}`. Every listed adult (14+; VV5 believers)
+  whose best skill is that skill (ties count; above 0) -- "listed as that skill's worker" -- takes the game's own job
+  action for it (`CG_WORK`, the adapters' labels: e.g. Foraging, Harvesting coconuts, Fishing (VV3), Harvesting
+  blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise; Healing someone / Studying
+  medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy state with no skill:
+  **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down", VV1 / VV2 "Sitting". Children are
+  left as they are. A game with no action for the skill leaves everyone as they are. None of the games keeps a job
+  assignment an event can read for every villager (VV1/VV2's dropped-job field is per drop, VV3-VV5 choose each trip),
+  so the best skill is the worker list.
+- **Spawn burst** (`village`, `{"what": "spawn"}`): the game's own random spawner fills its free map spots: VV2 0x415490
+  (one spot, only when empty, 0x4152D0), VV3 0x42D940 (-1, 0, 0) and VV4 0x413EE0 (-1, 0, 0) twice (two spots),
+  VV5 0x4141E0 (-1, 0, 0, 1, 1, 1, 1) twice (random items take a spot only while fewer than two lie out). A New Home
+  makes its mushroom inline in its update: nothing there. One log line, `  Something new lies on the island`.
+- **Temporary effects** (`group`, string `effect:<word>`; one role or the whole village): `{"do": "group", "kind":
+  "effect", "effect": w, "who": ...}`, each by its game's own setter, so each is an entry of the game's own effect list
+  and Fix Vanilla Bugs' effect timers (PRs #773/#782: paused with the game, kept only by the autosave, ended only by
+  its own action) cover it with no bookkeeping:
+  - VV3 potions, 0x4583A0 on the villager (the pot's source 0x582610, the potion's id; its own switch sets the length):
+    `smarter` 3, `inspired` 4, `healing` 9, `bouncy` 11, `hiccups` 18, `swift` 24, `stinky_breath` 36, `soapy_taste` 37,
+    `nonsense_talk` 38. Never 26/27 (the vial: The Sharks), never the harmful or owner-question ones.
+  - VV4: `clean` (0x437EC0 on 0x4D8B18, mode 1: the soapy pond's sparkles, 240 s), `glow` (mode 0: the meditation's,
+    240 s; research x3), `gunk` (0x438CA0 on 0x4D8CCC, 180 s; wiped off on the tree), `stew_wait` (0x460A90, the pit's
+    source 0x4D6F50, stew 8: a little health and the 600 s "no more stew so soon" wait; a bare wait has no setter).
+    **Note for the owner:** `clean` and `glow` together are what purifying the Tree needs.
+- **Yellow fruit** (`supply` / `trade` / `has_supply` word `yellow_fruit`, The Tree of Life): "VVFP VV4 Fruit
+  Supply.dll"'s own count through its new export `VvfpYellowFruitAdd(delta)` (0..1,000; 0 reads; -1 not installed or
+  no village; nothing written until the next save). Without "Yellow Fruit Trees are No Longer Unlimited" the tree has no
+  count: words only. PRs #794 and #805 also change that DLL: this change only adds the export after the refill.
+- Tests: `tests/test_traders_and_village_effects.py` (`WorkRushSpawnTempEffects`), `tests/test_vv4_yellow_fruit_trees_limited.py`
+  (`IslandEventAdd`; it needs research/game-data/vv4).

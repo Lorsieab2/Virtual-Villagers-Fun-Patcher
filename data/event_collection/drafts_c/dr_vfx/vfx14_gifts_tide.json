@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Gifts on the Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx14_gifts_tide",
+  "source": "draft_vfx",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L170",
+    "kind": "instruction",
+    "text": "[effect: the island scatters new things to find]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The sea leaves treasures on the shore: send everyone looking, or leave them for later.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a night of strange, glittering waves, (name1) walks the shore at dawn and sees that the sea has left things lying everywhere: shells, odd stones, and small treasures half buried in the sand.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Send Everyone Looking",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Leave Them for Later",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village fans out along the shore. Here and there, something new is waiting to be found.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "village",
+     "what": "spawn",
+     "src": "L170"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides the treasures will keep. By the time anyone goes looking, the tide has taken most of them back.",
+   "src": "L173"
+  }
+ }
+}

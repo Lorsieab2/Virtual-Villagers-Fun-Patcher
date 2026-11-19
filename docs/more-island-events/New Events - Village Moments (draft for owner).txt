@@ -149,9 +149,58 @@ A Quiet Thanks:
 The village gathers for a moment of quiet thanks instead. Nobody speaks. Then, one by one, they go back to their huts, grateful. [effect: the whole village prays]
 
 ==========================================================================
+VFX-13. The Harvest Rush
+(picks an adult)
+
+Storm clouds are piling up over the sea, and the food stores are lower than anyone likes. (name1) says the farmers should get the harvest in before the rain, and everyone else should stay out of their way.
+
+Rush the Harvest:
+The farmers run for the bushes and the fields and work faster than anyone has ever seen. Everyone else carries baskets back and forth until they are too worn out to lift another one. [effect: the farming workers rush to work]
+
+Let Them Work at Their Own Pace:
+(name1) decides a tired farmer drops more than (he/she) picks. The farmers work at their usual pace, and the rain comes and goes.
+
+==========================================================================
+VFX-14. Gifts on the Tide
+(picks an adult)
+
+After a night of strange, glittering waves, (name1) walks the shore at dawn and sees that the sea has left things lying everywhere: shells, odd stones, and small treasures half buried in the sand.
+
+Send Everyone Looking:
+The whole village fans out along the shore. Here and there, something new is waiting to be found. [effect: the island scatters new things to find]
+
+Leave Them for Later:
+(name1) decides the treasures will keep. By the time anyone goes looking, the tide has taken most of them back.
+
+==========================================================================
+VFX-15. The Fizzing Potion (VV3 only)
+(picks an adult)
+
+Someone left a pot of half-finished potion by the alchemy table, and it is fizzing in a way nobody likes the look of. (name1) is curious enough to want a taste.
+
+Take a Sip:
+(name1) takes a sip. For the rest of the morning, every few words come out with a hiccup, and the children follow (him/her) around just to hear it. [effect: (name1) gets the hiccups]
+
+Pour It Away:
+(name1) pours it into the bushes. The bushes fizz quietly for an hour and then seem perfectly happy.
+
+==========================================================================
+VFX-16. Clean as the Tree (VV4 only)
+(picks an adult)
+
+(name1) has spent the whole day hauling sap and is covered in it from head to toe. The soapy pond is right there, and so is the shade of the great tree.
+
+Wash in the Soapy Pond:
+(name1) wades into the soapy pond and comes out sparkling clean, smelling faintly of flowers. [effect: (name1) is made clean]
+
+Sit Quietly Under the Tree:
+(name1) sits under the great tree, sticky and still, and lets the quiet settle over (him/her). [effect: (name1) is covered in gunk]
+
+==========================================================================
 NOTES FOR THE OWNER
 - Songs, chants and speeches: the villagers really take part through each game's closest real action (a celebration, a dance, the Chief's Address in The Secret City, praising and honoring in New Believers). The song itself is the event's words.
 - Weather (VFX-03, VFX-10): really changes in The Secret City, The Tree of Life and New Believers. A New Home and The Lost Children have no weather, so there the words are story only. The Secret City has no sunshine weather.
 - VFX-06 uses real cloth in The Tree of Life (offered only when there is a bolt to spare); elsewhere cloth is words only.
 - VFX-07 and VFX-06 speed a hut only while one is being built, and never finish it: the builders' next trip does that, the game's own way.
 - VFX-08: a tech level never goes above 3. VFX-11: the sickness never reaches a nursing parent, the Golden Child or anyone the game protects.
+- VFX-13: only the farming workers (whose best skill is Farming) really work; every other adult is kept busy with no skill (The Secret City: "Working 'til he/she drops!"; elsewhere they sit and rest); children are left as they are. VFX-14: the game's own spawner fills its free spots (one or two things at a time; not in A New Home). VFX-15 and VFX-16: the game's own potion and Tree of Life effects, for their usual few minutes.

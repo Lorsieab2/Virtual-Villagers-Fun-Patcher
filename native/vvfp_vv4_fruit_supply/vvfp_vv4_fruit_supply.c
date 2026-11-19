@@ -1151,6 +1151,28 @@ int __stdcall VvfpYellowFruitRefill(void) {
     return filled;
 }
 
+/* An island event's "supply" / "trade" of yellow fruit (VVFP Story Upgrades.dll, story_graph_village.inc; the owner's
+   trader spec of 2026-11-16/17, cie-v6-binary.md 33): the tree's fruit changed by `delta`, kept within 0..1,000
+   (FS_FULL).  `delta` 0 only reads it.  Nothing is written here, as the refill: the file is written with the next
+   save.  The count after, or -1 when the sites are not installed, no villager is alive or the village's file cannot be
+   read yet (then nothing changes). */
+int __stdcall VvfpYellowFruitAdd(int delta) {
+    int after = -1;
+    if (!g_installed) {
+        return -1;
+    }
+    __try {
+        if (bind_village(0) && !g_pending) {
+            long long v = (long long)g_fruit + delta;
+            g_fruit = v < 0 ? 0 : v > FS_FULL ? FS_FULL : (int)v;
+            after = g_fruit;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        after = -1;
+    }
+    return after;
+}
+
 /* "Yellow Breadfruit Refills Partially Every Time" is shipped: its file is in the patcher's folder (THE PARTIAL
    REFILL).  Any failure reads as not shipped: the refill to full. */
 static int partial_shipped(void) {

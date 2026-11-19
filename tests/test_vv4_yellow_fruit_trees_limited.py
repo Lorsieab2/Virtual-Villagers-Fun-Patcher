@@ -560,6 +560,41 @@ class CustomIslandEventRefill(unittest.TestCase):
         self.assertEqual(v.process.export("VvfpYellowFruitRefill"), 0)   # VvfpStartup never ran
 
 
+@unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
+class IslandEventAdd(unittest.TestCase):
+    """VvfpYellowFruitAdd: an island event's "supply" / "trade" of yellow fruit (VVFP Story Upgrades.dll,
+    story_graph_village.inc; cie-v6-binary.md 33): the tree's fruit changed, kept within 0..1,000."""
+
+    def add(self, t: Tree, delta: int) -> int:
+        v = t.v.process.export("VvfpYellowFruitAdd", delta & 0xFFFFFFFF)
+        return v - (1 << 32) if v >= 1 << 31 else v
+
+    def test_gains_and_losses_stay_within_0_and_1000(self) -> None:
+        t = Tree(files={side(): tree_file(120, units=17, roster=[identity("Ana")])})
+        t.villager()
+        before = dict(t.files.files)
+        self.assertEqual(self.add(t, 0), 120)             # 0 only reads
+        self.assertEqual(self.add(t, 30), 150)
+        self.assertEqual(t.left(), 150)
+        self.assertEqual(self.add(t, 5000), 1000)         # never above the tree's 1,000
+        self.assertEqual(self.add(t, -400), 600)
+        self.assertEqual(self.add(t, -5000), 0)           # never below 0
+        self.assertEqual(t.left(), 0)
+        self.assertEqual(t.files.files, before)           # nothing written: the file follows the next save
+        t.save()
+        self.assertEqual(struct.unpack_from("<2I", t.files.files[side()], 16), (0, 17))
+
+    def test_no_one_alive_or_not_installed_changes_nothing(self) -> None:
+        t = Tree(files={side(): tree_file(7, roster=[identity("Ana")])})
+        self.assertEqual(self.add(t, 50), -1)             # no living villager: no village
+        t.villager()
+        self.assertEqual(t.left(), 7)
+        v = fe.Village(seed=3, berries=0, solved=(6,), dll=DLL)
+        both_factions.Files(v.process)
+        got = v.process.export("VvfpYellowFruitAdd", 50)
+        self.assertEqual(got - (1 << 32) if got >= 1 << 31 else got, -1)   # VvfpStartup never ran
+
+
 EVENT_TABLE, EVENT_SLOT = 0x4CCA28, 19
 BERRY_EVENT_VTABLE = 0x48C84C       # CEventACloserLook
 STRING_LOOKUP, STRING_INDEX = 0x44D3D0, 0x4DEA20

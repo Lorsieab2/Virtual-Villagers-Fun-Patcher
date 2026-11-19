@@ -123,7 +123,11 @@ VILLAGE_FX_RE = re.compile(
     r"|a random tech level (?P<lvl>rises|falls) by 1"
     r"|a hut being built gains (?P<pts>\d+) points"
     r"|(?P<pct>\d+) in 100 villagers fall sick"
-    r"|(?P<cure>every villager is cured)")
+    r"|(?P<cure>every villager is cured)"
+    r"|the (?P<work>farming|building|research|healing|parenting|devotion) workers rush to work"
+    r"|(?P<spawn>the island scatters new things to find)"
+    r"|\(name(?P<twho>[12])\) (?:gets the |is made |is covered in )(?P<temp>hiccups|clean|gunk)")
+TEMP_WORDS = {"hiccups": "hiccups", "clean": "clean", "gunk": "gunk"}
 WEATHER_WORDS = {"rain": "rain", "a storm": "storm", "fog": "fog", "sunshine": "sun", "clear skies": "clear"}
 
 
@@ -143,6 +147,12 @@ def _village_fx(m: re.Match) -> dict:
         return {"do": "village", "what": "tech_level", "step": 1 if m.group("lvl") == "rises" else -1}
     if m.group("pts"):
         return {"do": "village", "what": "construction", "min": int(m.group("pts")), "max": int(m.group("pts"))}
+    if m.group("work"):
+        return {"do": "group", "kind": "work", "skill": m.group("work").capitalize(), "who": "all"}
+    if m.group("spawn"):
+        return {"do": "village", "what": "spawn"}
+    if m.group("twho"):
+        return {"do": "group", "kind": "effect", "effect": TEMP_WORDS[m.group("temp")], "who": ROLE_FOR[m.group("twho")]}
     if m.group("pct"):
         return {"do": "group", "kind": "sick", "who": "all", "percent": int(m.group("pct"))}
     return {"do": "group", "kind": "cure", "who": "all"}

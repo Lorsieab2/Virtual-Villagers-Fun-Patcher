@@ -249,7 +249,7 @@ class FrozenDraftsC(unittest.TestCase):
     series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py.  A ninth, Tree of Life
     Supplies (the owner's request of 2026-11-17): 14 events, every one The Tree of Life only."""
 
-    EVENTS = {"draft_sup": 14, "draft_trd": 13, "draft_vfx": 12}   # the rest: 50 (Island Traders, Village Moments:
+    EVENTS = {"draft_sup": 14, "draft_trd": 13, "draft_vfx": 16}   # the rest: 50 (Island Traders, Village Moments:
                                                                    # the owner's spec of 2026-11-16/17)
 
     def test_sha256_rows_and_files(self):
@@ -280,8 +280,8 @@ class FrozenDraftsC(unittest.TestCase):
                     for nd in doc["nodes"].values():      # BLF-36: setup_m / setup_f (the same-sex couple)
                         for c in nd.get("choices", []):
                             self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
-        self.assertEqual(one_game, {1: {"trd03"}, 2: {"trd04", "trd05"}, 3: {"trd06", "trd07", "trd08"},
-                                    4: {f"sup{k:02d}" for k in range(1, 15)} | {"trd09", "trd10", "trd11", "vfx06"},
+        self.assertEqual(one_game, {1: {"trd03"}, 2: {"trd04", "trd05"}, 3: {"trd06", "trd07", "trd08", "vfx15"},
+                                    4: {f"sup{k:02d}" for k in range(1, 15)} | {"trd09", "trd10", "trd11", "vfx06", "vfx16"},
                                     5: {"blf26", "blf27", "trd12", "trd13"}})
 
     def test_the_supply_events_change_the_supplies(self):
