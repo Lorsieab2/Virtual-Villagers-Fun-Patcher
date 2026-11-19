@@ -1,0 +1,482 @@
+EVERY ISLAND EVENT CAN HAPPEN - REQUIREMENTS TABLE (v1.35.97)
+=============================================================
+
+Research only. Nothing is implemented. Planned patch: "Every Island Event Can Happen" (working name),
+its own patch, all 5 games, ON in Owner's Defaults.
+
+The three classes (owner's rules)
+  SAFETY       Kept, unless the separate "No Safeguards" patch is also on. Villager, population, room,
+               puzzle-progress requirements and similar.
+  MAKES SENSE  Always kept. Something the event's own text uses (a building, item, villager, puzzle
+               state), a rescue event's tie to the trouble it rescues from, and the opening events.
+  DROPPED      Removed by this patch: technology levels / tech points, time of day, food or stock
+               amounts that are not the event's subject, waiting periods / cooldowns, once-only flags.
+  A few SAFETY rows are marked [HARD]: they stop a crash, a corrupt save or a broken result, so they
+  stay even with both patches on.
+
+What the stock code does NOT have (so there is nothing to drop)
+  - No island event in any of the 5 games checks the time of day.
+  - No island event has its own cooldown or a once-per-village flag. VV3, VV4 and VV5 write a "shown"
+    byte per event (VV3 0x419C22, VV4 0x418136, VV5 0x41899A) but never read it.
+  - The only waiting period is the shared timer between ANY two island events (VV1 12-23 h, VV2 10-19 h,
+    VV3-VV5 8-15 h). It decides WHEN an event comes, not WHICH; this table leaves it alone (see Q1).
+  So in practice DROPPED = technology gates (all 5 games) plus nothing else.
+
+Sources and checking
+  Requirements: docs/reports/island-event-conditions.txt and docs/no-safeguards-island-events.md
+  (feat/97-round6). Every condition address below was disassembled again in the stock exes
+  (the five stock executables, research/stock-executables) for this table and matched the compare / call it is
+  quoted with. Static analysis only, not yet seen in a running game.
+  Extra checks made for this table (the tech gates that would be dropped):
+    - VV1 Trapped Whale / Visitor results raise the level only while it is below 3 (0x4193F4, 0x41981B).
+    - VV2 Gold Coin result raises Culture only while it is below 2 (0x420524).
+    - VV2 Spyglass result SETS Exploration to 2 (0x421E7D) - it would LOWER a level-3 village. See Q3.
+    - VV3 tech raise 0x426FD0 and VV5 tech raise 0x423610 stop at level 3. VV4's 0x41E1D0 stops at 3.
+  So dropping the tech gates cannot push a level past 3 (except the VV2 Spyglass row, kept [HARD]).
+
+Format: each event, then each requirement: [CLASS] requirement - reason. (address)
+"Any villager" = a living villager of any age, the event's subject.
+
+====================================================================================================
+A NEW HOME (VV1)
+====================================================================================================
+Rules for every event
+  [MAKES SENSE] Population above 0 - nobody to have the event otherwise. (0x4237CB)
+  [SAFETY] A living villager aged 14+ must exist - villager requirement; No Safeguards lifts it. (0x4237DD)
+  [SAFETY] [HARD] The drawn villager's age equals its processed age (the catch-up wait after time
+           away) - keeps events out of the catch-up; No Safeguards also keeps it. (0x4237BD area)
+  [MAKES SENSE] The first event is always an Encounter, 15 min after the village starts, the next
+           30 min later - the opening events stay at the start. (0x423818, 0x41C4A9)
+  Not a requirement: family weights 20/40/40 and the re-roll inside a family stay as they are.
+
+Island events
+  The Bad Little Monkey, The Plague of Parrots, The South Wind, The Heat Wave, Isola Day Celebration,
+  Blessings Day Celebration, The Good Little Monkey, The Greedy Little Monkey, The North Wind,
+  The Helpful Honeybees
+    - no requirement of their own (byte table 0x4286A0 -> 0x428671).
+  A Plague of Locusts
+    [MAKES SENSE] Farming technology 2+ - the locusts eat the crops, and VV1 has crops only from
+                  Farming 2. Tech gate, but the text needs it (see Q2). (0x428616)
+  The Measles Epidemic
+    [MAKES SENSE] A living child under 14 - every child falls ill. (0x4284FA)
+  The Big Wave
+    [MAKES SENSE] The beach fully cleaned - the wave covers it with debris again. (0x42863D)
+  The Barrel O` Babies
+    [SAFETY] Room for new villagers (cap 90 + huts at 15/25/50) - room requirement. (0x428664 -> 0x43A1A0)
+    [SAFETY] [HARD] Never past the villager table's real size (256 records) - crash/corrupt guard.
+
+Encounters (all: [MAKES SENSE] any villager as the subject, 0x43BCD0(0))
+  The Strange Berries, The Old Drum, The Mysterious Face, A Mysterious Vial (red), A Mysterious Vial
+  (blue), The Wild Mushroom, The Black Pearl, The Dream, The Moth, The Book, The Brass Compass
+    - nothing else.
+  The Trapped Whale
+    [DROPPED] Spirituality technology below 3 - tech gate; the result's +1 stops at 3 (0x4193F4), so
+              at 3 the "freed whale" answer simply gives nothing. (0x418955)
+  The Visitor
+    [DROPPED] Medicine technology below 3 - tech gate; the +1 stops at 3 (0x41981B). (0x418969)
+  The Troubled Child
+    [MAKES SENSE] A living child under 14 - the child is the subject. (0x41897D -> 0x43BE70)
+  The Suspicious Monkey
+    [MAKES SENSE] A living child under 14 - the story is about the children. (0x41897D)
+
+Crates and vials (rand(9), no condition; all: [MAKES SENSE] any villager opens it)
+  Wooden, carefully sealed, badly weathered, rotting, watertight, old fruit crates; red, blue, fizzy
+  vials from the sea
+    - nothing else. Watertight crate: [SAFETY] [HARD] its babies join only while there is room (stock).
+
+Never happen in the stock game (not part of this patch - "Restore Missing Island Events" brings them)
+  A Mighty Storm (case 1 = the re-roll, 0x4286A1), The Furry Food (class 4, 0x4189A9).
+
+====================================================================================================
+THE LOST CHILDREN (VV2)
+====================================================================================================
+Rules for every event
+  [MAKES SENSE] Population above 0. (0x42EEDB)
+  [SAFETY] A living villager aged 14+ must exist - No Safeguards lifts it. (0x42EEED)
+  [SAFETY] [HARD] Drawn villager's age equals processed age (catch-up wait). (0x42EECD area)
+  [MAKES SENSE] The first event is always a two-choice event, 15 min after the start, the next 30 min
+           later - opening events. (0x42EF28, 0x42529B)
+  [SAFETY] [HARD] Totems are never picked or counted (record +0x558) - VV2 totems always protected.
+  Not a requirement: up to 10 draws per family, then Blessings Day / The Voices In The Brush (see Q6).
+
+Single-result events
+  The Obnoxious Parrot, The Flash Flood, The Dense Fog (food lost / tech lost / tech gained / food
+  gained), The East Wind, The Heat Wave, Isola Day Celebration, Day of Elders, Blessings Day
+  Celebration (both versions), The Spring Allergies, The Friendly Parrot, The West Wind, The Mother
+  Parrot
+    - no requirement of their own (table 0x434868 -> 0x434822).
+  Day of Honor
+    [MAKES SENSE] Someone in the memorial of the dead - the day honors them. (0x4347C6 -> 0x426160)
+  The Epidemic
+    [SAFETY] All 16 puzzles solved - puzzle requirement; the text never mentions puzzles. (0x4347EB -> 0x4261D0)
+  Rats!
+    [SAFETY] All 16 puzzles solved - as above. (0x4347EB)
+  Where Are The Infants?
+    [MAKES SENSE] A pregnant or nursing villager - "the mothers are in a panic". (0x434639)
+    [SAFETY] That villager aged 18+ - villager age requirement. (0x434684 area)
+    [SAFETY] All 16 puzzles solved - puzzle requirement. (0x4261D0)
+  A Dangerous Mission
+    [MAKES SENSE] Enough villagers that eight can sail away - "eight ... leave the village". (0x4347DD)
+    [SAFETY] The exact number 61+ - population requirement beyond the eight (see Q5). (0x4347DD cmp 0x3C)
+  The Foul Passing
+    [SAFETY] All 16 puzzles solved - puzzle requirement. (0x4261D0)
+  The Barrel O` Babies
+    [SAFETY] Room (cap 90 + collections, huts at 15/25/50, totems not counted). (0x43480F -> 0x44B310)
+    [SAFETY] [HARD] Never past the villager table's real size.
+  Old Friends
+    [SAFETY] Room - as above. (0x4347FD -> 0x44B310)
+    [SAFETY] [HARD] Never past the villager table's real size.
+
+Two-choice events (the rest: [MAKES SENSE] any villager as the subject, 0x44BAE0(0))
+  The Voices In The Brush, The Fastest Runner, The Nightmare, A Bump On The Head, The Swarm Of
+  Dragonflies, The Black Seeds, The Huge Coconut, The Falling Star, The Hole In The Sand, The White
+  Pearl
+    - nothing else.
+  The Strange Request
+    - nothing (Biggles is made by the event itself, 0x41F944).
+  The Ancient Gold Coin
+    [DROPPED] Culture technology below 2 - tech gate; wearing it raises Culture only while below 2
+              (0x420524), so later it is a keepsake. (0x41F5BF)
+  The Cursed Idol
+    [MAKES SENSE] 250+ food in the bin - the offering to lift the curse is food (the event's subject).
+                  (0x41F5D3 cmp 0xFA)
+  The Prettiest Tribe Girl
+    [MAKES SENSE] A living woman aged 14+ - "a young woman". (0x41F5EE -> 0x44BC80(1,female))
+  The Savage Child
+    [SAFETY] Room for the boy to join. (0x41F604 -> 0x44B310)
+  For The Birds
+    [MAKES SENSE] A living child under 14 - the child is the subject. (0x41F619)
+  The Child Prodigy
+    [MAKES SENSE] A living child under 14. (0x41F619)
+  The Crystal Ball
+    [SAFETY] A villager aged 14+ exists (the subject may be any age) - villager requirement; No
+             Safeguards keeps it as the Fix Vanilla Bugs bytes (see Q7). (0x41F62E)
+  The Silver Mirror
+    [SAFETY] Population 2+ - population requirement; the text needs only the finder. (0x41F641)
+  The Spyglass
+    [DROPPED] Exploration technology below 2 ... (0x41F653)
+    [SAFETY] [HARD] ... but Exploration below 3 must stay: keeping the spyglass SETS Exploration to 2
+             (0x421E7D) and would lower a level-3 village (see Q3).
+  The Love Note
+    [MAKES SENSE] A living woman 18+ and a living man 18+ (he is the subject) - a love note between
+                  adults. (0x41F665-0x41F683)
+
+Sacks and vials (rand(8), no condition; all: [MAKES SENSE] any villager opens it)
+  Thick plastic, carefully sealed, somewhat compromised, thick canvas, stained heavy burlap sacks;
+  green, orange, fragrant vials - nothing else.
+
+Never happen in the stock game (Restore Missing Island Events, not this patch)
+  case 4 (no text), The Mosquito Swarm, The Dragonfly Migration, Science Awareness Day (0x434824).
+
+====================================================================================================
+THE SECRET CITY (VV3)
+====================================================================================================
+Rules for every event
+  [MAKES SENSE] Population above 0.
+  [SAFETY] A living villager aged 14+ is drawn before every try - No Safeguards lifts it. (0x468757)
+  [SAFETY] [HARD] That villager's age equals its processed age (catch-up wait). (0x46878C)
+  [MAKES SENSE] First event 15 min after the start, the next 30 min later - opening events. (0x4280B2)
+  [MAKES SENSE] Rescue rule: with the sexes out of balance or under 3 people, 15% of events become The
+           Crystal of Reflections / The Canoe / Another One of Those Barrels - stays tied to that
+           trouble. (0x419B85-0x419BD9)
+  [SAFETY] "Not the Tribal Chief" in every picker that has it - villager requirement (listed per event
+           as "not chief").
+  [SAFETY] The picker's "adult" class 18-49 also needs a woman not pregnant or nursing (0x45D460) -
+           villager requirement (listed per event as "18+" / "18-49").
+
+  The Plague Of Ants, The Allergy Season, Isola Day Celebration, The Mysterious Fog (all four), Blessings
+  Day Celebration, The Reflection in the Water, The Rainy Season, The Salty Air, The Oppressive
+  Humidity, "Thick as Pea Soup", The Stinging Jellyfish, The Yellow Geckos
+    - no requirement of their own (0x403390 returns true).
+  The Tsunami
+    [SAFETY] 2+ living women - villager requirement. (0x414AE0)
+    [SAFETY] 2+ living men, not chief - villager requirement. (0x414B0A)
+    [SAFETY] 15 of the 16 puzzles solved - puzzle requirement. (0x414B1B -> 0x435920)
+  The Science Fair
+    [MAKES SENSE] A living child - the children hold the fair (see Q8 on 1 or 2).
+    [SAFETY] 3+ children - count beyond what the text needs. (0x414BDE)
+  Day of Honor
+    [MAKES SENSE] 1 grave - the day honors the dead.
+    [SAFETY] A 2nd grave - count requirement (see Q4). (0x414FCA)
+  The Canoe from the Other Side
+    [SAFETY] Room (cap + collections + Magic 3, rebuilt huts at 10/17/35). (0x414D85 -> 0x45FE30)
+    [SAFETY] [HARD] Never past the villager table's real size.
+  The Miraculous Bloom
+    [MAKES SENSE] Bee Hive puzzle solved - the bees make the honey. (0x415030 -> 0x4358D0(1))
+  The Daredevil
+    [MAKES SENSE] A living man 18+ - "he" swims with the sharks; chief may be picked. (0x415431)
+    [MAKES SENSE] One living woman - the women he shows off to.
+    [SAFETY] A 2nd woman, and the women 18+ and not pregnant - count/villager requirement. (0x415465)
+  The Ghostly Dream (nature or healing)
+    [MAKES SENSE] A villager (subject).
+    [SAFETY] Aged 18+, not chief, not pregnant - villager requirement. (0x415500)
+    [DROPPED] Nature technology 1+ - tech gate (see Q9). (0x415517)
+  The Ghostly Dream (research or architecture)
+    [MAKES SENSE] A villager. [SAFETY] 18+, not chief, not pregnant. (0x415640)
+    [DROPPED] Magic technology 1+ - tech gate (see Q9). (0x415657)
+  The Crystal of Reflections
+    [MAKES SENSE] A villager to copy. [SAFETY] 18+, not pregnant. (0x415760)
+    [SAFETY] Room. (0x415775 -> 0x45FE30)  [SAFETY] [HARD] Never past the table's real size.
+  The Bitter Brown Beans (taste or dye)
+    [MAKES SENSE] A villager. [SAFETY] Aged 18-49, not pregnant. (0x4157F0)
+    [DROPPED] Science technology below 2 - tech gate. (0x41580E)
+  The Bitter Brown Beans (brew or fertilizer)
+    [MAKES SENSE] A villager. [SAFETY] Aged 18-49, not pregnant. (0x4159C0)
+    [DROPPED] Science technology 2+ - tech gate. (0x4159DC)
+  The Ancient Tablet (laundry or decoration)
+    [MAKES SENSE] A villager. [SAFETY] Aged 18-49, not pregnant. (0x4157E0 shared)
+    [DROPPED] Science technology below 2 - tech gate. (0x41580E)
+  The Ancient Tablet (research or display)
+    [MAKES SENSE] A villager. [SAFETY] 18+, not pregnant. (0x415C50)
+    [DROPPED] Alchemy technology below 3 - tech gate; the +1 stops at 3 (0x426FDD). (0x415C69)
+    [DROPPED] Science technology 2+ - tech gate. (0x415C7F)
+  The Low Tide
+    [MAKES SENSE] A villager (subject). [SAFETY] Not chief.
+    [SAFETY] 8+ villagers - count requirement. (0x415DEA)
+    Not a requirement: the 50% coin rolled in the condition decides the result. (0x415DC0)
+  The Ants and the Granary, The Playful Otters, The Ant Hill, The Shooting Star
+    [MAKES SENSE] A living child - the child is the subject. [SAFETY] Not chief. (0x416A20)
+  The Green Pearl, The Red Starfish, The Blue Starfish
+    [MAKES SENSE] A villager 18+ - No Safeguards kept the adult because of the text. (0x416CE0)
+    [SAFETY] Not chief, not pregnant.
+  Bed Bugs, The Royal Jelly (same check as the pearl/starfish)
+    [MAKES SENSE] A villager. [SAFETY] 18+, not chief, not pregnant (see Q10). (0x416CE0)
+  The Blue Pearl
+    [MAKES SENSE] A villager. [SAFETY] 18+, not pregnant. (0x416280)
+    [MAKES SENSE] Alchemy Lab puzzle solved - the pearl inspires lab work. (0x416290 -> 0x4358D0(2))
+  The Lazy Apprentice
+    [MAKES SENSE] A living child (the apprentice). [SAFETY] Not chief. (0x4163C1)
+    [MAKES SENSE] A villager 18+ with Research 30+ - the teacher the text names. (0x4163E6)
+  The Omen in the Clouds
+    [MAKES SENSE] A villager 18+ - the elder who reads the omen (kept by No Safeguards). (0x416560)
+    [SAFETY] Not chief, not pregnant.
+  The Lovers (her gift), The Lovers (his gift)
+    [MAKES SENSE] A woman 18+ and a man 18+ - a courtship between adults. (0x416EE0/0x416EFD,
+                  0x417060/0x41707D)
+    [SAFETY] Both under 50, not chief, the woman not pregnant - villager requirement (see Q11).
+  The Medical Emergency
+    [MAKES SENSE] A patient (any villager) and a healer. (0x4171E0, 0x4171FD)
+    [SAFETY] Healer 18+, not pregnant; both not chief - villager requirement (see Q12).
+    [DROPPED] Medicine technology 2+ - tech gate. (0x417215)
+  The Mysterious Vial (quartz)
+    [MAKES SENSE] Any villager. (0x4173A0)
+  The Mysterious Vial (obsidian), The Mysterious Vial (amber)
+    [MAKES SENSE] A villager. [SAFETY] 18+, not pregnant. (0x4175A0)
+  The Mango and the Papaya
+    [MAKES SENSE] A villager. [SAFETY] 18-49, not pregnant. (0x4178D5)
+  The Mysterious Crate
+    [MAKES SENSE] A villager. [SAFETY] 3+ villagers aged 18-49, not pregnant. (0x417AA4)
+  Vanity and the Bee, The Noisy Bird
+    [MAKES SENSE] A living woman - "she". (0x417D20)
+    [SAFETY] Aged 18-49, not pregnant, not chief - the shared picker has no 14-17 class (see Q13).
+  The Hole in the Hut
+    [MAKES SENSE] A villager. [SAFETY] 18-49, not pregnant, not chief. (0x417F40)
+    [MAKES SENSE] Bee Hive puzzle solved - one answer patches with beeswax. (0x417F57)
+  The Chief's Address
+    [MAKES SENSE] A living Tribal Chief - the chief gives it. (0x415098 -> 0x45EF30)
+  The Cold Snap
+    [MAKES SENSE] The village fire is burning - the villagers huddle by it. (0x415105 -> 0x4337A0)
+  The Mushroom Celebration
+    [MAKES SENSE] 500 deliveries counted - "the 500th mushroom". (0x415290 cmp 0x1F4)
+  The Return of Biggles
+    [MAKES SENSE] A villager. [SAFETY] Not chief. (0x418300)
+  Another One of Those Barrels
+    [SAFETY] Room. (0x415315 -> 0x45FE30)  [SAFETY] [HARD] Never past the table's real size.
+
+Never happen in the stock game: The Swarm of Bees, The Drought--completely wrong (text only, no slot).
+
+====================================================================================================
+THE TREE OF LIFE (VV4)
+====================================================================================================
+Rules for every event
+  [MAKES SENSE] Population above 0.
+  [SAFETY] [HARD] The drawn villager's age equals its processed age (catch-up wait). (0x43FA5B)
+  [MAKES SENSE] First event 15 min after the start, the next 30 min later - opening events. (0x41F31B)
+  [MAKES SENSE] Rescue rule: sexes out of balance or under 3 people -> 6% Daredevil Barrel. (0x4180A5)
+  (No Tribal Chief exclusion exists in this game.)
+
+  The Creeping Mold, The Allergy Season, Isola Day Celebration, The Mysterious Footprints (all four),
+  Blessings Day Celebration, The Rainy Season, "A Monsoon!", The Stinging Wasps, The Pure Sea Air
+    - no requirement of their own (0x414920 returns true).
+  Day of Honor
+    [MAKES SENSE] 1 grave. [SAFETY] A 2nd grave (see Q4). (0x414ADA)
+  A Closer Look, The Robber Crab, The Pink Shell, The Calabash Instrument, The Wet Book, The Aspiring
+  Doctor (algae, sea water, mushrooms, bark, fasting, cut leg), The Aspiring Scientist, The Legendary
+  Stranger
+    [MAKES SENSE] Any villager (pregnant and sick included). (0x415E00) - nothing else.
+  The Arc of Brilliant Colors
+    [MAKES SENSE] A villager. [SAFETY] Not pregnant or nursing. (0x41503C)
+  The Phosphorescent Fungi, The Climber, The Lie
+    [MAKES SENSE] A living child. (0x415F50)
+  The Cold Snap
+    [MAKES SENSE] The village fire is burning - the wind puts it out. (0x414BC5)
+  The Festival of the Banyan
+    [MAKES SENSE] 500 deliveries counted - "the 500th mushroom". (0x414CB0)
+    [SAFETY] 3 of the 5 tree puzzles solved (healthy tree) - puzzle requirement; No Safeguards lifts
+             it (see Q14). (0x414CC8)
+  Daredevil Barrel...of Babies!
+    [SAFETY] Room (cap + collections, rebuilt huts 10/17/35). (0x414D55 -> 0x468350)
+    [MAKES SENSE] The Stream puzzle solved and the stream flowing - the barrel comes down the
+                  stream. (0x414D65, 0x414D73)
+    [SAFETY] [HARD] Never past the table's real size.
+  The State of the Tree (glum)
+    [MAKES SENSE] Fewer than 3 tree puzzles solved - the sickly tree. (0x414E9C)
+  The State of the Tree (rejuvenated)
+    [MAKES SENSE] 3+ tree puzzles solved - the recovering tree. (0x414F0C)
+  The Abandoned Infants
+    [MAKES SENSE] A living woman 14+ - she becomes the mother.
+    [SAFETY] 6 such women; not pregnant or nursing; not sick - count/villager requirement. (0x414FA6)
+    [SAFETY] Room. (0x414F9D)  [SAFETY] [HARD] Never past the table's real size.
+  The Mosquito Larvae
+    [MAKES SENSE] A villager. [SAFETY] Aged 14+. (0x4159DF)
+    [MAKES SENSE] Soap puzzle solved - one answer puts soap in the pond. (0x4159F6)
+    [MAKES SENSE] Stream puzzle solved and flowing - the pond / larvae. (0x415A06)
+  Faces in the Night
+    [MAKES SENSE] A villager. [SAFETY] Aged 14+. (0x415AEF)
+  The Screaming Baby
+    [MAKES SENSE] A pregnant or nursing woman - the mother of the baby. (0x415BEF)
+    [SAFETY] Not sick.
+  The Sealed Box
+    [MAKES SENSE] A villager. [SAFETY] 14+, not pregnant. (0x415D24)
+    Not a requirement: the 50% coin. (0x415D09)
+  Innovation in Construction
+    [MAKES SENSE] A villager (the builder). [SAFETY] 14+, not pregnant, not sick. (0x4167B4)
+  Innovation in Farming
+    [MAKES SENSE] A villager. [SAFETY] 14+, not pregnant, not sick. (0x4168D4)
+    [MAKES SENSE] Cooking Pit puzzle solved - the cooking it speeds up. (0x4168EB)
+  Tough Lessons
+    [MAKES SENSE] A living child (stuck in the tree) and a villager 14+ (who decides). (0x4169EF, 0x416A13)
+  The Pretty Shell
+    [MAKES SENSE] One villager 14+ - the one who teaches the children.
+    [SAFETY] A 2nd villager 14+ - count requirement (see Q15). (0x416B0B)
+
+Never happen in the stock game (condition always false 0x4146E0 or empty slot): The Tsunami, The
+Canoe from the Other Side, The Medical Emergency, The Return of Biggles, The Salty Air (see Q16).
+
+====================================================================================================
+NEW BELIEVERS (VV5)
+====================================================================================================
+Rules for every event
+  [MAKES SENSE] Believer population above 0.
+  [SAFETY] [HARD] No God Power armed on the pointer - the event waits until it is cast or put down;
+           No Safeguards also keeps it. (0x442708)
+  [SAFETY] [HARD] The drawn believer's age equals its processed age (catch-up wait). (0x442715)
+  [MAKES SENSE] First event 15 min after the start, the next 30 min later - opening events. (0x424854)
+  [MAKES SENSE] Rescue rule: sexes out of balance or under 3 believers -> 6% Chutes Without Ladders.
+           (0x418913)
+  [MAKES SENSE] Believer events pick believers; Heathens only for their own roles.
+  [SAFETY] Pickers skip statuses 12-17 (Retired Chief, Heathen Mommy, purple mask, ...) - villager
+           requirement; No Safeguards lifts the believer side only.
+  [SAFETY] [HARD] Picker flag +0x1CE1 must be clear - meaning not known, so it stays.
+
+  The Creeping Mold, The Allergy Season, Isola Day Celebration, The Mysterious Footprints (all four),
+  Blessings Day Celebration, The Strange Crystals, The Especially Offensive Cloud, The Bottle of Spicy
+  Juice, The Clumsy Heathen, The Salty Air, News From Another Tribe (a message)
+    - no requirement of their own (0x408470 returns true).
+  Day of Honor
+    [MAKES SENSE] 1 grave. [SAFETY] A 2nd grave (see Q4). (0x414DBA)
+  The Vision, The Mask, Doubt, The Aphids in the Noni Bush, The Straw Hat
+    [MAKES SENSE] Any believer. (0x414B90)
+  The Bed Bugs
+    [MAKES SENSE] A believer. [SAFETY] Not pregnant or nursing. (0x415664)
+  The Heathen Toy
+    [MAKES SENSE] A believer child and a Heathen child - the toy and its owner. (0x415848, 0x415877)
+    [SAFETY] The Heathen child not sick.
+  The Daredevil Jump
+    [MAKES SENSE] A believer (the jumper) and a second believer (may be the same). (0x415984)
+  The Cold Snap
+    [MAKES SENSE] The village fire is burning. (0x414E15)
+  Army Ants!, Aphid Infestation!, The River Breaks Its Banks
+    [MAKES SENSE] Hydroponic Farm puzzle solved - the crops the event hits. (0x414E60 -> 0x43AE80(5))
+  The Pesky Critter
+    [MAKES SENSE] Knowing Totem puzzle solved - the lab the lemur disturbs. (0x415050 -> 0x43AE80(4))
+  Mushroom Day!
+    [MAKES SENSE] A believer child - the cake for the children. (0x4150D7)
+  Barrel O' Babies! (believers), Barrel O' Babies! (heathens), Chutes Without Ladders, News From
+  Another Tribe (a newcomer)
+    [SAFETY] Room (believers counted, cap + collections, rebuilt huts 10/17/35). (0x4151C5 -> 0x472BD0)
+    [SAFETY] [HARD] Never past the table's real size.
+  The Spa, The Cracked Mask
+    [MAKES SENSE] A believer and a Heathen child - both named. (0x415C65 + second pick)
+    [SAFETY] The Heathen child not sick.
+  Spying on the Heathens, The Missing Kids
+    [MAKES SENSE] A believer child and a Heathen child. (0x415E48 + second pick)
+    [SAFETY] The Heathen child not sick.
+  You're Doing It Wrong!
+    [MAKES SENSE] A believer 14+ (who steps in) and a Heathen child. (0x415F88, 0x415FC0)
+    [SAFETY] The Heathen child not sick.
+    [DROPPED] Science technology below 2 - tech gate; raises stop at 3 (0x423622). (0x415FD8)
+  Outreach?
+    [MAKES SENSE] A believer and a Heathen envoy. (0x4162A8 + second pick)
+    [SAFETY] Both aged 14+; the envoy not sick.
+  The Advanced Artifacts
+    [MAKES SENSE] A believer (the researcher). (0x41647E)
+    [DROPPED] Science technology 2+ - tech gate. (0x41643F)
+    [DROPPED] Science technology below 3 - tech gate; raises stop at 3. (0x416496)
+  Trick Or Trade
+    [MAKES SENSE] 100+ food - the trade takes food (the subject). (0x4165D0 cmp 0x64)
+    [MAKES SENSE] A believer. (0x416601)
+  The Migrating Fruit Bats
+    [MAKES SENSE] A believer child. (0x416717)
+    [DROPPED] Food Mastery technology below 2 - tech gate. (0x416733)
+  The Defector
+    [MAKES SENSE] A Heathen - the one who asks to join. [SAFETY] Not sick. (0x416900 area)
+  The Strange Nectar
+    [MAKES SENSE] A believer 18+ - the nectar sets the age to 16.5, so a child would be aged up.
+                  (0x416ACD push 0x168)
+  Innovation in Farming (the mysterious storyteller)
+    [SAFETY] Heathen Scientist puzzle solved - puzzle requirement; the text never mentions it.
+             (0x416FA3 -> 0x43AE80(13))
+    [MAKES SENSE] A believer child. (0x416FC5 area)
+
+Never happen in the stock game (condition always false 0x415B10, or text only): The Stinging Wasps,
+The Return of Biggles, The Abandoned Infants, The Smelly Vial, The Floral Vial, The Invisible Vial,
+Innovation in Farming, Tough Lessons, The Pretty Shell, The Legendary Stranger (+ 7 VV4 titles left as
+text only) (see Q16).
+
+====================================================================================================
+COUNTS (requirement rows above, by class)
+====================================================================================================
+  A New Home          38 events that can run | SAFETY   2 | SAFETY [HARD]  3 | MAKES SENSE   9 | DROPPED  2
+  The Lost Children   53 events that can run | SAFETY  12 | SAFETY [HARD]  5 | MAKES SENSE  12 | DROPPED  2
+  The Secret City     57 events that can run | SAFETY  35 | SAFETY [HARD]  4 | MAKES SENSE  37 | DROPPED  8
+  The Tree Of Life    44 events that can run | SAFETY  13 | SAFETY [HARD]  3 | MAKES SENSE  24 | DROPPED  0
+  New Believers       45 events that can run | SAFETY  11 | SAFETY [HARD]  4 | MAKES SENSE  24 | DROPPED  4
+  All five           237 events             | SAFETY  73 | SAFETY [HARD] 19 | MAKES SENSE 106 | DROPPED 16
+  (Rows as written above: a line naming several events counts once; [HARD] rows also stay with
+  No Safeguards on.)
+
+====================================================================================================
+QUESTIONS (borderline calls - the owner decides)
+====================================================================================================
+Q1  The shared timer between island events (8-23 h by game) is the only waiting period in the stock
+    games. It decides how OFTEN events come, not which. This table leaves it alone. Drop or shorten it?
+Q2  VV1 A Plague of Locusts needs Farming 2. It is a tech gate, but VV1 has crops only from Farming 2
+    and the locusts eat the crops. Kept as MAKES SENSE - agree?
+Q3  VV2 The Spyglass: keeping it SETS Exploration to 2. Dropping "below 2" is fine, but at level 3 it
+    would lower the village. Proposed: allow it below 3 only [HARD]; or allow always and change the
+    result to "+1 up to 3" (a body change)?
+Q4  Day of Honor (VV2-VV5): stock needs 2 graves (VV2 needs 1). One grave makes sense for the text;
+    the 2nd is classed SAFETY (lifted only with No Safeguards). Or drop it to 1 with this patch?
+Q5  VV2 A Dangerous Mission: stock needs 61+ people; the text needs eight young adults to leave.
+    Keep 61 as SAFETY, or lower it with this patch to "at least 8 adults plus someone left behind"?
+Q6  VV2 picks within a family by up to 10 random draws, then falls back to Blessings Day / The Voices
+    In The Brush. Rare-condition events are rarely drawn even when they qualify. Change it to "pick
+    among the qualifying ones" like VV3-VV5, or leave the stock odds?
+Q7  VV2 The Crystal Ball: "a villager 14+ exists" is a villager gate (SAFETY), but it is also part of
+    the Fix Vanilla Bugs bytes. Keep it SAFETY?
+Q8  VV3 The Science Fair: "the children hold a science fair". Is 1 child enough, or 2?
+Q9  VV3 The Ghostly Dreams need Nature 1 / Magic 1 (the two faction paths). Dropped as tech gates -
+    a village can then get the other faction's dream. OK?
+Q10 VV3 Bed Bugs and The Royal Jelly share the pearl/starfish "adult" check. No Safeguards kept the
+    adult for the pearl/starfish texts. Keep 18+ for these two as well (MAKES SENSE) or SAFETY?
+Q11 VV3 The Lovers: 18+ is kept for the romance. Is "under 50" text-needed (MAKES SENSE) or SAFETY?
+Q12 VV3 The Medical Emergency: should the healer stay 18+ (MAKES SENSE) - a child doing a procedure?
+Q13 VV3 Vanity and the Bee / The Noisy Bird: the shared picker has no 14-17 class, so they keep 18-49
+    (SAFETY). A 14-17 woman would need new picker code - wanted?
+Q14 VV4 The Festival of the Banyan: the healthy-tree gate (3 tree puzzles) is classed SAFETY (puzzle
+    progress). If the festival text praises the healthy tree it should be MAKES SENSE instead.
+Q15 VV4 The Pretty Shell: the text is about two children, but the code counts villagers 14+. Keep the
+    stock count as SAFETY, or require children (MAKES SENSE)?
+Q16 Developer-dead events (VV1/VV2 handled by Restore Missing Island Events; VV4/VV5 condition always
+    false). Out of scope for this patch unless you want them included.
