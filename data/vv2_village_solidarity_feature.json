@@ -27,7 +27,7 @@
     {
       "source": "assets/village_solidarity/VVFP Village Solidarity.dll",
       "destination": "VVFP Village Solidarity.dll",
-      "sha256": "C518ADB32019386C6882B7ACBDC0D571BC7F10B1BD0476DBBD4D5BF6BBB168C9"
+      "sha256": "CD78F3F39812A9B52AF1783FE47C5E793612FE55053E105388C8385067F26BD7"
     }
   ],
   "patches": [],
@@ -36,6 +36,18 @@
       "va": "0x441D2B",
       "stock_bytes": "8B8E24010000",
       "routine": "the Tech screen draw 0x441830, where its text widgets are drawn",
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x443559",
+      "stock_bytes": "8B4E1868C9000000",
+      "routine": "the Tech screen's constructor, after its title is attached",
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x48F9E4",
+      "stock_bytes": "C0374400",
+      "routine": "the Tech screen's vtable slot 3 (its handler 0x4437C0)",
       "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     }
   ]

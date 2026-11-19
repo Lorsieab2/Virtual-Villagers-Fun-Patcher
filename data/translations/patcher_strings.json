@@ -70390,6 +70390,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.VS_SCORES.s0",
+   "english": "Village Solidarity: %d / 100",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
    "stem": "vvfp.story/story_more_events.sm_fill_more.s0",
    "english": "the island event content filters to allow it",
    "games": [
@@ -71688,8 +71702,8 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.VS_SCORES.s0",
-   "english": "Village Solidarity: %d / 100",
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TITLE.s0",
+   "english": "Village Solidarity",
    "games": [
     "vv1",
     "vv2",
@@ -71699,7 +71713,23 @@
    ],
    "mechanism": "b",
    "context": "VVFP Village Solidarity.dll",
-   "notes": "a patcher window; %1 = a number (number)"
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0",
+   "english": "Village Solidarity shows how close and united your village feels, from 0 to 100. Good Island event outcomes raise it, bad ones lower it. High Solidarity (greater than 50) can increase the likelihood of more good events happening, while Low Solidarity (less than 50) does the opposite.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window",
+   "route": "key"
   }
  ]
 }
