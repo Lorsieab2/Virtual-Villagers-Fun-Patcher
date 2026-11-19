@@ -280,6 +280,13 @@ class Context:
     # its prefix names never runs out, and what opens unlimited fishing, said while it is not open.
     fishing_trip: str = ""
     fishing_unlock: str = ""
+    # The fishing trip's average food a paying catch (live, while catching up) before Food Mastery, when it is not
+    # the game's own plain catch (The Secret City's Tribal Chief directing the sea), and what it counts.
+    fishing_food: tuple[float, float] | None = None
+    fishing_food_words: str = ""
+    # Expert fishers, where the game gives them crabs: (the Farming shown, the average food a paying catch live and
+    # while catching up before Food Mastery, crabs included, the words for it).
+    fishing_expert: tuple[int, float, float, str] | None = None
 
     @property
     def game(self) -> int:
@@ -812,6 +819,17 @@ def _next_refill_words(ctx: Context, s: Source) -> str | None:
     return f"{s.name} at {gm.when(moment)} (in {gm.duration(moment - ctx.village.now)})"
 
 
+def shortfall_hour(ctx: Context, eaters: int) -> tuple[float, float, float]:
+    """The one shortfall both At a glance and the Food estimates give: (food the villagers who eat eat a real-life
+    hour, food the sources refill a real-life hour, the first less the second), at the save's speed.  The eating is
+    the game's eating step (eat_per_unit); the refills follow refills(): a source that is full now adds nothing until
+    it is picked (the owner, 2026-10-24), Food Mastery applied."""
+    units_hour = 3600.0 / ctx.unit
+    eaten = eaters * eat_per_unit(ctx) * units_hour
+    refilled = refills(ctx)[1]
+    return eaten, refilled, eaten - refilled
+
+
 def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
     """Vital statistics' short summary, from the same figures as the Food estimates below (real-life time, the
     save's speed)."""
@@ -824,6 +842,7 @@ def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
     _, _, on_sources = refills(ctx)
     refill_unit = sum(s.per_unit for s in ctx.sources) * ctx.mastery
     refill_hour = refill_unit * units_hour
+    gap = shortfall_hour(ctx, eaters)[2]
     nexts = [w for w in (_next_refill_words(ctx, s) for s in ctx.sources) if w]
     out = [f"At a glance (estimates, in real-life time at {on} speed):",
            "Next refills (real time): " + ("; ".join(nexts) if nexts else "no food source here runs out and refills") + "."]
@@ -836,7 +855,6 @@ def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
                       if any(s.unlimited for s in ctx.sources) and fishing_supply(ctx, eaters * per_unit) is None
                       else "") + ".")
     out.extend(fishing_lines(ctx, eaters, per_unit, short=True))
-    gap = per_hour - refill_hour
     if gap > 0:
         brown, red = _boost(ctx.brown, ctx.mastery), _boost(ctx.red, ctx.mastery)
         fish = fishing_supply(ctx, gap / units_hour)
@@ -935,10 +953,10 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     # open, what opens it).
     for text in fishing_lines(ctx, eaters, per_unit):
         add(text, True, gm.RUNNING)
-    gap = per_hour - refill_hour
+    gap = shortfall_hour(ctx, eaters)[2]
     if gap > 0:
         brown, red = _boost(ctx.brown, ctx.mastery), _boost(ctx.red, ctx.mastery)
-        line = (f"To fill the gap of about {gap:,.0f} food per real-life hour on {on} speed: {gap / brown:,.0f} brown or {gap / red:,.0f} "
+        line =(f"To fill the gap of about {gap:,.0f} food per real-life hour on {on} speed: {gap / brown:,.0f} brown or {gap / red:,.0f} "
                 f"red mushrooms per real-life hour ({gap * 24 / brown:,.0f} or {gap * 24 / red:,.0f} per real-life day)")
         if ctx.golden:
             line += f", or {gap / _boost(100, ctx.mastery):,.1f} Golden Mushrooms"
@@ -1019,18 +1037,30 @@ def _plural(n: int) -> str:
     return f"{n:,} farmer" + ("" if n == 1 else "s")
 
 
-def fishing_supply(ctx: Context, eaten_unit: float):
-    """Unlimited fishing as a food source: what one farmer with Farming farmers.FARMING_SHOWN brings at it (a
-    vv_game_mechanics_farmers.Supply, Food Mastery applied), or None while it is not open in this save (no source
-    its trip draws on never runs out, or the trip brings nothing)."""
+def fishing_foods(ctx: Context, expert: bool = False) -> dict[str, tuple[float, float]] | None:
+    """The fishing trip's average food a paying catch (live, while catching up), before Food Mastery, where the
+    game's module gives one: The Secret City's Tribal Chief directing the sea (`fishing_food`), or an expert fisher's
+    crabs (`fishing_expert`)."""
+    if expert:
+        return {ctx.fishing_trip: ctx.fishing_expert[1:3]} if ctx.fishing_expert else None
+    return {ctx.fishing_trip: ctx.fishing_food} if ctx.fishing_food else None
+
+
+def fishing_supply(ctx: Context, eaten_unit: float, expert: bool = False):
+    """Unlimited fishing as a food source: what one farmer with Farming farmers.FARMING_SHOWN (`expert`: the
+    expert fisher's Farming, crabs included) brings at it (a vv_game_mechanics_farmers.Supply, Food Mastery applied),
+    or None while it is not open in this save (no source its trip draws on never runs out, or the trip brings
+    nothing)."""
     import vv_game_mechanics_farmers as farmers
     entry = next((row for row in ctx.trips if ctx.fishing_trip and row[0] == ctx.fishing_trip), None)
-    if entry is None or eaten_unit <= 0:
+    if entry is None or eaten_unit <= 0 or (expert and not ctx.fishing_expert):
         return None
     key, food, prefix = entry
     if not _farmed(ctx, prefix)[1]:
         return None
-    _, found = farmers.supplies(ctx.game, {key: food}, ctx.speed, ctx.unit, ctx.mastery, ctx.food, eaten_unit)
+    _, found = farmers.supplies(ctx.game, {key: food}, ctx.speed, ctx.unit, ctx.mastery, ctx.food, eaten_unit,
+                                **({"farming": ctx.fishing_expert[0]} if expert else {}),
+                                foods=fishing_foods(ctx, expert))
     found = [s for s in found if s.catch_up_unit > 0 or s.live_hour]
     return found[0] if found else None
 
@@ -1044,21 +1074,41 @@ def fishing_catches(ctx: Context, s, eaten_unit: float) -> tuple[float | None, f
     return live, caught
 
 
+# The Origins Food Point Doubler and fishing, as each game's doubler hook is built (scripts/build_vv<N>_origins_
+# feature.py): A New Home's (0x41D140) and The Lost Children's (0x4262B0) double every catch; The Secret City's
+# (0x4263F0) leaves alone every gain paid from inside 0x458DB0..0x45943F, which holds the fish and crab awards
+# (0x458EE5); The Tree of Life's (0x41D94F) leaves alone the job event's food (0x4642F0: returns 0x4645B5, the fish,
+# and 0x464600, the Golden Fish); New Believers' doubles mushrooms only.
+DOUBLES_FISHING = {1: True, 2: True, 3: False, 4: False, 5: False}
+
+
 def _doubler_note(ctx: Context) -> str:
-    """The Origins Food Point Doubler and fishing, with its patch in this game (its scope as the items pages give
-    it: A New Home to The Tree of Life double the food farmers bring; New Believers does not double fishing)."""
+    """The Origins Food Point Doubler and fishing, with its patch in this game."""
     if ctx.village.has(f"vv{ctx.game}_enable_origins_exclusive_features") is not True:
         return ""
-    if ctx.game == 5:
-        return " The Origins Food Point Doubler does not double fishing."
+    if not DOUBLES_FISHING[ctx.game]:
+        return " The Origins Food Point Doubler does not double fishing in this game."
     return (" An owned Origins Food Point Doubler doubles each catch's food, so half as many catches and farmers "
             "would do; whether this save owns one is not read here.")
 
 
+def _fishing_parts(ctx: Context, s, eaten_unit: float) -> list[str]:
+    live, caught = fishing_catches(ctx, s, eaten_unit)
+    parts = []
+    if live is not None:
+        parts.append(f"live, {_plural(s.live_needed)} bringing about {live:,.1f} catches per real-life hour "
+                     f"({s.live_food:,.4g} food a catch)")
+    if caught is not None:
+        parts.append(f"while catching up, {_plural(s.catch_up_needed)} bringing about {caught:,.1f} catches for each "
+                     f"real-life hour of time away counted ({s.catch_up_food:,.4g} food a catch)")
+    return parts
+
+
 def fishing_lines(ctx: Context, eaters: int, per_unit: float, short: bool = False) -> list[str]:
     """Fishing as a food source, the answer first: the farmers and catches per real-life hour that feed every
-    villager who eats on fishing alone, live and while catching up; while it is not open, that it is not counted and
-    what opens it.  `short`: At a glance's version, without how it is worked out."""
+    villager who eats on fishing alone, live and while catching up, and the same for expert fishers where crabs come
+    (A New Home, The Secret City); while it is not open, that it is not counted and what opens it.  `short`: At a
+    glance's version, without how it is worked out."""
     eaten_unit = eaters * per_unit
     s = fishing_supply(ctx, eaten_unit)
     if s is None:
@@ -1066,21 +1116,17 @@ def fishing_lines(ctx: Context, eaters: int, per_unit: float, short: bool = Fals
                 if ctx.fishing_unlock and eaten_unit > 0 else [])
     import vv_game_mechanics_farmers as farmers
     on = gm.speed_name(ctx.speed)
-    live, caught = fishing_catches(ctx, s, eaten_unit)
-    parts = []
-    if live is not None:
-        parts.append(f"live, {_plural(s.live_needed)} bringing about {live:,.1f} catches per real-life hour "
-                     f"({s.live_food:g} food a catch)")
-    if caught is not None:
-        parts.append(f"while catching up, {_plural(s.catch_up_needed)} bringing about {caught:,.1f} catches for each "
-                     f"real-life hour of time away counted ({s.catch_up_food:g} food a catch)")
     head = (f"Fishing never runs out: to feed all {eaters} who eat on fishing alone ({eaten_unit * 3600.0 / ctx.unit:,.0f} "
-            f"food per real-life hour on {on} speed) takes " + "; ".join(parts) + ".")
-    if short:
-        return [head]
-    return [head + f" The farmers have Farming {farmers.FARMING_SHOWN} and the catches are the ones whose Farming "
-            "check passes" + (f" (Food Mastery x{ctx.mastery:g} included)" if ctx.mastery != 1 else "") + "."
-            + _doubler_note(ctx)]
+            f"food per real-life hour on {on} speed) takes " + "; ".join(_fishing_parts(ctx, s, eaten_unit)) + ".")
+    out = [head if short else
+           head + f" The farmers have Farming {farmers.FARMING_SHOWN} and the catches are the ones whose Farming "
+           "check passes" + (f" (Food Mastery x{ctx.mastery:g} included)" if ctx.mastery != 1 else "")
+           + (f"; {ctx.fishing_food_words}" if ctx.fishing_food_words else "") + "." + _doubler_note(ctx)]
+    expert = fishing_supply(ctx, eaten_unit, expert=True)
+    if expert is not None:
+        out.append(f"Expert fishers (Farming {ctx.fishing_expert[0]}; {ctx.fishing_expert[3]}): "
+                   + "; ".join(_fishing_parts(ctx, expert, eaten_unit)) + ".")
+    return out
 
 
 def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float = 0.0) -> list[gm.Fact]:
@@ -1095,7 +1141,8 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
         return out
     trips = {key: food for key, food, _ in ctx.trips}
     prefixes = {key: prefix for key, _, prefix in ctx.trips}
-    turns, supply = farmers.supplies(ctx.game, trips, ctx.speed, ctx.unit, ctx.mastery, ctx.food, eaten_unit)
+    turns, supply = farmers.supplies(ctx.game, trips, ctx.speed, ctx.unit, ctx.mastery, ctx.food, eaten_unit,
+                                     foods=fishing_foods(ctx))
     # A source farmed live only (The Tree of Life's fruit: no job turn goes to it while catching up) stays, for live
     # play; the food the game adds by itself while catching up (its Cooking Pit) is taken off what farmers must bring.
     supply = [s for s in supply if s.catch_up_unit > 0 or s.live_hour]
@@ -1148,6 +1195,15 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
                     ([f"about {live:,.1f} catches per real-life hour live"] if live is not None else [])
                     + ([f"about {caught:,.1f} for each real-life hour of time away counted while catching up"]
                        if caught is not None else [])) + " feed the village"
+                expert = fishing_supply(ctx, eaten_unit, expert=True)
+                if expert is not None:
+                    live, caught = fishing_catches(ctx, expert, eaten_unit)
+                    words += (f"; expert fishers (Farming {ctx.fishing_expert[0]}, crabs included): "
+                              + "; ".join(([f"live, {_plural(expert.live_needed)} and about {live:,.1f} catches per "
+                                            "real-life hour"] if live is not None else [])
+                                          + ([f"while catching up, {_plural(expert.catch_up_needed)} and about "
+                                              f"{caught:,.1f} catches for each real-life hour of time away counted"]
+                                             if caught is not None else [])))
         elif regrow >= eaten_unit:
             words += (f". It regrows {regrow:,.1f} food each age unit ({regrow * hour:,.0f} per real-life hour on {on} "
                       "speed), as much as the village eats or more: it can feed the village alone")

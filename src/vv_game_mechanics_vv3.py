@@ -743,8 +743,9 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                         "5 on Fast, Normal or Slow; 8 while catching up).", gm.CODE)
     # The big catch is a crab (the owner, 2026-10-23; the code's carried item 9, "Crab" in the carry-name
     # table 0x4A8A14, against 8 "Fish" for the plain catch, 0x4535AF / 0x4535F3); its chance is in Chances.
-    add("Food sources", "The sea never runs out; a fisher with Farming 88 or more sometimes lands a crab worth 55 "
-                        "food instead (its chance: Chances, The crab).", gm.CODE)
+    add("Food sources", "Once The Sharks puzzle is solved, the sea never runs out; a fisher with Farming 88 or more "
+                        "sometimes lands a crab worth 55 food instead (its chance: Chances, The crab). Before it, "
+                        "nobody fishes.", gm.CODE)
 
     # The spawner 0x42DC90 / 0x42D940: two slots (0x42D950), a second roll above strength 50 (0x42DD8D), each item
     # out 90 seconds of the wall clock (0x42DB10).  An earlier line said "in storms" and kept "At most 2" apart.
