@@ -215,8 +215,16 @@
    ]
   },
   "a1_more": {
-   "src": "L7219-7223",
-   "text": "The platform is safe within carefully measured limits. The critic congratulates (builder) for seeming to defy the world while actually understanding it better than anyone expected."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a1_more__fx"
+    },
+    {
+     "next": "a1_more__text"
+    }
+   ]
   },
   "a2": {
    "src": "L7225-7229",
@@ -241,8 +249,16 @@
    ]
   },
   "a3_more": {
-   "src": "L7231-7234",
-   "text": "The villagers laugh and praise the craftsmanship. The judge declares the illusion a work of art."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a3_more__fx"
+    },
+    {
+     "next": "a3_more__text"
+    }
+   ]
   },
   "b1": {
    "src": "L7236-7239",
@@ -339,13 +355,14 @@
    ]
   },
   "c3_more": {
-   "src": "L7267-7270",
-   "text": "(builder) becomes a laughingstock and returns to the drawing board, insisting that the next version will be even stranger.",
-   "text_only": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "src": "L7267",
-     "what": "THE COLLAPSE",
-     "reason": "the builder's own platform settles; no village structure is damaged"
+     "next": "c3_more__fx"
+    },
+    {
+     "next": "c3_more__text"
     }
    ]
   },
@@ -359,8 +376,16 @@
    ]
   },
   "d1_more": {
-   "src": "L7272-7276",
-   "text": "The crowd learns something valuable. A child asks whether the builder can make a roof that stays dry in the rain. \"That,\" says (builder), \"would be considerably harder.\""
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "d1_more__fx"
+    },
+    {
+     "next": "d1_more__text"
+    }
+   ]
   },
   "d2": {
    "src": "L7278-7281",
@@ -450,6 +475,88 @@
      "next": "d3"
     }
    ]
+  },
+  "a1_more__fx": {
+   "src": "L7219-7223",
+   "text": "The platform is safe within carefully measured limits. The critic congratulates (builder) for seeming to defy the world while actually understanding it better than anyone expected.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder",
+     "mood": "good",
+     "src": "L7219-7223"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1_more__text": {
+   "src": "L7219-7223",
+   "text": "The platform is safe within carefully measured limits. The critic congratulates (builder) for seeming to defy the world while actually understanding it better than anyone expected."
+  },
+  "a3_more__fx": {
+   "src": "L7231-7234",
+   "text": "The villagers laugh and praise the craftsmanship. The judge declares the illusion a work of art.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder",
+     "mood": "good",
+     "src": "L7231-7234"
+    }
+   ],
+   "auto_text": true
+  },
+  "a3_more__text": {
+   "src": "L7231-7234",
+   "text": "The villagers laugh and praise the craftsmanship. The judge declares the illusion a work of art."
+  },
+  "c3_more__fx": {
+   "src": "L7267-7270",
+   "text": "(builder) becomes a laughingstock and returns to the drawing board, insisting that the next version will be even stranger.",
+   "text_only": [
+    {
+     "src": "L7267",
+     "what": "THE COLLAPSE",
+     "reason": "the builder's own platform settles; no village structure is damaged"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder",
+     "mood": "bad",
+     "src": "L7267-7270"
+    }
+   ],
+   "auto_text": true
+  },
+  "c3_more__text": {
+   "src": "L7267-7270",
+   "text": "(builder) becomes a laughingstock and returns to the drawing board, insisting that the next version will be even stranger.",
+   "text_only": [
+    {
+     "src": "L7267",
+     "what": "THE COLLAPSE",
+     "reason": "the builder's own platform settles; no village structure is damaged"
+    }
+   ]
+  },
+  "d1_more__fx": {
+   "src": "L7272-7276",
+   "text": "The crowd learns something valuable. A child asks whether the builder can make a roof that stays dry in the rain. \"That,\" says (builder), \"would be considerably harder.\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7272-7276"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1_more__text": {
+   "src": "L7272-7276",
+   "text": "The crowd learns something valuable. A child asks whether the builder can make a roof that stays dry in the rain. \"That,\" says (builder), \"would be considerably harder.\""
   }
  }
 }

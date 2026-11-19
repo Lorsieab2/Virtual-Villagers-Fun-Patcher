@@ -64,6 +64,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"You don't have to say goodbye to everybody,\" says (name1). \"Say it to me, and I'll tell them.\" The traveler hugs (him/her) and leaves before the village wakes. (name1) spends the day telling people. Some are sad. A few are cross not to have been told. All of them, by evening, are telling their favorite of the traveler's stories.",
+   "src": "L197"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) suggests a small fire on their last night, nothing big. The traveler agrees. Half the village turns up anyway. There are speeches, and a song, and a very large fish. The traveler cries, and laughs, and leaves at dawn carrying more food than they can possibly eat.",
+   "src": "L194",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L194"
+    }
+   ],
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) suggests a small fire on their last night, nothing big. The traveler agrees. Half the village turns up anyway. There are speeches, and a song, and a very large fish. The traveler cries, and laughs, and leaves at dawn carrying more food than they can possibly eat.",
    "src": "L194",
@@ -74,11 +111,6 @@
      "src": "L194"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "\"You don't have to say goodbye to everybody,\" says (name1). \"Say it to me, and I'll tell them.\" The traveler hugs (him/her) and leaves before the village wakes. (name1) spends the day telling people. Some are sad. A few are cross not to have been told. All of them, by evening, are telling their favorite of the traveler's stories.",
-   "src": "L197"
   }
  }
 }

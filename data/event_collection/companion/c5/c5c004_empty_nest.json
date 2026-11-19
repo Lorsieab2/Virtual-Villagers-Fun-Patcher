@@ -83,6 +83,34 @@
    "src": "L2085"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return home proud and unexpectedly tearful.",
+   "src": "L2086",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L2086"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Rain taps steadily on the roof while (Name1) sits inside. (Name1) is relieved to have an excuse to rest.",
-   "src": "L183"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -109,6 +116,51 @@
    "src": "L191"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Rain taps steadily on the roof while (Name1) sits inside. (Name1) is relieved to have an excuse to rest.",
+   "src": "L183",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L183"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Rain taps steadily on the roof while (Name1) sits inside. (Name1) is relieved to have an excuse to rest.",
+   "src": "L183"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Rain taps steadily on the roof while (Name1) sits inside. (Name1) had dreaded the weather but now finds it soothing.",
+   "src": "L195",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L195"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Rain taps steadily on the roof while (Name1) sits inside. (Name1) had dreaded the weather but now finds it soothing.",
    "src": "L195"

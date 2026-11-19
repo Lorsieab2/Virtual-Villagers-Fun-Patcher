@@ -82,14 +82,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Shall we scrub it together?\" They scrape the pot side by side, eating as they go. It's the most enjoyable washing-up either of them has ever done, and the pot has never been cleaner. They agree to take turns from now on. Both of them keep turning up every night anyway.",
-   "src": "L230"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "Both of them lunge. Spoons clash. In the confusion, (child), a small child, darts in, scrapes the crispy bits into a bowl and runs off with them. (subject) and (friend) look at each other, and then at the empty pot. \"There's a new one,\" says (subject) gravely. \"Better than us.\"",
    "src": "L233"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Shall we scrub it together?\" They scrape the pot side by side, eating as they go. It's the most enjoyable washing-up either of them has ever done, and the pot has never been cleaner. They agree to take turns from now on. Both of them keep turning up every night anyway.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Shall we scrub it together?\" They scrape the pot side by side, eating as they go. It's the most enjoyable washing-up either of them has ever done, and the pot has never been cleaner. They agree to take turns from now on. Both of them keep turning up every night anyway.",
+   "src": "L230"
   }
  }
 }

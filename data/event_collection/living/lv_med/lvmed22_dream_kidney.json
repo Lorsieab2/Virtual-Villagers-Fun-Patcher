@@ -127,7 +127,8 @@
      "max": 10,
      "src": "L20498"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -147,14 +148,40 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The healer improves access to clean drinking water.",
-   "src": "L20501"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The research does not save this patient but helps protect others.",
    "src": "L20502"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The healer improves access to clean drinking water.",
+   "src": "L20501",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20501"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The healer improves access to clean drinking water.",
+   "src": "L20501"
   }
  }
 }

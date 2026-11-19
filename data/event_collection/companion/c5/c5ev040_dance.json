@@ -63,11 +63,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They share a tentative laugh.",
-   "src": "L3611"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",
@@ -75,6 +80,35 @@
    "join": "paragraph",
    "text": "They remain distant but finish the dance respectfully.",
    "src": "L3612"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They share a tentative laugh.",
+   "src": "L3611",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L3611"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L3611"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They share a tentative laugh.",
+   "src": "L3611"
   }
  }
 }

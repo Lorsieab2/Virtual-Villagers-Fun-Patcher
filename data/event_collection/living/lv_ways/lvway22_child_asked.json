@@ -130,9 +130,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The child joins voluntarily and finds the ritual meaningful.",
-   "src": "L23049"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -160,6 +167,25 @@
    "name": "Outcome D2",
    "text": "The uncertainty frustrates the child, who keeps searching.",
    "src": "L23053"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child joins voluntarily and finds the ritual meaningful.",
+   "src": "L23049",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L23049"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child joins voluntarily and finds the ritual meaningful.",
+   "src": "L23049"
   }
  }
 }

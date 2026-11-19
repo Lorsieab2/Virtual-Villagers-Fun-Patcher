@@ -100,7 +100,8 @@
      "reason": "the text names no like (gap C1): text only",
      "src": "L5956"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "outcome": {
    "name": "Ending",

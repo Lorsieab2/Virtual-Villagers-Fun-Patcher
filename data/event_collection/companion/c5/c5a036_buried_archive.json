@@ -120,6 +120,32 @@
    "src": "L860"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "A child's drawing provides the key to understanding a symbol.",
+   "src": "L862",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L862"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "A child's drawing provides the key to understanding a symbol.",
    "src": "L862"

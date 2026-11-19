@@ -637,7 +637,8 @@
      "max": 10,
      "src": "L7517-7520"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L7523-7526",
@@ -662,8 +663,16 @@
    ]
   },
   "a4": {
-   "src": "L7533-7537",
-   "text": "The device fails at its stated purpose but proves unexpectedly useful for {drying herbs|shading seedlings|teaching apprentices|decorating a festival}. (Inventor) accepts a small prize while continuing to insist the original idea was better."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
+    }
+   ]
   },
   "a5": {
    "src": "L7539-7542",
@@ -675,7 +684,8 @@
      "mood": "bad",
      "src": "L7539-7542"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1": {
    "src": "L7544-7547",
@@ -691,7 +701,8 @@
      "max": 10,
      "src": "L7544-7547"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "src": "L7549-7552",
@@ -710,18 +721,14 @@
    "text": "The leaders debate for hours and finally admit they cannot decide whether the invention is possible. They ask the researchers to test it rather than inventing a verdict."
   },
   "c1": {
-   "src": "L7569-7571",
-   "text": "(Inventor) returns weeks later with a smaller, more practical design. The council approves it. (Inventor) says nothing, but smiles broadly.",
-   "effects": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "do": "skill",
-     "role": "inventor",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L7569-7571"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
@@ -734,8 +741,16 @@
    "text": "(Inventor) returns with forty-seven revised sketches. The leaders ask which one is best. \"All of them,\" says (Inventor). The meeting ends abruptly."
   },
   "c4": {
-   "src": "L7582-7585",
-   "text": "A visiting artisan independently demonstrates the same useful principle months later. The council realizes it dismissed (Inventor) too quickly and apologizes."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c4__fx"
+    },
+    {
+     "next": "c4__text"
+    }
+   ]
   },
   "c5": {
    "src": "L7587-7590",
@@ -946,6 +961,80 @@
      "next": "c5"
     }
    ]
+  },
+  "a4__fx": {
+   "src": "L7533-7537",
+   "text": "The device fails at its stated purpose but proves unexpectedly useful for {drying herbs|shading seedlings|teaching apprentices|decorating a festival}. (Inventor) accepts a small prize while continuing to insist the original idea was better.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7533-7537"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
+   "src": "L7533-7537",
+   "text": "The device fails at its stated purpose but proves unexpectedly useful for {drying herbs|shading seedlings|teaching apprentices|decorating a festival}. (Inventor) accepts a small prize while continuing to insist the original idea was better."
+  },
+  "c1__fx": {
+   "src": "L7569-7571",
+   "text": "(Inventor) returns weeks later with a smaller, more practical design. The council approves it. (Inventor) says nothing, but smiles broadly.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7569-7571"
+    },
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "good",
+     "src": "L7569-7571"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "src": "L7569-7571",
+   "text": "(Inventor) returns weeks later with a smaller, more practical design. The council approves it. (Inventor) says nothing, but smiles broadly.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7569-7571"
+    }
+   ],
+   "auto_text": true
+  },
+  "c4__fx": {
+   "src": "L7582-7585",
+   "text": "A visiting artisan independently demonstrates the same useful principle months later. The council realizes it dismissed (Inventor) too quickly and apologizes.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7582-7585"
+    }
+   ],
+   "auto_text": true
+  },
+  "c4__text": {
+   "src": "L7582-7585",
+   "text": "A visiting artisan independently demonstrates the same useful principle months later. The council realizes it dismissed (Inventor) too quickly and apologizes."
   }
  }
 }

@@ -334,7 +334,7 @@ def main() -> int:
     paths = []
     for p, doc in docs:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(cc.with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
         paths.append(str(p))
     rc = subprocess.call([sys.executable, str(P.ROOT / "scripts" / "collection_check.py"), "--format", *paths])
     return rc or (1 if problems else 0)

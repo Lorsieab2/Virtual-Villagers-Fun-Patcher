@@ -74,14 +74,40 @@
    "src": "L6454"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "The coconuts are collected for a feast, but nobody learns who wrote the sign.",
-   "src": "L6456"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "A second sign appears: 'Biggles accepts apologies.'",
    "src": "L6458"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The coconuts are collected for a feast, but nobody learns who wrote the sign.",
+   "src": "L6456",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L6456"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The coconuts are collected for a feast, but nobody learns who wrote the sign.",
+   "src": "L6456"
   }
  }
 }

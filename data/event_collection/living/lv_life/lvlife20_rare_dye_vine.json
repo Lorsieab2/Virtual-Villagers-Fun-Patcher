@@ -87,9 +87,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The weavers produce a brilliant cloth, but the vine recovers slowly.",
-   "src": "L20892"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -139,6 +146,29 @@
    "name": "Outcome C2",
    "text": "The cuttings fail, reminding the village that rarity cannot be hurried.",
    "src": "L20899"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The weavers produce a brilliant cloth, but the vine recovers slowly.",
+   "src": "L20892",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "weaver",
+     "skills": [
+      "Building"
+     ],
+     "min": 30,
+     "max": 60,
+     "src": "L20892"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The weavers produce a brilliant cloth, but the vine recovers slowly.",
+   "src": "L20892"
   }
  }
 }

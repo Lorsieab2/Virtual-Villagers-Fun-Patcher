@@ -114,7 +114,8 @@
      "who": "partner2",
      "src": "L27080"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",

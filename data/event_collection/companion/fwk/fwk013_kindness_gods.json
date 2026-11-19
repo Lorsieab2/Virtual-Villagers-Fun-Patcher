@@ -96,15 +96,14 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They find strength in what people can do for each other.",
-   "src": "L5551",
    "children": [
     {
-     "next": "r2"
+     "next": "a__fx"
     },
     {
-     "next": "r3"
+     "next": "a__text"
     }
    ]
   },
@@ -160,6 +159,41 @@
    "join": "paragraph",
    "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
    "src": "L5557"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They find strength in what people can do for each other.",
+   "src": "L5551",
+   "children": [
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L5551"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They find strength in what people can do for each other.",
+   "src": "L5551",
+   "children": [
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
   }
  }
 }

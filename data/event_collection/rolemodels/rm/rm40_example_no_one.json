@@ -114,9 +114,16 @@
    "src": "L83"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "Some seeds are spoiled, and the villager records the loss for the keeper.",
-   "src": "L83"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -158,6 +165,52 @@
    "src": "L83"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "Some seeds are spoiled, and the villager records the loss for the keeper.",
+   "src": "L83",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L83"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "Some seeds are spoiled, and the villager records the loss for the keeper.",
+   "src": "L83"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The note receives no public acknowledgment, but the villager is satisfied that the problems were reported.",
+   "src": "L83",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L83"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The note receives no public acknowledgment, but the villager is satisfied that the problems were reported.",
    "src": "L83"

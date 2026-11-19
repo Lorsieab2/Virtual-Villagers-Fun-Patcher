@@ -162,11 +162,14 @@
    ]
   },
   "c1": {
-   "src": "L8395-8396",
-   "text": "A magnificent joint feast wins over most of the audience, though a few refuse to eat.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "pp"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
@@ -191,11 +194,14 @@
    ]
   },
   "d1": {
-   "src": "L8399-8400",
-   "text": "The cooks discover a common ancestral method.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "pp"
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
     }
    ]
   },
@@ -622,6 +628,59 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "c1__fx": {
+   "src": "L8395-8396",
+   "text": "A magnificent joint feast wins over most of the audience, though a few refuse to eat.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ],
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L8395-8396"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "src": "L8395-8396",
+   "text": "A magnificent joint feast wins over most of the audience, though a few refuse to eat.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "d1__fx": {
+   "src": "L8399-8400",
+   "text": "The cooks discover a common ancestral method.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8399-8400"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "src": "L8399-8400",
+   "text": "The cooks discover a common ancestral method.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
   }
  },
  "include_pools": [

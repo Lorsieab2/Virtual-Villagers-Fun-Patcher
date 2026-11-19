@@ -100,7 +100,8 @@
      "max": 10,
      "src": "L7884"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "name": "Answer D",
@@ -124,7 +125,8 @@
      "reason": "a plant, not a villager or the village's food",
      "src": "L7886"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

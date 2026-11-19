@@ -82,14 +82,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "Every morning (friend) moves one shell. Four. Three. Two. One. On the morning of the last shell, (friend.he/she) waits on the path all day. (subject) arrives at sunset, dusty and tired. \"Five days exactly,\" (subject.he/she) says proudly. (friend) holds up the last shell. \"I was getting worried.\"",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "On the third day (child), a child, borrows the shells for a game. When they come back, there are seven. Nobody knows where the extra two came from. (friend) gives up counting and simply watches the path in the evenings. (subject) comes home on the fifth day, exactly when (subject.he/she) said, and is confused by the seven shells for weeks.",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "Every morning (friend) moves one shell. Four. Three. Two. One. On the morning of the last shell, (friend.he/she) waits on the path all day. (subject) arrives at sunset, dusty and tired. \"Five days exactly,\" (subject.he/she) says proudly. (friend) holds up the last shell. \"I was getting worried.\"",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "Every morning (friend) moves one shell. Four. Three. Two. One. On the morning of the last shell, (friend.he/she) waits on the path all day. (subject) arrives at sunset, dusty and tired. \"Five days exactly,\" (subject.he/she) says proudly. (friend) holds up the last shell. \"I was getting worried.\"",
+   "src": "L374"
   }
  }
 }

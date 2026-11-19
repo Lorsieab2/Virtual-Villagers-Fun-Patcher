@@ -104,14 +104,40 @@
    "src": "L1479"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "A familiar friend is absent from the usual afternoon gathering. Someone remembers an old joke, and the group starts laughing again.",
-   "src": "L1483"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "A familiar friend is absent from the usual afternoon gathering. (Name1) feels welcome but still a little shy.",
    "src": "L1487"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "A familiar friend is absent from the usual afternoon gathering. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1483",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1483"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "A familiar friend is absent from the usual afternoon gathering. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1483"
   }
  }
 }

@@ -89,12 +89,28 @@
    ]
   },
   "b1": {
-   "text": "An animal carried several coconuts into the undergrowth.",
-   "src": "L10069"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
-   "text": "A forgotten storage basket is discovered behind a hut.",
-   "src": "L10070"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "b3": {
    "text": "The coconuts appear arranged in a mysterious spiral.",
@@ -139,6 +155,41 @@
      "next": "c3"
     }
    ]
+  },
+  "b1__fx": {
+   "text": "An animal carried several coconuts into the undergrowth.",
+   "src": "L10069",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L10069"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "An animal carried several coconuts into the undergrowth.",
+   "src": "L10069"
+  },
+  "b2__fx": {
+   "text": "A forgotten storage basket is discovered behind a hut.",
+   "src": "L10070",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L10070"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "text": "A forgotten storage basket is discovered behind a hut.",
+   "src": "L10070"
   }
  },
  "requirement": {

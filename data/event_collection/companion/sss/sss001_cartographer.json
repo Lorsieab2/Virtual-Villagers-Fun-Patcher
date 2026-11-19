@@ -78,19 +78,71 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "Their detailed sensory route reveals a safer path; the apprentice gains respect and a new way of observing.",
-   "src": "L6076"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "They devise tactile markers and verbal descriptions, though their first map needs correction after a storm.",
-   "src": "L6078"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "They choose to teach navigation instead of joining the expedition. Nobody treats the decision as failure.",
    "src": "L6080"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Their detailed sensory route reveals a safer path; the apprentice gains respect and a new way of observing.",
+   "src": "L6076",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6076"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Their detailed sensory route reveals a safer path; the apprentice gains respect and a new way of observing.",
+   "src": "L6076"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They devise tactile markers and verbal descriptions, though their first map needs correction after a storm.",
+   "src": "L6078",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6078"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They devise tactile markers and verbal descriptions, though their first map needs correction after a storm.",
+   "src": "L6078"
   }
  }
 }

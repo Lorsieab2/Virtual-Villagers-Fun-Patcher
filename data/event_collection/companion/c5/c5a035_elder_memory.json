@@ -120,6 +120,32 @@
    "src": "L840"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The story leads explorers to a forgotten landmark.",
+   "src": "L842",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L842"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "The story leads explorers to a forgotten landmark.",
    "src": "L842"

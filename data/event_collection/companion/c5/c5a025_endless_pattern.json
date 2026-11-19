@@ -112,6 +112,59 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "An apparent proof fails under a clever counterexample.",
+   "src": "L625"
+  },
+  "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "The pattern inspires a useful counting method.",
+   "src": "L623",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "mathematician",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L623"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L623"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome 1",
    "text": "The pattern inspires a useful counting method.",
    "src": "L623",
@@ -126,14 +179,24 @@
      "max": 10,
      "src": "L623"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "o2": {
-   "name": "Outcome 2",
-   "text": "An apparent proof fails under a clever counterexample.",
-   "src": "L625"
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "An apprentice extends the pattern into a surprising new design.",
+   "src": "L627",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L627"
+    }
+   ],
+   "auto_text": true
   },
-  "o3": {
+  "o3__text": {
    "name": "Outcome 3",
    "text": "An apprentice extends the pattern into a surprising new design.",
    "src": "L627"

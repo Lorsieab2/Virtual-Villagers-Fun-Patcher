@@ -348,7 +348,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "src": "L3328-3330",
@@ -422,7 +423,8 @@
      "max": 10,
      "src": "L3351"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

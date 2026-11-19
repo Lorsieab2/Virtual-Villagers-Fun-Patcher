@@ -112,9 +112,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "She joins a brief evening song circle and feels like herself again.",
-   "src": "L30497"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -186,6 +193,25 @@
    "name": "Outcome D2",
    "text": "She says parenthood is central to her right now, and they respect that too.",
    "src": "L30507"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "She joins a brief evening song circle and feels like herself again.",
+   "src": "L30497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30497"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "She joins a brief evening song circle and feels like herself again.",
+   "src": "L30497"
   }
  }
 }

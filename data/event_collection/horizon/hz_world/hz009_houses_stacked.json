@@ -85,19 +85,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "A stable miniature tower inspires a useful discussion of weight and supports.",
-   "src": "L127",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "builder",
-     "skills": [
-      "Building"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L127"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -156,6 +151,48 @@
    "name": "Outcome C2",
    "text": "A farmer worries about gardens, waste, and fresh air; the imagined city grows more complicated.",
    "src": "L134"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "A stable miniature tower inspires a useful discussion of weight and supports.",
+   "src": "L127",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L127"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L127"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "A stable miniature tower inspires a useful discussion of weight and supports.",
+   "src": "L127",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L127"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

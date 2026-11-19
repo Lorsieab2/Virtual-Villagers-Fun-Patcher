@@ -65,11 +65,75 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Nice weather,\" says (subject). (friend) looks at the rain pouring off the leaf. Then they both laugh. They talk about the rain, then about their work, then, somehow, about whether lizards enjoy the rain or just put up with it. When the shower stops, they're both a bit sorry.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "\"Nice weather,\" says (subject). (friend) looks at the rain pouring off the leaf. Then they both laugh. They talk about the rain, then about their work, then, somehow, about whether lizards enjoy the rain or just put up with it. When the shower stops, they're both a bit sorry.",
    "src": "L158"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They stand quietly, listening to the rain drum on the leaf. It's surprisingly nice. When it stops, (friend) nods at (subject), and (subject) nods back. Neither of them says anything. The next time they pass each other on the path, though, they both look up at the sky and smile.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L161"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L161"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "They stand quietly, listening to the rain drum on the leaf. It's surprisingly nice. When it stops, (friend) nods at (subject), and (subject) nods back. Neither of them says anything. The next time they pass each other on the path, though, they both look up at the sky and smile.",
    "src": "L161"

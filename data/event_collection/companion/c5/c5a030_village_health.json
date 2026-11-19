@@ -134,7 +134,8 @@
      "max": 10,
      "src": "L728"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome 2",
@@ -142,6 +143,32 @@
    "src": "L730"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "An overlooked household practice explains an apparent mystery.",
+   "src": "L732",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L732"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "An overlooked household practice explains an apparent mystery.",
    "src": "L732"

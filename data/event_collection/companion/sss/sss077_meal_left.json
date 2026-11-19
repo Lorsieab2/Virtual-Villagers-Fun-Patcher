@@ -97,9 +97,36 @@
      "max": 10,
      "src": "L6870"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The villager finds comfort even without an appetite.",
+   "src": "L6872",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L6872"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "The villager finds comfort even without an appetite.",
    "src": "L6872"

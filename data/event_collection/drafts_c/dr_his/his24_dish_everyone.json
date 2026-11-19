@@ -69,14 +69,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) saw. (subject) freezes. Then (friend) leans over and whispers, \"I hate it too.\" They start asking other people, very carefully. It turns out nearly everybody hates it. Nobody has ever said so. The next festival, Old Stew is still served, out of respect, but in very, very small bowls. Everyone is very relieved and eats exactly one spoonful.",
-   "src": "L290"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) saw, and says nothing, and eats every bite of (friend.his/her) own bowl with a face of complete composure. Afterward, (subject) asks how. \"My grandmother hated it,\" (friend) says. \"Her grandmother hated it. Maybe the founders hated it. Somebody has to eat it.\" (subject) can't argue with that. (subject.He/she) eats (subject.his/her) whole bowl next year. It's still horrible.",
    "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) saw. (subject) freezes. Then (friend) leans over and whispers, \"I hate it too.\" They start asking other people, very carefully. It turns out nearly everybody hates it. Nobody has ever said so. The next festival, Old Stew is still served, out of respect, but in very, very small bowls. Everyone is very relieved and eats exactly one spoonful.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L290"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L290"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) saw. (subject) freezes. Then (friend) leans over and whispers, \"I hate it too.\" They start asking other people, very carefully. It turns out nearly everybody hates it. Nobody has ever said so. The next festival, Old Stew is still served, out of respect, but in very, very small bowls. Everyone is very relieved and eats exactly one spoonful.",
+   "src": "L290"
   }
  },
  "grammar_fixes": [

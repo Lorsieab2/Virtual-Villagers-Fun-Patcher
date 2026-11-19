@@ -129,9 +129,16 @@
    "src": "L483"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "Both discover they prefer their old chores and trade back gratefully.",
-   "src": "L484"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -154,6 +161,25 @@
    "name": "Outcome D2",
    "text": "The friend's system does not suit them, but they enjoy the conversation.",
    "src": "L487"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Both discover they prefer their old chores and trade back gratefully.",
+   "src": "L484",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L484"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Both discover they prefer their old chores and trade back gratefully.",
+   "src": "L484"
   }
  }
 }

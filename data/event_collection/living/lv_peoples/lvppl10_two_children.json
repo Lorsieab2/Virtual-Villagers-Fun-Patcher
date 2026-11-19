@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They trade small treasures and become friends.",
-   "src": "L21792"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -140,6 +147,25 @@
    "name": "Outcome C2",
    "text": "One child feels disappointed but learns to say so.",
    "src": "L21796"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They trade small treasures and become friends.",
+   "src": "L21792",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21792"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They trade small treasures and become friends.",
+   "src": "L21792"
   }
  }
 }

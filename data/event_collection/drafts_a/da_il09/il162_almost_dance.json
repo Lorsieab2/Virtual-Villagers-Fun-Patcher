@@ -76,6 +76,38 @@
    "src": "L26"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits down on a log, sure the moment has passed. A minute later (friend) sits down on the same log, also sure the moment has passed. They look at each other. They both start laughing. They don't dance after all, but they sit and talk and watch everyone else dance until the fire burns down, and that turns out to be just as good.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) sits down on a log, sure the moment has passed. A minute later (friend) sits down on the same log, also sure the moment has passed. They look at each other. They both start laughing. They don't dance after all, but they sit and talk and watch everyone else dance until the fire burns down, and that turns out to be just as good.",
    "src": "L29"

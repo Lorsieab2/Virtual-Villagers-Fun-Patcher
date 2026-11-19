@@ -77,7 +77,8 @@
      "scaled": true,
      "src": "L440"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",

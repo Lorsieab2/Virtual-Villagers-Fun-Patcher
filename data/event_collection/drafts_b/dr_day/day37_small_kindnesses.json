@@ -94,6 +94,32 @@
    "src": "L446"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stops wondering and simply accepts it. (subject.He/she) eats the fish. (subject.He/she) drinks the water. (subject.He/she) puts the flower behind (subject.his/her) ear. It's been a lovely day, for no reason, from lots of people, and (subject.he/she) goes to bed feeling warm all the way through.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) stops wondering and simply accepts it. (subject.He/she) eats the fish. (subject.He/she) drinks the water. (subject.He/she) puts the flower behind (subject.his/her) ear. It's been a lovely day, for no reason, from lots of people, and (subject.he/she) goes to bed feeling warm all the way through.",
    "src": "L449"

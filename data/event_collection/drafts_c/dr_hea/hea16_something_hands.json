@@ -69,11 +69,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes it, mostly to be polite. (subject.He/she) sits by the fire and squeezes it. Rolls it. Makes a bowl, a bad one, then squashes it and makes another. Somewhere in the middle of the third bowl, (subject.he/she) notices an hour has passed without (subject.him/her) thinking about anything. The sadness is still there when (subject.he/she) stops. But for an hour it went quiet. (subject.He/she) asks for more clay.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) takes it, mostly to be polite. (subject.He/she) sits by the fire and squeezes it. Rolls it. Makes a bowl, a bad one, then squashes it and makes another. Somewhere in the middle of the third bowl, (subject.he/she) notices an hour has passed without (subject.him/her) thinking about anything. The sadness is still there when (subject.he/she) stops. But for an hour it went quiet. (subject.He/she) asks for more clay.",
    "src": "L197"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'm hopeless with clay,\" says (subject). \"What about rope?\" (friend) shrugs. \"Rope's fine. Anything's fine.\" (subject) spends the evening plaiting rope. It's long, even and very good rope. The sadness isn't gone. But there's a coil of rope by the door the next morning, and that is a thing (subject.he/she) made, on a day (subject.he/she) didn't think (subject.he/she) could make anything.",
+   "src": "L200",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L200"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'm hopeless with clay,\" says (subject). \"What about rope?\" (friend) shrugs. \"Rope's fine. Anything's fine.\" (subject) spends the evening plaiting rope. It's long, even and very good rope. The sadness isn't gone. But there's a coil of rope by the door the next morning, and that is a thing (subject.he/she) made, on a day (subject.he/she) didn't think (subject.he/she) could make anything.",
    "src": "L200"

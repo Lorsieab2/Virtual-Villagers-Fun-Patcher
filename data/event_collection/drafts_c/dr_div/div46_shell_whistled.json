@@ -74,6 +74,32 @@
    "src": "L554"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) asks before handing it over: would (subject) even want to try? (subject) thinks about it. \"Curious? Yes. Want? No.\" (subject.He/she) looks at it for a while, says it's a clever-looking thing, and suggests they put it with the other found objects the scientists are studying. (friend) does. (subject) goes back to fishing, perfectly content with the quiet.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) asks before handing it over: would (subject) even want to try? (subject) thinks about it. \"Curious? Yes. Want? No.\" (subject.He/she) looks at it for a while, says it's a clever-looking thing, and suggests they put it with the other found objects the scientists are studying. (friend) does. (subject) goes back to fishing, perfectly content with the quiet.",
    "src": "L557"

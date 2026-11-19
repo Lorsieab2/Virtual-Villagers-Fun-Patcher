@@ -66,14 +66,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) takes the fish down and hands it to (friend), a small child who has been watching the repairs. \"This was mine, a long time ago,\" (subject.he/she) says. \"It needs someone to play with it.\" (friend) studies it seriously, then runs off making swimming noises. (subject) feels oddly light.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) puts the little fish in (subject.his/her) pocket and finishes the roof. That evening (subject.he/she) sets it on a shelf and looks at it for a while. It doesn't do anything. It just sits there being small and old and familiar, and somehow that's enough.",
    "src": "L65"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) takes the fish down and hands it to (friend), a small child who has been watching the repairs. \"This was mine, a long time ago,\" (subject.he/she) says. \"It needs someone to play with it.\" (friend) studies it seriously, then runs off making swimming noises. (subject) feels oddly light.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) takes the fish down and hands it to (friend), a small child who has been watching the repairs. \"This was mine, a long time ago,\" (subject.he/she) says. \"It needs someone to play with it.\" (friend) studies it seriously, then runs off making swimming noises. (subject) feels oddly light.",
+   "src": "L62"
   }
  }
 }

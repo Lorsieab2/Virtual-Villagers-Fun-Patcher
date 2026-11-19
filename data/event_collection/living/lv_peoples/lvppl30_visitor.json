@@ -129,6 +129,32 @@
    "src": "L22064"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The first garment fits poorly, and both makers laugh before trying again.",
+   "src": "L22065",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "tailor",
+     "mood": "good",
+     "src": "L22065"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The first garment fits poorly, and both makers laugh before trying again.",
    "src": "L22065"

@@ -68,7 +68,8 @@
      "what": "or a small tech reward",
      "reason": "food OR tech: the other page gives the tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_2": {
    "src": "L7965",
@@ -87,7 +88,8 @@
      "what": "Gain food",
      "reason": "food OR tech: the other page gives the food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1": {
    "type": "branch",
@@ -105,8 +107,16 @@
    "text": "Both methods fail because neither farmer noticed a blocked inlet."
   },
   "a3": {
-   "src": "L7967",
-   "text": "A child combines the ideas and succeeds. The farmers reluctantly share the credit."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a3__fx"
+    },
+    {
+     "next": "a3__text"
+    }
+   ]
   },
   "b1": {
    "src": "L7969",
@@ -147,6 +157,23 @@
      "next": "b3"
     }
    ]
+  },
+  "a3__fx": {
+   "src": "L7967",
+   "text": "A child combines the ideas and succeeds. The farmers reluctantly share the credit.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7967"
+    }
+   ],
+   "auto_text": true
+  },
+  "a3__text": {
+   "src": "L7967",
+   "text": "A child combines the ideas and succeeds. The farmers reluctantly share the credit."
   }
  }
 }

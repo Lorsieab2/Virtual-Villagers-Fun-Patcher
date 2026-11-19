@@ -88,7 +88,8 @@
      "role": "mother",
      "src": "L5974"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "outcome": {
    "name": "Ending",

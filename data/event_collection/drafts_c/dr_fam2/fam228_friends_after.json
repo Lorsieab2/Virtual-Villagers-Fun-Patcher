@@ -80,6 +80,38 @@
    "src": "L338"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They agree, and then they both sit there and feel sad, which surprises them. \"I'm glad we're doing this,\" says (friend). \"Me too,\" says (subject). \"I just feel funny about it.\" They stay a little apart for a few weeks. Then, slowly, it gets easier. They're friends again by the end of the season. Different from before. Still friends.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L341"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They agree, and then they both sit there and feel sad, which surprises them. \"I'm glad we're doing this,\" says (friend). \"Me too,\" says (subject). \"I just feel funny about it.\" They stay a little apart for a few weeks. Then, slowly, it gets easier. They're friends again by the end of the season. Different from before. Still friends.",
    "src": "L341"

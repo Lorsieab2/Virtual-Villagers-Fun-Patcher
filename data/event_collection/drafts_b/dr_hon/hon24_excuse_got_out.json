@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The story grows: a second pig, a falling coconut, a cloud shaped exactly like the village leader. (friend) listens to all of it with (friend.his/her) arms folded. \"And then?\" \"And then I overslept,\" (subject) admits. (friend) bursts out laughing. \"Why didn't you just say that?\" \"It didn't seem like enough.\" \"It's plenty,\" says (friend), and hands (subject.him/her) a bundle of thatch.",
-   "src": "L290"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "Halfway through the fog, (subject) stops. \"I overslept. There wasn't any crab.\" \"No crab?\" \"No crab.\" (friend) looks almost disappointed. \"I was enjoying the crab.\" They carry thatch together all afternoon. After that, whenever (subject) is late, (friend) just asks, \"Crab?\"",
    "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The story grows: a second pig, a falling coconut, a cloud shaped exactly like the village leader. (friend) listens to all of it with (friend.his/her) arms folded. \"And then?\" \"And then I overslept,\" (subject) admits. (friend) bursts out laughing. \"Why didn't you just say that?\" \"It didn't seem like enough.\" \"It's plenty,\" says (friend), and hands (subject.him/her) a bundle of thatch.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L290"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The story grows: a second pig, a falling coconut, a cloud shaped exactly like the village leader. (friend) listens to all of it with (friend.his/her) arms folded. \"And then?\" \"And then I overslept,\" (subject) admits. (friend) bursts out laughing. \"Why didn't you just say that?\" \"It didn't seem like enough.\" \"It's plenty,\" says (friend), and hands (subject.him/her) a bundle of thatch.",
+   "src": "L290"
   }
  }
 }

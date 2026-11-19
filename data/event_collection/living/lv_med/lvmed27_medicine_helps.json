@@ -105,7 +105,8 @@
      "max": -10,
      "src": "L20560"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -126,7 +127,8 @@
      "max": 30,
      "src": "L20561"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -158,7 +160,8 @@
      "max": 10,
      "src": "L20563"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -172,7 +175,8 @@
      "max": -10,
      "src": "L20564"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -201,7 +205,8 @@
      "max": 10,
      "src": "L20566"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",

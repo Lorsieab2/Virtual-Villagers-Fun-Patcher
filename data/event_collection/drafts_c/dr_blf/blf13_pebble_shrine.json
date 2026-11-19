@@ -70,14 +70,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Can I leave something too?\" asks (friend). (subject) considers this very seriously. \"You can leave a shell,\" (subject.he/she) says. (friend) finds a shell and adds it to the pile. (subject) inspects it and moves it slightly to the left. \"There,\" (subject.he/she) says, satisfied. (friend) visits the shrine sometimes after that. (friend.He/she) isn't sure why. It just feels nice.",
-   "src": "L158"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) nods. \"That sounds like a good shrine.\" (friend.He/she) leaves (subject) to it. Over the next weeks, (friend.he/she) notices the shrine growing: more shells, a little carved fish, a bird's egg \\(empty\\). Whatever (subject) believes, (subject.he/she) believes it with great care. That seems like the important part.",
    "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Can I leave something too?\" asks (friend). (subject) considers this very seriously. \"You can leave a shell,\" (subject.he/she) says. (friend) finds a shell and adds it to the pile. (subject) inspects it and moves it slightly to the left. \"There,\" (subject.he/she) says, satisfied. (friend) visits the shrine sometimes after that. (friend.He/she) isn't sure why. It just feels nice.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Can I leave something too?\" asks (friend). (subject) considers this very seriously. \"You can leave a shell,\" (subject.he/she) says. (friend) finds a shell and adds it to the pile. (subject) inspects it and moves it slightly to the left. \"There,\" (subject.he/she) says, satisfied. (friend) visits the shrine sometimes after that. (friend.He/she) isn't sure why. It just feels nice.",
+   "src": "L158"
   }
  }
 }

@@ -70,14 +70,50 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) is startled, then amused, then rather touched. \"Alright,\" (subject.he/she) says. \"But grandchildren have to help carry water.\" (friend) carries water. (subject) teaches (friend.him/her) to whittle. The child's own family thinks it's lovely. (subject) has never had grandchildren. (subject.He/she) has one now, apparently.",
-   "src": "L206"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I'm not really your grandparent,\" says (subject) gently. \"But you can visit me whenever you like. What would you like to call me instead?\" (friend) thinks hard. \"Friend?\" \"Friend it is,\" says (subject). (friend) visits every afternoon anyway. (friend.He/she) calls (subject.him/her) \"Friend\" like it's a title. (subject) rather likes it.",
    "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) is startled, then amused, then rather touched. \"Alright,\" (subject.he/she) says. \"But grandchildren have to help carry water.\" (friend) carries water. (subject) teaches (friend.him/her) to whittle. The child's own family thinks it's lovely. (subject) has never had grandchildren. (subject.He/she) has one now, apparently.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) is startled, then amused, then rather touched. \"Alright,\" (subject.he/she) says. \"But grandchildren have to help carry water.\" (friend) carries water. (subject) teaches (friend.him/her) to whittle. The child's own family thinks it's lovely. (subject) has never had grandchildren. (subject.He/she) has one now, apparently.",
+   "src": "L206"
   }
  }
 }

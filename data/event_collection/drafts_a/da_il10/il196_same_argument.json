@@ -80,14 +80,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Because thirds is wrong,\" says (subject). \"Because halves is wrong,\" says (friend), at exactly the same moment. The child looks from one to the other. \"But you're married,\" (child.he/she) says, as if that should settle it. (subject) and (friend) both laugh. \"That's how we know it's wrong,\" says (friend).",
-   "src": "L182"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "That evening, without a word, (subject) folds the blanket in thirds. (friend) stares at it for a long moment. Then (friend.he/she) goes and sits down, unusually quiet. The next morning, (friend) folds it in halves. They look at each other. Neither of them likes it. By the next day, they're both back to their own way, and both refolding. All is right with the world.",
    "src": "L185"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Because thirds is wrong,\" says (subject). \"Because halves is wrong,\" says (friend), at exactly the same moment. The child looks from one to the other. \"But you're married,\" (child.he/she) says, as if that should settle it. (subject) and (friend) both laugh. \"That's how we know it's wrong,\" says (friend).",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Because thirds is wrong,\" says (subject). \"Because halves is wrong,\" says (friend), at exactly the same moment. The child looks from one to the other. \"But you're married,\" (child.he/she) says, as if that should settle it. (subject) and (friend) both laugh. \"That's how we know it's wrong,\" says (friend).",
+   "src": "L182"
   }
  }
 }

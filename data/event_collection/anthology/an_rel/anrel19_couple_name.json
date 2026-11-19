@@ -168,9 +168,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They share a favorite meal together.",
-   "src": "L27296"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -205,6 +212,31 @@
    "name": "Outcome D2",
    "text": "They agree to revisit the conversation when ready.",
    "src": "L27300"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They share a favorite meal together.",
+   "src": "L27296",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27296"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27296"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They share a favorite meal together.",
+   "src": "L27296"
   }
  }
 }

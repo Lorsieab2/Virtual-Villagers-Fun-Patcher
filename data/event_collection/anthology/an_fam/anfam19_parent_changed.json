@@ -219,14 +219,41 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(child) rests and feels better the next morning.",
-   "src": "L28582"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The family discusses the rule calmly the following day.",
    "src": "L28583"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) rests and feels better the next morning.",
+   "src": "L28582",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": 15,
+     "max": 30,
+     "src": "L28582"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) rests and feels better the next morning.",
+   "src": "L28582"
   }
  }
 }

@@ -116,7 +116,8 @@
      "role": "forager",
      "src": "L2874"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -131,7 +132,8 @@
      "cause": "unknown",
      "src": "L2875"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",

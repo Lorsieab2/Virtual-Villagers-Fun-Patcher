@@ -216,9 +216,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(friend) delivers the shell with a smile.",
-   "src": "L27578"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -265,6 +272,51 @@
    "src": "L27584"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(friend) delivers the shell with a smile.",
+   "src": "L27578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L27578"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(friend) delivers the shell with a smile.",
+   "src": "L27578"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(adult) shares a funny childhood memory, easing (child)'s embarrassment.",
+   "src": "L27585",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L27585"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(adult) shares a funny childhood memory, easing (child)'s embarrassment.",
    "src": "L27585"

@@ -61,7 +61,8 @@
      "scaled": true,
      "src": "L7788"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "large": {
    "name": "A large reward",
@@ -74,7 +75,8 @@
      "scaled": true,
      "src": "L7788"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

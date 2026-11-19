@@ -115,9 +115,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The memory makes them laugh together.",
-   "src": "L28591"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -159,11 +166,94 @@
    ]
   },
   "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The memory makes them laugh together.",
+   "src": "L28591",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L28591"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L28591"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The memory makes them laugh together.",
+   "src": "L28591"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "They gather fruit together in comfortable silence.",
+   "src": "L28597",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L28597"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
    "name": "Outcome D1",
    "text": "They gather fruit together in comfortable silence.",
    "src": "L28597"
   },
-  "d2": {
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They part warmly without trying to restore the past.",
+   "src": "L28598",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L28598"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L28598"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "They part warmly without trying to restore the past.",
    "src": "L28598"

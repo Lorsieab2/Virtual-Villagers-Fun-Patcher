@@ -107,6 +107,59 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "A mechanical bird repeatedly steals the spotlight by falling over.",
+   "src": "L1070"
+  },
+  "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "The display delights the village.",
+   "src": "L1068",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "mechanist",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1068"
+    },
+    {
+     "do": "mood",
+     "role": "mechanist",
+     "mood": "good",
+     "src": "L1068"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome 1",
    "text": "The display delights the village.",
    "src": "L1068",
@@ -121,14 +174,24 @@
      "max": 10,
      "src": "L1068"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "o2": {
-   "name": "Outcome 2",
-   "text": "A mechanical bird repeatedly steals the spotlight by falling over.",
-   "src": "L1070"
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The design inspires practical improvements to village machinery.",
+   "src": "L1072",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1072"
+    }
+   ],
+   "auto_text": true
   },
-  "o3": {
+  "o3__text": {
    "name": "Outcome 3",
    "text": "The design inspires practical improvements to village machinery.",
    "src": "L1072"

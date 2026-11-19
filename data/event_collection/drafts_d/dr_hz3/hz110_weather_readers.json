@@ -127,14 +127,40 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The fishers agree to share their observations each morning.",
-   "src": "L375"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "They disagree about what the clouds mean and keep arguing happily.",
    "src": "L376"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The fishers agree to share their observations each morning.",
+   "src": "L375",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L375"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The fishers agree to share their observations each morning.",
+   "src": "L375"
   }
  }
 }

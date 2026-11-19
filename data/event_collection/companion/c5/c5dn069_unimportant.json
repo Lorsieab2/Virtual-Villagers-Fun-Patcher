@@ -77,21 +77,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Record the observation for no reason at all.",
-   "src": "L3304",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "researcher",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L3304"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -108,6 +101,52 @@
    "join": "paragraph",
    "text": "Spend an afternoon finding more clicking pebbles.",
    "src": "L3306"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Record the observation for no reason at all.",
+   "src": "L3304",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3304"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L3304"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Record the observation for no reason at all.",
+   "src": "L3304",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3304"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

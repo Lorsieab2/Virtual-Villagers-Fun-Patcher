@@ -79,11 +79,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Invent a game that includes everyone.",
-   "src": "L3147"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -98,6 +103,29 @@
    "join": "paragraph",
    "text": "Learn that not every activity suits every friend.",
    "src": "L3149"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Invent a game that includes everyone.",
+   "src": "L3147",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L3147"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Invent a game that includes everyone.",
+   "src": "L3147"
   }
  }
 }

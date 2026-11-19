@@ -74,6 +74,38 @@
    "src": "L446"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to walk (subject.him/her) home, \"to keep you company.\" (friend) agrees solemnly. Halfway along, (friend) admits that (friend.he/she) was also too scared to walk home alone after that story, and was about to ask (subject). They walk the rest of the way arm in arm, giggling, taking turns to look behind them.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks (friend) to walk (subject.him/her) home, \"to keep you company.\" (friend) agrees solemnly. Halfway along, (friend) admits that (friend.he/she) was also too scared to walk home alone after that story, and was about to ask (subject). They walk the rest of the way arm in arm, giggling, taking turns to look behind them.",
    "src": "L449"

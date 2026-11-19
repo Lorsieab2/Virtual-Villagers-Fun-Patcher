@@ -74,6 +74,32 @@
    "src": "L446"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I think that's lovely,\" says (friend). \"People come for all sorts of reasons.\" (subject) seems relieved. \"Nobody minds?\" \"Nobody minds,\" says (friend). \"And if anyone does, they can sing louder than you.\" \"Impossible,\" says (subject). It is, in fact, impossible. (subject.He/she) remains the loudest singer on Isola for years.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I think that's lovely,\" says (friend). \"People come for all sorts of reasons.\" (subject) seems relieved. \"Nobody minds?\" \"Nobody minds,\" says (friend). \"And if anyone does, they can sing louder than you.\" \"Impossible,\" says (subject). It is, in fact, impossible. (subject.He/she) remains the loudest singer on Isola for years.",
    "src": "L449"

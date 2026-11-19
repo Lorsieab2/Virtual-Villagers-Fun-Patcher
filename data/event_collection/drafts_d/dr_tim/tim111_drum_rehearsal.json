@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) practices a drum rhythm for a gathering. (Name1) misses a beat and laughs before trying again.",
-   "src": "L1863"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -140,6 +147,25 @@
    "name": "Ending 4",
    "text": "(Name1) practices a drum rhythm for a gathering. A shy participant joins in when nobody makes a fuss.",
    "src": "L1875"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) practices a drum rhythm for a gathering. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1863",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1863"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) practices a drum rhythm for a gathering. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1863"
   }
  }
 }

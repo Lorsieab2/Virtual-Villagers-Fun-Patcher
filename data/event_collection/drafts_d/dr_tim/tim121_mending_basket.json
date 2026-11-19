@@ -99,9 +99,16 @@
    "src": "L2031"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "Several neighbors help repair a weathered basket. (Name1) feels relieved not to do everything alone.",
-   "src": "L2035"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "Several neighbors help repair a weathered basket. The work finishes faster with so many hands.",
    "src": "L2043"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "Several neighbors help repair a weathered basket. (Name1) feels relieved not to do everything alone.",
+   "src": "L2035",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2035"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "Several neighbors help repair a weathered basket. (Name1) feels relieved not to do everything alone.",
+   "src": "L2035"
   }
  }
 }

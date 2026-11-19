@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They begin a joyful late-life romance.",
-   "src": "L27050"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -115,9 +122,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They discover how much companionship they still have to offer.",
-   "src": "L27053"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -167,6 +181,56 @@
    "name": "Outcome D2",
    "text": "They keep their separate homes and treasure regular visits.",
    "src": "L27060"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They begin a joyful late-life romance.",
+   "src": "L27050",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L27050"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L27050"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They begin a joyful late-life romance.",
+   "src": "L27050"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They discover how much companionship they still have to offer.",
+   "src": "L27053",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L27053"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L27053"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They discover how much companionship they still have to offer.",
+   "src": "L27053"
   }
  }
 }

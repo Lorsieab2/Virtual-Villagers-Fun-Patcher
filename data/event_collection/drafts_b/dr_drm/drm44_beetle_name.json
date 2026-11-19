@@ -97,9 +97,36 @@
      "scaled": true,
      "src": "L530"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) carries it carefully to the fire. Everyone looks. (elder), an elder, squints and says, \"Oh, we used to call those spotty ones. Haven't seen one in years.\" (subject)'s face falls, then rises again. It's not new. But it was lost, and (subject.he/she) found it again. (subject.He/she) decides that counts as discovering something.",
+   "src": "L533",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L533"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) carries it carefully to the fire. Everyone looks. (elder), an elder, squints and says, \"Oh, we used to call those spotty ones. Haven't seen one in years.\" (subject)'s face falls, then rises again. It's not new. But it was lost, and (subject.he/she) found it again. (subject.He/she) decides that counts as discovering something.",
    "src": "L533"

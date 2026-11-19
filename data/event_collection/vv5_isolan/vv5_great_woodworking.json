@@ -592,11 +592,14 @@
    ]
   },
   "exchange": {
-   "src": "L2226-2236",
-   "text": "Before the contest begins, (builder1) shows the visitors a clever way to join two pieces of wood. The Isolan leader responds by demonstrating {a beautiful carving technique|a clever wooden hinge|a method of smoothing rough edges|a way to bend thin wood without breaking it}.\nThe two teams learn something useful, then remember they are supposed to be competing.\n\"Don't think this means we're going easy on you,\" says the Isolan leader.\n\"Wouldn't dream of it,\" replies (builder1).",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "entry"
+     "next": "exchange__fx"
+    },
+    {
+     "next": "exchange__text"
     }
    ]
   },
@@ -645,11 +648,14 @@
    ]
   },
   "v1": {
-   "src": "L2283-2285",
-   "text": "The village team wins for excellent workmanship. The Isolans congratulate the winners, though one mutters that the judging criteria were clearly invented by people who love straight lines.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "vil"
+     "next": "v1__fx"
+    },
+    {
+     "next": "v1__text"
     }
    ]
   },
@@ -663,11 +669,14 @@
    ]
   },
   "v3": {
-   "src": "L2289-2290",
-   "text": "The judge declares a tie. Both teams are proud until they discover there is only one trophy.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "tro"
+     "next": "v3__fx"
+    },
+    {
+     "next": "v3__text"
     }
    ]
   },
@@ -768,7 +777,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "vil_rare": {
    "popup": "append",
@@ -806,7 +816,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "iso": {
    "type": "branch",
@@ -852,7 +863,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "iso_rare": {
    "popup": "append",
@@ -884,7 +896,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "tro": {
    "type": "branch",
@@ -950,7 +963,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "show": {
    "type": "branch",
@@ -967,19 +981,14 @@
    ]
   },
   "show_end": {
+   "type": "branch",
    "name": "The shared showcase",
-   "src": "L2360-2368",
-   "text": "The judge announces that both communities have made something worth celebrating. The villagers place the entries side by side.\nSome admire the Isolan patterns. Others prefer the village's construction. A few children care only about the wooden toys.\nFor the rest of the afternoon, the two communities exchange stories, techniques, and increasingly exaggerated accounts of how difficult the contest was.",
-   "text_only": [
-    {
-     "src": "L2360-2361",
-     "what": "worth celebrating",
-     "reason": "narrative: praise, not the Celebrating action"
-    }
-   ],
    "children": [
     {
-     "next": "quiet"
+     "next": "show_end__fx"
+    },
+    {
+     "next": "show_end__text"
     }
    ]
   },
@@ -1019,6 +1028,156 @@
    "children": [
     {
      "next": "verdict"
+    }
+   ]
+  },
+  "exchange__fx": {
+   "src": "L2226-2236",
+   "text": "Before the contest begins, (builder1) shows the visitors a clever way to join two pieces of wood. The Isolan leader responds by demonstrating {a beautiful carving technique|a clever wooden hinge|a method of smoothing rough edges|a way to bend thin wood without breaking it}.\nThe two teams learn something useful, then remember they are supposed to be competing.\n\"Don't think this means we're going easy on you,\" says the Isolan leader.\n\"Wouldn't dream of it,\" replies (builder1).",
+   "children": [
+    {
+     "next": "entry"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L2226-2236"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L2226-2236"
+    }
+   ],
+   "auto_text": true
+  },
+  "exchange__text": {
+   "src": "L2226-2236",
+   "text": "Before the contest begins, (builder1) shows the visitors a clever way to join two pieces of wood. The Isolan leader responds by demonstrating {a beautiful carving technique|a clever wooden hinge|a method of smoothing rough edges|a way to bend thin wood without breaking it}.\nThe two teams learn something useful, then remember they are supposed to be competing.\n\"Don't think this means we're going easy on you,\" says the Isolan leader.\n\"Wouldn't dream of it,\" replies (builder1).",
+   "children": [
+    {
+     "next": "entry"
+    }
+   ]
+  },
+  "v1__fx": {
+   "src": "L2283-2285",
+   "text": "The village team wins for excellent workmanship. The Isolans congratulate the winners, though one mutters that the judging criteria were clearly invented by people who love straight lines.",
+   "children": [
+    {
+     "next": "vil"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder1",
+     "mood": "good",
+     "src": "L2283-2285"
+    },
+    {
+     "do": "mood",
+     "role": "builder2",
+     "mood": "good",
+     "src": "L2283-2285"
+    }
+   ],
+   "auto_text": true
+  },
+  "v1__text": {
+   "src": "L2283-2285",
+   "text": "The village team wins for excellent workmanship. The Isolans congratulate the winners, though one mutters that the judging criteria were clearly invented by people who love straight lines.",
+   "children": [
+    {
+     "next": "vil"
+    }
+   ]
+  },
+  "v3__fx": {
+   "src": "L2289-2290",
+   "text": "The judge declares a tie. Both teams are proud until they discover there is only one trophy.",
+   "children": [
+    {
+     "next": "tro"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder1",
+     "mood": "good",
+     "src": "L2289-2290"
+    },
+    {
+     "do": "mood",
+     "role": "builder2",
+     "mood": "good",
+     "src": "L2289-2290"
+    }
+   ],
+   "auto_text": true
+  },
+  "v3__text": {
+   "src": "L2289-2290",
+   "text": "The judge declares a tie. Both teams are proud until they discover there is only one trophy.",
+   "children": [
+    {
+     "next": "tro"
+    }
+   ]
+  },
+  "show_end__fx": {
+   "name": "The shared showcase",
+   "src": "L2360-2368",
+   "text": "The judge announces that both communities have made something worth celebrating. The villagers place the entries side by side.\nSome admire the Isolan patterns. Others prefer the village's construction. A few children care only about the wooden toys.\nFor the rest of the afternoon, the two communities exchange stories, techniques, and increasingly exaggerated accounts of how difficult the contest was.",
+   "text_only": [
+    {
+     "src": "L2360-2361",
+     "what": "worth celebrating",
+     "reason": "narrative: praise, not the Celebrating action"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2360-2368"
+    }
+   ],
+   "auto_text": true
+  },
+  "show_end__text": {
+   "name": "The shared showcase",
+   "src": "L2360-2368",
+   "text": "The judge announces that both communities have made something worth celebrating. The villagers place the entries side by side.\nSome admire the Isolan patterns. Others prefer the village's construction. A few children care only about the wooden toys.\nFor the rest of the afternoon, the two communities exchange stories, techniques, and increasingly exaggerated accounts of how difficult the contest was.",
+   "text_only": [
+    {
+     "src": "L2360-2361",
+     "what": "worth celebrating",
+     "reason": "narrative: praise, not the Celebrating action"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
     }
    ]
   }

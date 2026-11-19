@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"That doesn't help,\" says (subject) quietly. \"If I could stop, I would.\" (friend)'s face falls. \"Oh. I'm sorry. I didn't think.\" There's a long pause. \"What would help?\" (friend.he/she) asks. (subject) thinks. \"Maybe just... coming to look at the beans with me sometimes.\" So (friend) does. It doesn't stop the worrying. It makes it less lonely.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"That doesn't help,\" says (subject) quietly. \"If I could stop, I would.\" (friend)'s face falls. \"Oh. I'm sorry. I didn't think.\" There's a long pause. \"What would help?\" (friend.he/she) asks. (subject) thinks. \"Maybe just... coming to look at the beans with me sometimes.\" So (friend) does. It doesn't stop the worrying. It makes it less lonely.",
    "src": "L446"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) just nods and changes the subject. (friend) never realizes what (friend.he/she) said. (subject) keeps worrying, quietly. Later that week, a different villager says, \"Worrying about the beans? I'd be worried too.\" It's such a relief to hear that (subject) nearly cries. Some advice helps more when it isn't advice at all.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) just nods and changes the subject. (friend) never realizes what (friend.he/she) said. (subject) keeps worrying, quietly. Later that week, a different villager says, \"Worrying about the beans? I'd be worried too.\" It's such a relief to hear that (subject) nearly cries. Some advice helps more when it isn't advice at all.",
    "src": "L449"

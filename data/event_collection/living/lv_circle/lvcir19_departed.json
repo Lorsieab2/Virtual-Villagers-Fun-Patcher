@@ -80,21 +80,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The grove feeds future generations, though some families dislike harvesting there.",
-   "src": "L21481",
-   "text_only": [
+   "children": [
     {
-     "what": "dislike harvesting there",
-     "reason": "some families, not a cast one: no preference changes",
-     "src": "L21481"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The first harvest becomes a quiet occasion for remembrance.",
-   "src": "L21482"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -139,6 +146,58 @@
    "name": "Outcome C2",
    "text": "The different customs prompt respectful debate.",
    "src": "L21488"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The grove feeds future generations, though some families dislike harvesting there.",
+   "src": "L21481",
+   "text_only": [
+    {
+     "what": "dislike harvesting there",
+     "reason": "some families, not a cast one: no preference changes",
+     "src": "L21481"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21481"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The grove feeds future generations, though some families dislike harvesting there.",
+   "src": "L21481",
+   "text_only": [
+    {
+     "what": "dislike harvesting there",
+     "reason": "some families, not a cast one: no preference changes",
+     "src": "L21481"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The first harvest becomes a quiet occasion for remembrance.",
+   "src": "L21482",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21482"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The first harvest becomes a quiet occasion for remembrance.",
+   "src": "L21482"
   }
  }
 }

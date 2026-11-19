@@ -128,14 +128,40 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The villagers play a pebble game for nothing but laughter.",
-   "src": "L519"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "A villager wins five times in a row, and everyone suspects magic.",
    "src": "L520"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The villagers play a pebble game for nothing but laughter.",
+   "src": "L519",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L519"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The villagers play a pebble game for nothing but laughter.",
+   "src": "L519"
   }
  }
 }

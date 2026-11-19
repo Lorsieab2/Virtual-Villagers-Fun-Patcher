@@ -68,11 +68,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The apprentice gains confidence.",
-   "src": "L3474"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",
@@ -80,6 +85,29 @@
    "join": "paragraph",
    "text": "They decide to try again another day.",
    "src": "L3475"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The apprentice gains confidence.",
+   "src": "L3474",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L3474"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The apprentice gains confidence.",
+   "src": "L3474"
   }
  }
 }

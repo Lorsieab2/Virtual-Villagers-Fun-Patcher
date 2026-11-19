@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) signs a question. (subject) signs back the whole argument, with faces. It turns out to be about a fish, a sandal and a promise made three weeks ago. (friend) is crying with laughter. \"You can't tell anyone,\" (friend.he/she) says. (subject) raises an eyebrow. \"I'M not the one shouting about fish in the middle of the village.\"",
-   "src": "L26"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) leaves it. A few minutes later the two arguers walk past, and (subject) says, perfectly pleasantly, \"It was your turn, by the way. Three weeks ago, the sandal.\" Both of them stop dead. One turns very red. The other bursts out laughing. They never whisper near (subject) again. Well, they whisper. They just turn their backs first.",
    "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) signs a question. (subject) signs back the whole argument, with faces. It turns out to be about a fish, a sandal and a promise made three weeks ago. (friend) is crying with laughter. \"You can't tell anyone,\" (friend.he/she) says. (subject) raises an eyebrow. \"I'M not the one shouting about fish in the middle of the village.\"",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) signs a question. (subject) signs back the whole argument, with faces. It turns out to be about a fish, a sandal and a promise made three weeks ago. (friend) is crying with laughter. \"You can't tell anyone,\" (friend.he/she) says. (subject) raises an eyebrow. \"I'M not the one shouting about fish in the middle of the village.\"",
+   "src": "L26"
   }
  }
 }

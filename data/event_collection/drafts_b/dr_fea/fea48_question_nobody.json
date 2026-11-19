@@ -70,11 +70,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) puts up (subject.his/her) hand. \"I didn't understand the middle part.\" There's a pause. Then two other people say, \"Me neither,\" and one says, \"Oh, thank goodness.\" (friend) explains it again, more slowly. (subject) understands it this time. So does everyone else, apparently, for the first time.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) puts up (subject.his/her) hand. \"I didn't understand the middle part.\" There's a pause. Then two other people say, \"Me neither,\" and one says, \"Oh, thank goodness.\" (friend) explains it again, more slowly. (subject) understands it this time. So does everyone else, apparently, for the first time.",
    "src": "L578"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) waits until everyone has gone, then asks (friend) quietly. (friend) explains it again, and doesn't make (subject.him/her) feel stupid for asking. \"That bit's confusing,\" (friend.he/she) says. \"I should explain it better.\" (subject) goes home understanding. The next time (friend) teaches it, (friend.he/she) explains the middle part differently.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) waits until everyone has gone, then asks (friend) quietly. (friend) explains it again, and doesn't make (subject.him/her) feel stupid for asking. \"That bit's confusing,\" (friend.he/she) says. \"I should explain it better.\" (subject) goes home understanding. The next time (friend) teaches it, (friend.he/she) explains the middle part differently.",
    "src": "L581"

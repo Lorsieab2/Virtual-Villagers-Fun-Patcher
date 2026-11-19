@@ -401,6 +401,8 @@ LOOK_KEEP = -2                # ... not changed
 # Section 21: kinship relations (the relations table; the header is then 104 bytes).
 PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
+LINE_FLAG = 16                # kill / vanish: the result line's other wording (cie-v6-binary.md 25, "line")
+LINE_WORDS = {"kill": "injuries", "vanish": "leaves"}
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
@@ -838,6 +840,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             problems.append(f"{where}: an award (defer) is a gain")
     elif do == "pay_award":
         pass
+    elif do == "vanish" and v6 and "line" in e:
+        known |= {"role", "line"}
+        out["role"] = e.get("role", default_role)
+        if e["line"] != LINE_WORDS["vanish"]:
+            problems.append(f"{where}: a vanish's line is \"leaves\" (or left out)")
+        out["line"] = e["line"]
     elif do == "celebrate":
         known.add("who")
         who = e.get("who", "all")
@@ -931,6 +939,11 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             out["cause"] = "unknown"
         elif do in ("kill", "birth_then_die"):
             known.add("cause")
+            if do == "kill" and v6 and "line" in e:
+                known.add("line")
+                if e["line"] != LINE_WORDS["kill"]:
+                    problems.append(f"{where}: a kill's line is \"injuries\" (or left out)")
+                out["line"] = e["line"]
             cause = e.get("cause", "custom" if do == "kill" else "unknown")
             if not isinstance(cause, str) or not cause or len(cause) > CAUSE_BYTES or not all(
                     text_char_ok(ch) and ch != "\n" for ch in cause):
@@ -2623,54 +2636,64 @@ def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> li
 # game lists them.  The keys and lines are pinned equal to story_graph.inc CG_AUTO_LINES (tests/test_cie_graph_v6.py).
 
 AUTO_LINES = {
-    "food+": "The village gains food.",
-    "food-": "The village loses food.",
-    "tech+": "The village gains tech points.",
-    "tech-": "The village loses tech points.",
+    "food+": "The village gains <N> food.",
+    "food-": "The village loses <N> food.",
+    "tech+": "The village gains <N> tech points.",
+    "tech-": "The village loses <N> tech points.",
     "kill": "<R> dies.",
-    "vanish": "<R> disappears.",
+    "kill_injuries": "<R> suffers fatal injuries.",
+    "vanish": "<R> disappears from the village.",
+    "vanish_leaves": "<R> leaves the village.",
     "status": "<R> becomes a Heathen.",
-    "health": "<R>'s health changes.",
+    "health": "<R>'s health is now <N>.",
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
-    "skill+": "<R> learns more about <S>.",
-    "skill-": "<R> feels less sure of <P> <S>.",
-    "sick": "<R> falls sick.",
-    "celebrate_all": "The village celebrates.",
+    "skill+": "<R> gains <N> <S> skill.",
+    "skill-": "<R> loses <N> <S> skill.",
+    "sick": "<R> becomes sick.",
+    "celebrate_all": "Everyone celebrates.",
     "celebrate": "<R> celebrates.",
-    "mood+": "<R> is in a good mood.",
-    "mood-": "<R> is in a bad mood.",
-    "health_change+": "<R> feels better.",
-    "health_change-": "<R> feels worse.",
+    "mood+": "<R> celebrates.",
+    "mood-": "<R> shakes <P> head.",
+    "health_change+": "<R> gains <N> health.",
+    "health_change-": "<R> loses <N> health.",
     "set100": "<R> masters <S>.",
-    "set0": "<R> forgets everything about <S>.",
-    "set": "<R>'s <S> skill changes.",
-    "damage": "Something in the village is damaged.",
-    "hair": "<R>'s hair changes color.",
-    "look": "<R>'s look changes.",
-    "die_unrecovered": "<R> dies; the body is not recovered.",
+    "set0": "<R> loses all <S> skill.",
+    "set": "<R>'s <S> skill is now <N>.",
+    "damage": "A building loses <N>% of its construction.",
+    "head": "<R>'s head changes.",
+    "clothes": "<R>'s clothes change.",
+    "die_unrecovered": "<R> dies. The body is not recovered.",
     "baby_lost": "<R>'s baby is lost.",
-    "old_look": "<R> looks older and more worn.",
-    "sex_change": "<R>'s sex changes.",
-    "presentation": "<R>'s look changes.",
+    "old_look": "<R> looks older.",
+    "sex_male": "<R> is now male.",
+    "sex_female": "<R> is now female.",
+    "presentation": "<R>'s gender presentation changes.",
 }
+# The widest a scaled food / tech amount can grow (the "Island Events Scale ..." patches): the fit takes this many
+# digits when no roll is given (with Scrolling Popups only the bytes count).
+AUTO_SCALE_ROOM = 100
 
 
-def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "") -> str:
-    """One line of AUTO_LINES with its role's placeholders and its words put in (the names not yet filled)."""
+def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "", number: int | None = None) -> str:
+    """One line of AUTO_LINES with its role's placeholders, its words and its number put in (the names not yet
+    filled).  <N> is the amount as a plain number, never signed (the line's verb says gain or loss)."""
     line = AUTO_LINES[key]
     if role is not None:
         line = line.replace("<R>", f"({role}.Name)").replace("<P>", f"({role}.his/her)")
-    return line.replace("<S>", skill).replace("<W>", word)
+    return line.replace("<S>", skill).replace("<W>", word).replace("<N>", str(abs(number or 0)))
 
 
-def _sign_keys(stem: str, lo: int, hi: int) -> list[str]:
-    return ([stem + "-"] if lo < 0 else []) + ([stem + "+"] if hi > 0 else [])
+def _sign_keys(stem: str, lo: int, hi: int) -> list[tuple[str, int]]:
+    """The keys a lo..hi change can give, each with its widest number."""
+    return ([(stem + "-", lo)] if lo < 0 else []) + ([(stem + "+", hi)] if hi > 0 else [])
 
 
-def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[int] | None = None) -> list[str]:
+def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[int] | None = None,
+                      sex: str | None = None) -> list[str]:
     """The lines effect `e` can give in `game` (raw text: placeholders kept), or with `fx` (its walk roll [a, b])
-    the one it gives (a list of one, or none).  `award`: the award pay_award pays, (kind, amount or (min, max), ...)."""
+    the one it gives (a list of one, or none).  `award`: the award pay_award pays, (kind, amount or (min, max), ...).
+    `sex`: the role's sex before a sex_change ("m" / "f"; None: both lines can be given)."""
     gm = GAMES[game]
     do = e["do"]
     r = effect_role(e)
@@ -2678,28 +2701,40 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         if e.get("defer"):
             return []                                   # its pay_award tells it
         amount = effect_amount(e, game)
-        lo, hi = (fx[0], fx[0]) if fx is not None else amount if isinstance(amount, tuple) else (amount, amount)
-        return [_auto_fill(k, None) for k in _sign_keys(do, lo, hi)]
+        if fx is not None:
+            lo = hi = fx[0]
+        else:
+            lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
+            if e.get("scaled"):
+                lo, hi = lo * AUTO_SCALE_ROOM, hi * AUTO_SCALE_ROOM
+        return [_auto_fill(k, None, number=n) for k, n in _sign_keys(do, lo, hi)]
     if do == "pay_award":
         if award is None:
             return []
         amount = award[1]
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
-        return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
-    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change", "presentation"):
+        return [_auto_fill(k, None, number=n) for k, n in _sign_keys(award[0], lo, hi)]
+    if do in ("kill", "vanish"):
+        return [_auto_fill(do + ("_" + e["line"] if e.get("line") else ""), r)]
+    if do == "health":
+        return [_auto_fill("health", r, number=fx[0] if fx is not None else e["max"])]
+    if do in ("status", "sick", "die_unrecovered", "baby_lost", "old_look", "presentation"):
         return [_auto_fill(do, r)]
+    if do == "sex_change":
+        keys = ["sex_female"] if sex == "m" else ["sex_male"] if sex == "f" else ["sex_female", "sex_male"]
+        return [_auto_fill(k, r) for k in keys]
     if do == "damage":
-        return [_auto_fill("damage", None)]
+        return [_auto_fill("damage", None, number=fx[0] if fx is not None else e["max"])]
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
         return [_auto_fill("mood+" if e["mood"] == "good" else "mood-", r)]
     if do == "health_change":
         lo, hi = (fx[0], fx[0]) if fx is not None else (e["min"], e["max"])
-        return [_auto_fill(k, r) for k in _sign_keys("health_change", lo, hi)]
+        return [_auto_fill(k, r, number=n) for k, n in _sign_keys("health_change", lo, hi)]
     if do == "appearance":
-        return [_auto_fill("hair" if e.get("body") is None else "look", r)]
+        return ([_auto_fill("head", r)] if e.get("head") is not None else []) + \
+            ([_auto_fill("clothes", r)] if e.get("body") is not None else [])
     if do == "preference":
         key = "dislike" if e["list"] == "dislikes" else "like"
         if e["preference"] != PREF_RANDOM:
@@ -2714,9 +2749,9 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
             skills = [s for s in e["skills"] if s in gm.skills]
         if "set" in e:
             key = "set100" if e["set"] == 100 else "set0" if e["set"] == 0 else "set"
-            return [_auto_fill(key, r, skill=s) for s in skills]
+            return [_auto_fill(key, r, skill=s, number=e["set"]) for s in skills]
         lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
-        return [_auto_fill(k, r, skill=s) for s in skills for k in _sign_keys("skill", lo, hi)]
+        return [_auto_fill(k, r, skill=s, number=n) for s in skills for k, n in _sign_keys("skill", lo, hi)]
     return []                                           # action: no line
 
 
@@ -3680,6 +3715,9 @@ def _compile_v6(g: dict) -> bytes:
                     st = s(per_game_text(e["per_game"]))
             elif do == "kill":
                 st = s(e["cause"])
+                flags = LINE_FLAG if e.get("line") else 0
+            elif do == "vanish":
+                flags = LINE_FLAG if e.get("line") else 0
             elif do == "status":
                 a = STATUS_CODES[e["status"]]
             elif do in ("health", "health_change", "damage"):
@@ -3904,6 +3942,8 @@ def _decompile_v6(data: bytes) -> dict:
                 e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
             elif do != "pay_award":
                 e["role"] = role_ids[role]
+                if do in LINE_WORDS and flags & LINE_FLAG:
+                    e["line"] = LINE_WORDS[do]
                 if do == "kill":
                     e["cause"] = s(st)
                 elif do == "status":
@@ -4067,6 +4107,9 @@ def compile_graph(g: dict) -> bytes:
                     st = s(per_game_text(e["per_game"]))     # version 5: each game's own amount or range
             elif do == "kill":
                 st = s(e["cause"])
+                flags = LINE_FLAG if e.get("line") else 0
+            elif do == "vanish":
+                flags = LINE_FLAG if e.get("line") else 0
             elif do == "status":
                 a = STATUS_CODES[e["status"]]
             elif do == "health":
@@ -4461,7 +4504,8 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         for e in n["effects"]:
             if e["do"] in ("food", "tech") and e["defer"]:
                 paying = (e["do"], fx[k][0])
-            lines += auto_line_options(e, game, paying, fx[k])
+            who = bindings.get(aliases.get(e.get("role"), e.get("role"))) if e["do"] == "sex_change" else None
+            lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
             k += 1
         if n.get("auto_text"):
             path_texts[at] = with_auto_lines(path_texts[at], lines)

@@ -80,7 +80,8 @@
      "scaled": true,
      "src": "L278"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

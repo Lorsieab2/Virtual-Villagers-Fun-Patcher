@@ -73,14 +73,44 @@
    "src": "L6340"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "They become a surface prospector and discover a talent for teaching geology.",
-   "src": "L6342"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "They remain productive for a time, but must periodically reassess their limits.",
    "src": "L6344"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They become a surface prospector and discover a talent for teaching geology.",
+   "src": "L6342",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "miner",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L6342"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They become a surface prospector and discover a talent for teaching geology.",
+   "src": "L6342"
   }
  }
 }

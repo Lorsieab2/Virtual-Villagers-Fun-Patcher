@@ -97,9 +97,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They enjoy the feast without becoming its center.",
-   "src": "L27350"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -119,9 +126,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They share a happy dance.",
-   "src": "L27353"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -163,14 +177,96 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "They grow closer at their own pace.",
-   "src": "L27359"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "They decide their bond is still a friendship.",
    "src": "L27360"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They enjoy the feast without becoming its center.",
+   "src": "L27350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27350"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27350"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They enjoy the feast without becoming its center.",
+   "src": "L27350"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They share a happy dance.",
+   "src": "L27353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27353"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27353"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They share a happy dance.",
+   "src": "L27353"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "They grow closer at their own pace.",
+   "src": "L27359",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27359"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27359"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "They grow closer at their own pace.",
+   "src": "L27359"
   }
  }
 }

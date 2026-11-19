@@ -85,9 +85,16 @@
    "src": "L21468"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The hunters fail to find it and return uneasy.",
-   "src": "L21469"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -132,6 +139,25 @@
    "name": "Outcome C2",
    "text": "A mistaken track leads to a false alarm.",
    "src": "L21475"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The hunters fail to find it and return uneasy.",
+   "src": "L21469",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "hunter",
+     "mood": "bad",
+     "src": "L21469"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The hunters fail to find it and return uneasy.",
+   "src": "L21469"
   }
  }
 }

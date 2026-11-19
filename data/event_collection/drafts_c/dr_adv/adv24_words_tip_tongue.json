@@ -74,6 +74,38 @@
    "src": "L284"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The words are right there. (subject) swallows them. \"Grab that one,\" (subject.he/she) says instead, pointing. They chase hens until midday and end up laughing, covered in feathers. Later (friend) moves the coop by (friend.him/her)self. (friend.He/she) never says (subject) was right. (subject) never needs (friend.him/her) to.",
+   "src": "L287",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L287"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L287"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The words are right there. (subject) swallows them. \"Grab that one,\" (subject.he/she) says instead, pointing. They chase hens until midday and end up laughing, covered in feathers. Later (friend) moves the coop by (friend.him/her)self. (friend.He/she) never says (subject) was right. (subject) never needs (friend.him/her) to.",
    "src": "L287"

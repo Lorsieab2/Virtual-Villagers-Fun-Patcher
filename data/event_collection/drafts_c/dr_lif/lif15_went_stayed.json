@@ -69,11 +69,75 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I always envied you,\" says (subject). \"You have a real home. Everyone knows you.\" (friend) stares. \"I envied YOU. You've seen everything.\" They look at each other for a long moment. Then they both start laughing. \"So we both got it wrong,\" says (subject). \"Or both got it right,\" says (friend). They don't decide which. They talk until the fire goes out.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L176"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L176"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I always envied you,\" says (subject). \"You have a real home. Everyone knows you.\" (friend) stares. \"I envied YOU. You've seen everything.\" They look at each other for a long moment. Then they both start laughing. \"So we both got it wrong,\" says (subject). \"Or both got it right,\" says (friend). They don't decide which. They talk until the fire goes out.",
    "src": "L176"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They take turns telling the best parts. (subject) tells about a beach of black sand and a bird with a voice like a flute. (friend) tells about the night every child in the village sang (friend.him/her) a song when (friend.he/she) was sick. Neither of them would swap. Both of them are glad the other one did it their way.",
+   "src": "L179",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L179"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L179"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They take turns telling the best parts. (subject) tells about a beach of black sand and a bird with a voice like a flute. (friend) tells about the night every child in the village sang (friend.him/her) a song when (friend.he/she) was sick. Neither of them would swap. Both of them are glad the other one did it their way.",
    "src": "L179"

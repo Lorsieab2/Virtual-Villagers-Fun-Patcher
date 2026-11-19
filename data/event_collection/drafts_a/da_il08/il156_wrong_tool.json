@@ -65,11 +65,69 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) hands (subject.him/her) the real reed knife. (subject) cuts one reed with it in a single swipe. (subject.He/She) stares at the pile of reeds (subject.he/she) cut the hard way. \"Well,\" (subject.he/she) says, \"I've got very strong wrists now.\" They both laugh until they have to sit down.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L188"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L188"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(friend) hands (subject.him/her) the real reed knife. (subject) cuts one reed with it in a single swipe. (subject.He/She) stares at the pile of reeds (subject.he/she) cut the hard way. \"Well,\" (subject.he/she) says, \"I've got very strong wrists now.\" They both laugh until they have to sit down.",
    "src": "L188"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"I've come this far,\" says (subject), and finishes the last few reeds with the fish knife, out of sheer stubbornness. (friend) watches, baffled. It takes much longer. (subject) is very proud of (subject.him/her)self, for reasons (subject.he/she) cannot really explain.",
+   "src": "L191",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L191"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"I've come this far,\" says (subject), and finishes the last few reeds with the fish knife, out of sheer stubbornness. (friend) watches, baffled. It takes much longer. (subject) is very proud of (subject.him/her)self, for reasons (subject.he/she) cannot really explain.",
    "src": "L191"

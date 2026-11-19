@@ -132,7 +132,8 @@
      "role": "child1",
      "src": "L4125"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

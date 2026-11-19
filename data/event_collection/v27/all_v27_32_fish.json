@@ -87,6 +87,34 @@
    ]
   },
   "c": {
+   "type": "branch",
+   "name": "Outcome C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It returns with a group of similar fish, delighting the swimmer.",
+   "src": "L10742",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "swimmer",
+     "mood": "good",
+     "src": "L10742"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Outcome C",
    "popup": "append",
    "join": "paragraph",

@@ -74,6 +74,32 @@
    "src": "L206"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing, and doesn't make (subject) explain. (friend.He/she) just lies there and lets (subject) check. In the morning (subject) apologizes for the disturbance. \"Nothing to apologize for,\" says (friend). (subject) isn't sure that's true, but it's kind, and (subject.he/she) is grateful.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) says nothing, and doesn't make (subject) explain. (friend.He/she) just lies there and lets (subject) check. In the morning (subject) apologizes for the disturbance. \"Nothing to apologize for,\" says (friend). (subject) isn't sure that's true, but it's kind, and (subject.he/she) is grateful.",
    "src": "L209"

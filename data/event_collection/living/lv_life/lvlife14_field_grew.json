@@ -100,7 +100,8 @@
      "loss": true,
      "src": "L20814"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -123,9 +124,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The next harvest improves, but the reason remains uncertain.",
-   "src": "L20817"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -139,7 +147,8 @@
      "loss": true,
      "src": "L20818"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -159,6 +168,52 @@
    "src": "L20820"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The next harvest improves, but the reason remains uncertain.",
+   "src": "L20817",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20817"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The next harvest improves, but the reason remains uncertain.",
+   "src": "L20817"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Unfinished compost damages seedlings, teaching the farmers patience.",
+   "src": "L20821",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L20821"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "Unfinished compost damages seedlings, teaching the farmers patience.",
    "src": "L20821"

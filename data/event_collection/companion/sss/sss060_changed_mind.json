@@ -74,9 +74,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They discover gem cutting is harder than expected but deeply satisfying.",
-   "src": "L6682"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -87,6 +94,25 @@
    "name": "Answer C",
    "text": "They feel useful yet increasingly restless; the question returns in a later event.",
    "src": "L6686"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They discover gem cutting is harder than expected but deeply satisfying.",
+   "src": "L6682",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "healer",
+     "mood": "good",
+     "src": "L6682"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They discover gem cutting is harder than expected but deeply satisfying.",
+   "src": "L6682"
   }
  }
 }

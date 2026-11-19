@@ -79,6 +79,36 @@
    "src": "L206"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) puts down the beam and turns round. \"Would you like to try lifting it?\" she asks pleasantly. The visitor hesitates, then tries. It doesn't move. (subject) lifts it again and carries on. Nobody laughs at the visitor, but nobody agrees with (other.him/her) either. The roof goes up by evening. It's a very good roof.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) puts down the beam and turns round. \"Would you like to try lifting it?\" she asks pleasantly. The visitor hesitates, then tries. It doesn't move. (subject) lifts it again and carries on. Nobody laughs at the visitor, but nobody agrees with (other.him/her) either. The roof goes up by evening. It's a very good roof.",
    "src": "L209"

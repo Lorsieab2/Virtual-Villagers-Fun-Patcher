@@ -131,7 +131,8 @@
      "max": 10,
      "src": "L23561"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",

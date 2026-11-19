@@ -262,7 +262,8 @@
      "scaled": true,
      "src": "L9326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r6": {
    "popup": "append",

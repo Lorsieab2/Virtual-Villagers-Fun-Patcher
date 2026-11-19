@@ -152,9 +152,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "He finishes the change and proudly announces his victory.",
-   "src": "L293"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -174,9 +181,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "He learns a useful trick and tries it successfully.",
-   "src": "L296"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -226,6 +240,48 @@
    "name": "Outcome D2",
    "text": "He needs three cloths and a bath before the task is done.",
    "src": "L303"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "He finishes the change and proudly announces his victory.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L293"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "He finishes the change and proudly announces his victory.",
+   "src": "L293"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "He learns a useful trick and tries it successfully.",
+   "src": "L296",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L296"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "He learns a useful trick and tries it successfully.",
+   "src": "L296"
   }
  }
 }

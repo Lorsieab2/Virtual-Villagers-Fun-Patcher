@@ -85,9 +85,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "Young fish become more common in later seasons.",
-   "src": "L22771"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -117,7 +124,8 @@
      "scaled": true,
      "src": "L22774"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -137,9 +145,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "A dream inspires a safer fishing route, though its meaning remains uncertain.",
-   "src": "L22777"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -159,14 +174,78 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The fishers locate a seasonal school.",
-   "src": "L22780"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The new site is dangerous in rough weather.",
    "src": "L22781"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Young fish become more common in later seasons.",
+   "src": "L22771",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22771"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Young fish become more common in later seasons.",
+   "src": "L22771"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "A dream inspires a safer fishing route, though its meaning remains uncertain.",
+   "src": "L22777",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22777"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "A dream inspires a safer fishing route, though its meaning remains uncertain.",
+   "src": "L22777"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The fishers locate a seasonal school.",
+   "src": "L22780",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22780"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The fishers locate a seasonal school.",
+   "src": "L22780"
   }
  }
 }

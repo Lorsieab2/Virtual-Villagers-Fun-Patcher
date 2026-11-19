@@ -65,6 +65,34 @@
    "src": "L3495"
   },
   "e2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The crew discovers it handles differently in crosswinds.",
+   "src": "L3496",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3496"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Outcome B",
    "popup": "append",
    "join": "paragraph",

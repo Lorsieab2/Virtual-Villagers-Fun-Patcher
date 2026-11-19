@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Would you lead us to the stream?\" asks (friend). (subject) is overwhelmed with the honor. (subject.He/she) leads the line with tremendous seriousness, checking behind (subject.him/her) every few steps and saying \"Careful, a stone\" at every stone. Everyone arrives safely. (subject) is insufferable about it for the rest of the day.",
-   "src": "L110"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"If you were leader,\" asks (friend), \"what would you change?\" (subject) thinks very hard. \"Bedtime later. More mangoes. Everybody gets a turn on the swing. And nobody's allowed to be sad.\" (friend) points out that the last one might be hard to enforce. (subject) considers this. \"Then nobody's allowed to be sad alone,\" (subject.he/she) says. (friend) thinks that's actually rather good.",
    "src": "L113"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Would you lead us to the stream?\" asks (friend). (subject) is overwhelmed with the honor. (subject.He/she) leads the line with tremendous seriousness, checking behind (subject.him/her) every few steps and saying \"Careful, a stone\" at every stone. Everyone arrives safely. (subject) is insufferable about it for the rest of the day.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Would you lead us to the stream?\" asks (friend). (subject) is overwhelmed with the honor. (subject.He/she) leads the line with tremendous seriousness, checking behind (subject.him/her) every few steps and saying \"Careful, a stone\" at every stone. Everyone arrives safely. (subject) is insufferable about it for the rest of the day.",
+   "src": "L110"
   }
  }
 }

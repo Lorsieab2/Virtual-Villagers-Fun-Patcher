@@ -68,11 +68,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They discover the helper and share breakfast.",
-   "src": "L2635"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -80,6 +85,29 @@
    "join": "paragraph",
    "text": "They leave a flower in return.",
    "src": "L2636"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover the helper and share breakfast.",
+   "src": "L2635",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L2635"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover the helper and share breakfast.",
+   "src": "L2635"
   }
  }
 }

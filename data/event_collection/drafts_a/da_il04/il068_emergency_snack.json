@@ -70,6 +70,32 @@
    "src": "L98"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) goes straight to (friend) to complain. \"A lizard ate my emergency snack!\" (friend) tries very hard not to laugh and fails completely. Then (friend.he/she) shares (friend.his/her) own lunch. \"Next time,\" (friend.he/she) says, \"hide two snacks. One for you and one for the lizard.\"",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) goes straight to (friend) to complain. \"A lizard ate my emergency snack!\" (friend) tries very hard not to laugh and fails completely. Then (friend.he/she) shares (friend.his/her) own lunch. \"Next time,\" (friend.he/she) says, \"hide two snacks. One for you and one for the lizard.\"",
    "src": "L101"

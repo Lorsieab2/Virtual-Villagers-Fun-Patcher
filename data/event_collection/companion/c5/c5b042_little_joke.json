@@ -68,11 +68,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The friend laughs immediately.",
-   "src": "L1505"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -80,6 +85,29 @@
    "join": "paragraph",
    "text": "The joke is so bad it becomes famous.",
    "src": "L1506"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The friend laughs immediately.",
+   "src": "L1505",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L1505"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The friend laughs immediately.",
+   "src": "L1505"
   }
  }
 }

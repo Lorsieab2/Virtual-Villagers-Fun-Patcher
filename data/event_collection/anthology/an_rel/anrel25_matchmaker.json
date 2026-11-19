@@ -227,6 +227,32 @@
    "src": "L27389"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(villager) discovers that independent choice feels empowering.",
+   "src": "L27390",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27390"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(villager) discovers that independent choice feels empowering.",
    "src": "L27390"

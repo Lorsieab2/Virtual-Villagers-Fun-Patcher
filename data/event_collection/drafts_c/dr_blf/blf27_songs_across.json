@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"That was lovely,\" says (subject). \"What is it?\" (friend) studies (subject.him/her) for a while. Then (friend.he/she) says it's an old song about the stream. (friend.He/she) sings a little more. (subject) listens, then, a little shyly, sings a village song in return. They don't agree to anything or promise anything. They just swapped songs. (subject) walks home humming both.",
-   "src": "L326"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) steps back and sits a little way off. After a moment, (friend) starts singing again, a little more quietly. (subject) listens until the end. Then (subject.he/she) gets up and goes home without a word. Over the next weeks, (subject.he/she) hums the tune without meaning to. It isn't a village song, and (subject.he/she) never sings it aloud. (subject.He/she) hums it very quietly, only to (subject.him/her)self.",
    "src": "L329"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"That was lovely,\" says (subject). \"What is it?\" (friend) studies (subject.him/her) for a while. Then (friend.he/she) says it's an old song about the stream. (friend.He/she) sings a little more. (subject) listens, then, a little shyly, sings a village song in return. They don't agree to anything or promise anything. They just swapped songs. (subject) walks home humming both.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L326"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"That was lovely,\" says (subject). \"What is it?\" (friend) studies (subject.him/her) for a while. Then (friend.he/she) says it's an old song about the stream. (friend.He/she) sings a little more. (subject) listens, then, a little shyly, sings a village song in return. They don't agree to anything or promise anything. They just swapped songs. (subject) walks home humming both.",
+   "src": "L326"
   }
  }
 }

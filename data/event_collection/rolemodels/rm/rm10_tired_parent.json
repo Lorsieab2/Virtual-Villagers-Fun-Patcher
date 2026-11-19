@@ -87,9 +87,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The cat drinks contentedly while the parent finally sits down.",
-   "src": "L23"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -153,13 +160,60 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Another adult takes over for a while, allowing the parent to recover.",
-   "src": "L23"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "Help is delayed, but the parent makes a simpler plan for the afternoon.",
+   "src": "L23"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cat drinks contentedly while the parent finally sits down.",
+   "src": "L23",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L23"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cat drinks contentedly while the parent finally sits down.",
+   "src": "L23"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Another adult takes over for a while, allowing the parent to recover.",
+   "src": "L23",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L23"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Another adult takes over for a while, allowing the parent to recover.",
    "src": "L23"
   }
  }

@@ -74,6 +74,32 @@
    "src": "L50"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) shows (subject.him/her): sit in the middle, then lie across it at a slant. It works perfectly. (subject) lies there swaying, completely content, and slightly annoyed that it was so easy. Then (friend) tries to show off getting out and lands in the sand. (subject) decides that makes them even.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) shows (subject.him/her): sit in the middle, then lie across it at a slant. It works perfectly. (subject) lies there swaying, completely content, and slightly annoyed that it was so easy. Then (friend) tries to show off getting out and lands in the sand. (subject) decides that makes them even.",
    "src": "L53"

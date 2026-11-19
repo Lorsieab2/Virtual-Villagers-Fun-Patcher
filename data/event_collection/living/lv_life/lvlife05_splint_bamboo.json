@@ -123,9 +123,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The patient moves more comfortably, but the support loosens.",
-   "src": "L20700"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -159,7 +166,8 @@
      "max": 10,
      "src": "L20703"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -172,6 +180,26 @@
      "src": "L20704"
     }
    ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient moves more comfortably, but the support loosens.",
+   "src": "L20700",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20700"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient moves more comfortably, but the support loosens.",
+   "src": "L20700"
   }
  }
 }

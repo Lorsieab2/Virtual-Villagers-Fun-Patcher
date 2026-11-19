@@ -81,11 +81,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm just hungry,\" says (subject). \"It's the smell. It's torture.\" (friend) laughs. \"It's torture for everyone.\" They stand downwind of the racks for a while, just breathing it in. Then (fisher), one of the fishers, takes pity on them and hands them each a small piece. It's even better than it smells.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L506"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I'm just hungry,\" says (subject). \"It's the smell. It's torture.\" (friend) laughs. \"It's torture for everyone.\" They stand downwind of the racks for a while, just breathing it in. Then (fisher), one of the fishers, takes pity on them and hands them each a small piece. It's even better than it smells.",
    "src": "L506"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'm on my way to the... storehouse,\" says (subject). The storehouse is the other way. (friend) lets it go. (subject) walks on with great purpose, then circles back for the sixth time. By evening, when the smoked fish is shared out at the fire, (subject) eats (subject.his/her) share in about three bites and has never been happier.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'm on my way to the... storehouse,\" says (subject). The storehouse is the other way. (friend) lets it go. (subject) walks on with great purpose, then circles back for the sixth time. By evening, when the smoked fish is shared out at the fire, (subject) eats (subject.his/her) share in about three bites and has never been happier.",
    "src": "L509"

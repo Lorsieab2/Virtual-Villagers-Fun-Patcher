@@ -433,30 +433,14 @@
    ]
   },
   "a1": {
-   "text": "(Child) admits to accidentally spilling berries and helps clean up. (Parent) praises the honesty and explains that truth and kindness belong together.",
-   "src": "L9803-9806",
-   "text_only": [
-    {
-     "src": "L9806",
-     "what": "child gains Honesty",
-     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L9806"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -502,7 +486,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_1": {
    "text": "(Child) begins asking everyone whether they are telling the truth. (Parent) must teach the difference between honesty and accusing people without reason.",
@@ -546,7 +531,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "type": "branch",
@@ -608,7 +594,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "(Child) sits under an unripe fruit tree for hours, expecting the fruit to fall directly into (child.his/her) mouth. \"I'm being patient!\" (Parent) is speechless.",
@@ -645,7 +632,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4_1": {
    "text": "(Parent) grows frustrated while teaching patience, then notices the irony and apologizes.",
@@ -689,7 +677,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "type": "branch",
@@ -746,7 +735,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "Asked to help organize coconuts, (Child) devises an elaborate inspection system and refuses to let anyone eat without approval. The village is amused and hungry.",
@@ -783,7 +773,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4_1": {
    "text": "(Child) begins reorganizing other villagers' belongings without asking. (Parent) must explain that responsibility also means respecting others' choices.",
@@ -827,7 +818,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4": {
    "type": "branch",
@@ -859,46 +851,26 @@
    ]
   },
   "d1": {
-   "text": "(Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
-   "src": "L9853-9855",
-   "text_only": [
-    {
-     "src": "L9855",
-     "what": "child gains Kindness",
-     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L9855"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
     }
    ]
   },
   "d2": {
-   "text": "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
-   "src": "L9856-9859",
-   "text_only": [
-    {
-     "src": "L9859",
-     "what": "NO GAIN until corrected",
-     "reason": "no gain now (rule 9)"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
     }
    ]
   },
@@ -921,7 +893,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d4": {
    "text": "(Child) orders everyone to be nice and interrupts every disagreement. The villagers gently remind the child that kindness cannot be commanded.",
@@ -983,49 +956,30 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2_1": {
-   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
-   "src": "L9872-9875",
-   "text_only": [
-    {
-     "src": "L9875",
-     "what": "MODERATE GAIN if lesson completed",
-     "reason": "the popup resolves at once: completed or not, equally likely"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "e2_1__fx"
+    },
+    {
+     "next": "e2_1__text"
     }
    ]
   },
   "e2_2": {
-   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
-   "src": "L9872-9875",
-   "text_only": [
-    {
-     "src": "L9875",
-     "what": "MODERATE GAIN if lesson completed",
-     "reason": "the popup resolves at once: completed or not, equally likely"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L9875"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "e2_2__fx"
+    },
+    {
+     "next": "e2_2__text"
     }
    ]
   },
@@ -1082,7 +1036,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3_3": {
    "text": "(Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
@@ -1110,7 +1065,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "type": "branch",
@@ -1186,7 +1142,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f2": {
    "text": "(Child) repeatedly requests extra fruit because (Parent) said \"never give up.\" The adult must clarify the difference between persistence and pestering.",
@@ -1256,7 +1213,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f3": {
    "type": "branch",
@@ -1288,7 +1246,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_f": {
    "type": "branch",
@@ -1309,30 +1268,14 @@
    ]
   },
   "g1": {
-   "text": "(Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
-   "src": "L9900-9902",
-   "text_only": [
-    {
-     "src": "L9902",
-     "what": "child gains Judgment",
-     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 20,
-     "max": 40,
-     "src": "L9902"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "g1__fx"
+    },
+    {
+     "next": "g1__text"
     }
    ]
   },
@@ -1378,7 +1321,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g4_1": {
    "text": "(Child) interprets \"think ahead\" as \"plan pranks more carefully.\" The parent is horrified when a trail of coconut shells leads to an elaborate harmless trick.",
@@ -1422,7 +1366,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g4": {
    "type": "branch",
@@ -1490,6 +1435,346 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "a1__fx": {
+   "text": "(Child) admits to accidentally spilling berries and helps clean up. (Parent) praises the honesty and explains that truth and kindness belong together.",
+   "src": "L9803-9806",
+   "text_only": [
+    {
+     "src": "L9806",
+     "what": "child gains Honesty",
+     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L9806"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L9803-9806"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "text": "(Child) admits to accidentally spilling berries and helps clean up. (Parent) praises the honesty and explains that truth and kindness belong together.",
+   "src": "L9803-9806",
+   "text_only": [
+    {
+     "src": "L9806",
+     "what": "child gains Honesty",
+     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L9806"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__fx": {
+   "text": "(Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
+   "src": "L9853-9855",
+   "text_only": [
+    {
+     "src": "L9855",
+     "what": "child gains Kindness",
+     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L9855"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L9853-9855"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "text": "(Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
+   "src": "L9853-9855",
+   "text_only": [
+    {
+     "src": "L9855",
+     "what": "child gains Kindness",
+     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L9855"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__fx": {
+   "text": "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
+   "src": "L9856-9859",
+   "text_only": [
+    {
+     "src": "L9859",
+     "what": "NO GAIN until corrected",
+     "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L9856-9859"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "text": "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
+   "src": "L9856-9859",
+   "text_only": [
+    {
+     "src": "L9859",
+     "what": "NO GAIN until corrected",
+     "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "e2_1__fx": {
+   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
+   "src": "L9872-9875",
+   "text_only": [
+    {
+     "src": "L9875",
+     "what": "MODERATE GAIN if lesson completed",
+     "reason": "the popup resolves at once: completed or not, equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L9872-9875"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2_1__text": {
+   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
+   "src": "L9872-9875",
+   "text_only": [
+    {
+     "src": "L9875",
+     "what": "MODERATE GAIN if lesson completed",
+     "reason": "the popup resolves at once: completed or not, equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "e2_2__fx": {
+   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
+   "src": "L9872-9875",
+   "text_only": [
+    {
+     "src": "L9875",
+     "what": "MODERATE GAIN if lesson completed",
+     "reason": "the popup resolves at once: completed or not, equally likely"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9875"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L9872-9875"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2_2__text": {
+   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
+   "src": "L9872-9875",
+   "text_only": [
+    {
+     "src": "L9875",
+     "what": "MODERATE GAIN if lesson completed",
+     "reason": "the popup resolves at once: completed or not, equally likely"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9875"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "g1__fx": {
+   "text": "(Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
+   "src": "L9900-9902",
+   "text_only": [
+    {
+     "src": "L9902",
+     "what": "child gains Judgment",
+     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L9902"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L9900-9902"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
+  },
+  "g1__text": {
+   "text": "(Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
+   "src": "L9900-9902",
+   "text_only": [
+    {
+     "src": "L9902",
+     "what": "child gains Judgment",
+     "reason": "rule 9: no game has child traits; the trait is told by the outcome itself"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L9902"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

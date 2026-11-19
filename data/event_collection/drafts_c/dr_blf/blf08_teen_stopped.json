@@ -78,6 +78,32 @@
    "src": "L98"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Can I ask what changed?\" says (friend). (subject) shrugs. \"I just don't feel it. I tried.\" (friend) nods. \"That happens. It happened to me once, for a while.\" (subject) is astonished. \"Really?\" \"Really. It came back, for me. It might not for you. Either way is alright.\" They talk late into the night. (subject) still doesn't go to the songs. But (subject.he/she) feels much less alone.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Can I ask what changed?\" says (friend). (subject) shrugs. \"I just don't feel it. I tried.\" (friend) nods. \"That happens. It happened to me once, for a while.\" (subject) is astonished. \"Really?\" \"Really. It came back, for me. It might not for you. Either way is alright.\" They talk late into the night. (subject) still doesn't go to the songs. But (subject.he/she) feels much less alone.",
    "src": "L101"

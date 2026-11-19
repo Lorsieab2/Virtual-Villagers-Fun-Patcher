@@ -81,6 +81,71 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Dislike the first job and try another.",
+   "src": "L2669",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "teen",
+     "list": "dislikes",
+     "preference": "work",
+     "src": "L2669"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Realize that not choosing yet is acceptable.",
+   "src": "L2670"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a genuine passion.",
+   "src": "L2668",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Farming",
+      "Building",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2668"
+    },
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L2668"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Outcome 1",
    "popup": "append",
    "join": "paragraph",
@@ -100,30 +165,8 @@
      "max": 10,
      "src": "L2668"
     }
-   ]
-  },
-  "e2": {
-   "name": "Outcome 2",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Dislike the first job and try another.",
-   "src": "L2669",
-   "effects": [
-    {
-     "do": "preference",
-     "role": "teen",
-     "list": "dislikes",
-     "preference": "work",
-     "src": "L2669"
-    }
-   ]
-  },
-  "e3": {
-   "name": "Outcome 3",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Realize that not choosing yet is acceptable.",
-   "src": "L2670"
+   ],
+   "auto_text": true
   }
  }
 }

@@ -98,7 +98,8 @@
      "max": 10,
      "src": "L6548"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",

@@ -70,11 +70,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) jumps. There's an enormous splash. (subject.He/she) comes up with no fish, a mouthful of water and a leaf on (subject.his/her) head. The kingfisher flies off in disgust. (friend) is laughing so hard (friend.he/she) has to hold onto a tree. (subject) climbs back onto the rock and jumps again. Same result. They go home wet, fishless, and very happy.",
+   "src": "L440",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L440"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L440"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) jumps. There's an enormous splash. (subject.He/she) comes up with no fish, a mouthful of water and a leaf on (subject.his/her) head. The kingfisher flies off in disgust. (friend) is laughing so hard (friend.he/she) has to hold onto a tree. (subject) climbs back onto the rock and jumps again. Same result. They go home wet, fishless, and very happy.",
    "src": "L440"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says the real trick isn't the dive, it's the waiting. They sit on the bank together without moving or talking, watching the water. It's surprisingly hard. (subject) fidgets. Then (subject.he/she) starts seeing things: the shadow of a fish, the way they move in the slow parts. That afternoon (subject.he/she) catches a fish with a little net. (subject.He/she) holds it up to the kingfisher, who doesn't care.",
+   "src": "L443",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L443"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) says the real trick isn't the dive, it's the waiting. They sit on the bank together without moving or talking, watching the water. It's surprisingly hard. (subject) fidgets. Then (subject.he/she) starts seeing things: the shadow of a fish, the way they move in the slow parts. That afternoon (subject.he/she) catches a fish with a little net. (subject.He/she) holds it up to the kingfisher, who doesn't care.",
    "src": "L443"

@@ -87,9 +87,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The elder shares a practical suggestion that changes the discussion.",
-   "src": "L27"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -160,6 +167,25 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The elder says they were content to listen but appreciates being noticed.",
+   "src": "L27"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The elder shares a practical suggestion that changes the discussion.",
+   "src": "L27",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L27"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The elder shares a practical suggestion that changes the discussion.",
    "src": "L27"
   }
  }

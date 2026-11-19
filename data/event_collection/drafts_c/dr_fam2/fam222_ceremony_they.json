@@ -92,6 +92,32 @@
    ]
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"No ceremony,\" says (subject). \"But we'll have a little dinner. Just family. No speeches.\" (third) agrees, delighted. There are, of course, speeches. Small ones. (third) cries. (subject) and (friend) roll their eyes at each other and hold hands under the table. It's not what they wanted. It's not so bad either.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"No ceremony,\" says (subject). \"But we'll have a little dinner. Just family. No speeches.\" (third) agrees, delighted. There are, of course, speeches. Small ones. (third) cries. (subject) and (friend) roll their eyes at each other and hold hands under the table. It's not what they wanted. It's not so bad either.",
    "src": "L269"

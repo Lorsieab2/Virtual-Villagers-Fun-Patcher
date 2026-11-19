@@ -66,11 +66,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They accept and form a lasting bond.",
-   "src": "L10876"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Outcome B",
@@ -85,6 +90,29 @@
    "join": "paragraph",
    "text": "The family creates a new ritual that honors everyone's histories.",
    "src": "L10878"
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They accept and form a lasting bond.",
+   "src": "L10876",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L10876"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They accept and form a lasting bond.",
+   "src": "L10876"
   }
  }
 }

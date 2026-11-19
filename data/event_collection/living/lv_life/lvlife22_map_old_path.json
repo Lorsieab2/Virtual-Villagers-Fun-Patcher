@@ -86,14 +86,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The villagers find a shorter path, but the drawing omits a seasonal flood.",
-   "src": "L20918"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The explorers reach the destination and improve the map.",
-   "src": "L20919"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -138,6 +152,44 @@
    "name": "Outcome C2",
    "text": "A disagreement becomes a lesson in how memory and drawings both fail.",
    "src": "L20925"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villagers find a shorter path, but the drawing omits a seasonal flood.",
+   "src": "L20918",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20918"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villagers find a shorter path, but the drawing omits a seasonal flood.",
+   "src": "L20918"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The explorers reach the destination and improve the map.",
+   "src": "L20919",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20919"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The explorers reach the destination and improve the map.",
+   "src": "L20919"
   }
  }
 }

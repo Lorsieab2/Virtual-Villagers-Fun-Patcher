@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject). \"But it's not for me.\" (friend) waits, as though expecting a reason. (subject) doesn't give one. After a moment, (friend) nods. \"Alright.\" (friend.He/she) goes back to the circle. (subject) finishes stacking the baskets. After the blessing, (friend) brings (subject.him/her) a piece of the harvest bread anyway. (subject) eats it gladly.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Thank you,\" says (subject). \"But it's not for me.\" (friend) waits, as though expecting a reason. (subject) doesn't give one. After a moment, (friend) nods. \"Alright.\" (friend.He/she) goes back to the circle. (subject) finishes stacking the baskets. After the blessing, (friend) brings (subject.him/her) a piece of the harvest bread anyway. (subject) eats it gladly.",
    "src": "L26"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) walks over and stands at the edge, a little outside the circle. (subject.He/she) doesn't say the words or hold hands. (subject.He/she) just stands there with everyone, in the sun, while they sing. Nobody asks (subject.him/her) to do more. Afterwards, (friend) says, \"I'm glad you came.\" \"So am I,\" says (subject). (subject.He/she) still doesn't believe it. (subject.He/she) liked the singing.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) walks over and stands at the edge, a little outside the circle. (subject.He/she) doesn't say the words or hold hands. (subject.He/she) just stands there with everyone, in the sun, while they sing. Nobody asks (subject.him/her) to do more. Afterwards, (friend) says, \"I'm glad you came.\" \"So am I,\" says (subject). (subject.He/she) still doesn't believe it. (subject.He/she) liked the singing.",
    "src": "L29"

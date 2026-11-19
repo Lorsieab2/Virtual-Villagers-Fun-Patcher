@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "At dinner (subject) says, \"Did I upset you this morning? About the basket?\" (friend) looks completely confused. \"What basket?\" (friend.He/she) doesn't remember it at all. (friend.He/she) was thinking about something else entirely. (subject) laughs, relieved. A whole day of worry about nothing. Still, it's good to know.",
-   "src": "L530"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) decides not to bring it up. The next day, (friend) is perfectly friendly. Maybe (friend.he/she) was upset and got over it. Maybe (friend.he/she) never noticed. Maybe (friend.he/she) still thinks about it sometimes. (subject) never finds out, and over time (subject.he/she) stops wondering.",
    "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "At dinner (subject) says, \"Did I upset you this morning? About the basket?\" (friend) looks completely confused. \"What basket?\" (friend.He/she) doesn't remember it at all. (friend.He/she) was thinking about something else entirely. (subject) laughs, relieved. A whole day of worry about nothing. Still, it's good to know.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "At dinner (subject) says, \"Did I upset you this morning? About the basket?\" (friend) looks completely confused. \"What basket?\" (friend.He/she) doesn't remember it at all. (friend.He/she) was thinking about something else entirely. (subject) laughs, relieved. A whole day of worry about nothing. Still, it's good to know.",
+   "src": "L530"
   }
  }
 }

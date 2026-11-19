@@ -61,14 +61,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) spends a frantic hour binding the sandal back together with cord. It's lumpy. It flaps. (He/She) wears them to the feast anyway, flapping, and the feast is lovely. Was it the sandals? Was it just a lovely feast? (name1) decides not to take any chances, and mends them again properly the next day.",
-   "src": "L87"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) puts on (his/her) ordinary sandals and goes to the feast, feeling strangely bare. It's a good feast. Nothing goes wrong. Halfway through, (name1) realizes (he/she) hasn't thought about the sandals for an hour. (He/She) isn't sure whether to feel freed or a little bit lost. (He/She) keeps the broken ones on the shelf anyway.",
    "src": "L90"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) spends a frantic hour binding the sandal back together with cord. It's lumpy. It flaps. (He/She) wears them to the feast anyway, flapping, and the feast is lovely. Was it the sandals? Was it just a lovely feast? (name1) decides not to take any chances, and mends them again properly the next day.",
+   "src": "L87",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L87"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) spends a frantic hour binding the sandal back together with cord. It's lumpy. It flaps. (He/She) wears them to the feast anyway, flapping, and the feast is lovely. Was it the sandals? Was it just a lovely feast? (name1) decides not to take any chances, and mends them again properly the next day.",
+   "src": "L87"
   }
  }
 }

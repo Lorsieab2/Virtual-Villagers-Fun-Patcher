@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) steps out, a little awkwardly. \"I didn't mean to listen. I was here first.\" (friend) goes red. \"You heard all that?\" \"I heard the second try. It was good.\" (friend) groans, then laughs, and asks (subject.him/her) to listen to the third try. It's even better.",
-   "src": "L302"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) waits until (friend) has gone, then slips quietly away. At the feast, (friend) gives the speech, stumbles once, and carries on. (subject) claps the hardest of anyone, and never mentions what (subject.he/she) heard. It wasn't (subject.his/her) place to mention.",
    "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) steps out, a little awkwardly. \"I didn't mean to listen. I was here first.\" (friend) goes red. \"You heard all that?\" \"I heard the second try. It was good.\" (friend) groans, then laughs, and asks (subject.him/her) to listen to the third try. It's even better.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) steps out, a little awkwardly. \"I didn't mean to listen. I was here first.\" (friend) goes red. \"You heard all that?\" \"I heard the second try. It was good.\" (friend) groans, then laughs, and asks (subject.him/her) to listen to the third try. It's even better.",
+   "src": "L302"
   }
  },
  "grammar_fixes": [

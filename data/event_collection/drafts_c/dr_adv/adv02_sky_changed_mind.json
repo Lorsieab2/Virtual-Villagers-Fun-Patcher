@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) drips into (subject)'s hut. (subject) looks up. There is a long pause. \"The sky,\" (subject) says, \"changed its mind.\" (friend) stares at (subject.him/her). Then, despite (friend.him/her)self, (friend.he/she) starts to laugh. (subject) hands (friend.him/her) a blanket. Neither of them says the word \"wrong.\" Both of them know.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) dries off, eats something hot and decides not to mention it. The next morning (subject) comes by with a basket of dried fish. \"For yesterday,\" (subject.he/she) says, and doesn't say anything else. (friend) takes it. Next time (friend.he/she) asks about the weather, (friend.he/she) also looks at the sky (friend.him/her)self.",
    "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) drips into (subject)'s hut. (subject) looks up. There is a long pause. \"The sky,\" (subject) says, \"changed its mind.\" (friend) stares at (subject.him/her). Then, despite (friend.him/her)self, (friend.he/she) starts to laugh. (subject) hands (friend.him/her) a blanket. Neither of them says the word \"wrong.\" Both of them know.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) drips into (subject)'s hut. (subject) looks up. There is a long pause. \"The sky,\" (subject) says, \"changed its mind.\" (friend) stares at (subject.him/her). Then, despite (friend.him/her)self, (friend.he/she) starts to laugh. (subject) hands (friend.him/her) a blanket. Neither of them says the word \"wrong.\" Both of them know.",
+   "src": "L26"
   }
  }
 }

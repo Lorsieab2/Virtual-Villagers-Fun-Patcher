@@ -89,6 +89,32 @@
    "src": "L1883"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "They laugh at its absurd details.",
+   "src": "L1884",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1884"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "They laugh at its absurd details.",
    "src": "L1884"

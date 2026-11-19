@@ -74,6 +74,32 @@
    "src": "L398"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders ask (friend) what (friend.he/she) would like. (friend) thinks. \"I'd like (subject.him/her) to try my stew again, and say honestly whether it's good.\" (subject) does. It's very good, and (subject.he/she) says so, plainly. Coming from (subject), it's the most convincing thing anyone could have said. The stew pot is empty by the end of the evening.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders ask (friend) what (friend.he/she) would like. (friend) thinks. \"I'd like (subject.him/her) to try my stew again, and say honestly whether it's good.\" (subject) does. It's very good, and (subject.he/she) says so, plainly. Coming from (subject), it's the most convincing thing anyone could have said. The stew pot is empty by the end of the evening.",
    "src": "L401"

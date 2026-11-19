@@ -122,21 +122,125 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The reader smiles at a tiny drawing in the margin.",
+   "src": "L1391",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1391"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Ending 1",
    "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The reader smiles at a tiny drawing in the margin.",
    "src": "L1391"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. Someone pauses to remember the exact wording.",
+   "src": "L1395",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1395"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. Someone pauses to remember the exact wording.",
    "src": "L1395"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The finished page feels more precious than its materials suggest.",
+   "src": "L1399",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1399"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The finished page feels more precious than its materials suggest.",
    "src": "L1399"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. A smudged line requires a patient correction.",
+   "src": "L1403",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1403"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. A smudged line requires a patient correction.",
    "src": "L1403"

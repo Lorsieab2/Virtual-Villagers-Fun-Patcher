@@ -103,7 +103,8 @@
      "max": 10,
      "src": "L5920"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "outcome": {
    "name": "Ending",

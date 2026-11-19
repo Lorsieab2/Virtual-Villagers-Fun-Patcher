@@ -71,14 +71,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) considers this. Then (subject.he/she) puts down the flowers and marches off to the stream. Half an hour later (subject.he/she) comes back, soaked, holding out a small, indignant frog. (friend) is delighted. They spend the afternoon building it a frog house. The frog escapes at once. Neither of them minds. The flowers wilt on a rock, forgotten.",
-   "src": "L146"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Well, they're still for you,\" says (subject) firmly. (friend) shrugs and takes them. (friend.He/she) puts them behind (friend.his/her) ear, upside down. Then they go and look for frogs together anyway. By the end of the afternoon they've forgotten all about who is whose favorite. The flowers fall out somewhere near the stream.",
    "src": "L149"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) considers this. Then (subject.he/she) puts down the flowers and marches off to the stream. Half an hour later (subject.he/she) comes back, soaked, holding out a small, indignant frog. (friend) is delighted. They spend the afternoon building it a frog house. The frog escapes at once. Neither of them minds. The flowers wilt on a rock, forgotten.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) considers this. Then (subject.he/she) puts down the flowers and marches off to the stream. Half an hour later (subject.he/she) comes back, soaked, holding out a small, indignant frog. (friend) is delighted. They spend the afternoon building it a frog house. The frog escapes at once. Neither of them minds. The flowers wilt on a rock, forgotten.",
+   "src": "L146"
   }
  }
 }

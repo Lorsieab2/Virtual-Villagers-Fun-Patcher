@@ -107,7 +107,8 @@
      "max": 10,
      "src": "L6790"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -131,7 +132,8 @@
      "reason": "the healer checks; nobody is found hurt or ill",
      "src": "L6792"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

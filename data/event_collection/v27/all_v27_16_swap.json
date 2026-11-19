@@ -89,7 +89,8 @@
      "max": 10,
      "src": "L10612"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Outcome B",

@@ -79,7 +79,8 @@
      "max": 30,
      "src": "L9005"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "The missing words warned against a dangerous plant.",
@@ -92,7 +93,8 @@
      "max": -10,
      "src": "L9006"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The supposed remedy is actually a recipe for ceremonial pigment.",

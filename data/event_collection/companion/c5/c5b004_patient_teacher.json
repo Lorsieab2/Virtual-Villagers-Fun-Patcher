@@ -76,6 +76,38 @@
    "src": "L1173"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The elder learns a new trick from the child.",
+   "src": "L1174",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1174"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

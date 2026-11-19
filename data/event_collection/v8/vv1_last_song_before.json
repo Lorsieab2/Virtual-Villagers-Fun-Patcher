@@ -206,7 +206,8 @@
      "max": 10,
      "src": "L3787-3788"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "dev5": {
    "popup": "append",

@@ -91,9 +91,16 @@
    "src": "L20840"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "A storm overwhelms the barriers, prompting a stronger design.",
-   "src": "L20841"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -135,6 +142,52 @@
    "src": "L20846"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "A storm overwhelms the barriers, prompting a stronger design.",
+   "src": "L20841",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L20841"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "A storm overwhelms the barriers, prompting a stronger design.",
+   "src": "L20841"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The harvest succeeds, but fishers worry about damage below.",
+   "src": "L20847",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20847"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The harvest succeeds, but fishers worry about damage below.",
    "src": "L20847"

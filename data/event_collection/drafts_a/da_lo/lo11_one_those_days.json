@@ -65,11 +65,63 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"It's bad luck,\" (subject) tells (friend). \"I've used up all my bad luck for the year. Maybe two years.\" (friend) considers this. \"Then tomorrow should be wonderful.\" (subject) is cheered by this logic. The next day is perfectly ordinary. (subject) decides that's the luck evening itself out.",
+   "src": "L135",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L135"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "\"It's bad luck,\" (subject) tells (friend). \"I've used up all my bad luck for the year. Maybe two years.\" (friend) considers this. \"Then tomorrow should be wonderful.\" (subject) is cheered by this logic. The next day is perfectly ordinary. (subject) decides that's the luck evening itself out.",
    "src": "L135"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"It's not luck,\" says (subject), after a while. \"It's just a day. Some days are like this.\" (friend) sits down beside (subject.him/her). \"Want to hear about my day?\" (friend)'s day, it turns out, was even worse: it involved a crab and a very embarrassing moment by the stream. By the end of the story, (subject) is laughing so hard (subject.he/she) forgets to be cross.",
+   "src": "L138",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L138"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"It's not luck,\" says (subject), after a while. \"It's just a day. Some days are like this.\" (friend) sits down beside (subject.him/her). \"Want to hear about my day?\" (friend)'s day, it turns out, was even worse: it involved a crab and a very embarrassing moment by the stream. By the end of the story, (subject) is laughing so hard (subject.he/she) forgets to be cross.",
    "src": "L138"

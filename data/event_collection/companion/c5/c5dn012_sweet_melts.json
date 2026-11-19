@@ -66,11 +66,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Develop a clever serving method.",
-   "src": "L2771"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -85,6 +90,29 @@
    "join": "paragraph",
    "text": "Watch the entire batch become a sticky puddle.",
    "src": "L2773"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Develop a clever serving method.",
+   "src": "L2771",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2771"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Develop a clever serving method.",
+   "src": "L2771"
   }
  }
 }

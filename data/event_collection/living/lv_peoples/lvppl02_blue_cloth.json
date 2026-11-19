@@ -85,14 +85,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The villager wears the blue clothing with delight.",
-   "src": "L21681",
-   "text_only": [
+   "children": [
     {
-     "what": "the blue clothing",
-     "reason": "rule 8: the games have no chosen-colour action (clothing); hair dye is the random new head look (the owner)",
-     "src": "L21681"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -136,14 +136,74 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The softened blue becomes the villager's favorite color.",
-   "src": "L21687"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The mixture turns green, surprising both dyer and customer.",
    "src": "L21688"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villager wears the blue clothing with delight.",
+   "src": "L21681",
+   "text_only": [
+    {
+     "what": "the blue clothing",
+     "reason": "rule 8: the games have no chosen-colour action (clothing); hair dye is the random new head look (the owner)",
+     "src": "L21681"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21681"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villager wears the blue clothing with delight.",
+   "src": "L21681",
+   "text_only": [
+    {
+     "what": "the blue clothing",
+     "reason": "rule 8: the games have no chosen-colour action (clothing); hair dye is the random new head look (the owner)",
+     "src": "L21681"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The softened blue becomes the villager's favorite color.",
+   "src": "L21687",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "villager",
+     "list": "likes",
+     "preference": "blue",
+     "src": "L21687"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The softened blue becomes the villager's favorite color.",
+   "src": "L21687"
   }
  }
 }

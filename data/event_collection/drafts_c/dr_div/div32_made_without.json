@@ -74,6 +74,39 @@
    "src": "L386"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want an argument and just doesn't eat the stew. (friend) notices and is hurt. Later, (subject) explains. (friend) is quiet for a long moment. \"You could have died,\" (friend.he/she) says. \"Yes,\" says (subject). \"That's why I asked.\" (friend) apologizes, properly, and asks (subject) to tell (friend.him/her) every food to keep separate. They write the list on bark together.",
+   "src": "L389",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L389"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) doesn't want an argument and just doesn't eat the stew. (friend) notices and is hurt. Later, (subject) explains. (friend) is quiet for a long moment. \"You could have died,\" (friend.he/she) says. \"Yes,\" says (subject). \"That's why I asked.\" (friend) apologizes, properly, and asks (subject) to tell (friend.him/her) every food to keep separate. They write the list on bark together.",
    "src": "L389",

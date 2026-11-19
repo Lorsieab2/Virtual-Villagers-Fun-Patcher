@@ -132,9 +132,16 @@
    "src": "L29698"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(child) compares relatives and delights in how family members can look different.",
-   "src": "L29699"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -201,6 +208,25 @@
    "name": "Outcome D2",
    "text": "The group learns to ask what people enjoy rather than assuming from appearance.",
    "src": "L29708"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) compares relatives and delights in how family members can look different.",
+   "src": "L29699",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29699"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) compares relatives and delights in how family members can look different.",
+   "src": "L29699"
   }
  }
 }

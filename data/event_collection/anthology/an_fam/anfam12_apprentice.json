@@ -156,9 +156,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(apprentice) appreciates the private apology.",
-   "src": "L28468"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -178,14 +185,28 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The public correction restores (apprentice)'s confidence.",
-   "src": "L28471"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "(apprentice) feels uncomfortable being singled out again.",
-   "src": "L28472"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -200,9 +221,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(apprentice) improves after receiving practical guidance.",
-   "src": "L28474"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -230,6 +258,86 @@
    "name": "Outcome D2",
    "text": "(apprentice) asks to work with a different teacher for a while.",
    "src": "L28478"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(apprentice) appreciates the private apology.",
+   "src": "L28468",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L28468"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(apprentice) appreciates the private apology.",
+   "src": "L28468"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The public correction restores (apprentice)'s confidence.",
+   "src": "L28471",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L28471"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The public correction restores (apprentice)'s confidence.",
+   "src": "L28471"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(apprentice) feels uncomfortable being singled out again.",
+   "src": "L28472",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "bad",
+     "src": "L28472"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(apprentice) feels uncomfortable being singled out again.",
+   "src": "L28472"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(apprentice) improves after receiving practical guidance.",
+   "src": "L28474",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L28474"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(apprentice) improves after receiving practical guidance.",
+   "src": "L28474"
   }
  }
 }

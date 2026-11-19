@@ -68,9 +68,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They complete one necklace and learn a useful method.",
-   "src": "L6818"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -81,6 +88,29 @@
    "name": "Answer C",
    "text": "Some accept a revised schedule; others take their orders elsewhere.",
    "src": "L6822"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They complete one necklace and learn a useful method.",
+   "src": "L6818",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L6818"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They complete one necklace and learn a useful method.",
+   "src": "L6818"
   }
  }
 }

@@ -75,9 +75,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "It takes a week of hard work to fence the taro with stakes and woven branches. The first night, a pig gets in anyway, under a weak spot. The second night, nothing. The third night, the pigs try the other garden instead. (subject) sighs and starts on another fence. Pigs, it turns out, are cleverer than fences.",
-   "src": "L476"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
@@ -90,7 +97,38 @@
      "scaled": true,
      "src": "L479"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "It takes a week of hard work to fence the taro with stakes and woven branches. The first night, a pig gets in anyway, under a weak spot. The second night, nothing. The third night, the pigs try the other garden instead. (subject) sighs and starts on another fence. Pigs, it turns out, are cleverer than fences.",
+   "src": "L476",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L476"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L476"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "It takes a week of hard work to fence the taro with stakes and woven branches. The first night, a pig gets in anyway, under a weak spot. The second night, nothing. The third night, the pigs try the other garden instead. (subject) sighs and starts on another fence. Pigs, it turns out, are cleverer than fences.",
+   "src": "L476"
   }
  }
 }

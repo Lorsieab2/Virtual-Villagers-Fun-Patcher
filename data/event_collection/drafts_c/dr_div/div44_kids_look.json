@@ -70,14 +70,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) waves. (friend) waves back. (subject) pulls a funny face. (friend) pulls one back. (subject) walks over, says hello to the parent, and says, \"Kids look. It's fine. They're working things out.\" (subject.He/she) crouches down. \"Hello. I'm (subject). My face is like this. What's yours like?\" (friend) shows (friend.his/her) face, scrunched up as far as it will go. They both laugh.",
-   "src": "L530"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) carries on with (subject.his/her) work. Later, (friend)'s parent comes over, embarrassed, to apologize. (subject) shakes (subject.his/her) head. \"Don't. Just tell (friend.him/her) my name, so next time (friend.he/she) can say hello instead of staring.\" The next time, (friend) yells \"HELLO (subject)!\" across the whole village at the top of (friend.his/her) voice. It's an improvement.",
    "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) waves. (friend) waves back. (subject) pulls a funny face. (friend) pulls one back. (subject) walks over, says hello to the parent, and says, \"Kids look. It's fine. They're working things out.\" (subject.He/she) crouches down. \"Hello. I'm (subject). My face is like this. What's yours like?\" (friend) shows (friend.his/her) face, scrunched up as far as it will go. They both laugh.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) waves. (friend) waves back. (subject) pulls a funny face. (friend) pulls one back. (subject) walks over, says hello to the parent, and says, \"Kids look. It's fine. They're working things out.\" (subject.He/she) crouches down. \"Hello. I'm (subject). My face is like this. What's yours like?\" (friend) shows (friend.his/her) face, scrunched up as far as it will go. They both laugh.",
+   "src": "L530"
   }
  }
 }

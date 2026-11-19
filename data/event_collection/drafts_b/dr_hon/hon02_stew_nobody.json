@@ -88,14 +88,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) meets (friend.him/her) in the doorway. \"I burned it. I'm sorry. I got talking.\" (friend) looks into the pot and sighs. \"The top half might be all right.\" It mostly is, though it tastes faintly of smoke. They eat it anyway, and (friend) says, not unkindly, that next time (subject) can fetch the water and (friend.he/she) will stir.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) quickly gets a new pot going. (friend) comes in, smells the smoke, sees the black pot outside the door and the new one on the fire, and says nothing. Dinner is late, but good. Afterward, (friend) starts scrubbing the black pot, and (subject) quietly takes over. Neither of them mentions (caller) and the interesting news.",
    "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) meets (friend.him/her) in the doorway. \"I burned it. I'm sorry. I got talking.\" (friend) looks into the pot and sighs. \"The top half might be all right.\" It mostly is, though it tastes faintly of smoke. They eat it anyway, and (friend) says, not unkindly, that next time (subject) can fetch the water and (friend.he/she) will stir.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) meets (friend.him/her) in the doorway. \"I burned it. I'm sorry. I got talking.\" (friend) looks into the pot and sighs. \"The top half might be all right.\" It mostly is, though it tastes faintly of smoke. They eat it anyway, and (friend) says, not unkindly, that next time (subject) can fetch the water and (friend.he/she) will stir.",
+   "src": "L26"
   }
  }
 }

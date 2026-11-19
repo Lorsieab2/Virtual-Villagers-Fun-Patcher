@@ -94,14 +94,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) grabs the nearest passing villager, (friend), and makes (subject.him/her) look. \"How does it DO that?\" (friend) has no idea. They both watch it for a long time. (friend) goes to fetch (scientist), a scientist. (scientist) isn't sure either. (subject) is delighted that nobody knows. \"Good,\" (subject.he/she) says. \"Something to find out.\"",
-   "src": "L542"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) doesn't need to know how it works. (subject.He/she) just watches the beetle go about its upside-down business, round and round. (young_villager), a young villager passing by, stops, curious, and crouches beside (subject.him/her). They watch together in silence. (subject) thinks the best thing about getting old is that the world still has beetles like this in it.",
    "src": "L545"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) grabs the nearest passing villager, (friend), and makes (subject.him/her) look. \"How does it DO that?\" (friend) has no idea. They both watch it for a long time. (friend) goes to fetch (scientist), a scientist. (scientist) isn't sure either. (subject) is delighted that nobody knows. \"Good,\" (subject.he/she) says. \"Something to find out.\"",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L542"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) grabs the nearest passing villager, (friend), and makes (subject.him/her) look. \"How does it DO that?\" (friend) has no idea. They both watch it for a long time. (friend) goes to fetch (scientist), a scientist. (scientist) isn't sure either. (subject) is delighted that nobody knows. \"Good,\" (subject.he/she) says. \"Something to find out.\"",
+   "src": "L542"
   }
  }
 }

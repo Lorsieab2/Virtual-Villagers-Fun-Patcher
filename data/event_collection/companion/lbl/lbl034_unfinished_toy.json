@@ -99,9 +99,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "They finish it together and learn patience.",
-   "src": "L4240"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -109,6 +116,55 @@
    "src": "L4241"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "They finish it together and learn patience.",
+   "src": "L4240",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "maker",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L4240"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "They finish it together and learn patience.",
+   "src": "L4240"
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "The toy breaks but inspires a clever repair.",
+   "src": "L4242",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L4242"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "The toy breaks but inspires a clever repair.",
    "src": "L4242"

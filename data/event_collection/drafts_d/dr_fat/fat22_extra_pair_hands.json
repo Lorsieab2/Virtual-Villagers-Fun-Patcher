@@ -152,14 +152,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "He patiently settles a fussy toddler and earns a sleepy smile.",
-   "src": "L463"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The toddler refuses to be comforted by him; an experienced caregiver shows him another approach.",
-   "src": "L464"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -196,9 +210,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "He mends several wooden figures, delighting their owners.",
-   "src": "L469"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -226,6 +247,75 @@
    "name": "Outcome D2",
    "text": "He discovers the work is tiring and arranges a sustainable schedule rather than making promises he cannot keep.",
    "src": "L473"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "He patiently settles a fussy toddler and earns a sleepy smile.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L463"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "He patiently settles a fussy toddler and earns a sleepy smile.",
+   "src": "L463"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The toddler refuses to be comforted by him; an experienced caregiver shows him another approach.",
+   "src": "L464",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L464"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The toddler refuses to be comforted by him; an experienced caregiver shows him another approach.",
+   "src": "L464"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "He mends several wooden figures, delighting their owners.",
+   "src": "L469",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L469"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "He mends several wooden figures, delighting their owners.",
+   "src": "L469"
   }
  }
 }

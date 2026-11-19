@@ -110,9 +110,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "A shallow-water prototype reveals a new way to observe marine life.",
-   "src": "L903"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome 2",
@@ -123,6 +130,25 @@
    "name": "Outcome 3",
    "text": "Fishermen debate whether anyone should trust a boat that sinks on purpose.",
    "src": "L907"
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "A shallow-water prototype reveals a new way to observe marine life.",
+   "src": "L903",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L903"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "A shallow-water prototype reveals a new way to observe marine life.",
+   "src": "L903"
   }
  }
 }

@@ -83,6 +83,32 @@
    "src": "L86"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(third) makes the spoon into a canoe, paddling across the hut towards the harbor of (subject)'s mouth. (subject) tries very hard not to laugh, fails, and the canoe gets in. \"Again,\" says (subject). \"There's only one canoe a day,\" says (friend). The cough fades in a few days. The canoe game lasts much longer.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(third) makes the spoon into a canoe, paddling across the hut towards the harbor of (subject)'s mouth. (subject) tries very hard not to laugh, fails, and the canoe gets in. \"Again,\" says (subject). \"There's only one canoe a day,\" says (friend). The cough fades in a few days. The canoe game lasts much longer.",
    "src": "L89"

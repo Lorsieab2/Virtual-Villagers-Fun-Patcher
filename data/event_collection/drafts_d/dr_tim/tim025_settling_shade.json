@@ -109,6 +109,32 @@
    "src": "L423"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) leaves a covered preparation to settle in the shade. A nearby villager offers a surprisingly useful observation.",
+   "src": "L427",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L427"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) leaves a covered preparation to settle in the shade. A nearby villager offers a surprisingly useful observation.",
    "src": "L427"

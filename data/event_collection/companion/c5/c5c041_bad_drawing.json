@@ -76,21 +76,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The parent proudly hangs it up.",
-   "src": "L2539",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "parent",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L2539"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -111,7 +104,54 @@
      "max": 10,
      "src": "L2540"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The parent proudly hangs it up.",
+   "src": "L2539",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2539"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L2539"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The parent proudly hangs it up.",
+   "src": "L2539",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2539"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The family learns forgotten names and laughs through tears.",
-   "src": "L21403"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -145,6 +152,25 @@
    "name": "Outcome C2",
    "text": "The elder declines, and the family respects the decision.",
    "src": "L21410"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family learns forgotten names and laughs through tears.",
+   "src": "L21403",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L21403"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family learns forgotten names and laughs through tears.",
+   "src": "L21403"
   }
  }
 }

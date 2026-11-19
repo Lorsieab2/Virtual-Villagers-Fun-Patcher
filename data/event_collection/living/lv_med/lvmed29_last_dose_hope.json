@@ -90,14 +90,28 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The patient rests more comfortably, and the healer explains the decision to others.",
-   "src": "L20586"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The plant brings little relief, leaving the healer disappointed.",
-   "src": "L20587"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -144,9 +158,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "A common remedy provides some comfort, and the rare plant is preserved.",
-   "src": "L20592"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -160,7 +181,67 @@
      "max": -10,
      "src": "L20593"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient rests more comfortably, and the healer explains the decision to others.",
+   "src": "L20586",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20586"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient rests more comfortably, and the healer explains the decision to others.",
+   "src": "L20586"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The plant brings little relief, leaving the healer disappointed.",
+   "src": "L20587",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "healer",
+     "mood": "bad",
+     "src": "L20587"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The plant brings little relief, leaving the healer disappointed.",
+   "src": "L20587"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "A common remedy provides some comfort, and the rare plant is preserved.",
+   "src": "L20592",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20592"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "A common remedy provides some comfort, and the rare plant is preserved.",
+   "src": "L20592"
   }
  }
 }

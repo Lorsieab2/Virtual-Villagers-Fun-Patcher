@@ -64,14 +64,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"No,\" says (name1). \"I like it here.\" The traveler looks a little surprised, then smiles. \"That sounds nice.\" \"It is,\" says (name1). The traveler leaves the next morning to see somewhere else. (name1) goes fishing in the same spot (he/she) has fished for twenty years, and catches the same kind of fish, and is perfectly happy.",
-   "src": "L566"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) thinks about it all evening. (He/she) imagines other beaches, other villages, other fires. They sound interesting. (He/she) doesn't want to go to any of them. In the morning (he/she) tells the traveler, \"I thought about it. I'm staying.\" The traveler nods as if that's a perfectly good answer. It is.",
    "src": "L569"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"No,\" says (name1). \"I like it here.\" The traveler looks a little surprised, then smiles. \"That sounds nice.\" \"It is,\" says (name1). The traveler leaves the next morning to see somewhere else. (name1) goes fishing in the same spot (he/she) has fished for twenty years, and catches the same kind of fish, and is perfectly happy.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L566"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L566"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"No,\" says (name1). \"I like it here.\" The traveler looks a little surprised, then smiles. \"That sounds nice.\" \"It is,\" says (name1). The traveler leaves the next morning to see somewhere else. (name1) goes fishing in the same spot (he/she) has fished for twenty years, and catches the same kind of fish, and is perfectly happy.",
+   "src": "L566"
   }
  }
 }

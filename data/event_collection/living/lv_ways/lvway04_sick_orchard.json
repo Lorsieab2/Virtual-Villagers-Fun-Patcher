@@ -131,7 +131,8 @@
      "max": 10,
      "src": "L22758"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -173,14 +174,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The orchard recovers gradually.",
-   "src": "L22764"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The old method proves unsuitable for the new trees.",
    "src": "L22765"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The orchard recovers gradually.",
+   "src": "L22764",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22764"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The orchard recovers gradually.",
+   "src": "L22764"
   }
  }
 }

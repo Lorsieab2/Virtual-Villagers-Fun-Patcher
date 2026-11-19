@@ -72,11 +72,70 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) dashes out into the rain to see where it's going. Behind the rock, the crab has stopped, put the leaf down over a little hole in the sand, and climbed in under it. A little leaf roof. (subject) crouches in the rain, soaked to the skin, absolutely delighted, and decides this is the most sensible crab (subject.he/she) has ever met.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) dashes out into the rain to see where it's going. Behind the rock, the crab has stopped, put the leaf down over a little hole in the sand, and climbed in under it. A little leaf roof. (subject) crouches in the rain, soaked to the skin, absolutely delighted, and decides this is the most sensible crab (subject.he/she) has ever met.",
    "src": "L530"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) tells (friend) about the crab with the umbrella leaf. (friend) laughs and says it was probably just carrying food. \"It was holding it OVER ITS HEAD,\" says (subject). (friend) agrees that this does sound like an umbrella. They spend the rest of the rain shower watching for more crabs with leaves. They don't see any. (subject) knows what (subject.he/she) saw.",
+   "src": "L533",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L533"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L533"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) tells (friend) about the crab with the umbrella leaf. (friend) laughs and says it was probably just carrying food. \"It was holding it OVER ITS HEAD,\" says (subject). (friend) agrees that this does sound like an umbrella. They spend the rest of the rain shower watching for more crabs with leaves. They don't see any. (subject) knows what (subject.he/she) saw.",
    "src": "L533",

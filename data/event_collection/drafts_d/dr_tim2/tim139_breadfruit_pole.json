@@ -89,9 +89,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Two villagers use a long hooked pole to bring down ripe breadfruit. The first breadfruit lands right in the waiting basket.",
-   "src": "L101,L102"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -104,6 +111,51 @@
    "src": "L101,L104"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Two villagers use a long hooked pole to bring down ripe breadfruit. The first breadfruit lands right in the waiting basket.",
+   "src": "L101,L102",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L101,L102"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Two villagers use a long hooked pole to bring down ripe breadfruit. The first breadfruit lands right in the waiting basket.",
+   "src": "L101,L102"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two villagers use a long hooked pole to bring down ripe breadfruit. By the end, they have more breadfruit than they can carry.",
+   "src": "L101,L105",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L101,L105"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Two villagers use a long hooked pole to bring down ripe breadfruit. By the end, they have more breadfruit than they can carry.",
    "src": "L101,L105"

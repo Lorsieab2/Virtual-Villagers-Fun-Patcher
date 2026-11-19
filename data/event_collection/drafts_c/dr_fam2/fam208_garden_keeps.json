@@ -69,14 +69,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) thinks for a long time. \"You can help,\" (subject.he/she) says. \"But I'll still come and sit with it.\" (friend) weeds, waters and plants. (subject) sits on a stool and tells (friend.him/her) which flowers were (subject.his/her) partner's favorites. (subject.He/she) still misses (subject.his/her) partner every day. It's easier to miss them in company.",
-   "src": "L98"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Thank you,\" says (subject). \"But I want to do it.\" (friend) nods and leaves (subject.him/her) to it. (subject) keeps the garden, slowly, a little each day. Some days (subject.his/her) knees ache. Some days (subject.he/she) talks to the flowers as though (subject.his/her) partner is there. (subject.He/she) has been grieving for a long time. (subject.He/she) might grieve for years more. The flowers don't mind either way.",
    "src": "L101"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) thinks for a long time. \"You can help,\" (subject.he/she) says. \"But I'll still come and sit with it.\" (friend) weeds, waters and plants. (subject) sits on a stool and tells (friend.him/her) which flowers were (subject.his/her) partner's favorites. (subject.He/she) still misses (subject.his/her) partner every day. It's easier to miss them in company.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) thinks for a long time. \"You can help,\" (subject.he/she) says. \"But I'll still come and sit with it.\" (friend) weeds, waters and plants. (subject) sits on a stool and tells (friend.him/her) which flowers were (subject.his/her) partner's favorites. (subject.He/she) still misses (subject.his/her) partner every day. It's easier to miss them in company.",
+   "src": "L98"
   }
  }
 }

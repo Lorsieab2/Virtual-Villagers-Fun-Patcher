@@ -72,11 +72,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They talk until late. Neither changes the other's mind. Finally (subject) says, \"Can we just not decide? For now?\" (friend) nods, relieved. They don't move. They don't stop talking about it either, now and then. It's one of those things couples carry around for years. It doesn't seem to do them any harm.",
+   "src": "L518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L518"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They talk until late. Neither changes the other's mind. Finally (subject) says, \"Can we just not decide? For now?\" (friend) nods, relieved. They don't move. They don't stop talking about it either, now and then. It's one of those things couples carry around for years. It doesn't seem to do them any harm.",
    "src": "L518"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"What if we keep the hut,\" says (friend), \"and build a little shelter by the stream, for hot afternoons?\" (subject) thinks about it. It's not what (subject.he/she) wanted. It's not what (friend) wanted either. They build it. It turns out to be (friend)'s favorite place on the island, which (friend.he/she) is a bit embarrassed about.",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L521"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L521"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"What if we keep the hut,\" says (friend), \"and build a little shelter by the stream, for hot afternoons?\" (subject) thinks about it. It's not what (subject.he/she) wanted. It's not what (friend) wanted either. They build it. It turns out to be (friend)'s favorite place on the island, which (friend.he/she) is a bit embarrassed about.",
    "src": "L521"

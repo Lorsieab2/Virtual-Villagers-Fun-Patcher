@@ -69,14 +69,47 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"The spirits held the roof,\" says (subject). \"I held the roof,\" says (friend), rubbing (friend.his/her) sore hands. They look at each other. Then (subject) laughs. \"Maybe both.\" (friend) shrugs, smiling. \"Maybe both.\" Whatever held the roof, it held. They go out together to see how the rest of the village fared.",
-   "src": "L290"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "Neither says anything about the prayers or the ropes. They just go out together to check the other huts, helping where they can. Later, at the fire, someone asks how they got through it. \"(subject) prayed and I tied ropes,\" says (friend) simply. \"And we're both still here.\" Everyone nods. That seems like as good an answer as any.",
    "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"The spirits held the roof,\" says (subject). \"I held the roof,\" says (friend), rubbing (friend.his/her) sore hands. They look at each other. Then (subject) laughs. \"Maybe both.\" (friend) shrugs, smiling. \"Maybe both.\" Whatever held the roof, it held. They go out together to see how the rest of the village fared.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -15,
+     "src": "L290"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L290"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"The spirits held the roof,\" says (subject). \"I held the roof,\" says (friend), rubbing (friend.his/her) sore hands. They look at each other. Then (subject) laughs. \"Maybe both.\" (friend) shrugs, smiling. \"Maybe both.\" Whatever held the roof, it held. They go out together to see how the rest of the village fared.",
+   "src": "L290"
   }
  }
 }

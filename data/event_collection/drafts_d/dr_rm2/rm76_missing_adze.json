@@ -137,9 +137,16 @@
    "src": "L544"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "The search finds three other tools missing for months but no adze.",
-   "src": "L545"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -162,6 +169,25 @@
    "name": "Outcome D2",
    "text": "They insist on their view, and the builder decides not to follow it.",
    "src": "L548"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The search finds three other tools missing for months but no adze.",
+   "src": "L545",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L545"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The search finds three other tools missing for months but no adze.",
+   "src": "L545"
   }
  }
 }

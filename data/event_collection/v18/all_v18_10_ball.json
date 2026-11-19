@@ -106,7 +106,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "A disputed boundary call causes uproar until a neutral child reveals where the ball landed.",
@@ -130,7 +131,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The favored team loses because its captain refuses to pass to anyone else.",
@@ -163,7 +165,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The ball bursts open. The match becomes an impromptu competition to make a better one.",
@@ -187,7 +190,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "Two rivals discover they make an excellent team and end their feud.",
@@ -211,7 +215,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "p1": {
    "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",

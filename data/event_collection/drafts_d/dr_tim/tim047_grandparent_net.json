@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. (Name1) is proud when the hands finally remember the steps.",
-   "src": "L787"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -140,6 +147,25 @@
    "name": "Ending 4",
    "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. The lesson lasts longer than planned because neither wants to stop.",
    "src": "L799"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L787",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L787"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L787"
   }
  }
 }

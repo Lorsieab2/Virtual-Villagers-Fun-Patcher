@@ -80,9 +80,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "Several villagers adopt the designs with delight.",
-   "src": "L21009"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -132,6 +139,25 @@
    "name": "Outcome C2",
    "text": "A heated debate over ceremonial clothing ends with a compromise.",
    "src": "L21016"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Several villagers adopt the designs with delight.",
+   "src": "L21009",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "tailor",
+     "mood": "good",
+     "src": "L21009"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Several villagers adopt the designs with delight.",
+   "src": "L21009"
   }
  }
 }

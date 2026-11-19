@@ -73,11 +73,79 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Watch the water,\" says (subject). \"Don't watch the line.\" (friend) watches the water. A long time passes. (friend) wriggles. Then something tugs, and (friend) pulls in a small, flapping, silver fish. (friend.He/she) screams so loudly every bird on the beach flies off. (subject) laughs until (subject.he/she) cries. That's the best fish (friend) will ever catch.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L386"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Watch the water,\" says (subject). \"Don't watch the line.\" (friend) watches the water. A long time passes. (friend) wriggles. Then something tugs, and (friend) pulls in a small, flapping, silver fish. (friend.He/she) screams so loudly every bird on the beach flies off. (subject) laughs until (subject.he/she) cries. That's the best fish (friend) will ever catch.",
    "src": "L386"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides patience can wait. (subject.He/she) lets (friend) cast as much as (friend.he/she) likes. They catch no fish at all. They do catch: seaweed, a sandal, a crab \\(released\\), a very old piece of rope and one confused starfish \\(also released\\). (friend) declares it the best fishing trip ever. (subject) agrees. It really is.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L389"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides patience can wait. (subject.He/she) lets (friend) cast as much as (friend.he/she) likes. They catch no fish at all. They do catch: seaweed, a sandal, a crab \\(released\\), a very old piece of rope and one confused starfish \\(also released\\). (friend) declares it the best fishing trip ever. (subject) agrees. It really is.",
    "src": "L389"

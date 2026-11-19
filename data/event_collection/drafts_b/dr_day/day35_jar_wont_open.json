@@ -74,6 +74,32 @@
    "src": "L422"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) turns away and keeps at it. Twist. Pull. Tap. Nothing. (friend) sits down to watch. After a very long time the plug suddenly gives, and (subject) falls backwards onto the mat holding the open jar above (subject.his/her) head, triumphant, without spilling a drop. (friend) applauds. It's the best honey (subject) has ever tasted.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) turns away and keeps at it. Twist. Pull. Tap. Nothing. (friend) sits down to watch. After a very long time the plug suddenly gives, and (subject) falls backwards onto the mat holding the open jar above (subject.his/her) head, triumphant, without spilling a drop. (friend) applauds. It's the best honey (subject) has ever tasted.",
    "src": "L425"

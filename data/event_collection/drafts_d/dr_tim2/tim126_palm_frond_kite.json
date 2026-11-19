@@ -94,9 +94,16 @@
    "src": "L10,L11"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. The kite spins twice and lands in a bush, and (name1) laughs and tries again.",
-   "src": "L10,L12"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -107,6 +114,25 @@
    "name": "Ending 4",
    "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. By sunset, three children are taking turns holding the string.",
    "src": "L10,L14"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. The kite spins twice and lands in a bush, and (name1) laughs and tries again.",
+   "src": "L10,L12",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L10,L12"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. The kite spins twice and lands in a bush, and (name1) laughs and tries again.",
+   "src": "L10,L12"
   }
  }
 }

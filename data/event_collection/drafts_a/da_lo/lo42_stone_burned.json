@@ -125,21 +125,18 @@
      "scaled": true,
      "src": "L513"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The glow spikes, and (subject) drops the stone with a cry. (subject.He/She) isn't hurt, but (subject.he/she) is badly shaken, and for a long time afterward (subject.he/she) can't bring (subject.him/her)self to go back to (subject.his/her) studies.",
-   "src": "L514",
-   "effects": [
+   "children": [
     {
-     "do": "preference",
-     "role": "subject",
-     "list": "dislikes",
-     "preference": "learning",
-     "src": "L514"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -156,7 +153,8 @@
      "cause": "unknown",
      "src": "L515"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "name": "Outcome A4",
@@ -202,11 +200,93 @@
    ]
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "(subject) listens to (friend) and puts the stone back in its box. \"We don't understand it,\" (subject.he/she) says. \"Maybe one day.\" (subject.He/She) goes on studying it from a careful distance: how warm it is each morning, how its glow changes with the weather. It's slow work. It's (subject.his/her) choice, and (subject.he/she) is at peace with it.",
-   "src": "L519"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "a2_anh": {
+   "type": "branch",
+   "name": "Outcome A2 (A New Home)",
+   "children": [
+    {
+     "next": "a2_anh__fx"
+    },
+    {
+     "next": "a2_anh__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The glow spikes, and (subject) drops the stone with a cry. (subject.He/She) isn't hurt, but (subject.he/she) is badly shaken, and for a long time afterward (subject.he/she) can't bring (subject.him/her)self to go back to (subject.his/her) studies.",
+   "src": "L514",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "learning",
+     "src": "L514"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L514"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The glow spikes, and (subject) drops the stone with a cry. (subject.He/She) isn't hurt, but (subject.he/she) is badly shaken, and for a long time afterward (subject.he/she) can't bring (subject.him/her)self to go back to (subject.his/her) studies.",
+   "src": "L514",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "learning",
+     "src": "L514"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2_anh__fx": {
+   "name": "Outcome A2 (A New Home)",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The glow spikes, and (subject) drops the stone with a cry. (subject.He/She) isn't hurt, but (subject.he/she) is badly shaken, and for a long time afterward (subject.he/she) can't bring (subject.him/her)self to go back to (subject.his/her) studies.",
+   "src": "L514",
+   "text_only": [
+    {
+     "what": "dislikes research or learning (lasting)",
+     "src": "L514",
+     "reason": "rule 8: A New Home has no fitting preference word (no \"learning\"); the draft: only where the game has a fitting dislike"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L514"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2_anh__text": {
    "name": "Outcome A2 (A New Home)",
    "popup": "append",
    "join": "paragraph",
@@ -219,6 +299,31 @@
      "reason": "rule 8: A New Home has no fitting preference word (no \"learning\"); the draft: only where the game has a fitting dislike"
     }
    ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) listens to (friend) and puts the stone back in its box. \"We don't understand it,\" (subject.he/she) says. \"Maybe one day.\" (subject.He/She) goes on studying it from a careful distance: how warm it is each morning, how its glow changes with the weather. It's slow work. It's (subject.his/her) choice, and (subject.he/she) is at peace with it.",
+   "src": "L519",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L519"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L519"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) listens to (friend) and puts the stone back in its box. \"We don't understand it,\" (subject.he/she) says. \"Maybe one day.\" (subject.He/She) goes on studying it from a careful distance: how warm it is each morning, how its glow changes with the weather. It's slow work. It's (subject.his/her) choice, and (subject.he/she) is at peace with it.",
+   "src": "L519"
   }
  }
 }

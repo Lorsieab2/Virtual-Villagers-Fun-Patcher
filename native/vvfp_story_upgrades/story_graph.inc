@@ -179,6 +179,7 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
 enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 4,
        /* gap C2: through a living villager in between */
        CG_REL_GRANDPARENT = 5, CG_REL_GRANDCHILD = 6, CG_REL_AUNT = 7, CG_REL_COUSIN = 8 };
+#define CG_LINE_OTHER 16u            /* a kill / vanish effect's flags: the result line's other wording (25, "line") */
 #define CG_PREF_RANDOM 8u             /* a preference effect's flags: a random like or dislike (cie-v6-binary.md 24) */
 #define CG_NODE_AUTO_TEXT 1u          /* a node's flags (byte 3): its effects told in automatic lines (24) */
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
@@ -5001,41 +5002,45 @@ static int cg_group_in_question;       /* the first popup is shown in the answer
    the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
    AUTO_LINES by tests/test_cie_graph_v6.py. */
 static const char *const CG_AUTO_LINES[][2] = {
-    { "food+", "The village gains food." },
-    { "food-", "The village loses food." },
-    { "tech+", "The village gains tech points." },
-    { "tech-", "The village loses tech points." },
+    { "food+", "The village gains <N> food." },
+    { "food-", "The village loses <N> food." },
+    { "tech+", "The village gains <N> tech points." },
+    { "tech-", "The village loses <N> tech points." },
     { "kill", "<R> dies." },
-    { "vanish", "<R> disappears." },
+    { "kill_injuries", "<R> suffers fatal injuries." },
+    { "vanish", "<R> disappears from the village." },
+    { "vanish_leaves", "<R> leaves the village." },
     { "status", "<R> becomes a Heathen." },
-    { "health", "<R>'s health changes." },
+    { "health", "<R>'s health is now <N>." },
     { "like", "<R> now likes <W>." },
     { "dislike", "<R> now dislikes <W>." },
-    { "skill+", "<R> learns more about <S>." },
-    { "skill-", "<R> feels less sure of <P> <S>." },
-    { "sick", "<R> falls sick." },
-    { "celebrate_all", "The village celebrates." },
+    { "skill+", "<R> gains <N> <S> skill." },
+    { "skill-", "<R> loses <N> <S> skill." },
+    { "sick", "<R> becomes sick." },
+    { "celebrate_all", "Everyone celebrates." },
     { "celebrate", "<R> celebrates." },
-    { "mood+", "<R> is in a good mood." },
-    { "mood-", "<R> is in a bad mood." },
-    { "health_change+", "<R> feels better." },
-    { "health_change-", "<R> feels worse." },
+    { "mood+", "<R> celebrates." },
+    { "mood-", "<R> shakes <P> head." },
+    { "health_change+", "<R> gains <N> health." },
+    { "health_change-", "<R> loses <N> health." },
     { "set100", "<R> masters <S>." },
-    { "set0", "<R> forgets everything about <S>." },
-    { "set", "<R>'s <S> skill changes." },
-    { "damage", "Something in the village is damaged." },
-    { "hair", "<R>'s hair changes color." },
-    { "look", "<R>'s look changes." },
-    { "die_unrecovered", "<R> dies; the body is not recovered." },
+    { "set0", "<R> loses all <S> skill." },
+    { "set", "<R>'s <S> skill is now <N>." },
+    { "damage", "A building loses <N>% of its construction." },
+    { "head", "<R>'s head changes." },
+    { "clothes", "<R>'s clothes change." },
+    { "die_unrecovered", "<R> dies. The body is not recovered." },
     { "baby_lost", "<R>'s baby is lost." },
-    { "old_look", "<R> looks older and more worn." },
-    { "sex_change", "<R>'s sex changes." },
-    { "presentation", "<R>'s look changes." },
+    { "old_look", "<R> looks older." },
+    { "sex_male", "<R> is now male." },
+    { "sex_female", "<R> is now female." },
+    { "presentation", "<R>'s gender presentation changes." },
 };
 
 /* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
-static void cg_auto_add(char *out, int cap, const char *key, int role, const char *skill, const char *word) {
-    char line[256];
+static void cg_auto_add(char *out, int cap, const char *key, int role, const char *skill, const char *word,
+                        int number) {
+    char line[256], digits[16];
     const char *t = NULL, *id = role >= 0 && role < cg_g.n_role ? cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, role) + 4)) : "";
     int i, n = 0;
     for (i = 0; i < (int)(sizeof CG_AUTO_LINES / sizeof CG_AUTO_LINES[0]); ++i) {
@@ -5049,7 +5054,11 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
     for (; *t != '\0' && n < (int)sizeof line - 1; ++t) {
         const char *put = NULL, *tail = "";
         if (t[0] == '<' && t[1] != '\0' && t[2] == '>') {
-            put = t[1] == 'R' ? "(" : t[1] == 'P' ? "(" : t[1] == 'S' ? skill : t[1] == 'W' ? word : NULL;
+            if (t[1] == 'N') {
+                wsprintfA(digits, "%d", number < 0 ? -number : number);   /* never signed: the verb says which */
+            }
+            put = t[1] == 'R' ? "(" : t[1] == 'P' ? "(" : t[1] == 'S' ? skill : t[1] == 'W' ? word
+                : t[1] == 'N' ? digits : NULL;
             tail = t[1] == 'R' ? ".Name)" : t[1] == 'P' ? ".his/her)" : "";
         }
         if (put == NULL) {
@@ -5095,34 +5104,52 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_FOOD: case CGE_TECH:
             if (!(e[2] & 2u) && va != 0) {
                 cg_auto_add(out, cap, e[0] == CGE_FOOD ? (va > 0 ? "food+" : "food-") : (va > 0 ? "tech+" : "tech-"),
-                            -1, "", "");
+                            -1, "", "", va);
             }
             break;
         case CGE_PAY:
             if (award_kind >= 0 && award != 0) {
                 cg_auto_add(out, cap, award_kind == 0 ? (award > 0 ? "food+" : "food-") : (award > 0 ? "tech+" : "tech-"),
-                            -1, "", "");
+                            -1, "", "", award);
             }
             break;
-        case CGE_KILL: cg_auto_add(out, cap, "kill", role, "", ""); break;
-        case CGE_VANISH: cg_auto_add(out, cap, "vanish", role, "", ""); break;
-        case CGE_STATUS: cg_auto_add(out, cap, "status", role, "", ""); break;
-        case CGE_HEALTH: cg_auto_add(out, cap, "health", role, "", ""); break;
-        case CGE_SICK: cg_auto_add(out, cap, "sick", role, "", ""); break;
-        case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", ""); break;
-        case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
-        case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
-        case CGE_SEX_CHANGE: cg_auto_add(out, cap, "sex_change", role, "", ""); break;
-        case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", ""); break;
-        case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
-        case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", ""); break;
-        case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", ""); break;
+        case CGE_KILL: cg_auto_add(out, cap, (e[2] & CG_LINE_OTHER) ? "kill_injuries" : "kill", role, "", "", 0); break;
+        case CGE_VANISH:
+            cg_auto_add(out, cap, (e[2] & CG_LINE_OTHER) ? "vanish_leaves" : "vanish", role, "", "", 0);
+            break;
+        case CGE_STATUS: cg_auto_add(out, cap, "status", role, "", "", 0); break;
+        case CGE_HEALTH: cg_auto_add(out, cap, "health", role, "", "", va); break;
+        case CGE_SICK: cg_auto_add(out, cap, "sick", role, "", "", 0); break;
+        case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", "", 0); break;
+        case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", "", 0); break;
+        case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", "", 0); break;
+        case CGE_SEX_CHANGE: {
+            /* the sex it becomes: the other of the villager's now (the pages are laid out before the change) */
+            int who = a != NULL ? cg_resolve_role(e[1]) : -1;
+            const unsigned char *record = who >= 0 ? cg_villager(a, who) : NULL;
+            if (record != NULL) {
+                cg_auto_add(out, cap, ce_sex(a, record) == STORY_SEX_MALE ? "sex_female" : "sex_male", role, "", "",
+                            0);
+            }
+            break;
+        }
+        case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", "", 0); break;
+        case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", "", va); break;
+        case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", "", 0); break;
+        case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", "", 0); break;
         case CGE_HEALTH_CHANGE:
             if (va != 0) {
-                cg_auto_add(out, cap, va > 0 ? "health_change+" : "health_change-", role, "", "");
+                cg_auto_add(out, cap, va > 0 ? "health_change+" : "health_change-", role, "", "", va);
             }
             break;
-        case CGE_APPEARANCE: cg_auto_add(out, cap, hi == CG_LOOK_KEEP ? "hair" : "look", role, "", ""); break;
+        case CGE_APPEARANCE:
+            if (lo != CG_LOOK_KEEP) {
+                cg_auto_add(out, cap, "head", role, "", "", 0);
+            }
+            if (hi != CG_LOOK_KEEP) {
+                cg_auto_add(out, cap, "clothes", role, "", "", 0);
+            }
+            break;
         case CGE_PREF:
             if (e[2] & CG_PREF_RANDOM) {
                 if (a == NULL || va < 0 || !ui_list_entry(a->pref_list, va, word, sizeof word)) {
@@ -5131,16 +5158,16 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
             } else {
                 lstrcpynA(word, cg_s(&cg_g, cg_u16(e + 12)), sizeof word);
             }
-            cg_auto_add(out, cap, (e[2] & 4u) ? "dislike" : "like", role, "", word);
+            cg_auto_add(out, cap, (e[2] & 4u) ? "dislike" : "like", role, "", word, 0);
             break;
         case CGE_SKILL:
             if (skill != NULL && vb != 0) {
-                cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "");
+                cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "", vb);
             }
             break;
         case CGE_SKILL_SET:
             if (skill != NULL) {
-                cg_auto_add(out, cap, vb == 100 ? "set100" : vb == 0 ? "set0" : "set", role, skill, "");
+                cg_auto_add(out, cap, vb == 100 ? "set100" : vb == 0 ? "set0" : "set", role, skill, "", vb);
             }
             break;
         default:

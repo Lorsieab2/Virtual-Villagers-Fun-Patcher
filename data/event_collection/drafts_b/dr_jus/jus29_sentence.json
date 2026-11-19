@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The council rules that (subject) must keep the quiet hour quiet, and, in return for all the quiet hours (subject.he/she) disturbed, must sing at the next feast for as long as the village wants. (subject) is delighted. At a feast, it turns out, loud singing is exactly what everyone wants. (subject.He/she) sings until the fire goes out. The quiet hour stays quiet.",
-   "src": "L350"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The council asks (subject) to keep the quiet hour, and suggests a spot by the waterfall where (subject.he/she) can sing as loudly as (subject.he/she) likes, whenever (subject.he/she) likes. (subject) goes there. The waterfall drowns most of it out. One day, walking past, (friend) hears a faint song mixed in with the roar of the water, and stops to listen for a while.",
    "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The council rules that (subject) must keep the quiet hour quiet, and, in return for all the quiet hours (subject.he/she) disturbed, must sing at the next feast for as long as the village wants. (subject) is delighted. At a feast, it turns out, loud singing is exactly what everyone wants. (subject.He/she) sings until the fire goes out. The quiet hour stays quiet.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The council rules that (subject) must keep the quiet hour quiet, and, in return for all the quiet hours (subject.he/she) disturbed, must sing at the next feast for as long as the village wants. (subject) is delighted. At a feast, it turns out, loud singing is exactly what everyone wants. (subject.He/she) sings until the fire goes out. The quiet hour stays quiet.",
+   "src": "L350"
   }
  }
 }

@@ -70,14 +70,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"A purple chicken?\" (friend) asks. \"Why purple?\" (subject) doesn't know. (friend) considers this. \"I would have bought a blue one.\" Somehow this makes (subject) even more annoyed. Neither can stop laughing.",
-   "src": "L41"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "By lunchtime (subject) has forgotten most of the dream. Then (friend) walks past carrying a pair of sandals. (subject) stares suspiciously. (friend) has absolutely no idea why.",
    "src": "L45"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"A purple chicken?\" (friend) asks. \"Why purple?\" (subject) doesn't know. (friend) considers this. \"I would have bought a blue one.\" Somehow this makes (subject) even more annoyed. Neither can stop laughing.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"A purple chicken?\" (friend) asks. \"Why purple?\" (subject) doesn't know. (friend) considers this. \"I would have bought a blue one.\" Somehow this makes (subject) even more annoyed. Neither can stop laughing.",
+   "src": "L41"
   }
  }
 }

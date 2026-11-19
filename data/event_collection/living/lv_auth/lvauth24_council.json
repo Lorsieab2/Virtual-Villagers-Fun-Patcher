@@ -117,9 +117,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The new fields eventually flourish.",
-   "src": "L23705"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -133,7 +140,8 @@
      "loss": true,
      "src": "L23706"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -170,14 +178,59 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The village gathers useful evidence without full commitment.",
-   "src": "L23711"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The trial produces ambiguous results.",
    "src": "L23712"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The new fields eventually flourish.",
+   "src": "L23705",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23705"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The new fields eventually flourish.",
+   "src": "L23705"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The village gathers useful evidence without full commitment.",
+   "src": "L23711",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23711"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The village gathers useful evidence without full commitment.",
+   "src": "L23711"
   }
  },
  "words": {

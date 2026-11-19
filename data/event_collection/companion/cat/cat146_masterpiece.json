@@ -73,9 +73,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The artist is embarrassed, but the catalogue improves.",
-   "src": "L8852"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -91,6 +98,31 @@
    "name": "Answer D",
    "text": "A young researcher finds the discrepancy years later; trust suffers.",
    "src": "L8858"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The artist is embarrassed, but the catalogue improves.",
+   "src": "L8852",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "bad",
+     "src": "L8852"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8852"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The artist is embarrassed, but the catalogue improves.",
+   "src": "L8852"
   }
  }
 }

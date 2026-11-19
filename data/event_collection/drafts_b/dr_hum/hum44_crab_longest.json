@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Good morning, Little Shell Who Lives by the Big Rock Near the Water and Likes Seaweed but Not the Brown Kind,\" says (friend) solemnly. The crab does not respond. (subject) is satisfied. (friend) does this every day. By the end of the week (friend.he/she) can say it all in one breath, and is unreasonably proud of it.",
-   "src": "L530"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"What about just 'Shell'?\" (subject) looks shocked. Then (subject.he/she) thinks about it very carefully. \"No. But you can call it 'Little Shell Who Lives by the Big Rock,'\" (subject.he/she) offers, \"for short.\" (friend) accepts the compromise with gratitude.",
    "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Good morning, Little Shell Who Lives by the Big Rock Near the Water and Likes Seaweed but Not the Brown Kind,\" says (friend) solemnly. The crab does not respond. (subject) is satisfied. (friend) does this every day. By the end of the week (friend.he/she) can say it all in one breath, and is unreasonably proud of it.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Good morning, Little Shell Who Lives by the Big Rock Near the Water and Likes Seaweed but Not the Brown Kind,\" says (friend) solemnly. The crab does not respond. (subject) is satisfied. (friend) does this every day. By the end of the week (friend.he/she) can say it all in one breath, and is unreasonably proud of it.",
+   "src": "L530"
   }
  }
 }

@@ -90,9 +90,56 @@
      "max": 10,
      "src": "L8624"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The gardener protects a scarce specimen, disappointing the visitor but preserving future options.",
+   "src": "L8628"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The visitor accepts a meaningful gesture; no one claims it replaces practical study.",
+   "src": "L8630"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The gardener logs growth, fragrance, fruiting or visitors; ordinary patterns coexist with unusual anecdotes.",
+   "src": "L8626",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "gardener",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8626"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8626"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "The gardener logs growth, fragrance, fruiting or visitors; ordinary patterns coexist with unusual anecdotes.",
    "src": "L8626",
@@ -107,17 +154,8 @@
      "max": 10,
      "src": "L8626"
     }
-   ]
-  },
-  "c": {
-   "name": "Answer C",
-   "text": "The gardener protects a scarce specimen, disappointing the visitor but preserving future options.",
-   "src": "L8628"
-  },
-  "d": {
-   "name": "Answer D",
-   "text": "The visitor accepts a meaningful gesture; no one claims it replaces practical study.",
-   "src": "L8630"
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

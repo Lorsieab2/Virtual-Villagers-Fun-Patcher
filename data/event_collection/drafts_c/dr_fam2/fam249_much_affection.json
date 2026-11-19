@@ -75,6 +75,39 @@
    "src": "L584"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) puts the eggs down very fast and catches (friend), who is heavier than (friend.he/she) looks. (subject.His/her) back complains loudly. \"Oof,\" says (subject). \"You're getting big.\" (friend) is delighted by this. Later, (subject) gently explains that sometimes grown-ups need a gentler hello. (friend) nods seriously, and next time walks up and gives (subject.him/her) a very careful hug around the knees.",
+   "src": "L587",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L587"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L587"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) puts the eggs down very fast and catches (friend), who is heavier than (friend.he/she) looks. (subject.His/her) back complains loudly. \"Oof,\" says (subject). \"You're getting big.\" (friend) is delighted by this. Later, (subject) gently explains that sometimes grown-ups need a gentler hello. (friend) nods seriously, and next time walks up and gives (subject.him/her) a very careful hug around the knees.",
    "src": "L587"

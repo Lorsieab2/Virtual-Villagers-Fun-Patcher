@@ -70,14 +70,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Alright,\" says (friend). \"But you do the work, I just hold things.\" It takes most of a season. The roof leaks the first time it rains, and (subject) fixes it (subject.him/her)self, muttering. The first night (subject.he/she) sleeps there, (subject.he/she) is back at the family fire for breakfast. And dinner. And most lunches. But (subject.he/she) sleeps in (subject.his/her) own hut.",
-   "src": "L446"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Next year,\" says (friend). \"When you're grown.\" (subject) argues. (friend) listens, and doesn't budge, but agrees that (subject) can start gathering poles now. All year (subject) gathers poles. By the time (subject.he/she) is allowed to build, (subject.he/she) has enough for two huts. Nobody has the heart to point this out.",
    "src": "L449"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Alright,\" says (friend). \"But you do the work, I just hold things.\" It takes most of a season. The roof leaks the first time it rains, and (subject) fixes it (subject.him/her)self, muttering. The first night (subject.he/she) sleeps there, (subject.he/she) is back at the family fire for breakfast. And dinner. And most lunches. But (subject.he/she) sleeps in (subject.his/her) own hut.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Alright,\" says (friend). \"But you do the work, I just hold things.\" It takes most of a season. The roof leaks the first time it rains, and (subject) fixes it (subject.him/her)self, muttering. The first night (subject.he/she) sleeps there, (subject.he/she) is back at the family fire for breakfast. And dinner. And most lunches. But (subject.he/she) sleeps in (subject.his/her) own hut.",
+   "src": "L446"
   }
  }
 }

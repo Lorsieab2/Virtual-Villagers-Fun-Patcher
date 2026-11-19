@@ -99,7 +99,8 @@
      "role": "craftsperson",
      "src": "L23655"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -119,9 +120,16 @@
    "src": "L23657"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The master resents the apprentice's growing fame.",
-   "src": "L23658"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -163,6 +171,51 @@
    "src": "L23663"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The master resents the apprentice's growing fame.",
+   "src": "L23658",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "bad",
+     "src": "L23658"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The master resents the apprentice's growing fame.",
+   "src": "L23658"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The master refuses to discuss it and withdraws.",
+   "src": "L23664",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "bad",
+     "src": "L23664"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The master refuses to discuss it and withdraws.",
    "src": "L23664"

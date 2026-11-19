@@ -99,6 +99,42 @@
    "src": "L4803"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "A cautious expedition maps an unfamiliar chamber.",
+   "src": "L4804",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4804"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L4804"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "A cautious expedition maps an unfamiliar chamber.",
    "src": "L4804",
@@ -113,7 +149,8 @@
      "max": 10,
      "src": "L4804"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

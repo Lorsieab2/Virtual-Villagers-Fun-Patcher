@@ -129,9 +129,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They admit they are tired from traveling.",
-   "src": "L30061"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -173,14 +180,60 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(newcomer) makes a friend gradually.",
-   "src": "L30067"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "They continue to prefer solitude and are welcomed nonetheless.",
    "src": "L30068"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They admit they are tired from traveling.",
+   "src": "L30061",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "newcomer",
+     "min": -30,
+     "max": -15,
+     "src": "L30061"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They admit they are tired from traveling.",
+   "src": "L30061"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(newcomer) makes a friend gradually.",
+   "src": "L30067",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L30067"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(newcomer) makes a friend gradually.",
+   "src": "L30067"
   }
  }
 }

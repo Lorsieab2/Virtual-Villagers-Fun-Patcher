@@ -345,14 +345,18 @@
      "what": "exploration progress",
      "reason": "rule 8: no game has exploration progress"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
-   "text": "(Artist) paints a magnificent beach but places the waterfall on the wrong side. The judges praise the technique while the audience laughs at the geography.",
-   "src": "L9585-9587",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
     }
    ]
   },
@@ -408,18 +412,14 @@
    ]
   },
   "b4": {
-   "text": "A portrait of a lonely villager prompts a warm conversation. The prize is modest, but both villagers gain friendship.",
-   "src": "L9598-9600",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
-    }
-   ],
-   "text_only": [
+     "next": "b4__fx"
+    },
     {
-     "src": "L9600",
-     "what": "Artistic skill",
-     "reason": "rule 8: no game has an Artistic skill"
+     "next": "b4__text"
     }
    ]
   },
@@ -527,14 +527,18 @@
      "what": "Artistic skill",
      "reason": "rule 8: no game has an Artistic skill"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
-   "text": "The colors run together into a muddy smear. A judge politely describes it as \"energetic.\" (Artist) receives no prize and a little embarrassment.",
-   "src": "L9618-9620",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
     }
    ]
   },
@@ -887,6 +891,107 @@
   "b3_2": {
    "text": "The artist must apologize or explain the intention.",
    "src": "L9595-9597",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a4__fx": {
+   "text": "(Artist) paints a magnificent beach but places the waterfall on the wrong side. The judges praise the technique while the audience laughs at the geography.",
+   "src": "L9585-9587",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L9585-9587"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
+   "text": "(Artist) paints a magnificent beach but places the waterfall on the wrong side. The judges praise the technique while the audience laughs at the geography.",
+   "src": "L9585-9587",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b4__fx": {
+   "text": "A portrait of a lonely villager prompts a warm conversation. The prize is modest, but both villagers gain friendship.",
+   "src": "L9598-9600",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9600",
+     "what": "Artistic skill",
+     "reason": "rule 8: no game has an Artistic skill"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L9598-9600"
+    },
+    {
+     "do": "mood",
+     "role": "sitter",
+     "mood": "good",
+     "src": "L9598-9600"
+    }
+   ],
+   "auto_text": true
+  },
+  "b4__text": {
+   "text": "A portrait of a lonely villager prompts a warm conversation. The prize is modest, but both villagers gain friendship.",
+   "src": "L9598-9600",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9600",
+     "what": "Artistic skill",
+     "reason": "rule 8: no game has an Artistic skill"
+    }
+   ]
+  },
+  "d2__fx": {
+   "text": "The colors run together into a muddy smear. A judge politely describes it as \"energetic.\" (Artist) receives no prize and a little embarrassment.",
+   "src": "L9618-9620",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "bad",
+     "src": "L9618-9620"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "text": "The colors run together into a muddy smear. A judge politely describes it as \"energetic.\" (Artist) receives no prize and a little embarrassment.",
+   "src": "L9618-9620",
    "children": [
     {
      "next": "coda"

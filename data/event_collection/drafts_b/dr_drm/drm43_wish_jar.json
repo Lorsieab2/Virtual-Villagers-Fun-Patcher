@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) goes through them carefully. One shows a stick figure sitting under a tree with a bowl of fruit. That one was (subject.his/her) wish. (subject.He/she) laughs: (subject.he/she) has spent a great deal of (subject.his/her) life sitting under trees with fruit. \"Did your wish come true?\" asks (friend). \"Every afternoon,\" says (subject).",
-   "src": "L518"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) suggests the children make a new jar. They draw their wishes on leaves \\(a whale, a mountain of mangoes, a pet crab the size of a hut\\) and seal them up. They bury it under a new corner of the storehouse. \"When do we open it?\" asks (friend). \"When you've forgotten,\" says (subject).",
    "src": "L521"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes through them carefully. One shows a stick figure sitting under a tree with a bowl of fruit. That one was (subject.his/her) wish. (subject.He/she) laughs: (subject.he/she) has spent a great deal of (subject.his/her) life sitting under trees with fruit. \"Did your wish come true?\" asks (friend). \"Every afternoon,\" says (subject).",
+   "src": "L518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L518"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) goes through them carefully. One shows a stick figure sitting under a tree with a bowl of fruit. That one was (subject.his/her) wish. (subject.He/she) laughs: (subject.he/she) has spent a great deal of (subject.his/her) life sitting under trees with fruit. \"Did your wish come true?\" asks (friend). \"Every afternoon,\" says (subject).",
+   "src": "L518"
   }
  }
 }

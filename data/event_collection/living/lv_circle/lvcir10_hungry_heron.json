@@ -113,7 +113,8 @@
      "loss": true,
      "src": "L21367"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -127,7 +128,8 @@
      "loss": true,
      "src": "L21368"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

@@ -90,7 +90,8 @@
      "max": 10,
      "src": "L3183"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -109,7 +110,8 @@
      "max": 10,
      "src": "L3184"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -128,7 +130,8 @@
      "max": 10,
      "src": "L3185"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

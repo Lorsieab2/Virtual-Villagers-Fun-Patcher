@@ -209,6 +209,33 @@
    "src": "L30892"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The wound heals, leaving a small reminder to wear suitable footwear.",
+   "src": "L30893",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L30893"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The wound heals, leaving a small reminder to wear suitable footwear.",
    "src": "L30893"

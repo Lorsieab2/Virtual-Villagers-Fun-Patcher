@@ -76,14 +76,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They follow the stream up through the trees, over rocks, past waterfalls, until it gets narrower and narrower and finally turns into a lot of small wet trickles coming out of a mossy hillside. \"Is that it?\" says (friend). \"I suppose so,\" says (subject). It's a bit of a let-down. It's also, somehow, wonderful.",
-   "src": "L314"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) goes alone, and climbs until late afternoon, and doesn't find the start. The stream just keeps going, up into thicker forest. (subject.He/she) turns back at a waterfall, so as to be home before dark. (subject.He/she) still doesn't know where it begins. (subject.He/she) finds (subject.he/she) is quite glad about that.",
    "src": "L317"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They follow the stream up through the trees, over rocks, past waterfalls, until it gets narrower and narrower and finally turns into a lot of small wet trickles coming out of a mossy hillside. \"Is that it?\" says (friend). \"I suppose so,\" says (subject). It's a bit of a let-down. It's also, somehow, wonderful.",
+   "src": "L314",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L314"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They follow the stream up through the trees, over rocks, past waterfalls, until it gets narrower and narrower and finally turns into a lot of small wet trickles coming out of a mossy hillside. \"Is that it?\" says (friend). \"I suppose so,\" says (subject). It's a bit of a let-down. It's also, somehow, wonderful.",
+   "src": "L314"
   }
  }
 }

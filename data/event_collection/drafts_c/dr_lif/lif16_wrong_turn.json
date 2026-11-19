@@ -64,11 +64,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) takes it, just for old times' sake. It still leads to the stream. There's nobody sitting there today. (name1) sits down anyway. It's a lovely spot. (He/she) thinks about how much of (his/her) life came from that one mistake: the friendship, and then all the people that friend introduced (him/her) to, and everything after. (He/she) laughs. (He/she) has been grateful to a wrong turn for years without noticing.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L188"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(name1) takes it, just for old times' sake. It still leads to the stream. There's nobody sitting there today. (name1) sits down anyway. It's a lovely spot. (He/she) thinks about how much of (his/her) life came from that one mistake: the friendship, and then all the people that friend introduced (him/her) to, and everything after. (He/she) laughs. (He/she) has been grateful to a wrong turn for years without noticing.",
    "src": "L188"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) goes to find the friend and reminds them about that day. The friend doesn't remember it at all. \"You sat next to me? At the stream?\" \"You were eating a mango. Very messily.\" \"...That does sound like me.\" They laugh. (name1) realizes the most important day of (his/her) life is one the other person can't even remember. (He/she) finds this very funny.",
+   "src": "L191",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L191"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) goes to find the friend and reminds them about that day. The friend doesn't remember it at all. \"You sat next to me? At the stream?\" \"You were eating a mango. Very messily.\" \"...That does sound like me.\" They laugh. (name1) realizes the most important day of (his/her) life is one the other person can't even remember. (He/she) finds this very funny.",
    "src": "L191"

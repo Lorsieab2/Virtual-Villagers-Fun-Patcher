@@ -327,7 +327,8 @@
      "max": 10,
      "src": "L3735"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3": {
    "name": "Outcome 3",

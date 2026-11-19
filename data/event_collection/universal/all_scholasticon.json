@@ -461,13 +461,14 @@
    ]
   },
   "i1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1233-1235",
-   "text": "Both researchers arrive at the same correct answer by entirely different methods. They argue over whose method is more elegant, then reluctantly admit that both are useful.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "judges"
+     "next": "i1__fx"
+    },
+    {
+     "next": "i1__text"
     }
    ]
   },
@@ -551,13 +552,14 @@
    ]
   },
   "d1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1251-1252",
-   "text": "The model works perfectly! The audience applauds. The researchers are {overjoyed|relieved|astonished that nobody noticed the glue}.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "judges"
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
     }
    ]
   },
@@ -676,7 +678,8 @@
      "max": 20,
      "src": "L1270"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "popup": "append",
@@ -690,20 +693,14 @@
    ]
   },
   "c3": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1273-1274",
-   "text": "(Researcher1) discovers the theory, while (researcher2) develops a practical method. They share the prize and celebrate quietly.",
-   "effects": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "do": "celebrate",
-     "who": "researcher1",
-     "src": "L1274"
+     "next": "c3__fx"
     },
     {
-     "do": "celebrate",
-     "who": "researcher2",
-     "src": "L1274"
+     "next": "c3__text"
     }
    ]
   },
@@ -719,7 +716,8 @@
      "scaled": true,
      "src": "L1277"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c5": {
    "popup": "append",
@@ -770,7 +768,8 @@
      "scaled": true,
      "src": "L1283"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "j2": {
    "popup": "append",
@@ -788,18 +787,18 @@
      "max": 20,
      "src": "L1285"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "j3": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L1286-1287",
-   "text": "The judges declare a tie. Both researchers are delighted - until they realize they must share the trophy.",
-   "text_only": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "src": "L1287",
-     "what": "the trophy",
-     "reason": "rule 7: trophies are told only"
+     "next": "j3__fx"
+    },
+    {
+     "next": "j3__text"
     }
    ]
   },
@@ -828,7 +827,8 @@
      "scaled": true,
      "src": "L1291"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "argue": {
    "name": "What counts",
@@ -850,7 +850,8 @@
      "max": 10,
      "src": "L1319"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "quiet": {
    "type": "branch",
@@ -867,6 +868,237 @@
    ]
   },
   "q1": {
+   "type": "branch",
+   "name": "A quiet failure",
+   "children": [
+    {
+     "next": "q1__fx"
+    },
+    {
+     "next": "q1__text"
+    }
+   ]
+  },
+  "q2": {
+   "type": "branch",
+   "name": "A quiet failure",
+   "children": [
+    {
+     "next": "q2__fx"
+    },
+    {
+     "next": "q2__text"
+    }
+   ]
+  },
+  "q3": {
+   "type": "branch",
+   "name": "A quiet failure",
+   "children": [
+    {
+     "next": "q3__fx"
+    },
+    {
+     "next": "q3__text"
+    }
+   ]
+  },
+  "i1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1233-1235",
+   "text": "Both researchers arrive at the same correct answer by entirely different methods. They argue over whose method is more elegant, then reluctantly admit that both are useful.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1233-1235"
+    }
+   ],
+   "auto_text": true
+  },
+  "i1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1233-1235",
+   "text": "Both researchers arrive at the same correct answer by entirely different methods. They argue over whose method is more elegant, then reluctantly admit that both are useful.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ]
+  },
+  "d1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1251-1252",
+   "text": "The model works perfectly! The audience applauds. The researchers are {overjoyed|relieved|astonished that nobody noticed the glue}.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1251-1252"
+    },
+    {
+     "do": "mood",
+     "role": "researcher1",
+     "mood": "good",
+     "src": "L1251-1252"
+    },
+    {
+     "do": "mood",
+     "role": "researcher2",
+     "mood": "good",
+     "src": "L1251-1252"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1251-1252",
+   "text": "The model works perfectly! The audience applauds. The researchers are {overjoyed|relieved|astonished that nobody noticed the glue}.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ]
+  },
+  "c3__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1273-1274",
+   "text": "(Researcher1) discovers the theory, while (researcher2) develops a practical method. They share the prize and celebrate quietly.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "researcher1",
+     "src": "L1274"
+    },
+    {
+     "do": "celebrate",
+     "who": "researcher2",
+     "src": "L1274"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1273-1274"
+    }
+   ],
+   "auto_text": true
+  },
+  "c3__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1273-1274",
+   "text": "(Researcher1) discovers the theory, while (researcher2) develops a practical method. They share the prize and celebrate quietly.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "researcher1",
+     "src": "L1274"
+    },
+    {
+     "do": "celebrate",
+     "who": "researcher2",
+     "src": "L1274"
+    }
+   ],
+   "auto_text": true
+  },
+  "j3__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1286-1287",
+   "text": "The judges declare a tie. Both researchers are delighted - until they realize they must share the trophy.",
+   "text_only": [
+    {
+     "src": "L1287",
+     "what": "the trophy",
+     "reason": "rule 7: trophies are told only"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "researcher1",
+     "mood": "good",
+     "src": "L1286-1287"
+    },
+    {
+     "do": "mood",
+     "role": "researcher2",
+     "mood": "good",
+     "src": "L1286-1287"
+    }
+   ],
+   "auto_text": true
+  },
+  "j3__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1286-1287",
+   "text": "The judges declare a tie. Both researchers are delighted - until they realize they must share the trophy.",
+   "text_only": [
+    {
+     "src": "L1287",
+     "what": "the trophy",
+     "reason": "rule 7: trophies are told only"
+    }
+   ]
+  },
+  "q1__fx": {
+   "name": "A quiet failure",
+   "src": "L1323-1327",
+   "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1323-1327"
+    },
+    {
+     "do": "mood",
+     "role": "researcher1",
+     "mood": "bad",
+     "src": "L1323-1327"
+    },
+    {
+     "do": "mood",
+     "role": "researcher2",
+     "mood": "bad",
+     "src": "L1323-1327"
+    }
+   ],
+   "auto_text": true
+  },
+  "q1__text": {
    "name": "A quiet failure",
    "src": "L1323-1327",
    "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
@@ -881,9 +1113,46 @@
      "max": 10,
      "src": "L1329"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "q2": {
+  "q2__fx": {
+   "name": "A quiet failure",
+   "src": "L1323-1327",
+   "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1323-1327"
+    },
+    {
+     "do": "mood",
+     "role": "researcher1",
+     "mood": "bad",
+     "src": "L1323-1327"
+    },
+    {
+     "do": "mood",
+     "role": "researcher2",
+     "mood": "bad",
+     "src": "L1323-1327"
+    }
+   ],
+   "auto_text": true
+  },
+  "q2__text": {
    "name": "A quiet failure",
    "src": "L1323-1327",
    "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
@@ -898,9 +1167,56 @@
      "max": 10,
      "src": "L1329"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "q3": {
+  "q3__fx": {
+   "name": "A quiet failure",
+   "src": "L1323-1327",
+   "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    },
+    {
+     "do": "skill",
+     "role": "researcher2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1323-1327"
+    },
+    {
+     "do": "mood",
+     "role": "researcher1",
+     "mood": "bad",
+     "src": "L1323-1327"
+    },
+    {
+     "do": "mood",
+     "role": "researcher2",
+     "mood": "bad",
+     "src": "L1323-1327"
+    }
+   ],
+   "auto_text": true
+  },
+  "q3__text": {
    "name": "A quiet failure",
    "src": "L1323-1327",
    "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
@@ -925,7 +1241,8 @@
      "max": 10,
      "src": "L1329"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

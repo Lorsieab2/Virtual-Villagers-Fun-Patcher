@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) and (subject) spend ages searching the bush. Every twig looks like a twig. (subject) gets more and more frustrated. Then (friend) points very slowly: there it is, swaying gently, pretending to be blown by the wind. (subject) is so impressed (subject.he/she) can hardly breathe. (subject.He/she) spends the rest of the day pointing at twigs and asking, \"Is THAT one an animal?\" Most of them aren't.",
-   "src": "L386"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) tells everybody. Nobody believes (subject.him/her). (subject) leads a group of disbelieving grown-ups back to the bush. They can't find it. (subject) is furious. Then a leaf on a different branch opens its wings and turns out to be a moth. The grown-ups go quiet. They start looking at every bush a little more carefully on the way home.",
    "src": "L389"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) and (subject) spend ages searching the bush. Every twig looks like a twig. (subject) gets more and more frustrated. Then (friend) points very slowly: there it is, swaying gently, pretending to be blown by the wind. (subject) is so impressed (subject.he/she) can hardly breathe. (subject.He/she) spends the rest of the day pointing at twigs and asking, \"Is THAT one an animal?\" Most of them aren't.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) and (subject) spend ages searching the bush. Every twig looks like a twig. (subject) gets more and more frustrated. Then (friend) points very slowly: there it is, swaying gently, pretending to be blown by the wind. (subject) is so impressed (subject.he/she) can hardly breathe. (subject.He/she) spends the rest of the day pointing at twigs and asking, \"Is THAT one an animal?\" Most of them aren't.",
+   "src": "L386"
   }
  }
 }

@@ -68,11 +68,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They invite the newcomer closer.",
-   "src": "L1365"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -80,6 +85,29 @@
    "join": "paragraph",
    "text": "They sit nearby without demanding conversation.",
    "src": "L1366"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They invite the newcomer closer.",
+   "src": "L1365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L1365"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They invite the newcomer closer.",
+   "src": "L1365"
   }
  }
 }

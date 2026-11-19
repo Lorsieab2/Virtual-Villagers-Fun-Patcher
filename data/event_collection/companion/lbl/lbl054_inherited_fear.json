@@ -98,9 +98,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "The grandchild trains carefully as a navigator.",
-   "src": "L4508"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -111,6 +118,29 @@
    "name": "Outcome 3",
    "text": "The elder admits their memory may have changed over time.",
    "src": "L4510"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The grandchild trains carefully as a navigator.",
+   "src": "L4508",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "grandchild",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L4508"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The grandchild trains carefully as a navigator.",
+   "src": "L4508"
   }
  }
 }

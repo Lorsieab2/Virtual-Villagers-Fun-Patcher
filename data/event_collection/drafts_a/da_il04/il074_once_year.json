@@ -70,6 +70,32 @@
    "src": "L170"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) explains exactly what (subject.he/she) wants, in great detail, with drawings in the sand. (friend) follows every instruction. The haircut is exactly the same as every other year. (subject) is perfectly happy. (friend) is a little disappointed (friend.he/she) didn't get to be more creative.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L173"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) explains exactly what (subject.he/she) wants, in great detail, with drawings in the sand. (friend) follows every instruction. The haircut is exactly the same as every other year. (subject) is perfectly happy. (friend) is a little disappointed (friend.he/she) didn't get to be more creative.",
    "src": "L173"

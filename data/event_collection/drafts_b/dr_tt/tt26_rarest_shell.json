@@ -76,6 +76,32 @@
    "src": "L314"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "Halfway through the speech, (subject) stops. \"Actually, there are loads of grey ones.\" (friend) laughs. \"I know. I've got eleven.\" They go down to the beach together to look for another pink one. They don't find one, but they do find a very fine crab, and agree to share it, as long as it agrees.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L317"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "Halfway through the speech, (subject) stops. \"Actually, there are loads of grey ones.\" (friend) laughs. \"I know. I've got eleven.\" They go down to the beach together to look for another pink one. They don't find one, but they do find a very fine crab, and agree to share it, as long as it agrees.",
    "src": "L317"
