@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Honey Buyer",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "trd06_honey_buyer",
+  "source": "draft_trd",
+  "lines": [
+   93,
+   107
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L93",
+  "ledger": [
+   {
+    "src": "L94",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the heading's \"(VV3 only)\": the event is The Secret City only"
+   },
+   {
+    "src": "L99",
+    "kind": "instruction",
+    "text": "[effect: trade 200 honey for 600 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L102",
+    "kind": "instruction",
+    "text": "[effect: trade 200 honey for 900 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L103",
+    "kind": "instruction",
+    "text": "[effect: trade 200 honey for 300 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A healer offers her remedies for a pot of the village's honey.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "honey",
+      "min": 200
+     }
+    },
+    {
+     "has_supply": {
+      "item": "tech",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "honey",
+         "min": 200
+        }
+       },
+       {
+        "has_supply": {
+         "item": "tech",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer named Ina arrives from somewhere along the coast with an empty clay pot and a long list of ailments that only good honey will soothe. She has heard The Secret City's hive is the best on the island. She offers to teach the village her remedies in exchange for a pot of honey. (name1) eyes the hive and has to decide.",
+   "src": "L96",
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L98"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L101"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L105"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) fills Ina's pot to the brim, and in return Ina spends the afternoon showing (him/her) how honey cleans a cut and soothes a cough. The healers copy every word.",
+   "src": "L99",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "honey",
+     "give_amount": 200,
+     "get": "tech",
+     "get_amount": 600,
+     "src": "L99"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) explains that the honey is needed for the village. Ina understands perfectly, writes down one remedy on a leaf as a gift, and leaves.",
+   "src": "L106"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) bargains gently, and Ina, impressed, adds three more remedies to the lesson, including one for burns that the healers have been looking for.",
+   "src": "L102",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "honey",
+     "give_amount": 200,
+     "get": "tech",
+     "get_amount": 900,
+     "src": "L102"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles, and Ina, a little offended, teaches only the cough remedy before she leaves. It is a good remedy, but only one.",
+   "src": "L103",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "honey",
+     "give_amount": 200,
+     "get": "tech",
+     "get_amount": 300,
+     "src": "L103"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Ina sees the hive has little honey to spare, teaches (name1) one remedy for free, and walks on.",
+   "src": "L107"
+  }
+ }
+}

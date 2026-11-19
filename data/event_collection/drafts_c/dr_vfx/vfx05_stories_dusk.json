@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Stories at Dusk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx05_stories_dusk",
+  "source": "draft_vfx",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   },
+   {
+    "src": "L62",
+    "kind": "instruction",
+    "text": "[effect: the elders tell stories]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L65",
+    "kind": "instruction",
+    "text": "[effect: the children play]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Restless children at dusk: the elders tell the old stories, or the children run and play.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The children have been restless all day, and the parents are tired. (name1), who has more stories than anyone, offers to take them all off the parents' hands for the evening.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Tell the Old Stories",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Let Them Play",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders gather the children by the fire, and (name1) begins the oldest story (he/she) knows, about the first canoe that found Isola. The children listen without moving. Even the parents drift closer to hear the ending.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "stories",
+     "who": "all",
+     "src": "L62"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides the children need to run, not sit. (He/she) sends them off to play until they drop, and they come back at dark, muddy and happy and ready for bed.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "play",
+     "who": "all",
+     "src": "L65"
+    }
+   ]
+  }
+ }
+}

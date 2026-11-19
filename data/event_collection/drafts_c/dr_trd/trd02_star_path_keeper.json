@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Star-Path Keeper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "trd02_star_path_keeper",
+  "source": "draft_trd",
+  "lines": [
+   25,
+   39
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L25",
+  "ledger": [
+   {
+    "src": "L26",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L31",
+    "kind": "instruction",
+    "text": "[effect: trade 200 food for 500 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L34",
+    "kind": "instruction",
+    "text": "[effect: trade 200 food for 750 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L35",
+    "kind": "instruction",
+    "text": "[effect: trade 200 food for 300 tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An old navigator offers to teach the star paths for food: trade, haggle, or decline.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "food",
+      "min": 200
+     }
+    },
+    {
+     "has_supply": {
+      "item": "tech",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "food",
+         "min": 200
+        }
+       },
+       {
+        "has_supply": {
+         "item": "tech",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An old navigator named Hoku comes ashore to wait out a storm. Hoku has crossed more open water than anyone on Isola has ever seen, steering by the stars, and offers to teach someone the star paths in exchange for food for the next crossing. (name1) sits with Hoku by the fire as the rain comes down and has to decide whether the lessons are worth the baskets.",
+   "src": "L28",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L28"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L30"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L33"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L37"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "For three nights, (name1) lies on the sand beside Hoku, learning the names of the bright stars and the paths between them. When the skies clear, Hoku leaves with the baskets, and (name1) is already drawing the star paths in the sand for anyone who will listen.",
+   "src": "L31",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 200,
+     "get": "tech",
+     "get_amount": 500,
+     "src": "L31"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) gives Hoku a dry place to sleep and a warm meal, and no more. Hoku leaves at dawn, pointing once at the fading morning star as a parting gift.",
+   "src": "L38"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) offers to help mend the canoe's lashings as part of the price. Hoku is so pleased with the work that the lessons run late every night, until (name1) knows more star paths than (he/she) can remember.",
+   "src": "L34",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 200,
+     "get": "tech",
+     "get_amount": 750,
+     "src": "L34"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) bargains so long that the storm passes before they agree. Hoku has time for only one night of lessons before the tide turns, and most of it is spent on a single, very bright star.",
+   "src": "L35",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 200,
+     "get": "tech",
+     "get_amount": 300,
+     "src": "L35"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Hoku sees how thin the village's stores are, refuses to take any food at all, and leaves at dawn with a wave.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L39"
+    }
+   ]
+  }
+ }
+}

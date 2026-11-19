@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Sack for the Yellow Fruit",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup04_sack_yellow",
+  "source": "draft_sup",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L44",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L50",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 cloth bolt; small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager keeps dropping yellow fruit: make a sack from a bolt of cloth, or carry them the old way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been carrying yellow fruit back from the trees in (subject.his/her) arms, and has dropped more than (subject.he/she) has carried. There is a trail of fruit all the way from the grove. (friend) watches (subject.him/her) chase one down the slope and says, \"You know we have cloth, don't you?\"",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Make a Sack From a Bolt of Cloth",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Carry Them the Old Way",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) fetches a bolt of cloth from the store, and together they fold and tie it into a good, deep sack. (subject) fills it in no time and carries it home over one shoulder, whistling. (subject.He/she) goes back for the fruit on the slope as well. Nothing is wasted.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": -1,
+     "max": -1,
+     "src": "L50"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L50"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.his/her) arms are perfectly good, thank you. It takes eleven trips. On the twelfth, (friend) walks beside (subject.him/her) with a basket on each hip and doesn't say a word, which is somehow worse than saying anything.",
+   "src": "L53"
+  }
+ }
+}

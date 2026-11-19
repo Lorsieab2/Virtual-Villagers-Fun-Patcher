@@ -172,7 +172,11 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 31: the gender presentation, set (a = 1) or cleared (a = 0) */
        CGE_PRESENTATION = 23,
        /* cie-v6-binary.md 30 */
-       CGE_DELIVER_EARLY = 24 };
+       CGE_DELIVER_EARLY = 24,
+       /* cie-v6-binary.md 32: The Tree of Life's cutting tools, soap and cloth bolts */
+       CGE_SUPPLY = 25,
+       /* cie-v6-binary.md 33-35: a trade, a group behaviour, the village */
+       CGE_TRADE = 41, CGE_GROUP = 42, CGE_VILLAGE = 43 };   /* the merge plan's numbers */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -187,7 +191,13 @@ enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, 
        CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12,
        /* cie-v6-binary.md 8: a bound villager's facts, and a pool instance's draw */
        CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16,
-       CGC_HAS_DEAD_RELATIVE = 17 };  /* cie-v6-binary.md 21a */
+       CGC_HAS_DEAD_RELATIVE = 17,    /* cie-v6-binary.md 21a */
+CGC_HAS_SUPPLY = 19 };         /* cie-v6-binary.md 33: a = the good's word, the next H = at least */
+/* story_graph_village.inc (cie-v6-binary.md 33-35), used by the loader and the walk before it is included. */
+static int cg_good_word(const char *word);
+static int cg_has_good(int game, const char *word, int n);
+static int cg_group_kind_ok(const char *kind, int whole_village);
+static int cg_village_ok(const char *s, int a, int b);
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
        CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
 #define CG_POOL_TRIBE (-2)            /* G5: {@tribe}, built in (no pool): the tribe's name at run time */
@@ -1001,6 +1011,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                  && cg_str_ok(g, cg_u16(c + 6), 0);
             break;
         case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE: ok = g->version >= 6 && (int)a < g->n_role; break;
+        case CGC_HAS_SUPPLY:
+            /* 33: a good's word, at least 0..9999 of it (0: the game keeps it now) */
+            ok = g->version >= 6 && cg_str_ok(g, a, 0) && cg_good_word(cg_s(g, a)) && cg_u16(c + 4) <= 9999u;
+            break;
         case CGC_DREW:
             ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE
                  && cg_u16(c + 6) < cg_u16(cg_pool_at(g, (int)a) + 4);
@@ -1028,10 +1042,12 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY;
+                       || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY
+                       || (e[0] == CGE_GROUP && e[1] != CG_ROLE_ALIAS_ALL);
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
-                                         || e[0] == CGE_DELIVER_EARLY));
+                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_SUPPLY
+                                         || e[0] == CGE_TRADE || e[0] == CGE_GROUP || e[0] == CGE_VILLAGE));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1093,6 +1109,36 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_DAMAGE:
                 ok = e[1] == CG_ROLE_ALIAS_ALL && a >= 1 && b >= a && b <= 100 && str != CG_NONE
                      && cg_str_ok(g, str, 0);
+                break;
+            case CGE_SUPPLY:
+                /* 32, 33: the village's; a..b a gain (1..9999) or a loss (-9999..-1); a good's word (The Tree of
+                   Life's three supplies keep 1..99, the patcher's check). */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a <= b && ((a >= 1 && b <= 9999) || (a >= -9999 && b <= -1))
+                     && str != CG_NONE && cg_str_ok(g, str, 0) && cg_good_word(cg_s(g, str));
+                break;
+            case CGE_TRADE:
+                /* 33: give a (1..9999) of one good, get b (1..9999) of another: "give,get". */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a >= 1 && a <= 9999 && b >= 1 && b <= 9999 && str != CG_NONE
+                     && cg_str_ok(g, str, 0);
+                if (ok) {
+                    char give[48];
+                    int at;
+                    lstrcpynA(give, cg_s(g, str), sizeof give);
+                    for (at = 0; give[at] != '\0' && give[at] != ','; ++at) {
+                    }
+                    ok = give[at] == ',' && (give[at] = '\0', cg_good_word(give)) && cg_good_word(give + at + 1)
+                         && lstrcmpA(give, give + at + 1) != 0;
+                }
+                break;
+            case CGE_GROUP:
+                /* 34: the kind's word; a = the share made sick (1..100, "sick" only), else 0. */
+                ok = str != CG_NONE && cg_str_ok(g, str, 0) && cg_group_kind_ok(cg_s(g, str), e[1] == CG_ROLE_ALIAS_ALL)
+                     && b == 0 && (lstrcmpA(cg_s(g, str), "sick") == 0 ? a >= 1 && a <= 100 : a == 0);
+                break;
+            case CGE_VILLAGE:
+                /* 35: event_timer, tech_level[:area], construction, weather:<word>. */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && str != CG_NONE && cg_str_ok(g, str, 0)
+                     && cg_village_ok(cg_s(g, str), a, b);
                 break;
             default: break;
             }
@@ -2759,6 +2805,7 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_MIN_CHILDREN: return cg_population(game, 1) >= (int)a;
     case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE:
         return cg_role_fact(c, game);
+    case CGC_HAS_SUPPLY: return cg_has_good(game, cg_s(&cg_g, a), (int)cg_u16(c + 4));
     case CGC_DREW: {
         const cg_pick *pick = cg_find_pick((int)a, (int)cg_u16(c + 4));
         return pick != NULL && pick->item == cg_u16(c + 6);
@@ -2960,8 +3007,8 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = lo + ce_random_below(a, hi - lo + 1);   /* version 6: a loss too (lo..hi below 0) */
         break;
     }
-    case CGE_HEALTH_CHANGE: case CGE_DAMAGE:
-        va = lo + ce_random_below(a, hi - lo + 1);
+    case CGE_HEALTH_CHANGE: case CGE_DAMAGE: case CGE_SUPPLY: case CGE_VILLAGE:
+        va = lo + ce_random_below(a, hi - lo + 1);   /* 35: a fixed step or weather (lo == hi) takes no roll */
         break;
     case CGE_DELIVER_EARLY:
         /* 30: the newborn's extra loss, rolled only when the effect has one */
@@ -4480,6 +4527,7 @@ static char cg_extra_lines[512];
 #ifdef VVFP_TEST
 static int test_graph_structures = -1;  /* the finished structures (bit k), -1 = as the game says */
 static int test_graph_damaged[SD_MAX_STRUCTURES];   /* each structure's loss the test build recorded */
+static int test_graph_supply_cap = -1;  /* "VVFP VV4 Supply Cap.dll" (32): -1 as it is, 0 none, 1 installed */
 #endif
 
 #ifdef VVFP_TEST
@@ -4628,6 +4676,42 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
     }
 }
 
+/* cie-v6-binary.md 32: "supply": The Tree of Life's cutting tools, bars of soap or cloth bolts (story_c4.inc
+   C4_SUPPLY_*) changed by `delta` (the walk's roll), kept within 0..6 (99 with Up to 99 Cutting Tools/Soap/Cloth;
+   soap always 99) and never below 0.  Nothing in another game, and nothing before the supply's own puzzle is solved
+   (the event's words are then story only).  The change has one line in the event's log entry. */
+static void cg_supply(int game, const unsigned char *e, int delta) {
+    int item = c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))), big, before = 0, after = 0;
+    int *count;
+    char line[96];
+    if (game != 4 || item < 0 || delta == 0 || !cg_puzzle_solved(game, C4_SUPPLY_PUZZLES[item])) {
+        return;
+    }
+    big = c4_supply_cap_installed();
+#ifdef VVFP_TEST
+    if (test_graph_supply_cap >= 0) {
+        big = test_graph_supply_cap;
+    }
+#endif
+    count = (int *)(uintptr_t)C4_SUPPLY_AT[item];
+    __try {
+        before = *count;
+        after = c4_supply_after(before, delta, c4_supply_cap(item, big));
+        *count = after;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return;
+    }
+    if (after == before) {
+        return;
+    }
+    wsprintfA(line, "  %s: %d -> %d\n", C4_SUPPLY_NAMES[item], before, after);
+    if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
+        lstrcatA(cg_extra_lines, line);
+    }
+}
+
+#include "story_graph_village.inc"   /* cie-v6-binary.md 33-35: goods, trades, group behaviours, the village */
+
 /* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
 static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
                       int *award, ce_result *r) {
@@ -4651,6 +4735,29 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         return;
     case CGE_DAMAGE:
         cg_damage(a, game, e, va);
+        return;
+    case CGE_SUPPLY:
+        if (c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))) >= 0) {
+            cg_supply(game, e, va);        /* 32: The Tree of Life's three supplies, as PR #806 made them */
+        } else {
+            cg_supply_any(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);   /* 33 */
+        }
+        return;
+    case CGE_TRADE:
+        cg_trade(a, game, cg_s(&cg_g, cg_u16(e + 12)), (int)cg_u32(e + 4), (int)cg_u32(e + 8));
+        return;
+    case CGE_VILLAGE:
+        cg_village_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);
+        return;
+    case CGE_GROUP:
+        if (e[1] == CG_ROLE_ALIAS_ALL) {
+            cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), -1, (int)cg_u32(e + 4), r);
+        } else {
+            role = cg_resolve_role(e[1]);
+            if (role >= 0 && cg_villager(a, role) != NULL) {
+                cg_group_fx(a, game, cg_s(&cg_g, cg_u16(e + 12)), cg.record[role], 0, r);
+            }
+        }
         return;
     case CGE_CELEBRATE:
         if (e[1] == CG_ROLE_ALIAS_ALL) {
@@ -4996,6 +5103,7 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
    an award it defers is the (award) of its own text -- then its text, appended or new), and for each node the
    popup and the place in it its effects go with. */
 static int cg_group_in_question;       /* the first popup is shown in the answered question's own popup (14) */
+static int cg_applied_fx[CG_MAX_FX];   /* each food / tech effect's true change (cg_group), for its automatic line */
 
 /* cie-v6-binary.md 25: the automatic outcome lines.  <R> the effect's role's name placeholder, <P> its his/her, <S>
    the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
@@ -5093,6 +5201,7 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
         switch (e[0]) {
         case CGE_FOOD: case CGE_TECH:
+            va = fx < CG_MAX_FX ? cg_applied_fx[fx] : va;      /* the true change (cg_group): none, no line */
             if (!(e[2] & 2u) && va != 0) {
                 cg_auto_add(out, cap, e[0] == CGE_FOOD ? (va > 0 ? "food+" : "food-") : (va > 0 ? "tech+" : "tech-"),
                             -1, "", "");
@@ -5149,10 +5258,33 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
     }
 }
 
+/* The change a food or tech amount `v` really makes to a store holding `store` (the game's own limits: never below
+   0, never above CE_MAX_AMOUNT), the store moved on by it: what an outcome states (the owner, 2026-11-19: the true
+   amount, never the rolled one -- a village with 20 food that is to lose 40 loses 20). */
+static int cg_applied(long long *store, int v) {
+    long long after = *store + v;
+    if (after < 0) {
+        after = 0;
+    }
+    if (after > CE_MAX_AMOUNT) {
+        after = *store > CE_MAX_AMOUNT ? *store : CE_MAX_AMOUNT;
+    }
+    v = (int)(after - *store);
+    *store = after;
+    return v;
+}
+
+
 static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
     unsigned short title = cg_title_before(h, from);
+    const ce_adapter *ad = ce_adapter_for(game);
+    long long store[2];                /* the food and tech the pages' changes are made to, as each page leaves them */
+    store[0] = ad != NULL && ad->food != NULL ? ad->food() : 0;
+    store[1] = ad != NULL && ad->tech != NULL ? ad->tech() : 0;
+    store[0] = store[0] < 0 ? 0 : store[0];
+    store[1] = store[1] < 0 ? 0 : store[1];
     cg_pop_count = 0;
     fx = cg_award_before(h, from, &award_kind, &award);
     cg_visit_path(from);
@@ -5162,23 +5294,41 @@ static void cg_group(int game, const cg_history *h, int from) {
     for (i = from; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
-        int villager = 0, fx0 = fx;
+        int villager = 0, fx0 = fx, paid = 0, paid_here = 0, shown;
         cg_visit(node);
         for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+            int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0;
             villager |= e[0] >= CGE_KILL;
             if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
                 award_kind = e[0] == CGE_FOOD ? 0 : 1;
-                award = fx < CG_MAX_FX ? h->fx_a[fx] : 0;
+                award = va;
+            } else if (e[0] == CGE_FOOD || e[0] == CGE_TECH) {
+                va = cg_applied(&store[e[0] == CGE_FOOD ? 0 : 1], va);
+            } else if (e[0] == CGE_PAY && award_kind >= 0) {
+                paid = va = cg_applied(&store[award_kind], award);
+                paid_here = 1;
             }
+            if (fx < CG_MAX_FX) {
+                cg_applied_fx[fx] = va;
+            }
+        }
+        /* the award as it is really given: paid here, what was paid; else what paying it now would give */
+        if (paid_here) {
+            shown = paid;
+        } else if (award_kind >= 0) {
+            long long probe = store[award_kind];
+            shown = cg_applied(&probe, award);
+        } else {
+            shown = award;
         }
         if (n[0] != CG_BRANCH) {
             cg_popup *p = NULL;
             int start = 0;
             unsigned short nt = cg_node_title(node);
-            cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
+            cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
             if (n[3] & CG_NODE_AUTO_TEXT) {
-                cg_auto_lines(game, h, n, fx0, award_kind, award, text, sizeof text);   /* 25 */
+                cg_auto_lines(game, h, n, fx0, award_kind, shown, text, sizeof text);   /* 25 */
             }
             if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0) {
                 /* ONE popup: every node up to the question (or the ending) joins the segment's one text; what was
@@ -7553,6 +7703,38 @@ __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeInstalledPatches(int 
 /* The puzzles solved for the graph's checks (bit = the adapter's puzzle index; -1 = as the game says). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphPuzzles(int solved) {
     test_graph_puzzles = solved;
+}
+
+/* "VVFP VV4 Supply Cap.dll" as the "supply" effect sees it (cie-v6-binary.md 32): -1 the real check, 0 none, 1 in. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
+    test_graph_supply_cap = mode;
+}
+
+/* The yellow fruit tree (cie-v6-binary.md 33) as "VVFP VV4 Fruit Supply.dll" would keep it: -2 the real companion,
+   -1 not loaded, 0..1000 its count (the events then change it here).  Returns the count before. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphYellowFruit(int mode) {
+    int now = test_graph_yellow;
+    test_graph_yellow = mode;
+    return now;
+}
+
+/* The last event_timer effect's applied change (cie-v6-binary.md 35): 0 none, -1 soon, else the hours after the cap. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphTimerApplied(void) {
+    return cg_timer_applied_hours;
+}
+
+/* "has_supply" (cie-v6-binary.md 33): -1 the village's own goods, 0 / 1 forced. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphGoods(int mode) {
+    test_graph_goods = mode;
+}
+
+/* The weather (35): `call` 0 records the type without calling the game's starter; returns the last type started
+   (-1 none) and clears it. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphWeather(int call) {
+    int last = test_graph_weather;
+    test_graph_weather_call = call;
+    test_graph_weather = -1;
+    return last;
 }
 
 /* The run: out[0] phase, [1] display_next, [2] display_count, [3] display armed, [4] choice, [5] bound roles,

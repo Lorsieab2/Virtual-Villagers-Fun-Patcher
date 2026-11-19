@@ -188,6 +188,11 @@ DRAFTS_C_FILES = (   # (source id, topic, SHA-256)
     ("draft_div", "Disability and Diversity", "949C258F820466F38E62D371E3904F16877DB4E364CFD4E2A1E0F83E16EF07C7"),
     ("draft_his", "History and Collective Memory", "3D379DC35AC8E4E3A6C1A1CE833B3C78DA1628AAE1BFBA743E2B0CA235863529"),
     ("draft_lif", "Pondering How Life Has Gone", "C2467D9089ECE3FE49249D8269F886ED54BBA827C9F121360AB4468612C31B89"),
+    # The owner's request of 2026-11-17: The Tree of Life only, the "supply" effect (cie-v6-binary.md 32)
+    ("draft_sup", "Tree of Life Supplies", "0BDDD2D87DE344C9E42D246B218582F323FB809F5FE9C82ED59D6EC5B6415927"),
+    # The owner's spec of 2026-11-16/17: traders (cie-v6-binary.md 33) and the village effects' showcase (34-35)
+    ("draft_trd", "Island Traders", "799A6D6F5EDA095588F1186A1C9D04A61A6EC3C444A700670B885AE37664B678"),
+    ("draft_vfx", "Village Moments", "EE7581865FCDECBE15B4379B8B0A13145EBE6557ADC86743ABEEBF2DC9ED8ABE"),
 )
 SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, topic, _ in DRAFTS_B_FILES + DRAFTS_C_FILES})
 # Group D (data/event_collection/drafts_d/, scripts/drafts_d/): (source id, file name, topic, SHA-256); each file's
@@ -457,7 +462,15 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
             "listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) "
             "and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a "
             "requirement nobody meets is dropped, the protected villagers' safety never).",
-        ],
+        ] + ([
+            "The Tree of Life (the owner, 2026-11-17): an event whose words give or take cutting tools, bars of soap or "
+            "cloth bolts (a sack is a cloth bolt) changes the game's own counts (the \"supply\" effect, "
+            "docs/event-collection/cie-v6-binary.md 32; [0x4D8618], [0x4D8D98], [0x4D8ACC]): cutting tools and cloth "
+            "within 0..6, or 0..99 when \"VVFP VV4 Supply Cap.dll\" says every site of Up to 99 Cutting "
+            "Tools/Soap/Cloth is written; soap within 0..99; never below 0; a count already above the cap is never "
+            "lowered by a gain. Before The Cutting Tool, Soap Invented or Cloth Invented is solved the item's words "
+            "are story only. Each change has its line in the event's Island Events log entry.",
+        ] if game == 4 else []),
         "explicit_non_changes": [
             "No executable byte is patched and no island event of the game's own changes, in its timing or its "
             "chances: the stock draw is never widened.",

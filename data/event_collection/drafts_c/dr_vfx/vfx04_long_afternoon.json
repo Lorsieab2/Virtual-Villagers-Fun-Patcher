@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx04_long_afternoon",
+  "source": "draft_vfx",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L50",
+    "kind": "instruction",
+    "text": "[effect: the whole village relaxes]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L53",
+    "kind": "instruction",
+    "text": "[effect: the whole village swims]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A free afternoon: everyone rests in the shade, or everyone runs for the water.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The work is done early for once, the sun is warm, and nobody can remember the last time the whole village had nothing to do. (name1) suggests that, just this once, nobody does anything at all.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Rest in the Shade",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Everyone to the Water",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village stretches out in the shade, one by one, until even the busiest of them is asleep in the afternoon heat. Nobody regrets it.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "relax",
+     "who": "all",
+     "src": "L50"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) runs for the water, and the whole village follows, splashing and shrieking. Even the elders wade in up to their knees.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "swim",
+     "who": "all",
+     "src": "L53"
+    }
+   ]
+  }
+ }
+}

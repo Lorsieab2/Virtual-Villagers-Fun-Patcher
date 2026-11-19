@@ -608,6 +608,57 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "draft_sup": {
+  "source": "docs/more-island-events/New Events - Tree of Life Supplies (draft for owner).txt",
+  "source_sha256": "0bddd2d87de344c9e42d246b218582f323fb809f5fe9c82ed59d6ec5b6415927",
+  "counts": {
+   "rows": 16,
+   "events": 14,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 14,
+   "series": {
+    "dr_sup": 14
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
+ "draft_trd": {
+  "source": "docs/more-island-events/New Events - Island Traders (draft for owner).txt",
+  "source_sha256": "799a6d6f5eda095588f1186a1c9d04a61a6ec3c444a700670b885ae37664b678",
+  "counts": {
+   "rows": 15,
+   "events": 13,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 13,
+   "series": {
+    "dr_trd": 13
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
+ "draft_vfx": {
+  "source": "docs/more-island-events/New Events - Village Moments (draft for owner).txt",
+  "source_sha256": "ee7581865fcdecbe15b4379b8b0a13145ebe6557adc86743abeebf2dc9ed8abe",
+  "counts": {
+   "rows": 18,
+   "events": 16,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 16,
+   "series": {
+    "dr_vfx": 16
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "draft_rm2": {
   "source": "docs/more-island-events/New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
   "source_sha256": "a162ecbec360f51ee9e9e9053bd17bbd2f97770f41ef3ad9b4d6d581b40e6acc",
@@ -94715,6 +94766,1616 @@
    "source": "draft_lif",
    "source_check": {
     "heading": "L578: LIF-50. So Far, So Good",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_sup_notes_intro",
+   "title": "Tree of Life Supplies: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_sup_notes_end",
+   "title": "Tree of Life Supplies: notes for the owner",
+   "games": [],
+   "lines": [
+    176,
+    180
+   ],
+   "kind": "notes",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L176: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "sup01_blackberry_blade",
+   "title": "The Blackberry Blade Contest",
+   "games": [
+    4
+   ],
+   "lines": [
+    8,
+    17
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L8: SUP-01. The Blackberry Blade Contest (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup02_soap_smelled",
+   "title": "The Soap That Smelled of Flowers",
+   "games": [
+    4
+   ],
+   "lines": [
+    20,
+    29
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L20: SUP-02. The Soap That Smelled of Flowers (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup03_bubbles_stream",
+   "title": "Bubbles in the Stream",
+   "games": [
+    4
+   ],
+   "lines": [
+    32,
+    41
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L32: SUP-03. Bubbles in the Stream (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup04_sack_yellow",
+   "title": "A Sack for the Yellow Fruit",
+   "games": [
+    4
+   ],
+   "lines": [
+    44,
+    53
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L44: SUP-04. A Sack for the Yellow Fruit (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup05_bundle_tide",
+   "title": "The Bundle on the Tide",
+   "games": [
+    4
+   ],
+   "lines": [
+    56,
+    65
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L56: SUP-05. The Bundle on the Tide (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup06_pile_fish_bones",
+   "title": "The Pile of Fish Bones",
+   "games": [
+    4
+   ],
+   "lines": [
+    68,
+    77
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L68: SUP-06. The Pile of Fish Bones (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup07_keeps_taking",
+   "title": "Who Keeps Taking the Soap?",
+   "games": [
+    4
+   ],
+   "lines": [
+    80,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L80: SUP-07. Who Keeps Taking the Soap? (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup08_torn_sail",
+   "title": "The Torn Sail",
+   "games": [
+    4
+   ],
+   "lines": [
+    92,
+    101
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L92: SUP-08. The Torn Sail (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup09_first_bolt",
+   "title": "The First Bolt",
+   "games": [
+    4
+   ],
+   "lines": [
+    104,
+    113
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L104: SUP-09. The First Bolt (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup10_blades_among",
+   "title": "Blades Among the Roots",
+   "games": [
+    4
+   ],
+   "lines": [
+    116,
+    125
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L116: SUP-10. Blades Among the Roots (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup11_many_cooks_soap",
+   "title": "Too Many Cooks at the Soap Pot",
+   "games": [
+    4
+   ],
+   "lines": [
+    128,
+    137
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L128: SUP-11. Too Many Cooks at the Soap Pot (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup12_tool_basket",
+   "title": "The Tool Basket in the Stream",
+   "games": [
+    4
+   ],
+   "lines": [
+    140,
+    149
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L140: SUP-12. The Tool Basket in the Stream (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup13_washing_day_pond",
+   "title": "Washing Day at the Pond",
+   "games": [
+    4
+   ],
+   "lines": [
+    152,
+    161
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L152: SUP-13. Washing Day at the Pond (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "sup14_cloth_blades",
+   "title": "Cloth for Blades",
+   "games": [
+    4
+   ],
+   "lines": [
+    164,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_sup",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_sup",
+   "source": "draft_sup",
+   "source_check": {
+    "heading": "L164: SUP-14. Cloth for Blades (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_trd_notes_intro",
+   "title": "Island Traders: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_trd_notes_end",
+   "title": "Island Traders: notes for the owner",
+   "games": [],
+   "lines": [
+    229,
+    234
+   ],
+   "kind": "notes",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L229: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "trd01_salt_trader",
+   "title": "The Salt Trader",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    8,
+    22
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L8: TRD-01. The Salt Trader",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd02_star_path_keeper",
+   "title": "The Star-Path Keeper",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    25,
+    39
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L25: TRD-02. The Star-Path Keeper",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd03_bush_mender",
+   "title": "The Bush Mender",
+   "games": [
+    1
+   ],
+   "lines": [
+    42,
+    56
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L42: TRD-03. The Bush Mender (VV1 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd04_net_weaver",
+   "title": "The Net Weaver",
+   "games": [
+    2
+   ],
+   "lines": [
+    59,
+    73
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L59: TRD-04. The Net Weaver (VV2 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd05_shell_collector",
+   "title": "The Shell Collector",
+   "games": [
+    2
+   ],
+   "lines": [
+    76,
+    90
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L76: TRD-05. The Shell Collector (VV2 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd06_honey_buyer",
+   "title": "The Honey Buyer",
+   "games": [
+    3
+   ],
+   "lines": [
+    93,
+    107
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L93: TRD-06. The Honey Buyer (VV3 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd07_fruit_grafter",
+   "title": "The Fruit Grafter",
+   "games": [
+    3
+   ],
+   "lines": [
+    110,
+    124
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L110: TRD-07. The Fruit Grafter (VV3 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd08_curio_seeker",
+   "title": "The Curio Seeker",
+   "games": [
+    3
+   ],
+   "lines": [
+    127,
+    141
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L127: TRD-08. The Curio Seeker (VV3 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd09_sailmaker",
+   "title": "The Sailmaker",
+   "games": [
+    4
+   ],
+   "lines": [
+    144,
+    158
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L144: TRD-09. The Sailmaker (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd10_washerwoman",
+   "title": "The Washerwoman",
+   "games": [
+    4
+   ],
+   "lines": [
+    161,
+    175
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L161: TRD-10. The Washerwoman (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd11_pattern",
+   "title": "The Pattern Collector",
+   "games": [
+    4
+   ],
+   "lines": [
+    178,
+    192
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L178: TRD-11. The Pattern Collector (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd12_noni_planter",
+   "title": "The Noni Planter",
+   "games": [
+    5
+   ],
+   "lines": [
+    195,
+    209
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L195: TRD-12. The Noni Planter (VV5 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "trd13_relic_keeper",
+   "title": "The Relic Keeper",
+   "games": [
+    5
+   ],
+   "lines": [
+    212,
+    226
+   ],
+   "kind": "event",
+   "section": "dr_trd",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_trd",
+   "source": "draft_trd",
+   "source_check": {
+    "heading": "L212: TRD-13. The Relic Keeper (VV5 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_vfx_notes_intro",
+   "title": "Village Moments: title, premise and how to read the draft",
+   "games": [],
+   "lines": [
+    1,
+    5
+   ],
+   "kind": "notes",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L1: NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_vfx_notes_end",
+   "title": "Village Moments: notes for the owner",
+   "games": [],
+   "lines": [
+    200,
+    206
+   ],
+   "kind": "notes",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L200: NOTES FOR THE OWNER",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "vfx01_welcoming_song",
+   "title": "The Welcoming Song",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    8,
+    17
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L8: VFX-01. The Welcoming Song",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx02_voyage_chant",
+   "title": "The Voyage Chant",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20,
+    29
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L20: VFX-02. The Voyage Chant",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx03_song_rain",
+   "title": "The Song for Rain",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    32,
+    41
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L32: VFX-03. The Song for Rain",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx04_long_afternoon",
+   "title": "The Long Afternoon",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    44,
+    53
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L44: VFX-04. The Long Afternoon",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx05_stories_dusk",
+   "title": "Stories at Dusk",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    56,
+    65
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L56: VFX-05. Stories at Dusk",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx06_spare_sail",
+   "title": "The Spare Sail",
+   "games": [
+    4
+   ],
+   "lines": [
+    68,
+    77
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L68: VFX-06. The Spare Sail (VV4 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx07_builders_push",
+   "title": "The Builders' Push",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    80,
+    89
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L80: VFX-07. The Builders' Push",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx08_visiting_teacher",
+   "title": "The Visiting Teacher",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    92,
+    101
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L92: VFX-08. The Visiting Teacher",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx09_quiet_season",
+   "title": "The Quiet Season",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    104,
+    113
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L104: VFX-09. The Quiet Season",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx10_morning_mist",
+   "title": "The Morning Mist",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    116,
+    125
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L116: VFX-10. The Morning Mist",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx11_fever",
+   "title": "The Fever",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    128,
+    137
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L128: VFX-11. The Fever",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx12_dance_harvest",
+   "title": "The Dance for the Harvest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    140,
+    149
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L140: VFX-12. The Dance for the Harvest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx13_harvest_rush",
+   "title": "The Harvest Rush",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    152,
+    161
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L152: VFX-13. The Harvest Rush",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx14_gifts_tide",
+   "title": "Gifts on the Tide",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    164,
+    173
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L164: VFX-14. Gifts on the Tide",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx15_fizzing_potion",
+   "title": "The Fizzing Potion",
+   "games": [
+    3
+   ],
+   "lines": [
+    176,
+    185
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L176: VFX-15. The Fizzing Potion (VV3 only)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "vfx16_clean_tree",
+   "title": "Clean as the Tree",
+   "games": [
+    4
+   ],
+   "lines": [
+    188,
+    197
+   ],
+   "kind": "event",
+   "section": "dr_vfx",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_vfx",
+   "source": "draft_vfx",
+   "source_check": {
+    "heading": "L188: VFX-16. Clean as the Tree (VV4 only)",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bush Mender",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "trd03_bush_mender",
+  "source": "draft_trd",
+  "lines": [
+   42,
+   56
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L42",
+  "ledger": [
+   {
+    "src": "L43",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L42",
+    "kind": "note",
+    "why": "the heading's \"(VV1 only)\": the event is A New Home only"
+   },
+   {
+    "src": "L48",
+    "kind": "instruction",
+    "text": "[effect: trade 400 tech points for 900 berries]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L51",
+    "kind": "instruction",
+    "text": "[effect: trade 400 tech points for 1400 berries]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L52",
+    "kind": "instruction",
+    "text": "[effect: trade 400 tech points for 500 berries]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A traveler offers to graft the berry bushes in return for the village's learning.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "tech",
+      "min": 400
+     }
+    },
+    {
+     "has_supply": {
+      "item": "berries",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "tech",
+         "min": 400
+        }
+       },
+       {
+        "has_supply": {
+         "item": "berries",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A wiry traveler named Mele arrives with a bundle of cuttings wrapped in wet leaves. Mele says the berry bushes on this island are tired, and that grafting a few strong cuttings onto them will make them heavy with berries again. Mele asks for tech in return: the village's learning, shared over the fire. (name1) looks at the bushes, then at the cuttings, and has to decide.",
+   "src": "L45",
+   "text_only": [
+    {
+     "what": "\"tech\"",
+     "reason": "technology talked about in the story; no tech points change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L45"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L47"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L50"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L54"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Mele and (name1) spend a whole day bent over the bushes, binding cuttings with strips of bark. Within weeks the branches are bowed with berries, and Mele has gone, carrying everything (name1) could teach about the island.",
+   "src": "L48",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "tech",
+     "give_amount": 400,
+     "get": "berries",
+     "get_amount": 900,
+     "src": "L48"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) decides the bushes will recover on their own. Mele leaves a single cutting in the ground anyway, \"for luck,\" and walks on along the shore.",
+   "src": "L55"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) bargains warmly and well. Mele, charmed, grafts every bush on the hill instead of just a few, and the berries come in so thick the children eat themselves sleepy.",
+   "src": "L51",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "tech",
+     "give_amount": 400,
+     "get": "berries",
+     "get_amount": 1400,
+     "src": "L51"
+    }
+   ]
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles until Mele grows impatient and grafts only the bushes nearest the path. They do fruit, eventually, and the rest of the hill looks on, a little tired.",
+   "src": "L52",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "tech",
+     "give_amount": 400,
+     "get": "berries",
+     "get_amount": 500,
+     "src": "L52"
+    }
+   ]
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Mele sees the village has little to share, gives (name1) a few tips about pruning for free, and walks on along the shore.",
+   "src": "L56"
+  }
+ }
+}

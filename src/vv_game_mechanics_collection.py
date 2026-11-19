@@ -74,6 +74,7 @@ SECTIONS = (
     ("dr_div", "New Events: Disability and Diversity"),
     ("dr_his", "New Events: History and Collective Memory"),
     ("dr_lif", "New Events: Pondering How Life Has Gone"),
+    ("dr_sup", "New Events: Tree of Life Supplies"),
     # The owner-approved files, group D (data/event_collection/drafts_d/<section>/)
     ("dr_rm2", "New Events: Role Models and Good Examples, RM-41 to RM-90"),
     ("dr_hz3", "New Events: Beyond the Horizon, Events 081 to 130"),
@@ -141,6 +142,17 @@ def _effects(node) -> set[str]:
     return out
 
 
+def _supplies(node) -> bool:
+    """Whether a graph has a "supply" effect (The Tree of Life's cutting tools, soap, cloth; cie-v6-binary.md 32)."""
+    if isinstance(node, dict):
+        if node.get("do") == "supply":
+            return True
+        return any(_supplies(value) for value in node.values())
+    if isinstance(node, list):
+        return any(_supplies(value) for value in node)
+    return False
+
+
 def build_index(living_seeds=()) -> dict:
     """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped).
     `living_seeds`: (manifest id, variant graph) of every Living Event Engine variant -- the caller makes them with
@@ -161,6 +173,8 @@ def build_index(living_seeds=()) -> dict:
         out[source.stem] = {"section": graph["collection"]["section"], "harm": sorted(_effects(graph))}
         if _allows(graph):
             out[source.stem]["allow"] = True
+        if _supplies(graph):
+            out[source.stem]["supply"] = True
     # The Living Event Engine's seeds (docs/event-collection/living-pack.md): one manifest row per seed, its event one
     # of the seed's variants in living.pak -- the seed can make what any of its variants makes.
     for manifest_id, graph in living_seeds:
@@ -168,6 +182,8 @@ def build_index(living_seeds=()) -> dict:
         entry["harm"] = sorted(set(entry["harm"]) | _effects(graph))
         if _allows(graph):
             entry["allow"] = True
+        if _supplies(graph):
+            entry["supply"] = True
     return {"format": "vvfp-event-collection-index", "version": 1, "events": out}
 
 
@@ -260,12 +276,72 @@ def lines(game: int) -> list[tuple[str, bool]]:
     if early:
         out.append(("Can make a nursing mother or father give birth early (the parent lives; the baby is born younger "
                     "and weaker the earlier it is): " + ", ".join(early) + ".", True))
+    supplies = [title for event_id, title, _ in manifest(game) if index()[event_id].get("supply")] \
+        if game == 4 else []
+    if supplies:
+        out.append(("Can change the village's cutting tools, bars of soap or cloth bolts (a sack is a cloth bolt) as "
+                    "the story says: cutting tools and cloth bolts stay 0 to 6 (0 to 99 with Up to 99 Cutting "
+                    "Tools/Soap/Cloth), soap 0 to 99, never below 0; before The Cutting Tool, Soap Invented or Cloth "
+                    "Invented is solved, that item's words are story only: " + ", ".join(supplies) + ".", True))
     if allowed:
         who = {1: ", the Golden Child", 3: ", the Tribal Chief"}.get(game, "")
         out.append((f"Where the story calls for it, these may harm a nursing mother or father{who}: "
                     + ", ".join(allowed) + ".", True))
+    out.extend((text, True) for text in work_rush_lines(game))
     for words, titles in sections(game):
         out.append((f"{words} ({len(titles)}): " + ", ".join(titles) + ".", True))
+    return out
+
+
+# The work rush (the owner, 2026-11-18; native/vvfp_story_upgrades/story_graph_village.inc CG_WORK / CG_WORK_REST and
+# cg_highest_skill; tests/test_work_rush_busy_at_job_site.py pins these words to it).  Per skill: each game's job.
+WORK_JOBS = {
+    "Farming": {1: "Foraging", 2: "Harvesting coconuts", 3: "Fishing", 4: "Harvesting blackberries",
+                5: "Harvesting noni"},
+    "Building": {1: "Fixing hut", 2: "Exercising", 3: "Doing exercise", 4: "Doing exercise"},
+    "Research": {1: "Researching", 2: "Researching", 3: "Researching", 4: "Researching", 5: "Researching"},
+    "Healing": {1: "Healing someone", 2: "Healing someone", 3: "Studying medicine", 5: "Health chanting"},
+    "Parenting": {2: "Telling a story", 3: "Telling a story"},
+    "Devotion": {5: "Praising"},
+}
+WORK_BUSY = {1: "sit down (\"Sitting\")", 2: "sit down (\"Sitting\")",
+             3: "work at nothing (\"Working 'til he drops!\" / \"Working 'til she drops!\")",
+             4: "sit down (\"Needs to sit down\")", 5: "sit down (\"Needs to sit down\")"}
+WORK_TIE = {
+    1: "the first of Parenting, Building, Healing, Farming, Research",
+    2: "the first of Parenting, Building, Healing, Farming, Research",
+    3: "the first of Farming, Parenting, Healing, Research, Building",
+    4: "Farming, Parenting, Healing, Research, Building in turn, each skill taking over when it is above the best so "
+       "far with that best's fraction dropped (so 40.2 after 40.7 takes over, 40.0 does not)",
+    5: "Farming, Parenting, Healing, Research, Building, Devotion in turn, each skill taking over when it is above the "
+       "best so far with that best's fraction dropped (so 40.2 after 40.7 takes over, 40.0 does not)",
+}
+
+
+def work_rush_lines(game: int) -> list[str]:
+    """The work rush an event may call (all five games), in plain words."""
+    jobs = "; ".join(f"{skill}: {by_game[game]}" for skill, by_game in WORK_JOBS.items() if game in by_game)
+    # skills this game has but no job for (Devotion is New Believers' own skill; Parenting has its own line)
+    none = [skill for skill, by_game in WORK_JOBS.items()
+            if game not in by_game and skill not in ("Devotion", "Parenting")]
+    out = [
+        "Work rush (an event may call the village to one skill's work): the workers are the adults with that job "
+        "ticked on the Details screen, and the adults with no job ticked whose highest skill on the Details screen "
+        f"is that one (a tie goes to the skill the Village screen's Action bar shows under \"Skill\": {WORK_TIE[game]}). "
+        "Children never take part: they neither work nor stop what they are doing. Nor does anyone carrying a baby "
+        "or sick, as the game itself never sends them to work.",
+        f"The work in this game: {jobs}." + (f" A {' or '.join(none)} rush does nothing here (no such job)."
+                                             if none else ""),
+        f"Every other adult goes where the workers go and there they {WORK_BUSY[game]}: no skill and nothing made. "
+        "Each gets the spot the job would give a worker; when that spot is within 20 pixels of one already taken, "
+        "they try up to 8 of the job's other spots and take the nearest free one, or share a spot when every one is "
+        "taken.",
+    ]
+    if game in (1, 2):
+        out.append("Healing someone has no place of its own (it is done where the healer stands), so in a Healing "
+                   "rush the others sit where they are.")
+    out.append("A Parenting rush is storytelling only, so Birth Control is never bypassed (no one is sent to embrace)"
+               + ("." if game in (2, 3) else "; this game has no storytelling job, so a Parenting rush does nothing."))
     return out
 
 

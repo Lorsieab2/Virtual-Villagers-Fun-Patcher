@@ -1009,6 +1009,7 @@ for _sid, (_topic, _n, _sec, _pre) in lib.DRAFTS_C.items():
     CREDITS[_sec] = ("mixed", [(1, 3)], _sid)
 DRAFTS_C_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_C.items()}      # source id -> its one series (the section)
 DRAFTS_C_VV5_TAG = " (VV5 only)"
+DRAFTS_C_VV4_TAG = " (VV4 only)"      # Tree of Life Supplies (draft_sup): The Tree of Life only
 
 
 def _drafts_c_rows() -> None:
@@ -1027,8 +1028,9 @@ def _drafts_c_rows() -> None:
                 m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
                 num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
                 games = ALL
-                if src_title.endswith(DRAFTS_C_VV5_TAG):
-                    games, src_title = [5], src_title[:-len(DRAFTS_C_VV5_TAG)]
+                one = re.search(r" \(VV([1-5]) only\)$", src_title)   # DRAFTS_C_VV5_TAG, _VV4_TAG; Traders: any
+                if one:
+                    games, src_title = [int(one.group(1))], src_title[:one.start()]
                 eid = f"{pre.lower()}{num}"
                 nc = sum(1 for n in range(h + 2, e + 1) if re.match(r"^[^.!?]{1,80}:$", lib.line(n).strip()))
                 R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",

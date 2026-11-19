@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Bolt",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup09_first_bolt",
+  "source": "draft_sup",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an elder)"
+   },
+   {
+    "src": "L104",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L110",
+    "kind": "instruction",
+    "text": "[effect: the village gains 1 cloth bolt]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L113",
+    "kind": "instruction",
+    "text": "[effect: the village gains 1 cloth bolt]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A teen's first bolt of cloth is lumpy: store it with the rest, or unpick it and try again.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just finished (subject.his/her) very first bolt of cloth at the clothing hut. It is lumpy. One end is thicker than the other. In one place there is a hole you could put a finger through. (subject) is standing over it, wondering whether to start again before anyone sees.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Put It in the Store With the Rest",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Unpick It and Try Again",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) comes over, looks at it for a long time, and puts it on the pile with the others. \"My first one was worse,\" (friend.he/she) says. \"They used it to carry yellow fruit for years. Lumpy cloth still holds fruit.\" (subject) goes home walking a little taller.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": 1,
+     "max": 1,
+     "src": "L110"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) unpicks the whole thing, thread by thread, and starts over. It takes until sunset. The second one is much better. (friend) watches from the doorway and doesn't say a word, but (friend.he/she) brings (subject) something to eat, and stays until it's done.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": 1,
+     "max": 1,
+     "src": "L113"
+    }
+   ]
+  }
+ }
+}

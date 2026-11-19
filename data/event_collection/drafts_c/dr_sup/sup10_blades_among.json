@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Blades Among the Roots",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup10_blades_among",
+  "source": "draft_sup",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L116",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L122",
+    "kind": "instruction",
+    "text": "[effect: the village gains 2 cutting tools]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Two cutting tools lie among the roots of the great tree: take them with thanks, or leave them for their owner.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a stormy night, (name1) finds two cutting tools lying among the roots of the great tree, bound together with a strand of fresh green vine. They are sharp and clean and carry no one's mark. Nobody in the village says they are theirs. Some say the tree is generous to those who care for it. Some say somebody is very forgetful.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Take Them, With Thanks",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Leave Them for Their Owner",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) says thank you out loud, to the tree or to whoever is listening, and carries the tools to the basket. They are the best edges anyone has seen in a long time. Nobody ever claims them. (name1) leaves a little water at the roots every morning after that, just in case.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": 2,
+     "max": 2,
+     "src": "L122"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) leaves them where they are. In the morning, they are gone, and the vine with them. Whether their owner came back for them, or the tree took them back, nobody can say. (name1) can't shake the feeling that (he/she) passed some kind of test, though (he/she) has no idea which one.",
+   "src": "L125"
+  }
+ }
+}

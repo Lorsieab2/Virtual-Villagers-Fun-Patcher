@@ -375,20 +375,56 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
-              "presentation")                                                # ... 31
+              "presentation",                                                # ... 31
+              "supply",                                                      # ... 32
+              "trade", "group", "village")                                   # ... 33-35
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
                      "sex_change": 22,     # 29
                      "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
-                     "deliver_early": 24})  # 30
+                     "deliver_early": 24,  # 30
+                     "supply": 25,         # 32, 33: The Tree of Life's supplies, every game's goods
+                     "trade": 41, "group": 42, "village": 43})   # the merge plan's numbers   # 33-35
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
-                    "presentation": 0})    # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "presentation": 0,     # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "supply": 0,           # 32: The Tree of Life only; its puzzle solved, known only at run time
+                    "trade": 0, "village": 0,   # 33, 35: known only at run time
+                    "group": CAP_BEHAVIOUR})    # 34
+# Section 32: the supplies (the item word the .cieg holds) -> the puzzle that invents each in The Tree of Life.
+SUPPLY_ITEMS = {"cutting_tools": "The Cutting Tool", "soap": "Soap Invented", "cloth": "Cloth Invented"}
+SUPPLY_GAME = 4
+SUPPLY_MAX = 99               # an effect's change is 1..99 either way (the counts are kept 0..6, or 0..99)
+# Sections 33-35 (the owner's spec of 2026-11-16/17; docs/event-collection/traders-and-effects-research.md): every
+# game's goods a trader may give or take (story_graph_village.inc CG_GOODS) -> the games that keep each.  A word a
+# game does not keep is story only there.
+GOODS = {"food": (1, 2, 3, 4, 5), "tech": (1, 2, 3, 4, 5), "berries": (1,), "coconuts": (2,), "fish": (2,),
+         "collectible": (2, 3, 4, 5), "honey": (3,), "fruit": (3,), "blackberries": (4,), "cutting_tools": (4,),
+         "soap": (4,), "cloth": (4,), "noni": (5,),
+         "yellow_fruit": (4,)}    # 36: "VVFP VV4 Fruit Supply.dll"'s tree, only with Yellow Fruit Trees limited
+GOOD_MAX = 9999               # one supply / trade change of a good other than The Tree of Life's three supplies
+GROUP_KINDS = ("relax", "swim", "dance", "pray", "celebrate", "pond", "play", "stories", "song", "chant", "speech",
+               "sick", "cure", "work", "effect")
+GROUP_WHOLE_ONLY = ("sick", "cure", "work")    # the whole village's only
+# Section 36: a work rush's skill; the temporary effects (story_graph_village.inc CG_TEMPS) -> the game of each.
+WORK_SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting", "Devotion")
+TEMP_EFFECTS: dict[str, int] = {}   # the owner, 2026-11-18: no vanilla event makes any of these: words only
+TEMP_WORDS_ONLY = ("smarter", "inspired", "healing", "bouncy", "hiccups", "swift", "stinky_breath", "soapy_taste",
+                   "nonsense_talk", "clean", "glow", "gunk", "stew_wait")
+TECH_AREAS = {1: ("Spirituality", "Science", "Construction", "Medicine", "Fertility", "Farming"),
+              2: ("Culture", "Science", "Engineering", "Medicine", "Exploration", "Farming"),
+              3: ("Science", "Medicine", "Alchemy", "Restoration", "Leadership", "Nature", "Magic"),
+              4: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Dendrology"),
+              5: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Spirituality")}
+WEATHER = {"clear": (3, 4, 5), "sun": (4, 5), "rain": (3, 4, 5), "storm": (3, 4, 5), "fog": (3, 4, 5)}
+VILLAGE_WHAT = ("event_timer", "tech_level", "weather")   # the owner's final list: construction and the spawn burst are words only
+EVENT_TIMER_HOURS = 72
+CONSTRUCTION_MAX = 2000
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early", "presentation")
@@ -407,10 +443,11 @@ RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
 HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
-            "has_living_child", "drew", "has_dead_relative")
+            "has_living_child", "drew", "has_dead_relative", "has_supply")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
                    "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
-                   "has_dead_relative": 17})   # 21a (gap C3)
+                   "has_dead_relative": 17,    # 21a (gap C3)
+                   "has_supply": 19})          # 33: the village has at least n of a good to give
 ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative")   # run-time facts of a bound role
 
 
@@ -422,6 +459,8 @@ def fact_of(op: str, arg: Any) -> str:
         return f"skill_at_least:{arg['role']}:{arg['skill']}:{arg['min']}"
     if op == "drew":
         return f"drew:{arg['pool']}:{arg['instance']}:{arg['item']}"
+    if op == "has_supply":
+        return f"has_supply:{arg['item']}:{arg['min']}"
     return f"{op}:{arg}"
 
 
@@ -694,6 +733,13 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
                 problems.append(f"{where}: skill_at_least is {{\"role\": r, \"skill\": name, \"min\": 1..100}}")
                 return None
             return {op: dict(arg)}
+        if op == "has_supply":
+            if not isinstance(arg, dict) or set(arg) != {"item", "min"} or arg["item"] not in GOODS \
+                    or not _int_in(arg["min"], 0, GOOD_MAX):
+                problems.append(f"{where}: has_supply is {{\"item\": a good ({', '.join(GOODS)}), \"min\": "
+                                f"0..{GOOD_MAX} (0: the game keeps it now)}}")
+                return None
+            return {op: {"item": arg["item"], "min": arg["min"]}}
         if op == "drew":
             if not isinstance(arg, dict) or set(arg) - {"pool", "instance", "item"} \
                     or not isinstance(arg.get("pool"), str) or not isinstance(arg.get("item"), str) \
@@ -862,6 +908,113 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         if not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
             problems.append(f"{where}: damage is 1..100 percent, min <= max")
         out.update(structures=st if st == DAMAGE_ANY else list(st), min=lo, max=hi)
+    elif do == "supply":
+        # Section 32: the village's cutting tools, soap or cloth bolts (The Tree of Life), min..max a gain or a loss.
+        # Section 33: any game's goods (GOODS), min..max a gain or a loss (1..9999; The Tree of Life's three 1..99).
+        known |= {"item", "min", "max"}
+        item = e.get("item")
+        if item not in GOODS:
+            problems.append(f"{where}: supply item is one of {', '.join(GOODS)}")
+        top = SUPPLY_MAX if item in SUPPLY_ITEMS else GOOD_MAX
+        lo, hi = e.get("min"), e.get("max")
+        if not (_int_in(lo, -top, top) and _int_in(hi, -top, top) and lo <= hi and (lo >= 1 or hi <= -1)):
+            problems.append(f"{where}: supply min..max is a gain (1..{top}) or a loss (-{top}..-1), min <= max")
+        if games is not None and item in SUPPLY_ITEMS and SUPPLY_GAME not in games:
+            problems.append(f"{where}: supply changes The Tree of Life's supplies: the event must list game 4")
+        elif games is not None and item in GOODS and not set(games) & set(GOODS[item]):
+            problems.append(f"{where}: no game of the event keeps {item} (games {GOODS[item]})")
+        out.update(item=item, min=lo, max=hi)
+    elif do == "trade":
+        # Section 33: give n of one good, get m of another, all or nothing.
+        known |= {"give", "give_amount", "get", "get_amount"}
+        for k in ("give", "get"):
+            if e.get(k) not in GOODS:
+                problems.append(f"{where}: trade {k} is one of {', '.join(GOODS)}")
+            elif games is not None and not set(games) & set(GOODS[e[k]]):
+                problems.append(f"{where}: no game of the event keeps {e[k]} (games {GOODS[e[k]]})")
+        if e.get("give") == e.get("get"):
+            problems.append(f"{where}: a trade gives one good and gets another")
+        for k in ("give_amount", "get_amount"):
+            if not _int_in(e.get(k), 1, GOOD_MAX):
+                problems.append(f"{where}: trade {k} is 1..{GOOD_MAX}")
+        out.update(give=e.get("give"), give_amount=e.get("give_amount"), get=e.get("get"),
+                   get_amount=e.get("get_amount"))
+    elif do == "group":
+        # Section 34: the whole village (or one villager) takes the kind's action; sickness / cure.
+        known |= {"kind", "who", "percent"}
+        kind, who = e.get("kind"), e.get("who", "all")
+        if kind not in GROUP_KINDS:
+            problems.append(f"{where}: group kind is one of {', '.join(GROUP_KINDS)}")
+        if not isinstance(who, str):
+            problems.append(f"{where}: group's who is all or a role")
+            who = "all"
+        if kind in GROUP_WHOLE_ONLY and who != "all":
+            problems.append(f"{where}: group {kind} is the whole village's (who: all)")
+        if kind == "sick":
+            if not _int_in(e.get("percent"), 1, 100):
+                problems.append(f"{where}: group sick takes a percent 1..100")
+            out["percent"] = e.get("percent")
+        elif "percent" in e:
+            problems.append(f"{where}: only group sick takes a percent")
+        if kind == "work":
+            # 36: the skill's workers work, everyone else is busy with no skill
+            known.add("skill")
+            if e.get("skill") not in WORK_SKILLS:
+                problems.append(f"{where}: group work takes a skill, one of {', '.join(WORK_SKILLS)}")
+            out["skill"] = e.get("skill")
+        if kind == "effect":
+            # 36: a temporary effect through the game's own setter
+            known.add("effect")
+            eff = e.get("effect")
+            if eff in TEMP_WORDS_ONLY:
+                problems.append(f"{where}: {eff} is never an event's effect: words only (potions, baths, gunk and "
+                                "meditation are near puzzles)")
+            elif eff not in TEMP_EFFECTS:
+                problems.append(f"{where}: group effect is one of {', '.join(TEMP_EFFECTS)}")
+            elif games is not None and TEMP_EFFECTS[eff] not in games:
+                problems.append(f"{where}: {eff} is a game {TEMP_EFFECTS[eff]} effect: the event must list it")
+            out["effect"] = eff
+        out.update(kind=kind, who=who)
+    elif do == "village":
+        # Section 35: the next island event, a tech level, a construction, the weather.
+        what = e.get("what")
+        known.add("what")
+        if what not in VILLAGE_WHAT:
+            problems.append(f"{where}: village what is one of {', '.join(VILLAGE_WHAT)}")
+        out["what"] = what
+        if what in ("event_timer", "construction"):
+            known |= {"min", "max"}
+            lo, hi = e.get("min"), e.get("max")
+            if what == "event_timer":
+                ok = _int_in(lo, -EVENT_TIMER_HOURS, EVENT_TIMER_HOURS) and _int_in(hi, -EVENT_TIMER_HOURS,
+                                                                                    EVENT_TIMER_HOURS) \
+                    and lo <= hi and (lo >= 1 or hi <= -1)
+                if not ok:
+                    problems.append(f"{where}: event_timer is hours sooner (-{EVENT_TIMER_HOURS}..-1) or later "
+                                    f"(1..{EVENT_TIMER_HOURS}), min <= max")
+            elif not (_int_in(lo, 1, CONSTRUCTION_MAX) and _int_in(hi, 1, CONSTRUCTION_MAX) and lo <= hi):
+                problems.append(f"{where}: construction is 1..{CONSTRUCTION_MAX} points, min <= max")
+            out.update(min=lo, max=hi)
+        elif what == "tech_level":
+            known |= {"area", "step"}
+            area, step = e.get("area"), e.get("step")
+            if step not in (1, -1):
+                problems.append(f"{where}: tech_level step is 1 or -1")
+            if area is not None and (not isinstance(area, str) or (games is not None and not any(
+                    area in TECH_AREAS[gn] for gn in games if gn in TECH_AREAS))):
+                problems.append(f"{where}: tech_level area {area!r} is no area of the event's games")
+            out.update(step=step)
+            if area is not None:
+                out["area"] = area
+        elif what == "weather":
+            known.add("weather")
+            w = e.get("weather")
+            if w not in WEATHER:
+                problems.append(f"{where}: weather is one of {', '.join(WEATHER)}")
+            elif games is not None and not set(games) & set(WEATHER[w]):
+                problems.append(f"{where}: no game of the event has {w} weather (A New Home and The Lost Children "
+                                "have none)")
+            out["weather"] = w
     else:
         known.add("role")
         out["role"] = e.get("role", default_role)
@@ -2190,9 +2343,53 @@ def _harmful(e: dict, games: Iterable[int]) -> bool:
     return False
 
 
+def village_args(e: dict) -> tuple[int, int, str]:
+    """Section 35: a "village" effect's a, b and string (the .cieg's)."""
+    what = e["what"]
+    if what in ("event_timer", "construction"):
+        return e["min"], e["max"], what
+    if what == "tech_level":
+        return e["step"], e["step"], f"tech_level:{e['area']}" if e.get("area") else "tech_level"
+    if what == "spawn":
+        return 0, 0, "spawn"
+    return 0, 0, f"weather:{e['weather']}"
+
+
+def group_word(e: dict) -> str:
+    """Section 34/36: a "group" effect's string ("work:Farming", "effect:hiccups", or the kind)."""
+    if e["kind"] == "work":
+        return f"work:{e['skill']}"
+    if e["kind"] == "effect":
+        return f"effect:{e['effect']}"
+    return e["kind"]
+
+
+def group_from(words: str) -> dict:
+    """group_word reversed."""
+    if words.startswith("work:"):
+        return {"kind": "work", "skill": words[5:]}
+    if words.startswith("effect:"):
+        return {"kind": "effect", "effect": words[7:]}
+    return {"kind": words}
+
+
+def village_from(words: str, a: int, b: int) -> dict:
+    """The JSON of a "village" effect from its string and a, b (village_args reversed)."""
+    if words in ("event_timer", "construction"):
+        return {"what": words, "min": a, "max": b}
+    if words == "spawn":
+        return {"what": "spawn"}
+    if words.startswith("tech_level"):
+        out: dict[str, Any] = {"what": "tech_level", "step": a}
+        if ":" in words:
+            out["area"] = words.split(":", 1)[1]
+        return out
+    return {"what": "weather", "weather": words.split(":", 1)[1]}
+
+
 def effect_role(e: dict) -> str | None:
     """The role an effect acts on, or None (food, tech, an award, damage, a celebration of everyone)."""
-    if e["do"] == "celebrate":
+    if e["do"] in ("celebrate", "group"):
         return None if e["who"] == "all" else e["who"]
     return e.get("role") if e["do"] in VILLAGER_EFFECTS_V6 else None
 
@@ -2440,7 +2637,7 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     if op == "harmable":
         member = dict(ctx.aliases).get(arg, arg)
         return member in ctx.roles and f"harmable:{member}" in ctx.facts
-    if op in ("special_present", "min_population", "min_children", "drew"):
+    if op in ("special_present", "min_population", "min_children", "drew", "has_supply"):
         return fact_of(op, arg) in ctx.facts
     if op in ROLE_FACTS:
         return fact_role(op, arg) in ctx.roles and fact_of(op, arg) in ctx.facts
@@ -2542,7 +2739,7 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
     free = sorted({f"harmable:{a}" for op, a in leaves if op == "harmable" and a in bound
                    and g["roles"].get(a, {}).get("kind") == "villager" and f"harmable:{a}" not in base}
                   | {f"special_present:{a}" for op, a in leaves if op == "special_present"}
-                  | {fact_of(op, a) for op, a in leaves if op == "drew"}
+                  | {fact_of(op, a) for op, a in leaves if op in ("drew", "has_supply")}
                   | {fact_of(op, a) for op, a in leaves if op in ROLE_FACTS and fact_role(op, a) in bound})
     pops = sorted({a for op, a in leaves if op == "min_population"})
     kids = sorted({a for op, a in leaves if op == "min_children"})
@@ -2691,6 +2888,8 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
+    if do in ("supply", "trade", "group", "village"):
+        return []                                       # 32-35: whether it changes anything is known only in the game
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
@@ -3199,6 +3398,9 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
             if e["do"] == "celebrate" and e["who"] != "all" and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: celebrate's who is all or a villager role")
+            if e["do"] == "group" and e["who"] != "all" and \
+                    g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
+                problems.append(f"{where}: group's who is all or a villager role")
             if e["do"] == "action" and isinstance(e["action"], str) and \
                     not any(e["action"] in actions(gn) for gn in g["games"]):
                 problems.append(f"{where}: {e['action']!r} is not an action of the event's games")
@@ -3612,6 +3814,8 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], s(arg["skill"]))
         elif op in ("has_living_child", "has_dead_relative"):
             conds[at] = _COND.pack(code, 0, ridx[arg], 0, 0)
+        elif op == "has_supply":
+            conds[at] = _COND.pack(code, 0, s(arg["item"]), arg["min"], 0)
         elif op == "drew":
             item = [it["text"] for it in g["pools"][arg["pool"]]["items"]].index(arg["item"])
             conds[at] = _COND.pack(code, 0, list(lg["pools"]).index(arg["pool"]), arg["instance"], item)
@@ -3686,6 +3890,15 @@ def _compile_v6(g: dict) -> bytes:
                 a, b = e["min"], e["max"]
                 if do == "damage":
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
+            elif do == "supply":
+                a, b, st = e["min"], e["max"], s(e["item"])
+            elif do == "trade":
+                a, b, st = e["give_amount"], e["get_amount"], s(f"{e['give']},{e['get']}")
+            elif do == "group":
+                a, st = e.get("percent") or 0, s(group_word(e))
+            elif do == "village":
+                a, b, st = village_args(e)
+                st = s(st)
             elif do == "preference":
                 flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
                                                                  else 0)
@@ -3822,6 +4035,8 @@ def _decompile_v6(data: bytes) -> dict:
             return {name: {"role": role_ids[a], "min": b, "max": c3 or None}}
         if name == "skill_at_least":
             return {name: {"role": role_ids[a], "skill": s(c3), "min": b}}
+        if name == "has_supply":
+            return {name: {"item": s(a), "min": b}}
         if name == "drew":
             pname, pfirst = _POOL.unpack_from(data, o_pool + a * _POOL.size)[:2]
             it = _ITEM.unpack_from(data, o_item + (pfirst + c3) * _ITEM.size)[0]
@@ -3902,6 +4117,17 @@ def _decompile_v6(data: bytes) -> dict:
             elif do == "damage":
                 words = s(st)
                 e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
+            elif do == "supply":
+                e.update(item=s(st), min=a, max=b)
+            elif do == "trade":
+                give, get = s(st).split(",", 1)
+                e.update(give=give, give_amount=a, get=get, get_amount=b)
+            elif do == "group":
+                e.update(group_from(s(st)), who="all" if role == 0xFF else role_ids[role])
+                if s(st) == "sick":
+                    e["percent"] = a
+            elif do == "village":
+                e.update(village_from(s(st), a, b))
             elif do != "pay_award":
                 e["role"] = role_ids[role]
                 if do == "kill":
@@ -4328,8 +4554,11 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if hi != 0:
                 lo += below(hi - lo + 1)
             return [lo, 0]
-        if do in ("health", "health_change", "damage") or (do == "deliver_early" and "min" in e):
+        if do in ("health", "health_change", "damage", "supply") or (do == "deliver_early" and "min" in e):
             return [e["min"] + below(e["max"] - e["min"] + 1), 0]
+        if do == "village":
+            lo, hi, _w = village_args(e)              # 35: a fixed step or the weather (lo == hi) takes no roll
+            return [lo + below(hi - lo + 1), 0]
         if do == "skill":
             have = [s for s in e["skills"] if s in gm.skills]
             va = gm.skills.index(have[below(len(have))]) if have else -1

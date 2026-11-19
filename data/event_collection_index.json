@@ -1295,7 +1295,8 @@
   },
   "anexp61_market_repairs": {
    "harm": [],
-   "section": "an_expr"
+   "section": "an_expr",
+   "supply": true
   },
   "anexp62_question_mercy": {
    "harm": [],
@@ -10472,7 +10473,8 @@
   },
   "living_mc_dis_14": {
    "harm": [],
-   "section": "living_engine"
+   "section": "living_engine",
+   "supply": true
   },
   "living_mc_dis_15": {
    "harm": [],
@@ -10496,7 +10498,8 @@
   },
   "living_mc_isl_05": {
    "harm": [],
-   "section": "living_engine"
+   "section": "living_engine",
+   "supply": true
   },
   "living_mc_isl_06": {
    "harm": [],
@@ -11205,7 +11208,8 @@
   },
   "lvlife20_rare_dye_vine": {
    "harm": [],
-   "section": "lv_life"
+   "section": "lv_life",
+   "supply": true
   },
   "lvlife21_story_tablet": {
    "harm": [],
@@ -12063,7 +12067,8 @@
   },
   "nat36_hornets_path": {
    "harm": [],
-   "section": "dr_nat"
+   "section": "dr_nat",
+   "supply": true
   },
   "nat37_kingfisher": {
    "harm": [],
@@ -12871,6 +12876,76 @@
    "harm": [],
    "section": "sss"
   },
+  "sup01_blackberry_blade": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup02_soap_smelled": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup03_bubbles_stream": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup04_sack_yellow": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup05_bundle_tide": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup06_pile_fish_bones": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup07_keeps_taking": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup08_torn_sail": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup09_first_bolt": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup10_blades_among": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup11_many_cooks_soap": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup12_tool_basket": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup13_washing_day_pond": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
+  "sup14_cloth_blades": {
+   "harm": [],
+   "section": "dr_sup",
+   "supply": true
+  },
   "tim001_leaf_lantern": {
    "harm": [],
    "section": "dr_tim"
@@ -13401,7 +13476,8 @@
   },
   "tim133_rhythm_bark": {
    "harm": [],
-   "section": "dr_tim2"
+   "section": "dr_tim2",
+   "supply": true
   },
   "tim134_coconut_water": {
    "harm": [],
@@ -13570,6 +13646,58 @@
   "tim175_swept_doorway": {
    "harm": [],
    "section": "dr_tim2"
+  },
+  "trd01_salt_trader": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd02_star_path_keeper": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd03_bush_mender": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd04_net_weaver": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd05_shell_collector": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd06_honey_buyer": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd07_fruit_grafter": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd08_curio_seeker": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd09_sailmaker": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd10_washerwoman": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd11_pattern": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd12_noni_planter": {
+   "harm": [],
+   "section": "dr_trd"
+  },
+  "trd13_relic_keeper": {
+   "harm": [],
+   "section": "dr_trd"
   },
   "tt01_scratch_became": {
    "harm": [],
@@ -13770,6 +13898,71 @@
   "tt50_clever_way_avoid": {
    "harm": [],
    "section": "dr_tt"
+  },
+  "vfx01_welcoming_song": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx02_voyage_chant": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx03_song_rain": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx04_long_afternoon": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx05_stories_dusk": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx06_spare_sail": {
+   "harm": [],
+   "section": "dr_vfx",
+   "supply": true
+  },
+  "vfx07_builders_push": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx08_visiting_teacher": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx09_quiet_season": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx10_morning_mist": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx11_fever": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx12_dance_harvest": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx13_harvest_rush": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx14_gifts_tide": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx15_fizzing_potion": {
+   "harm": [],
+   "section": "dr_vfx"
+  },
+  "vfx16_clean_tree": {
+   "harm": [],
+   "section": "dr_vfx"
   },
   "vv1_child_of_legend": {
    "harm": [],

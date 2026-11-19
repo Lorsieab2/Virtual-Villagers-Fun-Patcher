@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Many Cooks at the Soap Pot",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup11_many_cooks_soap",
+  "source": "draft_sup",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L128",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L134",
+    "kind": "instruction",
+    "text": "[effect: the village gains 3 bars of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L137",
+    "kind": "instruction",
+    "text": "[effect: the village gains 1 bar of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Three soap makers each add a secret to the pot: use the mixed batch, or start over with one cook.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), (friend) and (third) are making soap together, and each of them has a secret. (subject) has added extra ash. (friend) has added coconut oil. (third) has added crushed leaves (third.he/she) won't name. Nobody told the others. The pot is now a strange green, and it smells like a whole garden.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Use the Mixed Batch",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Start Over, One Cook Only",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They pour it out anyway. The bars come out green and speckled and very strong. They clean everything. They clean things that were not dirty. (subject) says it was the ash, (friend) says it was the oil, and (third) just smiles. Nobody will ever be able to make it again.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": 3,
+     "max": 3,
+     "src": "L134"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They draw straws, and (friend) wins. (friend.He/she) makes the next batch alone while the other two sit nearby and offer advice nobody asked for. It comes out perfect. But there is only enough fat left for one bar, so the village gets one perfect bar and a very long story.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": 1,
+     "max": 1,
+     "src": "L137"
+    }
+   ]
+  }
+ }
+}
