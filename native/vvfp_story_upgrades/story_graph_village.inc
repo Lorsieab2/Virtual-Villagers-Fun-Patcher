@@ -723,11 +723,15 @@ static int sc_clock(int game, unsigned int *now, unsigned int **timer);   /* sto
    (A New Home 23 h, rand(12) + 12; The Lost Children 19 h, rand(10) + 10; the later three 15 h, rand(8) + 8).
    Which event comes and its odds are never touched: only when. */
 #define CG_GONG_SOONER 60u
+/* The change the last event_timer effect made, for the outcome line (story_graph's automatic text): 0 none, -1 "soon"
+   (the Gong's minute), else the hours it came later after the cap. */
+static int cg_timer_applied_hours;
 static void cg_event_timer(int game, int hours) {
     static const int LONGEST[6] = { 0, 23, 19, 15, 15, 15 };
     unsigned int now = 0, *timer = NULL;
     long long due;
     char line[96];
+    cg_timer_applied_hours = 0;
     if (hours == 0 || game < 1 || game > 5 || !sc_clock(game, &now, &timer) || timer == NULL) {
         return;
     }
@@ -755,6 +759,7 @@ static void cg_event_timer(int game, int hours) {
         if ((unsigned int)due == *timer) {
             return;
         }
+        cg_timer_applied_hours = hours < 0 ? -1 : (int)((due - (long long)*timer) / 3600);
         *timer = (unsigned int)due;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return;

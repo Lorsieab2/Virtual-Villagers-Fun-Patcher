@@ -413,9 +413,11 @@ class GameSide(unittest.TestCase):
                     r.p.put32(at, 0xF0000000)
                     r.watch = lambda: seen.append(r.p.u32(at))  # noqa: E731
 
-                self.run_graph(game, g, setup)
+                r, _ = self.run_graph(game, g, setup)
                 now = seen[0] - 60
                 self.assertEqual(seen, [now + 60, now + 60 + 5 * 3600, now + longest * 3600, now + 60])
+                self.assertEqual(r.p.export("VvfpStoryProbeGraphTimerApplied") & 0xFFFFFFFF, 0xFFFFFFFF,
+                                 "the last change, for the outcome line: soon")
 
 # Section 36: the work rush's starters (VV1/VV2: the action routine, its argument count; VV3-VV5: the action ids)
 WORK_RUSH = {"vv1": ((0x441E10, 4), (0x439D80, 8)), "vv2": ((0x456F70, 4), (0x44A1E0, 8)),

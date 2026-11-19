@@ -7675,6 +7675,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphYellowFruit(int mode) {
     return now;
 }
 
+/* The last event_timer effect's applied change (cie-v6-binary.md 35): 0 none, -1 soon, else the hours after the cap. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphTimerApplied(void) {
+    return cg_timer_applied_hours;
+}
+
 /* "has_supply" (cie-v6-binary.md 33): -1 the village's own goods, 0 / 1 forced. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphGoods(int mode) {
     test_graph_goods = mode;
