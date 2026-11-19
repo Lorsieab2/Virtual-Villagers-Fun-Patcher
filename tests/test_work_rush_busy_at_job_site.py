@@ -42,7 +42,8 @@ SHAPE = {1: (0x44, 0x18, 29, 3, 4, 8), 2: (0x4C, 0x18, 49, 3, 4, 8), 3: (0, 0x2C
 ROOM = 20
 PEOPLE = [(0, "m", 30, "Adam", 10, False), (1, "f", 31, "Bea", 90, False), (2, "m", 40, "Cal", 50, False),
           (3, "f", 35, "Dan", 0, False), (4, "m", 8, "Kai", 0, False)]
-SIT = (2, 0, 0, 15, 0, 2)                    # A New Home's / The Lost Children's Sitting step (0x439D80 / 0x44A1E0)
+PICKS = [(500, 500), (600, 600), (500, 505), (560, 500), (530, 505)] + [(500, 500)] * 5 + [(900, 900)]
+SIT = (2, 0, 0, 15, 0, 2)                  # A New Home's / The Lost Children's Sitting step (0x439D80 / 0x44A1E0)
 
 
 def queue(read, record: int, game: int) -> list[tuple]:
@@ -106,6 +107,81 @@ class CompanionQueues(unittest.TestCase):
                 else:
                     self.assertEqual([spots[i] for i in (2, 3)], [(407, 356), (407, 356)], "the palm's one foot")
 
+    def later(self, game: str, busy: list, stale: tuple | None = None, extra=None):
+        """The rush with recorded do-actions: the job gives one walk per call (PICKS in turn), the busy action
+        `busy` (and, when `stale` is given, an old step left after its end marker, as a real queue may hold)."""
+        g = int(game[2])
+        off, size, cap, walk, x_at, y_at = SHAPE[g]
+        work, rest = {3: (0xB, 0x3A), 4: (0x63, 0x4F), 5: (0x6C, 0x55)}[g]
+        calls = []
+
+        def setup(r):
+            left = list(PICKS)
+
+            def do_action(p):
+                record, action = p.reg("ecx"), p.arg(0)
+                calls.append((record, action))
+                steps = [(walk, 100) + left.pop(0), (7, 5)] if action == work else busy
+                p.write(record, bytes(size * (len(steps) + 2)))
+                for k, step in enumerate(steps):
+                    p.write(record + size * k, struct.pack(f"<{len(step)}i", *step))
+                if stale is not None and action != work:
+                    p.write(record + size * (len(steps) + 1), struct.pack(f"<{len(stale)}i", *stale))
+                return 0, 8
+
+            r.p.stub(DO_ACTION[game], do_action)
+            r.p.mu.hook_add(UC_HOOK_CODE, r.p._on_code, begin=DO_ACTION[game], end=DO_ACTION[game])
+            if extra is not None:
+                extra(r)
+
+        return self.rush(game, setup), calls, work, rest
+
+    def test_a_busy_action_with_no_walk_still_ends_its_queue(self):
+        """A busy action that queued no walk of its own: the job's walk goes first and the queue still ends right
+        after the busy steps (an old step left past the busy action's end marker never comes back to life)."""
+        busy = {3: [(0x1F,), (2,)], 4: [(2, 2), (0x17, 2)], 5: [(3, 2), (0x18, 2)]}
+        for game in ("vv3", "vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                g = int(game[2])
+                walk = SHAPE[g][3]
+                r, _calls, _work, _rest = self.later(game, busy[g], stale=(8, 77))
+                q = queue(r.p.read, r.v.record(3), g)
+                self.assertEqual([s[0] for s in q], [walk] + [s[0] for s in busy[g]], "walk, busy steps, the end")
+
+    def test_carrying_and_sick_villagers_are_left_as_they_are(self):
+        """The stock games never send a carrying mother (or father) or a sick villager to work: in a rush Adam
+        (carrying, Farming ticked) and Cal (sick, Research ticked) neither work nor take the busy state; Bea works and
+        Dan takes the busy state."""
+        carrying = {"vv1": (0x358, 4), "vv2": (0x540, 4), "vv3": (0xE8C, 4), "vv4": (0x1C4C, 4), "vv5": (0x1C4C, 4)}
+        sick = {"vv1": (0x354, 4), "vv2": (0x53C, 4), "vv3": (0xE89, 1), "vv4": (0x1C48, 1), "vv5": (0x1C48, 1)}
+
+        def mark(r, game):
+            for (at, n), i in ((carrying[game], 0), (sick[game], 2)):
+                r.p.write(r.v.record(i) + at, (1).to_bytes(n, "little"))
+
+        for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                if game in ("vv1", "vv2"):
+                    starters = {"vv1": (0x441E10, 0x439D80), "vv2": (0x456F70, 0x44A1E0)}[game]
+
+                    def setup(r, game=game, starters=starters):
+                        mark(r, game)
+                        r.record(starters[0], 4)
+                        r.record(starters[1], 8)
+
+                    r = self.rush(game, setup)
+                    self.assertEqual([c[1] for c in r.recorded.get(starters[0], [])], [1, 3], "Bea works; Dan's site")
+                    self.assertEqual([c[1] for c in r.recorded.get(starters[1], [])], [3], "Dan alone is busy")
+                else:
+                    r, calls, work, rest = self.later(game, [(2, 2)], extra=lambda r, game=game: mark(r, game))
+                    who = [r.v.record(i) for i in range(5)]
+                    self.assertEqual(sorted({c[0] for c in calls}), sorted({who[1], who[3]}), "only Bea and Dan")
+                    self.assertEqual([c[1] for c in calls if c[0] == who[3]][-1], rest)
+
     def test_later_games_busy_steps_follow_the_jobs_walk_and_the_nearest_free_spot(self):
         """The Secret City, The Tree of Life, New Believers: the job's do-action (recorded) gives one walk per call;
         the busy action gives its own walks around its steps.  Cal's first pick is crowded (5 pixels from Adam's):
@@ -113,32 +189,13 @@ class CompanionQueues(unittest.TestCase):
         first pick is free and is the only one asked for.  The busy steps keep their order, their walks are gone."""
         busy_steps = {3: [(3, 300, 1, 2), (0x1F,), (3, 300, 3, 4), (2,)], 4: [(3, 300, 1, 2), (2, 2), (0x17, 2)],
                       5: [(4, 300, 1, 2), (3, 2), (0x18, 2)]}
-        picks = [(500, 500), (600, 600), (500, 505), (560, 500), (530, 505)] + [(500, 500)] * 5 + [(900, 900)]
         for game in ("vv3", "vv4", "vv5"):
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 g = int(game[2])
                 off, size, cap, walk, x_at, y_at = SHAPE[g]
-                work, rest = {3: (0xB, 0x3A), 4: (0x63, 0x4F), 5: (0x6C, 0x55)}[g]
-                calls = []
-
-                def setup(r, g=g, size=size, walk=walk, work=work, rest=rest, calls=calls):
-                    left = list(picks)
-
-                    def do_action(p):
-                        record, action = p.reg("ecx"), p.arg(0)
-                        calls.append((record, action))
-                        steps = ([(walk, 100) + left.pop(0), (7, 5)] if action == work else busy_steps[g])
-                        p.write(record, bytes(size * len(steps) + size))
-                        for k, step in enumerate(steps):
-                            p.write(record + size * k, struct.pack(f"<{len(step)}i", *step))
-                        return 0, 8
-
-                    r.p.stub(DO_ACTION[game], do_action)
-                    r.p.mu.hook_add(UC_HOOK_CODE, r.p._on_code, begin=DO_ACTION[game], end=DO_ACTION[game])
-
-                r = self.rush(game, setup)
+                r, calls, work, rest = self.later(game, busy_steps[g])
                 who = [r.v.record(i) for i in range(4)]
                 self.assertEqual([c for c in calls if c[0] == who[2]], [(who[2], work)] * 8 + [(who[2], rest)])
                 self.assertEqual([c for c in calls if c[0] == who[3]], [(who[3], work), (who[3], rest)])
@@ -268,7 +325,7 @@ def rebuild(q: bytes, size: int, cap: int, walk: int, w: bytes) -> bytes:
     used = next((k for k, s in enumerate(steps) if struct.unpack_from("<i", s)[0] == 0), cap)
     kept = [s for s in steps[:used] if struct.unpack_from("<i", s)[0] != walk][:cap - 1]
     out = [w] + kept
-    out += [bytes(size)] * (max(used, len(out)) - len(out))
+    out += [bytes(size)] * (min(cap, max(used, len(out) + 1)) - len(out))   # the end marker, the old steps cleared
     return b"".join(out) + q[len(out) * size:]
 
 
@@ -489,6 +546,7 @@ class GameMechanicsLines(unittest.TestCase):
                 text = " ".join(gmc.work_rush_lines(game))
                 self.assertNotIn("0x", text, "no addresses")
                 self.assertIn("Children never take part: they neither work nor stop what they are doing.", text)
+                self.assertIn("Nor does anyone carrying a baby or sick", text)
                 self.assertIn("ticked on the Details screen", text)
                 self.assertIn("Action bar shows under \"Skill\"", text)
                 self.assertIn("within 20 pixels", text)

@@ -621,6 +621,8 @@ static int cg_skill_worker(const ce_adapter *a, int game, const unsigned char *r
    site: the game's own job starter picks the place for each one (its first walk), as it does for each worker, and
    the busy steps are done there (the adapters' behave_at; nothing of the job is run).  Children are
    left as they are; no worker is made of anyone.  Nothing in a game with no action for the skill. */
+static int cg_is_sick(int game, const unsigned char *r);
+
 static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r) {
     int work = cg_behaviour_by_words(a, CG_WORK[skill][game]), rest = cg_behaviour_by_words(a, CG_WORK_REST[game]);
     int i, pass;
@@ -640,8 +642,11 @@ static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r)
             unsigned char *record = a->record(i);
             int use;
             ce_change *c;
+            /* the stock games never send a carrying mother (or father) or a sick villager to work: they are left
+               as they are, neither working nor busy (the owner, 2026-11-19: island effects keep the game's rules) */
             if (record == NULL || !a->listed(record) || cg_heathen(game, record)
-                || (game == 3 && record[0xE94] != 0) || !cg_in_ages(a, record, CGA_ADULTS)) {
+                || (game == 3 && record[0xE94] != 0) || !cg_in_ages(a, record, CGA_ADULTS)
+                || *(const int *)(record + a->off_pregnant) != 0 || cg_is_sick(game, record)) {
                 continue;
             }
             use = cg_skill_worker(a, game, record, skill) ? work : rest;

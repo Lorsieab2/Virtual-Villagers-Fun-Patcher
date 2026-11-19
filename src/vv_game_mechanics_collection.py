@@ -345,7 +345,8 @@ def work_rush_lines(game: int) -> list[str]:
         "Work rush (an event may call the village to one skill's work): the workers are the adults with that job "
         "ticked on the Details screen, and the adults with no job ticked whose highest skill on the Details screen "
         f"is that one (a tie goes to the skill the Village screen's Action bar shows under \"Skill\": {WORK_TIE[game]}). "
-        "Children never take part: they neither work nor stop what they are doing.",
+        "Children never take part: they neither work nor stop what they are doing. Nor does anyone carrying a baby "
+        "or sick, as the game itself never sends them to work.",
         f"The work in this game: {jobs}." + (f" A {' or '.join(none)} rush does nothing here (no such job)."
                                              if none else ""),
         f"Every other adult goes where the workers go and there they {WORK_BUSY[game]}: no skill and nothing made. "

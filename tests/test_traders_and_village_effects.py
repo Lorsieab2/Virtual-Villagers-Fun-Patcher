@@ -395,6 +395,23 @@ class GameSide(unittest.TestCase):
                 self.assertEqual(calls, [[WEATHER_STARTER[game][1], 2, 0], [WEATHER_STARTER[game][1], storm, 0]])
                 self.assertIn("Weather: rain", filed)
 
+    def test_outcome_lines_state_what_really_happened(self):
+        """The owner (2026-11-19): an outcome states the true change after the game's limits, never the roll.  A
+        village with no food that is to lose 40 is not told it loses food (it loses none); with 20 it is (it loses
+        the 20); the tech gain is told both times."""
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for food, told in ((0, False), (20, True)):
+                with self.subTest(game=game, food=food):
+                    g = pages([[{"do": "food", "amount": -40}, {"do": "tech", "amount": 30}]], [int(game[2])])
+                    g["nodes"]["p0"]["auto_text"] = True
+                    r, shown = self.run_graph(game, g, lambda r, food=food: self.set_food_tech(r, food, 5))
+                    text = " ".join(s[1] for s in shown)
+                    self.assertEqual("The village loses food." in text, told)
+                    self.assertIn("The village gains tech points.", text)
+                    self.assertEqual(self.food_tech(r), (0, 35))
+
     def test_construction_never_reaches_the_weather(self):
         """"construction" is words only (the owner's final list): a .cieg that still holds it (old data: here a
         weather effect's word changed to it, the checksum made again) is refused by the game's loader, and nothing --

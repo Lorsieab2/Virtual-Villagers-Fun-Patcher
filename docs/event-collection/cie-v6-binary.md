@@ -766,6 +766,10 @@ one the villager holds. Automatic lines (section 25): "unlike" `<R> no longer li
 
 Some outcomes are written only as instructions ("change hair color", "random like", "skill loss"). The effect is
 made, and the popup says what happened in a short plain line, in the style of the Island Events log's lines.
+**True changes only** (the owner, 2026-11-19): a food or tech line, and the `(award)` amount, are the change the
+game's limits let through (never below 0, never above CE_MAX_AMOUNT), counted through the pages' effects in order
+from the store as it stands when the pages are laid out (`cg_applied`): a village with no food is not told it loses
+food, and an award shows what is paid.
 
 JSON (v6): `"auto_text": true` on a popup node (node flags bit 0, section 2a). The node's text is followed by one
 line for each of the node's effects that has one, in effect order, each after a line break (`"\n"`; a node with no
@@ -1372,8 +1376,9 @@ the whole village's only. No roll; no automatic line.
   Fishing (VV3), Harvesting blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise;
   Healing someone / Studying medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy
   state with no skill: **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down" (0x4F /
-  0x55), VV1 / VV2 "Sitting". Children are left as they are; a game with no action for the skill leaves everyone as
-  they are. That the busy states give no skill is traced in the emulator (`tests/test_work_rush_rest_gives_no_skill.py`:
+  0x55), VV1 / VV2 "Sitting". Children are left as they are, and so is anyone carrying a baby (the adapter's
+  `off_pregnant`) or sick (`cg_is_sick`): the stock games never send them to work (the owner, 2026-11-19). A game with
+  no action for the skill leaves everyone as they are. That the busy states give no skill is traced in the emulator (`tests/test_work_rush_rest_gives_no_skill.py`:
   ten runs of each to its end change no skill, while ten Research / job trips do).
   **The busy state is done at the job's site** (the owner, 2026-11-18; the adapters' `behave_at`): the job's own
   starter runs for the busy villager and picks the place it would give a worker (its first walk step: VV1-VV4 type 3,

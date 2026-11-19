@@ -7195,6 +7195,7 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
    an award it defers is the (award) of its own text -- then its text, appended or new), and for each node the
    popup and the place in it its effects go with. */
 static int cg_group_in_question;       /* the first popup is shown in the answered question's own popup (14) */
+static int cg_applied_fx[CG_MAX_FX];   /* each food / tech effect's true change (cg_group), for its automatic line */
 
 /* cie-v6-binary.md 25: the automatic outcome lines.  <R> the effect's role's name placeholder, <P> its his/her, <S>
    the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
@@ -7373,6 +7374,7 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
         switch (e[0]) {
         case CGE_FOOD: case CGE_TECH:
+            va = fx < CG_MAX_FX ? cg_applied_fx[fx] : va;      /* the true change (cg_group): none, no line */
             if (!(e[2] & 2u) && va != 0) {
                 cg_auto_add(out, cap, e[0] == CGE_FOOD ? (va > 0 ? "food+" : "food-") : (va > 0 ? "tech+" : "tech-"),
                             -1, "", "", va, -1);
@@ -7493,6 +7495,23 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
     }
 }
 
+/* The change a food or tech amount `v` really makes to a store holding `store` (the game's own limits: never below
+   0, never above CE_MAX_AMOUNT), the store moved on by it: what an outcome states (the owner, 2026-11-19: the true
+   amount, never the rolled one -- a village with 20 food that is to lose 40 loses 20). */
+static int cg_applied(long long *store, int v) {
+    long long after = *store + v;
+    if (after < 0) {
+        after = 0;
+    }
+    if (after > CE_MAX_AMOUNT) {
+        after = *store > CE_MAX_AMOUNT ? *store : CE_MAX_AMOUNT;
+    }
+    v = (int)(after - *store);
+    *store = after;
+    return v;
+}
+
+
 static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
@@ -7500,6 +7519,12 @@ static void cg_group(int game, const cg_history *h, int from) {
     if (from == 0) {
         cg_pre_n = 0;                  /* a new event: nothing drawn for it yet */
     }
+    const ce_adapter *ad = ce_adapter_for(game);
+    long long store[2];                /* the food and tech the pages' changes are made to, as each page leaves them */
+    store[0] = ad != NULL && ad->food != NULL ? ad->food() : 0;
+    store[1] = ad != NULL && ad->tech != NULL ? ad->tech() : 0;
+    store[0] = store[0] < 0 ? 0 : store[0];
+    store[1] = store[1] < 0 ? 0 : store[1];
     cg_pop_count = 0;
     fx = cg_award_before(h, from, &award_kind, &award);
     cg_visit_path(from);
@@ -7509,23 +7534,41 @@ static void cg_group(int game, const cg_history *h, int from) {
     for (i = from; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
-        int villager = 0, fx0 = fx;
+        int villager = 0, fx0 = fx, paid = 0, paid_here = 0, shown;
         cg_visit(node);
         for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+            int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0;
             villager |= e[0] >= CGE_KILL;
             if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
                 award_kind = e[0] == CGE_FOOD ? 0 : 1;
-                award = fx < CG_MAX_FX ? h->fx_a[fx] : 0;
+                award = va;
+            } else if (e[0] == CGE_FOOD || e[0] == CGE_TECH) {
+                va = cg_applied(&store[e[0] == CGE_FOOD ? 0 : 1], va);
+            } else if (e[0] == CGE_PAY && award_kind >= 0) {
+                paid = va = cg_applied(&store[award_kind], award);
+                paid_here = 1;
             }
+            if (fx < CG_MAX_FX) {
+                cg_applied_fx[fx] = va;
+            }
+        }
+        /* the award as it is really given: paid here, what was paid; else what paying it now would give */
+        if (paid_here) {
+            shown = paid;
+        } else if (award_kind >= 0) {
+            long long probe = store[award_kind];
+            shown = cg_applied(&probe, award);
+        } else {
+            shown = award;
         }
         if (n[0] != CG_BRANCH) {
             cg_popup *p = NULL;
             int start = 0;
             unsigned short nt = cg_node_title(node);
-            cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
+            cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
             if (n[3] & CG_NODE_AUTO_TEXT) {
-                cg_auto_lines(game, h, n, fx0, award_kind, award, text, sizeof text);   /* 25 */
+                cg_auto_lines(game, h, n, fx0, award_kind, shown, text, sizeof text);   /* 25 */
             }
             if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
                 && !(n[3] & CG_NODE_NEW_PAGE)) {
