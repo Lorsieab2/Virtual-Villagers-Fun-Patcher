@@ -33,35 +33,35 @@
       "stock_bytes": "B8060000003946047E03894604",
       "written_bytes": "B8630000003946047E03894604",
       "routine": "the cutting tools' produce 0x431400 (count += 3 at 0x43140F), its cap: mov eax, 6 -> 99",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     },
     {
       "va": "0x4368E2",
       "stock_bytes": "B8060000003946047E2D894604",
       "written_bytes": "B8630000003946047E2D894604",
       "routine": "the cloth's produce 0x436890 (count += 3 at 0x4368C2), its cap: mov eax, 6 -> 99",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     },
     {
       "va": "0x436A09",
       "stock_bytes": "83F8067E0AC7410406000000",
       "written_bytes": "83F8637E0AC7410463000000",
       "routine": "the tools' and cloth's use-up 0x4369F0 (count -= n), its clamp to 6 after each use -> 99",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     },
     {
       "va": "0x4314C8",
       "stock_bytes": "83C7013B7D047CC7",
       "written_bytes": "E9XXXXXXXX909090",
       "routine": "the cutting tools' stack draw 0x431480 (one sprite 0x18 per tool): the loop goes on while i < count and i < 6",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     },
     {
       "va": "0x430CA6",
       "stock_bytes": "33DB85ED7E3A8D642400",
       "written_bytes": "E9XXXXXXXX9090909090",
       "routine": "the Clothing Hut's draw 0x430C80 (one cloth_bolt sprite per bolt, bound ebp = the count): bounded by min(count, 6)",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
     }
   ]
 }

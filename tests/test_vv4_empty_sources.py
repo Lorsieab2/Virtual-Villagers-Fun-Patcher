@@ -69,6 +69,66 @@ class EmptyBushTests(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_EMULATOR, "the stock executable, its map and unicorn are needed")
+class GrandFeastTests(unittest.TestCase):
+    """The owner (2026-11-19): "for the grand stew berries and fruit harvested by cutting tools or sacks should
+    count".  While the feast wants berries the harvest takes them to the pot as picked berries, the bush's way."""
+
+    def harvest(self, patched: bool, *, flags_before=(0, 0, 0, 0)):
+        v = fe.Village(berries=1000, dll=DLL if patched else None)
+        if patched:
+            v.process.export("VvfpStartup", 4, 0)
+        sacks.grand_feast(v)
+        v.uc.mem_write(sacks.POT + sacks.FEAST_FLAGS, bytes(flags_before))
+        v.w32(TOOLS, 3)
+        v.by_caller[SKILL_ROLL] = 0
+        r = v.villager(at=(1568, 1124), skills={"farming": 100})
+        v.call(HARVEST_DROP, 0, 0, r)
+        carried: list[int] = []
+        for _ in range(20_000):
+            v.step_frame()
+            item = v.r32(r + 0x1CDC)
+            if not carried or carried[-1] != item:
+                carried.append(item)
+            if v.queue_type() == 0:
+                break
+        return v, carried
+
+    def test_the_harvest_goes_into_the_feast_as_picked_berries(self) -> None:
+        v, carried = self.harvest(True)
+        self.assertEqual(sacks.feast_flags(v), (0, 1, 0, 0))     # the feast's berries (0x42EADE)
+        self.assertEqual(v.food_log, [])                         # no food: the berries are the stew's
+        self.assertNotIn(14, [e for _, e in v.events])
+        self.assertEqual(v.r32(fe.GAME + fe.G_BERRIES), 1000)    # none taken, as on the bush's stew trip
+        self.assertEqual(v.r32(TOOLS), 2)                        # the tool used at the drop, as always
+        self.assertIn(0, carried)                                # picked berries carried to the pot
+        self.assertNotIn(0x3E, carried)
+        # The stock game: the harvest goes to the food bin whatever the pot wants.
+        stock, carried = self.harvest(False)
+        self.assertEqual(sacks.feast_flags(stock), (0, 0, 0, 0))
+        self.assertEqual([a for _, a in stock.food_log], [30])
+        self.assertIn(0x3E, carried)
+
+    def test_with_its_berries_in_the_feast_the_harvest_goes_to_the_food_bin(self) -> None:
+        v, carried = self.harvest(True, flags_before=(0, 1, 0, 0))
+        self.assertEqual([a for _, a in v.food_log], [30])
+        self.assertIn(0x3E, carried)
+
+    def test_the_bush_is_the_model(self) -> None:
+        # The stock bush's own stew trip in the same village: picked berries (item 0) into the feast, no food.
+        v = fe.Village(berries=1000)
+        sacks.grand_feast(v)
+        r = v.villager(at=(1568, 1124))
+        v.uc.mem_write(fe.HEAP + 0x2000, bytes(0x40))
+        v.call(0x45DEC0, r, 0x90, fe.HEAP + 0x2000)
+        for _ in range(20_000):
+            v.step_frame()
+            if v.queue_type() == 0:
+                break
+        self.assertEqual(sacks.feast_flags(v), (0, 1, 0, 0))
+        self.assertEqual(v.food_log, [])
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "the stock executable, its map and unicorn are needed")
 class EmptyTreeTests(unittest.TestCase):
     def sack(self, loaded: bool, tree: int) -> tuple[int, int, bool]:
         h = sacks.Hut(tree=tree)
@@ -99,6 +159,7 @@ class RowTests(unittest.TestCase):
         files = {f["destination"]: f["sha256"] for f in row["companion_files"]}
         self.assertEqual(files["VVFP VV4 Empty Sources.dll"], hashlib.sha256(DLL.read_bytes()).hexdigest().upper())
         self.assertIn("0x46E86F", [d["va"] for d in row["runtime_detours"]])
+        self.assertIn("0x451DB2", [d["va"] for d in row["runtime_detours"]])
         self.assertIn("Cloth Sacks for Yellow Fruit", row["description"])
         self.assertFalse((ROOT / "data" / "vv4_no_tool_harvest_from_empty_sources_feature.json").exists())
 

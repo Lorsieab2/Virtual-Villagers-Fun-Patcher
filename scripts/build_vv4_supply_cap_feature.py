@@ -22,7 +22,7 @@ ID = "vv4_up_to_99_supplies"
 NAME = "Up to 99 Cutting Tools/Soap/Cloth"
 DLL_NAME = "VVFP VV4 Supply Cap.dll"
 DLL = ROOT / "assets" / "supply_cap" / DLL_NAME
-INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
+INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, third word)"
 
 # (VA, stock bytes, written bytes or None for a jump, the routine)
 SITES = (

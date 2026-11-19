@@ -406,6 +406,7 @@
         "On by default. Needs the Clothing Hut finished and the Cooking Pit restored.",
         "Drop an adult on the left side of the Clothing Hut, under its awning: they take one cloth bolt, make a sack, gather yellow fruit in it and bring 30 food to the food bin (before Food Mastery).",
         "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food. Only villagers you drop make sacks: farmers never do on their own.",
+        "While the stew pot is making The Grand Feast and needs fruit, the sack goes into the stew instead and counts as its fruit (no food from that sack).",
         "With Yellow Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30, or what is left, even none); without it every sack holds 30. Not yet tested in play."
       ]
     },
@@ -567,7 +568,7 @@
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
         "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game.",
-        "A cutting tool is no longer used up on an empty blackberry bush: the villager refuses and keeps it (with Cloth Sacks, the same for a sack and an empty yellow fruit tree).",
+        "A cutting tool is no longer used up on an empty blackberry bush: the villager refuses and keeps it (with Cloth Sacks, the same for a sack and an empty yellow fruit tree). Cutting-tool berries count for The Grand Feast.",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },

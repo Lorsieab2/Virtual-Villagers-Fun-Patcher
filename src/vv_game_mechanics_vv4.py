@@ -449,7 +449,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                   f"trees ({SACK_FRUIT} fruit before Food Mastery, as a blackberry harvest with a "
                                   "cutting tool: with the limited trees, what is left when fewer, even none); with no "
                                   "cloth the villager refuses; only villagers you drop make sacks, farmers never do on "
-                                  "their own" + mastery_words), gm.CODE)
+                                  "their own" + mastery_words + "; while the stew pot makes The Grand Feast and still "
+                                  "needs its fruit, the sack goes into the stew instead and counts as its fruit (no "
+                                  "food from that sack)"), gm.CODE)
     if village.has(SUPPLY_CAP) is not False:
         add("Food sources", gm.patch_words(village, SUPPLY_CAP, "up to 99 cutting tools and 99 cloth bolts can be "
                                            "stored instead of 6 (still made 3 at a time; soap was never "
@@ -458,7 +460,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Food sources", gm.patch_words(village, EMPTY_SOURCES, "a villager dropped to harvest the "
                                            "blackberries with a cutting tool refuses when the bush is empty "
                                            "and keeps the tool (with Cloth Sacks, the same for a sack and an "
-                                           "empty yellow fruit tree)"), gm.CODE)
+                                           "empty yellow fruit tree); while the stew pot makes The Grand Feast and "
+                                           "still needs its berries, a cutting-tool harvest takes them to the stew "
+                                           "as picked berries and they count as its berries (no food from that "
+                                           "harvest)"), gm.CODE)
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
     fruit_at = fruit_next_at = None
