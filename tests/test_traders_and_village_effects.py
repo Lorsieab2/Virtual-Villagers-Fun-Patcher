@@ -120,11 +120,17 @@ class PatcherSide(unittest.TestCase):
                 cg.load(g, scrolling=True)
             self.assertIn(why, str(ctx.exception))
 
-    def test_no_automatic_lines(self):
-        for e in ({"do": "trade", "give": "food", "give_amount": 1, "get": "tech", "get_amount": 1},
-                  {"do": "group", "kind": "dance", "who": "all"},
-                  {"do": "village", "what": "weather", "weather": "fog"}):
-            self.assertEqual(cg.auto_line_options(e, 4), [])
+    def test_their_lines_are_written_as_they_are_made(self):
+        # The owner (2026-11-18): a line whenever an effect happens, with the amount.  These are written by the
+        # engine as each is made (village.inc cg_after_line), so a simulated walk has none; the fit takes the widest.
+        for e, want in (({"do": "trade", "give": "food", "give_amount": 1, "get": "tech", "get_amount": 2},
+                         ["The village gives 1 food.", "The village gets 2 tech points."]),
+                        ({"do": "group", "kind": "dance", "who": "all"}, ["The village dances."]),
+                        ({"do": "village", "what": "weather", "weather": "fog"}, ["Fog rolls in."]),
+                        ({"do": "village", "what": "event_timer", "min": 5, "max": 5},
+                         ["The next island event will come 72 hours later."])):
+            self.assertEqual(cg.auto_line_options(e, 4), want)
+            self.assertEqual(cg.auto_line_options(e, 4, None, [0, 0]), [])
 
 
 @emulated
@@ -443,6 +449,34 @@ class GameSide(unittest.TestCase):
                 self.assertEqual(seen, [now + 60, now + 60 + 5 * 3600, now + longest * 3600, now + 60])
                 self.assertEqual(r.p.export("VvfpStoryProbeGraphTimerApplied") & 0xFFFFFFFF, 0xFFFFFFFF,
                                  "the last change, for the outcome line: soon")
+
+    def test_the_popup_says_what_was_made(self):
+        """The owner (2026-11-18): each change ends the popup with its line and the amount made (after the cap)."""
+        timers = {"vv1": ("world", 0xA300), "vv2": ("world", 0x2EAE0), "vv3": ("w3", 0x12EF4),
+                  "vv4": ("w4", 0x170E0), "vv5": ("w5", 0x17D3C)}
+        for game, (kind, off) in timers.items():
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                # sooner first (a minute from now, whatever the clock), then 5 hours on from there (under the cap)
+                g = pages([[{"do": "village", "what": "event_timer", "min": -3, "max": -3}],
+                           [{"do": "village", "what": "event_timer", "min": 5, "max": 5}],
+                           [{"do": "group", "kind": "cure"}]], [int(game[2])])
+                for n in g["nodes"].values():
+                    n["auto_text"] = True
+
+                def setup(r, kind=kind, off=off, game=game):
+                    if game in CLOCK:
+                        r.record(CLOCK[game], 0)
+                    base = {"world": lambda: r.story.village.world, "w3": lambda: r.world3,
+                            "w4": lambda: r.p.u32(0x4CB51C), "w5": lambda: r.p.u32(0x4DACE0)}[kind]()
+                    r.p.put32(base + off, 0xF0000000)
+
+                _r, shown = self.run_graph(game, g, setup)
+                text = " ".join(" ".join(t for _kind, t, _labels in shown).split())
+                self.assertIn("Page 1. The next island event will come in about a minute.", text)
+                self.assertIn("Page 2. The next island event will come 5 hours later.", text)
+                self.assertIn("Page 3. Every villager is cured.", text)
 
 # Section 36: the work rush's starters (VV1/VV2: the action routine, its argument count; VV3-VV5: the action ids)
 WORK_RUSH = {"vv1": ((0x441E10, 4), (0x439D80, 8)), "vv2": ((0x456F70, 4), (0x44A1E0, 8)),

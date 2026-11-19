@@ -6434,6 +6434,9 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
     case CGE_SUPPLY:
         if (c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))) >= 0) {
             cg_supply(game, e, va);        /* 32: The Tree of Life's three supplies, as PR #806 made them */
+            if (va != 0) {
+                cg_after_line(va > 0 ? "supply+" : "supply-", cg_s(&cg_g, cg_u16(e + 12)), va);
+            }
         } else {
             cg_supply_any(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);   /* 33 */
         }
@@ -7241,7 +7244,58 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "join", "<R> joins the tribe." },
     { "apostasy", "<R> becomes a Heathen." },
     { "presentation", "<R>'s gender presentation changes." },
+    { "supply+", "The village gains <N> <W>." },
+    { "supply-", "The village loses <N> <W>." },
+    { "trade_give", "The village gives <N> <W>." },
+    { "trade_get", "The village gets <N> <W>." },
+    { "group_song", "The village sings together." },
+    { "group_chant", "The village chants together." },
+    { "group_speech", "The village gathers for a speech." },
+    { "group_dance", "The village dances." },
+    { "group_pray", "The village prays." },
+    { "group_relax", "The village relaxes." },
+    { "group_swim", "The village goes swimming." },
+    { "group_pond", "The village gathers at the water." },
+    { "group_play", "The children play." },
+    { "group_stories", "The elders tell stories." },
+    { "group_celebrate", "Everyone celebrates." },
+    { "group1_song", "<W> sings." },
+    { "group1_chant", "<W> chants." },
+    { "group1_speech", "<W> gives a speech." },
+    { "group1_dance", "<W> dances." },
+    { "group1_pray", "<W> prays." },
+    { "group1_relax", "<W> relaxes." },
+    { "group1_swim", "<W> goes swimming." },
+    { "group1_pond", "<W> goes to the water." },
+    { "group1_play", "<W> plays." },
+    { "group1_stories", "<W> tells a story." },
+    { "group1_celebrate", "<W> celebrates." },
+    { "group_sick", "<N> villagers become sick." },
+    { "group_sick1", "One villager becomes sick." },
+    { "group_cure", "Every villager is cured." },
+    { "group_work", "The village works on <W>." },
+    { "timer_later", "The next island event will come <N> hours later." },
+    { "timer_later1", "The next island event will come 1 hour later." },
+    { "timer_soon", "The next island event will come in about a minute." },
+    { "level_up", "The village's <W> technology rises to level <N>." },
+    { "level_down", "The village's <W> technology falls to level <N>." },
+    { "weather_clear", "The sky clears." },
+    { "weather_sun", "The sun comes out." },
+    { "weather_rain", "It starts to rain." },
+    { "weather_storm", "A storm rolls in." },
+    { "weather_fog", "Fog rolls in." },
 };
+
+/* Line `key`'s words, NULL when the table has none. */
+static const char *cg_auto_text(const char *key) {
+    int i;
+    for (i = 0; i < (int)(sizeof CG_AUTO_LINES / sizeof CG_AUTO_LINES[0]); ++i) {
+        if (lstrcmpA(CG_AUTO_LINES[i][0], key) == 0) {
+            return CG_AUTO_LINES[i][1];
+        }
+    }
+    return NULL;
+}
 
 /* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
 static void cg_auto_add(char *out, int cap, const char *key, int role, const char *skill, const char *word,
@@ -7908,6 +7962,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_display_now = k;
     cg_count_page[0] = cg_count_page[1] = 0;
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
+    cg_after[0] = '\0';
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     {
@@ -7921,6 +7976,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
         const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
         int award_kind, award, fx, e;
         fx = cg_award_before(h, i, &award_kind, &award);
+        cg_after_on = (n[3] & CG_NODE_AUTO_TEXT) != 0;    /* this page's lines after its effects (village.inc) */
         for (e = 0; e < cg_fx_count(n); ++e, ++fx) {
             const unsigned char *eff = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + e);
             int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
@@ -7962,7 +8018,20 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
     cg_display_title(k, cg_shown_title, sizeof cg_shown_title);   /* 14: the title in force on this page */
     lstrcpynA(ce_armed_event.title, cg_shown_title, sizeof ce_armed_event.title);   /* the later games draw it */
     su_title_whole = cg_shown_title;   /* ... whole (story_objects.inc ce_deliver_object) */
-    cg_compose(&l, cg_shown_title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
+    if (cg_after[0] != '\0') {
+        /* the lines of the effects made just now, after the page's words (village.inc cg_after_line) */
+        static char shown[CG_RAW_BYTES];
+        lstrcpynA(shown, cg_display(k), (int)sizeof shown);
+        if (lstrlenA(shown) + 1 + lstrlenA(cg_after) + 1 < (int)sizeof shown) {
+            if (shown[0] != '\0') {
+                lstrcatA(shown, "\n");
+            }
+            lstrcatA(shown, cg_after);
+        }
+        cg_compose(&l, cg_shown_title, shown, r.refused > 0 ? &r : NULL, text, size);
+    } else {
+        cg_compose(&l, cg_shown_title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
+    }
     cg.display_next = k + 1;
 }
 

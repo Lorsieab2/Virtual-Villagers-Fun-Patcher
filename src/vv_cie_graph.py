@@ -3346,9 +3346,53 @@ AUTO_LINES = {
     "join": "<R> joins the tribe.",
     "apostasy": "<R> becomes a Heathen.",
     "presentation": "<R>'s gender presentation changes.",
+    # The village effects (cie-v6-binary.md 39-41): written as each is made, with what it made (village.inc)
+    "supply+": "The village gains <N> <W>.",
+    "supply-": "The village loses <N> <W>.",
+    "trade_give": "The village gives <N> <W>.",
+    "trade_get": "The village gets <N> <W>.",
+    "group_song": "The village sings together.",
+    "group_chant": "The village chants together.",
+    "group_speech": "The village gathers for a speech.",
+    "group_dance": "The village dances.",
+    "group_pray": "The village prays.",
+    "group_relax": "The village relaxes.",
+    "group_swim": "The village goes swimming.",
+    "group_pond": "The village gathers at the water.",
+    "group_play": "The children play.",
+    "group_stories": "The elders tell stories.",
+    "group_celebrate": "Everyone celebrates.",
+    "group1_song": "<W> sings.",
+    "group1_chant": "<W> chants.",
+    "group1_speech": "<W> gives a speech.",
+    "group1_dance": "<W> dances.",
+    "group1_pray": "<W> prays.",
+    "group1_relax": "<W> relaxes.",
+    "group1_swim": "<W> goes swimming.",
+    "group1_pond": "<W> goes to the water.",
+    "group1_play": "<W> plays.",
+    "group1_stories": "<W> tells a story.",
+    "group1_celebrate": "<W> celebrates.",
+    "group_sick": "<N> villagers become sick.",
+    "group_sick1": "One villager becomes sick.",
+    "group_cure": "Every villager is cured.",
+    "group_work": "The village works on <W>.",
+    "timer_later": "The next island event will come <N> hours later.",
+    "timer_later1": "The next island event will come 1 hour later.",
+    "timer_soon": "The next island event will come in about a minute.",
+    "level_up": "The village's <W> technology rises to level <N>.",
+    "level_down": "The village's <W> technology falls to level <N>.",
+    "weather_clear": "The sky clears.",
+    "weather_sun": "The sun comes out.",
+    "weather_rain": "It starts to rain.",
+    "weather_storm": "A storm rolls in.",
+    "weather_fog": "Fog rolls in.",
 }
 # The widest a scaled food / tech amount can grow (the "Island Events Scale ..." patches): the fit takes this many
 # times the amount when no roll is given (with Scrolling Popups only the bytes count).
+AUTO_SCALE_ROOM = 100
+# The widest a scaled food / tech amount can grow (the "Island Events Scale ..." patches): the fit takes this many
+# digits when no roll is given (with Scrolling Popups only the bytes count).
 AUTO_SCALE_ROOM = 100
 
 
@@ -3427,8 +3471,6 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
             return [_auto_fill("skill_best", r, number=e["set"])]
         lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
         return [_auto_fill("skill_best", r, number=hi)] if hi > 0 else []
-    if do in ("supply", "trade", "group", "village"):
-        return []                                       # 38-41: whether it changes anything is known only in the game
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
@@ -3456,7 +3498,48 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
             return [_auto_fill(key, r, skill=s, number=e["set"]) for s in skills]
         lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
         return [_auto_fill(k, r, skill=s, number=n) for s in skills for k, n in _sign_keys("skill", lo, hi)]
+    if do in ("supply", "trade", "group", "village"):
+        # 39-41: written as each is made (village.inc cg_after_line), so a simulated run has none; the fit takes the
+        # widest it can give
+        return [] if fx is not None else _village_lines(e, gm)
     return []                                           # action, new villager, age: no line (their own logs)
+
+
+def _village_lines(e: dict, gm: "Game") -> list[str]:
+    """The lines a village effect can write as it is made (story_graph_village.inc), at their widest."""
+    def good(word: str) -> str:
+        return "tech points" if word == "tech" else word
+
+    do = e["do"]
+    big = 99999
+    if do == "supply":
+        return [_auto_fill("supply+" if e["max"] > 0 else "supply-", None, word=good(e["item"]), number=big)]
+    if do == "trade":
+        return [_auto_fill("trade_give", None, word=good(e["give"]), number=e["give_amount"]),
+                _auto_fill("trade_get", None, word=good(e["get"]), number=e["get_amount"])]
+    if do == "group":
+        kind = e["kind"]
+        if kind == "sick":
+            return [_auto_fill("group_sick", None, number=big)]
+        if kind == "cure":
+            return [_auto_fill("group_cure", None)]
+        if kind == "work":
+            return [_auto_fill("group_work", None, word=e["skill"])]
+        if kind == "effect":
+            return []
+        if e.get("who", "all") == "all":
+            return [_auto_fill("group_" + kind, None)]
+        return [_auto_fill("group1_" + kind, None, word="W" * gm.name_room)]
+    what = e["what"]
+    if what == "event_timer":
+        return [_auto_fill("timer_later", None, number=EVENT_TIMER_HOURS)] if e["max"] > 0 else \
+            [_auto_fill("timer_soon", None)]
+    if what == "tech_level":
+        area = max(TECH_AREAS.get(gm.number, ("",)), key=len)
+        return [_auto_fill("level_up" if e["step"] > 0 else "level_down", None, word=area, number=3)]
+    if what == "weather":
+        return [_auto_fill("weather_" + e["weather"], None)]
+    return []
 
 
 def widest_auto_line(lg: dict, e: dict, game: "Game", award: tuple | None) -> str:
