@@ -142,10 +142,12 @@ class Supply:
 
 
 def supplies(game: int, trips_food: dict[str, float], speed: int, unit: float, mastery: float, food_store: int,
-             eaten_unit: float, farming: int = FARMING_SHOWN) -> tuple[int, list[Supply]]:
+             eaten_unit: float, farming: int = FARMING_SHOWN,
+             foods: dict[str, tuple[float, float]] | None = None) -> tuple[int, list[Supply]]:
     """(job turns an age unit, each source's Supply) for a village that eats `eaten_unit` food an age unit, with
     the page's food a trip (`trips_food`, Context.trips; a source at 0 is not open) at `speed`, an age unit of
-    `unit` real-life seconds."""
+    `unit` real-life seconds.  `foods`: a trip's average food a paying trip (live, while catching up), before Food
+    Mastery, in place of its own (an expert fisher's crabs, The Secret City's Tribal Chief)."""
     turns, trips = game_trips(game)
     out = []
     eaten_hour = eaten_unit * 3600.0 / unit
@@ -153,10 +155,11 @@ def supplies(game: int, trips_food: dict[str, float], speed: int, unit: float, m
         base, base_caught = trip_food(trips_food.get(trip.key))
         if not base or base <= 0:
             continue
-        live = float(boosted((trip.live_food or {}).get(speed, base), mastery))
+        own = (foods or {}).get(trip.key)
+        live = float(boosted(own[0] if own else (trip.live_food or {}).get(speed, base), mastery))
         cycle = live_cycle(game, trip, farming)
         hour = 3600.0 / cycle * live if cycle else None
-        caught = float(boosted(base_caught if base_caught is not None else
+        caught = float(boosted(own[1] if own else base_caught if base_caught is not None else
                                trip.catch_up_food if trip.catch_up_food is not None else base, mastery))
         per_turn = turn_trips(game, trip, farming, food_store)
         share = delivered(game, trip)
