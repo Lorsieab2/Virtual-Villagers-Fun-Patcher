@@ -423,24 +423,39 @@ class SackTripTests(unittest.TestCase):
 
     def test_the_sack_spot_always_wins_over_the_new_clothes_question(self) -> None:
         """Owner, live (v3): "sometimes I drop them on the right spot for sackmaking and it still gives the buying
-        clothes prompt".  The game's own drop area of the finished hut is the hut picture's opaque shape (0x42FD20 ->
-        0x46CC50 builds it from the sprite, 8-pixel map cells marked area 0x12), which on the left reaches y 12..150
-        from the hut's place; the sack's box was only y 40..134 and x -10..54, so a drop on the awning's roof, low
-        down, or just right of the box went to the hut's handler 0x46F600 and its question.  Now, in the sack's
-        columns (x -26..70), every drop the game would hand to the hut makes a sack.  The hut's cells are marked here
-        the game's own way (0x46C450) from the hut picture, the hut's handler registered as the game registers it
-        (0x46E5E0 at 0x46FA94), and drops are made across the whole box and the hut's shape in those columns."""
+        clothes prompt".  The game's own drop area of the finished hut (map cells whose drop-area field, the one
+        0x46C410 reads for the drop dispatcher, is 0x12) reaches below the sack's box (y 40..134) to y 168, so a drop
+        there went to the hut's handler 0x46F600 and its question.  Now, in the sack's columns (x -26..70), every
+        drop the game would hand to the hut makes a sack.
+
+        The hut's cells are marked by the game's own routine 0x430A20 on the Clothing Hut object 0x4D82D8 (built by
+        its constructor 0x431190: drop area +0x1C = 0x12, area frame +0x7C = 4): it stamps the frame's mask twice
+        with 0x46CDA0, at the hut's place + (0, 24) and + (-16, 16).  The mask is built as 0x46CC50 builds it (a
+        cell where at least 20 of its 64 pixels are not transparent) from frame 4 of clothinghut_states.png.  (The
+        point setter 0x46C450 writes a different field, the walk-target area 0x46C3F0 reads; the drop dispatcher
+        never sees it.)  The hut's handler is registered as the game registers it (0x46E5E0 at 0x46FA94), and drops
+        are made across the whole box and every hut cell in those columns."""
         from PIL import Image
         art = ROOT / "research" / "game-images" / "Virtual Villagers - The Tree of Life" / "Images" / "clothinghut_states.png"
         if not art.is_file():
             self.skipTest("the game's pictures (research/game-images) are needed")
-        alpha = Image.open(art).crop((200, 200, 400, 400)).getchannel("A")      # the finished hut
-        cells = {((400 + x) // 8, (1600 + y) // 8) for y in range(200) for x in range(200) if alpha.getpixel((x, y))}
+        alpha = Image.open(art).crop((0, 400, 200, 600)).getchannel("A")        # frame 4: the hut's area shape
+        mask = bytes(int(sum(1 for y in range(cy * 8, cy * 8 + 8) for x in range(cx * 8, cx * 8 + 8)
+                             if alpha.getpixel((x, y))) >= 20) for cy in range(25) for cx in range(25))
+        hut_obj = 0x4D82D8
 
         def village(patched: bool) -> Hut:
             h = Hut(patched=patched, cloth=99)
-            for cx, cy in cells:
-                h.v.call(0x46C450, fe.MAP, cx * 8, cy * 8, 0x12, 0)
+            h.v.call(0x431190, hut_obj)                                     # the Clothing Hut's constructor
+            h.v.w32(fe.PUZZLES + 8 * 0x16, 2000)                            # finished: its threshold (0x4386A0)
+            h.v.w32(HUT_X, 400)
+            h.v.w32(HUT_Y, 1600)
+            h.v.uc.mem_write(fe.HEAP + 0x9000, mask)
+            h.v.w32(hut_obj + 0x6C, fe.HEAP + 0x9000)                       # the mask 0x42FD20 keeps there
+            h.v.w32(hut_obj + 0x74, 25)
+            h.v.w32(hut_obj + 0x78, 25)
+            h.v.w32(hut_obj + 0x34, 3)                                      # built (0x430A20 skips state 4)
+            h.v.call(0x430A20, hut_obj)                                     # the game marks the hut's areas
             h.v.call(0x46E5E0, 0, 0x12, 0x46F600, 5, 0)                      # cdecl registrar
             h.v.w32(0x4D6F88, 10_000)                                       # tech points for new clothes
             h.v.w32(fe.GAME + 0x1719C, -1)
@@ -459,15 +474,21 @@ class SackTripTests(unittest.TestCase):
             return h.v.r32(fe.GAME + 0x171A0) == 77, (0x13, EV_CREDIT) in h.queue(r)
 
         h = village(True)
-        points = [(400 + x, 1600 + y) for x in range(-26, 71, 6) for y in range(40, 135, 6)]
-        points += [(cx * 8 + 4, cy * 8 + 4) for cx, cy in cells if -26 <= cx * 8 + 4 - 400 <= 70]
+        hut_cells = [(x, y) for x in range(400 - 26, 400 + 71) for y in range(1600, 1800)
+                     if x % 8 == 4 and y % 8 == 4 and h.v.call(0x46C410, fe.MAP, x, y) == 0x12]
+        # The setup is real: the hut's drop area is there, and in these columns reaches below the box.
+        self.assertGreater(len(hut_cells), 100)
+        self.assertTrue(any(y - 1600 >= 135 for _, y in hut_cells))
+        self.assertEqual(h.v.call(0x46C410, fe.MAP, 400 + 150, 1600 + 90), 0x12)
+        points = [(400 + x, 1600 + y) for x in range(-26, 71, 6) for y in range(40, 135, 6)] + hut_cells
         for at in points:
             asked, sack = prompt(h, at)
             self.assertFalse(asked, at)
             self.assertTrue(sack, at)
         self.assertEqual(prompt(h, (400 + 150, 1600 + 90)), (True, False))   # the rest of the hut: the question
         stock = village(False)
-        self.assertEqual(prompt(stock, (400 + 20, 1600 + 20)), (True, False))  # the stock game asks there
+        for at in [(400 + 20, 1600 + 90)] + [p for p in hut_cells if not 40 <= p[1] - 1600 < 135][:3]:
+            self.assertEqual(prompt(stock, at), (True, False), at)          # the stock game asks there
 
     def test_making_the_sack_is_silent(self) -> None:
         # Owner, live (v2): no researching sounds.  0x469CD0 queues step type 0x19, a sound at the villager (the
