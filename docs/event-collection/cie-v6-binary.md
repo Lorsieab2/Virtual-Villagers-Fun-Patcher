@@ -1081,8 +1081,8 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 | Code | do | role byte | flags | a | b | string |
 |---|---|---|---|---|---|---|
 | 27 | new_villager | `copy_of` role index (or 253 / 252), or 0xFF (a random new villager) | 1 a child of the two newest villagers | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | sex: 0 random, 1 male, 2 female | NONE |
-| 28 | pregnant | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
-| 29 | nursing | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
+| 28 | pregnant | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets; 8 partner_may_carry | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
+| 29 | nursing | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets; 8 partner_may_carry | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
 | 30 | clone | role index | 0 | how many: 0 or 1 = one double, 2 = two | 0 | NONE |
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
@@ -1106,7 +1106,11 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
   baby (his partner's, a single father, a deceased mother's child, a nursery or orphanage, an abandoned or rescued
   infant, an adopted or refugee child, someone who cannot care for their child) or a villager who transitioned from
   female to male. Otherwise born-male villagers never conceive from these events (Custom Island Events can, with Male
-  Pregnancy).
+  Pregnancy). `"partner_may_carry": true` (flags bit 3, value 8; needs `partner`): the carrier is still checked as
+  above, then, at the player's "a man may carry the baby by chance" percent (10 unless moved), the partner carries
+  instead, of any birth sex, when they are 18 or older and not expecting already; else the carrier does. The new
+  events set it on every couple pregnancy (`pregnant` with a partner and without `any_birth_sex`); a reason-based
+  one (`any_birth_sex`), a single parent and a `nursing` foundling never do.
 - **`{"do": "clone", "role": r}`**, optionally `"count": 1 | 2` (default 1; value a, 0 or 1 = one, 2 = two): an exact double of the role's villager joins the tribe (looks, likes, dislikes and
   skills copied). A clone and a `copy_of` duplicate ALWAYS get a name different from the original's.
 - **`{"do": "change_name", "role": r}`**, optionally `"name": "Lani"`: a real rename, to that name or (left out) to a

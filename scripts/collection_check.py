@@ -1122,12 +1122,15 @@ def check_effects(doc: dict, rep: Report) -> None:
             elif do in ("pregnant", "nursing"):
                 roles = doc.get("roles", {})
                 r = roles.get(e.get("role"), {}) if e.get("role") not in NEW_ROLES else {"kind": "villager"}
-                if set(e) - {"do", "role", "partner", "any_birth_sex", "babies", "src"}:
-                    rep.add("e EFFECTS", f"{where}: {do} takes role, partner, any_birth_sex and babies only")
+                if set(e) - {"do", "role", "partner", "any_birth_sex", "babies", "partner_may_carry", "src"}:
+                    rep.add("e EFFECTS", f"{where}: {do} takes role, partner, any_birth_sex, babies and "
+                                         f"partner_may_carry only")
                 if "babies" in e and (e["babies"] not in ("roll", 2, 3) or isinstance(e["babies"], bool)):
                     rep.add("e EFFECTS", f"{where}: {do} babies is \"roll\", 2 or 3 (left out: one)")
                 if "any_birth_sex" in e and e["any_birth_sex"] is not True:
                     rep.add("e EFFECTS", f"{where}: any_birth_sex is true or left out")
+                if "partner_may_carry" in e and (e["partner_may_carry"] is not True or "partner" not in e):
+                    rep.add("e EFFECTS", f"{where}: partner_may_carry is true or left out, and needs a partner")
                 if r.get("kind") != "villager":
                     rep.add("e EFFECTS", f"{where}: {do} acts on a villager role")
                 elif r.get("max_age") is not None and r["max_age"] < CARRIER_MIN_AGE:

@@ -831,8 +831,14 @@ def plain_effect(line: str) -> PlainEffect | str:
             mods = (m.group(4) or "").lower()
             babies = "roll" if "twins or triplets" in mods else 3 if "triplets" in mods else 2 if "twins" in mods \
                 else None
+            any_sex = "any birth sex" in mods
+            # PREGNANT <who> WITH <who>, no (ANY BIRTH SEX): a couple's pregnancy, where the partner may carry by the
+            # player's chance (engine flags bit 3; the owner, 2026-11-16).  Never a reason-based one, a single parent
+            # or NURSING (a baby now: a foundling or one already born).
+            couple = m.group(1).lower() == "pregnant" and bool(partner) and not any_sex
             return PlainEffect([fx(do=m.group(1).lower(), role=carrier, partner=partner or None,
-                                   any_birth_sex=True if "any birth sex" in mods else None, babies=babies)], roles)
+                                   any_birth_sex=True if any_sex else None, babies=babies,
+                                   partner_may_carry=True if couple else None)], roles)
         m = re.fullmatch(r"new look(?: \((head|body|clothes|both)\))?(?: " + _T + r")?", s, re.I)
         if m:
             part = (m.group(1) or "head").lower()
@@ -2672,7 +2678,8 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             b = cie.NEW_VILLAGER_SEX[e.get("sex", "random")]
             flags = cie.CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
         elif do in ("pregnant", "nursing"):
-            flags = (cie.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cie.BABIES_FLAGS.get(e.get("babies"), 0)
+            flags = (cie.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cie.BABIES_FLAGS.get(e.get("babies"), 0) \
+                | (cie.PARTNER_MAY_CARRY_FLAG if e.get("partner_may_carry") else 0)
             a = _piece_slot(local, e["partner"]) if e.get("partner") else 0xFF
         elif do == "body_swap":
             a = _piece_slot(local, e["with"])
@@ -3209,7 +3216,9 @@ main villager):
 - PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
   older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
   potion), or for NURSING when a father is caring for a baby. Add (TWINS), (TRIPLETS) or (TWINS OR TRIPLETS) for
-  more than one baby.
+  more than one baby. PREGNANT <who> WITH <who> without (ANY BIRTH SEX) is a couple's pregnancy: the first is the
+  one who carries (in a same-sex couple, the one the story calls the mother), and the player's "a man may carry the
+  baby by chance" setting may let the partner carry instead, so write the story so either can.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
   LOSE NAME <who> (the name becomes "?"; it only comes from a bump on the head or something like it: a fall, a fever,
   magic or anything that takes the villager's memory, never a villager choosing or being given "?" as a name),
@@ -3323,7 +3332,7 @@ Use gameplay effects only when the story supports them, and only the effects lis
 Don't artificially balance every choice with one good outcome and one bad outcome.
 Some choices may have two good outcomes, two unfortunate outcomes, or two entirely different neutral outcomes.
 Death should be very rare, serious harm uncommon, and minor setbacks occasional, unless the particular event warrants otherwise.
-The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) always goes to a villager born female and 18 or older, unless the story is magical or (for NURSING) a father caring for a baby, and then the effect says (ANY BIRTH SEX). Events that can kill a villager or make one disappear only happen in villages of 61 or more.
+The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) always goes to a villager born female and 18 or older, unless the story is magical or (for NURSING) a father caring for a baby, and then the effect says (ANY BIRTH SEX); in a couple's pregnancy (PREGNANT <who> WITH <who>, no (ANY BIRTH SEX)) the partner may carry instead by the player's chance setting. Events that can kill a villager or make one disappear only happen in villages of 61 or more.
 8. Quality Requirements
 Before presenting the events, check that:
 

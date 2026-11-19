@@ -419,6 +419,11 @@ CHILD_OF_NEWEST_FLAG = 1      # code 27: flags bit 0, a child of the two newest 
 # (bit 2), triplets (both); left out, one baby
 BABIES_FLAGS = {"roll": 2, 2: 4, 3: 6}
 BABIES_NAMES = {v: k for k, v in BABIES_FLAGS.items()}
+# codes 28 / 29: flags bit 3 (value 8), "the partner may carry" (the owner, 2026-11-16; engine story_graph.inc
+# CG_FX_PARTNER_MAY_CARRY): with a partner role, at the player's partner_carry_percent the partner carries instead (any
+# birth sex) when they pass the carrier's checks.  Every couple pregnancy of the new events sets it
+# ("partner_may_carry": true); a reason-based one (any_birth_sex) and one with no partner never do.
+PARTNER_MAY_CARRY_FLAG = 8
 SKILL_BEST_FLAG = 32          # codes 9 / 15: flags bit 32, the villager's best skill (string "best")
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
@@ -950,7 +955,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         out["role"] = e.get("role", default_role)
         if do in ("pregnant", "nursing"):
             # Section 31, codes 28 / 29: the carrier (born female, 18+, unless any_birth_sex) and its partner.
-            known |= {"partner", "any_birth_sex", "babies"}
+            known |= {"partner", "any_birth_sex", "babies", "partner_may_carry"}
             if "babies" in e:
                 if e["babies"] not in BABIES_FLAGS or isinstance(e["babies"], bool):
                     problems.append(f"{where}: {do} babies is \"roll\", 2 or 3 (left out: one)")
@@ -964,6 +969,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: any_birth_sex is true or false")
             if e.get("any_birth_sex") is True:
                 out["any_birth_sex"] = True
+            if e.get("partner_may_carry", False) not in (True, False):
+                problems.append(f"{where}: partner_may_carry is true or false")
+            elif e.get("partner_may_carry") is True:
+                if "partner" not in e:
+                    problems.append(f"{where}: partner_may_carry needs a partner (the partner is who may carry)")
+                out["partner_may_carry"] = True
         elif do == "change_age":
             # Section 31, code 34: to an age class, or by a number (or a range) of years.
             known |= {"to", "years"}
@@ -4022,7 +4033,8 @@ def _compile_v6(g: dict) -> bytes:
                 b = NEW_VILLAGER_SEX[e.get("sex", "random")]
                 flags = CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
             elif do in ("pregnant", "nursing"):
-                flags = (ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | BABIES_FLAGS.get(e.get("babies"), 0)
+                flags = (ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | BABIES_FLAGS.get(e.get("babies"), 0) \
+                    | (PARTNER_MAY_CARRY_FLAG if e.get("partner_may_carry") else 0)
                 a = rx(e["partner"]) if e.get("partner") else 0xFF
             elif do == "body_swap":
                 a = rx(e["with"])
@@ -4302,6 +4314,8 @@ def _decompile_v6(data: bytes) -> dict:
                         e["any_birth_sex"] = True
                     if flags & 6:
                         e["babies"] = BABIES_NAMES[flags & 6]
+                    if flags & PARTNER_MAY_CARRY_FLAG:
+                        e["partner_may_carry"] = True
                 elif do == "body_swap":
                     e["with"] = rn(a)
                 elif do == "change_name" and st != NONE and s(st):

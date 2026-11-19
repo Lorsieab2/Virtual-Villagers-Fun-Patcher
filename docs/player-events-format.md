@@ -134,7 +134,7 @@ game's own ranges (the same as the More Island Events rewards); food and tech sc
 | `DEATH <who> [CAUSE "words"]`, `DISAPPEARS <who>`, `LOST FOREVER <who>` | a death with a grave, a disappearance, a death with no body | kill, vanish, die_unrecovered |
 | `PREGNANCY LOSS <who>`, `BIRTH THEN DEATH <who>`, `EARLY BIRTH <who>` | the expecting parent's pregnancy | baby_lost, birth_then_die, deliver_early |
 | `NEW VILLAGER (child\|teen\|adult\|elder\|any)`, `DUPLICATE OF <who>`, `CLONE OF <who>`, `CLONE OF <who> (2)`, `TWO CLONES OF <who>` | a newcomer; a lookalike; an exact double, or two (never more) | new_villager, clone (count) |
-| `PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]`, `NURSING <who> [WITH <who>] [(ANY BIRTH SEX)]` | a pregnancy; a baby now | pregnant, nursing |
+| `PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]`, `NURSING <who> [WITH <who>] [(ANY BIRTH SEX)]` | a pregnancy; a baby now (`PREGNANT <who> WITH <who>` without `(ANY BIRTH SEX)` is a couple's pregnancy: the partner may carry by the player's chance setting, `partner_may_carry`) | pregnant, nursing |
 | `NEW LOOK (head\|body\|both) <who>`, `OLD LOOK <who>`, `SEX CHANGE <who>`, `BODY SWAP <who> WITH <who>` | looks | appearance, old_look, sex_change, body_swap |
 | `LOSE NAME <who>`, `CHANGE NAME <who>`, `CHANGE NAME <who> TO Lani` | the name becomes "?"; a new name from the game's list, or that name (1-31 letters, spaces, `'`, `-`, `.`, starting with a letter) | lose_name, change_name |
 

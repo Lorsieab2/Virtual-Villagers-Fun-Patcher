@@ -153,6 +153,7 @@
     {
      "do": "pregnant",
      "partner": "friend",
+     "partner_may_carry": true,
      "role": "subject"
     }
    ],
@@ -203,6 +204,7 @@
     {
      "do": "pregnant",
      "partner": "friend",
+     "partner_may_carry": true,
      "role": "subject"
     }
    ],

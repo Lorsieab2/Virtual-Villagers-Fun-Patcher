@@ -205,7 +205,8 @@
     {
      "do": "pregnant",
      "role": "subject",
-     "partner": "friend"
+     "partner": "friend",
+     "partner_may_carry": true
     }
    ]
   },

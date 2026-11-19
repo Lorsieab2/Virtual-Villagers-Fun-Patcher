@@ -122,7 +122,8 @@ def encode_effect(e: dict, idx: dict[str, int]) -> Effect:
         b = cg.NEW_VILLAGER_SEX[e.get("sex", "random")]
         flags = cg.CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
     elif do in ("pregnant", "nursing"):
-        flags = (cg.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cg.BABIES_FLAGS.get(e.get("babies"), 0)
+        flags = (cg.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cg.BABIES_FLAGS.get(e.get("babies"), 0) \
+            | (cg.PARTNER_MAY_CARRY_FLAG if e.get("partner_may_carry") else 0)
         a = rx(e["partner"]) if e.get("partner") else vp.EVERY
     elif do == "body_swap":
         a = rx(e["with"])
