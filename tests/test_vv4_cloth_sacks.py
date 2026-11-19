@@ -56,6 +56,33 @@ EV_MADE, EV_FULL, EV_CREDIT = 0x75, 0x76, 0x77
 FOOD_MASTERY = 4                 # the technology index (0x41E1C0)
 SOLVED = (6, 0x16)               # the Cooking Pit restored, the Clothing Hut finished (no nets, no berries)
 FAKE_OFFSET = 0xF000             # the stand-in fruit supply's exports, at the end of the API stub page
+EV_STEW, EV_STEW_DONE = 0x78, 0x79
+POT, ITEM_REGISTRY, LOCKS = 0x4D76D8, 0x4CC0A0, 0x704E38
+FEAST_FLAGS = 0xB20              # pot + 0xB20..0xB23: mushroom, berries, fish, fruit (0x42DD60 .. 0x42DDA0)
+HARVEST_CREDIT_RETURN = 0x464510  # the return of job event 14's food-writer call: #805's whitelisted cutting-tool berries
+
+
+def grand_feast(v) -> None:
+    """The pot brewing the Grand Feast with none of its four items in: the item registry built by its own
+    constructor 0x413360 (the pot's listener 0x42EA30 offered items 0, 6, 0x1F..0x25, 0x37, 0x38, 0x76..0x78), the
+    pot's vtables as 0x42EF20 sets them, the product 4 (the feast) and the pot's lock 0x18 taken (boiling)."""
+    v.call(0x413360, ITEM_REGISTRY)
+    v.uc.mem_write(POT, struct.pack("<3I", 0x48E268, 0x48E258, 0x48E250))
+    v.w32(POT + 0xB10, 4)
+    v.w8(LOCKS + 0x14 * 0x18, 1)
+
+
+def feast_flags(v) -> tuple[int, int, int, int]:
+    """(mushroom, berries, fish, fruit): what the pot has for the feast."""
+    return tuple(v.uc.mem_read(POT + FEAST_FLAGS, 4))
+
+
+def food_writer_returns(v) -> list[int]:
+    """Each food-writer 0x41D920 call's return address, as #805's doubler wrapper reads it."""
+    seen: list[int] = []
+    v.uc.hook_add(UC_HOOK_CODE, lambda u, *_: seen.append(struct.unpack("<I", u.mem_read(
+        u.reg_read(UC_X86_REG_ESP), 4))[0]), begin=0x41D920, end=0x41D920)
+    return seen
 
 
 @functools.lru_cache(maxsize=None)
@@ -282,7 +309,7 @@ class SackTripTests(unittest.TestCase):
                 self.assertEqual(h.v.r32(CLOTH), 2)
                 self.assertNotEqual(h.v.r32(r + REC_ACTION), 0x3F)  # never the empty tree's refusal
                 h.run()
-                self.assertEqual(h.taken, [paid])            # taken at the food bin, at most 30
+                self.assertEqual(h.taken, [paid] if paid else [])   # taken at the food bin, at most 30
                 self.assertEqual(h.credits(), [paid])
                 self.assertEqual(h.tree, tree - paid)
                 self.assertEqual(h.v.r32(r + REC_TASK), 2 if tree - paid >= 3 else 0)   # event 14's rule
@@ -427,6 +454,7 @@ class SackTripTests(unittest.TestCase):
                 h.v.w32(r + i * 0x58, 0)
             for lock in range(5, 9):                                        # the pit's spots free again
                 h.v.w8(0x704E38 + 0x14 * lock, 0)
+            h.v.w32(CLOTH, 99)                                              # cloth for every drop (one each)
             h.drop(r)
             return h.v.r32(fe.GAME + 0x171A0) == 77, (0x13, EV_CREDIT) in h.queue(r)
 
@@ -479,6 +507,84 @@ class SackTripTests(unittest.TestCase):
                 self.assertNotIn((0x13, EV_CREDIT), h.queue(r))
                 if patched:
                     self.assertEqual(h.v.r32(r + REC_ACTION), 0x1A)   # the tree's own refusal, text 0x13C
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "the stock executable, its map and unicorn are needed")
+class GrandFeastAndDoublerTests(unittest.TestCase):
+    """The owner (2026-11-19): "for the grand stew berries and fruit harvested by cutting tools or sacks should
+    count"; and an owned Food Point Doubler doubles a sack exactly once, as it does cutting-tool berries."""
+
+    def test_the_sack_goes_into_the_feast_as_the_stock_fruit_trip_does(self) -> None:
+        h = Hut()
+        grand_feast(h.v)
+        r = h.villager()
+        self.assertEqual(h.drop(r), 1)
+        self.assertEqual(h.v.r32(CLOTH), 2)
+        carried: list[int] = []
+
+        def watch(_f):
+            item = h.v.r32(r + REC_ITEM)
+            if not carried or carried[-1] != item:
+                carried.append(item)
+        h.run(watch=watch)
+        self.assertEqual(feast_flags(h.v), (0, 0, 0, 1))          # the feast's fruit, at 0x42EAE7
+        self.assertEqual(h.credits(), [])                         # no food: the fruit is the stew's
+        self.assertNotIn(EV_CREDIT, h.events())
+        self.assertNotIn(15, h.events())
+        self.assertEqual([e for e in h.events() if e >= EV_MADE], [EV_MADE, EV_FULL, EV_STEW, EV_STEW_DONE])
+        self.assertIn(0x37, carried)                              # the stew's fruit, as the stock trip carries it
+        self.assertFalse(h.v.at_bin())
+        # The model: the stock game's own fruit trip in the same village goes to the stew the same way.
+        stock = Hut(patched=False)
+        grand_feast(stock.v)
+        stock.villager()
+        stock.v.start(0x64)
+        stock.run()
+        self.assertEqual(feast_flags(stock.v), (0, 0, 0, 1))
+        self.assertEqual(stock.credits(), [])
+
+    def test_with_the_fruit_in_the_sack_goes_to_the_food_bin(self) -> None:
+        h = Hut()
+        grand_feast(h.v)
+        h.v.w8(POT + FEAST_FLAGS + 3, 1)                          # the feast has its fruit already
+        r = h.villager()
+        h.drop(r)
+        h.run()
+        self.assertEqual(h.credits(), [30])
+        self.assertTrue(h.v.at_bin())
+
+    def test_the_stock_fruit_trip_is_kept_whole_before_the_sack_tail(self) -> None:
+        # The pit spot's copy goes in before the trip is read: both of the trip's 0x2F steps stay (the tail used
+        # to be cut one step early, taking one of them).
+        stock = Hut(patched=False)
+        sr = stock.villager()
+        stock.v.start(0x64)
+        q = [t for t, _ in stock.queue(sr)]
+        h = Hut()
+        r = h.villager()
+        h.drop(r)
+        sq = [t for t, _ in h.queue(r)]
+        made = sq.index(0x13)                                     # SACK_EV_MADE, then its text
+        stock_head = q[:len(q) - 1 - q[::-1].index(5)]            # the stock trip up to its last text
+        self.assertEqual(sq[made + 2:made + 2 + len(stock_head)], stock_head)
+        self.assertEqual(sq.count(0x2F), q.count(0x2F))           # none of the trip's 0x2F steps cut
+
+    def test_the_sack_is_paid_from_the_cutting_tool_harvests_own_writer_call(self) -> None:
+        # #805 doubles only whitelisted stock returns; the sack's 30 come from job event 14's own call (return
+        # 0x464510, the cutting-tool berries), once, so an owned Food Point Doubler doubles it once.
+        h = Hut()
+        seen = food_writer_returns(h.v)
+        r = h.villager()
+        h.drop(r)
+        h.run()
+        self.assertEqual(seen, [HARVEST_CREDIT_RETURN])
+        harvest = Hut(patched=False, berries=1000)
+        stock_seen = food_writer_returns(harvest.v)
+        harvest.v.w32(TOOLS, 3)
+        t = harvest.villager(at=(1568, 1124))
+        harvest.v.call(HARVEST_DROP, 0, 0, t)
+        harvest.run()
+        self.assertEqual(stock_seen, [HARVEST_CREDIT_RETURN])
 
 
 class RowTests(unittest.TestCase):

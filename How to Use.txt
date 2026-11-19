@@ -630,7 +630,11 @@ as on any fruit trip, and carries the full sack to the food bin: 30 food
 before Food Mastery. It works like the cutting tool on the blackberries: the
 cloth is used when the villager starts (a failed Farming check loses it),
 with no cloth the villager refuses ("They need cloth for this!"), and Food
-Mastery multiplies the food. A sack never goes into the stew. With Yellow
+Mastery multiplies the food. While the stew pot is making The Grand Feast
+and still needs its fruit, the sack goes into the stew instead, as any fruit
+trip does then, and counts as the feast's fruit (no food from that sack). With
+Fix Vanilla Bugs, a cutting-tool harvest does the same with the feast's
+berries. With Yellow
 Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30,
 or what is left, even none, as a cutting tool harvests a nearly bare bush);
 without it every sack holds 30. Only villagers you drop make sacks: farmers

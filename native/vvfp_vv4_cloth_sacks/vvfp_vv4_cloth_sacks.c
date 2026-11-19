@@ -21,9 +21,10 @@
        that changes it; the berries -= n (not below 0); fewer than 3 left: the villager's task is cleared
        (+0x1C54 = 0); over 2,000 food: tip 0x2E5;
      * no farmer the game sends ever harvests with a tool (only the drop starts action 0xBE), and a harvest is
-       never a Grand Feast item: the stew pot's listener 0x42EA30 counts only items 0 (picked berries), 0x37
-       (stomped fruit), 0x38 (fish) and 0x76..0x78 (mushrooms) toward the feast (table 0x42EB4C) -- the harvest's
-       0x3E is none of them and it always goes to the food bin.
+       never a Grand Feast item in the stock game: the stew pot's listener 0x42EA30 counts only items 0 (picked
+       berries), 0x37 (stomped fruit), 0x38 (fish) and 0x76..0x78 (mushrooms) toward the feast (table 0x42EB4C) --
+       the harvest's 0x3E is none of them and it always goes to the food bin ("VVFP VV4 Empty Sources.dll" now
+       takes it to the stew while the feast wants berries).
    THE SACK, the same way: one cloth bolt (0x4369F0(1) on the cloth's object 0x4D8AC8, count [0x4D8ACC], the
    same routine) used at the drop; no cloth: action 0x1A with text 0x136 "They need cloth for this!" (the game's
    own words for cloth); like the tool, nothing is checked about the fruit at the drop (the owner, 2026-11-17: "if
@@ -32,8 +33,17 @@
    ("VVFP VV4 Fruit Supply.dll", VvfpYellowFruitTake; without it the trees are the stock game's unlimited ones and
    a sack always holds 30), paid by event 14 itself run on the fruit (on_event), so its food-writer call, the task
    rule below 3 and the 2,000-food tip are the harvest's own.
-   The full sack is carried as item 0x36 (the yellow fruit), never 0x37: like the harvest's berries it is no
-   Grand Feast item and never goes into the stew (the trip's stew branch, 0x4349A3, is replaced by the food bin).
+   The full sack is carried to the food bin as item 0x36 (the yellow fruit).
+   THE GRAND FEAST (the owner, 2026-11-19: "for the grand stew berries and fruit harvested by cutting tools or
+   sacks should count").  The game's own fruit trip that the sack runs decides at its end, as the stock game does
+   (0x4349A3): while the pot wants fruit for the feast (0x42DDA0) it queues text 0x241 "Carrying fruit to the
+   cooking pot" and the stew action 0x90 with item 0x37 (0x469F30) instead of the food bin.  The sack then keeps
+   that text and goes to the stew the same way: SACK_EV_FULL (the cooked sack shows), then SACK_EV_STEW, which
+   starts that same stew action 0x90 with item 0x37 ("Adding to the stew", the walk to the pot, the put-down the
+   pot's listener 0x42EA30 takes as the feast's fruit, 0x42EAE7) and queues SACK_EV_STEW_DONE after it.  No food
+   bin and no food: the fruit is the stew's, as a stock fruit trip's is ("Yellow Fruit Trees are No Longer
+   Unlimited" takes what it takes for any fruit put in the stew, at 0x42EAE7).  The cutting-tool harvest's own stew
+   trip is "VVFP VV4 Empty Sources.dll"'s.
    The differences the owner asked for: the fruit (the yellow fruit trees), making the sack, the game's own
    shaking and cooking in between, and the 30.
 
@@ -64,7 +74,8 @@
                    0x240), SACK_EV_FULL (the cooked sack shows), the full sack (item 0x36), the walk to the food
                    bin (area 8), the trip's own 1-second wait and put-down (0x4693B0(1), 0x469820), and
                    SACK_EV_CREDIT, the food above.  The game's event 15 (3 food) is not queued, so the trip pays
-                   only the sack.
+                   only the sack.  When the fruit trip went to the stew instead (THE GRAND FEAST above), its
+                   action step is replaced by SACK_EV_FULL and SACK_EV_STEW.
      the events    The job events 0x4642F0 (thiscall(villager; event)) are entered here first: SACK_EV_MADE,
                    SACK_EV_FULL and SACK_EV_CREDIT are this companion's (numbers the game's table never reaches:
                    events above 74 go to its own end, 0x464EB2, so a queue the game kept without this companion
@@ -169,6 +180,11 @@
 #define SACK_EV_MADE 0x75
 #define SACK_EV_FULL 0x76
 #define SACK_EV_CREDIT 0x77
+#define SACK_EV_STEW 0x78            /* the full sack goes into the stew: the stew action 0x90 with item 0x37 */
+#define SACK_EV_STEW_DONE 0x79       /* the stew trip over (the sack's pictures end) */
+#define T_ACTION 0x32                /* an action step (0x469F30): +4 the action, +8 its block */
+#define ACT_STEW 0x90
+#define ITEM_STOMPED 0x37            /* the stew's fruit (table 0x42EB4C: the feast's fruit flag) */
 /* The awning: the left part of the hut picture, relative to the hut's place (the hut is drawn there, its
    finished frame 200 x 200; the awning's posts stand at about +5 and +45, the bolts of cloth from +45). */
 #define SACK_BOX_LEFT (-26)                /* the owner (2026-11-18): "a bit wider": 16 more on each side */
@@ -301,7 +317,7 @@ static int on_sack_trip(const unsigned char *villager) {
         if (s[0] == 0) {
             return 0;
         }
-        if (s[0] == T_EVENT && s[1] == SACK_EV_CREDIT) {
+        if (s[0] == T_EVENT && (s[1] == SACK_EV_CREDIT || s[1] == SACK_EV_STEW || s[1] == SACK_EV_STEW_DONE)) {
             return 1;
         }
     }
@@ -350,12 +366,12 @@ static const char *caption_gathering(void) {
    one else can take the spot meanwhile; the trip's own claim still runs after the making (the lock's 45-second
    timeout, 0x46D563, then runs from there, as for a stock trip).  An interrupted trip leaves the spot to that
    timeout, as a stock trip does. */
-static void hold_spot(unsigned char *villager, int start, int first) {
+static int hold_spot(unsigned char *villager, int start, int first) {
     int i, last;
     for (last = first; last < STEPS && *(const unsigned int *)step_at(villager, last) != 0; ++last) {
     }
     if (last >= STEPS) {
-        return;                      /* a full queue: no room for the copy (the trip's own claim remains) */
+        return 0;                    /* a full queue: no room for the copy (the trip's own claim remains) */
     }
     for (i = first; i < last; ++i) {
         const unsigned int *s = (const unsigned int *)step_at(villager, i);
@@ -368,9 +384,10 @@ static void hold_spot(unsigned char *villager, int start, int first) {
             if (start == 0) {
                 ((step0_fn)(UINT_PTR)QUEUE_START)(villager, NULL);
             }
-            return;
+            return 1;
         }
     }
+    return 0;
 }
 
 /* The sack trip, queued behind whatever the villager already has (as every action handler does).  The cloth is
@@ -394,6 +411,8 @@ static void start_trip(unsigned char *villager) {
     }
     /* The game's own fruit trip, after ours. */
     act(villager, ACT_FRUIT, 0, 0);
+    /* The claim's copy goes in first: every later step moves on by one, so the trip is read after it. */
+    first += hold_spot(villager, start, first);
     for (i = first; i < STEPS; ++i) {
         const unsigned int *s = (const unsigned int *)step_at(villager, i);
         if (s[0] == 0) {
@@ -403,11 +422,27 @@ static void start_trip(unsigned char *villager) {
             last_text = i;
         }
     }
-    hold_spot(villager, start, first);
     if (last_text < first) {
         /* The fruit trip was not built (it cannot be: every test it makes was made first): no trip at all. */
         ((step0_fn)(UINT_PTR)CLEAR_QUEUE)(villager, NULL);
         return;
+    }
+    if (last_text + 1 < STEPS) {
+        const unsigned int *s = (const unsigned int *)step_at(villager, last_text + 1);
+        if (s[0] == T_ACTION && s[1] == ACT_STEW) {
+            /* The game's own trip took its fruit to the stew (0x4349A3: the pot wants fruit for the Grand Feast;
+               text 0x241, then the stew action 0x90 with item 0x37): the full sack goes there the same way.  Its
+               text stays; the action step is replaced by the full sack showing and SACK_EV_STEW, which starts that
+               same stew action (on_event).  No food bin, no food paid: the fruit is the stew's, as in the stock
+               game. */
+            for (i = last_text + 1; i < STEPS; ++i) {
+                memset((unsigned char *)step_at(villager, i), 0, STEP_SIZE);
+            }
+            step1(STEP_EVENT, villager, SACK_EV_FULL);
+            step1(STEP_EVENT, villager, SACK_EV_STEW);
+            (void)mark_of(villager, 1);
+            return;
+        }
     }
     for (i = last_text; i < STEPS; ++i) {
         memset((unsigned char *)step_at(villager, i), 0, STEP_SIZE);
@@ -474,7 +509,8 @@ static int __cdecl on_drop(unsigned char *villager) {
 
 /* The companion's job events: 1 handled here, 0 the game's. */
 static int __cdecl on_event(unsigned char *job, int event) {
-    if (event != SACK_EV_MADE && event != SACK_EV_FULL && event != SACK_EV_CREDIT) {
+    if (event != SACK_EV_MADE && event != SACK_EV_FULL && event != SACK_EV_CREDIT && event != SACK_EV_STEW
+        && event != SACK_EV_STEW_DONE) {
         return 0;
     }
     __try {
@@ -506,6 +542,16 @@ static int __cdecl on_event(unsigned char *job, int event) {
                     (void)g_fruit_take(paid);
                 }
             }
+            unmark(villager);
+        } else if (event == SACK_EV_STEW) {
+            /* The stew action 0x90 with the stew's fruit, as the stock trip's action step starts it: its own steps
+               (the walk to the pot, the put-down that the pot's listener 0x42EA30 takes as the feast's fruit) are
+               queued after this one; SACK_EV_STEW_DONE after them ends the sack's pictures. */
+            if (villager != NULL) {
+                act(villager, ACT_STEW, ITEM_STOMPED, 0);
+                step1(STEP_EVENT, villager, SACK_EV_STEW_DONE);
+            }
+        } else if (event == SACK_EV_STEW_DONE) {
             unmark(villager);
         } else if (villager != NULL && (m = mark_of(villager, 1)) != NULL) {
             m->shows = event == SACK_EV_MADE ? 1 : 2;
@@ -597,7 +643,7 @@ static void __cdecl on_draw(const unsigned char *villager, unsigned int *args) {
             return;
         }
         item = *(const int *)(villager + REC_ITEM);
-        if (item != ITEM_CLOTH && item != ITEM_YELLOW) {
+        if (item != ITEM_CLOTH && item != ITEM_YELLOW && item != ITEM_STOMPED) {
             return;
         }
         m = mark_of(villager, 0);
@@ -605,8 +651,11 @@ static void __cdecl on_draw(const unsigned char *villager, unsigned int *args) {
             return;
         }
         if (m->shows == 1) {
+            if (item == ITEM_STOMPED) {
+                return;
+            }
             which = item == ITEM_CLOTH ? ART_EMPTY : ART_RAW;   /* the empty sack, then the shaken fruit */
-        } else if (item == ITEM_YELLOW) {
+        } else if (item == ITEM_YELLOW || item == ITEM_STOMPED) {   /* to the bin, or to the stew */
             which = ART_COOKED;
         } else {
             return;

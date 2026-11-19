@@ -100,9 +100,11 @@ def description() -> str:
         "failed Farming check or an interrupted trip loses it, as a cutting tool is lost); with no cloth the "
         "villager refuses (\"They need cloth for this!\"); the food is 1 for each fruit, at most 30, paid at the "
         "food bin, and Food Mastery multiplies it exactly as it multiplies a blackberry harvest (level 2: half as "
-        "much again, level 3: doubled) -- no other technology or setting changes it. Like a blackberry harvest, a "
-        "sack never goes into the stew and does not count toward The Grand Feast (the cutting-tool harvest's "
-        "blackberries do not either). "
+        "much again, level 3: doubled) -- no other technology or setting changes it. An owned Food Point Doubler "
+        "doubles a sack once, as it doubles a cutting-tool harvest. The Grand Feast: while the stew pot is making "
+        "The Grand Feast and still needs its fruit, the sack goes into the stew instead of the food bin, as any "
+        "fruit trip does then (\"Carrying fruit to the cooking pot\", then \"Adding to the stew\"), and counts as the "
+        "feast's fruit; that sack brings no food (the fruit is the stew's, as in the base game). "
         f"**With \"{LIMITED_NAME}\" ticked too, each sack takes its fruit from the tree when it reaches the food "
         f"bin: {SACK_FRUIT}, or what is left when fewer -- even none, as a cutting tool harvests a nearly bare bush "
         "(the cloth bolt is still used).** Without it the trees are the "
@@ -154,7 +156,15 @@ def row(dll_sha: str) -> dict:
             "wanted the fruit, 0x4349A3) its steps are replaced by: the caption 0x240 (\"Carrying fruit to the food "
             "bin\"), job event 0x76 (the cooked sack shows), item 0x36 carried, the walk to the food bin (area 8), the "
             "trip's own 1-second wait and put-down, and job event 0x77: the sack's food. The trip's own job event 15 "
-            "(3 food) is therefore never queued, and the stew is never given the sack.",
+            "(3 food) is therefore never queued. The claim's copy goes in before the trip is read, so every stock "
+            "step up to that caption is kept.",
+            "The Grand Feast (the owner, 2026-11-19): when the game's own trip went to the stew (0x4349A3: 0x42DDA0, "
+            "the feast brewing and its fruit flag pot+0xB23 not set; text 0x241, then the stew action 0x90 with item "
+            "0x37 queued by 0x469F30), its text is kept and its action step (type 0x32) is replaced by job event 0x76 "
+            "(the cooked sack shows) and job event 0x78, which starts that same stew action 0x90 with item 0x37 "
+            "(do-action 0x45DEC0: \"Adding to the stew\", the walk to the pot, the put-down the pot's listener "
+            "0x42EA30 takes as the feast's fruit, 0x42EAE7) and queues job event 0x79 after it (the sack's pictures "
+            "end). No food bin, no job event 14 or 15: no food, as on the stock trip to the stew.",
             "Job event 0x77 is paid by the cutting-tool harvest's own credit, job event 14 (0x4644EE), called with the "
             "blackberry count [game + 0x170F8] set for the call to the fruit left (with " + LIMITED + ") or 1000 (the stock "
             "unlimited tree) and put back after it: it pays min(that, 30) from its stock food-writer call (return 0x464510; "
@@ -164,9 +174,9 @@ def row(dll_sha: str) -> dict:
             "Supply.dll\").",
             "The pictures: the carried item's draw (0x466770, its call of 0x44C640 at 0x4667B4; the fifth argument "
             "is the picture's alpha, 1.0, and the size the map's zoom) draws, for a villager whose queue still holds "
-            "event 0x77: after event 0x75, item 0x35 -> Images\\vvfp_sack_empty.png and item 0x36 (trees to pit) -> "
-            "Images\\vvfp_sack_yellow_fruit_raw.png; after event 0x76, item 0x36 (pit to bin) -> "
-            "Images\\vvfp_sack_yellow_fruit.png; with the same alpha, centred on carrying.png's 40-pixel cell and "
+            "event 0x77, 0x78 or 0x79: after event 0x75, item 0x35 -> Images\\vvfp_sack_empty.png and item 0x36 "
+            "(trees to pit) -> Images\\vvfp_sack_yellow_fruit_raw.png; after event 0x76, item 0x36 (pit to bin) or "
+            "0x37 (pit to stew) -> Images\\vvfp_sack_yellow_fruit.png; with the same alpha, centred on carrying.png's 40-pixel cell and "
             "standing 31 pixels down, where its fruit and berries end; built once by ldwImageGrid 0x40AB10 (name, 1, "
             "1) after the PNG header says 8-bit RGBA of at most 40 x 40; a missing or wrong file: the game's own "
             "picture (the cloth, the yellow fruit).",
@@ -185,13 +195,15 @@ def row(dll_sha: str) -> dict:
             "verifying every stock byte (and the stock code it relies on), all or none; a different build installs "
             "nothing.",
             "Nothing is written to a save, a villager record's saved fields or a file. A queue the game keeps holds "
-            "only the game's own steps and the job events 0x75..0x77, which the stock game ignores.",
+            "only the game's own steps and the job events 0x75..0x79, which the stock game ignores.",
             "The game's pictures are never changed: the sacks are new files in Images, drawn only by the companion.",
         ],
         "evidence_status": ("implemented from exact-build disassembly; emulated on the stock executable (the drop, "
                             "the refusals, a whole trip to the food bin, the food with Food Mastery beside the "
                             "stock cutting-tool harvest's, the limited tree's take, farmers never choosing it, "
-                            "the pictures' draw) in tests/test_vv4_cloth_sacks.py; runtime/player confirmation pending"),
+                            "the pictures' draw, the Grand Feast's fruit beside the stock fruit trip's, the food "
+                            "writer's return 0x464510) in tests/test_vv4_cloth_sacks.py; runtime/player "
+                            "confirmation pending"),
         "companion_files": [
             {"source": f"assets/cloth_sacks/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
         ] + [picture(*p) for p in PICTURES],
