@@ -1224,6 +1224,8 @@ MINIMUM_DETAIL = "Minimal Detail"
 MINIMUM_HIDDEN_GROUPS = frozenset({"Time and units", "Sources", "Hidden keys, clicks and cheats"})
 _EXPLAINS = re.compile(r"^(?:How |Normally|Not counted|DEAD)|\b[Ww]ith the patcher\b|\b[Tt]he patcher's\b"
                        r"|\bthe patcher \(")
+# The owner, 2026-11-19: "tutorial and random tips should not be shown in minimal detail on".
+_TIPS = re.compile(r"\b[Tt]utorial\b|\b[Rr]andom tips?\b|\b[Tt]ip pop-ups?\b|\b[Ll]oading-screen tips?\b")
 _SENTENCE_END = re.compile(r"[.!?][\"”)]?(?=\s+[A-Z\"(])")
 
 
@@ -1243,7 +1245,7 @@ def minimum(facts: list[Fact]) -> list[Fact]:
         if fact.group in MINIMUM_HIDDEN_GROUPS:
             return None
         answer = first_sentence(fact.text)
-        if _EXPLAINS.search(answer):
+        if _EXPLAINS.search(answer) or _TIPS.search(fact.text):
             return None
         if fact.group == GROUPS[0] or fact.due is not None or re.search(r"\d", answer):
             return answer
@@ -1260,7 +1262,8 @@ def minimum(facts: list[Fact]) -> list[Fact]:
                 orphan = True
                 answer = first_sentence(fact.text)
                 lead = answer.split(":", 1)[0]
-                if lead != answer and fact.group not in MINIMUM_HIDDEN_GROUPS and not _EXPLAINS.search(lead):
+                if (lead != answer and fact.group not in MINIMUM_HIDDEN_GROUPS and not _EXPLAINS.search(lead)
+                        and not _TIPS.search(fact.text)):
                     heading = dataclasses.replace(fact, text=lead + ":", due=None, due_kind=None)
                 continue
         if text is None:

@@ -723,9 +723,12 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     # 1. The game's speed, difficulty and time away -- every figure below uses them.
     away = max(0.0, ctx.village.now - ctx.last)
     counted = 0.0 if ctx.paused else (gm.counted_away(ctx.game, away, ctx.speed) or 0.0)
-    add(f"Speed {on}" + (" (saved paused)" if ctx.paused else "") + f", difficulty {level_words}. Last saved "
-        f"{gm.when(ctx.last)}, {gm.duration(away)} ago (real time); {gm.duration(counted)} of that would count if it "
-        "were played now. Every figure below is at this speed and difficulty.", gm.SAVE)
+    add(f"Speed {on}" + (" (saved paused)" if ctx.paused else "") + f", difficulty {level_words}. Every figure below "
+        "is at this speed and difficulty.", gm.SAVE)
+    # The owner, 2026-11-19: "the number of hours since the save was played should be shown in vital statistics" --
+    # its own line, answer first, so Minimal Detail keeps it too.
+    add(f"Hours since the save was last played: {away / 3600:,.1f} (real time; last saved {gm.when(ctx.last)}). "
+        f"{gm.duration(counted)} of that would count if it were played now.", gm.SAVE)
 
     # 2. Food and its sources.
     add(f"Food in storage: {ctx.food:,}.", gm.SAVE)
