@@ -95,7 +95,10 @@ def _keys() -> list[Entry]:
                  "repeated presses).", O),
                 ("Seen by the owner (2026-10-11): F8 fires every island event in turn, the first shown being \"The "
                  "Creeping Mold\".", O),
-                ("How the patcher's logs record villagers made by F7 is not settled.", U))),
+                # native/vvfp_cause_of_death/cod_arrival_sites.inc MARKERS_VV4: the six calls 0x4408CA..0x440979 of
+                # 0x467D10 are marked MARK_EVENT "Developer command (F7)".
+                ("The patcher's logs record each villager made by F7 as arrived, by \"Developer command (F7)\" (the "
+                 "patcher's arrival marking knows the six places F7 makes them).", C))),
         # 0x440550 (0x4406E8..0x440714) asks the stew pot 0x42DD20 and drops the answer; 0x42DD20 only reads (the
         # pot's stew slot +0xB10 and the states 9 / 0xA through 0x46D880), so the key changes nothing.
         Entry(KEY, "B (village screen)", (
@@ -168,7 +171,10 @@ def _clicks() -> list[Entry]:
             f"(below) in the message bar: each tip 1 in {RANDOM_COUNT} a click, "
             # The mouse-down 0x442650: rand(50) + 1025 (RANDOM_COUNT, RANDOM_BASE; tests/hidden_checks.py PICKERS).
             "any tip can come again, nothing is remembered"), C, subs=(
-                ("What is drawn on that spot was not checked.", U),)),
+                # The rectangle +0x8C..+0x98 is written at 0x4414DE / 0x44156F and only compared (0x44284E): no
+                # drawing code reads it.
+                ("The game draws nothing of its own on the spot: no drawing code reads its rectangle, only the "
+                 "click test does, so what is seen there is the screen's interface picture.", C),)),
         # 0x442650 -> 0x440A70, map areas 77 to 80.  0x442650 reaches it only when no villager is under the pointer
         # (0x4413E0, 0x466820) and the click is inside the view; 0x440A70 first runs the spot's click (0x46E510),
         # then, when the area map 0x46C3D0 says water (4 or 5) and the game is not paused (0x41DBC0), plays sound 87
@@ -215,18 +221,50 @@ def _tips() -> list[Entry]:
             f"(each 1 in {LOADING_COUNT}); the tip spot shows any of them too "
             "(above); the tutorial (eTTip) and milestone (eTip) pop-ups are asked for by number"), C, subs=(
                 # The loading screen 0x43F180; the pop-ups 0x44B890 (whether one is still to show: 0x44B9A0).
-                ("Whether each pop-up shows once a village, and how \"Do you need help getting started?\" arms them, "
-                 "is not traced.", U),
+                # The queue 0x44B890(id, ., force) refuses a tip whose shown byte (+(id - 682) x 32, set by 0x44B970)
+                # is set unless forced; the tutorial (+0xBF0) keeps its current step at +0xBF4; after each pop-up
+                # 0x44B930 (0x44BD88, 0x44C00D) puts up the first odd tip 683-717 not yet shown, forced; 0x44B900
+                # (the tutorial button, 0x440A48) puts the current one up again.
+                ("Each pop-up shows once a village: the game marks it when it is put up and does not put it up "
+                 "again (a new hut's pop-up excepted). With the tutorial on, after each pop-up the next tutorial "
+                 "instruction not yet shown (the odd tips 683 to 717) comes up, and the tutorial button shows the "
+                 "current one again.", C),
                 ("The game seeds its random numbers from the computer's clock when it starts, so the loading "
                  "screen's tip differs from run to run.", C))),     # 0x402FE0 -> srand
         Entry(TIP, f"The {RANDOM_COUNT} random tips (eRandomTip1 to 50)", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C, lambda tip: "")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (eTTip tutorial, eTip milestones)", (
-            "every one, as the game words it, with its name and the places that ask for it by number (a tip with none "
-            "is asked for by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
-              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
-                                    lambda tip: tip[1] + ("; " + hidden.sites_note(tip[2]) if tip[2] else ""))),
+            "every one, as the game words it, with its name and the places that ask for it by number, or how else it "
+            "comes; a tip nothing asks for is never shown by the normal game"), C,
+              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] or _how(tip) else U,
+                                    lambda tip: "; ".join(w for w in (tip[1], hidden.sites_note(tip[2]) if tip[2]
+                                                                      else _how(tip)) if w))),
     ]
+
+
+# The tips with no fixed-number asker, every path checked (2026-11-18): the queue 0x44B890's callers (also those
+# sharing a call after a jump: the finished-project switch 0x4302C3..0x43034B), its three computed callers (the
+# collections 0x414580: 770-773 by the set completed; the tutorial's next step 0x44B95C and its button 0x44B926), the
+# tip table's set-up (0x44BBxx, layout only), base-plus-offset loads, and the tip spot and loading screen (random
+# tips only).
+SHARED_CALL = {764: "each time a hut is finished (put up even if shown before)",
+               765: "when the Clothing Hut is finished (put up even if shown before)",
+               716: "when the Love Shack is finished, the first time"}
+COLLECTION_DONE = {770: "Fish Scale", 771: "Lab Equipment", 772: "Mausoleum Mural", 773: "Wind Flute"}
+TUTORIAL_STEP = frozenset(range(683, 718, 2))
+NEVER_ASKED = frozenset({720, 721, 723, 726, 730, 739, 740, 742, 746, 748, 767, 769})
+
+
+def _how(tip) -> str:
+    if tip[0] in SHARED_CALL:
+        return f"asked for by number at one place, {SHARED_CALL[tip[0]]}"
+    if tip[0] in COLLECTION_DONE:
+        return f"shown when the {COLLECTION_DONE[tip[0]]} collection is completed"
+    if tip[0] in TUTORIAL_STEP:
+        return "the tutorial's next instruction (and again from the tutorial button)"
+    if tip[0] in NEVER_ASKED:
+        return "nothing in the normal game asks for it, so the normal game never shows it"
+    return ""
 
 
 def _patcher() -> list[Entry]:

@@ -258,11 +258,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     data = village.data
     found = vv_save_backup.save_speed(GAME, data)
     if found is not None and found[0] != SPEED:
-        # Kept: the older layout has a 12-byte header (src/vv_save_backup.py _SAVE_LAYOUTS) without the newer
-        # header's 64-bit real-life clock base at 8, which every date on this page is counted from; where, if
-        # anywhere, the older layout keeps it is not known, so the page does not guess.
+        # Kept, truly unknowable: the older layout has a 12-byte header (src/vv_save_backup.py _SAVE_LAYOUTS) without
+        # the newer header's 64-bit real-life clock base at 8, which every date on this page is counted from.  The
+        # stock game's own reader (0x403840..0x4038C4) reads 24 bytes and needs the buffer length at +0x10, so this
+        # version of the game refuses such a save too: nothing it does says where an older save's clock starts.
         return [gm.Fact("Other", f"{village.save.name} could not be read: it is in the older Tree of Life save "
-                                 "layout, which this page does not read.")]
+                                 "layout of an earlier version of the game, which this version of the game does not "
+                                 "load either (it reads only the newer layout), so its clocks cannot be read.",
+                        gm.CODE)]
     if found is None:
         return [gm.Fact("Other", f"{village.save.name} could not be read: it is not a Tree of Life save.")]
     base = struct.unpack_from("<q", data, 8)[0]

@@ -160,6 +160,15 @@ class Patcher(unittest.TestCase):
         self.assertIn("every living villager with a free Like slot comes to like running", text)
         self.assertIn("a villager whose 3 Like slots are full gets no like", text)
 
+    def test_every_tip_pop_up_says_how_it_comes(self) -> None:
+        import vv_game_mechanics_hidden_vv4 as hidden4
+        for tip in hidden4.POPUP_TIPS:
+            self.assertTrue(tip[2] or hidden4._how(tip), tip[0])
+        self.assertIn("Clothing Hut", hidden4._how(next(t for t in hidden4.POPUP_TIPS if t[0] == 765)))
+        self.assertIn("never shows it", hidden4._how(next(t for t in hidden4.POPUP_TIPS if t[0] == 740)))
+        f7 = next(e for e in hidden4.entries() if e.name.startswith("The developer's cheat"))
+        self.assertIn("\"Developer command (F7)\"", f7.subs[-1][0])
+
     def test_every_row_is_code(self) -> None:
         unconfirmed = [e.name for e in items.entries() if e.kind == items.PATCHER and e.verified is False]
         self.assertEqual(unconfirmed, [])

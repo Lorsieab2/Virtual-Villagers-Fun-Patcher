@@ -24,7 +24,7 @@ class Hidden4(HiddenChecks, unittest.TestCase):
         ('key', 'Space (village screen)', C, ()),
         ('key', '1 to 9 (village screen)', C, ()),
         ('key', 'C, D, M, P, T and Esc (village screen)', C, ()),
-        ('key', "The developer's cheat: C then D (or F then D), then F6, F7 or F8 (village screen)", C, (O, O, O, U)),
+        ('key', "The developer's cheat: C then D (or F then D), then F6, F7 or F8 (village screen)", C, (O, O, O, C)),
         ('key', 'B (village screen)', C, ()),
         ('key', "W, ' ; [ and ] (village screen)", C, ()),
         ('key', 'F1 (help, splash, Puzzles and Milestones, Collections, the Mausoleum, Tech)', C, ()),
@@ -37,10 +37,10 @@ class Hidden4(HiddenChecks, unittest.TestCase):
         ('key', 'Event type 7 (village screen)', D, ()),
         ('key', 'Store screens: no redraw or reroll key', C, ()),
         ('code', 'Typed codes and name cheats', C, (U,)),
-        ('click', 'The tip spot (village screen)', C, (U,)),
+        ('click', 'The tip spot (village screen)', C, (C,)),
         ('click', 'The collection displays (village)', C, (C,)),
         ('click', 'Other places (village)', C, ()),
-        ('tip', 'Where the tips appear', C, (U, C)),
+        ('tip', 'Where the tips appear', C, (C, C)),
         ('patcher', 'Difficulty (Options dialog)', C, ()),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (C,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
@@ -48,7 +48,7 @@ class Hidden4(HiddenChecks, unittest.TestCase):
     )
     TIP_COUNTS = {
         'The 50 random tips (eRandomTip1 to 50)': {C: 50},
-        'The 89 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 54, U: 35},
+        'The 89 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 89},
     }
     DEAD = (
         'Event type 7 (village screen)',
