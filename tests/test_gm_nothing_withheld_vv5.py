@@ -121,5 +121,33 @@ class Tips(unittest.TestCase):
         self.assertNotIn("was not traced", e.text)
 
 
+class RemainingList(unittest.TestCase):
+    """The coordinator, 2026-11-18: New Believers' remaining lines and the owner's two questions."""
+
+    def test_the_five_tutorial_tips_are_unused(self) -> None:
+        tips = {t[0]: t for t in hidden5.POPUP_TIPS}
+        for tip in (704, 705, 707, 710, 715):
+            self.assertEqual(hidden5._popup_label(tips[tip]), hidden5.C)
+            self.assertIn("unused", hidden5._popup_note(tips[tip]))
+
+    def test_lab_equipment_of_12_and_of_24(self) -> None:
+        text = hidden_entry("Places that show their state (village)").text
+        self.assertIn("\"13 of 12\"", text)
+        self.assertIn("\"<n> of 24\"", text)
+
+    def test_f3_and_the_water(self) -> None:
+        self.assertIn("pointer picture", hidden_entry("F3 (Puzzles and Milestones)").subs[0][0])
+        water = hidden_entry("Places that show their state (village)").subs[0]
+        self.assertIn("splash sound and makes a ripple", water[0])
+        self.assertEqual(hidden.label_of(water[1]), C)
+
+    def test_items_traced(self) -> None:
+        self.assertIn("its map area 16", entry("Medicine level 2").subs[0][0])
+        farm = entry("The Hydroponic Farm").subs[0]
+        self.assertIn("so it takes 30", farm[0])
+        for name in ("The Hollow Totem", "The Rainbow Totem"):
+            self.assertIn("closed to the villagers' walking until the totem falls", entry(name).subs[0][0])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -117,9 +117,9 @@ PINNED = (
 
 # Every sub-line's label, by the entry it is under (the entries not named have none).
 PINNED_SUBS = {
-    "Science level 2": (C, E), "Medicine level 2": (U,), "Learning level 1": (C,), "Learning level 3": (C,),
-    "Divine Energy": (C,), "The Hungry Totem": (C, C), "The Knowing Totem": (C,), "The Hydroponic Farm": (U,),
-    "The Hollow Totem": (U,), "The Rainbow Totem": (U,),
+    "Science level 2": (C, E), "Medicine level 2": (C,), "Learning level 1": (C,), "Learning level 3": (C,),
+    "Divine Energy": (C,), "The Hungry Totem": (C, C), "The Knowing Totem": (C,), "The Hydroponic Farm": (C,),
+    "The Hollow Totem": (C,), "The Rainbow Totem": (C,),
     "The Tribute Statue": (U, C), "The Heathen Chief": (U,), "The Nursery School": (C,), "The fire pit": (U,),
     "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, C, C, C), "Barrel of Babies": (C,),
     "Story / Cheat Upgrades": (C,),

@@ -169,10 +169,11 @@ def _tech_entries() -> list[Entry]:
                 f"always one baby; at Parenting 50 an embrace conceives {_conceive(50, 1)} of the time.", ()),
             2: (f"falling sick {sick[1]} an age unit; old from 58 years; old-age rolls past 63; at Parenting 50 an "
                 f"embrace conceives {_conceive(50, 2)} of the time.",
-                # The study tests 0x47998F, 0x46BDED; the drop handler registered at 0x47A9AB.
+                # The study tests 0x47998F, 0x46BDED; the drop handler 0x479980 is registered for map area 16 by the
+                # start-up table (0x47A9A6: 0x479810(0x10, 0x479980, 6, 0)), so a drop on that area runs it.
                 (("Dropping a villager on the medicine spot to study needs Medicine 2, and a studying villager keeps the "
-                  "task only with Healing 6 or more. The code that reacts to that drop was found, but not how the drop "
-                  "reaches it.", UNCONFIRMED),)),
+                  "task only with Healing 6 or more. The game sends any villager dropped on that spot (its map area 16) "
+                  "to that test.", VERIFIED_C),)),
             3: (f"falling sick {sick[2]} an age unit; old from 66 years; old-age rolls past 71; at Parenting 50 an "
                 f"embrace conceives {_conceive(50, 3)} of the time; a believer who is not sick passes the regain-health "
                 f"check (+1 health) every age unit while there is food (see Chances); and a pregnancy brings twins "
@@ -339,10 +340,11 @@ def _puzzle_entries() -> list[Entry]:
             "Food Mastery; Hand of Bloom on the field fills the crops at once; solving it adds 80 Faith to the Heathen "
             "Master Farmer; the Army Ants!, Aphid Infestation! and The River Breaks Its Banks events "
             "become possible. The Earthquake takes 1 of the 30 points from an unfinished farm."), VERIFIED_E,
-              # The Research master test 0x46BE38.
+              # The Research master test 0x46BE38.  CHydroFarm's work event 0x439DF0 calls 0x43AF80(5), which adds 1 to
+              # the farm's progress (0x43AF96) and solves it at its threshold (30, table 0x51DF30); nothing else adds.
               (("The repair is \"Directing aqueduct repair\", which only a master of Research (88 or more) is kept on, "
-                "and \"Repairing aqueduct\"; how many points each action gives was not traced.",
-                UNCONFIRMED),)),
+                "and \"Repairing aqueduct\"; each repair step at the farm that reaches its end adds 1 point, so it "
+                "takes 30.", VERIFIED_C),)),
         Entry(PUZZLE, "The Buried Mausoleum", "villagers restore it (\"Restoring the mausoleum\")", (
             # The burial pick 0x46F130; the Earthquake's +50 at 0x43C9C0.
             "the dead are buried from then on: with a body waiting, an idle villager buries it 25% of the time, and "
@@ -361,10 +363,11 @@ def _puzzle_entries() -> list[Entry]:
                                           "Hollow Totem\")", (
             "when six children are squeezing into it at the same moment, it breaks 5 real-life seconds later "
             "(real time)."), VERIFIED_C,
-              # The walk-map flag 0x478855 -> 0x478240(0x56, solved ? 0 : 1); its meaning was not read.
-              (("The game's tip says the lake becomes the believers'. In the code, solving it changes one flag of "
-                "one area of the island's walk map; what that flag does in play was not identified.",
-                UNCONFIRMED),)),
+              # The walk-map flag 0x478855 -> 0x478240(0x56, solved ? 0 : 1) -> 0x477900 writes bit 0 of every cell of
+              # area 0x56, the walkability grid's "blocked" bit (docs/improved-pathfinding.md: VV3-VV5, bit 0).
+              (("The game's tip says the lake becomes the believers'. In the code, one area of the island's ground "
+                "(the one the tip means) is marked closed to the villagers' walking until the totem falls; solving it "
+                "opens that ground, so villagers can walk there.", VERIFIED_C),)),
         Entry(PUZZLE, "The Heathen Builder", "a build-off with the Heathen Master Builder", (
             "the Master Builder joins the tribe (the game's tip); how the build-off is won and the Faith it sets were "
             "not traced."), UNCONFIRMED),
@@ -382,10 +385,10 @@ def _puzzle_entries() -> list[Entry]:
         Entry(PUZZLE, "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", (
             "the dismantling takes 30 actions: each one that reaches its end adds 1, and the totem falls at 30."),
          VERIFIED_C,
-              # The walk-map flag 0x478899 -> 0x478240(0x72, ...).
-              (("The game's tip says the warm springs become the villagers'. In the code, solving it changes one flag "
-                "of one area of the island's walk map; what that flag does in play was not identified.",
-                UNCONFIRMED),)),
+              # The walk-map flag 0x478899 -> 0x478240(0x72, solved ? 0 : 1): bit 0 ("blocked") of area 0x72's cells.
+              (("The game's tip says the warm springs become the villagers'. In the code, one area of the island's "
+                "ground (the one the tip means) is marked closed to the villagers' walking until the totem falls; "
+                "solving it opens that ground, so villagers can walk there.", VERIFIED_C),)),
         Entry(PUZZLE, "The Heathen Scientist", "a proof the Heathen Master Scientist examines", (
             "the Master Scientist joins the tribe (the game's tip); the steps and the Faith set were not traced."),
          UNCONFIRMED),

@@ -29,7 +29,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
         ('key', 'C then D (village screen)', D, ()),
         ('key', "E, F, W, g, B, ' ; [ and ] (village screen)", C, ()),
         ('key', 'F1 (help, splash, Puzzles and Milestones, Collections, the Mausoleum, Tech)', C, ()),
-        ('key', 'F3 (Puzzles and Milestones)', C, (U,)),
+        ('key', 'F3 (Puzzles and Milestones)', C, (C,)),
         ('key', 'Esc (Collections, the Mausoleum, Tech, Puzzles, the Map, Villager Detail, Trophies, Adoption)', C, ()),
         ('key', 'Any typed character (the splash pictures)', C, ()),
         ('key', 'Enter and Esc (pop-up boxes)', C, ()),
@@ -40,7 +40,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
         ('code', 'Typed codes and name cheats', C, (U,)),
         ('click', 'No tip spot in the stock game', C, ()),
         ('click', 'Clicking villagers in the tutorial (village)', C, ()),
-        ('click', 'Places that show their state (village)', C, (U,)),
+        ('click', 'Places that show their state (village)', C, (C,)),
         ('tip', 'Where the tips appear', C, (C, C, C, O)),
         ('patcher', 'The tip vine (village screen)', C, (C, C)),
         ('patcher', 'Difficulty (Options dialog)', C, ()),
@@ -50,7 +50,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
     )
     TIP_COUNTS = {
         'The 50 random tips (eRandomTip1 to 50; the loading screen draws from the first 30)': {C: 50},
-        'The 98 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 93, O: 5},
+        'The 98 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 98},
     }
     DEAD = (
         'C then D (village screen)',
