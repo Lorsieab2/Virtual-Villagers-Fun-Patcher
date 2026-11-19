@@ -539,7 +539,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         trips=[("noni picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
                 else max(2, noni // 100), "Noni bushes"),
                ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4 if lake else 0, "Fishing at the lake")],
-        food_extra=bloom_lines)
+        food_extra=bloom_lines,
+        fishing_trip="fish",
+        fishing_unlock="fishing opens once The Lake is restored; it is not restored in this village yet.")
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     out.extend(faith.lines(village))

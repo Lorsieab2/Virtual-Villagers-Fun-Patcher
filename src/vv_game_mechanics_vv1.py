@@ -211,6 +211,7 @@ P_SHOW = P_CHILD * 0.21 * 0.26            # his routine (21%), the show (26%)
 P_ACT = P_CHILD * 0.21 * 0.74 / 7         # his routine, each of the seven acts
 GC_FLAG, GC_HOUR, CAVE_FLAG, CAVE_HOUR = 0xA008 + 4, 0x9E80 + 4, 0x9FA8 + 4, 0x9E50 + 4    # file offsets
 IDOL_FLAG, BUTTERFLIES_FLAG, GARDEN_FLAG = 0x9FD8 + 4, 0xA088 + 4, 0x9FC0 + 4
+BEACH_FLAG = 0x9FB8 + 4                       # The Beach cleaned (The Big Wave clears it again)
 FERTILITY = 4                             # the level's index: Fertility ([state+0xA2DC])
 CAVE_WAIT_HOURS = 36
 
@@ -575,7 +576,10 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
                            regrow_at if farming >= 2 else None,
                            f"refilled to {FIELD_CAP} every {every}" if farming >= 2 else "no refill below Farming level 2",
                            verified=gm.SAVE, step=FIELD_CAP if farming >= 2 else 0, **steps)]
-    if farming >= 3:
+    # Fishing: Farming level 3 and The Beach cleaned (the dispatcher 0x44730B reads [+0x9FB8]; the sea drop 0x4241D6).
+    beach = data[BEACH_FLAG] != 0
+    fishing = farming >= 3 and beach
+    if fishing:
         sources.append(life.Source("Fishing (Farming level 3, the beach cleaned)", None, unlimited=True,
                                    refill_words="the sea never runs out", verified=gm.RUNNING))
     paused = speed_value >= gm.PAUSED
@@ -610,7 +614,10 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
                    "time; never more on Easy.",
         trips=[("berry picks", max(2, bush // 130), "Berry bush"),
                ("crop harvests", 7 if farming >= 2 else 0, "Crop field"),
-               ("catches", 9 if farming >= 3 else 0, "Fishing")])
+               ("catches", 9 if fishing else 0, "Fishing")],
+        fishing_trip="catches",
+        fishing_unlock=(f"fishing opens at Farming level 3 with the beach cleaned (The Beach); this village is at "
+                        f"Farming level {farming} and its beach is " + ("cleaned." if beach else "not cleaned.")))
     return ctx
 
 

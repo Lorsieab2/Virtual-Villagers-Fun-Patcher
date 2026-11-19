@@ -68,6 +68,7 @@ NATURE, MAGIC = 5, 6
 PUZZLES = 0x11ECC
 PUZZLES_MARK = 0x2AD
 BEE_HIVE = 1                            # puzzle 1, The Bee Hive (story_c3.inc C3_PUZZLE_DEFS)
+SHARKS = 10                             # puzzle 10, The Sharks: the sea opens for fishing
 HONEY = 0x11FA1
 TREES = 0x1200D
 TREE_SIZE = 0x18
@@ -908,7 +909,11 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
     pick_food = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]
     srcs = list(sources or [])
-    srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out", verified=gm.RUNNING))
+    # The sea is a farming source only once The Sharks (puzzle 10) is solved (the dispatcher 0x45AFD3).
+    sharks = struct.unpack_from("<i", buf, PUZZLES + 4 + 8 * SHARKS)[0] >= PUZZLE_THRESHOLDS[SHARKS]
+    if sharks:
+        srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out",
+                                verified=gm.RUNNING))
     ctx = life.Context(
         village, speed_value, wall(LAST_SAVED), _i32(buf, FOOD), low_food=500, extra_from=8000, sources=srcs,
         tech=_i32(buf, POINTS), tech_words=f"Research brings them (the skill ÷ {divisor} at Science level "
@@ -942,10 +947,13 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
                    "eaten); on Medium at 8,000 or more, and on Hard at any amount, 2 more 76% of the time; never more "
                    "on Easy.",
-        # Only open sources: the fruit once a tree stands, the honey once The Bee Hive is solved; the sea always.
+        # Only open sources: the fruit once a tree stands, the honey once The Bee Hive is solved, the sea once The
+        # Sharks is solved.
         trips=[("fruit picks", pick_food if any(s.name.startswith("Tree ") for s in srcs) else 0, "Tree "),
                ("honey picks", pick_food if _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1 else 0, "Honey"),
-               ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed], "Fishing")])
+               ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] if sharks else 0, "Fishing")],
+        fishing_trip="fishing trips",
+        fishing_unlock="fishing opens once The Sharks is solved; it is not solved in this village yet.")
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=epoch,
                            nature=max(level[5], nature)))

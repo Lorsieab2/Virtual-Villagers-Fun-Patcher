@@ -542,7 +542,11 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
                         if dam and not crops_grow else ""),
         trips=[("coconut trips", (8, 4, 2)[pick], "Coconuts"),
                ("crop trips", (10, 7, 4)[pick] if crops_grow or _i32(data, CROPS) else 0, "Crops"),
-               ("fishing trips", (11, 8, 5)[pick] if fish > 0 or fishing_unlimited else 0, "Fish")])
+               ("fishing trips", (11, 8, 5)[pick] if fish > 0 or fishing_unlimited else 0, "Fish")],
+        fishing_trip="fishing trips",
+        fishing_unlock=("unlimited fishing opens once Sustainable Fishing is solved, from Farming level 2; until then "
+                        f"the lake's fish are a limited source that never grows back ({max(0, fish):,} left, counted "
+                        "with the other sources above)."))
     return ctx
 
 
