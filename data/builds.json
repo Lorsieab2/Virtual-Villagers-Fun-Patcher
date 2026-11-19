@@ -596,20 +596,14 @@
         },
         {
           "offset": "0xB4390",
-          "before": "0000000000000000000000000000000000000000000000",
-          "after": "85C0740FE867FFFFFF3D950000000F92C0EB0231C05EC3",
-          "purpose": "The Mysterious Vial: offered only with room for two copies"
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "85C0741B813E48F04700750FE85FFFFFFF3D950000000F92C0EB06B001EB0231C05EC3",
+          "purpose": "The amber Mysterious Vial: offered only with room for two copies"
         },
         {
-          "offset": "0xB43B0",
-          "before": "00000000000000000000000000000000000000000000",
-          "after": "83F8027D0EE846FFFFFF3D960000000F92C0C331C0C3",
-          "purpose": "The Crystal of Reflections: offered only with room for its reflection"
-        },
-        {
-          "offset": "0xB43D0",
+          "offset": "0xB43C0",
           "before": "000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E82BFFFFFF3D96000000720C58C7460C000000005EC2040058578B7E046A2BFFE0",
+          "after": "E83BFFFFFF3D96000000720C58C7460C000000005EC2040058578B7E046A2BFFE0",
           "purpose": "The Crystal of Reflections' keep: a record checked before the likes change"
         },
         {
@@ -625,21 +619,15 @@
           "purpose": "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the stock code cleared the pregnancy when the creator found no record)"
         },
         {
-          "offset": "0x178DA",
+          "offset": "0x175A5",
           "before": "89460485C00F95C05EC3",
-          "after": "894604E9AE0A2B009090",
-          "purpose": "The Mysterious Vial is offered only with room for its two copies"
-        },
-        {
-          "offset": "0x1580C",
-          "before": "33C983F8020F9CC18AC1C3",
-          "after": "E99F2B2B00909090909090",
-          "purpose": "The Crystal of Reflections is offered only with room for its reflection"
+          "after": "894604E9E30D2B009090",
+          "purpose": "The amber Mysterious Vial is offered only with room for its two copies (the vials' shared condition 0x417590; the obsidian vial makes no copies and is offered as before)"
         },
         {
           "offset": "0x191EF",
           "before": "578B7E046A2B",
-          "after": "E8DCF12A0090",
+          "after": "E8CCF12A0090",
           "purpose": "The Crystal of Reflections' keep checks for a record before it changes the villager's likes"
         }
       ]

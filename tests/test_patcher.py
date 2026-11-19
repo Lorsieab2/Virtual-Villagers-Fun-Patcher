@@ -1027,7 +1027,7 @@ class ManifestTests(unittest.TestCase):
             expected_safety_counts = {
                 "vv1": 24,
                 "vv2": 29,   # + the babies still owed (Codex, #543); + the Esteemed Elder totem guard (v1.35.77)
-                "vv3": 22,
+                "vv3": 20,   # v1.35.97: the misplaced Crystal rows retired (its condition asks the room predicate)
                 "vv4": 18,
                 "vv5": 21,
             }

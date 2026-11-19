@@ -21,11 +21,13 @@ taken), but what the callers did with that -1 lost villagers and spent things
     refused, nothing spent, like a cast with no free spell slot, and says
     why in the gray message bar ("There's no room in your village to revive
     this person.") as the game's own god-power refusals say theirs;
-  * The Secret City's Mysterious Vial (two copies) and Crystal of
-    Reflections (one) asked for no record at all, and the Crystal changed
-    the villager's likes before a clone that could fail: both are offered
-    only with room for their copies, and the Crystal checks before it
-    changes anything;
+  * The Secret City's amber Mysterious Vial (two copies) asked for no record
+    at all: it is offered only with room for its copies (its condition
+    0x417590 is shared with the obsidian vial, which makes none and is
+    offered as before).  The Crystal of Reflections (one copy) is offered
+    through the room predicate already (its condition tail-jumps to
+    0x45FE30), but it changed the villager's likes before a clone that could
+    fail: it now checks for a record before it changes anything;
   * The Secret City's twin and triplet guards and its Canoe and Barrel
     guards counted occupied records but not the babies still owed.
 
@@ -92,6 +94,10 @@ GAMES = {
 VV5_BAR = 0x520F68
 VV5_STRNCPY, VV5_CLOCK, VV5_SECONDS = 0x47D7C0, 0x425950, 0x4036E0
 REANIMATE_NO_ROOM = "There's no room in your village to revive this person."
+# The Secret City's amber Mysterious Vial (slot 39; resultText 0x417710, applyChoice 0x417770
+# clones the subject twice): its vtable.  The obsidian vial (slot 38, vtable 0x47F008) shares
+# its condition 0x417590 and makes no copies.
+VV3_AMBER_VIAL_VTABLE = 0x47F048
 
 HEADER_PURPOSE = {
     "vv3": ["map the whole .shr page, where the record guards live (the same write Everyone Tries On The "
@@ -213,12 +219,19 @@ def layout(game: str):
         place("demand", lambda: demand(g))
         place("room", lambda: room_wrapper(g, 0x45E8F0, names["demand"]))
         place("delivery", lambda: delivery(g, 0xC0, 0xC4, 0x47B318))
+        # The vials' shared condition 0x417590: only the amber vial makes copies, so only
+        # it asks for records; the obsidian vial is answered as the stock code answers.
         place("vial", lambda: f"""
             test eax, eax
             jz no
+            cmp dword ptr [esi], {VV3_AMBER_VIAL_VTABLE:#x}
+            jne yes
             call {names['demand']:#x}
             cmp eax, {g['slots'] - 1:#x}
             setb al
+            jmp done
+        yes:
+            mov al, 1
             jmp done
         no:
             xor eax, eax
@@ -226,17 +239,9 @@ def layout(game: str):
             pop esi
             ret
         """)
-        place("crystal", lambda: f"""
-            cmp eax, 2
-            jge no
-            call {names['demand']:#x}
-            cmp eax, {g['slots']:#x}
-            setb al
-            ret
-        no:
-            xor eax, eax
-            ret
-        """)
+        # The Crystal of Reflections' condition 0x415750 already ends in the room predicate
+        # 0x45FE30 (the stock tail jump at 0x415775), which the 0x5FE37 site below makes count
+        # the records' demand: it needs no site of its own.
         place("crystal_keep", lambda: f"""
             call {names['demand']:#x}
             cmp eax, {g['slots']:#x}
@@ -259,10 +264,9 @@ def layout(game: str):
             (0x60341, "8B86C000000085C00F84C3010000", lambda: f"call {names['delivery']:#x}; je 0x460512; nop; nop; nop",
              "a delivery waits, the pregnancy kept, until its whole litter fits in the free records (the "
              "stock code cleared the pregnancy when the creator found no record)"),
-            (0x178DA, "894604" "85C00F95C05EC3", lambda: f"mov dword ptr [esi + 4], eax; jmp {names['vial']:#x}; nop; nop",
-             "The Mysterious Vial is offered only with room for its two copies"),
-            (0x1580C, "33C983F8020F9CC18AC1C3", lambda: f"jmp {names['crystal']:#x}; nop; nop; nop; nop; nop; nop",
-             "The Crystal of Reflections is offered only with room for its reflection"),
+            (0x175A5, "894604" "85C00F95C05EC3", lambda: f"mov dword ptr [esi + 4], eax; jmp {names['vial']:#x}; nop; nop",
+             "The amber Mysterious Vial is offered only with room for its two copies (the vials' shared "
+             "condition 0x417590; the obsidian vial makes no copies and is offered as before)"),
             (0x191EF, "578B7E046A2B", lambda: f"call {names['crystal_keep']:#x}; nop",
              "The Crystal of Reflections' keep checks for a record before it changes the villager's likes"),
         ]
@@ -345,14 +349,19 @@ PURPOSE = {
     "room": "the room predicate's count, or no room at any cap while the records' demand has no record left",
     "delivery": "a delivery only when its whole litter fits in the free records, else it waits with the "
                 "pregnancy kept",
-    "vial": "The Mysterious Vial: offered only with room for two copies",
-    "crystal": "The Crystal of Reflections: offered only with room for its reflection",
+    "vial": "The amber Mysterious Vial: offered only with room for two copies",
     "crystal_keep": "The Crystal of Reflections' keep: a record checked before the likes change",
     "reanimate": "Reanimate: refused while no record is free for its stand-in, saying \"There's no room "
                  "in your village to revive this person.\" in the gray message bar (the bar's own strncpy "
                  "and five-second clock, as Bar::SetText 0x44EF60 shows the game's refusals)",
     "reanimate_text": "Reanimate's refusal text for the gray message bar",
 }
+
+# Rows this generator once wrote and no longer does (v1.35.97): the vial and crystal sites
+# that landed on other events' conditions (0x178DA in The Mango and the Papaya's 0x4178B0,
+# 0x1580C in The Bitter Brown Beans / The Ancient Tablet's 0x4157E0) and the old cave rows.
+RETIRED = {"vv3": {"0x178DA", "0x1580C", "0xB43B0", "0xB43D0"}}
+
 
 def rescale_256(game: str) -> dict[str, list[tuple[str, str]]]:
     """What the 256 builds change in each of this file's rows: [(old hex, new hex)] by
@@ -384,7 +393,7 @@ def rows(game: str) -> tuple[list[dict], dict[str, list[tuple[str, str]]]]:
             edits = [("3D" + h32(0x97), "3D" + h32(0x101))]
         elif name == "vial":
             edits = [("3D" + h32(0x95), "3D" + h32(0xFF))]
-        elif name in ("crystal", "crystal_keep", "reanimate"):
+        elif name in ("crystal_keep", "reanimate"):
             edits = [("3D" + h32(0x96), "3D" + h32(0x100))]
         for old, _ in edits:
             assert code.hex().upper().count(old) == 1, (game, name, old)
@@ -406,7 +415,7 @@ def main() -> None:
         owned = {r["offset"] for r in new}
         kept = []
         for p in entry["safety_patches"]:
-            if p["offset"] in owned:
+            if p["offset"] in owned or p["offset"] in RETIRED.get(game, ()):
                 continue
             off = int(p["offset"], 16)
             if off in existing:
