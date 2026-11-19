@@ -1516,8 +1516,8 @@ class EngineFollowups(unittest.TestCase):
                 self.assertIn(words.index("work"), r.v.prefs(0, "dislikes"))
                 self.assertIn("Ana now likes resting.", text)
                 self.assertIn("Ana now dislikes work.", text)
-                self.assertIn("Ana's hair changes color.", text)
-                self.assertIn("The village gains food.", text)
+                self.assertIn("Ana's head changes.", text)
+                self.assertRegex(text, r"The village gains [1-9][0-9]* food\.")
 
 
     def head_looks(self, r) -> list[list[int]]:
@@ -1540,7 +1540,7 @@ class EngineFollowups(unittest.TestCase):
                     head0 = r.v.i32(1, r.v.L["head"])
                     text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
                     self.assertEqual(r.state()["records"][0], 1)
-                    self.assertIn("Ana looks older and more worn.", text)
+                    self.assertIn("Ana looks older.", text)
                     self.assertIn("Ana now dislikes running.", text)
                     words = cg.GAMES[int(game[2])].preferences
                     self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"))
@@ -1605,7 +1605,7 @@ class EngineFollowups(unittest.TestCase):
                     self.assertIsNone(r.queue6(compiled(SEX_GRAPH), strict=True, origin=2))
                     head0 = r.v.i32(1, r.v.L["head"])
                     text = " ".join(t for _kind, t, _labels in r.walk_through())
-                    self.assertIn("Ana's sex changes.", text)
+                    self.assertIn("Ana is now male.", text)
                     self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
                     words = cg.GAMES[int(game[2])].preferences
                     self.assertEqual(r.v.i32(1, off), male, "Ana's record is a man's now")

@@ -18,6 +18,45 @@ static int test_graph_weather = -1;       /* the last weather type started */
 static int test_graph_weather_call = 1;   /* 0: record the type without calling the game */
 #endif
 
+/* The owner (2026-11-18): "if an effect happens, it should say at the end of the event popup", with the amount.
+   These effects know their amount only once made (a store's ceiling, the timer's cap, the level the game's own
+   routine gives), so their lines are written as each is made, for the page's popup (cg_show), only on a page with
+   automatic lines (cie-v6-binary.md 25).  The words are CG_AUTO_LINES' (story_graph.inc): <N> a number, <W> a word. */
+static char cg_after[1024];
+static int cg_after_on;
+static const char *cg_auto_text(const char *key);   /* story_graph.inc */
+
+static void cg_after_line(const char *key, const char *word, int number) {
+    char line[160], digits[16];
+    const char *t = cg_auto_text(key);
+    int n = 0;
+    if (!cg_after_on || t == NULL) {
+        return;
+    }
+    for (; *t != '\0' && n < (int)sizeof line - 1; ++t) {
+        const char *put = NULL;
+        if (t[0] == '<' && (t[1] == 'N' || t[1] == 'W') && t[2] == '>') {
+            wsprintfA(digits, "%d", number < 0 ? -number : number);
+            put = t[1] == 'N' ? digits : word;
+        }
+        if (put == NULL) {
+            line[n++] = *t;
+            continue;
+        }
+        for (; *put != '\0' && n < (int)sizeof line - 1; ++put) {
+            line[n++] = *put == '_' ? ' ' : *put;      /* cutting_tools: "cutting tools" */
+        }
+        t += 2;
+    }
+    line[n] = '\0';
+    if (lstrlenA(cg_after) + n + 2 < (int)sizeof cg_after) {
+        if (cg_after[0] != '\0') {
+            lstrcatA(cg_after, "\n");
+        }
+        lstrcatA(cg_after, line);
+    }
+}
+
 static int cg_prefix(const char *s, const char *prefix) {
     while (*prefix != '\0' && *s == *prefix) {
         ++s;
@@ -366,7 +405,10 @@ static int cg_has_good(int game, const char *word, int n) {
 static void cg_supply_any(const ce_adapter *a, int game, const char *word, int delta) {
     const cg_good_def *d = cg_good(game, word);
     if (d != NULL) {
-        cg_good_change(a, game, d, delta);
+        int done = cg_good_change(a, game, d, delta);
+        if (done != 0) {
+            cg_after_line(done > 0 ? "supply+" : "supply-", word, done);
+        }
     }
 }
 
@@ -392,7 +434,11 @@ static void cg_trade(const ce_adapter *a, int game, const char *words, int n, in
         return;
     }
     if (cg_good_change(a, game, dg, -n) == -n) {
-        cg_good_change(a, game, dt, m);
+        int got = cg_good_change(a, game, dt, m);
+        cg_after_line("trade_give", give, n);
+        if (got > 0) {
+            cg_after_line("trade_get", comma + 1, got);
+        }
     }
 }
 
@@ -642,6 +688,7 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
     }
     if (cg_work_skill(kind) >= 0) {
         cg_work_rush(a, game, cg_work_skill(kind), r);
+        cg_after_line("group_work", kind + 5, 0);      /* "work:Building" */
         return;
     }
     if (d == NULL) {
@@ -672,6 +719,7 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
                 cg_set_sick(game, record, 0);
             } __except (EXCEPTION_EXECUTE_HANDLER) {
             }
+            ++want;                    /* counted: the line says the village is cured */
             continue;
         }
         if (sick) {
@@ -699,17 +747,29 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
             ce_refuse(r, CE_WHY_OTHER);
             return;
         }
+        int made = 0;
         want = (n * percent + 99) / 100;
         while (want-- > 0 && n > 0) {
             int k = ce_random_below(a, n);
             a->sicken(pool[k]);
             pool[k] = pool[--n];
+            ++made;
+        }
+        cg_after_line(made == 1 ? "group_sick1" : "group_sick", "", made);
+        return;
+    }
+    if (cure) {
+        if (want > 0) {
+            cg_after_line("group_cure", "", 0);
         }
         return;
     }
     if (cg_one.change_count > 0) {
+        char key[32];
         ce_apply(a, &cg_one, &one);
         cg_merge_result(r, &one);
+        wsprintfA(key, only < 0 ? "group_%s" : "group1_%s", d->kind);
+        cg_after_line(key, only >= 0 ? (const char *)a->record(only) + a->off_name : "", 0);
     }
 }
 
@@ -761,6 +821,11 @@ static void cg_event_timer(int game, int hours) {
         }
         cg_timer_applied_hours = hours < 0 ? -1 : (int)((due - (long long)*timer) / 3600);
         *timer = (unsigned int)due;
+        if (cg_timer_applied_hours < 0) {
+            cg_after_line("timer_soon", "", 0);
+        } else if (cg_timer_applied_hours > 0) {
+            cg_after_line(cg_timer_applied_hours == 1 ? "timer_later1" : "timer_later", "", cg_timer_applied_hours);
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return;
     }
@@ -854,6 +919,7 @@ static void cg_tech_level(const ce_adapter *a, int game, const char *which, int 
         return;
     }
     if (*level != before) {
+        cg_after_line(*level > before ? "level_up" : "level_down", areas[k].name, *level);
         wsprintfA(line, "  Tech level (%s): %d -> %d\n", areas[k].name, before, *level);
         if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
             lstrcatA(cg_extra_lines, line);
@@ -908,6 +974,11 @@ static void cg_weather(int game, const char *word) {
 #ifdef VVFP_TEST
 logged:
 #endif
+    {
+        char key[24];
+        wsprintfA(key, "weather_%s", CG_WEATHER_WORDS[w]);
+        cg_after_line(key, "", 0);
+    }
     wsprintfA(line, "  Weather: %s\n", CG_WEATHER_WORDS[w]);
     if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
         lstrcatA(cg_extra_lines, line);
