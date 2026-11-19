@@ -38,17 +38,27 @@ class MinimumDetail(unittest.TestCase):
                 full, short = gm.render(facts), gm.render(gm.minimum(facts))
                 self.assertLess(len(short), len(full) * 0.7)
                 for gone in ("How it is worked out", "Ages run on the game's clock (see Time and units)",
-                             "With the patcher's", "\nTime and units\n", "\nSources\n",
+                             "With the patcher's", "\nTime and units\n",
                              "\nHidden keys, clicks and cheats\n", "DEAD (never runs)"):
                     self.assertNotIn(gone, "\n" + short + "\n")
                 for fact in gm.minimum(facts):
-                    self.assertFalse(fact.text.startswith(("How ", "Normally", "Not counted", "DEAD")), fact.text)
+                    self.assertFalse(fact.text.startswith(("How ", "Normally", "DEAD")), fact.text)
+                # Sources keeps one short line (the owner, 2026-11-18): the exe and how its patches were read, or a
+                # warning; the general page has no Sources at all.
+                sources = [f.text for f in gm.minimum(facts) if f.group == gm.SOURCES]
+                if name.startswith("general"):
+                    self.assertEqual(sources, [])
+                else:
+                    self.assertEqual(len(sources), 1, sources)
+                    self.assertTrue(sources[0].startswith(("Sources: ", "Warning: ")), sources)
 
     def test_each_line_is_a_short_answer_with_a_number(self) -> None:
         for name, facts in self.pages:
             with self.subTest(name):
                 originals = [fact.text for fact in facts]
                 for fact in gm.minimum(facts):
+                    if fact.group == gm.SOURCES:          # the one Sources line is written for Minimal Detail
+                        continue
                     # Every kept line is the start of a line of the full page: its first sentence, or a heading.
                     self.assertTrue(any(text.startswith(fact.text.removesuffix(":")) for text in originals), fact.text)
                     if fact.group != VITAL and fact.due is None and not fact.text.endswith(":"):
