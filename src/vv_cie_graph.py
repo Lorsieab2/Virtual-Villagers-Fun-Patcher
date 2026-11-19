@@ -3346,6 +3346,9 @@ AUTO_LINES = {
     "join": "<R> joins the tribe.",
     "apostasy": "<R> becomes a Heathen.",
     "presentation": "<R>'s gender presentation changes.",
+    # Village Solidarity (its companion): the change a tagged page made, after the 0..100 clamp
+    "solidarity+": "Village Solidarity rises by <N>.",
+    "solidarity-": "Village Solidarity falls by <N>.",
     # The village effects (cie-v6-binary.md 39-41): written as each is made, with what it made (village.inc)
     "supply+": "The village gains <N> <W>.",
     "supply-": "The village loses <N> <W>.",

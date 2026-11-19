@@ -3488,6 +3488,11 @@ static const char *cg_node_text(int node, int game) {
     return cg_s(&cg_g, cg_u16(n + 6));
 }
 
+/* #824: a tagged page's Village Solidarity change is told after its words (story_solidarity.inc), through #823's
+   after-page lines (story_graph_village.inc, included later). */
+static int cg_after_on;
+static void cg_after_line(const char *key, const char *word, int number);
+
 #include "story_solidarity.inc"
 
 /* The child drawn at `node` (src/vv_cie_graph.py _resolved_children), -1 at an end. */
@@ -7244,6 +7249,8 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "join", "<R> joins the tribe." },
     { "apostasy", "<R> becomes a Heathen." },
     { "presentation", "<R>'s gender presentation changes." },
+    { "solidarity+", "Village Solidarity rises by <N>." },
+    { "solidarity-", "Village Solidarity falls by <N>." },
     { "supply+", "The village gains <N> <W>." },
     { "supply-", "The village loses <N> <W>." },
     { "trade_give", "The village gives <N> <W>." },

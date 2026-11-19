@@ -63,14 +63,26 @@ static void cg_sol_reached(int game, const unsigned char *n, const char *title, 
     if (tag == 0) {
         return;
     }
-    once = (cg_sol_tag_once_fn)(void *)cg_sol_proc("VvfpVillageScoreTagOnce");
-    if (once != NULL) {
-        (void)once(game, 0, tag, title, (unsigned int)when, (unsigned int)(when >> 32), pos);
-        return;
-    }
-    f = (cg_sol_tag_fn)(void *)cg_sol_proc("VvfpVillageScoreTag");
-    if (f != NULL) {
-        (void)f(game, 0, tag, title);
+    {
+        /* the owner (2026-11-18): the popup says the change, after the 0..100 clamp (none: no line) */
+        typedef int (__stdcall *get_fn)(int game, int score_id);
+        get_fn get = (get_fn)(void *)cg_sol_proc("VvfpVillageScoreGet");
+        int before = get != NULL ? get(game, 0) : -1, after = -1;
+        once = (cg_sol_tag_once_fn)(void *)cg_sol_proc("VvfpVillageScoreTagOnce");
+        if (once != NULL) {
+            after = once(game, 0, tag, title, (unsigned int)when, (unsigned int)(when >> 32), pos);
+        } else {
+            f = (cg_sol_tag_fn)(void *)cg_sol_proc("VvfpVillageScoreTag");
+            if (f != NULL) {
+                after = f(game, 0, tag, title);
+            }
+        }
+        if (before >= 0 && after >= 0 && after != before) {
+            int on = cg_after_on;
+            cg_after_on = 1;               /* #824: told on every tagged page, automatic lines or not */
+            cg_after_line(after > before ? "solidarity+" : "solidarity-", "", after - before);
+            cg_after_on = on;
+        }
     }
 }
 
