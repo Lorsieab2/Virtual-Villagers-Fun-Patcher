@@ -225,12 +225,17 @@ class StartupMachine:
         if source is None:
             return None
         pe = pefile.PE(str(source))
+        # Each companion at the next 16 MiB boundary past the one before it: an image larger than 16 MiB
+        # (Story Upgrades' tables, since v1.35.97) takes as many 16 MiB steps as it needs, as Windows would
+        # place it at a free range of its size.
         base = self._next_base
-        self._next_base += 0x01000000
         pe.relocate_image(base)
         image = bytearray(pe.get_memory_mapped_image(ImageBase=base))
+        size = (max(len(image), pe.OPTIONAL_HEADER.SizeOfImage) + 0xFFFF) & ~0xFFFF
+        self._next_base = (base + size + 0x00FFFFFF) & ~0x00FFFFFF
+        if self._next_base > HEAP:
+            raise AssertionError(f"the emulated companions reach the heap at {HEAP:#x} loading {name}")
         self._redirect(image, pe, base)
-        size = (len(image) + 0xFFFF) & ~0xFFFF
         self.mu.mem_map(base, size)
         self.mu.mem_write(base, bytes(image))
         exports, ordinals = {}, {}
