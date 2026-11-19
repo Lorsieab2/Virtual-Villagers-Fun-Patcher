@@ -389,6 +389,31 @@ class GameSide(unittest.TestCase):
                 self.assertEqual(calls, [[WEATHER_STARTER[game][1], 2, 0], [WEATHER_STARTER[game][1], storm, 0]])
                 self.assertIn("Weather: rain", filed)
 
+    def test_construction_never_reaches_the_weather(self):
+        """"construction" is words only (the owner's final list): a .cieg that still holds it (old data: here a
+        weather effect's word changed to it, the checksum made again) is refused by the game's loader, and nothing --
+        no weather -- is started.  The runtime itself (cg_village_fx) acts only on the words the loader allows."""
+        import zlib
+        for game in ("vv3", "vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                blob = bytearray(compiled(pages([[{"do": "village", "what": "weather", "weather": "rain"}]],
+                                                [int(game[2])])))
+                at = bytes(blob).index(b"weather:rain\0")
+                blob[at:at + 12] = b"construction"
+                struct.pack_into("<I", blob, 12, 0)
+                struct.pack_into("<I", blob, 12, zlib.crc32(bytes(blob)))
+                r = V6(game, VILLAGE)
+                r.record(WEATHER_STARTER[game][0], 8)
+                self.assertIsNotNone(r.queue6(bytes(blob)), "refused")
+                self.assertEqual(r.recorded.get(WEATHER_STARTER[game][0], []), [], "no weather")
+        source = (NATIVE / "story_graph_village.inc").read_text(encoding="utf-8")
+        body = source[source.index("static void cg_village_fx("):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn('cg_prefix(s, "weather:")', body, "the weather only for a weather word")
+        self.assertNotIn("} else {", body, "no catch-all branch")
+
     def test_the_next_island_event_moves(self):
         """Sooner is the Gong of Wonder's luck (VV2 0x44ECE1: now + 60 s); later adds hours but never past now + the
         game's longest gap (23 / 19 / 15 / 15 / 15 h); neither ever goes before now."""

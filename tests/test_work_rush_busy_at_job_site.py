@@ -281,7 +281,7 @@ JOBS = {1: [("Foraging", 0x441E10, (0,)), ("Fixing hut", 0x440AD0, (0,)), ("Rese
 BUSY = {1: (0x439D80, 15), 2: (0x44A1E0, 15), 3: 0x3A, 4: 0x4F, 5: 0x55}
 STOP = {1: 0x439470, 2: 0x4492A0, 3: 0x460F70, 4: 0x468C60, 5: 0x473440}
 ADDER = {1: 0x4399F0, 2: 0x449B70}
-DETOUR = {1: (), 2: (), 3: (4,), 4: (6,), 5: (7,)}       # the walk's own detour steps (inserted while walking)
+DETOUR = {1: (), 2: (26,), 3: (4,), 4: (6,), 5: (7,)}    # the walk's own detour steps (inserted while walking)
 NEAR = 8                                                # pixels: where the walk stops against its target
 
 
@@ -304,6 +304,9 @@ class StockVillage:
         return [self.read(self.rec + off, 4) for off in fe.SKILLS.values()]
 
     def feet(self) -> tuple[int, int]:
+        if self.g == 5:                     # New Believers' record keeps the sprite's corner: the walk aims it at
+            x, y = self.v.feet()            # the target less (20, 55) (each walk above ends there)
+            return x + 20, y + 55
         return self.v.pos() if self.g == 4 else self.v.feet()
 
     def stop(self) -> None:

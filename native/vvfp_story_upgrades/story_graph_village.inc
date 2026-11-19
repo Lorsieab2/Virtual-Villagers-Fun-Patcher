@@ -948,13 +948,14 @@ static int cg_village_ok(const char *s, int a, int b) {
     return 0;
 }
 
-/* "village" (code 43) with its roll `va`. */
+/* "village" (code 43) with its roll `va`.  Only the words cg_village_ok lets load do anything: "construction" and
+   "spawn" (words only) and any other word change nothing here, whatever reaches this. */
 static void cg_village_fx(const ce_adapter *a, int game, const char *s, int va) {
     if (lstrcmpA(s, "event_timer") == 0) {
         cg_event_timer(game, va);
-    } else if (s[0] == 't') {
+    } else if (lstrcmpA(s, "tech_level") == 0 || (cg_prefix(s, "tech_level:") && s[11] != '\0')) {
         cg_tech_level(a, game, s[10] == ':' ? s + 11 : "", va);
-    } else {
+    } else if (cg_prefix(s, "weather:")) {
         cg_weather(game, s + 8);
     }
 }

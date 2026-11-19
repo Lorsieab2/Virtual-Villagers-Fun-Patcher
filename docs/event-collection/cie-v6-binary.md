@@ -1031,15 +1031,27 @@ the whole village's only. No roll; no automatic line.
   "Farming" | "Building" | "Research" | "Healing" | "Parenting" | "Devotion"}`. **That skill's workers** (the owner,
   2026-11-18) are every listed adult (14+; VV5 believers) who has that job ticked on the Details screen
   (VV1 [+0x3D0] 1..5, VV2 [+0x7F8] 1..5, VV3 [+0xEC0], VV4 [+0x1C70], VV5 [+0x1C74] a skill index, -1 none), or who has
-  no job ticked and whose highest skill it is (VV1 0x43B520 / VV2 0x44B4D0's order and ties: Parenting, Building,
-  Healing, Farming, Research, the earlier kept; the later games their record's order, the earlier kept -- their title
-  routine UNCONFIRMED). Another job ticked: never. They take the game's own job action for it (`CG_WORK`, the adapters' labels: Foraging, Harvesting coconuts,
+  no job ticked and whose highest skill it is (the owner, 2026-11-18: the highest number on the Details screen; a tie
+  is the skill the Village screen's Action bar shows under "Skill", its own routine: VV1 0x43B520 (from 0x41FB34) and
+  VV2 0x44B4D0 (from 0x429B75) read Parenting, Building, Healing, Farming, Research, the earlier kept; VV3 0x462460
+  (from 0x468DDE) Farming, Parenting, Healing, Research, Building, the earlier kept; VV4 0x46AC20 (from 0x4402EA) and
+  VV5 0x4755C0 (from 0x442E8B, Devotion sixth) the same order of float skills, each against the best so far cut to a
+  whole number (_ftol): 40.2 after 40.7 wins, 40.0 does not). Another job ticked: never. They take the game's own job action for it (`CG_WORK`, the adapters' labels: Foraging, Harvesting coconuts,
   Fishing (VV3), Harvesting blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise;
   Healing someone / Studying medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy
   state with no skill: **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down" (0x4F /
   0x55), VV1 / VV2 "Sitting". Children are left as they are; a game with no action for the skill leaves everyone as
   they are. That the busy states give no skill is traced in the emulator (`tests/test_work_rush_rest_gives_no_skill.py`:
   ten runs of each to its end change no skill, while ten Research / job trips do).
+  **The busy state is done at the job's site** (the owner, 2026-11-18; the adapters' `behave_at`): the job's own
+  starter runs for the busy villager and picks the place it would give a worker (its first walk step: VV1-VV4 type 3,
+  VV5 type 4), none of its steps is kept; then VV1 / VV2 queue that walk (0x4399F0 / 0x449B70) before Sitting, and
+  VV3-VV5 queue the busy action and replace its own walks with that one walk, its other steps kept in order. A job that
+  walks nowhere (VV1 / VV2 Healing someone: it heals where the healer stands) leaves the busy villager where they
+  stand. The tips a VV1 / VV2 job starter leaves for the selected villager are put back. **Crowded:** a spot within 20
+  pixels of one already taken (every worker's first, then each busy villager's) is crowded; the busy villager is
+  given the nearest free spot among up to 8 of the job's own picks (its starter run again), or the first when every
+  pick is crowded (VV2's palm has one foot: they share it). Tests: `tests/test_work_rush_busy_at_job_site.py`.
 - **Spawn burst** (words only: the owner's final list, 2026-11-18) (`village`, `{"what": "spawn"}`): the game's own random spawner fills its free map spots: VV2 0x415490
   (one spot, only when empty, 0x4152D0), VV3 0x42D940 (-1, 0, 0) and VV4 0x413EE0 (-1, 0, 0) twice (two spots),
   VV5 0x4141E0 (-1, 0, 0, 1, 1, 1, 1) twice (random items take a spot only while fewer than two lie out). A New Home
@@ -1073,7 +1085,7 @@ effect (`group` kinds and `village` whats not listed, `effect:<word>`).
 | Cloth as a material (VV4) | real | PR #806's `supply cloth` |
 | `group`: relax, swim, dance, pray, celebrate, pond, play, stories, song, chant, speech | real | actions only: the adapters' non-"Unsafe" stock actions, no stored value, no skill unless the stock action trains one |
 | `group`: sick / cure | real | as the vanilla events: protected villagers are never made sick |
-| `group work:<Skill>` (work rush) | real | the ticked job, or (none ticked) the highest skill by the game's order; others rest with no skill; Parenting is storytelling only (VV2, VV3), nothing where there is none (VV1, VV4, VV5) |
+| `group work:<Skill>` (work rush) | real | the ticked job, or (none ticked) the highest skill, a tie the Action bar's pick; others take the busy state at the job's site with no skill; Parenting is storytelling only (VV2, VV3), nothing where there is none (VV1, VV4, VV5) |
 | `village tech_level` | real | exactly one level, within 1..3 |
 | `village weather` | real | VV3-VV5 only |
 | `food` / `tech` (pre-.97) | real | unchanged |
@@ -1088,5 +1100,4 @@ status, health, preference, skill, sick, celebrate, action, mood, health_change,
 die_unrecovered, baby_lost, birth_then_die, old_look, sex_change, presentation, deliver_early) are not part of this
 cut and are unchanged.
 
-**Not built yet:** the work rush's non-qualifiers walking to the job's site before resting (they rest where they
-stand): each game's own walk-to-site steps are still to be traced. Parenting rushes are storytelling only (VV2, VV3), nothing elsewhere, so the Birth Control patches are never bypassed.
+The work rush's busy villagers go to the job's site (section 36). Parenting rushes are storytelling only (VV2, VV3), nothing elsewhere, so the Birth Control patches are never bypassed.
