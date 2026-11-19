@@ -13965,9 +13965,11 @@ def installed_patches_text(
     return ("# The patches the Virtual Villagers Fun Patcher installed in this game, one id per line.\n"
             "# Written at every patch; Custom Island Events' patch conditions read it.\n"
             + "".join(f"{patch_id}\n" for patch_id in ids)
-            # the island events' settings (story_graph.inc cg_partner_carry_percent), with More Island Events' row
+            # the island events' settings (story_graph.inc cg_partner_carry_percent), wherever Story / Cheat Upgrades
+            # (the engine that reads it) is installed: the Isola Grand Event Collection and Player Events need it as
+            # much as More Island Events does (Codex on #814)
             + (f"# partner_carry_percent={partner_carry_percent}\n"
-               if any(i.endswith("_more_island_events") for i in ids) else ""))
+               if any(i.endswith(("_story_cheat_upgrades", "_more_island_events")) for i in ids) else ""))
 
 
 def _write_installed_patches(

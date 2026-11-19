@@ -266,5 +266,21 @@ class PlayerEventsImporter(unittest.TestCase):
         self.assertTrue(re.search(r"couple's pregnancy", shipped))
 
 
+class TheSettingReachesEveryEngine(unittest.TestCase):
+    """Codex on #814: the collection and Player Events pregnancies honor the player's percent too, so the installed
+    patches' list carries it wherever Story / Cheat Upgrades (its reader) is installed, More Island Events or not."""
+
+    def test_written_with_story_alone(self) -> None:
+        import vv_fun_patcher as vfp
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_patcher_files_folder import build_of
+        for n in (1, 3, 5):
+            build = build_of(f"vv{n}")
+            story = [vfp.get_fun_patch(f"vv{n}_story_cheat_upgrades")]
+            self.assertIn("# partner_carry_percent=0\n", vfp.installed_patches_text(build, story, (), 0))
+            self.assertIn("# partner_carry_percent=100\n", vfp.installed_patches_text(build, story, (), 100))
+            self.assertNotIn("partner_carry_percent", vfp.installed_patches_text(build, [], (), 0))
+
+
 if __name__ == "__main__":
     unittest.main()
