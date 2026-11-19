@@ -27,22 +27,13 @@
     "src": "L188",
     "kind": "note",
     "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
-   },
-   {
-    "src": "L194",
-    "kind": "instruction",
-    "text": "[effect: (name1) is made clean]",
-    "why": "the draft's effect, never shown: the outcome's effect"
-   },
-   {
-    "src": "L197",
-    "kind": "instruction",
-    "text": "[effect: (name1) is covered in gunk]",
-    "why": "the draft's effect, never shown: the outcome's effect"
    }
   ],
   "description": "Covered in sap: wash in the soapy pond, or sit quietly under the great tree.",
-  "label_case": "title"
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
  },
  "requirement": {
   "min_eligible": 1
@@ -76,30 +67,12 @@
   "o1": {
    "name": "Outcome A",
    "text": "(name1) wades into the soapy pond and comes out sparkling clean, smelling faintly of flowers.",
-   "src": "L194",
-   "effects": [
-    {
-     "do": "group",
-     "kind": "effect",
-     "effect": "clean",
-     "who": "subject",
-     "src": "L194"
-    }
-   ]
+   "src": "L194"
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) sits under the great tree, sticky and still, and lets the quiet settle over (him/her).",
-   "src": "L197",
-   "effects": [
-    {
-     "do": "group",
-     "kind": "effect",
-     "effect": "gunk",
-     "who": "subject",
-     "src": "L197"
-    }
-   ]
+   "src": "L197"
   }
  }
 }

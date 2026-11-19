@@ -31,7 +31,7 @@
    {
     "src": "L74",
     "kind": "instruction",
-    "text": "[effect: the village loses 1 cloth bolt; a hut being built gains 150 points]",
+    "text": "[effect: the village loses 1 cloth bolt]",
     "why": "the draft's effect, never shown: the outcome's effect"
    }
   ],
@@ -91,13 +91,6 @@
      "item": "cloth",
      "min": -1,
      "max": -1,
-     "src": "L74"
-    },
-    {
-     "do": "village",
-     "what": "construction",
-     "min": 150,
-     "max": 150,
      "src": "L74"
     }
    ]

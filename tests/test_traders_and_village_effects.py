@@ -60,28 +60,26 @@ def compiled(graph: dict) -> bytes:
 class PatcherSide(unittest.TestCase):
     def test_the_codes_match_the_engine(self):
         native = (NATIVE / "story_graph.inc").read_text(encoding="utf-8")
-        for name, code in (("TRADE", 26), ("GROUP", 27), ("VILLAGE", 28)):
+        for name, code in (("TRADE", 41), ("GROUP", 42), ("VILLAGE", 43)):
             self.assertIn(f"CGE_{name} = {code}", native)
             self.assertEqual(cg.EFFECT_CODES[name.lower()], code)
-        self.assertIn("CGC_HAS_SUPPLY = 18", native)
-        self.assertEqual(cg.COND_CODES["has_supply"], 18)
+        self.assertIn("CGC_HAS_SUPPLY = 19", native)
+        self.assertEqual(cg.COND_CODES["has_supply"], 19)
         village = (NATIVE / "story_graph_village.inc").read_text(encoding="utf-8")
         for word in cg.GOODS:
             self.assertIn(f'"{word}"', village, word)
         for kind in cg.GROUP_KINDS:
-            self.assertIn(f'"{kind}:"' if kind in ("work", "effect") else f'{{ "{kind}"', village, kind)
-        for word in cg.TEMP_EFFECTS:
-            self.assertIn(f'{{ "{word}", {cg.TEMP_EFFECTS[word]},', village, word)
+            if kind != "effect":                 # every "effect:" word is words only: refused by the compiler
+                self.assertIn(f'"{kind}:"' if kind == "work" else f'{{ "{kind}"', village, kind)
+        self.assertEqual(cg.TEMP_EFFECTS, {})
 
     def test_round_trip(self):
         fx = [{"do": "trade", "give": "food", "give_amount": 50, "get": "tech", "get_amount": 20},
               {"do": "supply", "item": "collectible", "min": -2, "max": -1},
               {"do": "group", "kind": "song", "who": "all"},
-              {"do": "group", "kind": "sick", "who": "all", "percent": 25},
               {"do": "group", "kind": "speech", "who": "subject"},
               {"do": "village", "what": "event_timer", "min": -6, "max": -2},
               {"do": "village", "what": "tech_level", "step": -1, "area": "Medicine"},
-              {"do": "village", "what": "construction", "min": 50, "max": 100},
               {"do": "village", "what": "weather", "weather": "storm"}]
         g = pages([fx], [1, 2, 3, 4, 5])
         g["nodes"]["p0"]["children"] = []
@@ -110,12 +108,13 @@ class PatcherSide(unittest.TestCase):
                 ([4], {"do": "group", "kind": "juggle"}, "group kind"),
                 ([4], {"do": "group", "kind": "cure", "who": "subject"}, "whole village"),
                 ([4], {"do": "group", "kind": "sick"}, "percent"),
+                ([4], {"do": "village", "what": "spawn"}, "village what"),
                 ([4], {"do": "village", "what": "tech_level", "step": 2}, "step"),
                 ([4], {"do": "village", "what": "tech_level", "step": 1, "area": "Magic"}, "area"),
                 ([1, 2], {"do": "village", "what": "weather", "weather": "rain"}, "no game of the event has"),
                 ([3], {"do": "village", "what": "weather", "weather": "sun"}, "no game of the event has"),
                 ([4], {"do": "village", "what": "event_timer", "min": -1, "max": 1}, "event_timer"),
-                ([4], {"do": "village", "what": "construction", "min": 0, "max": 5}, "construction")):
+                ([4], {"do": "village", "what": "construction", "min": 1, "max": 5}, "village what")):
             g = pages([[bad]], games)
             with self.subTest(bad=bad), self.assertRaises(Exception) as ctx:
                 cg.load(g, scrolling=True)
@@ -288,7 +287,6 @@ class GameSide(unittest.TestCase):
 
         self.run_graph("vv4", g, setup, people=people)
         self.assertEqual(sick, [[1, 0, 1], [0, 0, 0]], "the nursing mother is never made sick; cure clears all")
-
     def test_a_group_behaviour_starts_its_age_group(self):
         for game in ("vv3", "vv4", "vv5"):
             if not have_stock(game):
@@ -358,49 +356,32 @@ class GameSide(unittest.TestCase):
                 self.assertIn("Weather: rain", filed)
 
     def test_the_next_island_event_moves(self):
-        timers = {"vv1": ("world", 0xA300), "vv2": ("world", 0x2EAE0), "vv4": ("w4", 0x170E0)}
-        for game, (kind, off) in timers.items():
+        """Sooner is the Gong of Wonder's luck (VV2 0x44ECE1: now + 60 s); later adds hours but never past now + the
+        game's longest gap (23 / 19 / 15 / 15 / 15 h); neither ever goes before now."""
+        timers = {"vv1": ("world", 0xA300, 23), "vv2": ("world", 0x2EAE0, 19), "vv3": ("w3", 0x12EF4, 15),
+                  "vv4": ("w4", 0x170E0, 15), "vv5": ("w5", 0x17D3C, 15)}
+        for game, (kind, off, longest) in timers.items():
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 g = pages([[{"do": "village", "what": "event_timer", "min": -3, "max": -3}],
-                           [{"do": "village", "what": "event_timer", "min": 5, "max": 5}]], [int(game[2])])
+                           [{"do": "village", "what": "event_timer", "min": 5, "max": 5}],
+                           [{"do": "village", "what": "event_timer", "min": 72, "max": 72}],
+                           [{"do": "village", "what": "event_timer", "min": -1, "max": -1}]], [int(game[2])])
                 seen = []
 
-                def setup(r, kind=kind, off=off):
-                    at = (r.story.village.world if kind == "world" else r.p.u32(0x4CB51C)) + off
+                def setup(r, kind=kind, off=off, game=game):
+                    if game in CLOCK:
+                        r.record(CLOCK[game], 0)               # the game's clock: now = 0
+                    base = {"world": lambda: r.story.village.world, "w3": lambda: r.world3,
+                            "w4": lambda: r.p.u32(0x4CB51C), "w5": lambda: r.p.u32(0x4DACE0)}[kind]()
+                    at = base + off
                     r.p.put32(at, 0xF0000000)
                     r.watch = lambda: seen.append(r.p.u32(at))  # noqa: E731
 
                 self.run_graph(game, g, setup)
-                self.assertEqual(seen, [0xF0000000 - 3 * 3600, 0xF0000000 + 2 * 3600])
-
-    def test_a_construction_stops_one_short(self):
-        if have_stock("vv1"):
-            g = pages([[{"do": "village", "what": "construction", "min": 50, "max": 50}],
-                       [{"do": "village", "what": "construction", "min": 500, "max": 500}]], [1])
-            seen = []
-
-            def setup1(r):
-                w = r.story.village.world
-                r.p.put32(w + 0x9FE4, 100)
-                r.p.put32(w + 0x9FE8, 0)
-                r.watch = lambda: seen.append(r.p.u32(w + 0x9FE4))  # noqa: E731
-
-            self.run_graph("vv1", g, setup1)
-            self.assertEqual(seen, [150, 249], "hut 1's 250 is left to the builder's next trip")
-        if have_stock("vv4"):
-            g = pages([[{"do": "village", "what": "construction", "min": 50, "max": 50}]], [4])
-            seen4 = []
-
-            def setup4(r):
-                r.p.put32(0x4D8BF8 + 8 * 19, 1990)
-                r.p.put32(0x4D8B20 + 4 * 19, 2000)
-                r.watch = lambda: seen4.append(r.p.u32(0x4D8BF8 + 8 * 19))  # noqa: E731
-
-            self.run_graph("vv4", g, setup4)
-            self.assertEqual(seen4, [1999])
-
+                now = seen[0] - 60
+                self.assertEqual(seen, [now + 60, now + 60 + 5 * 3600, now + longest * 3600, now + 60])
 
 # Section 36: the work rush's starters (VV1/VV2: the action routine, its argument count; VV3-VV5: the action ids)
 WORK_RUSH = {"vv1": ((0x441E10, 4), (0x439D80, 8)), "vv2": ((0x456F70, 4), (0x44A1E0, 8)),
@@ -408,8 +389,9 @@ WORK_RUSH = {"vv1": ((0x441E10, 4), (0x439D80, 8)), "vv2": ((0x456F70, 4), (0x44
 TEMP_SETTERS = {"vv3": ((0x4583A0, 20),), "vv4": ((0x437EC0, 8), (0x438CA0, 8), (0x460A90, 20))}
 # The job ticked on the Details screen (story_graph_village.inc cg_job_ticked): its field, and (Adam, Bea, Cal)'s
 # values: Farming, none, Research.
-JOB_TICKED = {"vv1": (0x3D0, (1, 0, 3)), "vv2": (0x7F8, (1, 0, 4)), "vv3": (0xEC0, (0, -1, 3)),
-              "vv4": (0x1C70, (0, -1, 3)), "vv5": (0x1C74, (0, -1, 3))}
+JOB_TICKED = {"vv1": (0x3D0, (1, 0, 3, 0)), "vv2": (0x7F8, (1, 0, 4, 0)), "vv3": (0xEC0, (0, -1, 3, -1)),
+              "vv4": (0x1C70, (0, -1, 3, -1)), "vv5": (0x1C74, (0, -1, 3, -1))}
+STORY3 = 0x5F                      # The Secret City's "Telling a story (Parenting practice)"
 SPAWNER = {"vv3": (0x42D940, 0x58F428, 12), "vv4": (0x413EE0, 0x4CC838, 12), "vv5": (0x4141E0, 0x4DBFC8, 28)}
 
 
@@ -424,31 +406,31 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
 
     def test_patcher_side(self):
         fx = [{"do": "group", "kind": "work", "skill": "Farming", "who": "all"},
-              {"do": "group", "kind": "effect", "effect": "hiccups", "who": "subject"},
-              {"do": "village", "what": "spawn"},
               {"do": "supply", "item": "yellow_fruit", "min": -50, "max": -50}]
         g = pages([fx], [3, 4])
         g["nodes"]["p0"]["children"] = []
         self.assertEqual(cg.decompile_graph(compiled(g))["nodes"]["p0"]["effects"], fx)
         for games, bad, why in (([4], {"do": "group", "kind": "work", "skill": "Farming", "who": "subject"}, "whole"),
                                 ([4], {"do": "group", "kind": "work", "skill": "Juggling"}, "skill"),
-                                ([3], {"do": "group", "kind": "effect", "effect": "glow"}, "game 4"),
-                                ([4], {"do": "group", "kind": "effect", "effect": "flying"}, "effect is one of"),
+                                ([3], {"do": "group", "kind": "effect", "effect": "hiccups"}, "words only"),
+                                ([4], {"do": "group", "kind": "effect", "effect": "clean"}, "words only"),
+                                ([4], {"do": "group", "kind": "effect", "effect": "gunk"}, "words only"),
+                                ([4], {"do": "group", "kind": "effect", "effect": "stew_wait"}, "words only"),
                                 ([3], {"do": "supply", "item": "yellow_fruit", "min": 1, "max": 1}, "no game")):
             with self.subTest(bad=bad), self.assertRaises(Exception) as ctx:
                 cg.load(pages([[bad]], games), scrolling=True)
             self.assertIn(why, str(ctx.exception))
-        # clean and glow together are allowed (the owner, 2026-11-18): one event may give both
-        both = pages([[{"do": "group", "kind": "effect", "effect": "clean", "who": "subject"}],
-                      [{"do": "group", "kind": "effect", "effect": "glow", "who": "subject"}]], [4])
-        self.assertTrue(compiled(both))
+        # no event ever sets the glow (the owner, 2026-11-18: meditation is words only), so never clean and glow
+        with self.assertRaises(Exception) as ctx:
+            cg.load(pages([[{"do": "group", "kind": "effect", "effect": "glow", "who": "subject"}]], [4]), scrolling=True)
+        self.assertIn("words only", str(ctx.exception))
 
     def test_work_rush_only_the_skills_workers_work(self):
-        """The owner's rule: the job ticked for the skill (the Details screen's preference), or listed as its Master,
-        works; everyone else rests.  Cal's best skill is Farming (50) but it is neither ticked nor a Master: Cal
-        rests (a best-skill rule would have sent Cal to work)."""
+        """The owner's rule: the rushed job ticked (Adam) works; no job ticked and the rushed skill the highest (Bea)
+        works; another job ticked (Cal: Research), even with Farming the highest, rests; no job ticked and no skill
+        at all (Dan) rests; the child (Kai) is left as is."""
         people = [(0, "m", 30, "Adam", 10, False), (1, "f", 31, "Bea", 90, False), (2, "m", 40, "Cal", 50, False),
-                  (3, "m", 8, "Kai", 0, False)]
+                  (3, "f", 35, "Dan", 0, False), (4, "m", 8, "Kai", 0, False)]
         for game, (work, rest) in WORK_RUSH.items():
             if not have_stock(game):
                 continue
@@ -457,7 +439,7 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
                 off, ticked = JOB_TICKED[game]
 
                 def setup(r, game=game, work=work, rest=rest, off=off, ticked=ticked):
-                    for i, value in enumerate(ticked):   # Adam: Farming ticked; Bea: none; Cal: Research ticked
+                    for i, value in enumerate(ticked):
                         r.p.put32(r.v.record(i) + off, value & 0xFFFFFFFF)
                     if game in DO_ACTION:
                         r.record(DO_ACTION[game], 8)
@@ -468,66 +450,39 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
                 r, _ = self.side.run_graph(game, g, setup, people=people)
                 if game in DO_ACTION:
                     started = sorted(c[1] for c in r.recorded.get(DO_ACTION[game], []))
-                    self.assertEqual(started, sorted([work, work, rest]), "Adam (ticked) and Bea (Master) work, Cal "
-                                                                          "rests, the child is left as is")
+                    self.assertEqual(started, sorted([work, work, rest, rest]), "Adam and Bea work; Cal and Dan rest")
                 else:
                     self.assertEqual([c[1] for c in r.recorded.get(work[0], [])], [0, 1], "Adam and Bea work")
-                    self.assertEqual([c[1] for c in r.recorded.get(rest[0], [])], [2], "Cal rests; Kai is a child")
+                    self.assertEqual([c[1] for c in r.recorded.get(rest[0], [])], [2, 3], "Cal and Dan rest")
 
-    def test_spawn_fills_the_free_slots_by_the_games_own_spawner(self):
-        for game, (va, this, pop) in SPAWNER.items():
+    def test_a_parenting_rush_is_storytelling_or_nothing(self):
+        """Birth Control (the owner): a Parenting rush never sends anyone to embrace -- only the game's storytelling
+        (The Lost Children, The Secret City); where a game has none, the rush does nothing at all."""
+        people = [(0, "m", 30, "Adam", 10, False), (1, "f", 31, "Bea", 10, False)]
+        for game in ("vv1", "vv3", "vv4", "vv5"):
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
-                g = pages([[{"do": "village", "what": "spawn"}]], [int(game[2])])
-                r, _ = self.side.run_graph(game, g, lambda r, va=va, pop=pop: r.record(va, pop))
-                calls = r.recorded.get(va, [])
-                want = [this, 0xFFFFFFFF, 0, 0] + ([1, 1, 1, 1] if game == "vv5" else [])
-                self.assertEqual(calls, [want, want], "two tries: the game fills what it has free")
-        if have_stock("vv2"):
-            g = pages([[{"do": "village", "what": "spawn"}]], [2])
+                g = pages([[{"do": "group", "kind": "work", "skill": "Parenting"}]], [int(game[2])])
+                off, ticked = JOB_TICKED[game]
+                parenting = {"vv1": 2, "vv3": 1, "vv4": 1, "vv5": 1}[game]
 
-            def setup2(r):
-                pool = r.p.u32(0x499F24)
-                spawner = r.p.alloc(0x40)
-                r.p.put32(pool + 0xE574F4, spawner)
-                r.record(0x4152D0, 0)                     # nothing lies on the map (returns 0)
-                r.record(0x415490, 4)
+                def setup(r, game=game, off=off, parenting=parenting):
+                    for i in range(2):
+                        r.p.put32(r.v.record(i) + off, parenting)
+                    if game in DO_ACTION:
+                        r.record(DO_ACTION[game], 8)
+                    else:
+                        for va, pop in WORK_RUSH[game]:
+                            r.record(va, pop)
 
-            r, _ = self.side.run_graph("vv2", g, setup2)
-            self.assertEqual(len(r.recorded.get(0x415490, [])), 1)
-            self.assertEqual(r.recorded[0x415490][0][1], 0)
-
-    def test_temporary_effects_by_each_games_setter(self):
-        cases = {"vv3": ([("hiccups", None)], {0x4583A0: (20, [0x582610, 18, 0, 0, 0])}),
-                 "vv4": ([("clean", None), ("gunk", None), ("stew_wait", None)],
-                         {0x437EC0: (8, None), 0x438CA0: (8, None), 0x460A90: (20, [0x4D6F50, 8, 0, 0, 0])})}
-        for game, (effects, setters) in cases.items():
-            if not have_stock(game):
-                continue
-            with self.subTest(game=game):
-                g = pages([[{"do": "group", "kind": "effect", "effect": name, "who": "subject"}]
-                           for name, _ in effects], [int(game[2])])
-
-                def setup(r, setters=setters):
-                    for va, (pop, _args) in setters.items():
-                        r.record(va, pop)
-
-                r, _ = self.side.run_graph(game, g, setup)
-                for va, (_pop, args) in setters.items():
-                    calls = r.recorded.get(va, [])
-                    self.assertTrue(calls, hex(va))
-                    if args is not None:
-                        self.assertEqual(calls[0][1:], args)
-                if game == "vv4":
-                    self.assertEqual([c[1:] for c in r.recorded[0x437EC0]][0][1], 1, "clean first: the bath's mode 1")
-                    self.assertEqual(r.recorded[0x437EC0][0][0], 0x4D8B18)
-                    self.assertEqual(r.recorded[0x438CA0][0][0], 0x4D8CCC)
-                    # glow on its own event (never with clean): the meditation's mode 0
-                    g2 = pages([[{"do": "group", "kind": "effect", "effect": "glow", "who": "subject"}]], [4])
-                    r2, _ = self.side.run_graph(game, g2, lambda r: r.record(0x437EC0, 8))
-                    self.assertEqual(r2.recorded[0x437EC0][0][2], 0)
-
+                r, _ = self.side.run_graph(game, g, setup, people=people)
+                if game == "vv3":
+                    self.assertEqual(sorted(c[1] for c in r.recorded.get(DO_ACTION[game], [])), [STORY3, STORY3])
+                elif game in DO_ACTION:
+                    self.assertEqual(r.recorded.get(DO_ACTION[game], []), [], "no storytelling: nothing at all")
+                else:
+                    self.assertFalse(any(r.recorded.get(va) for va, _pop in WORK_RUSH[game]))
     def test_yellow_fruit_through_the_fruit_supply_companion(self):
         if not have_stock("vv4"):
             self.skipTest("no stock The Tree of Life")

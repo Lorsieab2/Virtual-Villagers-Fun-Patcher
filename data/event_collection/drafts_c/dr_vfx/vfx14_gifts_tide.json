@@ -26,12 +26,6 @@
     "src": "L165",
     "kind": "note",
     "why": "the casting line, carried out as the roles' ages (picks an adult)"
-   },
-   {
-    "src": "L170",
-    "kind": "instruction",
-    "text": "[effect: the island scatters new things to find]",
-    "why": "the draft's effect, never shown: the outcome's effect"
    }
   ],
   "description": "The sea leaves treasures on the shore: send everyone looking, or leave them for later.",
@@ -72,14 +66,7 @@
   "o1": {
    "name": "Outcome A",
    "text": "The whole village fans out along the shore. Here and there, something new is waiting to be found.",
-   "src": "L170",
-   "effects": [
-    {
-     "do": "village",
-     "what": "spawn",
-     "src": "L170"
-    }
-   ]
+   "src": "L170"
   },
   "o2": {
    "name": "Outcome B",

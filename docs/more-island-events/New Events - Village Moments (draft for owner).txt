@@ -71,7 +71,7 @@ VFX-06. The Spare Sail (VV4 only)
 The roof of the hut the builders are working on has a hole in it, and the rainy season is coming. (name1) suggests stretching a bolt of cloth over the frame, the way the sailmakers do, so the builders can keep working dry. (name2) says cloth is too precious to put on a roof.
 
 Use the Cloth:
-They stretch the cloth tight over the frame and lash it down at the corners. The builders work through two storms underneath it without losing a day. [effect: the village loses 1 cloth bolt; a hut being built gains 150 points]
+They stretch the cloth tight over the frame and lash it down at the corners. The builders work through two storms underneath it without losing a day. [effect: the village loses 1 cloth bolt]
 
 Use Leaves:
 They thatch the hole with leaves instead. It leaks a little, and the builders grumble, but the cloth stays in the store for something else.
@@ -83,7 +83,7 @@ VFX-07. The Builders' Push
 The new hut is so close to finished that you can almost see it standing. (name1) wants to rally the whole village to help finish it before the season turns.
 
 Everyone Helps:
-Everyone who can carry a pole or tie a knot turns up. By evening the hut is almost done, and everyone is too tired to do anything but sit and admire it. [effect: a hut being built gains 200 points]
+Everyone who can carry a pole or tie a knot turns up. By evening the hut is almost done, and everyone is too tired to do anything but sit and admire it.
 
 Let the Builders Work:
 (name1) decides the builders know what they are doing and leaves them to it. The hut goes up at its own steady pace.
@@ -167,7 +167,7 @@ VFX-14. Gifts on the Tide
 After a night of strange, glittering waves, (name1) walks the shore at dawn and sees that the sea has left things lying everywhere: shells, odd stones, and small treasures half buried in the sand.
 
 Send Everyone Looking:
-The whole village fans out along the shore. Here and there, something new is waiting to be found. [effect: the island scatters new things to find]
+The whole village fans out along the shore. Here and there, something new is waiting to be found.
 
 Leave Them for Later:
 (name1) decides the treasures will keep. By the time anyone goes looking, the tide has taken most of them back.
@@ -179,7 +179,7 @@ VFX-15. The Fizzing Potion (VV3 only)
 Someone left a pot of half-finished potion by the alchemy table, and it is fizzing in a way nobody likes the look of. (name1) is curious enough to want a taste.
 
 Take a Sip:
-(name1) takes a sip. For the rest of the morning, every few words come out with a hiccup, and the children follow (him/her) around just to hear it. [effect: (name1) gets the hiccups]
+(name1) takes a sip. For the rest of the morning, every few words come out with a hiccup, and the children follow (him/her) around just to hear it.
 
 Pour It Away:
 (name1) pours it into the bushes. The bushes fizz quietly for an hour and then seem perfectly happy.
@@ -191,16 +191,16 @@ VFX-16. Clean as the Tree (VV4 only)
 (name1) has spent the whole day hauling sap and is covered in it from head to toe. The soapy pond is right there, and so is the shade of the great tree.
 
 Wash in the Soapy Pond:
-(name1) wades into the soapy pond and comes out sparkling clean, smelling faintly of flowers. [effect: (name1) is made clean]
+(name1) wades into the soapy pond and comes out sparkling clean, smelling faintly of flowers.
 
 Sit Quietly Under the Tree:
-(name1) sits under the great tree, sticky and still, and lets the quiet settle over (him/her). [effect: (name1) is covered in gunk]
+(name1) sits under the great tree, sticky and still, and lets the quiet settle over (him/her).
 
 ==========================================================================
 NOTES FOR THE OWNER
 - Songs, chants and speeches: the villagers really take part through each game's closest real action (a celebration, a dance, the Chief's Address in The Secret City, praising and honoring in New Believers). The song itself is the event's words.
 - Weather (VFX-03, VFX-10): really changes in The Secret City, The Tree of Life and New Believers. A New Home and The Lost Children have no weather, so there the words are story only. The Secret City has no sunshine weather.
 - VFX-06 uses real cloth in The Tree of Life (offered only when there is a bolt to spare); elsewhere cloth is words only.
-- VFX-07 and VFX-06 speed a hut only while one is being built, and never finish it: the builders' next trip does that, the game's own way.
-- VFX-08: a tech level never goes above 3. VFX-11: the sickness never reaches a nursing parent, the Golden Child or anyone the game protects.
-- VFX-13: only the farming workers (Farming ticked as their job, or Master farmers) really work; every other adult is kept busy with no skill (The Secret City: "Working 'til he/she drops!"; elsewhere they sit and rest); children are left as they are. VFX-14: the game's own spawner fills its free spots (one or two things at a time; not in A New Home). VFX-15 and VFX-16: the game's own potion and Tree of Life effects, for their usual few minutes.
+- VFX-06 uses a real bolt of cloth; the building itself and VFX-07's hut are words only; VFX-11's fever is real, and never reaches a nursing parent, the Golden Child or anyone the game protects (the owner's final list, 2026-11-18).
+- VFX-08: a tech level never goes above 3.
+- VFX-13: only the farming workers (Farming ticked as their job, or, with no job ticked, Farming as their best skill) really work; every other adult is kept busy with no skill (The Secret City: "Working 'til he/she drops!"; elsewhere they sit and rest); children are left as they are. VFX-14, VFX-15 and VFX-16 are words only (the owner, 2026-11-18: new things to find, potions, baths and gunk never change the game).

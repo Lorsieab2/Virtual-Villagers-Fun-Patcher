@@ -26,12 +26,6 @@
     "src": "L81",
     "kind": "note",
     "why": "the casting line, carried out as the roles' ages (picks an adult)"
-   },
-   {
-    "src": "L86",
-    "kind": "instruction",
-    "text": "[effect: a hut being built gains 200 points]",
-    "why": "the draft's effect, never shown: the outcome's effect"
    }
   ],
   "description": "The new hut is nearly done: everyone helps, or the builders work at their own pace.",
@@ -72,16 +66,7 @@
   "o1": {
    "name": "Outcome A",
    "text": "Everyone who can carry a pole or tie a knot turns up. By evening the hut is almost done, and everyone is too tired to do anything but sit and admire it.",
-   "src": "L86",
-   "effects": [
-    {
-     "do": "village",
-     "what": "construction",
-     "min": 200,
-     "max": 200,
-     "src": "L86"
-    }
-   ]
+   "src": "L86"
   },
   "o2": {
    "name": "Outcome B",

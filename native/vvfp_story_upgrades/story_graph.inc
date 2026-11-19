@@ -176,7 +176,7 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 32: The Tree of Life's cutting tools, soap and cloth bolts */
        CGE_SUPPLY = 25,
        /* cie-v6-binary.md 33-35: a trade, a group behaviour, the village */
-       CGE_TRADE = 26, CGE_GROUP = 27, CGE_VILLAGE = 28 };
+       CGE_TRADE = 41, CGE_GROUP = 42, CGE_VILLAGE = 43 };   /* the merge plan's numbers */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -192,11 +192,11 @@ enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, 
        /* cie-v6-binary.md 8: a bound villager's facts, and a pool instance's draw */
        CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16,
        CGC_HAS_DEAD_RELATIVE = 17,    /* cie-v6-binary.md 21a */
-CGC_HAS_SUPPLY = 18 };         /* cie-v6-binary.md 33: a = the good's word, the next H = at least */
+CGC_HAS_SUPPLY = 19 };         /* cie-v6-binary.md 33: a = the good's word, the next H = at least */
 /* story_graph_village.inc (cie-v6-binary.md 33-35), used by the loader and the walk before it is included. */
 static int cg_good_word(const char *word);
 static int cg_has_good(int game, const char *word, int n);
-static int cg_group_ok(const char *kind, int whole_village);
+static int cg_group_kind_ok(const char *kind, int whole_village);
 static int cg_village_ok(const char *s, int a, int b);
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
        CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
@@ -1132,7 +1132,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 break;
             case CGE_GROUP:
                 /* 34: the kind's word; a = the share made sick (1..100, "sick" only), else 0. */
-                ok = str != CG_NONE && cg_str_ok(g, str, 0) && cg_group_ok(cg_s(g, str), e[1] == CG_ROLE_ALIAS_ALL)
+                ok = str != CG_NONE && cg_str_ok(g, str, 0) && cg_group_kind_ok(cg_s(g, str), e[1] == CG_ROLE_ALIAS_ALL)
                      && b == 0 && (lstrcmpA(cg_s(g, str), "sick") == 0 ? a >= 1 && a <= 100 : a == 0);
                 break;
             case CGE_VILLAGE:

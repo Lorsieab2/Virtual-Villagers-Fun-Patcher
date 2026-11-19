@@ -385,7 +385,7 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
                      "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
                      "deliver_early": 24,  # 30
                      "supply": 25,         # 32, 33: The Tree of Life's supplies, every game's goods
-                     "trade": 26, "group": 27, "village": 28})   # 33-35
+                     "trade": 41, "group": 42, "village": 43})   # the merge plan's numbers   # 33-35
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
@@ -413,16 +413,16 @@ GROUP_KINDS = ("relax", "swim", "dance", "pray", "celebrate", "pond", "play", "s
 GROUP_WHOLE_ONLY = ("sick", "cure", "work")    # the whole village's only
 # Section 36: a work rush's skill; the temporary effects (story_graph_village.inc CG_TEMPS) -> the game of each.
 WORK_SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting", "Devotion")
-TEMP_EFFECTS = {"smarter": 3, "inspired": 3, "healing": 3, "bouncy": 3, "hiccups": 3, "swift": 3,
-                "stinky_breath": 3, "soapy_taste": 3, "nonsense_talk": 3,
-                "clean": 4, "glow": 4, "gunk": 4, "stew_wait": 4}
+TEMP_EFFECTS: dict[str, int] = {}   # the owner, 2026-11-18: no vanilla event makes any of these: words only
+TEMP_WORDS_ONLY = ("smarter", "inspired", "healing", "bouncy", "hiccups", "swift", "stinky_breath", "soapy_taste",
+                   "nonsense_talk", "clean", "glow", "gunk", "stew_wait")
 TECH_AREAS = {1: ("Spirituality", "Science", "Construction", "Medicine", "Fertility", "Farming"),
               2: ("Culture", "Science", "Engineering", "Medicine", "Exploration", "Farming"),
               3: ("Science", "Medicine", "Alchemy", "Restoration", "Leadership", "Nature", "Magic"),
               4: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Dendrology"),
               5: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Spirituality")}
 WEATHER = {"clear": (3, 4, 5), "sun": (4, 5), "rain": (3, 4, 5), "storm": (3, 4, 5), "fog": (3, 4, 5)}
-VILLAGE_WHAT = ("event_timer", "tech_level", "construction", "weather", "spawn")
+VILLAGE_WHAT = ("event_timer", "tech_level", "weather")   # the owner's final list: construction and the spawn burst are words only
 EVENT_TIMER_HOURS = 72
 CONSTRUCTION_MAX = 2000
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
@@ -447,7 +447,7 @@ V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "ag
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
                    "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
                    "has_dead_relative": 17,    # 21a (gap C3)
-                   "has_supply": 18})          # 33: the village has at least n of a good to give
+                   "has_supply": 19})          # 33: the village has at least n of a good to give
 ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative")   # run-time facts of a bound role
 
 
@@ -966,7 +966,10 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             # 36: a temporary effect through the game's own setter
             known.add("effect")
             eff = e.get("effect")
-            if eff not in TEMP_EFFECTS:
+            if eff in TEMP_WORDS_ONLY:
+                problems.append(f"{where}: {eff} is never an event's effect: words only (potions, baths, gunk and "
+                                "meditation are near puzzles)")
+            elif eff not in TEMP_EFFECTS:
                 problems.append(f"{where}: group effect is one of {', '.join(TEMP_EFFECTS)}")
             elif games is not None and TEMP_EFFECTS[eff] not in games:
                 problems.append(f"{where}: {eff} is a game {TEMP_EFFECTS[eff]} effect: the event must list it")

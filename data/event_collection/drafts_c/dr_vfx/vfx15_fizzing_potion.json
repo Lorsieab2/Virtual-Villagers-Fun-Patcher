@@ -27,16 +27,13 @@
     "src": "L176",
     "kind": "note",
     "why": "the heading's \"(VV3 only)\": the event is The Secret City only"
-   },
-   {
-    "src": "L182",
-    "kind": "instruction",
-    "text": "[effect: (name1) gets the hiccups]",
-    "why": "the draft's effect, never shown: the outcome's effect"
    }
   ],
   "description": "A fizzing potion by the alchemy table: take a sip, or pour it away.",
-  "label_case": "title"
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
  },
  "requirement": {
   "min_eligible": 1
@@ -70,16 +67,7 @@
   "o1": {
    "name": "Outcome A",
    "text": "(name1) takes a sip. For the rest of the morning, every few words come out with a hiccup, and the children follow (him/her) around just to hear it.",
-   "src": "L182",
-   "effects": [
-    {
-     "do": "group",
-     "kind": "effect",
-     "effect": "hiccups",
-     "who": "subject",
-     "src": "L182"
-    }
-   ]
+   "src": "L182"
   },
   "o2": {
    "name": "Outcome B",

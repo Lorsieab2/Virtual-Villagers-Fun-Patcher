@@ -200,9 +200,7 @@ def _techs() -> list[Entry]:
                                 "refused for want of Dendrology; the tree still refuses.", VERIFIED_C),     # 0x437B12
         _level("Dendrology", 3, "The tree can be purified (Purify Tree), by a villager the game counts pure of body; "
                                 "any other dropped there gets \"Only those pure of body can purify the tree.\" "
-                                "Below level 3 the game says \"Your tribe must master dendrology to cure the tree.\" "
-                                "An island event that leaves a villager clean and glowing (the soapy pond's and the "
-                                "meditation's marks, 4 minutes) makes that villager pure of body for it too.",
+                                "Below level 3 the game says \"Your tribe must master dendrology to cure the tree.\"",
                VERIFIED_C),
     ]
 
